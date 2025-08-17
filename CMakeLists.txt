@@ -40,6 +40,7 @@ set(NPPI_ARITHMETIC_SOURCES
     src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
     src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
     src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+    src/nppi/nppi_arithmetic_operations/nppi_addc_reference.cpp
 )
 
 set(TEST_SOURCES
@@ -130,6 +131,19 @@ target_compile_options(test_simple_divc PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo>
 )
 
+# Validation tests
+add_executable(test_nppcore_validation test/validation/test_nppcore_validation.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+target_link_libraries(test_nppcore_validation PRIVATE CUDA::cudart)
+target_compile_features(test_nppcore_validation PRIVATE cxx_std_17)
+
+add_executable(test_nppi_support_validation test/validation/test_nppi_support_validation.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+target_link_libraries(test_nppi_support_validation PRIVATE CUDA::cudart)
+target_compile_features(test_nppi_support_validation PRIVATE cxx_std_17)
+
+add_executable(test_nppi_arithmetic_simple test/validation/test_nppi_arithmetic_simple.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+target_link_libraries(test_nppi_arithmetic_simple PRIVATE CUDA::cudart)
+target_compile_features(test_nppi_arithmetic_simple PRIVATE cxx_std_17)
+
 
 
 target_link_libraries(npp_test_runner PRIVATE open_npp)
@@ -149,9 +163,47 @@ if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE)
     )
     target_compile_definitions(npp_test_runner PRIVATE HAVE_NVIDIA_NPP=1)
     
+    # Link NPP libraries to validation tests
+    target_link_libraries(test_nppcore_validation PRIVATE 
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_nppcore_validation PRIVATE HAVE_NVIDIA_NPP=1)
+    
+    target_link_libraries(test_nppi_support_validation PRIVATE 
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_nppi_support_validation PRIVATE HAVE_NVIDIA_NPP=1)
+    
+    target_link_libraries(test_nppi_arithmetic_simple PRIVATE 
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_nppi_arithmetic_simple PRIVATE HAVE_NVIDIA_NPP=1)
+
+    # Simple validation test
+    add_executable(test_simple_validation test/test_simple_validation.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_simple_validation PRIVATE 
+        CUDA::cudart
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_simple_validation PRIVATE HAVE_NVIDIA_NPP=1)
+    target_compile_features(test_simple_validation PRIVATE cxx_std_17)
+    
 else()
     message(WARNING "NVIDIA NPP library not found - validation tests will skip NVIDIA comparison")
     target_compile_definitions(npp_test_runner PRIVATE HAVE_NVIDIA_NPP=0)
+    target_compile_definitions(test_nppcore_validation PRIVATE HAVE_NVIDIA_NPP=0)
+    target_compile_definitions(test_nppi_support_validation PRIVATE HAVE_NVIDIA_NPP=0)
+    target_compile_definitions(test_nppi_arithmetic_simple PRIVATE HAVE_NVIDIA_NPP=0)
+    
+    # Simple validation test without NVIDIA NPP
+    add_executable(test_simple_validation test/test_simple_validation.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_simple_validation PRIVATE CUDA::cudart)
+    target_compile_definitions(test_simple_validation PRIVATE HAVE_NVIDIA_NPP=0)
+    target_compile_features(test_simple_validation PRIVATE cxx_std_17)
 endif()
 
 # Compiler-specific options
