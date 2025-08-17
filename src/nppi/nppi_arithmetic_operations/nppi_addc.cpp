@@ -24,6 +24,10 @@ NppStatus nppiAddC_16s_C1RSfs_Ctx_cuda(const Npp16s* pSrc1, int nSrc1Step, const
 NppStatus nppiAddC_32f_C1R_Ctx_cuda(const Npp32f* pSrc1, int nSrc1Step, const Npp32f nConstant,
                                     Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx);
+
+NppStatus nppiAddC_8u_C3RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const Npp8u aConstants[3],
+                                      Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx);
 }
 
 /**
@@ -115,18 +119,30 @@ NppStatus nppiAddC_8u_C3RSfs_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u
                                  Npp8u * pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor, 
                                  NppStreamContext nppStreamCtx)
 {
-    // Validate parameters
-    NppStatus status = validateParameters(pSrc1, nSrc1Step * 3, pDst, nDstStep * 3, oSizeROI, nScaleFactor);
-    if (status != NPP_NO_ERROR) {
-        return status;
+    // Validate parameters - for 3-channel, each pixel is 3 bytes
+    if (!pSrc1 || !pDst) {
+        return NPP_NULL_POINTER_ERROR;
+    }
+    
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+        return NPP_SIZE_ERROR;
+    }
+    
+    if (nSrc1Step < oSizeROI.width * 3 || nDstStep < oSizeROI.width * 3) {
+        return NPP_STRIDE_ERROR;
+    }
+    
+    if (nScaleFactor < 0 || nScaleFactor > 31) {
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     
     if (!aConstants) {
         return NPP_NULL_POINTER_ERROR;
     }
     
-    // TODO: Implement CUDA kernel for C3 variant
-    return NPP_NOT_SUPPORTED_MODE_ERROR;
+    // Call CUDA implementation
+    return nppiAddC_8u_C3RSfs_Ctx_cuda(pSrc1, nSrc1Step, aConstants, pDst, nDstStep, 
+                                       oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 /**

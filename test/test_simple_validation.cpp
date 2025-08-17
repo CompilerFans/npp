@@ -137,6 +137,134 @@ bool testAddC_8u_simple() {
     return testPassed;
 }
 
+bool testAddC_16u_simple() {
+    std::cout << "Testing nppiAddC_16u_C1RSfs..." << std::endl;
+    
+    const int width = 32;
+    const int height = 32;
+    const int dataSize = width * height;
+    
+    std::vector<Npp16u> srcHost(dataSize, 1000);
+    std::vector<Npp16u> dstHost(dataSize, 0);
+    
+    Npp16u *srcDev = nullptr, *dstDev = nullptr;
+    size_t srcPitch, dstPitch;
+    
+    cudaError_t cudaResult = cudaMallocPitch((void**)&srcDev, &srcPitch, width * sizeof(Npp16u), height);
+    if (cudaResult != cudaSuccess) return false;
+    
+    cudaResult = cudaMallocPitch((void**)&dstDev, &dstPitch, width * sizeof(Npp16u), height);
+    if (cudaResult != cudaSuccess) {
+        cudaFree(srcDev);
+        return false;
+    }
+    
+    cudaResult = cudaMemcpy2D(srcDev, srcPitch, srcHost.data(), width * sizeof(Npp16u),
+                             width * sizeof(Npp16u), height, cudaMemcpyHostToDevice);
+    if (cudaResult != cudaSuccess) {
+        cudaFree(srcDev);
+        cudaFree(dstDev);
+        return false;
+    }
+    
+    NppiSize roiSize = {width, height};
+    NppStatus status = nppiAddC_16u_C1RSfs(srcDev, (int)srcPitch, 500, dstDev, (int)dstPitch, roiSize, 2);
+    
+    bool testPassed = false;
+    if (status == NPP_NO_ERROR) {
+        cudaResult = cudaMemcpy2D(dstHost.data(), width * sizeof(Npp16u), dstDev, dstPitch,
+                                 width * sizeof(Npp16u), height, cudaMemcpyDeviceToHost);
+        
+        if (cudaResult == cudaSuccess) {
+            // Expected: (1000 + 500) >> 2 = 375
+            Npp16u expected = (1000 + 500) >> 2;
+            testPassed = true;
+            for (int i = 0; i < dataSize && testPassed; ++i) {
+                if (dstHost[i] != expected) {
+                    std::cout << "Mismatch at index " << i << ": got " << dstHost[i] 
+                              << ", expected " << expected << std::endl;
+                    testPassed = false;
+                }
+            }
+            
+            if (testPassed) {
+                std::cout << "nppiAddC_16u_C1RSfs: PASS" << std::endl;
+            }
+        }
+    } else {
+        std::cout << "nppiAddC_16u_C1RSfs failed with status: " << status << std::endl;
+    }
+    
+    cudaFree(srcDev);
+    cudaFree(dstDev);
+    
+    return testPassed;
+}
+
+bool testAddC_16s_simple() {
+    std::cout << "Testing nppiAddC_16s_C1RSfs..." << std::endl;
+    
+    const int width = 32;
+    const int height = 32;
+    const int dataSize = width * height;
+    
+    std::vector<Npp16s> srcHost(dataSize, 1000);
+    std::vector<Npp16s> dstHost(dataSize, 0);
+    
+    Npp16s *srcDev = nullptr, *dstDev = nullptr;
+    size_t srcPitch, dstPitch;
+    
+    cudaError_t cudaResult = cudaMallocPitch((void**)&srcDev, &srcPitch, width * sizeof(Npp16s), height);
+    if (cudaResult != cudaSuccess) return false;
+    
+    cudaResult = cudaMallocPitch((void**)&dstDev, &dstPitch, width * sizeof(Npp16s), height);
+    if (cudaResult != cudaSuccess) {
+        cudaFree(srcDev);
+        return false;
+    }
+    
+    cudaResult = cudaMemcpy2D(srcDev, srcPitch, srcHost.data(), width * sizeof(Npp16s),
+                             width * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+    if (cudaResult != cudaSuccess) {
+        cudaFree(srcDev);
+        cudaFree(dstDev);
+        return false;
+    }
+    
+    NppiSize roiSize = {width, height};
+    NppStatus status = nppiAddC_16s_C1RSfs(srcDev, (int)srcPitch, -300, dstDev, (int)dstPitch, roiSize, 1);
+    
+    bool testPassed = false;
+    if (status == NPP_NO_ERROR) {
+        cudaResult = cudaMemcpy2D(dstHost.data(), width * sizeof(Npp16s), dstDev, dstPitch,
+                                 width * sizeof(Npp16s), height, cudaMemcpyDeviceToHost);
+        
+        if (cudaResult == cudaSuccess) {
+            // Expected: (1000 + (-300)) >> 1 = 350
+            Npp16s expected = (1000 + (-300)) >> 1;
+            testPassed = true;
+            for (int i = 0; i < dataSize && testPassed; ++i) {
+                if (dstHost[i] != expected) {
+                    std::cout << "Mismatch at index " << i << ": got " << dstHost[i] 
+                              << ", expected " << expected << std::endl;
+                    testPassed = false;
+                }
+            }
+            
+            if (testPassed) {
+                std::cout << "nppiAddC_16s_C1RSfs: PASS" << std::endl;
+            }
+        }
+    } else {
+        std::cout << "nppiAddC_16s_C1RSfs failed with status: " << status << std::endl;
+    }
+    
+    cudaFree(srcDev);
+    cudaFree(dstDev);
+    
+    return testPassed;
+}
+
 bool testSubC_8u_simple() {
     std::cout << "Testing nppiSubC_8u_C1RSfs..." << std::endl;
     
@@ -412,6 +540,8 @@ int main() {
     
     // Test all arithmetic operations
     allPassed &= testAddC_8u_simple();
+    allPassed &= testAddC_16u_simple();
+    allPassed &= testAddC_16s_simple();
     allPassed &= testSubC_8u_simple();
     allPassed &= testMulC_8u_simple();
     allPassed &= testDivC_8u_simple();

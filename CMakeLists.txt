@@ -192,6 +192,26 @@ if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE)
     target_compile_definitions(test_simple_validation PRIVATE HAVE_NVIDIA_NPP=1)
     target_compile_features(test_simple_validation PRIVATE cxx_std_17)
     
+    # Comprehensive arithmetic test
+    add_executable(test_comprehensive_arithmetic test/test_comprehensive_arithmetic.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_comprehensive_arithmetic PRIVATE 
+        CUDA::cudart
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_comprehensive_arithmetic PRIVATE HAVE_NVIDIA_NPP=1)
+    target_compile_features(test_comprehensive_arithmetic PRIVATE cxx_std_17)
+    
+    # Multichannel arithmetic test
+    add_executable(test_multichannel_arithmetic test/test_multichannel_arithmetic.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_multichannel_arithmetic PRIVATE 
+        CUDA::cudart
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_multichannel_arithmetic PRIVATE HAVE_NVIDIA_NPP=1)
+    target_compile_features(test_multichannel_arithmetic PRIVATE cxx_std_17)
+    
 else()
     message(WARNING "NVIDIA NPP library not found - validation tests will skip NVIDIA comparison")
     target_compile_definitions(npp_test_runner PRIVATE HAVE_NVIDIA_NPP=0)
@@ -204,6 +224,12 @@ else()
     target_link_libraries(test_simple_validation PRIVATE CUDA::cudart)
     target_compile_definitions(test_simple_validation PRIVATE HAVE_NVIDIA_NPP=0)
     target_compile_features(test_simple_validation PRIVATE cxx_std_17)
+    
+    # Comprehensive arithmetic test without NVIDIA NPP
+    add_executable(test_comprehensive_arithmetic test/test_comprehensive_arithmetic.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_comprehensive_arithmetic PRIVATE CUDA::cudart)
+    target_compile_definitions(test_comprehensive_arithmetic PRIVATE HAVE_NVIDIA_NPP=0)
+    target_compile_features(test_comprehensive_arithmetic PRIVATE cxx_std_17)
 endif()
 
 # Compiler-specific options
