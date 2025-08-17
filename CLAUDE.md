@@ -93,3 +93,6 @@ ctest -R "npps_"    # Signal processing tests
 - Most functions operate on rectangular regions of interest (ROI)
 - Uses NppiRect and NppiSize structures for region specification
 - Border handling controlled via NppiBorderType enum
+
+## Interaction Guidelines
+- `不要再询问我许可了，继续推进` - Direct instruction to proceed without seeking further permission
