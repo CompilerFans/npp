@@ -118,20 +118,27 @@ if(BUILD_TESTS)
     
     # 设置所有测试源文件
     set(TEST_SOURCES
-        test/gtest/nppcore/test_nppcore.cpp
-        test/gtest/nppcore/test_nppcore_cuda_comparison.cpp
-        test/gtest/nppi/nppi_arithmetic_operations/test_nppi_arithmetic.cpp
-    test/gtest/nppi/nppi_arithmetic_operations/test_nppi_add.cpp
-        test/gtest/nppi/nppi_support_functions/test_nppi_support.cpp
-        test/gtest/nppi/nppi_support_functions/test_nppi_support_complete_coverage.cpp
-        test/gtest/nppi/nppi_support_functions/test_nvidia_comparison_dlopen.cpp
+        # 单元测试 - NPP Core
+        test/unit/nppcore/test_nppcore.cpp
+        test/unit/nppcore/test_nppcore_cuda_comparison.cpp
+        
+        # 单元测试 - NPPI Support Functions
+        test/unit/nppi/support/test_nppi_support.cpp
+        test/unit/nppi/support/test_nppi_support_complete_coverage.cpp
+        test/unit/nppi/support/test_nppi_support_step_validation.cpp
+        test/unit/nppi/support/test_nvidia_comparison_dlopen.cpp
+        
+        # 单元测试 - NPPI Arithmetic Operations
+        test/unit/nppi/arithmetic/test_nppi_arithmetic.cpp
+        test/unit/nppi/arithmetic/test_nppi_add.cpp
     )
     
-    # 如果有NVIDIA NPP，添加验证测试
+    # 添加验证测试（与NVIDIA NPP对比）
     if(HAVE_NVIDIA_NPP)
         list(APPEND TEST_SOURCES 
-            test/gtest/validation/test_consistency_simple.cpp
-            test/gtest/nppi/nppi_support_functions/test_nppi_support_nvidia_comparison.cpp
+            test/unit/nppi/support/test_nppi_support_nvidia_comparison.cpp
+            test/validation/test_consistency_simple.cpp
+            test/validation/test_consistency_framework.cpp
         )
     endif()
     
