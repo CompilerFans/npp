@@ -124,6 +124,7 @@ if(BUILD_TESTS)
     test/gtest/nppi/nppi_arithmetic_operations/test_nppi_add.cpp
         test/gtest/nppi/nppi_support_functions/test_nppi_support.cpp
         test/gtest/nppi/nppi_support_functions/test_nppi_support_complete_coverage.cpp
+        test/gtest/nppi/nppi_support_functions/test_nvidia_comparison_dlopen.cpp
     )
     
     # 如果有NVIDIA NPP，添加验证测试
@@ -148,6 +149,7 @@ if(BUILD_TESTS)
         gtest 
         gtest_main 
         CUDA::cudart
+        dl  # 添加动态链接库支持
     )
     
     # 包含目录
@@ -155,13 +157,16 @@ if(BUILD_TESTS)
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/googletest/include
     )
     
-    # 如果有NVIDIA NPP，添加相关链接和定义
+    # 如果有NVIDIA NPP，只添加编译定义，不链接库（避免符号冲突）
     if(HAVE_NVIDIA_NPP)
-        target_link_libraries(opennpp_test PRIVATE 
-            ${NPP_LIBRARY_IAL} 
-            ${NPP_LIBRARY_CORE}
-        )
+        # 不再直接链接NVIDIA NPP库，改用dlopen动态加载
+        # 这样可以避免符号冲突，真正测试两个不同的实现
         target_compile_definitions(opennpp_test PRIVATE HAVE_NVIDIA_NPP=1)
+        # 传递NVIDIA NPP库路径供dlopen使用
+        target_compile_definitions(opennpp_test PRIVATE 
+            NVIDIA_NPP_IAL_PATH="${NPP_LIBRARY_IAL}"
+            NVIDIA_NPP_CORE_PATH="${NPP_LIBRARY_CORE}"
+        )
     endif()
     
     # 添加不同的测试过滤器
