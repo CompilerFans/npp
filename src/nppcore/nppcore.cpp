@@ -255,7 +255,12 @@ unsigned int nppGetStreamMaxThreadsPerSM(void)
 
 // nppGetStatusString - Not part of original NPP API
 // This is an internal helper for testing
+#ifdef NPP_DEBUG_BUILD
 static const char * nppGetStatusStringInternal(NppStatus eStatusCode)
+#else
+__attribute__((unused))
+static const char * nppGetStatusStringInternal(NppStatus eStatusCode)
+#endif
 {
     switch(eStatusCode) {
         case NPP_NOT_SUPPORTED_MODE_ERROR:

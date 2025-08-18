@@ -41,7 +41,7 @@ NppStatus nppiAddC_16u_C1RSfs_reference(const Npp16u* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16u) || nDstStep < oSizeROI.width * sizeof(Npp16u)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
@@ -64,7 +64,7 @@ NppStatus nppiAddC_16s_C1RSfs_reference(const Npp16s* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16s) || nDstStep < oSizeROI.width * sizeof(Npp16s)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
@@ -87,7 +87,7 @@ NppStatus nppiAddC_32f_C1R_reference(const Npp32f* pSrc, int nSrcStep, const Npp
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp32f) || nDstStep < oSizeROI.width * sizeof(Npp32f)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) return NPP_STRIDE_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
         const Npp32f* srcRow = reinterpret_cast<const Npp32f*>(
@@ -134,7 +134,7 @@ NppStatus nppiSubC_16u_C1RSfs_reference(const Npp16u* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16u) || nDstStep < oSizeROI.width * sizeof(Npp16u)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
@@ -157,7 +157,7 @@ NppStatus nppiSubC_16s_C1RSfs_reference(const Npp16s* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16s) || nDstStep < oSizeROI.width * sizeof(Npp16s)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
@@ -180,7 +180,7 @@ NppStatus nppiSubC_32f_C1R_reference(const Npp32f* pSrc, int nSrcStep, const Npp
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp32f) || nDstStep < oSizeROI.width * sizeof(Npp32f)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) return NPP_STRIDE_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
         const Npp32f* srcRow = reinterpret_cast<const Npp32f*>(
@@ -227,7 +227,7 @@ NppStatus nppiMulC_16u_C1RSfs_reference(const Npp16u* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16u) || nDstStep < oSizeROI.width * sizeof(Npp16u)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
@@ -250,7 +250,7 @@ NppStatus nppiMulC_16s_C1RSfs_reference(const Npp16s* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16s) || nDstStep < oSizeROI.width * sizeof(Npp16s)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
@@ -273,7 +273,7 @@ NppStatus nppiMulC_32f_C1R_reference(const Npp32f* pSrc, int nSrcStep, const Npp
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp32f) || nDstStep < oSizeROI.width * sizeof(Npp32f)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) return NPP_STRIDE_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {
         const Npp32f* srcRow = reinterpret_cast<const Npp32f*>(
@@ -321,7 +321,7 @@ NppStatus nppiDivC_16u_C1RSfs_reference(const Npp16u* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16u) || nDstStep < oSizeROI.width * sizeof(Npp16u)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16u))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
     if (nConstant == 0) return NPP_DIVIDE_BY_ZERO_ERROR;
 
@@ -345,7 +345,7 @@ NppStatus nppiDivC_16s_C1RSfs_reference(const Npp16s* pSrc, int nSrcStep, const 
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp16s) || nDstStep < oSizeROI.width * sizeof(Npp16s)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp16s))) return NPP_STRIDE_ERROR;
     if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
     if (nConstant == 0) return NPP_DIVIDE_BY_ZERO_ERROR;
 
@@ -369,7 +369,7 @@ NppStatus nppiDivC_32f_C1R_reference(const Npp32f* pSrc, int nSrcStep, const Npp
 {
     if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
-    if (nSrcStep < oSizeROI.width * sizeof(Npp32f) || nDstStep < oSizeROI.width * sizeof(Npp32f)) return NPP_STRIDE_ERROR;
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) return NPP_STRIDE_ERROR;
     if (std::abs(nConstant) < 1e-7f) return NPP_DIVIDE_BY_ZERO_ERROR;
 
     for (int y = 0; y < oSizeROI.height; y++) {

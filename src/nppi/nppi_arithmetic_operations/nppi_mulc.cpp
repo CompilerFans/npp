@@ -236,7 +236,7 @@ NppStatus nppiMulC_32f_C1R_Ctx(const Npp32f * pSrc1, int nSrc1Step, const Npp32f
         return NPP_SIZE_ERROR;
     }
     
-    if (nSrc1Step < oSizeROI.width * sizeof(Npp32f) || nDstStep < oSizeROI.width * sizeof(Npp32f)) {
+    if (nSrc1Step < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) {
         return NPP_STRIDE_ERROR;
     }
     
