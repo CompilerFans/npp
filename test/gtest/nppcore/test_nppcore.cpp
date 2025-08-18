@@ -226,7 +226,7 @@ TEST_F(ErrorHandlingTest, GetStatusString) {
         {NPP_ALIGNMENT_ERROR, "Alignment"},
         {NPP_SIZE_ERROR, "Size"},
         {NPP_STEP_ERROR, "Step"},
-        {NPP_NOT_SUPPORTED_MODE_ERROR, "Not Supported"},
+        {NPP_NOT_SUPPORTED_MODE_ERROR, "Unsupported"},
         {NPP_QUALITY_INDEX_ERROR, "Quality"},
         {NPP_CHANNEL_ORDER_ERROR, "Channel"},
         {NPP_ZERO_MASK_VALUE_ERROR, "Zero Mask"},

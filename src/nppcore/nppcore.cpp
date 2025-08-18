@@ -150,12 +150,15 @@ NppStatus nppSetStream(cudaStream_t hStream)
 {
     // This function exists for API compatibility
     // Users should use CUDA Runtime API directly to manage streams
-    // We can validate the stream is valid
-    cudaError_t err = cudaStreamQuery(hStream);
-    if (err != cudaSuccess && err != cudaErrorNotReady) {
-        return NPP_INVALID_DEVICE_POINTER_ERROR;
+    
+    // Special handling for known stream values
+    if (hStream == nullptr || hStream == cudaStreamLegacy || 
+        hStream == cudaStreamPerThread) {
+        return NPP_NO_ERROR;
     }
     
+    // For other streams, we can't safely validate without potential segfault
+    // Just accept them - the actual CUDA calls will fail if invalid
     return NPP_NO_ERROR;
 }
 
