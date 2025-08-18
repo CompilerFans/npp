@@ -5,6 +5,12 @@ project(OpenNPP VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 启用测试
+enable_testing()
+
+# 添加Google Test
+add_subdirectory(third_party/googletest)
+
 # 查找必需包
 find_package(CUDAToolkit REQUIRED)
 
@@ -96,52 +102,129 @@ option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)
     enable_testing()
     
-    # 核心功能测试
-    add_executable(test_nppcore 
-        test/nppcore/test_nppcore.cpp 
+    
+    # ========== Google Test 测试 - 统一测试可执行程序 ==========
+    
+    # 设置所有测试源文件
+    set(TEST_SOURCES
+        test/gtest/nppcore/test_nppcore.cpp
+        test/gtest/nppcore/test_nppcore_cuda_comparison.cpp
+        test/gtest/nppi/nppi_arithmetic_operations/test_nppi_arithmetic.cpp
+        test/gtest/nppi/nppi_support_functions/test_nppi_support.cpp
+        test/gtest/nppi/nppi_support_functions/test_nppi_support_complete_coverage.cpp
+    )
+    
+    # 如果有NVIDIA NPP，添加验证测试
+    if(HAVE_NVIDIA_NPP)
+        list(APPEND TEST_SOURCES 
+            test/gtest/validation/test_consistency_simple.cpp
+            test/gtest/nppi/nppi_support_functions/test_nppi_support_nvidia_comparison.cpp
+        )
+    endif()
+    
+    # 创建统一的测试可执行程序
+    add_executable(opennpp_test 
+        ${TEST_SOURCES}
         ${NPP_CORE_SOURCES}
-    )
-    target_link_libraries(test_nppcore PRIVATE CUDA::cudart)
-    add_test(NAME test_nppcore COMMAND test_nppcore)
-    
-    # NPPI内存测试
-    add_executable(test_nppi_memory 
-        test/test_comprehensive_arithmetic_nppi.cpp 
-        ${CPU_SOURCES} 
+        ${NPPI_SUPPORT_SOURCES}
+        ${CPU_SOURCES}
         ${CUDA_SOURCES}
     )
-    target_link_libraries(test_nppi_memory PRIVATE CUDA::cudart)
-    if(HAVE_NVIDIA_NPP)
-        target_link_libraries(test_nppi_memory PRIVATE ${NPP_LIBRARY_IAL} ${NPP_LIBRARY_CORE})
-        target_compile_definitions(test_nppi_memory PRIVATE HAVE_NVIDIA_NPP=1)
-    endif()
-    add_test(NAME test_nppi_memory COMMAND test_nppi_memory)
     
-    # 算术运算综合测试
-    add_executable(test_arithmetic 
-        test/test_arithmetic_comprehensive.cpp 
-        ${CPU_SOURCES} 
-        ${CUDA_SOURCES}
+    # 链接库
+    target_link_libraries(opennpp_test PRIVATE 
+        gtest 
+        gtest_main 
+        CUDA::cudart
     )
-    target_link_libraries(test_arithmetic PRIVATE CUDA::cudart)
-    if(HAVE_NVIDIA_NPP)
-        target_link_libraries(test_arithmetic PRIVATE ${NPP_LIBRARY_IAL} ${NPP_LIBRARY_CORE})
-        target_compile_definitions(test_arithmetic PRIVATE HAVE_NVIDIA_NPP=1)
-    endif()
-    add_test(NAME test_arithmetic COMMAND test_arithmetic)
     
-    # 验证测试
-    add_executable(test_validation 
-        test/test_three_way_validation_v2.cpp 
-        ${CPU_SOURCES} 
-        ${CUDA_SOURCES}
+    # 包含目录
+    target_include_directories(opennpp_test PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/googletest/include
     )
-    target_link_libraries(test_validation PRIVATE CUDA::cudart)
+    
+    # 如果有NVIDIA NPP，添加相关链接和定义
     if(HAVE_NVIDIA_NPP)
-        target_link_libraries(test_validation PRIVATE ${NPP_LIBRARY_IAL} ${NPP_LIBRARY_CORE})
-        target_compile_definitions(test_validation PRIVATE HAVE_NVIDIA_NPP=1)
+        target_link_libraries(opennpp_test PRIVATE 
+            ${NPP_LIBRARY_IAL} 
+            ${NPP_LIBRARY_CORE}
+        )
+        target_compile_definitions(opennpp_test PRIVATE HAVE_NVIDIA_NPP=1)
     endif()
-    add_test(NAME test_validation COMMAND test_validation)
+    
+    # 添加不同的测试过滤器
+    add_test(NAME all_tests COMMAND opennpp_test)
+    add_test(NAME core_tests COMMAND opennpp_test --gtest_filter=NPP*:*Properties*:*Stream*:*Error*:*Device*)
+    add_test(NAME arithmetic_tests COMMAND opennpp_test --gtest_filter=*AddC*:*SubC*:*MulC*:*DivC*)
+    add_test(NAME support_tests COMMAND opennpp_test --gtest_filter=*Memory*:*Support*)
+    add_test(NAME quick_tests COMMAND opennpp_test --gtest_filter=-*Performance*:-*Stress*:-*Consistency*)
+    
+    if(HAVE_NVIDIA_NPP)
+        add_test(NAME validation_tests COMMAND opennpp_test --gtest_filter=*Consistency*)
+    endif()
+    
+    # ========== 统一测试目标 ==========
+    # 设置测试目标列表
+    set(ALL_TEST_TARGETS opennpp_test)
+    
+    # 添加test_all目标来运行所有测试
+    add_custom_target(test_all
+        COMMAND ${CMAKE_CTEST_COMMAND} -R all_tests --output-on-failure --verbose
+        DEPENDS ${ALL_TEST_TARGETS}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Running all OpenNPP tests..."
+    )
+    
+    # 添加快速测试目标（不运行性能和压力测试）
+    add_custom_target(test_quick
+        COMMAND ${CMAKE_CTEST_COMMAND} -R quick_tests --output-on-failure
+        DEPENDS ${ALL_TEST_TARGETS}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Running quick OpenNPP tests..."
+    )
+    
+    # 添加特定模块的测试目标
+    add_custom_target(test_core
+        COMMAND ${CMAKE_CTEST_COMMAND} -R core_tests --output-on-failure
+        DEPENDS ${ALL_TEST_TARGETS}
+        COMMENT "Running NPP Core tests..."
+    )
+    
+    add_custom_target(test_arithmetic
+        COMMAND ${CMAKE_CTEST_COMMAND} -R arithmetic_tests --output-on-failure
+        DEPENDS ${ALL_TEST_TARGETS}
+        COMMENT "Running NPPI Arithmetic tests..."
+    )
+    
+    add_custom_target(test_support
+        COMMAND ${CMAKE_CTEST_COMMAND} -R support_tests --output-on-failure
+        DEPENDS ${ALL_TEST_TARGETS}
+        COMMENT "Running NPPI Support Function tests..."
+    )
+    
+    if(HAVE_NVIDIA_NPP)
+        add_custom_target(test_validation
+            COMMAND ${CMAKE_CTEST_COMMAND} -R validation_tests --output-on-failure
+            DEPENDS ${ALL_TEST_TARGETS}
+            COMMENT "Running OpenNPP vs NVIDIA NPP consistency tests..."
+        )
+    endif()
+    
+    # 生成测试报告的目标
+    add_custom_target(test_report
+        COMMAND opennpp_test --gtest_output=xml:test_results.xml
+        COMMAND ${CMAKE_COMMAND} -E echo "Test report generated: test_results.xml"
+        DEPENDS ${ALL_TEST_TARGETS}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Generating test report..."
+    )
+    
+    # 运行特定测试的辅助目标（使用GTest过滤器）
+    add_custom_target(test_filter
+        COMMAND opennpp_test --gtest_filter="${GTEST_FILTER}"
+        DEPENDS ${ALL_TEST_TARGETS}
+        COMMENT "Running tests with filter: ${GTEST_FILTER}"
+    )
 endif()
 
 # 编译器特定选项

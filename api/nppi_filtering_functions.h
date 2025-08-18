@@ -1,4 +1,4 @@
- /* Copyright 2009-2023 NVIDIA CORPORATION & AFFILIATES.  All rights reserved. 
+ /* Copyright 2009-2024 NVIDIA CORPORATION & AFFILIATES.  All rights reserved. 
   * 
   * NOTICE TO LICENSEE: 
   * 
@@ -23554,7 +23554,7 @@ nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx(Npp8u * pContoursImage
  * \return \ref image_data_error_codes, \ref roi_error_codes
  */
 NppStatus
-nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, int * hpDeviceMemoryBufferSize);
+nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t * hpDeviceMemoryBufferSize);
 
 /**
  * Calculate scratch buffer sizes needed for 1 channel 16-bit unsigned integer watershed segmentation function based on destination image oSizeROI width and height.
@@ -23564,7 +23564,7 @@ nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, int * hpDeviceMemory
  * \return \ref image_data_error_codes, \ref roi_error_codes
  */
 NppStatus
-nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize oSizeROI, int * hpDeviceMemoryBufferSize);
+nppiSegmentWatershedGetBufferSize_16u_C1R(NppiSize oSizeROI, size_t * hpDeviceMemoryBufferSize);
 
 /** @} segment_watershed_get_buffer_size */
 

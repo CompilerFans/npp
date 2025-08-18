@@ -23,3 +23,4 @@ npp_test_runner
 !test/*.h
 !test/*/*.cpp
 !test/*/*.h
+third_party/
