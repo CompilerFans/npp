@@ -32,7 +32,7 @@ set(NPP_CORE_SOURCES
 )
 
 set(NPPI_SUPPORT_SOURCES
-    src/nppi/nppi_support_functions_simple.cpp
+    src/nppi/nppi_support_functions.cpp
 )
 
 set(NPPI_ARITHMETIC_SOURCES
@@ -40,7 +40,7 @@ set(NPPI_ARITHMETIC_SOURCES
     src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
     src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
     src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-    src/nppi/nppi_arithmetic_operations/nppi_addc_reference.cpp
+    src/nppi/nppi_arithmetic_operations/nppi_arithmetic_reference.cpp
 )
 
 set(TEST_SOURCES
@@ -211,6 +211,16 @@ if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE)
     )
     target_compile_definitions(test_multichannel_arithmetic PRIVATE HAVE_NVIDIA_NPP=1)
     target_compile_features(test_multichannel_arithmetic PRIVATE cxx_std_17)
+    
+    # Three-way validation test
+    add_executable(test_three_way_validation test/test_three_way_validation.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_three_way_validation PRIVATE 
+        CUDA::cudart
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_three_way_validation PRIVATE HAVE_NVIDIA_NPP=1)
+    target_compile_features(test_three_way_validation PRIVATE cxx_std_17)
     
 else()
     message(WARNING "NVIDIA NPP library not found - validation tests will skip NVIDIA comparison")
