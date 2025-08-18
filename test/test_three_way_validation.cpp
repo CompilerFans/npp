@@ -419,38 +419,47 @@ private:
                 srcHost[i + 2] = 150;  // B
             }
             
-            // Allocate device memory
+            // Allocate device memory using NPPI functions
             Npp8u *srcDev = nullptr, *openDstDev = nullptr, *nvidiaDstDev = nullptr;
-            size_t srcPitch, openDstPitch, nvidiaDstPitch;
+            int srcStep, openDstStep, nvidiaStep;
             
-            cudaMallocPitch((void**)&srcDev, &srcPitch, width * channels * sizeof(Npp8u), height);
-            cudaMallocPitch((void**)&openDstDev, &openDstPitch, width * channels * sizeof(Npp8u), height);
-            cudaMemcpy2D(srcDev, srcPitch, srcHost.data(), width * channels * sizeof(Npp8u),
+            srcDev = nppiMalloc_8u_C3(width, height, &srcStep);
+            openDstDev = nppiMalloc_8u_C3(width, height, &openDstStep);
+            
+            if (!srcDev || !openDstDev) {
+                throw std::runtime_error("NPPI memory allocation failed");
+            }
+            
+            cudaMemcpy2D(srcDev, srcStep, srcHost.data(), width * channels * sizeof(Npp8u),
                         width * channels * sizeof(Npp8u), height, cudaMemcpyHostToDevice);
             
             Npp8u constants[3] = {10, 20, 30};
             NppiSize roiSize = {width, height};
             
             // Test OpenNPP
-            NppStatus openStatus = nppiAddC_8u_C3RSfs(srcDev, (int)srcPitch, constants, openDstDev, (int)openDstPitch, roiSize, 1);
+            NppStatus openStatus = nppiAddC_8u_C3RSfs(srcDev, srcStep, constants, openDstDev, openDstStep, roiSize, 1);
             result.openNppSuccess = (openStatus == NPP_NO_ERROR);
             
             if (result.openNppSuccess) {
-                cudaMemcpy2D(openDstHost.data(), width * channels * sizeof(Npp8u), openDstDev, openDstPitch,
+                cudaMemcpy2D(openDstHost.data(), width * channels * sizeof(Npp8u), openDstDev, openDstStep,
                             width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToHost);
             }
             
 #ifdef HAVE_NVIDIA_NPP
             // Test NVIDIA NPP
-            cudaMallocPitch((void**)&nvidiaDstDev, &nvidiaDstPitch, width * channels * sizeof(Npp8u), height);
-            NppStatus nvidiaStatus = ::nppiAddC_8u_C3RSfs(srcDev, (int)srcPitch, constants, nvidiaDstDev, (int)nvidiaDstPitch, roiSize, 1);
+            nvidiaDstDev = nppiMalloc_8u_C3(width, height, &nvidiaStep);
+            if (!nvidiaDstDev) {
+                throw std::runtime_error("NPPI memory allocation failed for NVIDIA test");
+            }
+            
+            NppStatus nvidiaStatus = ::nppiAddC_8u_C3RSfs(srcDev, srcStep, constants, nvidiaDstDev, nvidiaStep, roiSize, 1);
             result.nvidiaNppSuccess = (nvidiaStatus == NPP_NO_ERROR);
             
             if (result.nvidiaNppSuccess) {
-                cudaMemcpy2D(nvidiaDstHost.data(), width * channels * sizeof(Npp8u), nvidiaDstDev, nvidiaDstPitch,
+                cudaMemcpy2D(nvidiaDstHost.data(), width * channels * sizeof(Npp8u), nvidiaDstDev, nvidiaStep,
                             width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToHost);
             }
-            cudaFree(nvidiaDstDev);
+            nppiFree(nvidiaDstDev);
 #else
             result.nvidiaNppSuccess = true;
 #endif
@@ -494,8 +503,8 @@ private:
             }
             
             // Cleanup
-            cudaFree(srcDev);
-            cudaFree(openDstDev);
+            nppiFree(srcDev);
+            nppiFree(openDstDev);
             
         } catch (const std::exception& e) {
             result.errorMessage = e.what();

@@ -44,37 +44,55 @@ private:
     int width_;
     int height_;
     int step_;
+    int channels_;
+    
+    // Helper to allocate device memory using appropriate NPPI function
+    T* allocateNppiMemory(int width, int height, int channels, int* pStep) {
+        if constexpr (std::is_same_v<T, Npp8u>) {
+            if (channels == 1) return reinterpret_cast<T*>(nppiMalloc_8u_C1(width, height, pStep));
+            else if (channels == 3) return reinterpret_cast<T*>(nppiMalloc_8u_C3(width, height, pStep));
+            else if (channels == 4) return reinterpret_cast<T*>(nppiMalloc_8u_C4(width, height, pStep));
+        } else if constexpr (std::is_same_v<T, Npp16u>) {
+            if (channels == 1) return reinterpret_cast<T*>(nppiMalloc_16u_C1(width, height, pStep));
+            else if (channels == 3) return reinterpret_cast<T*>(nppiMalloc_16u_C3(width, height, pStep));
+            else if (channels == 4) return reinterpret_cast<T*>(nppiMalloc_16u_C4(width, height, pStep));
+        } else if constexpr (std::is_same_v<T, Npp16s>) {
+            if (channels == 1) return reinterpret_cast<T*>(nppiMalloc_16s_C1(width, height, pStep));
+            else if (channels == 4) return reinterpret_cast<T*>(nppiMalloc_16s_C4(width, height, pStep));
+        } else if constexpr (std::is_same_v<T, Npp32f>) {
+            if (channels == 1) return reinterpret_cast<T*>(nppiMalloc_32f_C1(width, height, pStep));
+            else if (channels == 3) return reinterpret_cast<T*>(nppiMalloc_32f_C3(width, height, pStep));
+            else if (channels == 4) return reinterpret_cast<T*>(nppiMalloc_32f_C4(width, height, pStep));
+        }
+        // Fallback to cudaMallocPitch for unsupported types
+        size_t pitch;
+        void* devPtr = nullptr;
+        cudaError_t result = cudaMallocPitch(&devPtr, &pitch, width * channels * sizeof(T), height);
+        if (result == cudaSuccess) {
+            *pStep = static_cast<int>(pitch);
+            return static_cast<T*>(devPtr);
+        }
+        return nullptr;
+    }
     
 public:
-    ValidationImageBuffer(int width, int height) 
-        : width_(width), height_(height), deviceData_(nullptr) {
+    ValidationImageBuffer(int width, int height, int channels = 1) 
+        : width_(width), height_(height), channels_(channels), deviceData_(nullptr) {
         
         // Allocate host memory
-        hostData_.resize(width * height);
+        hostData_.resize(width * height * channels);
         
-        // Allocate device memory with proper pitch
-        size_t pitch;
-        cudaError_t result = cudaMallocPitch(
-            reinterpret_cast<void**>(&deviceData_), 
-            &pitch, 
-            width * sizeof(T), 
-            height
-        );
+        // Allocate device memory using NPPI functions
+        deviceData_ = allocateNppiMemory(width, height, channels, &step_);
         
-        if (result != cudaSuccess) {
-            throw std::runtime_error("CUDA memory allocation failed");
+        if (!deviceData_) {
+            throw std::runtime_error("NPPI memory allocation failed");
         }
-        
-        step_ = static_cast<int>(pitch);
     }
     
     ~ValidationImageBuffer() {
         if (deviceData_) {
-            cudaError_t result = cudaFree(deviceData_);
-            if (result != cudaSuccess) {
-                // Error handling in destructor - just print warning
-                std::cerr << "Warning: cudaFree failed in destructor" << std::endl;
-            }
+            nppiFree(deviceData_);
             deviceData_ = nullptr;
         }
     }
@@ -100,7 +118,7 @@ public:
     
     // Fill with specific pattern
     void fillPattern(T baseValue = T(50)) {
-        for (int i = 0; i < width_ * height_; ++i) {
+        for (int i = 0; i < width_ * height_ * channels_; ++i) {
             hostData_[i] = baseValue + static_cast<T>(i % 100);
         }
         copyToDevice();
@@ -109,8 +127,8 @@ public:
     void copyToDevice() {
         cudaError_t result = cudaMemcpy2D(
             deviceData_, step_,
-            hostData_.data(), width_ * sizeof(T),
-            width_ * sizeof(T), height_,
+            hostData_.data(), width_ * channels_ * sizeof(T),
+            width_ * channels_ * sizeof(T), height_,
             cudaMemcpyHostToDevice
         );
         
@@ -121,9 +139,9 @@ public:
     
     void copyFromDevice() {
         cudaError_t result = cudaMemcpy2D(
-            hostData_.data(), width_ * sizeof(T),
+            hostData_.data(), width_ * channels_ * sizeof(T),
             deviceData_, step_,
-            width_ * sizeof(T), height_,
+            width_ * channels_ * sizeof(T), height_,
             cudaMemcpyDeviceToHost
         );
         
@@ -140,6 +158,7 @@ public:
     int width() const { return width_; }
     int height() const { return height_; }
     int step() const { return step_; }
+    int channels() const { return channels_; }
     NppiSize size() const { return {width_, height_}; }
     
     // Compare two buffers
@@ -151,7 +170,8 @@ public:
         }
         
         double maxDiff = 0.0;
-        for (int i = 0; i < buf1.width() * buf1.height(); ++i) {
+        int totalPixels = buf1.width() * buf1.height() * buf1.channels_;
+        for (int i = 0; i < totalPixels; ++i) {
             double diff = std::abs(static_cast<double>(buf1.hostData_[i]) - 
                                  static_cast<double>(buf2.hostData_[i]));
             maxDiff = std::max(maxDiff, diff);

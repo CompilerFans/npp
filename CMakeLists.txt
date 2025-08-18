@@ -202,6 +202,16 @@ if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE)
     target_compile_definitions(test_comprehensive_arithmetic PRIVATE HAVE_NVIDIA_NPP=1)
     target_compile_features(test_comprehensive_arithmetic PRIVATE cxx_std_17)
     
+    # Comprehensive arithmetic test with NPPI memory allocation
+    add_executable(test_comprehensive_arithmetic_nppi test/test_comprehensive_arithmetic_nppi.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_comprehensive_arithmetic_nppi PRIVATE 
+        CUDA::cudart
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_comprehensive_arithmetic_nppi PRIVATE HAVE_NVIDIA_NPP=1)
+    target_compile_features(test_comprehensive_arithmetic_nppi PRIVATE cxx_std_17)
+    
     # Multichannel arithmetic test
     add_executable(test_multichannel_arithmetic test/test_multichannel_arithmetic.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
     target_link_libraries(test_multichannel_arithmetic PRIVATE 
