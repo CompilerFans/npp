@@ -232,6 +232,16 @@ if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE)
     target_compile_definitions(test_three_way_validation PRIVATE HAVE_NVIDIA_NPP=1)
     target_compile_features(test_three_way_validation PRIVATE cxx_std_17)
     
+    # Three-way validation test V2 with correct pitched memory handling
+    add_executable(test_three_way_validation_v2 test/test_three_way_validation_v2.cpp ${CPU_SOURCES} ${CUDA_SOURCES})
+    target_link_libraries(test_three_way_validation_v2 PRIVATE 
+        CUDA::cudart
+        ${NPP_LIBRARY_IAL} 
+        ${NPP_LIBRARY_CORE}
+    )
+    target_compile_definitions(test_three_way_validation_v2 PRIVATE HAVE_NVIDIA_NPP=1)
+    target_compile_features(test_three_way_validation_v2 PRIVATE cxx_std_17)
+    
 else()
     message(WARNING "NVIDIA NPP library not found - validation tests will skip NVIDIA comparison")
     target_compile_definitions(npp_test_runner PRIVATE HAVE_NVIDIA_NPP=0)
