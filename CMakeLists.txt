@@ -23,12 +23,11 @@ set(CMAKE_CUDA_ARCHITECTURES 80 89)
 # 编译选项
 # 对C++文件设置合理的警告级别
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-parameter")
+add_compile_options(-Wno-gnu-line-marker)
 
 # CUDA编译选项
-# 注意：'style of line directive is a GCC extension'警告来自CUDA编译器
-# 处理原始NVIDIA NPP头文件时的正常行为，这些警告是无害的
-# 由于不能修改原始API头文件，我们选择性地抑制这些警告
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+# 抑制行指令警告
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wno-gnu-line-marker")
 
 # 输出目录设置
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
@@ -241,5 +240,5 @@ endif()
 if(MSVC)
     target_compile_options(opennpp PRIVATE /W4)
 else()
-    target_compile_options(opennpp PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(opennpp PRIVATE -Wall -Wextra -Wno-gnu-line-marker)
 endif()
