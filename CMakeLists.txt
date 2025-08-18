@@ -54,6 +54,7 @@ set(NPPI_ARITHMETIC_SOURCES
     src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
     src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
     src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+    src/nppi/nppi_arithmetic_operations/nppi_add.cpp
     src/nppi/nppi_arithmetic_operations/nppi_arithmetic_reference.cpp
 )
 
@@ -62,6 +63,7 @@ set(NPPI_ARITHMETIC_CUDA_SOURCES
     src/nppi/nppi_arithmetic_operations/nppi_subc.cu
     src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
     src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+    src/nppi/nppi_arithmetic_operations/nppi_add.cu
 )
 
 set(CPU_SOURCES
@@ -119,6 +121,7 @@ if(BUILD_TESTS)
         test/gtest/nppcore/test_nppcore.cpp
         test/gtest/nppcore/test_nppcore_cuda_comparison.cpp
         test/gtest/nppi/nppi_arithmetic_operations/test_nppi_arithmetic.cpp
+    test/gtest/nppi/nppi_arithmetic_operations/test_nppi_add.cpp
         test/gtest/nppi/nppi_support_functions/test_nppi_support.cpp
         test/gtest/nppi/nppi_support_functions/test_nppi_support_complete_coverage.cpp
     )
