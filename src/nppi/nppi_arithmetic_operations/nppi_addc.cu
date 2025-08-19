@@ -25,9 +25,13 @@ __global__ void addC_8u_C1RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcSt
     // Load source pixel
     Npp8u srcValue = *srcPixel;
     
-    // Add constant and scale (8u uses truncation, not rounding)
+    // Add constant and scale with proper rounding to match NVIDIA NPP behavior
     int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        // Add 0.5 equivalent (2^(n-1)) for proper rounding before right shift
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     
     // Clamp to 8-bit range
     result = max(0, min(255, result));
@@ -58,17 +62,26 @@ __global__ void addC_8u_C3RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcSt
     
     // Channel 0
     result = static_cast<int>(srcPixel[0]) + static_cast<int>(nConstant0);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[0] = static_cast<Npp8u>(max(0, min(255, result)));
     
     // Channel 1
     result = static_cast<int>(srcPixel[1]) + static_cast<int>(nConstant1);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[1] = static_cast<Npp8u>(max(0, min(255, result)));
     
     // Channel 2
     result = static_cast<int>(srcPixel[2]) + static_cast<int>(nConstant2);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
 }
 
@@ -95,19 +108,31 @@ __global__ void addC_8u_C4RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcSt
     
     // Channels 0-3
     result = static_cast<int>(srcPixel[0]) + static_cast<int>(nConstant0);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[0] = static_cast<Npp8u>(max(0, min(255, result)));
     
     result = static_cast<int>(srcPixel[1]) + static_cast<int>(nConstant1);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[1] = static_cast<Npp8u>(max(0, min(255, result)));
     
     result = static_cast<int>(srcPixel[2]) + static_cast<int>(nConstant2);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
     
     result = static_cast<int>(srcPixel[3]) + static_cast<int>(nConstant3);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[3] = static_cast<Npp8u>(max(0, min(255, result)));
 }
 
@@ -133,17 +158,26 @@ __global__ void addC_8u_AC4RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcS
     
     // Channel 0 (R)
     result = static_cast<int>(srcPixel[0]) + static_cast<int>(nConstant0);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[0] = static_cast<Npp8u>(max(0, min(255, result)));
     
     // Channel 1 (G)
     result = static_cast<int>(srcPixel[1]) + static_cast<int>(nConstant1);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[1] = static_cast<Npp8u>(max(0, min(255, result)));
     
     // Channel 2 (B)
     result = static_cast<int>(srcPixel[2]) + static_cast<int>(nConstant2);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        result += (1 << (nScaleFactor - 1));
+        result = result >> nScaleFactor;
+    }
     dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
     
     // Channel 3 (Alpha) - copy unchanged
