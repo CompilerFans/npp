@@ -25,10 +25,10 @@ __global__ void addC_8u_C1RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcSt
     // Load source pixel
     Npp8u srcValue = *srcPixel;
     
-    // Add constant and scale with proper rounding to match NVIDIA NPP behavior
+    // Add constant and scale - NVIDIA NPP uses round-to-nearest-even for 8u
     int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
     if (nScaleFactor > 0) {
-        // Add 0.5 equivalent (2^(n-1)) for proper rounding before right shift
+        // Standard rounding: add 0.5 equivalent before right shift
         result += (1 << (nScaleFactor - 1));
         result = result >> nScaleFactor;
     }
