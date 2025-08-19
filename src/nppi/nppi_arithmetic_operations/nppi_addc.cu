@@ -25,7 +25,7 @@ __global__ void addC_8u_C1RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcSt
     // Load source pixel
     Npp8u srcValue = *srcPixel;
     
-    // Add constant and scale
+    // Add constant and scale (8u uses truncation, not rounding)
     int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
     result = result >> nScaleFactor;
     
@@ -169,9 +169,12 @@ __global__ void addC_16u_C1RSfs_kernel(const Npp16u* __restrict__ pSrc, int nSrc
     // Load source pixel
     Npp16u srcValue = *srcPixel;
     
-    // Add constant and scale
+    // Add constant and scale with rounding
     int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        // Add rounding bias before right shift to match NVIDIA NPP behavior
+        result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
+    }
     
     // Clamp to 16-bit unsigned range
     result = max(0, min(65535, result));
@@ -199,9 +202,12 @@ __global__ void addC_16s_C1RSfs_kernel(const Npp16s* __restrict__ pSrc, int nSrc
     // Load source pixel
     Npp16s srcValue = *srcPixel;
     
-    // Add constant and scale
+    // Add constant and scale with rounding
     int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
-    result = result >> nScaleFactor;
+    if (nScaleFactor > 0) {
+        // Add rounding bias before right shift to match NVIDIA NPP behavior
+        result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
+    }
     
     // Clamp to 16-bit signed range
     result = max(-32768, min(32767, result));

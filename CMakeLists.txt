@@ -21,13 +21,22 @@ enable_language(CUDA)
 set(CMAKE_CUDA_ARCHITECTURES 80 89)
 
 # 编译选项
-# 对C++文件设置合理的警告级别
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-parameter")
+# 对C++文件设置合理的警告级别，并将警告视为错误
+option(WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
+if(WARNINGS_AS_ERRORS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-unused-parameter")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-parameter")
+endif()
 add_compile_options(-Wno-gnu-line-marker)
 
 # CUDA编译选项
-# 抑制行指令警告
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wno-gnu-line-marker")
+# 抑制行指令警告，并传递Werror选项
+if(WARNINGS_AS_ERRORS)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wno-gnu-line-marker -Xcompiler -Werror")
+else()
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wno-gnu-line-marker")
+endif()
 
 # 输出目录设置
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
@@ -38,42 +47,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/api)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/framework)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})  # 添加根目录以支持 "test/framework/..." 包含路径
 include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
-# 源文件组织
-set(NPP_CORE_SOURCES
-    src/nppcore/nppcore.cpp
+# 递归查找所有源文件
+file(GLOB_RECURSE CPU_SOURCES 
+    "src/**/*.cpp"
 )
 
-set(NPPI_SUPPORT_SOURCES
-    src/nppi/nppi_support_functions.cpp
-)
-
-set(NPPI_ARITHMETIC_SOURCES
-    src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-    src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-    src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-    src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-    src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-    src/nppi/nppi_arithmetic_operations/nppi_arithmetic_reference.cpp
-)
-
-set(NPPI_ARITHMETIC_CUDA_SOURCES
-    src/nppi/nppi_arithmetic_operations/nppi_addc.cu
-    src/nppi/nppi_arithmetic_operations/nppi_subc.cu
-    src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
-    src/nppi/nppi_arithmetic_operations/nppi_divc.cu
-    src/nppi/nppi_arithmetic_operations/nppi_add.cu
-)
-
-set(CPU_SOURCES
-    ${NPP_CORE_SOURCES}
-    ${NPPI_SUPPORT_SOURCES}
-    ${NPPI_ARITHMETIC_SOURCES}
-)
-
-set(CUDA_SOURCES
-    ${NPPI_ARITHMETIC_CUDA_SOURCES}
+file(GLOB_RECURSE CUDA_SOURCES
+    "src/**/*.cu"
 )
 
 # 创建OpenNPP静态库
@@ -82,18 +65,40 @@ add_library(opennpp STATIC
     ${CUDA_SOURCES}
 )
 
-# 链接CUDA库
+# 创建OpenNPP共享库（用于动态加载测试）
+add_library(opennpp_shared SHARED
+    ${CPU_SOURCES}
+    ${CUDA_SOURCES}
+)
+
+# 链接CUDA库（静态库）
 target_link_libraries(opennpp 
     PRIVATE 
     CUDA::cudart
     CUDA::cuda_driver
 )
 
-# 设置编译标志
+# 链接CUDA库（共享库）
+target_link_libraries(opennpp_shared 
+    PRIVATE 
+    CUDA::cudart
+    CUDA::cuda_driver
+)
+
+# 设置编译标志（静态库）
 target_compile_features(opennpp PUBLIC cxx_std_17)
 target_compile_options(opennpp PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --expt-relaxed-constexpr>
 )
+
+# 设置编译标志（共享库）
+target_compile_features(opennpp_shared PUBLIC cxx_std_17)
+target_compile_options(opennpp_shared PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --expt-relaxed-constexpr>
+)
+
+# 设置共享库输出名称
+set_target_properties(opennpp_shared PROPERTIES OUTPUT_NAME "opennpp")
 
 # 查找NVIDIA NPP库（可选，用于验证测试）
 find_library(NPP_LIBRARY_IAL nppial HINTS ${CUDAToolkit_LIBRARY_DIR} /usr/local/cuda/lib64)
@@ -116,30 +121,19 @@ if(BUILD_TESTS)
     
     # ========== Google Test 测试 - 统一测试可执行程序 ==========
     
-    # 设置所有测试源文件
-    set(TEST_SOURCES
-        # 单元测试 - NPP Core
-        test/unit/nppcore/test_nppcore.cpp
-        test/unit/nppcore/test_nppcore_cuda_comparison.cpp
-        
-        # 单元测试 - NPPI Support Functions
-        test/unit/nppi/support/test_nppi_support.cpp
-        test/unit/nppi/support/test_nppi_support_complete_coverage.cpp
-        test/unit/nppi/support/test_nppi_support_step_validation.cpp
-        test/unit/nppi/support/test_nvidia_comparison_dlopen.cpp
-        
-        # 单元测试 - NPPI Arithmetic Operations
-        test/unit/nppi/arithmetic/test_nppi_arithmetic.cpp
-        test/unit/nppi/arithmetic/test_nppi_add.cpp
+    # 递归查找所有测试文件
+    file(GLOB_RECURSE TEST_SOURCES
+        "test/unit/**/*.cpp"
+        "test/integration/**/*.cpp"
+        "test/benchmark/**/*.cpp"
     )
     
-    # 添加验证测试（与NVIDIA NPP对比）
+    # 添加验证测试（需要NVIDIA NPP）
     if(HAVE_NVIDIA_NPP)
-        list(APPEND TEST_SOURCES 
-            test/unit/nppi/support/test_nppi_support_nvidia_comparison.cpp
-            test/validation/test_consistency_simple.cpp
-            test/validation/test_consistency_framework.cpp
+        file(GLOB_RECURSE VALIDATION_SOURCES
+            "test/validation/**/*.cpp"
         )
+        list(APPEND TEST_SOURCES ${VALIDATION_SOURCES})
     endif()
     
     # 创建统一的测试可执行程序

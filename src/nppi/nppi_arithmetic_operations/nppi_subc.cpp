@@ -64,10 +64,17 @@ static NppStatus validateParameters(const void* pSrc, int nSrcStep, const void* 
         return NPP_NULL_POINTER_ERROR;
     }
     
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    // 与NVIDIA NPP兼容：zero width/height返回成功，负数返回错误
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
         return NPP_SIZE_ERROR;
     }
     
+    // 如果ROI尺寸为0，直接返回成功（与NVIDIA NPP兼容）
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
+    // 对于非零尺寸，验证step
     if (nSrcStep < oSizeROI.width || nDstStep < oSizeROI.width) {
         return NPP_STRIDE_ERROR;
     }
@@ -122,10 +129,17 @@ NppStatus nppiSubC_8u_C1IRSfs_Ctx(const Npp8u nConstant, Npp8u * pSrcDst, int nS
         return NPP_NULL_POINTER_ERROR;
     }
     
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    // 与NVIDIA NPP兼容：zero width/height返回成功，负数返回错误
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
         return NPP_SIZE_ERROR;
     }
     
+    // 如果ROI尺寸为0，直接返回成功（与NVIDIA NPP兼容）
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
+    // 对于非零尺寸，验证step
     if (nSrcDstStep < oSizeROI.width) {
         return NPP_STRIDE_ERROR;
     }

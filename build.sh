@@ -29,12 +29,3 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Build completed successfully!"
-echo ""
-echo "Available executables:"
-echo "  ./test_runner          - Main test runner"
-echo "  ./test_nppi_addc       - Basic function test"
-echo "  ./test_nppi_addc_validation - Validation against NVIDIA NPP"
-echo ""
-echo "To run tests:"
-echo "  ./test_runner"
-echo "  ./test_runner -f nppiAddC_8u_C1RSfs_Ctx -v"
