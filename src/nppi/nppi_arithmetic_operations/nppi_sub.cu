@@ -26,8 +26,8 @@ __global__ void nppiSub_8u_C1RSfs_kernel(
         const Npp8u* src2Row = (const Npp8u*)((const char*)pSrc2 + y * nSrc2Step);
         Npp8u* dstRow = (Npp8u*)((char*)pDst + y * nDstStep);
         
-        // Subtract with scaling (pSrc1 - pSrc2)
-        int result = (int)src1Row[x] - (int)src2Row[x];
+        // Subtract with scaling (pSrc2 - pSrc1, to match NVIDIA NPP behavior)
+        int result = (int)src2Row[x] - (int)src1Row[x];
         
         // Apply scale factor (right shift) with rounding
         if (nScaleFactor > 0) {
@@ -62,7 +62,7 @@ __global__ void nppiSub_8u_C3RSfs_kernel(
         
         // Process 3 channels
         for (int c = 0; c < 3; c++) {
-            int result = (int)src1Row[idx + c] - (int)src2Row[idx + c];
+            int result = (int)src2Row[idx + c] - (int)src1Row[idx + c];
             
             // Apply scale factor with rounding
             if (nScaleFactor > 0) {
@@ -94,8 +94,8 @@ __global__ void nppiSub_16u_C1RSfs_kernel(
         const Npp16u* src2Row = (const Npp16u*)((const char*)pSrc2 + y * nSrc2Step);
         Npp16u* dstRow = (Npp16u*)((char*)pDst + y * nDstStep);
         
-        // Subtract with scaling
-        int result = (int)src1Row[x] - (int)src2Row[x];
+        // Subtract with scaling (pSrc2 - pSrc1, to match NVIDIA NPP behavior)
+        int result = (int)src2Row[x] - (int)src1Row[x];
         
         // Apply scale factor with rounding
         if (nScaleFactor > 0) {
@@ -126,8 +126,8 @@ __global__ void nppiSub_16s_C1RSfs_kernel(
         const Npp16s* src2Row = (const Npp16s*)((const char*)pSrc2 + y * nSrc2Step);
         Npp16s* dstRow = (Npp16s*)((char*)pDst + y * nDstStep);
         
-        // Subtract with scaling
-        int result = (int)src1Row[x] - (int)src2Row[x];
+        // Subtract with scaling (pSrc2 - pSrc1, to match NVIDIA NPP behavior)
+        int result = (int)src2Row[x] - (int)src1Row[x];
         
         // Apply scale factor with rounding
         if (nScaleFactor > 0) {
@@ -158,8 +158,8 @@ __global__ void nppiSub_32f_C1R_kernel(
         const Npp32f* src2Row = (const Npp32f*)((const char*)pSrc2 + y * nSrc2Step);
         Npp32f* dstRow = (Npp32f*)((char*)pDst + y * nDstStep);
         
-        // Simple float subtraction
-        dstRow[x] = src1Row[x] - src2Row[x];
+        // Simple float subtraction (pSrc2 - pSrc1, to match NVIDIA NPP behavior)
+        dstRow[x] = src2Row[x] - src1Row[x];
     }
 }
 
@@ -180,10 +180,10 @@ __global__ void nppiSub_32f_C3R_kernel(
         
         int idx = x * 3;
         
-        // Process 3 channels
-        dstRow[idx] = src1Row[idx] - src2Row[idx];       // R
-        dstRow[idx + 1] = src1Row[idx + 1] - src2Row[idx + 1]; // G
-        dstRow[idx + 2] = src1Row[idx + 2] - src2Row[idx + 2]; // B
+        // Process 3 channels (pSrc2 - pSrc1, to match NVIDIA NPP behavior)
+        dstRow[idx] = src2Row[idx] - src1Row[idx];       // R
+        dstRow[idx + 1] = src2Row[idx + 1] - src1Row[idx + 1]; // G
+        dstRow[idx + 2] = src2Row[idx + 2] - src1Row[idx + 2]; // B
     }
 }
 
