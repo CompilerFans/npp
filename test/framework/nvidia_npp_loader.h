@@ -193,31 +193,52 @@ private:
     }
     
     void loadLibraries() {
-        // 尝试加载NPP核心库
-        nppcLib_ = dlopen("libnppc.so.12", RTLD_NOW | RTLD_LOCAL);
-        if (!nppcLib_) {
-            nppcLib_ = dlopen("/usr/local/cuda/lib64/libnppc.so.12", RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!nppcLib_) {
-            nppcLib_ = dlopen("/usr/local/cuda/lib64/libnppc.so", RTLD_NOW | RTLD_LOCAL);
+        // 尝试加载NPP核心库 - 多种版本和路径的回退策略
+        const char* nppc_names[] = {
+            "libnppc.so.12", "libnppc.so.11", "libnppc.so.10", "libnppc.so"
+        };
+        const char* lib_paths[] = {
+            "",  // 系统路径
+            "/usr/local/cuda/lib64/",
+            "/usr/lib/x86_64-linux-gnu/",
+            "/opt/cuda/lib64/"
+        };
+        
+        for (const char* path : lib_paths) {
+            for (const char* name : nppc_names) {
+                std::string full_path = std::string(path) + name;
+                nppcLib_ = dlopen(full_path.c_str(), RTLD_NOW | RTLD_LOCAL);
+                if (nppcLib_) break;
+            }
+            if (nppcLib_) break;
         }
         
         // 尝试加载NPPI支持函数库
-        nppisuLib_ = dlopen("libnppisu.so.12", RTLD_NOW | RTLD_LOCAL);
-        if (!nppisuLib_) {
-            nppisuLib_ = dlopen("/usr/local/cuda/lib64/libnppisu.so.12", RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!nppisuLib_) {
-            nppisuLib_ = dlopen("/usr/local/cuda/lib64/libnppisu.so", RTLD_NOW | RTLD_LOCAL);
+        const char* nppisu_names[] = {
+            "libnppisu.so.12", "libnppisu.so.11", "libnppisu.so.10", "libnppisu.so"
+        };
+        
+        for (const char* path : lib_paths) {
+            for (const char* name : nppisu_names) {
+                std::string full_path = std::string(path) + name;
+                nppisuLib_ = dlopen(full_path.c_str(), RTLD_NOW | RTLD_LOCAL);
+                if (nppisuLib_) break;
+            }
+            if (nppisuLib_) break;
         }
         
         // 尝试加载NPPI算术运算库
-        nppialLib_ = dlopen("libnppial.so.12", RTLD_NOW | RTLD_LOCAL);
-        if (!nppialLib_) {
-            nppialLib_ = dlopen("/usr/local/cuda/lib64/libnppial.so.12", RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!nppialLib_) {
-            nppialLib_ = dlopen("/usr/local/cuda/lib64/libnppial.so", RTLD_NOW | RTLD_LOCAL);
+        const char* nppial_names[] = {
+            "libnppial.so.12", "libnppial.so.11", "libnppial.so.10", "libnppial.so"
+        };
+        
+        for (const char* path : lib_paths) {
+            for (const char* name : nppial_names) {
+                std::string full_path = std::string(path) + name;
+                nppialLib_ = dlopen(full_path.c_str(), RTLD_NOW | RTLD_LOCAL);
+                if (nppialLib_) break;
+            }
+            if (nppialLib_) break;
         }
         
         if (!nppcLib_ || !nppisuLib_ || !nppialLib_) {

@@ -33,6 +33,8 @@ protected:
         cudaError_t err = cudaSetDevice(0);
         ASSERT_EQ(err, cudaSuccess) << "Failed to set CUDA device";
         
+        // 检查是否启用了NVIDIA NPP测试
+#ifdef HAVE_NVIDIA_NPP
         // 获取NVIDIA NPP加载器实例
         nvidiaLoader_ = &NvidiaNppLoader::getInstance();
         hasNvidiaNpp_ = nvidiaLoader_->isAvailable();
@@ -40,6 +42,11 @@ protected:
         if (!hasNvidiaNpp_) {
             std::cout << "NVIDIA NPP not available: " << nvidiaLoader_->getErrorMessage() << std::endl;
         }
+#else
+        nvidiaLoader_ = nullptr;
+        hasNvidiaNpp_ = false;
+        std::cout << "NVIDIA NPP tests disabled at compile time" << std::endl;
+#endif
         
         // 获取流上下文
         nppGetStreamContext(&streamContext_);
@@ -247,7 +254,7 @@ protected:
     // 使用NVIDIA NPP分配内存
     template<typename T>
     T* allocateWithNvidia(int width, int height, int* step) {
-        if (!hasNvidiaNpp_) return nullptr;
+        if (!hasNvidiaNpp_ || !nvidiaLoader_) return nullptr;
         
         T* devPtr = nullptr;
         
@@ -272,7 +279,7 @@ protected:
     void freeMemory(void* ptr, bool useNvidia = false) {
         if (!ptr) return;
         
-        if (useNvidia && hasNvidiaNpp_ && nvidiaLoader_->nv_nppiFree) {
+        if (useNvidia && hasNvidiaNpp_ && nvidiaLoader_ && nvidiaLoader_->nv_nppiFree) {
             nvidiaLoader_->nv_nppiFree(ptr);
         } else {
             nppiFree(ptr);

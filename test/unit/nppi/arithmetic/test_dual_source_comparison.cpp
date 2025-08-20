@@ -45,6 +45,11 @@ protected:
         
         skipIfNoNvidiaNpp("Skipping " + opName + " dual source comparison");
         
+        // 如果没有NVIDIA NPP，直接返回
+        if (!hasNvidiaNpp()) {
+            return;
+        }
+        
         // 分配内存
         int src1Step, src2Step, dstStep;
         T* openSrc1 = allocateAndInitialize(width, height, &src1Step, src1Data);
@@ -121,6 +126,11 @@ protected:
         std::function<NppStatus(const T*, int, const T*, int, T*, int, NppiSize)> nvFunc) {
         
         skipIfNoNvidiaNpp("Skipping " + opName + " dual source comparison");
+        
+        // 如果没有NVIDIA NPP，直接返回
+        if (!hasNvidiaNpp()) {
+            return;
+        }
         
         // 分配内存
         int src1Step, src2Step, dstStep;
@@ -408,6 +418,11 @@ TEST_F(NPPIDualSourceComparisonTest, Div_32f_C1R_Comparison) {
 
 TEST_F(NPPIDualSourceComparisonTest, DualSource_PerformanceComparison) {
     skipIfNoNvidiaNpp("Skipping dual source performance comparison");
+    
+    // 如果没有NVIDIA NPP，直接返回
+    if (!hasNvidiaNpp()) {
+        return;
+    }
     
     const int width = 1024;
     const int height = 1024;

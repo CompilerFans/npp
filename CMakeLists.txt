@@ -104,16 +104,21 @@ set_target_properties(opennpp_shared PROPERTIES OUTPUT_NAME "opennpp")
 find_library(NPP_LIBRARY_IAL nppial HINTS ${CUDAToolkit_LIBRARY_DIR} /usr/local/cuda/lib64)
 find_library(NPP_LIBRARY_CORE nppc HINTS ${CUDAToolkit_LIBRARY_DIR} /usr/local/cuda/lib64)
 
-if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE)
+if(NPP_LIBRARY_IAL AND NPP_LIBRARY_CORE AND ENABLE_NVIDIA_NPP_TESTS)
     message(STATUS "Found NVIDIA NPP libraries: ${NPP_LIBRARY_IAL}, ${NPP_LIBRARY_CORE}")
     set(HAVE_NVIDIA_NPP TRUE)
 else()
-    message(WARNING "NVIDIA NPP library not found - validation tests will skip NVIDIA comparison")
+    if(NOT ENABLE_NVIDIA_NPP_TESTS)
+        message(STATUS "NVIDIA NPP tests disabled by user configuration")
+    else()
+        message(WARNING "NVIDIA NPP library not found - validation tests will skip NVIDIA comparison")
+    endif()
     set(HAVE_NVIDIA_NPP FALSE)
 endif()
 
 # 测试选项
 option(BUILD_TESTS "Build tests" ON)
+option(ENABLE_NVIDIA_NPP_TESTS "Enable NVIDIA NPP comparison tests (requires NVIDIA NPP libraries)" ON)
 
 if(BUILD_TESTS)
     enable_testing()
