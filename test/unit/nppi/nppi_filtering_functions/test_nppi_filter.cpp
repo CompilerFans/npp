@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "npp.h"
 #include <vector>
-#include <cuda_runtime.h>
 
 class FilterTest : public ::testing::Test {
 protected:
@@ -11,11 +10,13 @@ protected:
         height = 16;
         size.width = width;
         size.height = height;
-        step = width * sizeof(Npp8u);
 
-        // 分配设备内存
-        cudaMalloc(&d_src, height * step);
-        cudaMalloc(&d_dst, height * step);
+        // 使用NPP内置内存管理函数分配设备内存
+        d_src = nppiMalloc_8u_C1(width, height, &step_src);
+        d_dst = nppiMalloc_8u_C1(width, height, &step_dst);
+
+        ASSERT_NE(d_src, nullptr) << "Failed to allocate src memory";
+        ASSERT_NE(d_dst, nullptr) << "Failed to allocate dst memory";
 
         // 准备测试数据
         h_src.resize(width * height);
@@ -23,11 +24,13 @@ protected:
     }
 
     void TearDown() override {
-        cudaFree(d_src);
-        cudaFree(d_dst);
+        // 使用NPP内置函数释放内存
+        if (d_src) nppiFree(d_src);
+        if (d_dst) nppiFree(d_dst);
     }
 
-    int width, height, step;
+    int width, height;
+    int step_src, step_dst;
     NppiSize size;
     Npp8u *d_src, *d_dst;
     std::vector<Npp8u> h_src, h_dst;
@@ -38,11 +41,9 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
     std::fill(h_src.begin(), h_src.end(), 100);
 
     // 上传数据
-    cudaError_t cudaStatus = cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
-    ASSERT_EQ(cudaStatus, cudaSuccess) << "Failed to upload source data";
-
-    // 清空目标缓冲区
-    cudaMemset(d_dst, 0, height * step);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width,
+                                   width, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess) << "Failed to upload source data";
     
     // 同步确保内存操作完成
     cudaDeviceSynchronize();
@@ -52,7 +53,7 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
     NppiPoint anchor = {1, 1};
 
     // 执行滤波
-    NppStatus status = nppiFilterBox_8u_C1R(d_src, step, d_dst, step, 
+    NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, 
                                            size, maskSize, anchor);
     if (status != NPP_SUCCESS) {
         // 获取更多错误信息
@@ -62,7 +63,9 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
     }
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_dst, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst,
+                       width, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证结果 - 内部区域应该保持100（均匀图像的box滤波结果）
     for (int y = 1; y < height - 1; y++) {
@@ -77,22 +80,23 @@ TEST_F(FilterTest, FilterBox_5x5_EdgeHandling) {
     std::fill(h_src.begin(), h_src.end(), 100);
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
-
-    // 清空目标缓冲区
-    cudaMemset(d_dst, 0, height * step);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width,
+                                   width, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
     
     // 设置5x5 box滤波器
     NppiSize maskSize = {5, 5};
     NppiPoint anchor = {2, 2};
 
     // 执行滤波
-    NppStatus status = nppiFilterBox_8u_C1R(d_src, step, d_dst, step, 
+    NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, 
                                            size, maskSize, anchor);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_dst, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst,
+                       width, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证内部区域 - 应该保持原值
     for (int y = 2; y < height - 2; y++) {

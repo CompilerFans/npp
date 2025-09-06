@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "npp.h"
 #include <vector>
-#include <cuda_runtime.h>
 #include <cmath>
 
 class ColorConversionTest : public ::testing::Test {
@@ -12,11 +11,13 @@ protected:
         height = 16;
         size.width = width;
         size.height = height;
-        step = width * 3 * sizeof(Npp8u);  // 3通道
 
-        // 分配设备内存
-        cudaMalloc(&d_src, height * step);
-        cudaMalloc(&d_dst, height * step);
+        // 使用NPP内置内存管理函数分配设备内存（3通道）
+        d_src = nppiMalloc_8u_C3(width, height, &step_src);
+        d_dst = nppiMalloc_8u_C3(width, height, &step_dst);
+
+        ASSERT_NE(d_src, nullptr) << "Failed to allocate src memory";
+        ASSERT_NE(d_dst, nullptr) << "Failed to allocate dst memory";
 
         // 准备测试数据
         h_src.resize(width * height * 3);
@@ -25,11 +26,13 @@ protected:
     }
 
     void TearDown() override {
-        cudaFree(d_src);
-        cudaFree(d_dst);
+        // 使用NPP内置函数释放内存
+        if (d_src) nppiFree(d_src);
+        if (d_dst) nppiFree(d_dst);
     }
 
-    int width, height, step;
+    int width, height;
+    int step_src, step_dst;
     NppiSize size;
     Npp8u *d_src, *d_dst;
     std::vector<Npp8u> h_src, h_dst, h_expected;
@@ -67,14 +70,18 @@ TEST_F(ColorConversionTest, RGBToYUV_BasicColors) {
     }
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width * 3,
+                                   width * 3, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 执行RGB到YUV转换
-    NppStatus status = nppiRGBToYUV_8u_C3R(d_src, step, d_dst, step, size);
+    NppStatus status = nppiRGBToYUV_8u_C3R(d_src, step_src, d_dst, step_dst, size);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_dst, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width * 3, d_dst, step_dst,
+                       width * 3, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证转换结果
     // 纯红色 RGB(255,0,0) -> YUV(76, 90, 255) (调整容差)
@@ -122,24 +129,27 @@ TEST_F(ColorConversionTest, YUVToRGB_RoundTrip) {
     }
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width * 3,
+                                   width * 3, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
 
     // RGB -> YUV
-    NppStatus status = nppiRGBToYUV_8u_C3R(d_src, step, d_dst, step, size);
+    NppStatus status = nppiRGBToYUV_8u_C3R(d_src, step_src, d_dst, step_dst, size);
     ASSERT_EQ(status, NPP_SUCCESS);
 
-    // YUV -> RGB
-    cudaMalloc(&d_src, height * step);  // 使用新的缓冲区
-    status = nppiYUVToRGB_8u_C3R(d_dst, step, d_src, step, size);
+    // YUV -> RGB (复用src缓冲区)
+    status = nppiYUVToRGB_8u_C3R(d_dst, step_dst, d_src, step_src, size);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_src, height * step, cudaMemcpyDeviceToHost);
-    cudaFree(d_src);
+    std::vector<Npp8u> h_result(width * height * 3);
+    err = cudaMemcpy2D(h_result.data(), width * 3, d_src, step_src,
+                       width * 3, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证往返转换的准确性（允许一定误差）
     for (int i = 0; i < width * height * 3; ++i) {
-        EXPECT_NEAR(h_dst[i], h_src[i], 5);  // 允许5个单位的误差
+        EXPECT_NEAR(h_result[i], h_src[i], 5);  // 允许5个单位的误差
     }
 }
 

@@ -88,6 +88,7 @@ ctest -R "npps_"    # Signal processing tests
 - Uses CUDA device pointers
 - Requires proper alignment (see NPP_ALIGN_16, NPP_ALIGN_8 macros)
 - Stream-based execution supported via NppStreamContext
+- npp项目的内存申请和释放需要采用内置的资源管理function api
 
 ### ROI Processing
 - Most functions operate on rectangular regions of interest (ROI)
@@ -97,3 +98,6 @@ ctest -R "npps_"    # Signal processing tests
 
 ## Development Best Practices
 - 每一个阶段性成果，git commit 提交，不需要push，清理目录中的过时临时代码和目录，对项目做整理
+
+## Testing Guidelines
+- 单元测试需要与源码的层次结构匹配对应

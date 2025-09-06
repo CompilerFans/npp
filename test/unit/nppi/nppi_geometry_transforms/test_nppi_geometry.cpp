@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "npp.h"
 #include <vector>
-#include <cuda_runtime.h>
 
 class GeometryTest : public ::testing::Test {
 protected:
@@ -11,11 +10,13 @@ protected:
         height = 8;
         size.width = width;
         size.height = height;
-        step = width * sizeof(Npp8u);
 
-        // 分配设备内存
-        cudaMalloc(&d_src, height * step);
-        cudaMalloc(&d_dst, height * step);
+        // 使用NPP内置内存管理函数分配设备内存
+        d_src = nppiMalloc_8u_C1(width, height, &step_src);
+        d_dst = nppiMalloc_8u_C1(width, height, &step_dst);
+
+        ASSERT_NE(d_src, nullptr) << "Failed to allocate src memory";
+        ASSERT_NE(d_dst, nullptr) << "Failed to allocate dst memory";
 
         // 准备测试数据
         h_src.resize(width * height);
@@ -23,11 +24,13 @@ protected:
     }
 
     void TearDown() override {
-        cudaFree(d_src);
-        cudaFree(d_dst);
+        // 使用NPP内置函数释放内存
+        if (d_src) nppiFree(d_src);
+        if (d_dst) nppiFree(d_dst);
     }
 
-    int width, height, step;
+    int width, height;
+    int step_src, step_dst;
     NppiSize size;
     Npp8u *d_src, *d_dst;
     std::vector<Npp8u> h_src, h_dst;
@@ -42,15 +45,19 @@ TEST_F(GeometryTest, Mirror_HorizontalAxis) {
     }
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width,
+                                   width, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 执行水平轴镜像（上下翻转）
-    NppStatus status = nppiMirror_8u_C1R(d_src, step, d_dst, step, 
+    NppStatus status = nppiMirror_8u_C1R(d_src, step_src, d_dst, step_dst, 
                                          size, NPP_HORIZONTAL_AXIS);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_dst, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst,
+                       width, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证结果 - 第一行应该变成最后一行
     for (int y = 0; y < height; y++) {
@@ -70,15 +77,19 @@ TEST_F(GeometryTest, Mirror_VerticalAxis) {
     }
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width,
+                                   width, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 执行垂直轴镜像（左右翻转）
-    NppStatus status = nppiMirror_8u_C1R(d_src, step, d_dst, step, 
+    NppStatus status = nppiMirror_8u_C1R(d_src, step_src, d_dst, step_dst, 
                                          size, NPP_VERTICAL_AXIS);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_dst, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst,
+                       width, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证结果 - 第一列应该变成最后一列
     for (int y = 0; y < height; y++) {
@@ -98,15 +109,19 @@ TEST_F(GeometryTest, Mirror_BothAxis) {
     }
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width,
+                                   width, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 执行双轴镜像（180度旋转）
-    NppStatus status = nppiMirror_8u_C1R(d_src, step, d_dst, step, 
+    NppStatus status = nppiMirror_8u_C1R(d_src, step_src, d_dst, step_dst, 
                                          size, NPP_BOTH_AXIS);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_dst, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst,
+                       width, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证结果 - 应该是180度旋转
     for (int y = 0; y < height; y++) {
@@ -124,15 +139,19 @@ TEST_F(GeometryTest, Mirror_InPlace) {
     }
 
     // 上传数据
-    cudaMemcpy(d_src, h_src.data(), height * step, cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width,
+                                   width, height, cudaMemcpyHostToDevice);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 执行原地水平镜像
-    NppStatus status = nppiMirror_8u_C1R(d_src, step, d_src, step, 
+    NppStatus status = nppiMirror_8u_C1R(d_src, step_src, d_src, step_src, 
                                          size, NPP_HORIZONTAL_AXIS);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // 下载结果
-    cudaMemcpy(h_dst.data(), d_src, height * step, cudaMemcpyDeviceToHost);
+    err = cudaMemcpy2D(h_dst.data(), width, d_src, step_src,
+                       width, height, cudaMemcpyDeviceToHost);
+    ASSERT_EQ(err, cudaSuccess);
 
     // 验证结果
     for (int y = 0; y < height; y++) {
