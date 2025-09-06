@@ -4,9 +4,3 @@
 add_executable(basic_add_example basic_add_example.cpp)
 target_link_libraries(basic_add_example PRIVATE npp)
 npp_setup_target(basic_add_example)
-
-# 设置例子的安装
-install(TARGETS basic_add_example
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/examples
-    OPTIONAL
-)

@@ -2,11 +2,17 @@
 
 include(GNUInstallDirs)
 
+# 设置默认安装前缀到build目录下的install子目录
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
+endif()
+
 # 定义安装路径
 set(INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 set(INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/opennpp)
 set(INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/OpenNPP)
+set(INSTALL_SAMPLEDIR ${CMAKE_INSTALL_DOCDIR}/examples)
 
 # 安装API头文件
 function(npp_install_headers)
@@ -87,11 +93,27 @@ function(npp_install_docs_examples)
         )
     endif()
     
-    # 安装examples
+    # 安装examples源码
     if(EXISTS "${CMAKE_SOURCE_DIR}/examples")
         install(DIRECTORY "${CMAKE_SOURCE_DIR}/examples/"
-            DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples
-            FILES_MATCHING PATTERN "*.cpp" PATTERN "*.cu" PATTERN "*.h" PATTERN "CMakeLists.txt"
+            DESTINATION ${INSTALL_SAMPLEDIR}
+            FILES_MATCHING 
+                PATTERN "*.cpp" 
+                PATTERN "*.cu" 
+                PATTERN "*.h" 
+                PATTERN "CMakeLists.txt"
+            PATTERN "build*" EXCLUDE
+        )
+    endif()
+endfunction()
+
+# 安装示例可执行文件
+function(npp_install_samples)
+    # 如果构建了示例，也安装可执行文件到bin目录
+    if(BUILD_EXAMPLES AND TARGET basic_add_example)
+        install(TARGETS basic_add_example
+            RUNTIME DESTINATION ${INSTALL_BINDIR}
+            COMPONENT samples
         )
     endif()
 endfunction()
@@ -110,6 +132,9 @@ function(npp_configure_install)
     # 安装文档和示例
     npp_install_docs_examples()
     
+    # 安装示例可执行文件
+    npp_install_samples()
+    
     # 生成卸载脚本
     if(NOT TARGET uninstall)
         configure_file(
@@ -120,4 +145,11 @@ function(npp_configure_install)
         add_custom_target(uninstall
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
     endif()
+    
+    # 添加install目标的打印信息
+    message(STATUS "OpenNPP will be installed to: ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "  - Headers: ${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDEDIR}")
+    message(STATUS "  - Libraries: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIBDIR}")
+    message(STATUS "  - Samples: ${CMAKE_INSTALL_PREFIX}/${INSTALL_SAMPLEDIR}")
+    message(STATUS "  - Binaries: ${CMAKE_INSTALL_PREFIX}/${INSTALL_BINDIR}")
 endfunction()
