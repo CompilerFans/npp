@@ -2,11 +2,29 @@
 
 # 查找并配置GoogleTest
 function(npp_setup_gtest)
+    # 首先检查是否有源码版本的GoogleTest
+    if(EXISTS ${CMAKE_SOURCE_DIR}/third_party/googletest/CMakeLists.txt)
+        message(STATUS "Using in-tree GoogleTest source")
+        # 配置GoogleTest选项
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+        set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+        set(BUILD_GTEST ON CACHE BOOL "" FORCE)
+        
+        # 添加GoogleTest源码子目录
+        add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/googletest googletest EXCLUDE_FROM_ALL)
+        return()
+    endif()
+    
+    # 尝试查找系统安装的GoogleTest
     find_package(GTest QUIET)
     
     if(NOT GTest_FOUND)
-        message(STATUS "Using in-tree GoogleTest")
-        add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/googletest googletest EXCLUDE_FROM_ALL)
+        # 如果都找不到，创建模拟目标
+        message(WARNING "GoogleTest not found. Creating mock targets.")
+        add_library(gtest INTERFACE)
+        add_library(gtest_main INTERFACE)
+        target_compile_definitions(gtest INTERFACE GTEST_HAS_PTHREAD=0)
     else()
         message(STATUS "Using system GoogleTest")
     endif()
