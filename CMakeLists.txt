@@ -118,45 +118,82 @@ endif()
 
 # 测试选项
 option(BUILD_TESTS "Build tests" ON)
+option(BUILD_FUNCTIONAL_TESTS "Build functional tests" ON)
+option(BUILD_COMPARISON_TESTS "Build comparison tests" ON)
+option(BUILD_LEGACY_TESTS "Build legacy tests" OFF)
 option(ENABLE_NVIDIA_NPP_TESTS "Enable NVIDIA NPP comparison tests (requires NVIDIA NPP libraries)" ON)
 
 if(BUILD_TESTS)
     enable_testing()
     
+    # ========== 新测试结构 ==========
     
-    # ========== Google Test 测试 - 统一测试可执行程序 ==========
-    
-    # 递归查找所有测试文件
-    file(GLOB_RECURSE TEST_SOURCES
-        "test/unit/**/*.cpp"
-        "test/integration/**/*.cpp"
-        "test/benchmark/**/*.cpp"
-    )
-    
-    # 添加验证测试（需要NVIDIA NPP）
-    if(HAVE_NVIDIA_NPP)
-        file(GLOB_RECURSE VALIDATION_SOURCES
-            "test/validation/**/*.cpp"
-        )
-        list(APPEND TEST_SOURCES ${VALIDATION_SOURCES})
+    # 功能测试（纯单元测试，无外部依赖）
+    if(BUILD_FUNCTIONAL_TESTS)
+        add_subdirectory(test/functional)
     endif()
     
-    # 创建统一的测试可执行程序
-    add_executable(opennpp_test 
-        ${TEST_SOURCES}
-        ${NPP_CORE_SOURCES}
-        ${NPPI_SUPPORT_SOURCES}
-        ${CPU_SOURCES}
-        ${CUDA_SOURCES}
-    )
+    # 对比测试（与NVIDIA NPP对比）
+    if(BUILD_COMPARISON_TESTS AND HAVE_NVIDIA_NPP)
+        add_subdirectory(test/comparison)
+    endif()
     
-    # 链接库
-    target_link_libraries(opennpp_test PRIVATE 
-        gtest 
-        gtest_main 
-        CUDA::cudart
-        dl  # 添加动态链接库支持
-    )
+    # 遗留测试（向后兼容）
+    if(BUILD_LEGACY_TESTS)
+        # 递归查找遗留测试文件
+        file(GLOB_RECURSE LEGACY_TEST_SOURCES
+            "test/legacy/**/*.cpp"
+        )
+        
+        # 创建遗留测试可执行程序
+        add_executable(opennpp_legacy_test 
+            ${LEGACY_TEST_SOURCES}
+            ${CPU_SOURCES}
+            ${CUDA_SOURCES}
+        )
+        
+        # 链接库
+        target_link_libraries(opennpp_legacy_test PRIVATE 
+            gtest 
+            gtest_main 
+            CUDA::cudart
+            dl
+        )
+        
+        # 包含目录
+        target_include_directories(opennpp_legacy_test PRIVATE 
+            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/googletest/include
+        )
+        
+        # 如果有NVIDIA NPP，添加编译定义
+        if(HAVE_NVIDIA_NPP)
+            target_compile_definitions(opennpp_legacy_test PRIVATE HAVE_NVIDIA_NPP=1)
+            target_compile_definitions(opennpp_legacy_test PRIVATE 
+                NVIDIA_NPP_IAL_PATH="${NPP_LIBRARY_IAL}"
+                NVIDIA_NPP_CORE_PATH="${NPP_LIBRARY_CORE}"
+            )
+        endif()
+        
+        # 添加遗留测试
+        add_test(NAME legacy_tests COMMAND opennpp_legacy_test)
+    endif()
+    
+    # ========== 遗留统一测试（保留但不推荐使用） ==========
+    if(FALSE) # 暂时禁用旧的统一测试结构
+        # 创建统一的测试可执行程序
+        add_executable(opennpp_test 
+            ${LEGACY_TEST_SOURCES}
+            ${CPU_SOURCES}
+            ${CUDA_SOURCES}
+        )
+        
+        # 链接库
+        target_link_libraries(opennpp_test PRIVATE 
+            gtest 
+            gtest_main 
+            CUDA::cudart
+            dl  # 添加动态链接库支持
+        )
     
     # 包含目录
     target_include_directories(opennpp_test PRIVATE 
@@ -242,13 +279,43 @@ if(BUILD_TESTS)
         COMMENT "Generating test report..."
     )
     
-    # 运行特定测试的辅助目标（使用GTest过滤器）
-    add_custom_target(test_filter
-        COMMAND opennpp_test --gtest_filter="${GTEST_FILTER}"
-        DEPENDS ${ALL_TEST_TARGETS}
-        COMMENT "Running tests with filter: ${GTEST_FILTER}"
+        # 运行特定测试的辅助目标（使用GTest过滤器）
+        add_custom_target(test_filter
+            COMMAND opennpp_test --gtest_filter="${GTEST_FILTER}"
+            DEPENDS ${ALL_TEST_TARGETS}
+            COMMENT "Running tests with filter: ${GTEST_FILTER}"
+        )
+    endif() # 结束旧的统一测试结构
+    
+    # ========== 新测试结构目标 ==========
+    
+    # 添加新的综合测试目标
+    add_custom_target(test_new_all
+        COMMENT "Running all new structure tests..."
     )
-endif()
+    
+    if(BUILD_FUNCTIONAL_TESTS)
+        add_custom_target(test_functional
+            COMMAND ${CMAKE_CTEST_COMMAND} -R "NPP_Functional_Tests" --output-on-failure
+            COMMENT "Running functional unit tests..."
+        )
+    endif()
+    
+    if(BUILD_COMPARISON_TESTS AND HAVE_NVIDIA_NPP)
+        add_custom_target(test_comparison
+            COMMAND ${CMAKE_CTEST_COMMAND} -R "NPP_Comparison_Tests" --output-on-failure
+            COMMENT "Running comparison tests vs NVIDIA NPP..."
+        )
+    endif()
+    
+    if(BUILD_LEGACY_TESTS)
+        add_custom_target(test_legacy
+            COMMAND ${CMAKE_CTEST_COMMAND} -R "legacy_tests" --output-on-failure
+            COMMENT "Running legacy tests..."
+        )
+    endif()
+    
+endif() # BUILD_TESTS
 
 # 编译器特定选项
 if(MSVC)
