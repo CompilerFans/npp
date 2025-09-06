@@ -46,6 +46,11 @@ function(npp_create_test_target target_name sources library_target)
         PRIVATE
         ${CMAKE_SOURCE_DIR}     # 项目根目录
     )
+    
+    # 设置输出目录到build根目录
+    set_target_properties(${target_name} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
 endfunction()
 
 # 注册CTest测试
