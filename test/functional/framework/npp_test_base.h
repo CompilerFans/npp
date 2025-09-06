@@ -151,7 +151,7 @@ class NppImageMemory {
 public:
     NppImageMemory() : ptr_(nullptr), step_(0), width_(0), height_(0) {}
     
-    NppImageMemory(int width, int height) : width_(width), height_(height) {
+    NppImageMemory(int width, int height) : ptr_(nullptr), step_(0), width_(width), height_(height) {
         allocate(width, height);
     }
     
