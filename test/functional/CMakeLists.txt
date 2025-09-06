@@ -39,14 +39,36 @@ set(FUNCTIONAL_TEST_FRAMEWORK_SOURCES
 # 功能测试源文件
 set(FUNCTIONAL_TEST_SOURCES
     arithmetic/test_add_functional.cpp
+    arithmetic/test_arithmetic_constants_functional.cpp
+    arithmetic/test_arithmetic_dual_source_functional.cpp
+    core/test_npp_core_functional.cpp
+    data_exchange/test_transpose_functional.cpp
 )
 
 # NPP库源文件（需要链接的实现）
 set(NPP_LIB_SOURCES
     ../../src/nppcore/nppcore.cpp
     ../../src/nppi/nppi_support_functions.cpp
+    # 算术运算
     ../../src/nppi/nppi_arithmetic_operations/nppi_add.cpp
     ../../src/nppi/nppi_arithmetic_operations/nppi_add.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_div.cu
+    ../../src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+    ../../src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+    # 数据交换
+    ../../src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+    ../../src/nppi/nppi_data_exchange_operations/nppi_transpose.cu
 )
 
 # 创建NPP功能测试可执行文件
