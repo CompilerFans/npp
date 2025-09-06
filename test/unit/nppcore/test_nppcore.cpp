@@ -76,7 +76,8 @@ TEST_F(NppCoreFunctionalTest, StreamContext_DefaultContext) {
     nppGetStreamContext(&default_ctx);
     
     // 验证默认context的有效性
-    EXPECT_NE(default_ctx.hStream, nullptr) << "Default stream should be valid";
+    // 默认流通常是0 (nullptr)，这是合法的CUDA默认流
+    // EXPECT_NE(default_ctx.hStream, nullptr) << "Default stream should be valid";
     EXPECT_GE(default_ctx.nCudaDeviceId, 0) << "Device ID should be valid";
     EXPECT_GT(default_ctx.nMultiProcessorCount, 0) << "Should have positive number of SMs";
     EXPECT_GT(default_ctx.nMaxThreadsPerMultiProcessor, 0) << "Should have positive max threads per SM";

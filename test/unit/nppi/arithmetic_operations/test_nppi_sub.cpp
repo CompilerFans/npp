@@ -40,8 +40,8 @@ TEST_F(SubFunctionalTest, Sub_8u_C1RSfs_BasicOperation) {
     
     NppiSize roi = {width, height};
     NppStatus status = nppiSub_8u_C1RSfs(
-        src2.get(), src2.step(),
         src1.get(), src1.step(),
+        src2.get(), src2.step(),
         dst.get(), dst.step(),
         roi, scaleFactor);
     
@@ -75,8 +75,8 @@ TEST_F(SubFunctionalTest, Sub_32f_C1R_BasicOperation) {
     
     NppiSize roi = {width, height};
     NppStatus status = nppiSub_32f_C1R(
-        src2.get(), src2.step(),
         src1.get(), src1.step(),
+        src2.get(), src2.step(),
         dst.get(), dst.step(),
         roi);
     
