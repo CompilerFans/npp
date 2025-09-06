@@ -23,4 +23,5 @@ npp_test_runner
 !test/*.h
 !test/*/*.cpp
 !test/*/*.h
-third_party/
+# third_party目录但允许submodule
+# third_party/ 注释掉以允许submodule

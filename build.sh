@@ -9,6 +9,8 @@ echo "=== NPP Library Build Script ==="
 # Default values
 BUILD_TYPE="Release"
 JOBS=$(nproc)
+BUILD_TESTS="ON"
+BUILD_EXAMPLES="ON"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -21,6 +23,19 @@ while [[ $# -gt 0 ]]; do
             JOBS="$2"
             shift 2
             ;;
+        --no-tests)
+            BUILD_TESTS="OFF"
+            shift
+            ;;
+        --no-examples)
+            BUILD_EXAMPLES="OFF"
+            shift
+            ;;
+        --lib-only)
+            BUILD_TESTS="OFF"
+            BUILD_EXAMPLES="OFF"
+            shift
+            ;;
         clean)
             echo "Cleaning build directory..."
             rm -rf build/
@@ -32,6 +47,9 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  -d, --debug     Debug build"
             echo "  -j N            Use N parallel jobs"
+            echo "  --no-tests      Skip building tests"
+            echo "  --no-examples   Skip building examples"
+            echo "  --lib-only      Build library only (no tests, no examples)"
             echo "  clean           Clean build directory"
             echo "  -h, --help      Show help"
             exit 0
@@ -49,9 +67,12 @@ cd build
 
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
+echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES"
 cmake .. \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_CUDA_ARCHITECTURES="89"
+    -DCMAKE_CUDA_ARCHITECTURES="89" \
+    -DBUILD_TESTS="$BUILD_TESTS" \
+    -DBUILD_EXAMPLES="$BUILD_EXAMPLES"
 
 # Build
 echo "Building with $JOBS jobs..."

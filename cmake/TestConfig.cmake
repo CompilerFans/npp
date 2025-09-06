@@ -20,11 +20,7 @@ function(npp_setup_gtest)
     find_package(GTest QUIET)
     
     if(NOT GTest_FOUND)
-        # 如果都找不到，创建模拟目标
-        message(WARNING "GoogleTest not found. Creating mock targets.")
-        add_library(gtest INTERFACE)
-        add_library(gtest_main INTERFACE)
-        target_compile_definitions(gtest INTERFACE GTEST_HAS_PTHREAD=0)
+        message(STATUS "System GoogleTest not found. Using in-tree GoogleTest.")
     else()
         message(STATUS "Using system GoogleTest")
     endif()
