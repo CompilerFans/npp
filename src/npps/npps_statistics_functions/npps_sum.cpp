@@ -2,7 +2,12 @@
 #include <cuda_runtime.h>
 #include <cstring>
 #include <algorithm>
-#include "../include/npps_kernels.h"
+
+// Forward declarations for CUDA kernels (implemented in .cu file)
+extern "C" {
+    cudaError_t nppsSum_32f_kernel(const Npp32f* pSrc, size_t nLength, Npp32f* pSum, Npp8u* pDeviceBuffer, cudaStream_t stream);
+    cudaError_t nppsSum_32fc_kernel(const Npp32fc* pSrc, size_t nLength, Npp32fc* pSum, Npp8u* pDeviceBuffer, cudaStream_t stream);
+}
 
 /**
  * NPPS Statistics Functions Implementation - Sum Functions

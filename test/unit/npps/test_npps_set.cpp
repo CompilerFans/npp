@@ -14,11 +14,6 @@ using namespace npp_functional_test;
 class NPPSSetFunctionalTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // 获取GPU设备名称用于测试输出
-        const char* deviceName = nppGetGpuName();
-        if (deviceName) {
-            std::cout << "Using GPU: " << deviceName << std::endl;
-        }
     }
 };
 

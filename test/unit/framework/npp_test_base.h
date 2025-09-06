@@ -38,8 +38,6 @@ protected:
         // 获取设备属性
         err = cudaGetDeviceProperties(&deviceProp_, 0);
         ASSERT_EQ(err, cudaSuccess) << "Failed to get device properties";
-        
-        std::cout << "Using GPU: " << deviceProp_.name << std::endl;
     }
     
     void TearDown() override {

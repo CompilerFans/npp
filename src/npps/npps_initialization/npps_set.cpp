@@ -1,7 +1,13 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <cstring>
-#include "../include/npps_kernels.h"
+
+// Forward declarations for CUDA kernels (implemented in .cu file)
+extern "C" {
+    cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u* pDst, size_t nLength, cudaStream_t stream);
+    cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f* pDst, size_t nLength, cudaStream_t stream);
+    cudaError_t nppsSet_32fc_kernel(Npp32fc nValue, Npp32fc* pDst, size_t nLength, cudaStream_t stream);
+}
 
 /**
  * NPPS Initialization Functions Implementation - Set Functions
@@ -125,11 +131,4 @@ NppStatus nppsZero_32f_Ctx(Npp32f * pDst, size_t nLength, NppStreamContext nppSt
 NppStatus nppsZero_32f(Npp32f * pDst, size_t nLength)
 {
     return nppsSet_32f(0.0f, pDst, nLength);
-}
-
-// Forward declarations for CUDA kernels (implemented in .cu file)
-extern "C" {
-    cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u* pDst, size_t nLength, cudaStream_t stream);
-    cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f* pDst, size_t nLength, cudaStream_t stream);
-    cudaError_t nppsSet_32fc_kernel(Npp32fc nValue, Npp32fc* pDst, size_t nLength, cudaStream_t stream);
 }
