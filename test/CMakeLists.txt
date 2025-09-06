@@ -1,68 +1,29 @@
-# OpenNPP测试模块CMakeLists.txt
-# 组织所有测试的构建配置
+# NPP测试套件CMake配置
 
-# 核心测试
-add_executable(test_nppcore 
-    test/nppcore/test_nppcore.cpp 
-    ${NPP_CORE_SOURCES}
-)
-target_link_libraries(test_nppcore PRIVATE CUDA::cudart)
-target_compile_features(test_nppcore PRIVATE cxx_std_17)
+# 查找GoogleTest
+find_package(GTest QUIET)
 
-# NPPI支持函数测试
-add_executable(test_nppi_support 
-    test/nppi/test_nppi_support_functions.cpp 
-    ${NPPI_SUPPORT_SOURCES}
-)
-target_link_libraries(test_nppi_support PRIVATE CUDA::cudart)
-target_compile_features(test_nppi_support PRIVATE cxx_std_17)
+if(NOT GTest_FOUND)
+    # 使用项目中的GoogleTest
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/googletest googletest EXCLUDE_FROM_ALL)
+endif()
 
-# 算术运算综合测试（新框架）
-add_executable(test_arithmetic_comprehensive 
-    test/test_arithmetic_comprehensive.cpp 
-    ${CPU_SOURCES} 
-    ${CUDA_SOURCES}
-)
-target_link_libraries(test_arithmetic_comprehensive PRIVATE 
-    CUDA::cudart
-    ${NPP_LIBRARY_IAL} 
-    ${NPP_LIBRARY_CORE}
-)
-target_compile_definitions(test_arithmetic_comprehensive PRIVATE HAVE_NVIDIA_NPP=1)
-target_compile_features(test_arithmetic_comprehensive PRIVATE cxx_std_17)
+# 测试构建选项
+option(BUILD_FUNCTIONAL_TESTS "Build functional tests" ON)
+option(BUILD_COMPARISON_TESTS "Build comparison tests" OFF)
+option(BUILD_LEGACY_TESTS "Build legacy tests" OFF)
 
-# 三方验证测试V2（主要验证测试）
-add_executable(test_validation 
-    test/test_three_way_validation_v2.cpp 
-    ${CPU_SOURCES} 
-    ${CUDA_SOURCES}
-)
-target_link_libraries(test_validation PRIVATE 
-    CUDA::cudart
-    ${NPP_LIBRARY_IAL} 
-    ${NPP_LIBRARY_CORE}
-)
-target_compile_definitions(test_validation PRIVATE HAVE_NVIDIA_NPP=1)
-target_compile_features(test_validation PRIVATE cxx_std_17)
+# 功能测试（独立单元测试）
+if(BUILD_FUNCTIONAL_TESTS)
+    add_subdirectory(functional)
+endif()
 
-# NPPI内存分配测试
-add_executable(test_nppi_memory 
-    test/test_comprehensive_arithmetic_nppi.cpp 
-    ${CPU_SOURCES} 
-    ${CUDA_SOURCES}
-)
-target_link_libraries(test_nppi_memory PRIVATE 
-    CUDA::cudart
-    ${NPP_LIBRARY_IAL} 
-    ${NPP_LIBRARY_CORE}
-)
-target_compile_definitions(test_nppi_memory PRIVATE HAVE_NVIDIA_NPP=1)
-target_compile_features(test_nppi_memory PRIVATE cxx_std_17)
+# 对比测试（与NVIDIA NPP对比）
+if(BUILD_COMPARISON_TESTS)
+    add_subdirectory(comparison)
+endif()
 
-# 添加CTest测试
-enable_testing()
-add_test(NAME NppCore COMMAND test_nppcore)
-add_test(NAME NppiSupport COMMAND test_nppi_support)
-add_test(NAME Arithmetic COMMAND test_arithmetic_comprehensive)
-add_test(NAME Validation COMMAND test_validation)
-add_test(NAME Memory COMMAND test_nppi_memory)
+# 遗留测试（向后兼容）
+if(BUILD_LEGACY_TESTS)
+    add_subdirectory(legacy)
+endif()
