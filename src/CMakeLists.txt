@@ -14,3 +14,12 @@ npp_setup_target(npp)
 
 # 添加NPP特有包含目录
 npp_add_common_includes(npp)
+
+# 设置库的导出名称
+set_target_properties(npp PROPERTIES
+    OUTPUT_NAME "opennpp"
+    EXPORT_NAME "npp"
+)
+
+# 安装库文件
+npp_install_library(npp)

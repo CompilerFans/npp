@@ -7,6 +7,10 @@ include(CommonConfig)
 include(CudaConfig)
 include(FindSources)
 include(TestConfig)
+include(InstallConfig)
+
+# 需要的cmake模块
+include(CMakePackageConfigHelpers)
 
 # 配置CUDA环境
 npp_configure_cuda()
@@ -16,8 +20,16 @@ add_subdirectory(src)
 
 # 构建选项
 option(BUILD_TESTS "Build tests" ON)
+option(BUILD_EXAMPLES "Build examples" ON)
 
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+# 配置安装
+npp_configure_install()
