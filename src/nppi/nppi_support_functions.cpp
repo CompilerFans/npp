@@ -15,17 +15,17 @@ static T* nppiMallocTemplate(int nWidthPixels, int nHeightPixels, int nChannels,
     if (nWidthPixels <= 0 || nHeightPixels <= 0 || nChannels <= 0 || !pStepBytes) {
         return nullptr;
     }
-
+    
     void* devPtr = nullptr;
     size_t pitch = 0;
-
+    
     size_t widthInBytes = nWidthPixels * nChannels * sizeof(T);
     cudaError_t result = cudaMallocPitch(&devPtr, &pitch, widthInBytes, nHeightPixels);
-
+    
     if (result != cudaSuccess) {
         return nullptr;
     }
-
+    
     *pStepBytes = static_cast<int>(pitch);
     return static_cast<T*>(devPtr);
 }

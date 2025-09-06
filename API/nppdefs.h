@@ -998,6 +998,15 @@ typedef struct
     Npp32f * pTwist;    /**< device memory pointer to the color twist matrix with floating-point coefficient values to be used for this image. */
 } NppiColorTwistBatchCXR;
 
+/**
+ * Profile data type for radial and linear profiles
+ */
+typedef struct
+{
+    int nPixels;                /**< profile data pixel count. */    
+    Npp32f nMeanIntensity;      /**< profile data mean intensity. */
+    Npp32f nStdDevIntensity;    /**< profile data standard deviation intensity. */
+} NppiProfileData;
 
 
 #ifdef __cplusplus

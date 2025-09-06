@@ -1,4 +1,4 @@
- /* Copyright 2009-2022 NVIDIA CORPORATION & AFFILIATES.  All rights reserved. 
+ /* Copyright 2009-2024 NVIDIA CORPORATION & AFFILIATES.  All rights reserved. 
   * 
   * NOTICE TO LICENSEE: 
   * 
@@ -57,6 +57,15 @@
  *  info about the CUDA compute capabilities on a given computer.
  */
  
+#if (!defined(_WIN32) && !defined(_WIN64))
+#ifdef NPP_PLUS
+#define NPP_LNX_EXTERN_C 1
+/**<  Supports Linux NPP_Plus namespace linkage  */
+#endif
+#else // (!defined(_WIN32) && !defined(_WIN64))
+#undef NPP_LNX_EXTERN_C
+#endif // (!defined(_WIN32) && !defined(_WIN64))
+
 #include "nppdefs.h"
 
 #ifdef __cplusplus
@@ -66,29 +75,41 @@ using namespace nppPlusV;
 extern "C" {
 #endif
 #endif
- 
+
 /** 
- * \page core_npp NPP Core
- * @defgroup core_npp NPP Core
+ * \page core_npp NPP_Plus and NPP Core
+ * @defgroup core_npp NPP_Plus and NPP Core
  * Basic functions for library management, in particular library version
  * and device property query functions.
  * @{
  */
 
+
+#ifdef NPP_PLUS
+namespace nppPlusV {
+#endif
 /**
  * Get the NPP library version.
  *
  * \return A struct containing separate values for major and minor revision 
  *      and build number.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 const NppLibraryVersion * 
 nppGetLibVersion(void);
+
+// NOTE:The remainder of these functions are no longer supported for external use.
 
 /**
  * Get the number of Streaming Multiprocessors (SM) on the active CUDA device.
  *
  * \return Number of SMs of the default CUDA device.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 int 
 nppGetGpuNumSMs(void);
 
@@ -97,6 +118,9 @@ nppGetGpuNumSMs(void);
  *
  * \return Maximum number of threads per block on the active CUDA device.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 int 
 nppGetMaxThreadsPerBlock(void);
 
@@ -105,6 +129,9 @@ nppGetMaxThreadsPerBlock(void);
  *
  * \return Maximum number of threads per SM for the active GPU
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 int 
 nppGetMaxThreadsPerSM(void);
 
@@ -113,6 +140,9 @@ nppGetMaxThreadsPerSM(void);
  *
  * \return cudaSuccess for success, -1 for failure
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 int 
 nppGetGpuDeviceProperties(int * pMaxThreadsPerSM, int * pMaxThreadsPerBlock, int * pNumberOfSMs);
 
@@ -121,6 +151,9 @@ nppGetGpuDeviceProperties(int * pMaxThreadsPerSM, int * pMaxThreadsPerBlock, int
  *
  * \return Name string of the active graphics-card/compute device in a system.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 const char * 
 nppGetGpuName(void);
 
@@ -132,6 +165,9 @@ nppGetGpuName(void);
  * issued by NPP (e.g. kernels launched by the NPP library) are then
  * issed to that NPP stream.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 cudaStream_t
 nppGetStream(void);
 
@@ -147,6 +183,9 @@ nppGetStream(void);
  * can be intermixed with application managed stream context calls but any NPP managed stream context calls will always use the most recent 
  * stream set by nppSetStream() or the NULL stream if nppSetStream() has never been called. 
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 NppStatus
 nppGetStreamContext(NppStreamContext * pNppStreamContext);
 
@@ -158,6 +197,9 @@ nppGetStreamContext(NppStreamContext * pNppStreamContext);
  * issued by NPP (e.g. kernels launched by the NPP library) are then
  * issed to that NPP stream.  This call avoids a cudaGetDeviceProperties() call.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 unsigned int
 nppGetStreamNumSMs(void);
 
@@ -169,6 +211,9 @@ nppGetStreamNumSMs(void);
  * issued by NPP (e.g. kernels launched by the NPP library) are then
  * issed to that NPP stream.  This call avoids a cudaGetDeviceProperties() call.
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 unsigned int
 nppGetStreamMaxThreadsPerSM(void);
 
@@ -178,8 +223,15 @@ nppGetStreamMaxThreadsPerSM(void);
  *   the desired stream since unnecessarily flushing the current stream can significantly affect performance.
  * \see nppGetStream()
  */
+#ifdef NPP_LNX_EXTERN_C
+extern "C"
+#endif
 NppStatus
 nppSetStream(cudaStream_t hStream);
+
+#ifdef NPP_PLUS
+}
+#endif
 
 /** @} core_npp */ 
 

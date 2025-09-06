@@ -65,11 +65,11 @@
 /**
  * Patch version
  */
-#define NPP_VER_PATCH 0
+#define NPP_VER_PATCH 3
 /**
  * Build version
  */
-#define NPP_VER_BUILD 116
+#define NPP_VER_BUILD 65
 
 /**
  * Full version

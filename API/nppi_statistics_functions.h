@@ -1,4 +1,4 @@
- /* Copyright 2009-2023 NVIDIA CORPORATION & AFFILIATES.  All rights reserved. 
+ /* Copyright 2009-2024 NVIDIA CORPORATION & AFFILIATES.  All rights reserved. 
   * 
   * NOTICE TO LICENSEE: 
   * 
@@ -26811,6 +26811,46 @@ NppStatus nppiWMSSSIMBatch_8u_C3R_Advanced(const NppiImageDescriptor * pSrc1Batc
 /** @} WMSSSIMBatchAdvanced */
 
 /** @} batch_image_quality_assessment_advanced */
+
+/** @name Profiles
+ * @{
+ */
+
+/**
+ * One-channel 32-bit Circular radial profile based upon a specified center point.
+ *
+ * \param pSrc \ref source_image_pointer.
+ * \param nSrcStep \ref source_image_line_step.
+ * \param oSizeROI \ref roi_specification.
+ * \param oCenter center of circle that radial profile is computed from.  Center does not have to be on the image.
+ * \param pProfileData pointer to output NppiProfileData array containing count, mean, and std_dev as a function of radius.
+ * \param nProfileSamples number of radii to be sampled: from 0 through nProfileSamples-1.
+ * \param nppStreamCtx \ref application_managed_stream_context.
+ * \return \ref image_data_error_codes, \ref roi_error_codes.
+*/
+NppStatus nppiCircularRadialProfile_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, NppiSize oSizeROI, NppiPoint32f oCenter,
+    NppiProfileData *pProfileData, Npp16u nProfileSamples, NppStreamContext nppStreamCtx);
+
+/**
+ * One-channel 32-bit Elliptical radial profile based upon a specified center point, angle, and astigmatism.
+ *
+ * \param pSrc \ref source_image_pointer.
+ * \param nSrcStep \ref source_image_line_step.
+ * \param oSizeROI \ref roi_specification.
+ * \param oCenter center of circle that radial profile is computed from.  Center does not have to be on the image.
+ * \param nAstigmatismRatio ratio of orientation axis to orthogonal axis.  (i.e. 1.5 means stretched 1.5x)
+ * \param nOrientationRadians orientation of the astigmatism, clockwise in radians with 0.0 being vertical.
+ * \param pProfileData pointer to output NppiProfileData array containing count, mean, and std_dev as a function of radius.
+ * \param nProfileSamples number of radii to be sampled: from 0 through nProfileSamples-1.
+ * \param nppStreamCtx \ref application_managed_stream_context.
+ * \return \ref image_data_error_codes, \ref roi_error_codes.
+*/
+NppStatus nppiEllipticalRadialProfile_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, NppiSize oSizeROI, NppiPoint32f oCenter,
+    Npp32f nAstigmatismRatio, Npp32f nOrientationRadians, NppiProfileData *pProfileData, Npp16u nProfileSamples, NppStreamContext nppStreamCtx);
+
+
+/** @} Profiles */
+
 
 /** @} image_statistics_functions */
 
