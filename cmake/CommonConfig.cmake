@@ -22,7 +22,7 @@ endfunction()
 # 添加NPP通用包含目录
 function(npp_add_common_includes target)
     target_include_directories(${target} PUBLIC 
-        ${CMAKE_SOURCE_DIR}/api
+        ${CMAKE_SOURCE_DIR}/API
         ${CMAKE_SOURCE_DIR}/src/include
     )
     target_include_directories(${target} PRIVATE
