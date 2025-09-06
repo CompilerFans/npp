@@ -5,7 +5,7 @@
  * 专注于API功能验证，不涉及性能对比和NVIDIA NPP依赖
  */
 
-#include "test/functional/framework/npp_test_base.h"
+#include "../../framework/npp_test_base.h"
 
 using namespace npp_functional_test;
 

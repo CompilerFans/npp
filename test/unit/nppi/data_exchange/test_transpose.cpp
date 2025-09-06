@@ -5,7 +5,7 @@
  * 专注于矩阵转置操作的功能验证，包括不同数据类型和尺寸
  */
 
-#include "test/functional/framework/npp_test_base.h"
+#include "../../framework/npp_test_base.h"
 #include <iomanip>
 
 using namespace npp_functional_test;

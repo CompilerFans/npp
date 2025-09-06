@@ -5,7 +5,7 @@
  * 测试NPP库的核心功能，包括版本信息、设备管理、内存分配等
  */
 
-#include "test/functional/framework/npp_test_base.h"
+#include "../framework/npp_test_base.h"
 
 using namespace npp_functional_test;
 

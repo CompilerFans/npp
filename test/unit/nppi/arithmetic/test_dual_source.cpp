@@ -5,7 +5,7 @@
  * 专注于两个源图像间算术运算的功能验证
  */
 
-#include "test/functional/framework/npp_test_base.h"
+#include "../../framework/npp_test_base.h"
 
 using namespace npp_functional_test;
 
