@@ -115,6 +115,24 @@ NppStatus
 nppiMagnitude_32fc32f_C1R(const Npp32fc * pSrc, int nSrcStep,
                                 Npp32f  * pDst, int nDstStep,
                           NppiSize oSizeROI);
+
+/**
+ * Two-channel 32-bit floating point to 32-bit floating point magnitude.
+ * 
+ * Converts two-channel interleaved floating point pixel image (real, imaginary) 
+ * to single channel image computing the result pixels as the magnitude of the complex values.
+ * 
+ * \param pSrc \ref source_image_pointer (two-channel interleaved).
+ * \param nSrcStep \ref source_image_line_step.
+ * \param pDst \ref destination_image_pointer.
+ * \param nDstStep \ref destination_image_line_step.
+ * \param oSizeROI \ref roi_specification.
+ * \return \ref image_data_error_codes, \ref roi_error_codes
+ */                                       
+NppStatus
+nppiMagnitude_32f_C2R(const Npp32f * pSrc, int nSrcStep,
+                            Npp32f * pDst, int nDstStep,
+                      NppiSize oSizeROI);
                                           
 /**
  * 32-bit floating point complex to 32-bit floating point squared magnitude.

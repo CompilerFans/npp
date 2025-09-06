@@ -202,6 +202,7 @@ typedef enum /**< NppStatus NPP return value */
     NPP_LUT_PALETTE_BITSIZE_ERROR           = -1030,    /**< Color look up table bitsize error.*/
     NPP_ZC_MODE_NOT_SUPPORTED_ERROR         = -1028,    /**< ZeroCrossing mode not supported error. */
     NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY   = -1027,    /**< Not sufficient Cuda compute capability error. */
+    NPP_FUNCTION_NOT_IMPLEMENTED            = -1026,    /**< Function not implemented in this NPP library build. */
     NPP_TEXTURE_BIND_ERROR                  = -1024,    /**< Texture bind error. */
     NPP_WRONG_INTERSECTION_ROI_ERROR        = -1020,    /**< Wrong intersection region of interest error. */
     NPP_HAAR_CLASSIFIER_PIXEL_MATCH_ERROR   = -1006,    /**< Haar classifier pixel match error. */

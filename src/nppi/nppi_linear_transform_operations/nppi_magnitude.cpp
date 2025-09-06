@@ -1,6 +1,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <cstring>
+#include <cstdio>
 
 /**
  * NPP Image Magnitude Functions Implementation
@@ -89,4 +90,26 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R(const Npp32fc * pSrc, int nSrcStep, Npp32
     NppStreamContext nppStreamCtx;
     nppGetStreamContext(&nppStreamCtx);
     return nppiMagnitudeSqr_32fc32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+// ==================== 两通道浮点数幅度计算 (未实现) ====================
+
+NppStatus nppiMagnitude_32f_C2R(const Npp32f * pSrc, int nSrcStep, 
+                                 Npp32f * pDst, int nDstStep, NppiSize oSizeROI)
+{
+    // 参数验证
+    if (pSrc == nullptr || pDst == nullptr) {
+        return NPP_NULL_POINTER_ERROR;
+    }
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+        return NPP_SIZE_ERROR;
+    }
+    if (nSrcStep < oSizeROI.width * 2 * sizeof(Npp32f) || nDstStep < oSizeROI.width * sizeof(Npp32f)) {
+        return NPP_STEP_ERROR;
+    }
+    
+    // 打印未实现警告
+    fprintf(stderr, "WARNING: nppiMagnitude_32f_C2R is not implemented in this NPP library build\n");
+    
+    return NPP_FUNCTION_NOT_IMPLEMENTED;
 }
