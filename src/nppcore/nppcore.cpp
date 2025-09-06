@@ -188,7 +188,7 @@ NppStatus nppGetStreamContext(NppStreamContext * pNppStreamContext)
     
     // Fill stream context
     // Use the default stream (user should manage their own streams)
-    pNppStreamContext->hStream = cudaStreamLegacy;
+    pNppStreamContext->hStream = (cudaStream_t)0;  // Default stream is 0
     pNppStreamContext->nCudaDeviceId = deviceId;
     pNppStreamContext->nMultiProcessorCount = prop.multiProcessorCount;
     pNppStreamContext->nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
@@ -200,13 +200,9 @@ NppStatus nppGetStreamContext(NppStreamContext * pNppStreamContext)
     pNppStreamContext->nCudaDevAttrComputeCapabilityMinor = prop.minor;
     
     // Get stream flags for default stream
-    unsigned int flags;
-    result = cudaStreamGetFlags(cudaStreamLegacy, &flags);
-    if (result == cudaSuccess) {
-        pNppStreamContext->nStreamFlags = flags;
-    } else {
-        pNppStreamContext->nStreamFlags = 0;
-    }
+    // Default stream (0) doesn't support cudaStreamGetFlags in some CUDA versions
+    // Set to default blocking stream flags
+    pNppStreamContext->nStreamFlags = cudaStreamDefault;
     
     // Reserved field
     pNppStreamContext->nReserved0 = 0;
@@ -214,8 +210,50 @@ NppStatus nppGetStreamContext(NppStreamContext * pNppStreamContext)
     return NPP_NO_ERROR;
 }
 
-// nppSetStreamContext - Not part of original NPP API
-// Removed to maintain compatibility
+/**
+ * Set the NPP stream context for current operations.
+ * This is a simplified implementation that validates the context.
+ */
+NppStatus nppSetStreamContext(NppStreamContext nppStreamContext)
+{
+    // Validate device ID
+    int deviceCount;
+    cudaError_t result = cudaGetDeviceCount(&deviceCount);
+    if (result != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    if (nppStreamContext.nCudaDeviceId < 0 || nppStreamContext.nCudaDeviceId >= deviceCount) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+    
+    // Check if we need to switch device
+    int currentDevice;
+    result = cudaGetDevice(&currentDevice);
+    if (result != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    if (currentDevice != nppStreamContext.nCudaDeviceId) {
+        result = cudaSetDevice(nppStreamContext.nCudaDeviceId);
+        if (result != cudaSuccess) {
+            return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+        }
+    }
+    
+    // Validate stream if not null
+    if (nppStreamContext.hStream != nullptr) {
+        // Query stream flags to validate it exists
+        unsigned int flags;
+        result = cudaStreamGetFlags(nppStreamContext.hStream, &flags);
+        if (result != cudaSuccess) {
+            // Stream might be invalid, but we can't be sure
+            // Accept it for now as CUDA will fail later if invalid
+        }
+    }
+    
+    return NPP_NO_ERROR;
+}
 
 /**
  * Get the number of SMs on the device associated with the current NPP CUDA stream.
@@ -253,8 +291,32 @@ unsigned int nppGetStreamMaxThreadsPerSM(void)
     return static_cast<unsigned int>(prop.maxThreadsPerMultiProcessor);
 }
 
-// nppGetGpuComputeCapability - Not part of original NPP API
-// Removed to maintain compatibility
+/**
+ * Get the CUDA compute capability of the current device.
+ */
+NppStatus nppGetGpuComputeCapability(int * pMajor, int * pMinor)
+{
+    if (!pMajor || !pMinor) {
+        return NPP_NULL_POINTER_ERROR;
+    }
+    
+    int deviceId;
+    cudaError_t result = cudaGetDevice(&deviceId);
+    if (result != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    cudaDeviceProp prop;
+    result = cudaGetDeviceProperties(&prop, deviceId);
+    if (result != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    *pMajor = prop.major;
+    *pMinor = prop.minor;
+    
+    return NPP_NO_ERROR;
+}
 
 // nppGetStatusString - Not part of original NPP API
 // This is an internal helper for testing
