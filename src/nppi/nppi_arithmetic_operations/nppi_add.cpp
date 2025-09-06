@@ -9,45 +9,33 @@
 
 // Forward declarations for CUDA implementations
 extern "C" {
-// 8-bit unsigned
-NppStatus nppiAdd_8u_C1RSfs_Ctx_cuda(
-    const Npp8u* pSrc1, int nSrc1Step, const Npp8u* pSrc2, int nSrc2Step,
-    Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_8u_C1RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const Npp8u* pSrc2, int nSrc2Step,
+                                     Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                     NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_8u_C3RSfs_Ctx_cuda(
-    const Npp8u* pSrc1, int nSrc1Step, const Npp8u* pSrc2, int nSrc2Step,
-    Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_8u_C3RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const Npp8u* pSrc2, int nSrc2Step,
+                                     Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                     NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_8u_C4RSfs_Ctx_cuda(
-    const Npp8u* pSrc1, int nSrc1Step, const Npp8u* pSrc2, int nSrc2Step,
-    Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_8u_C4RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const Npp8u* pSrc2, int nSrc2Step,
+                                     Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                     NppStreamContext nppStreamCtx);
 
-// 16-bit unsigned
-NppStatus nppiAdd_16u_C1RSfs_Ctx_cuda(
-    const Npp16u* pSrc1, int nSrc1Step, const Npp16u* pSrc2, int nSrc2Step,
-    Npp16u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_16u_C1RSfs_Ctx_cuda(const Npp16u* pSrc1, int nSrc1Step, const Npp16u* pSrc2, int nSrc2Step,
+                                      Npp16u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx);
 
-// 16-bit signed
-NppStatus nppiAdd_16s_C1RSfs_Ctx_cuda(
-    const Npp16s* pSrc1, int nSrc1Step, const Npp16s* pSrc2, int nSrc2Step,
-    Npp16s* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_16s_C1RSfs_Ctx_cuda(const Npp16s* pSrc1, int nSrc1Step, const Npp16s* pSrc2, int nSrc2Step,
+                                      Npp16s* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx);
 
-// 32-bit float
-NppStatus nppiAdd_32f_C1R_Ctx_cuda(
-    const Npp32f* pSrc1, int nSrc1Step, const Npp32f* pSrc2, int nSrc2Step,
-    Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_32f_C1R_Ctx_cuda(const Npp32f* pSrc1, int nSrc1Step, const Npp32f* pSrc2, int nSrc2Step,
+                                  Npp32f* pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_32f_C3R_Ctx_cuda(
-    const Npp32f* pSrc1, int nSrc1Step, const Npp32f* pSrc2, int nSrc2Step,
-    Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
-    NppStreamContext nppStreamCtx);
+NppStatus nppiAdd_32f_C3R_Ctx_cuda(const Npp32f* pSrc1, int nSrc1Step, const Npp32f* pSrc2, int nSrc2Step,
+                                  Npp32f* pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
+
 
 /**
  * Helper function for parameter validation
