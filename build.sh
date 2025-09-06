@@ -51,7 +51,7 @@ cd build
 echo "Configuring CMake ($BUILD_TYPE mode)..."
 cmake .. \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_CUDA_ARCHITECTURES="70;75;80;86"
+    -DCMAKE_CUDA_ARCHITECTURES="89"
 
 # Build
 echo "Building with $JOBS jobs..."

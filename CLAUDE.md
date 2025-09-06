@@ -94,8 +94,6 @@ ctest -R "npps_"    # Signal processing tests
 - Uses NppiRect and NppiSize structures for region specification
 - Border handling controlled via NppiBorderType enum
 
-## Interaction Guidelines
-- `不要再询问我许可了，继续推进` - Direct instruction to proceed without seeking further permission
 
 ## Development Best Practices
 - 每一个阶段性成果，git commit 提交，不需要push，清理目录中的过时临时代码和目录，对项目做整理

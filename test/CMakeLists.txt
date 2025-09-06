@@ -1,12 +1,7 @@
 # NPP测试套件CMake配置
 
-# 查找GoogleTest
-find_package(GTest QUIET)
-
-if(NOT GTest_FOUND)
-    # 使用项目中的GoogleTest
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/googletest googletest EXCLUDE_FROM_ALL)
-endif()
+# 设置GoogleTest
+npp_setup_gtest()
 
 # 测试构建选项
 option(BUILD_FUNCTIONAL_TESTS "Build functional tests" ON)
