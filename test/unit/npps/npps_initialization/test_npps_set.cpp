@@ -3,9 +3,6 @@
 #include <cmath>
 #include <algorithm>
 #include "npp.h"
-#include "../framework/npp_test_base.h"
-
-using namespace npp_functional_test;
 
 /**
  * NPPS Set Functions Test Suite

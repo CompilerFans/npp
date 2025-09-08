@@ -4,9 +4,6 @@
 #include <algorithm>
 #include <random>
 #include "npp.h"
-#include "../framework/npp_test_base.h"
-
-using namespace npp_functional_test;
 
 /**
  * NPPS Sum Functions Test Suite
