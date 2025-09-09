@@ -95,9 +95,9 @@ const std::string &SegmentsWithContrastingBoundariesOutputFile1 =
 const std::string &SegmentsWithContrastingBoundariesOutputFile2 =
     "Rocks_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw";
 
-const std::string &CompressedSegmentLabelsOutputFile0 = "teapot_CompressedSegmentLabels_8Way_512x512_32u.raw";
-const std::string &CompressedSegmentLabelsOutputFile1 = "CT_skull_CompressedSegmentLabels_8Way_512x512_32u.raw";
-const std::string &CompressedSegmentLabelsOutputFile2 = "Rocks_CompressedSegmentLabels_8Way_512x512_32u.raw";
+const std::string &SegmentLabelsOutputFile0 = "teapot_SegmentLabels_8Way_512x512_32u.raw";
+const std::string &SegmentLabelsOutputFile1 = "CT_skull_SegmentLabels_8Way_512x512_32u.raw";
+const std::string &SegmentLabelsOutputFile2 = "Rocks_SegmentLabels_8Way_512x512_32u.raw";
 
 int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage)
 {
@@ -315,48 +315,25 @@ int main(int argc, char **argv)
 
             if (nppStatus != NPP_SUCCESS) {
                 if (nImage == 0)
-                    printf("Lena segments 8Way 512x512 8u failed.\n");
+                    printf("Lena segments 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 else if (nImage == 1)
-                    printf("CT skull segments 8Way 512x512 8u failed.\n");
+                    printf("CT skull segments 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 else if (nImage == 2)
-                    printf("Rocks segments 8Way 512x512 8u failed.\n");
+                    printf("Rocks segments 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 tearDown();
                 return -1;
             }
 
-            // Now compress the label markers output to make them easier to view.
-            int    nCompressedLabelsScratchBufferSize;
-            Npp8u *pCompressedLabelsScratchBufferDev;
-
-            nppStatus = nppiCompressMarkerLabelsGetBufferSize_32u_C1R(oSizeROI[nImage].width * oSizeROI[nImage].height,
-                                                                      &nCompressedLabelsScratchBufferSize);
-            if (nppStatus != NPP_NO_ERROR)
-                return nppStatus;
-
-            cudaError = cudaMalloc((void **)&pCompressedLabelsScratchBufferDev, nCompressedLabelsScratchBufferSize);
-            if (cudaError != cudaSuccess)
-                return NPP_MEMORY_ALLOCATION_ERR;
-
-            int nCompressedLabelCount = 0;
-
-            nppStatus = nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(pSegmentLabelsOutputBufferDev[nImage],
-                                                                oSizeROI[nImage].width * sizeof(Npp32u),
-                                                                oSizeROI[nImage],
-                                                                oSizeROI[nImage].width * oSizeROI[nImage].height,
-                                                                &nCompressedLabelCount,
-                                                                pCompressedLabelsScratchBufferDev,
-                                                                nppStreamCtx);
-
-            if (nppStatus != NPP_SUCCESS) {
-                if (nImage == 0)
-                    printf("teapot_CompressedLabelMarkersUF_8Way_512x512_32u failed.\n");
-                else if (nImage == 1)
-                    printf("CT_Skull_CompressedLabelMarkersUF_8Way_512x512_32u failed.\n");
-                else if (nImage == 2)
-                    printf("Rocks_CompressedLabelMarkersUF_8Way_512x512_32u failed.\n");
-                tearDown();
-                return -1;
-            }
+            // Note: nppiCompressMarkerLabelsUF functions only work with nppiLabelMarkersUF output,
+            // not with nppiSegmentWatershed output. The segment labels from watershed segmentation 
+            // are already in a suitable format for viewing and processing.
+            
+            if (nImage == 0)
+                printf("teapot segment labels generation succeeded.\n");
+            else if (nImage == 1)
+                printf("CT_Skull segment labels generation succeeded.\n");
+            else if (nImage == 2)
+                printf("Rocks segment labels generation succeeded.\n");
 
             // Copy segmented image to host
             cudaError = cudaMemcpy2DAsync(pSegmentsHost[nImage],
@@ -385,8 +362,7 @@ int main(int argc, char **argv)
                 return -1;
             }
 
-            // Free single image scratch buffer
-            cudaFree(pCompressedLabelsScratchBufferDev);
+            // No additional cleanup needed for segment labels
 
             // Save default segments file.
             if (nImage == 0)
@@ -414,11 +390,11 @@ int main(int argc, char **argv)
 
             // Save segment labels file.
             if (nImage == 0)
-                bmpFile = fopen(CompressedSegmentLabelsOutputFile0.c_str(), "wb");
+                bmpFile = fopen(SegmentLabelsOutputFile0.c_str(), "wb");
             else if (nImage == 1)
-                bmpFile = fopen(CompressedSegmentLabelsOutputFile1.c_str(), "wb");
+                bmpFile = fopen(SegmentLabelsOutputFile1.c_str(), "wb");
             else if (nImage == 2)
-                bmpFile = fopen(CompressedSegmentLabelsOutputFile2.c_str(), "wb");
+                bmpFile = fopen(SegmentLabelsOutputFile2.c_str(), "wb");
 
             if (bmpFile == NULL)
                 return -1;
@@ -432,11 +408,11 @@ int main(int argc, char **argv)
             fclose(bmpFile);
 
             if (nImage == 0)
-                printf("teapot_CompressedSegmentLabels_8Way_512x512_32u succeeded.\n");
+                printf("teapot_SegmentLabels_8Way_512x512_32u succeeded.\n");
             else if (nImage == 1)
-                printf("CT_Skull_CompressedSegmentLabels_8Way_512x512_32u succeeded.\n");
+                printf("CT_Skull_SegmentLabels_8Way_512x512_32u succeeded.\n");
             else if (nImage == 2)
-                printf("Rocks_CompressedSegmentLabels_8Way_512x512_32u succeeded.\n");
+                printf("Rocks_SegmentLabels_8Way_512x512_32u succeeded.\n");
 
             // Now generate a segment boundaries only output image
 
@@ -451,11 +427,11 @@ int main(int argc, char **argv)
                                           cudaMemcpyHostToDevice,
                                           nppStreamCtx.hStream);
 
-            // We already generated segment labels images to skip that this time
+            // We already generated segment labels images, pass a valid buffer but don't need the output
             nppStatus = nppiSegmentWatershed_8u_C1IR_Ctx(pSegmentsDev[nImage],
                                                          oSizeROI[nImage].width * sizeof(Npp8u),
-                                                         0,
-                                                         0,
+                                                         pSegmentLabelsOutputBufferDev[nImage],
+                                                         oSizeROI[nImage].width * sizeof(Npp32u),
                                                          eNorm,
                                                          NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY,
                                                          oSizeROI[nImage],
@@ -464,11 +440,11 @@ int main(int argc, char **argv)
 
             if (nppStatus != NPP_SUCCESS) {
                 if (nImage == 0)
-                    printf("Lena segment boundaries 8Way 512x512 8u failed.\n");
+                    printf("Lena segment boundaries 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 else if (nImage == 1)
-                    printf("CT skull segment boundaries 8Way 512x512 8u failed.\n");
+                    printf("CT skull segment boundaries 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 else if (nImage == 2)
-                    printf("Rocks segment boundaries 8Way 512x512 8u failed.\n");
+                    printf("Rocks segment boundaries 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 tearDown();
                 return -1;
             }
@@ -526,11 +502,11 @@ int main(int argc, char **argv)
                                           cudaMemcpyHostToDevice,
                                           nppStreamCtx.hStream);
 
-            // We already generated segment labels images to skip that this time
+            // We already generated segment labels images, pass a valid buffer but don't need the output
             nppStatus = nppiSegmentWatershed_8u_C1IR_Ctx(pSegmentsDev[nImage],
                                                          oSizeROI[nImage].width * sizeof(Npp8u),
-                                                         0,
-                                                         0,
+                                                         pSegmentLabelsOutputBufferDev[nImage],
+                                                         oSizeROI[nImage].width * sizeof(Npp32u),
                                                          eNorm,
                                                          NPP_WATERSHED_SEGMENT_BOUNDARIES_CONTRAST,
                                                          oSizeROI[nImage],
@@ -539,11 +515,11 @@ int main(int argc, char **argv)
 
             if (nppStatus != NPP_SUCCESS) {
                 if (nImage == 0)
-                    printf("Lena segments with contrasting boundaries 8Way 512x512 8u failed.\n");
+                    printf("Lena segments with contrasting boundaries 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 else if (nImage == 1)
-                    printf("CT skull segments with contrasting boundaries 8Way 512x512 8u failed.\n");
+                    printf("CT skull segments with contrasting boundaries 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 else if (nImage == 2)
-                    printf("Rocks segments with contrasting boundaries 8Way 512x512 8u failed.\n");
+                    printf("Rocks segments with contrasting boundaries 8Way 512x512 8u failed with NPP status: %d\n", nppStatus);
                 tearDown();
                 return -1;
             }

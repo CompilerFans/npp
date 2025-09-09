@@ -29,6 +29,7 @@
 #define NV_UTIL_NPP_IMAGE_ALLOCATORS_CPU_H
 
 #include "Exceptions.h"
+#include <cstring>
 
 namespace npp
 {
