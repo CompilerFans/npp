@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="123" failures="0" disabled="0" errors="0" time="0.291" timestamp="2025-09-08T21:58:16.613" name="AllTests">
+  <testsuite name="NppCoreFunctionalTest" tests="12" failures="0" disabled="0" skipped="0" errors="0" time="0.18" timestamp="2025-09-08T21:58:16.613">
+    <testcase name="GetLibraryVersion" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="25" status="run" result="completed" time="0.173" timestamp="2025-09-08T21:58:16.613" classname="NppCoreFunctionalTest" />
+    <testcase name="GetGpuProperties" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="43" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.786" classname="NppCoreFunctionalTest" />
+    <testcase name="StreamContext_DefaultContext" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="74" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.786" classname="NppCoreFunctionalTest" />
+    <testcase name="StreamContext_CustomStream" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="95" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.786" classname="NppCoreFunctionalTest" />
+    <testcase name="StreamContext_GetStream" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="113" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.787" classname="NppCoreFunctionalTest" />
+    <testcase name="Memory_BasicAllocation" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="125" status="run" result="completed" time="0.002" timestamp="2025-09-08T21:58:16.787" classname="NppCoreFunctionalTest" />
+    <testcase name="Memory_AllocationStep" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="173" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.789" classname="NppCoreFunctionalTest" />
+    <testcase name="Memory_AllocationLimits" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="209" status="run" result="completed" time="0.002" timestamp="2025-09-08T21:58:16.790" classname="NppCoreFunctionalTest" />
+    <testcase name="ErrorHandling_StatusCodes" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="230" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.792" classname="NppCoreFunctionalTest" />
+    <testcase name="ErrorHandling_NullPointerDetection" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="239" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.792" classname="NppCoreFunctionalTest" />
+    <testcase name="ComputeCapability_Detection" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="252" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.792" classname="NppCoreFunctionalTest" />
+    <testcase name="Integration_CompleteWorkflow" file="/home/cjxu/npp/test/unit/nppcore/test_nppcore.cpp" line="272" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.792" classname="NppCoreFunctionalTest" />
+  </testsuite>
+  <testsuite name="AbsFunctionalTest" tests="6" failures="0" disabled="0" skipped="0" errors="0" time="0.006" timestamp="2025-09-08T21:58:16.793">
+    <testcase name="Abs_8s_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp" line="25" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.793" classname="AbsFunctionalTest" />
+    <testcase name="Abs_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp" line="61" status="run" result="completed" time="0.004" timestamp="2025-09-08T21:58:16.793" classname="AbsFunctionalTest" />
+    <testcase name="Abs_32f_C1IR_InPlaceOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp" line="102" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.798" classname="AbsFunctionalTest" />
+    <testcase name="Abs_8s_C1R_BoundaryValues" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp" line="141" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.798" classname="AbsFunctionalTest" />
+    <testcase name="Abs_ErrorHandling_NullPointer" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp" line="179" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.799" classname="AbsFunctionalTest" />
+    <testcase name="Abs_ErrorHandling_InvalidROI" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp" line="197" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.799" classname="AbsFunctionalTest" />
+  </testsuite>
+  <testsuite name="AddFunctionalTest" tests="10" failures="0" disabled="0" skipped="0" errors="0" time="0.025" timestamp="2025-09-08T21:58:16.800">
+    <testcase name="Add_8u_C1RSfs_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="25" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.800" classname="AddFunctionalTest" />
+    <testcase name="Add_8u_C1RSfs_WithScaling" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="66" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.800" classname="AddFunctionalTest" />
+    <testcase name="Add_8u_C1RSfs_SaturationHandling" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="108" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.801" classname="AddFunctionalTest" />
+    <testcase name="Add_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="152" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.802" classname="AddFunctionalTest" />
+    <testcase name="Add_32f_C1R_RandomData" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="192" status="run" result="completed" time="0.001" timestamp="2025-09-08T21:58:16.802" classname="AddFunctionalTest" />
+    <testcase name="Add_32f_C1IR_InPlaceOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="241" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.803" classname="AddFunctionalTest" />
+    <testcase name="Add_ErrorHandling_NullPointer" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="281" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.804" classname="AddFunctionalTest" />
+    <testcase name="Add_ErrorHandling_InvalidROI" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="300" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.804" classname="AddFunctionalTest" />
+    <testcase name="Add_BoundaryConditions_SmallImage" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="321" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.805" classname="AddFunctionalTest" />
+    <testcase name="Add_BoundaryConditions_LargeImage" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_add.cpp" line="351" status="run" result="completed" time="0.019" timestamp="2025-09-08T21:58:16.806" classname="AddFunctionalTest" />
+  </testsuite>
+  <testsuite name="AddcFunctionalTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.825">
+    <testcase name="AddC_8u_C1RSfs_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_addc.cpp" line="21" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.825" classname="AddcFunctionalTest" />
+    <testcase name="AddC_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_addc.cpp" line="54" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.826" classname="AddcFunctionalTest" />
+  </testsuite>
+  <testsuite name="DivFunctionalTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.827">
+    <testcase name="Div_8u_C1RSfs_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_div.cpp" line="21" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.827" classname="DivFunctionalTest" />
+    <testcase name="Div_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_div.cpp" line="57" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.827" classname="DivFunctionalTest" />
+  </testsuite>
+  <testsuite name="MulFunctionalTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.828">
+    <testcase name="Mul_8u_C1RSfs_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_mul.cpp" line="21" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.828" classname="MulFunctionalTest" />
+    <testcase name="Mul_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_mul.cpp" line="57" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.829" classname="MulFunctionalTest" />
+  </testsuite>
+  <testsuite name="SubFunctionalTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.830">
+    <testcase name="Sub_8u_C1RSfs_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_sub.cpp" line="21" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.830" classname="SubFunctionalTest" />
+    <testcase name="Sub_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/arithmetic_operations/test_nppi_sub.cpp" line="57" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.830" classname="SubFunctionalTest" />
+  </testsuite>
+  <testsuite name="TransposeFunctionalTest" tests="12" failures="0" disabled="0" skipped="0" errors="0" time="0.013" timestamp="2025-09-08T21:58:16.831">
+    <testcase name="Transpose_8u_C1R_BasicSquareMatrix" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="48" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.831" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_32f_C1R_BasicSquareMatrix" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="98" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.832" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_8u_C1R_RectangularMatrix" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="136" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.833" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_32f_C1R_LargeMatrix" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="187" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.833" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_8u_C1R_SinglePixel" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="222" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.834" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_32f_C1R_SingleRow" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="247" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.835" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_32f_C1R_SingleColumn" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="274" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.835" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_8u_C1R_DoubleTranspose" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="303" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.836" classname="TransposeFunctionalTest" />
+    <testcase name="Transpose_16u_C1R_DataTypeTest" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="344" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.836" classname="TransposeFunctionalTest" />
+    <testcase name="ErrorHandling_NullPointer" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="383" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.837" classname="TransposeFunctionalTest" />
+    <testcase name="ErrorHandling_InvalidROI" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="408" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.838" classname="TransposeFunctionalTest" />
+    <testcase name="Performance_VariousSizes" file="/home/cjxu/npp/test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp" line="435" status="run" result="completed" time="0.006" timestamp="2025-09-08T21:58:16.838" classname="TransposeFunctionalTest" />
+  </testsuite>
+  <testsuite name="MagnitudeFunctionalTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.845">
+    <testcase name="Magnitude_32fc_32f_C1R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/linear_transform_operations/test_nppi_magnitude.cpp" line="22" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.845" classname="MagnitudeFunctionalTest" />
+    <testcase name="Magnitude_32f_C2R_BasicOperation" file="/home/cjxu/npp/test/unit/nppi/linear_transform_operations/test_nppi_magnitude.cpp" line="57" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.846" classname="MagnitudeFunctionalTest" />
+    <testcase name="Magnitude_ErrorHandling" file="/home/cjxu/npp/test/unit/nppi/linear_transform_operations/test_nppi_magnitude.cpp" line="93" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.846" classname="MagnitudeFunctionalTest" />
+  </testsuite>
+  <testsuite name="LogicalFunctionalTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0.003" timestamp="2025-09-08T21:58:16.847">
+    <testcase name="And_8u_C1R" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="57" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.847" classname="LogicalFunctionalTest" />
+    <testcase name="AndC_8u_C1R" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="74" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.848" classname="LogicalFunctionalTest" />
+    <testcase name="Or_8u_C1R" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="93" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.848" classname="LogicalFunctionalTest" />
+    <testcase name="OrC_8u_C1R" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="110" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.849" classname="LogicalFunctionalTest" />
+  </testsuite>
+  <testsuite name="LogicalParameterTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.850">
+    <testcase name="NullPointerError" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="130" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.850" classname="LogicalParameterTest" />
+    <testcase name="InvalidSize" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="152" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.850" classname="LogicalParameterTest" />
+    <testcase name="InvalidStep" file="/home/cjxu/npp/test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp" line="167" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.850" classname="LogicalParameterTest" />
+  </testsuite>
+  <testsuite name="ColorConversionTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.850">
+    <testcase name="RGBToYUV_BasicColors" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp" line="41" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.850" classname="ColorConversionTest" />
+    <testcase name="YUVToRGB_RoundTrip" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp" line="120" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.851" classname="ColorConversionTest" />
+  </testsuite>
+  <testsuite name="ColorConversionParameterTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.851">
+    <testcase name="NullPointerError" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp" line="157" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.851" classname="ColorConversionParameterTest" />
+    <testcase name="InvalidSize" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp" line="173" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.851" classname="ColorConversionParameterTest" />
+    <testcase name="InvalidStep" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp" line="188" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.851" classname="ColorConversionParameterTest" />
+  </testsuite>
+  <testsuite name="NV12ToRGBTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0.007" timestamp="2025-09-08T21:58:16.851">
+    <testcase name="BasicNV12ToRGB_8u_P2C3R" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="56" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.851" classname="NV12ToRGBTest" />
+    <testcase name="NV12ToRGB_709CSC_8u_P2C3R" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="108" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.852" classname="NV12ToRGBTest" />
+    <testcase name="NV12ToRGB_709HDTV_8u_P2C3R" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="162" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.853" classname="NV12ToRGBTest" />
+    <testcase name="VariousImageSizes" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="196" status="run" result="completed" time="0.004" timestamp="2025-09-08T21:58:16.853" classname="NV12ToRGBTest" />
+  </testsuite>
+  <testsuite name="NV12ToRGBParameterTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.858">
+    <testcase name="NullPointerError" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="252" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.858" classname="NV12ToRGBParameterTest" />
+    <testcase name="InvalidROI" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="274" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.858" classname="NV12ToRGBParameterTest" />
+    <testcase name="InvalidStep" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="298" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.858" classname="NV12ToRGBParameterTest" />
+  </testsuite>
+  <testsuite name="TorchCodecCompatibilityTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.858">
+    <testcase name="TorchCodecUsagePattern" file="/home/cjxu/npp/test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp" line="329" status="run" result="completed" time="0.001" timestamp="2025-09-08T21:58:16.858" classname="TorchCodecCompatibilityTest" />
+  </testsuite>
+  <testsuite name="FilterTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2025-09-08T21:58:16.860">
+    <testcase name="FilterBox_3x3_Uniform" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp" line="39" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.860" classname="FilterTest" />
+    <testcase name="FilterBox_5x5_EdgeHandling" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp" line="78" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.861" classname="FilterTest" />
+  </testsuite>
+  <testsuite name="FilterParameterTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.861">
+    <testcase name="NullPointerError" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp" line="115" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.861" classname="FilterParameterTest" />
+    <testcase name="InvalidSize" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp" line="128" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.861" classname="FilterParameterTest" />
+    <testcase name="InvalidMaskSize" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp" line="144" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.861" classname="FilterParameterTest" />
+    <testcase name="InvalidAnchor" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp" line="161" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.861" classname="FilterParameterTest" />
+  </testsuite>
+  <testsuite name="GeometryTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0.002" timestamp="2025-09-08T21:58:16.861">
+    <testcase name="Mirror_HorizontalAxis" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="39" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.861" classname="GeometryTest" />
+    <testcase name="Mirror_VerticalAxis" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="71" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.862" classname="GeometryTest" />
+    <testcase name="Mirror_BothAxis" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="103" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.863" classname="GeometryTest" />
+    <testcase name="Mirror_InPlace" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="135" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="GeometryTest" />
+  </testsuite>
+  <testsuite name="GeometryParameterTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.864">
+    <testcase name="NullPointerError" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="166" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="GeometryParameterTest" />
+    <testcase name="InvalidSize" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="177" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="GeometryParameterTest" />
+    <testcase name="InvalidFlipAxis" file="/home/cjxu/npp/test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp" line="192" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="GeometryParameterTest" />
+  </testsuite>
+  <testsuite name="SupportFunctionsTest" tests="8" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.864">
+    <testcase name="GetLibVersion_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="21" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="GetGpuComputeCapability_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="34" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="GetGpuName_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="49" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="GetStreamContext_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="62" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="SetGetStreamContext_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="76" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="GetGpuDeviceProperties_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="95" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="GetGpuNumSMs_BasicTest" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="116" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+    <testcase name="ErrorHandling_NullPointer" file="/home/cjxu/npp/test/unit/nppi/test_nppi_support_functions.cpp" line="125" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="SupportFunctionsTest" />
+  </testsuite>
+  <testsuite name="NPPSAddFunctionalTest" tests="6" failures="0" disabled="0" skipped="0" errors="0" time="0.02" timestamp="2025-09-08T21:58:16.864">
+    <testcase name="Add_32f_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_arithmetic_operations/test_npps_add.cpp" line="25" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.864" classname="NPPSAddFunctionalTest" />
+    <testcase name="Add_32f_LargeSignals" file="/home/cjxu/npp/test/unit/npps/npps_arithmetic_operations/test_npps_add.cpp" line="70" status="run" result="completed" time="0.016" timestamp="2025-09-08T21:58:16.865" classname="NPPSAddFunctionalTest" />
+    <testcase name="Add_16s_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_arithmetic_operations/test_npps_add.cpp" line="122" status="run" result="completed" time="0.001" timestamp="2025-09-08T21:58:16.882" classname="NPPSAddFunctionalTest" />
+    <testcase name="Add_32fc_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_arithmetic_operations/test_npps_add.cpp" line="173" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.883" classname="NPPSAddFunctionalTest" />
+    <testcase name="ErrorHandling_NullPointers" file="/home/cjxu/npp/test/unit/npps/npps_arithmetic_operations/test_npps_add.cpp" line="227" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.883" classname="NPPSAddFunctionalTest" />
+    <testcase name="ErrorHandling_ZeroLength" file="/home/cjxu/npp/test/unit/npps/npps_arithmetic_operations/test_npps_add.cpp" line="243" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.884" classname="NPPSAddFunctionalTest" />
+  </testsuite>
+  <testsuite name="NPPSSetFunctionalTest" tests="9" failures="0" disabled="0" skipped="0" errors="0" time="0.009" timestamp="2025-09-08T21:58:16.884">
+    <testcase name="Set_8u_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="21" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.884" classname="NPPSSetFunctionalTest" />
+    <testcase name="Set_8u_BoundaryValues" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="46" status="run" result="completed" time="0.002" timestamp="2025-09-08T21:58:16.885" classname="NPPSSetFunctionalTest" />
+    <testcase name="Set_32f_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="75" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.888" classname="NPPSSetFunctionalTest" />
+    <testcase name="Set_32f_SpecialValues" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="100" status="run" result="completed" time="0.003" timestamp="2025-09-08T21:58:16.889" classname="NPPSSetFunctionalTest" />
+    <testcase name="Set_32f_LargeSignal" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="125" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.892" classname="NPPSSetFunctionalTest" />
+    <testcase name="Set_32fc_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="161" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.893" classname="NPPSSetFunctionalTest" />
+    <testcase name="Zero_32f_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="191" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.893" classname="NPPSSetFunctionalTest" />
+    <testcase name="ErrorHandling_NullPointers" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="223" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.894" classname="NPPSSetFunctionalTest" />
+    <testcase name="ErrorHandling_ZeroLength" file="/home/cjxu/npp/test/unit/npps/npps_initialization/test_npps_set.cpp" line="235" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.894" classname="NPPSSetFunctionalTest" />
+  </testsuite>
+  <testsuite name="NPPSSumFunctionalTest" tests="7" failures="0" disabled="0" skipped="0" errors="0" time="0.005" timestamp="2025-09-08T21:58:16.894">
+    <testcase name="Sum_32f_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="22" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.894" classname="NPPSSumFunctionalTest" />
+    <testcase name="Sum_32f_SequentialPattern" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="69" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.895" classname="NPPSSumFunctionalTest" />
+    <testcase name="Sum_32f_LargeSignal" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="110" status="run" result="completed" time="0.002" timestamp="2025-09-08T21:58:16.896" classname="NPPSSumFunctionalTest" />
+    <testcase name="Sum_32fc_BasicOperation" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="152" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.898" classname="NPPSSumFunctionalTest" />
+    <testcase name="GetBufferSize_32f" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="202" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.899" classname="NPPSSumFunctionalTest" />
+    <testcase name="ErrorHandling_NullPointers" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="217" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.899" classname="NPPSSumFunctionalTest" />
+    <testcase name="ErrorHandling_ZeroLength" file="/home/cjxu/npp/test/unit/npps/npps_statistics_functions/test_npps_sum.cpp" line="242" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.899" classname="NPPSSumFunctionalTest" />
+  </testsuite>
+  <testsuite name="NppsSupportTest" tests="6" failures="0" disabled="0" skipped="0" errors="0" time="0.003" timestamp="2025-09-08T21:58:16.900">
+    <testcase name="Malloc_8u" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="20" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.900" classname="NppsSupportTest" />
+    <testcase name="Malloc_16s" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="48" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.900" classname="NppsSupportTest" />
+    <testcase name="Malloc_32f" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="76" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.901" classname="NppsSupportTest" />
+    <testcase name="Malloc_32fc" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="104" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.901" classname="NppsSupportTest" />
+    <testcase name="Malloc_64f" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="134" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.902" classname="NppsSupportTest" />
+    <testcase name="MemoryAlignment" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="180" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.903" classname="NppsSupportTest" />
+  </testsuite>
+  <testsuite name="NppsSupportParameterTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.903">
+    <testcase name="NullSize" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="162" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.903" classname="NppsSupportParameterTest" />
+    <testcase name="FreeSafety" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="169" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.903" classname="NppsSupportParameterTest" />
+  </testsuite>
+  <testsuite name="NppsSupportLargeMemoryTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-09-08T21:58:16.903">
+    <testcase name="LargeAllocation" file="/home/cjxu/npp/test/unit/npps/test_npps_support.cpp" line="206" status="run" result="completed" time="0." timestamp="2025-09-08T21:58:16.903" classname="NppsSupportLargeMemoryTest" />
+  </testsuite>
+</testsuites>

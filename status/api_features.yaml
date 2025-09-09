@@ -1,0 +1,341 @@
+nppi_arithmetic_operations:
+  description: NPPI图像算术运算
+  functions:
+  - name: nppiAbs_16f_C1IR
+    description: 16位浮点单通道绝对值(原地操作)
+  - name: nppiAbs_16f_C1R
+    description: 16位浮点单通道绝对值
+  - name: nppiAbs_16f_C3IR
+    description: 16位浮点三通道绝对值(原地操作)
+  - name: nppiAbs_16f_C3R
+    description: 16位浮点三通道绝对值
+  - name: nppiAbs_16f_C4IR
+    description: 16位浮点四通道绝对值(原地操作)
+  - name: nppiAbs_16f_C4R
+    description: 16位浮点四通道绝对值
+  - name: nppiAbs_16s_AC4IR
+    description: 16位有符号四通道绝对值(原地操作)
+  - name: nppiAbs_16s_AC4R
+    description: 16位有符号四通道绝对值
+  - name: nppiAbs_16s_C1IR
+    description: 16位有符号单通道绝对值(原地操作)
+  - name: nppiAbs_16s_C1R
+    description: 16位有符号单通道绝对值
+  - name: nppiAbs_16s_C3IR
+    description: 16位有符号三通道绝对值(原地操作)
+  - name: nppiAbs_16s_C3R
+    description: 16位有符号三通道绝对值
+  - name: nppiAbs_16s_C4IR
+    description: 16位有符号四通道绝对值(原地操作)
+  - name: nppiAbs_16s_C4R
+    description: 16位有符号四通道绝对值
+  - name: nppiAbs_32f_AC4IR
+    description: 32位浮点四通道绝对值(原地操作)
+  - name: nppiAbs_32f_AC4R
+    description: 32位浮点四通道绝对值
+  - name: nppiAbs_32f_C1IR
+    description: 32位浮点单通道绝对值(原地操作)
+  - name: nppiAbs_32f_C1R
+    description: 32位浮点单通道绝对值
+  - name: nppiAbs_32f_C3IR
+    description: 32位浮点三通道绝对值(原地操作)
+  - name: nppiAbs_32f_C3R
+    description: 32位浮点三通道绝对值
+  - name: nppiAbs_32f_C4IR
+    description: 32位浮点四通道绝对值(原地操作)
+  - name: nppiAbs_32f_C4R
+    description: 32位浮点四通道绝对值
+  - name: nppiAbs_8s_C1R
+    description: 8位有符号单通道绝对值
+  - name: nppiAddC_16s_C1IRSfs
+    description: 16位有符号单通道加法(原地操作)(饱和)
+  - name: nppiAddC_16s_C1RSfs
+    description: 16位有符号单通道加法(饱和)
+  - name: nppiAddC_16u_C1IRSfs
+    description: 16位无符号单通道加法(原地操作)(饱和)
+  - name: nppiAddC_16u_C1RSfs
+    description: 16位无符号单通道加法(饱和)
+  - name: nppiAddC_32f_C1IR
+    description: 32位浮点单通道加法(原地操作)
+  - name: nppiAddC_32f_C1R
+    description: 32位浮点单通道加法
+  - name: nppiAddC_8u_C1IRSfs
+    description: 8位无符号单通道加法(原地操作)(饱和)
+  - name: nppiAddC_8u_C1RSfs
+    description: 8位无符号单通道加法(饱和)
+  - name: nppiAddC_8u_C3IRSfs
+    description: 8位无符号三通道加法(原地操作)(饱和)
+  - name: nppiAddC_8u_C3RSfs
+    description: 8位无符号三通道加法(饱和)
+  - name: nppiAdd_16u_C1RSfs
+    description: 16位无符号单通道加法(饱和)
+  - name: nppiAdd_32f_C1IR
+    description: 32位浮点单通道加法(原地操作)
+  - name: nppiAdd_32f_C1R
+    description: 32位浮点单通道加法
+  - name: nppiAdd_32f_C3R
+    description: 32位浮点三通道加法
+  - name: nppiAdd_8u_C1IRSfs
+    description: 8位无符号单通道加法(原地操作)(饱和)
+  - name: nppiAdd_8u_C1RSfs
+    description: 8位无符号单通道加法(饱和)
+  - name: nppiAdd_8u_C3RSfs
+    description: 8位无符号三通道加法(饱和)
+  - name: nppiDivC_16s_C1IRSfs
+    description: 16位有符号单通道除法(原地操作)(饱和)
+  - name: nppiDivC_16s_C1RSfs
+    description: 16位有符号单通道除法(饱和)
+  - name: nppiDivC_16u_C1IRSfs
+    description: 16位无符号单通道除法(原地操作)(饱和)
+  - name: nppiDivC_16u_C1RSfs
+    description: 16位无符号单通道除法(饱和)
+  - name: nppiDivC_32f_C1IR
+    description: 32位浮点单通道除法(原地操作)
+  - name: nppiDivC_32f_C1R
+    description: 32位浮点单通道除法
+  - name: nppiDivC_8u_C1IRSfs
+    description: 8位无符号单通道除法(原地操作)(饱和)
+  - name: nppiDivC_8u_C1RSfs
+    description: 8位无符号单通道除法(饱和)
+  - name: nppiDiv_16s_C1RSfs
+    description: 16位有符号单通道除法(饱和)
+  - name: nppiDiv_16u_C1RSfs
+    description: 16位无符号单通道除法(饱和)
+  - name: nppiDiv_32f_C1IR
+    description: 32位浮点单通道除法(原地操作)
+  - name: nppiDiv_32f_C1R
+    description: 32位浮点单通道除法
+  - name: nppiDiv_32f_C3R
+    description: 32位浮点三通道除法
+  - name: nppiDiv_8u_C1IRSfs
+    description: 8位无符号单通道除法(原地操作)(饱和)
+  - name: nppiDiv_8u_C1RSfs
+    description: 8位无符号单通道除法(饱和)
+  - name: nppiDiv_8u_C3RSfs
+    description: 8位无符号三通道除法(饱和)
+  - name: nppiMulC_16s_C1IRSfs
+    description: 16位有符号单通道乘法(原地操作)(饱和)
+  - name: nppiMulC_16s_C1RSfs
+    description: 16位有符号单通道乘法(饱和)
+  - name: nppiMulC_16u_C1IRSfs
+    description: 16位无符号单通道乘法(原地操作)(饱和)
+  - name: nppiMulC_16u_C1RSfs
+    description: 16位无符号单通道乘法(饱和)
+  - name: nppiMulC_32f_C1IR
+    description: 32位浮点单通道乘法(原地操作)
+  - name: nppiMulC_32f_C1R
+    description: 32位浮点单通道乘法
+  - name: nppiMulC_8u_C1IRSfs
+    description: 8位无符号单通道乘法(原地操作)(饱和)
+  - name: nppiMulC_8u_C1RSfs
+    description: 8位无符号单通道乘法(饱和)
+  - name: nppiMul_16s_C1RSfs
+    description: 16位有符号单通道乘法(饱和)
+  - name: nppiMul_16u_C1RSfs
+    description: 16位无符号单通道乘法(饱和)
+  - name: nppiMul_32f_C1IR
+    description: 32位浮点单通道乘法(原地操作)
+  - name: nppiMul_32f_C1R
+    description: 32位浮点单通道乘法
+  - name: nppiMul_32f_C3R
+    description: 32位浮点三通道乘法
+  - name: nppiMul_8u_C1IRSfs
+    description: 8位无符号单通道乘法(原地操作)(饱和)
+  - name: nppiMul_8u_C1RSfs
+    description: 8位无符号单通道乘法(饱和)
+  - name: nppiMul_8u_C3RSfs
+    description: 8位无符号三通道乘法(饱和)
+  - name: nppiSubC_16s_C1IRSfs
+    description: 16位有符号单通道减法(原地操作)(饱和)
+  - name: nppiSubC_16s_C1RSfs
+    description: 16位有符号单通道减法(饱和)
+  - name: nppiSubC_16u_C1IRSfs
+    description: 16位无符号单通道减法(原地操作)(饱和)
+  - name: nppiSubC_16u_C1RSfs
+    description: 16位无符号单通道减法(饱和)
+  - name: nppiSubC_16u_C3RSfs
+    description: 16位无符号三通道减法(饱和)
+  - name: nppiSubC_32f_C1IR
+    description: 32位浮点单通道减法(原地操作)
+  - name: nppiSubC_32f_C1R
+    description: 32位浮点单通道减法
+  - name: nppiSubC_32f_C3R
+    description: 32位浮点三通道减法
+  - name: nppiSubC_32s_C1RSfs
+    description: 32位有符号单通道减法(饱和)
+  - name: nppiSubC_8u_C1IRSfs
+    description: 8位无符号单通道减法(原地操作)(饱和)
+  - name: nppiSubC_8u_C1RSfs
+    description: 8位无符号单通道减法(饱和)
+  - name: nppiSubC_8u_C3RSfs
+    description: 8位无符号三通道减法(饱和)
+  - name: nppiSubC_8u_C4RSfs
+    description: 8位无符号四通道减法(饱和)
+  - name: nppiSub_16s_C1RSfs
+    description: 16位有符号单通道减法(饱和)
+  - name: nppiSub_16u_C1RSfs
+    description: 16位无符号单通道减法(饱和)
+  - name: nppiSub_32f_C1IR
+    description: 32位浮点单通道减法(原地操作)
+  - name: nppiSub_32f_C1R
+    description: 32位浮点单通道减法
+  - name: nppiSub_32f_C3R
+    description: 32位浮点三通道减法
+  - name: nppiSub_8u_C1IRSfs
+    description: 8位无符号单通道减法(原地操作)(饱和)
+  - name: nppiSub_8u_C1RSfs
+    description: 8位无符号单通道减法(饱和)
+  - name: nppiSub_8u_C3RSfs
+    description: 8位无符号三通道减法(饱和)
+nppi_logical_operations:
+  description: NPPI逻辑运算
+  functions:
+  - name: nppiAndC_8u_C1R
+    description: 8位无符号单通道按位与
+  - name: nppiAnd_8u_C1R
+    description: 8位无符号单通道按位与
+  - name: nppiOrC_8u_C1R
+    description: 8位无符号单通道按位或
+  - name: nppiOr_8u_C1R
+    description: 8位无符号单通道按位或
+nppi_color_conversion:
+  description: NPPI颜色空间转换
+  functions:
+  - name: nppiNV12ToRGB_709CSC_8u_P2C3R
+    description: 8位无符号三通道颜色转换(与常数)
+  - name: nppiNV12ToRGB_709HDTV_8u_P2C3R
+    description: 8位无符号三通道颜色转换(与常数)
+  - name: nppiNV12ToRGB_8u_P2C3R
+    description: 8位无符号三通道颜色转换(与常数)
+  - name: nppiRGBToYUV_8u_C3R
+    description: 8位无符号三通道颜色转换
+  - name: nppiYUVToRGB_8u_C3R
+    description: 8位无符号三通道颜色转换
+nppi_data_exchange:
+  description: NPPI数据交换操作
+  functions:
+  - name: nppiTranspose_16s_C1R
+    description: 16位有符号单通道转置
+  - name: nppiTranspose_16s_C3R
+    description: 16位有符号三通道转置
+  - name: nppiTranspose_16s_C4R
+    description: 16位有符号四通道转置
+  - name: nppiTranspose_16u_C1R
+    description: 16位无符号单通道转置
+  - name: nppiTranspose_16u_C3R
+    description: 16位无符号三通道转置
+  - name: nppiTranspose_16u_C4R
+    description: 16位无符号四通道转置
+  - name: nppiTranspose_32f_C1R
+    description: 32位浮点单通道转置
+  - name: nppiTranspose_32f_C3R
+    description: 32位浮点三通道转置
+  - name: nppiTranspose_32f_C4R
+    description: 32位浮点四通道转置
+  - name: nppiTranspose_32s_C1R
+    description: 32位有符号单通道转置
+  - name: nppiTranspose_32s_C3R
+    description: 32位有符号三通道转置
+  - name: nppiTranspose_32s_C4R
+    description: 32位有符号四通道转置
+  - name: nppiTranspose_8u_C1R
+    description: 8位无符号单通道转置
+  - name: nppiTranspose_8u_C3R
+    description: 8位无符号三通道转置
+  - name: nppiTranspose_8u_C4R
+    description: 8位无符号四通道转置
+nppi_filtering:
+  description: NPPI滤波函数
+  functions:
+  - name: nppiFilterBox_8u_C1R
+    description: 8位无符号单通道滤波
+nppi_geometry_transforms:
+  description: NPPI几何变换
+  functions:
+  - name: nppiMirror_8u_C1R
+    description: 8位无符号单通道镜像
+nppi_linear_transforms:
+  description: NPPI线性变换
+  functions:
+  - name: nppiMagnitudeSqr_32fc32f_C1R
+    description: 32位浮点单通道幅值计算
+  - name: nppiMagnitude_32f_C2R
+    description: 32位浮点幅值计算
+  - name: nppiMagnitude_32fc32f_C1R
+    description: 32位浮点单通道幅值计算
+npps_arithmetic_operations:
+  description: NPPS信号算术运算
+  functions:
+  - name: nppsAdd_16s
+    description: 16位有符号加法
+  - name: nppsAdd_32f
+    description: 32位浮点加法
+  - name: nppsAdd_32fc
+    description: 32位浮点加法
+npps_initialization:
+  description: NPPS信号初始化
+  functions:
+  - name: nppsSet_32f
+    description: 32位浮点赋值
+  - name: nppsSet_32fc
+    description: 32位浮点赋值
+  - name: nppsSet_8u
+    description: 8位无符号赋值
+  - name: nppsZero_32f
+    description: 32位浮点清零
+npps_statistics:
+  description: NPPS统计函数
+  functions:
+  - name: nppsSumGetBufferSize_32f
+    description: 32位浮点求和
+  - name: nppsSumGetBufferSize_32fc
+    description: 32位浮点求和
+  - name: nppsSum_32f
+    description: 32位浮点求和
+  - name: nppsSum_32fc
+    description: 32位浮点求和
+nppi_support_functions:
+  description: NPPI支持函数
+  functions:
+  - name: nppiMalloc_8u_C1
+    description: 8位无符号单通道内存分配
+  - name: nppiMalloc_8u_C3
+    description: 8位无符号三通道内存分配
+  - name: nppiMalloc_32f_C1
+    description: 32位浮点单通道内存分配
+  - name: nppiMalloc_32fc_C1
+    description: 32位复数单通道内存分配
+  - name: nppiFree
+    description: NPP图像内存释放
+npps_support_functions:
+  description: NPPS支持函数
+  functions:
+  - name: nppsMalloc_8u
+    description: 8位无符号信号内存分配
+  - name: nppsMalloc_16s
+    description: 16位有符号信号内存分配
+  - name: nppsMalloc_32f
+    description: 32位浮点信号内存分配
+  - name: nppsMalloc_32fc
+    description: 32位复数信号内存分配
+  - name: nppsMalloc_64f
+    description: 64位浮点信号内存分配
+  - name: nppsFree
+    description: NPP信号内存释放
+nppcore:
+  description: NPP核心功能
+  functions:
+  - name: nppGetLibVersion
+    description: 获取NPP库版本
+  - name: nppGetGpuComputeCapability
+    description: 获取GPU计算能力
+  - name: nppGetGpuName
+    description: 获取GPU设备名称
+  - name: nppGetStreamContext
+    description: 获取流上下文
+  - name: nppSetStreamContext
+    description: 设置流上下文
+  - name: nppGetGpuDeviceProperties
+    description: 获取GPU设备属性
+  - name: nppGetGpuNumSMs
+    description: 获取GPU流式多处理器数量

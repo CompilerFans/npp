@@ -1,0 +1,389 @@
+# NPP API Features Configuration
+# 定义所有NPP API函数及其分类
+# 这是NPP库的完整API功能集合
+
+nppi_arithmetic_operations:
+  description: "NPPI图像算术运算"
+  functions:
+    - name: "nppiAdd_8u_C1RSfs"
+      description: "8位无符号单通道加法运算（饱和）"
+    - name: "nppiAdd_32f_C1R"
+      description: "32位浮点单通道加法运算"
+    - name: "nppiSub_8u_C1RSfs"
+      description: "8位无符号单通道减法运算（饱和）"
+    - name: "nppiSub_32f_C1R"
+      description: "32位浮点单通道减法运算"
+    - name: "nppiMul_8u_C1RSfs"
+      description: "8位无符号单通道乘法运算（饱和）"
+    - name: "nppiMul_32f_C1R"
+      description: "32位浮点单通道乘法运算"
+    - name: "nppiDiv_8u_C1RSfs"
+      description: "8位无符号单通道除法运算（饱和）"
+    - name: "nppiDiv_32f_C1R"
+      description: "32位浮点单通道除法运算"
+    - name: "nppiAddC_8u_C1RSfs"
+      description: "8位无符号单通道常数加法"
+    - name: "nppiAddC_32f_C1R"
+      description: "32位浮点单通道常数加法"
+    - name: "nppiAbs_8s_C1R"
+      description: "8位有符号单通道绝对值"
+    - name: "nppiAbs_32f_C1R"
+      description: "32位浮点单通道绝对值"
+    - name: "nppiAnd_8u_C1R"
+      description: "8位无符号单通道按位与"
+    - name: "nppiOr_8u_C1R"
+      description: "8位无符号单通道按位或"
+    - name: "nppiAndC_8u_C1R"
+      description: "8位无符号单通道与常数按位与"
+    - name: "nppiOrC_8u_C1R"
+      description: "8位无符号单通道与常数按位或"
+
+nppi_color_conversion_operations:
+  description: "NPPI颜色空间转换"
+  functions:
+    - name: "nppiRGBToYUV_8u_C3R"
+      description: "RGB到YUV颜色空间转换"
+    - name: "nppiYUVToRGB_8u_C3R"
+      description: "YUV到RGB颜色空间转换"
+    - name: "nppiNV12ToRGB_8u_P2C3R"
+      description: "NV12到RGB颜色转换"
+    - name: "nppiNV12ToRGB_709CSC_8u_P2C3R"
+      description: "NV12到RGB颜色转换（BT.709）"
+    - name: "nppiNV12ToRGB_709HDTV_8u_P2C3R"
+      description: "NV12到RGB颜色转换（BT.709 HDTV）"
+
+nppi_data_exchange_operations:
+  description: "NPPI数据交换操作"
+  functions:
+    - name: "nppiTranspose_8u_C1R"
+      description: "8位无符号单通道矩阵转置"
+    - name: "nppiTranspose_32f_C1R"
+      description: "32位浮点单通道矩阵转置"
+    - name: "nppiTranspose_16u_C1R"
+      description: "16位无符号单通道矩阵转置"
+
+nppi_filtering_functions:
+  description: "NPPI滤波函数"
+  functions:
+    - name: "nppiFilterBox_8u_C1R"
+      description: "8位无符号单通道盒式滤波"
+    - name: "nppiFilterBox_32f_C1R"
+      description: "32位浮点单通道盒式滤波"
+
+nppi_geometry_transforms:
+  description: "NPPI几何变换"
+  functions:
+    - name: "nppiMirror_8u_C1R"
+      description: "8位无符号单通道镜像变换"
+    - name: "nppiMirror_8u_C1IR"
+      description: "8位无符号单通道原地镜像变换"
+
+nppi_linear_transform_operations:
+  description: "NPPI线性变换操作"
+  functions:
+    - name: "nppiMagnitude_32fc_32f_C1R"
+      description: "32位复数到32位浮点幅值计算"
+    - name: "nppiMagnitude_32f_C2R"
+      description: "32位浮点双通道幅值计算"
+
+nppi_support_functions:
+  description: "NPPI支持函数"
+  functions:
+    - name: "nppiMalloc_8u_C1"
+      description: "8位无符号单通道内存分配"
+    - name: "nppiMalloc_8u_C3"
+      description: "8位无符号三通道内存分配"
+    - name: "nppiMalloc_32f_C1"
+      description: "32位浮点单通道内存分配"
+    - name: "nppiMalloc_32fc_C1"
+      description: "32位复数单通道内存分配"
+    - name: "nppiFree"
+      description: "NPP图像内存释放"
+
+npps_arithmetic_operations:
+  description: "NPPS信号算术运算"
+  functions:
+    - name: "nppsAdd_32f"
+      description: "32位浮点信号加法"
+    - name: "nppsAdd_16s"
+      description: "16位有符号信号加法"
+    - name: "nppsAdd_32fc"
+      description: "32位复数信号加法"
+
+npps_initialization:
+  description: "NPPS信号初始化"
+  functions:
+    - name: "nppsSet_8u"
+      description: "8位无符号信号赋值"
+    - name: "nppsSet_32f"
+      description: "32位浮点信号赋值"
+    - name: "nppsSet_32fc"
+      description: "32位复数信号赋值"
+    - name: "nppsZero_32f"
+      description: "32位浮点信号清零"
+
+npps_statistics_functions:
+  description: "NPPS统计函数"
+  functions:
+    - name: "nppsSum_32f"
+      description: "32位浮点信号求和"
+    - name: "nppsSum_32fc"
+      description: "32位复数信号求和"
+    - name: "nppsSumGetBufferSize_32f"
+      description: "32位浮点求和缓冲区大小计算"
+    - name: "nppsSumGetBufferSize_32fc"
+      description: "32位复数求和缓冲区大小计算"
+
+npps_support_functions:
+  description: "NPPS支持函数"
+  functions:
+    - name: "nppsMalloc_8u"
+      description: "8位无符号信号内存分配"
+    - name: "nppsMalloc_16s"
+      description: "16位有符号信号内存分配"
+    - name: "nppsMalloc_32f"
+      description: "32位浮点信号内存分配"
+    - name: "nppsMalloc_32fc"
+      description: "32位复数信号内存分配"
+    - name: "nppsMalloc_64f"
+      description: "64位浮点信号内存分配"
+    - name: "nppsFree"
+      description: "NPP信号内存释放"
+
+nppi_data_exchange_and_initialization:
+  description: "NPPI数据交换和初始化"
+  functions:
+    - name: "nppiCopy_8u_C1R"
+      description: "8位无符号单通道数据拷贝"
+    - name: "nppiCopy_32f_C1R"
+      description: "32位浮点单通道数据拷贝"
+    - name: "nppiSet_8u_C1R"
+      description: "8位无符号单通道数据设置"
+    - name: "nppiSet_32f_C1R"
+      description: "32位浮点单通道数据设置"
+
+nppi_statistics_functions:
+  description: "NPPI统计函数"
+  functions:
+    - name: "nppiSum_8u_C1RSfs"
+      description: "8位无符号单通道求和"
+    - name: "nppiSum_32f_C1R"
+      description: "32位浮点单通道求和"
+    - name: "nppiMean_8u_C1R"
+      description: "8位无符号单通道均值计算"
+    - name: "nppiMean_32f_C1R"
+      description: "32位浮点单通道均值计算"
+    - name: "nppiMin_8u_C1R"
+      description: "8位无符号单通道最小值"
+    - name: "nppiMax_8u_C1R"
+      description: "8位无符号单通道最大值"
+    - name: "nppiMinMax_8u_C1R"
+      description: "8位无符号单通道最值统计"
+    - name: "nppiMinMax_32f_C1R"
+      description: "32位浮点单通道最值统计"
+
+npps_conversion_functions:
+  description: "NPPS转换函数"
+  functions:
+    - name: "nppsConvert_8u16u"
+      description: "8位到16位无符号转换"
+    - name: "nppsConvert_16u32f"
+      description: "16位无符号到32位浮点转换"
+    - name: "nppsConvert_32f64f"
+      description: "32位到64位浮点转换"
+
+npps_filtering_functions:
+  description: "NPPS滤波函数"
+  functions:
+    - name: "nppsFIR_32f"
+      description: "32位浮点FIR滤波"
+    - name: "nppsIIR_32f"
+      description: "32位浮点IIR滤波"
+    - name: "nppsFilterMedian_32f"
+      description: "32位浮点中值滤波"
+
+npps_transform_functions:
+  description: "NPPS变换函数"
+  functions:
+    - name: "nppsFFTFwd_RToPack_32f"
+      description: "32位浮点实数到packed FFT"
+    - name: "nppsFFTInv_PackToR_32f"
+      description: "32位浮点packed到实数IFFT"
+    - name: "nppsFFTFwd_CToC_32fc"
+      description: "32位复数前向FFT"
+    - name: "nppsFFTInv_CToC_32fc"
+      description: "32位复数反向FFT"
+    - name: "nppsDCTFwd_32f"
+      description: "32位浮点前向DCT"
+    - name: "nppsDCTInv_32f"
+      description: "32位浮点反向DCT"
+
+npps_vector_operations:
+  description: "NPPS向量运算"
+  functions:
+    - name: "nppsMaximum_32f"
+      description: "32位浮点向量最大值"
+    - name: "nppsMinimum_32f"
+      description: "32位浮点向量最小值"  
+    - name: "nppsMaxEvery_32f"
+      description: "32位浮点逐元素最大值"
+    - name: "nppsMinEvery_32f"
+      description: "32位浮点逐元素最小值"
+    - name: "nppsDotProd_32f"
+      description: "32位浮点点积运算"
+    - name: "nppsDotProd_32fc"
+      description: "32位复数点积运算"
+    - name: "nppsNormL1_32f"
+      description: "32位浮点L1范数"
+    - name: "nppsNormL2_32f"
+      description: "32位浮点L2范数"
+    - name: "nppsNormInf_32f"
+      description: "32位浮点无穷范数"
+
+npps_logical_operations:
+  description: "NPPS逻辑运算"
+  functions:
+    - name: "nppsAnd_8u"
+      description: "8位无符号按位与"
+    - name: "nppsOr_8u"
+      description: "8位无符号按位或"
+    - name: "nppsXor_8u"
+      description: "8位无符号按位异或"
+    - name: "nppsNot_8u"
+      description: "8位无符号按位非"
+    - name: "nppsAndC_8u"
+      description: "8位无符号与常数按位与"
+    - name: "nppsOrC_8u"
+      description: "8位无符号与常数按位或"
+    - name: "nppsXorC_8u"
+      description: "8位无符号与常数按位异或"
+    - name: "nppsRShiftC_8u"
+      description: "8位无符号右移"
+    - name: "nppsLShiftC_8u"
+      description: "8位无符号左移"
+
+npps_windowing_functions:
+  description: "NPPS窗函数"
+  functions:
+    - name: "nppsWinBartlett_32f"
+      description: "32位浮点Bartlett窗"
+    - name: "nppsWinHann_32f"
+      description: "32位浮点Hann窗"
+    - name: "nppsWinHamming_32f"
+      description: "32位浮点Hamming窗"
+    - name: "nppsWinBlackman_32f"
+      description: "32位浮点Blackman窗"
+    - name: "nppsWinBlackmanStd_32f"
+      description: "32位浮点标准Blackman窗"
+    - name: "nppsWinBlackmanOpt_32f"
+      description: "32位浮点优化Blackman窗"
+    - name: "nppsWinKaiser_32f"
+      description: "32位浮点Kaiser窗"
+
+npps_threshold_operations:
+  description: "NPPS阈值操作"
+  functions:
+    - name: "nppsThreshold_32f"
+      description: "32位浮点阈值操作"
+    - name: "nppsThreshold_16s"
+      description: "16位有符号阈值操作"  
+    - name: "nppsThresholdGT_32f"
+      description: "32位浮点大于阈值"
+    - name: "nppsThresholdLT_32f"
+      description: "32位浮点小于阈值"
+    - name: "nppsThresholdGTVal_32f"
+      description: "32位浮点大于阈值替换"
+    - name: "nppsThresholdLTVal_32f"
+      description: "32位浮点小于阈值替换"
+
+nppcore:
+  description: "NPP核心功能"
+  functions:
+    - name: "nppGetLibVersion"
+      description: "获取NPP库版本"
+    - name: "nppGetGpuComputeCapability"
+      description: "获取GPU计算能力"
+    - name: "nppGetGpuName"
+      description: "获取GPU设备名称"
+    - name: "nppGetStreamContext"
+      description: "获取流上下文"
+    - name: "nppSetStreamContext"
+      description: "设置流上下文"
+    - name: "nppGetGpuDeviceProperties"
+      description: "获取GPU设备属性"
+    - name: "nppGetGpuNumSMs"
+      description: "获取GPU流式多处理器数量"
+
+nppi_threshold_operations:
+  description: "NPPI阈值操作"
+  functions:
+    - name: "nppiThreshold_8u_C1R"
+      description: "8位无符号单通道阈值操作"
+    - name: "nppiThreshold_32f_C1R"
+      description: "32位浮点单通道阈值操作"
+    - name: "nppiThreshold_16s_C1R"
+      description: "16位有符号单通道阈值操作"
+    - name: "nppiThreshold_8u_C1IR"
+      description: "8位无符号单通道原地阈值"
+    - name: "nppiThresholdGT_8u_C1R"
+      description: "8位无符号大于阈值"
+    - name: "nppiThresholdLT_8u_C1R"
+      description: "8位无符号小于阈值"
+    - name: "nppiCompareC_8u_C1R"
+      description: "8位无符号与常数比较"
+
+nppi_morphological_operations:
+  description: "NPPI形态学操作"
+  functions:
+    - name: "nppiErode_8u_C1R"
+      description: "8位无符号腐蚀操作"
+    - name: "nppiDilate_8u_C1R"
+      description: "8位无符号膨胀操作"
+    - name: "nppiMorphOpen_8u_C1R"
+      description: "8位无符号形态学开运算"
+    - name: "nppiMorphClose_8u_C1R"
+      description: "8位无符号形态学闭运算"
+    - name: "nppiMorphGradient_8u_C1R"
+      description: "8位无符号形态学梯度"
+    - name: "nppiMorphTopHat_8u_C1R"
+      description: "8位无符号形态学顶帽运算"
+    - name: "nppiMorphBlackHat_8u_C1R"
+      description: "8位无符号形态学黑帽运算"
+
+nppi_resize_operations:
+  description: "NPPI尺寸调整操作"
+  functions:
+    - name: "nppiResize_8u_C1R"
+      description: "8位无符号单通道尺寸调整"
+    - name: "nppiResize_32f_C1R"
+      description: "32位浮点单通道尺寸调整"
+    - name: "nppiResizeSqrPixel_8u_C1R"
+      description: "8位无符号方形像素尺寸调整"
+    - name: "nppiResize_8u_C3R"
+      description: "8位无符号三通道尺寸调整"
+    - name: "nppiResize_32f_C3R"
+      description: "32位浮点三通道尺寸调整"
+
+nppi_integral_operations:
+  description: "NPPI积分图像操作"
+  functions:
+    - name: "nppiIntegral_8u32s_C1R"
+      description: "8位到32位积分图像"
+    - name: "nppiIntegral_8u32f_C1R"
+      description: "8位到32位浮点积分图像"
+    - name: "nppiSqrIntegral_8u32s64s_C1R"
+      description: "8位到64位平方积分图像"
+    - name: "nppiSqrIntegral_8u32f64f_C1R"
+      description: "8位到64位浮点平方积分"
+
+nppi_histogram_operations:
+  description: "NPPI直方图操作"
+  functions:
+    - name: "nppiHistogramRange_8u_C1R"
+      description: "8位无符号直方图计算"
+    - name: "nppiHistogramEven_8u_C1R"
+      description: "8位无符号等间隔直方图"
+    - name: "nppiHistogramEven_16s_C1R"
+      description: "16位有符号等间隔直方图"
+    - name: "nppiHistogramEven_16u_C1R"
+      description: "16位无符号等间隔直方图"
