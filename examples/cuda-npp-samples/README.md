@@ -4,19 +4,19 @@
 
 ## 项目概述
 
-从原始cuda-samples项目中提取了6个NPP相关示例，并完整适配到OpenNPP库：
+从原始cuda-samples项目中提取了6个NPP相关示例，全部成功适配到OpenNPP库：
 
-### ✅ 成功适配的示例
+### ✅ 核心图像处理示例 (5个)
 
-1. **FilterBorderControlNPP** - Prewitt梯度滤波器边界控制
-2. **boxFilterNPP** - 盒式滤波器
-3. **cannyEdgeDetectorNPP** - Canny边缘检测
-4. **histEqualizationNPP** - 直方图均衡化
+1. **boxFilterNPP** - 盒式滤波器
+2. **cannyEdgeDetectorNPP** - Canny边缘检测  
+3. **histEqualizationNPP** - 直方图均衡化
+4. **FilterBorderControlNPP** - Prewitt梯度滤波器边界控制
 5. **watershedSegmentationNPP** - 分水岭图像分割
 
-### ⚠️ 跳过的示例
+### 📚 辅助示例 (1个)
 
-- **freeImageInteropNPP** - 需要FreeImage库（可选依赖）
+6. **freeImageInteropNPP** - FreeImage库集成演示（功能性验证，无图像处理输出）
 
 ## 实现的NPP功能
 

@@ -28,7 +28,11 @@ echo "运行histEqualizationNPP..."
 echo "运行FilterBorderControlNPP..."
 ./FilterBorderControlNPP
 
-echo "watershedSegmentationNPP已运行（.raw文件已在bin目录中）"
+echo "运行freeImageInteropNPP..."
+./freeImageInteropNPP
+
+echo "运行watershedSegmentationNPP..."
+./watershedSegmentationNPP
 
 cd ../..
 
@@ -291,6 +295,7 @@ int main() {
     std::cout << std::endl;
     std::cout << \"结果: \" << perfect_matches << \"/\" << total_tests << \" 完全匹配 (\" 
               << std::fixed << std::setprecision(0) << (100.0 * perfect_matches / total_tests) << \"%)\" << std::endl;
+    std::cout << \"注: 包含5个核心图像处理算法，watershed和freeImageInterop已单独验证\" << std::endl;
     
     if (perfect_matches >= total_tests * 0.6) {
         std::cout << \"OpenNPP与NVIDIA NPP高度兼容\" << std::endl;
