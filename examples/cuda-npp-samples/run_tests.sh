@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "OpenNPP与NVIDIA NPP结果对比..."
+echo "OpenNPP完整测试..."
 
 # 创建OpenNPP输出目录（如果不存在）
 mkdir -p opennpp_results
@@ -59,6 +59,13 @@ if [ -f "Common/data/teapot512_histEqualization.pgm" ]; then
     echo "✅ 直方图均衡化结果已收集"
 else
     echo "❌ 直方图均衡化结果未找到"
+fi
+
+if [ -f "Common/data/teapot512_boxFilterFII.pgm" ]; then
+    cp "Common/data/teapot512_boxFilterFII.pgm" opennpp_results/
+    echo "✅ freeImageInterop结果已收集"
+else
+    echo "❌ freeImageInterop结果未找到"
 fi
 
 # FilterBorderControl结果
@@ -273,7 +280,8 @@ int main() {
     Test tests[] = {
         {\"reference_nvidia_npp/teapot512_boxFilter.pgm\", \"opennpp_results/teapot512_boxFilter.pgm\", \"盒式滤波\"},
         {\"reference_nvidia_npp/teapot512_cannyEdgeDetection.pgm\", \"opennpp_results/teapot512_cannyEdgeDetection.pgm\", \"Canny边缘检测\"},
-        {\"reference_nvidia_npp/teapot512_histEqualization.pgm\", \"opennpp_results/teapot512_histEqualization.pgm\", \"直方图均衡化\"}
+        {\"reference_nvidia_npp/teapot512_histEqualization.pgm\", \"opennpp_results/teapot512_histEqualization.pgm\", \"直方图均衡化\"},
+        {\"reference_nvidia_npp/teapot512_boxFilterFII.pgm\", \"opennpp_results/teapot512_boxFilterFII.pgm\", \"FreeImage集成\"}
     };
     
     for (const auto& test : tests) {
@@ -295,7 +303,7 @@ int main() {
     std::cout << std::endl;
     std::cout << \"结果: \" << perfect_matches << \"/\" << total_tests << \" 完全匹配 (\" 
               << std::fixed << std::setprecision(0) << (100.0 * perfect_matches / total_tests) << \"%)\" << std::endl;
-    std::cout << \"注: 包含5个核心图像处理算法，watershed和freeImageInterop已单独验证\" << std::endl;
+    std::cout << \"注: 包含6个核心算法像素级对比，watershed已通过文件大小验证\" << std::endl;
     
     if (perfect_matches >= total_tests * 0.6) {
         std::cout << \"OpenNPP与NVIDIA NPP高度兼容\" << std::endl;

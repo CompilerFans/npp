@@ -16,7 +16,7 @@
 
 ### 📚 辅助示例 (1个)
 
-6. **freeImageInteropNPP** - FreeImage库集成演示（功能性验证，无图像处理输出）
+6. **freeImageInteropNPP** - FreeImage库集成演示（含图像滤波处理）
 
 ## 实现的NPP功能
 
@@ -54,7 +54,13 @@ cmake ..
 make -j
 ```
 
-### 运行示例
+### 快速测试
+```bash
+# 一键运行所有测试和验证
+./run_tests.sh
+```
+
+### 单独运行示例
 ```bash
 # 盒式滤波
 ./bin/boxFilterNPP
@@ -70,6 +76,9 @@ make -j
 
 # 分水岭分割
 ./bin/watershedSegmentationNPP
+
+# FreeImage集成
+./bin/freeImageInteropNPP
 ```
 
 ## 技术特性
