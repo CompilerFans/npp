@@ -272,6 +272,18 @@ nppi_data_exchange:
     description: 8位无符号三通道转置
   - name: nppiTranspose_8u_C4R
     description: 8位无符号四通道转置
+  - name: nppiLUT_Linear_8u_C1R
+    description: 8位无符号单通道线性查找表
+  - name: nppiLUT_Linear_8u_C1R_Ctx
+    description: 8位无符号单通道线性查找表(带上下文)
+  - name: nppiLUT_Linear_8u_C3R
+    description: 8位无符号三通道线性查找表
+  - name: nppiLUT_Linear_8u_C3R_Ctx
+    description: 8位无符号三通道线性查找表(带上下文)
+  - name: nppiLUT_Linear_16u_C1R
+    description: 16位无符号单通道线性查找表
+  - name: nppiLUT_Linear_16u_C1R_Ctx
+    description: 16位无符号单通道线性查找表(带上下文)
 nppi_filtering:
   description: NPPI滤波函数
   functions:
@@ -293,6 +305,18 @@ nppi_filtering:
     description: 32位浮点单通道边界滤波
   - name: nppiFilterBoxBorder_32f_C1R_Ctx
     description: 32位浮点单通道边界滤波(带上下文)
+  - name: nppiGradientVectorPrewittBorder_8u16s_C1R
+    description: 8位转16位Prewitt梯度向量计算
+  - name: nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx
+    description: 8位转16位Prewitt梯度向量计算(带上下文)
+  - name: nppiGradientVectorPrewittBorder_8u32f_C1R
+    description: 8位转32位浮点Prewitt梯度向量计算
+  - name: nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx
+    description: 8位转32位浮点Prewitt梯度向量计算(带上下文)
+  - name: nppiGradientVectorPrewittBorder_16s_C1R
+    description: 16位有符号Prewitt梯度向量计算
+  - name: nppiGradientVectorPrewittBorder_16s_C1R_Ctx
+    description: 16位有符号Prewitt梯度向量计算(带上下文)
 nppi_geometry_transforms:
   description: NPPI几何变换
   functions:
@@ -399,3 +423,18 @@ nppcore:
     description: 获取GPU设备属性
   - name: nppGetGpuNumSMs
     description: 获取GPU流式多处理器数量
+nppi_statistics_functions:
+  description: NPPI统计函数
+  functions:
+  - name: nppiEvenLevelsHost_32s
+    description: 主机端生成32位整数均匀直方图等级
+  - name: nppiEvenLevelsHost_32f
+    description: 主机端生成32位浮点均匀直方图等级
+  - name: nppiHistogramEvenGetBufferSize_8u_C1R
+    description: 获取8位无符号单通道均匀直方图所需缓冲区大小
+  - name: nppiHistogramEvenGetBufferSize_8u_C1R_Ctx
+    description: 获取8位无符号单通道均匀直方图所需缓冲区大小(带上下文)
+  - name: nppiHistogramEven_8u_C1R
+    description: 8位无符号单通道均匀直方图计算
+  - name: nppiHistogramEven_8u_C1R_Ctx
+    description: 8位无符号单通道均匀直方图计算(带上下文)
