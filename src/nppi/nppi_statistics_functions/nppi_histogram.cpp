@@ -32,7 +32,7 @@ NppStatus nppiEvenLevelsHost_32s(Npp32s* pLevels, int nLevels, Npp32s nLowerBoun
     }
     
     if (nLowerBound >= nUpperBound) {
-        return NPP_INVALID_INPUT;
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     
     // Calculate the step size for even distribution
@@ -64,7 +64,7 @@ NppStatus nppiEvenLevelsHost_32f(Npp32f* pLevels, int nLevels, Npp32f nLowerBoun
     }
     
     if (nLowerBound >= nUpperBound) {
-        return NPP_INVALID_INPUT;
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     
     // Calculate the step size for even distribution
@@ -133,7 +133,7 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u* pSrc, int nSrcStep, NppiSize
     }
     
     if (nLowerLevel >= nUpperLevel) {
-        return NPP_INVALID_INPUT;
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     
     return nppiHistogramEven_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSizeROI, pHist, nLevels, 

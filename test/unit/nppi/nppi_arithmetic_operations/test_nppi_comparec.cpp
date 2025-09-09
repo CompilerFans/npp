@@ -347,5 +347,5 @@ TEST_F(NPPICompareCTest, ErrorHandling) {
     
     // 测试无效比较操作
     status = nppiCompareC_8u_C1R(nullptr, 32, 100, nullptr, 32, roi, static_cast<NppCmpOp>(-1));
-    EXPECT_EQ(status, NPP_INVALID_INPUT);
+    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }

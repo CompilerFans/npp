@@ -59,7 +59,7 @@ static inline NppStatus validateFilterBoxBorderInputs(const void* pSrc, int nSrc
     // Validate border type
     if (eBorderType != NPP_BORDER_REPLICATE && eBorderType != NPP_BORDER_WRAP && 
         eBorderType != NPP_BORDER_MIRROR && eBorderType != NPP_BORDER_CONSTANT) {
-        return NPP_INVALID_INPUT;
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     
     return NPP_SUCCESS;

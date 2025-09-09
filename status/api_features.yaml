@@ -284,6 +284,14 @@ nppi_data_exchange:
     description: 16位无符号单通道线性查找表
   - name: nppiLUT_Linear_16u_C1R_Ctx
     description: 16位无符号单通道线性查找表(带上下文)
+  - name: nppiCompressMarkerLabelsGetBufferSize_32u_C1R
+    description: 获取32位无符号标签压缩所需缓冲区大小
+  - name: nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx
+    description: 获取32位无符号标签压缩所需缓冲区大小(带上下文)
+  - name: nppiCompressMarkerLabelsUF_32u_C1IR
+    description: 32位无符号单通道Union-Find标签压缩(原地操作)
+  - name: nppiCompressMarkerLabelsUF_32u_C1IR_Ctx
+    description: 32位无符号单通道Union-Find标签压缩(原地操作)(带上下文)
 nppi_filtering:
   description: NPPI滤波函数
   functions:
@@ -317,6 +325,14 @@ nppi_filtering:
     description: 16位有符号Prewitt梯度向量计算
   - name: nppiGradientVectorPrewittBorder_16s_C1R_Ctx
     description: 16位有符号Prewitt梯度向量计算(带上下文)
+  - name: nppiFilterCannyBorderGetBufferSize_8u_C1R
+    description: 获取8位Canny边缘检测所需缓冲区大小
+  - name: nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx
+    description: 获取8位Canny边缘检测所需缓冲区大小(带上下文)
+  - name: nppiFilterCannyBorder_8u_C1R
+    description: 8位无符号单通道Canny边缘检测
+  - name: nppiFilterCannyBorder_8u_C1R_Ctx
+    description: 8位无符号单通道Canny边缘检测(带上下文)
 nppi_geometry_transforms:
   description: NPPI几何变换
   functions:
@@ -438,3 +454,14 @@ nppi_statistics_functions:
     description: 8位无符号单通道均匀直方图计算
   - name: nppiHistogramEven_8u_C1R_Ctx
     description: 8位无符号单通道均匀直方图计算(带上下文)
+nppi_segmentation:
+  description: NPPI图像分割
+  functions:
+  - name: nppiSegmentWatershedGetBufferSize_8u_C1R
+    description: 获取8位Watershed分割所需缓冲区大小
+  - name: nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx
+    description: 获取8位Watershed分割所需缓冲区大小(带上下文)
+  - name: nppiSegmentWatershed_8u_C1IR
+    description: 8位无符号单通道Watershed图像分割(原地操作)
+  - name: nppiSegmentWatershed_8u_C1IR_Ctx
+    description: 8位无符号单通道Watershed图像分割(原地操作)(带上下文)

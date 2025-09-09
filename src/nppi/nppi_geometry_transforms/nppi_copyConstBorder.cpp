@@ -46,7 +46,7 @@ static inline NppStatus validateCopyConstBorderInputs(const void* pSrc, int nSrc
     }
     
     if (nTopBorderHeight < 0 || nLeftBorderWidth < 0) {
-        return NPP_INVALID_INPUT;
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     
     // Check if destination is large enough to contain source + borders

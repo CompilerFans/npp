@@ -50,7 +50,7 @@ TEST_F(NPPIHistogramTest, EvenLevelsHost_ErrorHandling) {
     
     // 测试无效边界
     status = nppiEvenLevelsHost_32s(pLevels.data(), 5, 255, 0);
-    EXPECT_EQ(status, NPP_INVALID_INPUT);
+    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }
 
 // 测试直方图缓冲区大小获取
@@ -144,5 +144,5 @@ TEST_F(NPPIHistogramTest, HistogramEven_ErrorHandling) {
     // 测试无效边界
     status = nppiHistogramEven_8u_C1R(nullptr, 32, roi, nullptr, nLevels,
                                      255, 0, nullptr);
-    EXPECT_EQ(status, NPP_INVALID_INPUT);
+    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }

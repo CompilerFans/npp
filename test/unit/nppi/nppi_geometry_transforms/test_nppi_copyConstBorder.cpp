@@ -366,7 +366,7 @@ TEST_F(NPPICopyConstBorderTest, ErrorHandling) {
     
     // 测试负边界值
     status = nppiCopyConstBorder_8u_C1R(nullptr, 32, oSrcSizeROI, nullptr, 32, oDstSizeROI, -1, -1, 100);
-    EXPECT_EQ(status, NPP_INVALID_INPUT);
+    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
     
     // 测试目标尺寸太小（不能容纳源+边界）
     NppiSize smallDstRoi = {srcWidth - 1, srcHeight - 1};

@@ -68,7 +68,7 @@ __global__ void nppiLUT_Linear_8u_C1R_kernel(const Npp8u* pSrc, int nSrcStep,
 __global__ void nppiLUT_Linear_8u_C3R_kernel(const Npp8u* pSrc, int nSrcStep,
                                              Npp8u* pDst, int nDstStep,
                                              int width, int height,
-                                             const Npp32s** pValues, const Npp32s** pLevels, const int* nLevels) {
+                                             const Npp32s* const* pValues, const Npp32s* const* pLevels, const int* nLevels) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     

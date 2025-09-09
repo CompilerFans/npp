@@ -467,5 +467,5 @@ TEST_F(NPPIFilterBoxBorderTest, ErrorHandling) {
     status = nppiFilterBoxBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset,
                                         nullptr, 32, oDstSizeROI,
                                         oMaskSize, oAnchor, static_cast<NppiBorderType>(-1));
-    EXPECT_EQ(status, NPP_INVALID_INPUT);
+    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }
