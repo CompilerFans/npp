@@ -56,7 +56,7 @@ TEST_F(NPPIHistogramTest, EvenLevelsHost_ErrorHandling) {
 // 测试直方图缓冲区大小获取
 TEST_F(NPPIHistogramTest, HistogramEvenGetBufferSize_8u_C1R) {
     int nLevels = 256;
-    int bufferSize = 0;
+    size_t bufferSize = 0;
     
     NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
     EXPECT_EQ(status, NPP_SUCCESS);
@@ -80,7 +80,7 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Basic) {
     std::vector<Npp32s> pHist(nLevels - 1);
     
     // 获取缓冲区大小
-    int bufferSize = 0;
+    size_t bufferSize = 0;
     NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
     EXPECT_EQ(status, NPP_SUCCESS);
     

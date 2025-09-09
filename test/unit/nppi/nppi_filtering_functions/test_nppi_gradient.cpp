@@ -56,7 +56,7 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_8u16s_C1R_Basic) {
     NppStatus status = nppiGradientVectorPrewittBorder_8u16s_C1R(
         d_src, srcStep, oSrcSizeROI, oSrcOffset,
         nullptr, 0, nullptr, 0, d_mag, magStep, nullptr, 0, oDstSizeROI,
-        NPP_MASK_SIZE_3_X_3, NPP_NORM_L2, NPP_BORDER_REPLICATE);
+        NPP_MASK_SIZE_3_X_3, nppiNormL2, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 拷贝结果回主机
@@ -84,7 +84,7 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_ErrorHandling) {
     NppStatus status = nppiGradientVectorPrewittBorder_8u16s_C1R(
         nullptr, 32, oSrcSizeROI, oSrcOffset,
         nullptr, 0, nullptr, 0, nullptr, 32, nullptr, 0, oDstSizeROI,
-        NPP_MASK_SIZE_3_X_3, NPP_NORM_L2, NPP_BORDER_REPLICATE);
+        NPP_MASK_SIZE_3_X_3, nppiNormL2, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
     
     // 测试无效尺寸
@@ -92,13 +92,13 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_ErrorHandling) {
     status = nppiGradientVectorPrewittBorder_8u16s_C1R(
         nullptr, 32, invalidSrcRoi, oSrcOffset,
         nullptr, 0, nullptr, 0, nullptr, 32, nullptr, 0, oDstSizeROI,
-        NPP_MASK_SIZE_3_X_3, NPP_NORM_L2, NPP_BORDER_REPLICATE);
+        NPP_MASK_SIZE_3_X_3, nppiNormL2, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SIZE_ERROR);
     
     // 测试无效掩码尺寸
     status = nppiGradientVectorPrewittBorder_8u16s_C1R(
         nullptr, 32, oSrcSizeROI, oSrcOffset,
         nullptr, 0, nullptr, 0, nullptr, 32, nullptr, 0, oDstSizeROI,
-        static_cast<NppiMaskSize>(-1), NPP_NORM_L2, NPP_BORDER_REPLICATE);
+        static_cast<NppiMaskSize>(-1), nppiNormL2, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_MASK_SIZE_ERROR);
 }

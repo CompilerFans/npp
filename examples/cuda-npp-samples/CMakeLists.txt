@@ -68,7 +68,7 @@ function(add_npp_sample SAMPLE_NAME)
             # Set CUDA properties
             set_property(TARGET ${SAMPLE_NAME} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
             set_property(TARGET ${SAMPLE_NAME} PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
-            set_target_properties(${SAMPLE_NAME} PROPERTIES CUDA_ARCHITECTURES "60;61;70;75;80;86;89")
+            set_target_properties(${SAMPLE_NAME} PROPERTIES CUDA_ARCHITECTURES "89")
             
             # Link OpenNPP and CUDA runtime
             target_link_libraries(${SAMPLE_NAME} opennpp CUDA::cudart CUDA::cudart_static)
@@ -110,3 +110,13 @@ message(STATUS "OpenNPP Library Dir: ${OPENNPP_LIBRARY_DIR}")
 message(STATUS "FreeImage Found:     ${FREEIMAGE_FOUND}")
 message(STATUS "CUDA Version:        ${CUDA_VERSION}")
 message(STATUS "========================================")
+
+# 添加验证程序
+add_executable(verify_results verify_results.cpp)
+set_property(TARGET verify_results PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+set_property(TARGET verify_results PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
+set_target_properties(verify_results PROPERTIES CUDA_ARCHITECTURES "89")
+target_link_libraries(verify_results opennpp CUDA::cudart CUDA::cudart_static)
+set_target_properties(verify_results PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)

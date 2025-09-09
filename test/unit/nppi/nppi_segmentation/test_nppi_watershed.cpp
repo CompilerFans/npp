@@ -18,7 +18,7 @@ protected:
 
 // 测试缓冲区大小获取
 TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_Basic) {
-    int bufferSize = 0;
+    size_t bufferSize = 0;
     
     NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
     EXPECT_EQ(status, NPP_SUCCESS);
@@ -33,7 +33,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_ErrorHandling) {
     
     // 测试无效尺寸
     NppiSize invalidROI = {0, 0};
-    int bufferSize = 0;
+    size_t bufferSize = 0;
     status = nppiSegmentWatershedGetBufferSize_8u_C1R(invalidROI, &bufferSize);
     EXPECT_EQ(status, NPP_SIZE_ERROR);
 }
@@ -42,7 +42,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_ErrorHandling) {
 TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
     size_t dataSize = width * height;
     std::vector<Npp8u> srcData(dataSize);
-    std::vector<Npp32s> markerData(dataSize);
+    std::vector<Npp32u> markerData(dataSize);
     
     // 生成测试图像：简单的梯度
     for (int y = 0; y < height; y++) {
@@ -59,31 +59,31 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
     markerData[(height-2) * width + (width-2)] = 2;  // 右下角种子点
     
     // 获取缓冲区大小
-    int bufferSize = 0;
+    size_t bufferSize = 0;
     NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 分配GPU内存
     Npp8u *d_src, *d_buffer;
-    Npp32s *d_markers;
+    Npp32u *d_markers;
     int srcStep = width * sizeof(Npp8u);
-    int markersStep = width * sizeof(Npp32s);
+    int markersStep = width * sizeof(Npp32u);
     
     cudaMalloc(&d_src, dataSize * sizeof(Npp8u));
-    cudaMalloc(&d_markers, dataSize * sizeof(Npp32s));
+    cudaMalloc(&d_markers, dataSize * sizeof(Npp32u));
     cudaMalloc(&d_buffer, bufferSize);
     
     cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_markers, markerData.data(), dataSize * sizeof(Npp32s), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_markers, markerData.data(), dataSize * sizeof(Npp32u), cudaMemcpyHostToDevice);
     
     // 调用Watershed分割
     status = nppiSegmentWatershed_8u_C1IR(d_src, srcStep, d_markers, markersStep,
-                                         oSizeROI, 2, d_buffer);
+                                         oSizeROI, nppiNormL1, 2, d_buffer);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 拷贝结果回主机
-    std::vector<Npp32s> resultData(dataSize);
-    cudaMemcpy(resultData.data(), d_markers, dataSize * sizeof(Npp32s), cudaMemcpyDeviceToHost);
+    std::vector<Npp32u> resultData(dataSize);
+    cudaMemcpy(resultData.data(), d_markers, dataSize * sizeof(Npp32u), cudaMemcpyDeviceToHost);
     
     // 基本验证：检查是否有标记区域
     int label1Count = 0, label2Count = 0, watershedCount = 0;
