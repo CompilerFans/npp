@@ -20,5 +20,4 @@ cd build
 cmake ..
 make -j$(nproc)
 
-echo "✅ 构建完成! 可执行文件位于: build/bin/"
-echo "OpenNPP库位于: ../../build/src/libnpp.a"
+echo " 构建完成！"
