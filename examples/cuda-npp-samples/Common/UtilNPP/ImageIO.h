@@ -31,13 +31,16 @@
 #include "ImagesCPU.h"
 #include "ImagesNPP.h"
 
+#ifdef FREEIMAGE_LIB
 #include "FreeImage.h"
+#endif
 #include "Exceptions.h"
 
 #include <string>
 #include "string.h"
 
 
+#ifdef FREEIMAGE_LIB
 // Error handler for FreeImage library.
 //  In case this handler is invoked, it throws an NPP exception.
 void
@@ -45,9 +48,11 @@ FreeImageErrorHandler(FREE_IMAGE_FORMAT oFif, const char *zMessage)
 {
     throw npp::Exception(zMessage);
 }
+#endif
 
 namespace npp
 {
+#ifdef FREEIMAGE_LIB
     // Load a gray-scale image from disk.
     void
     loadImage(const std::string &rFileName, ImageCPU_8u_C1 &rImage)
@@ -143,6 +148,28 @@ namespace npp
         rImage.copyTo(oHostImage.data(), oHostImage.pitch());
         saveImage(rFileName, oHostImage);
     }
+#else
+    // Stub functions when FreeImage is not available
+    void loadImage(const std::string &rFileName, ImageCPU_8u_C1 &rImage)
+    {
+        throw npp::Exception("FreeImage not available - cannot load image");
+    }
+    
+    void saveImage(const std::string &rFileName, const ImageCPU_8u_C1 &rImage)
+    {
+        throw npp::Exception("FreeImage not available - cannot save image");
+    }
+    
+    void loadImage(const std::string &rFileName, ImageNPP_8u_C1 &rImage)
+    {
+        throw npp::Exception("FreeImage not available - cannot load image");
+    }
+    
+    void saveImage(const std::string &rFileName, const ImageNPP_8u_C1 &rImage)
+    {
+        throw npp::Exception("FreeImage not available - cannot save image");
+    }
+#endif
 }
 
 
