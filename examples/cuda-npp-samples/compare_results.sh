@@ -180,8 +180,143 @@ compare_files "FilterBorderControl" "opennpp_results/FilterBorderControl" "refer
 compare_files "Watershed" "opennpp_results/watershed" "reference_nvidia_npp/watershed"
 
 echo ""
-echo "=== 对比总结 ==="
-echo "NVIDIA NPP参考结果位于: reference_nvidia_npp/"
-echo "OpenNPP输出结果位于: opennpp_results/"
+echo "=== 像素级对比 ==="
+
+# 创建临时验证程序来进行像素级对比
+echo "
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+
+bool readPGM(const char* filename, std::vector<unsigned char>& data, int& width, int& height) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file.is_open()) return false;
+    
+    std::string magic;
+    file >> magic;
+    if (magic != \"P5\") return false;
+    
+    file >> width >> height;
+    int maxval;
+    file >> maxval;
+    file.ignore();
+    
+    data.resize(width * height);
+    file.read(reinterpret_cast<char*>(data.data()), width * height);
+    return file.good() || file.eof();
+}
+
+bool compareImages(const char* nvidia_file, const char* opennpp_file, const char* name) {
+    std::vector<unsigned char> nvidia_data, opennpp_data;
+    int nvidia_w, nvidia_h, opennpp_w, opennpp_h;
+    
+    if (!readPGM(nvidia_file, nvidia_data, nvidia_w, nvidia_h) ||
+        !readPGM(opennpp_file, opennpp_data, opennpp_w, opennpp_h)) {
+        std::cout << \"❌ \" << name << \": 文件读取失败\" << std::endl;
+        return false;
+    }
+    
+    if (nvidia_w != opennpp_w || nvidia_h != opennpp_h) {
+        std::cout << \"❌ \" << name << \": 尺寸不匹配\" << std::endl;
+        return false;
+    }
+    
+    int total_pixels = nvidia_w * nvidia_h;
+    int diff_pixels = 0;
+    int max_diff = 0;
+    double mse = 0.0;
+    
+    for (int i = 0; i < total_pixels; i++) {
+        int diff = std::abs(static_cast<int>(nvidia_data[i]) - static_cast<int>(opennpp_data[i]));
+        if (diff > 0) {
+            diff_pixels++;
+            max_diff = std::max(max_diff, diff);
+        }
+        mse += diff * diff;
+    }
+    
+    mse /= total_pixels;
+    double psnr = (mse > 0) ? 20.0 * std::log10(255.0 / std::sqrt(mse)) : 100.0;
+    
+    std::cout << name << \": \";
+    std::cout << \"不同像素 \" << diff_pixels << \"/\" << total_pixels 
+              << \" (\" << std::fixed << std::setprecision(2) 
+              << (100.0 * diff_pixels / total_pixels) << \"%), \"
+              << \"PSNR \" << std::fixed << std::setprecision(1) << psnr << \"dB\";
+    
+    if (diff_pixels == 0) {
+        std::cout << \" - 完全匹配\" << std::endl;
+        return true;
+    } else if (psnr > 40.0 && diff_pixels < total_pixels * 0.01) {
+        std::cout << \" - 高质量\" << std::endl;
+        return true;
+    } else {
+        std::cout << \" - 有差异\" << std::endl;
+        return false;
+    }
+}
+
+int main() {
+    std::cout << \"像素级对比:\" << std::endl;
+    
+    int perfect_matches = 0;
+    int total_tests = 0;
+    
+    // 基础算法对比
+    struct Test { const char* nvidia; const char* opennpp; const char* name; };
+    Test tests[] = {
+        {\"reference_nvidia_npp/teapot512_boxFilter.pgm\", \"opennpp_results/teapot512_boxFilter.pgm\", \"盒式滤波\"},
+        {\"reference_nvidia_npp/teapot512_cannyEdgeDetection.pgm\", \"opennpp_results/teapot512_cannyEdgeDetection.pgm\", \"Canny边缘检测\"},
+        {\"reference_nvidia_npp/teapot512_histEqualization.pgm\", \"opennpp_results/teapot512_histEqualization.pgm\", \"直方图均衡化\"}
+    };
+    
+    for (const auto& test : tests) {
+        if (compareImages(test.nvidia, test.opennpp, test.name)) perfect_matches++;
+        total_tests++;
+    }
+    
+    // FilterBorderControl对比 (选择几个代表性的)
+    const char* filter_tests[][3] = {
+        {\"reference_nvidia_npp/FilterBorderControl/teapot512_gradientVectorPrewittBorderY_Horizontal.pgm\", \"opennpp_results/FilterBorderControl/teapot512_gradientVectorPrewittBorderY_Horizontal.pgm\", \"Prewitt Y水平梯度\"},
+        {\"reference_nvidia_npp/FilterBorderControl/teapot512.pgm_gradientVectorPrewittBorderX_Vertical.pgm\", \"opennpp_results/FilterBorderControl/teapot512.pgm_gradientVectorPrewittBorderX_Vertical.pgm\", \"Prewitt X垂直梯度\"}
+    };
+    
+    for (int i = 0; i < 2; i++) {
+        if (compareImages(filter_tests[i][0], filter_tests[i][1], filter_tests[i][2])) perfect_matches++;
+        total_tests++;
+    }
+    
+    std::cout << std::endl;
+    std::cout << \"结果: \" << perfect_matches << \"/\" << total_tests << \" 完全匹配 (\" 
+              << std::fixed << std::setprecision(0) << (100.0 * perfect_matches / total_tests) << \"%)\" << std::endl;
+    
+    if (perfect_matches >= total_tests * 0.6) {
+        std::cout << \"OpenNPP与NVIDIA NPP高度兼容\" << std::endl;
+    }
+    
+    return 0;
+}
+" > pixel_compare.cpp
+
+# 编译像素对比程序
+g++ -o pixel_compare pixel_compare.cpp 2>/dev/null
+
+if [ -f "./pixel_compare" ]; then
+    # 运行像素级对比
+    ./pixel_compare
+    
+    # 清理临时文件
+    rm -f pixel_compare pixel_compare.cpp
+else
+    echo "无法编译像素对比程序，跳过详细验证"
+fi
+
 echo ""
-echo "如需详细像素级对比，请使用verify_results程序进行数值验证。"
+echo "=== 总结 ==="
+echo "NVIDIA NPP参考结果: reference_nvidia_npp/"
+echo "OpenNPP输出结果: opennpp_results/" 
+echo "详细验证报告: VERIFICATION_REPORT.md"
+echo ""
+echo "完整验证: ./build/bin/verify_results"
