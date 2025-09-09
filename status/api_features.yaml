@@ -47,6 +47,34 @@ nppi_arithmetic_operations:
     description: 32位浮点四通道绝对值
   - name: nppiAbs_8s_C1R
     description: 8位有符号单通道绝对值
+  - name: nppiAbsDiff_8u_C1R
+    description: 8位无符号单通道绝对差值
+  - name: nppiAbsDiff_8u_C1R_Ctx
+    description: 8位无符号单通道绝对差值(带上下文)
+  - name: nppiAbsDiff_8u_C3R
+    description: 8位无符号三通道绝对差值
+  - name: nppiAbsDiff_8u_C3R_Ctx
+    description: 8位无符号三通道绝对差值(带上下文)
+  - name: nppiAbsDiff_16s_C1R
+    description: 16位有符号单通道绝对差值
+  - name: nppiAbsDiff_16s_C1R_Ctx
+    description: 16位有符号单通道绝对差值(带上下文)
+  - name: nppiAbsDiff_32f_C1R
+    description: 32位浮点单通道绝对差值
+  - name: nppiAbsDiff_32f_C1R_Ctx
+    description: 32位浮点单通道绝对差值(带上下文)
+  - name: nppiCompareC_8u_C1R
+    description: 8位无符号单通道与常数比较
+  - name: nppiCompareC_8u_C1R_Ctx
+    description: 8位无符号单通道与常数比较(带上下文)
+  - name: nppiCompareC_16s_C1R
+    description: 16位有符号单通道与常数比较
+  - name: nppiCompareC_16s_C1R_Ctx
+    description: 16位有符号单通道与常数比较(带上下文)
+  - name: nppiCompareC_32f_C1R
+    description: 32位浮点单通道与常数比较
+  - name: nppiCompareC_32f_C1R_Ctx
+    description: 32位浮点单通道与常数比较(带上下文)
   - name: nppiAddC_16s_C1IRSfs
     description: 16位有符号单通道加法(原地操作)(饱和)
   - name: nppiAddC_16s_C1RSfs
@@ -249,11 +277,43 @@ nppi_filtering:
   functions:
   - name: nppiFilterBox_8u_C1R
     description: 8位无符号单通道滤波
+  - name: nppiFilterBoxBorder_8u_C1R
+    description: 8位无符号单通道边界滤波
+  - name: nppiFilterBoxBorder_8u_C1R_Ctx
+    description: 8位无符号单通道边界滤波(带上下文)
+  - name: nppiFilterBoxBorder_8u_C3R
+    description: 8位无符号三通道边界滤波
+  - name: nppiFilterBoxBorder_8u_C3R_Ctx
+    description: 8位无符号三通道边界滤波(带上下文)
+  - name: nppiFilterBoxBorder_16s_C1R
+    description: 16位有符号单通道边界滤波
+  - name: nppiFilterBoxBorder_16s_C1R_Ctx
+    description: 16位有符号单通道边界滤波(带上下文)
+  - name: nppiFilterBoxBorder_32f_C1R
+    description: 32位浮点单通道边界滤波
+  - name: nppiFilterBoxBorder_32f_C1R_Ctx
+    description: 32位浮点单通道边界滤波(带上下文)
 nppi_geometry_transforms:
   description: NPPI几何变换
   functions:
   - name: nppiMirror_8u_C1R
     description: 8位无符号单通道镜像
+  - name: nppiCopyConstBorder_8u_C1R
+    description: 8位无符号单通道常量边界拷贝
+  - name: nppiCopyConstBorder_8u_C1R_Ctx
+    description: 8位无符号单通道常量边界拷贝(带上下文)
+  - name: nppiCopyConstBorder_8u_C3R
+    description: 8位无符号三通道常量边界拷贝
+  - name: nppiCopyConstBorder_8u_C3R_Ctx
+    description: 8位无符号三通道常量边界拷贝(带上下文)
+  - name: nppiCopyConstBorder_16s_C1R
+    description: 16位有符号单通道常量边界拷贝
+  - name: nppiCopyConstBorder_16s_C1R_Ctx
+    description: 16位有符号单通道常量边界拷贝(带上下文)
+  - name: nppiCopyConstBorder_32f_C1R
+    description: 32位浮点单通道常量边界拷贝
+  - name: nppiCopyConstBorder_32f_C1R_Ctx
+    description: 32位浮点单通道常量边界拷贝(带上下文)
 nppi_linear_transforms:
   description: NPPI线性变换
   functions:
