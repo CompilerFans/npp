@@ -34,15 +34,14 @@ int main() {
     std::cout << "OpenNPP版本: " << version->major << "." 
               << version->minor << "." << version->build << std::endl;
     
-    // 获取GPU信息
-    int major, minor;
-    NppStatus nppStatus = nppGetGpuComputeCapability(&major, &minor);
-    printNppStatus(nppStatus, "获取GPU计算能力");
-    std::cout << "GPU计算能力: " << major << "." << minor << std::endl;
-    
-    const char* gpuName = nppGetGpuName();
-    if (gpuName) {
-        std::cout << "GPU名称: " << gpuName << std::endl;
+    // 获取CUDA设备信息
+    int deviceCount;
+    cudaGetDeviceCount(&deviceCount);
+    if (deviceCount > 0) {
+        cudaDeviceProp prop;
+        cudaGetDeviceProperties(&prop, 0);
+        std::cout << "GPU名称: " << prop.name << std::endl;
+        std::cout << "GPU计算能力: " << prop.major << "." << prop.minor << std::endl;
     } else {
         std::cout << "无法获取GPU名称" << std::endl;
     }
@@ -51,7 +50,7 @@ int main() {
     const int width = 64;
     const int height = 64;
     const int imageSize = width * height;
-    const size_t imageBytes = imageSize * sizeof(Npp32f);
+    // const size_t imageBytes = imageSize * sizeof(Npp32f); // 暂未使用
     
     std::cout << "\n正在处理 " << width << "x" << height << " 的32位浮点图像..." << std::endl;
     
@@ -102,7 +101,7 @@ int main() {
     
     // 执行NPP加法运算
     NppiSize roi = {width, height};
-    nppStatus = nppiAdd_32f_C1R(devSrc1, pitch, devSrc2, pitch, devDst, pitch, roi);
+    NppStatus nppStatus = nppiAdd_32f_C1R(devSrc1, pitch, devSrc2, pitch, devDst, pitch, roi);
     printNppStatus(nppStatus, "NPP加法运算");
     
     // 复制结果回主机

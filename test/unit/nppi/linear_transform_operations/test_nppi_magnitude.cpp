@@ -54,41 +54,7 @@ TEST_F(MagnitudeFunctionalTest, Magnitude_32fc_32f_C1R_BasicOperation) {
         << "Magnitude operation produced incorrect results";
 }
 
-TEST_F(MagnitudeFunctionalTest, Magnitude_32f_C2R_BasicOperation) {
-    const int width = 32;
-    const int height = 32;
-    
-    // 准备两通道数据 (实部, 虚部)
-    std::vector<Npp32f> srcData(width * height * 2);  // 交错存储
-    std::vector<Npp32f> expectedData(width * height);
-    
-    // 生成测试数据
-    for (int i = 0; i < width * height; i++) {
-        float real = static_cast<float>(i % 8 + 3);  // 3-10
-        float imag = static_cast<float>(i % 6 + 4);  // 4-9
-        
-        srcData[i * 2] = real;      // 实部
-        srcData[i * 2 + 1] = imag;  // 虚部
-        expectedData[i] = std::sqrt(real * real + imag * imag);
-    }
-    
-    // 对于2通道数据，我们需要分配足够的内存
-    NppImageMemory<Npp32f> src(width * 2, height);  // 宽度*2以容纳交错数据
-    NppImageMemory<Npp32f> dst(width, height);
-    
-    src.copyFromHost(srcData);
-    
-    NppiSize roi = {width, height};
-    NppStatus status = nppiMagnitude_32f_C2R(
-        src.get(), src.step(),
-        dst.get(), dst.step(),
-        roi);
-    
-    ASSERT_EQ(status, NPP_FUNCTION_NOT_IMPLEMENTED) << "nppiMagnitude_32f_C2R should return NPP_FUNCTION_NOT_IMPLEMENTED";
-    
-    // 跳过结果验证，因为函数未实现
-    std::cout << "nppiMagnitude_32f_C2R correctly returned NPP_FUNCTION_NOT_IMPLEMENTED" << std::endl;
-}
+// nppiMagnitude_32f_C2R 函数在标准NPP API中不存在，测试已删除
 
 TEST_F(MagnitudeFunctionalTest, Magnitude_ErrorHandling) {
     const int width = 16;

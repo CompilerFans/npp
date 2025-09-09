@@ -19743,18 +19743,6 @@ NppStatus
 nppiAbs_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst,  int nDstStep,  NppiSize oSizeROI);
 
 /** 
- * One 8-bit signed char channel image absolute value.
- * \param pSrc \ref source_image_pointer.
- * \param nSrcStep \ref source_image_line_step.
- * \param pDst \ref destination_image_pointer.
- * \param nDstStep \ref destination_image_line_step.
- * \param oSizeROI \ref roi_specification.
- * \return \ref image_data_error_codes, \ref roi_error_codes.
- */
-NppStatus 
-nppiAbs_8s_C1R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst,  int nDstStep,  NppiSize oSizeROI);
-
-/** 
  * One 16-bit signed short channel in place image absolute value.
  * \param pSrcDst \ref in_place_image_pointer.
  * \param nSrcDstStep \ref in_place_image_line_step.

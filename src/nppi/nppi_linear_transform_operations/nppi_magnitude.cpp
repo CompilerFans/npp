@@ -111,5 +111,5 @@ NppStatus nppiMagnitude_32f_C2R(const Npp32f * pSrc, int nSrcStep,
     // 打印未实现警告
     fprintf(stderr, "WARNING: nppiMagnitude_32f_C2R is not implemented in this NPP library build\n");
     
-    return NPP_FUNCTION_NOT_IMPLEMENTED;
+    return NPP_NOT_IMPLEMENTED_ERROR;
 }

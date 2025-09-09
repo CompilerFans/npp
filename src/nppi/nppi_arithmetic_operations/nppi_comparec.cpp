@@ -38,7 +38,7 @@ static inline NppStatus validateCompareCInputs(const void* pSrc, int nSrcStep,
     }
     
     // Validate comparison operation
-    if (eComparisonOperation < NPP_CMP_LESS || eComparisonOperation > NPP_CMP_GREATER_EQ) {
+    if (eComparisonOperation < NPP_CMP_LESS || eComparisonOperation > NPP_CMP_GREATER) {
         return NPP_BAD_ARGUMENT_ERROR;
     }
     

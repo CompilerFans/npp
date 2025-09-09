@@ -101,3 +101,6 @@ ctest -R "npps_"    # Signal processing tests
 
 ## Testing Guidelines
 - 单元测试需要与源码的层次结构匹配对应
+
+## API Usage Guidelines
+- 绝对不要修改API的内容，我们需要使用默认的版本

@@ -20,41 +20,7 @@ protected:
     }
 };
 
-// ==================== 8位有符号整数测试 ====================
-
-TEST_F(AbsFunctionalTest, Abs_8s_C1R_BasicOperation) {
-    const int width = 64;
-    const int height = 64;
-    
-    // 准备测试数据
-    std::vector<Npp8s> srcData(width * height);
-    std::vector<Npp8s> expectedData(width * height);
-    
-    // 填充测试数据：包含正数、负数和零
-    for (int i = 0; i < width * height; i++) {
-        srcData[i] = static_cast<Npp8s>((i % 256) - 128); // -128 to 127
-        expectedData[i] = static_cast<Npp8s>(std::abs(srcData[i]));
-    }
-    
-    // 分配GPU内存
-    NppImageMemory<Npp8s> src(width, height);
-    NppImageMemory<Npp8s> dst(width, height);
-    
-    // 复制数据到GPU
-    src.copyFromHost(srcData);
-    
-    // 执行Abs操作 - 该函数未实现，应返回错误码
-    NppiSize roi = {width, height};
-    NppStatus status = nppiAbs_8s_C1R(
-        src.get(), src.step(),
-        dst.get(), dst.step(),
-        roi);
-    
-    ASSERT_EQ(status, NPP_FUNCTION_NOT_IMPLEMENTED) << "nppiAbs_8s_C1R should return NPP_FUNCTION_NOT_IMPLEMENTED";
-    
-    // 跳过结果验证，因为函数未实现
-    std::cout << "nppiAbs_8s_C1R correctly returned NPP_FUNCTION_NOT_IMPLEMENTED" << std::endl;
-}
+// 注意：nppiAbs_8s_C1R函数在标准NPP API中不存在，已删除相关测试
 
 // ==================== 32位浮点数测试 ====================
 
@@ -136,43 +102,7 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1IR_InPlaceOperation) {
         << "In-place Abs operation produced incorrect results";
 }
 
-// ==================== 边界情况测试 ====================
-
-TEST_F(AbsFunctionalTest, Abs_8s_C1R_BoundaryValues) {
-    const int width = 4;
-    const int height = 4;
-    
-    // 测试边界值
-    std::vector<Npp8s> srcData = {
-        -128, -127, -1, 0,
-        1, 2, 126, 127,
-        -50, -25, 25, 50,
-        -100, -10, 10, 100
-    };
-    
-    std::vector<Npp8s> expectedData = {
-        127, 127, 1, 0,  // 注意：abs(-128) = 127 (饱和)
-        1, 2, 126, 127,
-        50, 25, 25, 50,
-        100, 10, 10, 100
-    };
-    
-    NppImageMemory<Npp8s> src(width, height);
-    NppImageMemory<Npp8s> dst(width, height);
-    
-    src.copyFromHost(srcData);
-    
-    NppiSize roi = {width, height};
-    NppStatus status = nppiAbs_8s_C1R(
-        src.get(), src.step(),
-        dst.get(), dst.step(),
-        roi);
-    
-    ASSERT_EQ(status, NPP_FUNCTION_NOT_IMPLEMENTED) << "nppiAbs_8s_C1R should return NPP_FUNCTION_NOT_IMPLEMENTED";
-    
-    // 跳过结果验证，因为函数未实现
-    std::cout << "Boundary value test: nppiAbs_8s_C1R correctly returned NPP_FUNCTION_NOT_IMPLEMENTED" << std::endl;
-}
+// 注意：nppiAbs_8s_C1R函数在标准NPP API中不存在，相关边界测试已删除
 
 // ==================== 错误处理测试 ====================
 

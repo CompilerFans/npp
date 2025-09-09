@@ -500,12 +500,12 @@ NppStatus nppiAbs_8s_C1R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDs
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
         return NPP_SIZE_ERROR;
     }
-    if (nSrcStep < oSizeROI.width * sizeof(Npp8s) || nDstStep < oSizeROI.width * sizeof(Npp8s)) {
+    if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp8s)) || nDstStep < static_cast<int>(oSizeROI.width * sizeof(Npp8s))) {
         return NPP_STEP_ERROR;
     }
     
     // 打印未实现警告
     fprintf(stderr, "WARNING: nppiAbs_8s_C1R is not implemented in this NPP library build\n");
     
-    return NPP_FUNCTION_NOT_IMPLEMENTED;
+    return NPP_NOT_IMPLEMENTED_ERROR;
 }

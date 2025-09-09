@@ -48,24 +48,6 @@ __global__ void nppiAbsDiff_8u_C3R_kernel(const Npp8u* pSrc1, int nSrc1Step,
     }
 }
 
-// Kernel for 16-bit signed single channel absolute difference
-__global__ void nppiAbsDiff_16s_C1R_kernel(const Npp16s* pSrc1, int nSrc1Step,
-                                           const Npp16s* pSrc2, int nSrc2Step,
-                                           Npp16s* pDst, int nDstStep,
-                                           int width, int height) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-    
-    if (x < width && y < height) {
-        const Npp16s* src1_row = (const Npp16s*)((const char*)pSrc1 + y * nSrc1Step);
-        const Npp16s* src2_row = (const Npp16s*)((const char*)pSrc2 + y * nSrc2Step);
-        Npp16s* dst_row = (Npp16s*)((char*)pDst + y * nDstStep);
-        
-        int val1 = src1_row[x];
-        int val2 = src2_row[x];
-        dst_row[x] = abs(val1 - val2);
-    }
-}
 
 // Kernel for 32-bit float single channel absolute difference
 __global__ void nppiAbsDiff_32f_C1R_kernel(const Npp32f* pSrc1, int nSrc1Step,
@@ -130,26 +112,6 @@ NppStatus nppiAbsDiff_8u_C3R_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step,
     return NPP_SUCCESS;
 }
 
-// 16-bit signed single channel implementation
-NppStatus nppiAbsDiff_16s_C1R_Ctx_cuda(const Npp16s* pSrc1, int nSrc1Step,
-                                       const Npp16s* pSrc2, int nSrc2Step,
-                                       Npp16s* pDst, int nDstStep,
-                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-    dim3 blockSize(16, 16);
-    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-    
-    nppiAbsDiff_16s_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
-        oSizeROI.width, oSizeROI.height);
-    
-    cudaError_t cudaStatus = cudaGetLastError();
-    if (cudaStatus != cudaSuccess) {
-        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-    }
-    
-    return NPP_SUCCESS;
-}
 
 // 32-bit float single channel implementation
 NppStatus nppiAbsDiff_32f_C1R_Ctx_cuda(const Npp32f* pSrc1, int nSrc1Step,

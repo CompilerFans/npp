@@ -100,31 +100,6 @@ extern "C"
 const NppLibraryVersion * 
 nppGetLibVersion(void);
 
-/**
- * Get the CUDA compute capability of the current device.
- *
- * \param pMajor Pointer to receive the major compute capability version.
- * \param pMinor Pointer to receive the minor compute capability version.
- * \return \ref signal_data_error_codes, \ref length_error_codes.
- */
-#ifdef NPP_LNX_EXTERN_C
-extern "C"
-#endif
-NppStatus
-nppGetGpuComputeCapability(int * pMajor, int * pMinor);
-
-/**
- * Set the NPP stream context for the current thread.
- *
- * \param nppStreamContext The stream context to set.
- * \return \ref signal_data_error_codes, \ref length_error_codes.
- */
-#ifdef NPP_LNX_EXTERN_C
-extern "C"
-#endif
-NppStatus
-nppSetStreamContext(NppStreamContext nppStreamContext);
-
 // NOTE:The remainder of these functions are no longer supported for external use.
 
 /**
