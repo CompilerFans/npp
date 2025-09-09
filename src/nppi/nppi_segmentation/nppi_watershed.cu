@@ -199,7 +199,7 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel* pPixels, int
 extern "C" {
 
 // 获取Watershed分割所需缓冲区大小
-NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int* hpBufferSize) {
+NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, size_t* hpBufferSize) {
     size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
     
     // 需要的缓冲区：
@@ -215,14 +215,14 @@ NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, i
     size_t totalSize = gradientSize + queueSize + counterSize;
     size_t alignedSize = (totalSize + 511) & ~511;  // 512字节对齐
     
-    *hpBufferSize = (int)alignedSize;
+    *hpBufferSize = alignedSize;
     return NPP_SUCCESS;
 }
 
 // Watershed分割主函数
-NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_cuda(const Npp8u* pSrc, int nSrcStep,
-                                                Npp32s* pMarkers, int nMarkersStep,
-                                                NppiSize oSizeROI, Npp8u eNorm,
+NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_cuda(Npp8u* pSrcDst, Npp32s nSrcDstStep,
+                                                Npp32u* pMarkerLabels, Npp32s nMarkerLabelsStep,
+                                                NppiNorm eNorm, NppiSize oSizeROI,
                                                 Npp8u* pDeviceBuffer, NppStreamContext nppStreamCtx) {
     int width = oSizeROI.width;
     int height = oSizeROI.height;
@@ -243,17 +243,17 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_cuda(const Npp8u* pSrc, int nSrcStep,
     
     // 第一步：计算梯度
     computeGradient_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, pGradient, gradStep, width, height, eNorm);
+        pSrcDst, nSrcDstStep, pGradient, gradStep, width, height, (Npp8u)eNorm);
     
     // 第二步：初始化标记
     initializeMarkers_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pMarkers, nMarkersStep, width, height);
+        (Npp32s*)pMarkerLabels, nMarkerLabelsStep, width, height);
     
     // 第三步：找到初始边界像素
     cudaMemsetAsync(pQueueCount1, 0, sizeof(int), nppStreamCtx.hStream);
     
     findBoundaryPixels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pMarkers, nMarkersStep, pGradient, gradStep, pPixelQueue1, pQueueCount1,
+        (Npp32s*)pMarkerLabels, nMarkerLabelsStep, pGradient, gradStep, pPixelQueue1, pQueueCount1,
         width, height, (int)imageSize);
     
     // 第四步：迭代处理（简化的优先队列）
@@ -277,7 +277,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_cuda(const Npp8u* pSrc, int nSrcStep,
         dim3 linearGridSize((h_count + linearBlockSize.x - 1) / linearBlockSize.x);
         
         processWatershedPixels_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(
-            currentQueue, h_count, pMarkers, nMarkersStep, width, height,
+            currentQueue, h_count, (Npp32s*)pMarkerLabels, nMarkerLabelsStep, width, height,
             nextQueue, nextCount, pGradient, gradStep);
         
         // 交换队列

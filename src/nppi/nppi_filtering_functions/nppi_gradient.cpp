@@ -10,11 +10,21 @@
 
 // Forward declarations for CUDA implementations
 extern "C" {
-NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
-                                                             NppiPoint oSrcOffset, Npp16s* pDstMag, int nDstMagStep,
-                                                             Npp16s* pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
-                                                             NppiMaskSize eMaskSize, NppiBorderType eBorderType,
-                                                             NppStreamContext nppStreamCtx);
+// 带X/Y分量输出的版本（FilterBorderControlNPP使用）
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_xy(
+    const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+    Npp16s* pDstX, int nDstXStep, Npp16s* pDstY, int nDstYStep,
+    Npp16s* pDstMag, int nDstMagStep, Npp32f* pDstAngle, int nDstAngleStep,
+    NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiNorm eNorm,
+    NppiBorderType eBorderType, NppStreamContext nppStreamCtx);
+    
+// 原始版本（带mag/dir输出）
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_magdir(
+    const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+    NppiPoint oSrcOffset, Npp16s* pDstMag, int nDstMagStep,
+    Npp16s* pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
+    NppiMaskSize eMaskSize, NppiBorderType eBorderType,
+    NppStreamContext nppStreamCtx);
 NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                              NppiPoint oSrcOffset, Npp32f* pDstMag, int nDstMagStep,
                                                              Npp32f* pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
@@ -58,8 +68,68 @@ static inline NppStatus validateGradientVectorInputs(const void* pSrc, int nSrcS
     return NPP_SUCCESS;
 }
 
-// 8-bit unsigned to 16-bit signed gradient vector with Prewitt operator
-NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+// 新版本 - 带X/Y分量输出（用于FilterBorderControlNPP）
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(
+    const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+    Npp16s* pDstX, int nDstXStep, Npp16s* pDstY, int nDstYStep,
+    Npp16s* pDstMag, int nDstMagStep, Npp32f* pDstAngle, int nDstAngleStep,
+    NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiNorm eNorm,
+    NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
+    
+    // 参数验证
+    if (pSrc == nullptr || pDstX == nullptr || pDstY == nullptr) {
+        return NPP_NULL_POINTER_ERROR;
+    }
+    
+    if (oSrcSize.width <= 0 || oSrcSize.height <= 0 ||
+        oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+        return NPP_SIZE_ERROR;
+    }
+    
+    if (nSrcStep <= 0 || nDstXStep <= 0 || nDstYStep <= 0) {
+        return NPP_STEP_ERROR;
+    }
+    
+    if (pDstMag != nullptr && nDstMagStep <= 0) {
+        return NPP_STEP_ERROR;
+    }
+    
+    if (pDstAngle != nullptr && nDstAngleStep <= 0) {
+        return NPP_STEP_ERROR;
+    }
+    
+    if (eMaskSize != NPP_MASK_SIZE_3_X_3 && eMaskSize != NPP_MASK_SIZE_5_X_5) {
+        return NPP_MASK_SIZE_ERROR;
+    }
+    
+    // 调用CUDA实现
+    return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_xy(
+        pSrc, nSrcStep, oSrcSize, oSrcOffset,
+        pDstX, nDstXStep, pDstY, nDstYStep,
+        pDstMag, nDstMagStep, pDstAngle, nDstAngleStep,
+        oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx);
+}
+
+// 不带上下文的版本
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R(
+    const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+    Npp16s* pDstX, int nDstXStep, Npp16s* pDstY, int nDstYStep,
+    Npp16s* pDstMag, int nDstMagStep, Npp32f* pDstAngle, int nDstAngleStep,
+    NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiNorm eNorm,
+    NppiBorderType eBorderType) {
+    
+    NppStreamContext nppStreamCtx = {0};
+    nppStreamCtx.hStream = 0;
+    
+    return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(
+        pSrc, nSrcStep, oSrcSize, oSrcOffset,
+        pDstX, nDstXStep, pDstY, nDstYStep,
+        pDstMag, nDstMagStep, pDstAngle, nDstAngleStep,
+        oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx);
+}
+
+// 原始版本 - 8-bit unsigned to 16-bit signed gradient vector with Prewitt operator (mag/dir输出)
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_magdir(const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                         NppiPoint oSrcOffset, Npp16s* pDstMag, int nDstMagStep,
                                                         Npp16s* pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                         NppiMaskSize eMaskSize, NppiBorderType eBorderType,
@@ -71,18 +141,18 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(const Npp8u* pSrc, int n
         return status;
     }
     
-    return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset,
+    return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_magdir(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset,
                                                              pDstMag, nDstMagStep, pDstDir, nDstDirStep,
                                                              oDstSizeROI, eMaskSize, eBorderType, nppStreamCtx);
 }
 
-NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R(const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_magdir(const Npp8u* pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                     NppiPoint oSrcOffset, Npp16s* pDstMag, int nDstMagStep,
                                                     Npp16s* pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                     NppiMaskSize eMaskSize, NppiBorderType eBorderType) {
     NppStreamContext nppStreamCtx;
     nppStreamCtx.hStream = 0;
-    return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset,
+    return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_magdir(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset,
                                                          pDstMag, nDstMagStep, pDstDir, nDstDirStep,
                                                          oDstSizeROI, eMaskSize, eBorderType, nppStreamCtx);
 }

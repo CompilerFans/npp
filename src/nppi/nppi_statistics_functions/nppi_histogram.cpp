@@ -11,7 +11,7 @@
 
 // Forward declarations for CUDA implementations
 extern "C" {
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int nLevels, int* hpBufferSize);
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int nLevels, size_t* hpBufferSize);
 NppStatus nppiHistogramEven_8u_C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, NppiSize oSizeROI,
                                             Npp32s* pHist, int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel,
                                             Npp8u* pDeviceBuffer, NppStreamContext nppStreamCtx);
@@ -82,10 +82,16 @@ NppStatus nppiEvenLevelsHost_32f(Npp32f* pLevels, int nLevels, Npp32f nLowerBoun
     return NPP_SUCCESS;
 }
 
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, size_t* hpBufferSize) {
+    NppStreamContext nppStreamCtx;
+    nppStreamCtx.hStream = 0;
+    return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
+
 /**
- * Get buffer size for histogram computation
+ * Get buffer size for histogram computation (with size_t output for large buffers)
  */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int* hpBufferSize,
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t* hpBufferSize,
                                                     NppStreamContext nppStreamCtx) {
     // Validate input parameters
     if (!hpBufferSize) {
@@ -101,12 +107,6 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
     }
     
     return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(oSizeROI, nLevels, hpBufferSize);
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, int* hpBufferSize) {
-    NppStreamContext nppStreamCtx;
-    nppStreamCtx.hStream = 0;
-    return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
 /**

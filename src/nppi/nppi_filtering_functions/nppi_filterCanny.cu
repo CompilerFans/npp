@@ -274,16 +274,18 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, 
 
 // Canny边缘检测主函数
 NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, 
-                                                NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
-                                                Npp8u* pDst, int nDstStep, NppiSize oDstSizeROI,
-                                                NppiMaskSize eMaskSize, Npp32f nLowThreshold, 
-                                                Npp32f nHighThreshold, NppiBorderType eBorderType,
+                                                NppiSize oSrcSize, NppiPoint oSrcOffset,
+                                                Npp8u* pDst, int nDstStep, NppiSize oSizeROI,
+                                                NppiDifferentialKernel eFilterType,
+                                                NppiMaskSize eMaskSize, Npp16s nLowThreshold, 
+                                                Npp16s nHighThreshold, NppiNorm eNorm,
+                                                NppiBorderType eBorderType,
                                                 Npp8u* pDeviceBuffer, NppStreamContext nppStreamCtx) {
     
-    int srcWidth = oSrcSizeROI.width;
-    int srcHeight = oSrcSizeROI.height;
-    int dstWidth = oDstSizeROI.width;
-    int dstHeight = oDstSizeROI.height;
+    int srcWidth = oSrcSize.width;
+    int srcHeight = oSrcSize.height;
+    int dstWidth = oSizeROI.width;
+    int dstHeight = oSizeROI.height;
     
     // 设置临时缓冲区
     size_t imageSize = srcWidth * srcHeight;
