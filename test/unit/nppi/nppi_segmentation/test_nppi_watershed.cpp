@@ -78,7 +78,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
     
     // 调用Watershed分割
     status = nppiSegmentWatershed_8u_C1IR(d_src, srcStep, d_markers, markersStep,
-                                         oSizeROI, nppiNormL1, 2, d_buffer);
+                                         nppiNormL1, NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, d_buffer);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 拷贝结果回主机
@@ -90,7 +90,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
     for (size_t i = 0; i < dataSize; i++) {
         if (resultData[i] == 1) label1Count++;
         else if (resultData[i] == 2) label2Count++;
-        else if (resultData[i] == -1) watershedCount++;
+        else if (resultData[i] == 0xFFFFFFFF) watershedCount++; // watershed边界通常用最大值表示
     }
     
     EXPECT_GT(label1Count, 0);     // 应该有标签1的区域
@@ -106,22 +106,22 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
 TEST_F(NPPIWatershedTest, SegmentWatershed_ErrorHandling) {
     // 测试空指针
     NppStatus status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32,
-                                                   oSizeROI, 2, nullptr);
+                                                   nppiNormL2, NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, nullptr);
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
     
     // 测试无效尺寸
     NppiSize invalidROI = {0, 0};
     status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32,
-                                         invalidROI, 2, nullptr);
+                                         nppiNormL2, NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, invalidROI, nullptr);
     EXPECT_EQ(status, NPP_SIZE_ERROR);
     
     // 测试无效步长
     status = nppiSegmentWatershed_8u_C1IR(nullptr, -1, nullptr, -1,
-                                         oSizeROI, 2, nullptr);
+                                         nppiNormL2, NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, nullptr);
     EXPECT_EQ(status, NPP_STEP_ERROR);
     
     // 测试无效范数
     status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32,
-                                         oSizeROI, 3, nullptr);  // 只支持L1(1)或L2(2)
+                                         static_cast<NppiNorm>(99), NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, nullptr);  // 无效的norm值
     EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }

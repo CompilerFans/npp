@@ -29,7 +29,7 @@ protected:
 TEST_F(NPPIFilterCannyTest, CannyBorderGetBufferSize_Basic) {
     int bufferSize = 0;
     
-    NppStatus status = nppiFilterCannyBorderGetBufferSize_8u_C1R(oSrcSizeROI, &bufferSize);
+    NppStatus status = nppiFilterCannyBorderGetBufferSize(oSrcSizeROI, &bufferSize);
     EXPECT_EQ(status, NPP_SUCCESS);
     EXPECT_GT(bufferSize, 0);
 }
@@ -37,13 +37,13 @@ TEST_F(NPPIFilterCannyTest, CannyBorderGetBufferSize_Basic) {
 // 测试缓冲区大小获取错误处理
 TEST_F(NPPIFilterCannyTest, CannyBorderGetBufferSize_ErrorHandling) {
     // 测试空指针
-    NppStatus status = nppiFilterCannyBorderGetBufferSize_8u_C1R(oSrcSizeROI, nullptr);
+    NppStatus status = nppiFilterCannyBorderGetBufferSize(oSrcSizeROI, nullptr);
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
     
     // 测试无效尺寸
     NppiSize invalidROI = {0, 0};
     int bufferSize = 0;
-    status = nppiFilterCannyBorderGetBufferSize_8u_C1R(invalidROI, &bufferSize);
+    status = nppiFilterCannyBorderGetBufferSize(invalidROI, &bufferSize);
     EXPECT_EQ(status, NPP_SIZE_ERROR);
 }
 
@@ -66,7 +66,7 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_8u_C1R_Basic) {
     
     // 获取缓冲区大小
     int bufferSize = 0;
-    NppStatus status = nppiFilterCannyBorderGetBufferSize_8u_C1R(oSrcSizeROI, &bufferSize);
+    NppStatus status = nppiFilterCannyBorderGetBufferSize(oSrcSizeROI, &bufferSize);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 分配GPU内存
@@ -83,7 +83,7 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_8u_C1R_Basic) {
     // 调用Canny边缘检测
     status = nppiFilterCannyBorder_8u_C1R(d_src, srcStep, oSrcSizeROI, oSrcOffset,
                                          d_dst, dstStep, oDstSizeROI,
-                                         NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f,
+                                         NPP_FILTER_SOBEL, NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f, nppiNormL2,
                                          NPP_BORDER_REPLICATE, d_buffer);
     EXPECT_EQ(status, NPP_SUCCESS);
     
@@ -109,7 +109,7 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_ErrorHandling) {
     // 测试空指针
     NppStatus status = nppiFilterCannyBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset,
                                                     nullptr, 32, oDstSizeROI,
-                                                    NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f,
+                                                    NPP_FILTER_SOBEL, NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f, nppiNormL2,
                                                     NPP_BORDER_REPLICATE, nullptr);
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
     
@@ -117,21 +117,21 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_ErrorHandling) {
     NppiSize invalidROI = {0, 0};
     status = nppiFilterCannyBorder_8u_C1R(nullptr, 32, invalidROI, oSrcOffset,
                                          nullptr, 32, invalidROI,
-                                         NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f,
+                                         NPP_FILTER_SOBEL, NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f, nppiNormL2,
                                          NPP_BORDER_REPLICATE, nullptr);
     EXPECT_EQ(status, NPP_SIZE_ERROR);
     
     // 测试无效阈值
     status = nppiFilterCannyBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset,
                                          nullptr, 32, oDstSizeROI,
-                                         NPP_MASK_SIZE_3_X_3, 150.0f, 50.0f,  // 低阈值 > 高阈值
+                                         NPP_FILTER_SOBEL, NPP_MASK_SIZE_3_X_3, 150.0f, 50.0f, nppiNormL2,  // 低阈值 > 高阈值
                                          NPP_BORDER_REPLICATE, nullptr);
     EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
     
     // 测试无效掩码尺寸
     status = nppiFilterCannyBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset,
                                          nullptr, 32, oDstSizeROI,
-                                         static_cast<NppiMaskSize>(-1), 50.0f, 150.0f,
+                                         NPP_FILTER_SOBEL, static_cast<NppiMaskSize>(-1), 50.0f, 150.0f, nppiNormL2,
                                          NPP_BORDER_REPLICATE, nullptr);
     EXPECT_EQ(status, NPP_MASK_SIZE_ERROR);
 }
