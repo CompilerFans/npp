@@ -175,7 +175,7 @@ TEST(GeometryParameterTest, NullPointerError) {
 }
 
 TEST(GeometryParameterTest, InvalidSize) {
-    Npp8u dummy;
+    Npp8u dummy = 0;  // 初始化以避免警告
     int step = 10;
     
     // 测试无效宽度
@@ -190,7 +190,7 @@ TEST(GeometryParameterTest, InvalidSize) {
 }
 
 TEST(GeometryParameterTest, InvalidFlipAxis) {
-    Npp8u dummy;
+    Npp8u dummy = 0;  // 初始化以避免警告
     int step = 10;
     NppiSize size = {10, 10};
     

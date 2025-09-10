@@ -21,10 +21,20 @@ struct UnionFind {
     __device__ Npp32u find(Npp32u x) {
         if (x >= size) return x;
         
-        if (parent[x] != x) {
-            parent[x] = find(parent[x]);  // 路径压缩
+        // 迭代版本的路径压缩，避免递归调用
+        Npp32u root = x;
+        while (parent[root] != root) {
+            root = parent[root];
         }
-        return parent[x];
+        
+        // 路径压缩：将路径上的所有节点直接指向根
+        while (parent[x] != x) {
+            Npp32u next = parent[x];
+            parent[x] = root;
+            x = next;
+        }
+        
+        return root;
     }
     
     __device__ void unite(Npp32u x, Npp32u y) {
