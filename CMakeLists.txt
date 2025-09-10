@@ -21,6 +21,14 @@ add_subdirectory(src)
 # 构建选项
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
+option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
+
+# 显示配置选项
+if(NPP_WARNINGS_AS_ERRORS)
+    message(STATUS "Warnings will be treated as errors")
+else()
+    message(STATUS "Warnings will not be treated as errors")
+endif()
 
 if(BUILD_TESTS)
     enable_testing()

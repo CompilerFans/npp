@@ -34,6 +34,11 @@ static inline NppStatus validateResizeInputs(const void* pSrc, int nSrcStep, Npp
         return NPP_NULL_POINTER_ERROR;
     }
     
+    // 验证插值参数以避免未使用警告
+    if (eInterpolation < 0) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+    
     // Basic ROI validation
     if (oSrcRectROI.x < 0 || oSrcRectROI.y < 0 || 
         oSrcRectROI.x + oSrcRectROI.width > oSrcSize.width ||

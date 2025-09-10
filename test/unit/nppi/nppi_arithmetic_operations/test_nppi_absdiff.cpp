@@ -39,6 +39,8 @@ protected:
     template<typename T>
     void verifyAbsDiff(const std::vector<T>& src1, const std::vector<T>& src2, 
                       const std::vector<T>& result, int channels = 1) {
+        // 使用channels参数以避免警告
+        (void)channels;
         for (size_t i = 0; i < result.size(); i++) {
             // 使用long long避免溢出，然后计算绝对值
             long long diff = static_cast<long long>(src1[i]) - static_cast<long long>(src2[i]);

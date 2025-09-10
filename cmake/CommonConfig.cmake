@@ -19,6 +19,26 @@ function(npp_set_common_compile_options target)
         $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wextra>
         $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --expt-relaxed-constexpr>
     )
+    
+    # 添加警告作为错误选项
+    if(NPP_WARNINGS_AS_ERRORS)
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            target_compile_options(${target} PRIVATE
+                $<$<COMPILE_LANGUAGE:CXX>:-Werror>
+            )
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+            target_compile_options(${target} PRIVATE
+                $<$<COMPILE_LANGUAGE:CXX>:/WX>
+            )
+        endif()
+        
+        # CUDA警告作为错误
+        if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
+            target_compile_options(${target} PRIVATE
+                $<$<COMPILE_LANGUAGE:CUDA>:-Werror all-warnings>
+            )
+        endif()
+    endif()
 endfunction()
 
 # 添加NPP通用包含目录

@@ -130,7 +130,7 @@ TEST_F(LogicalFunctionalTest, OrC_8u_C1R) {
 TEST(LogicalParameterTest, NullPointerError) {
     NppiSize size = {10, 10};
     int step = 10;
-    Npp8u dummy;
+    Npp8u dummy = 0;
     
     // AND测试
     EXPECT_EQ(nppiAnd_8u_C1R(nullptr, step, &dummy, step, &dummy, step, size), 
@@ -150,7 +150,7 @@ TEST(LogicalParameterTest, NullPointerError) {
 }
 
 TEST(LogicalParameterTest, InvalidSize) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     int step = 10;
     
     // 测试无效宽度

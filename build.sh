@@ -11,6 +11,7 @@ BUILD_TYPE="Release"
 JOBS=$(nproc)
 BUILD_TESTS="ON"
 BUILD_EXAMPLES="ON"
+WARNINGS_AS_ERRORS="ON"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -36,6 +37,10 @@ while [[ $# -gt 0 ]]; do
             BUILD_EXAMPLES="OFF"
             shift
             ;;
+        --no-werror)
+            WARNINGS_AS_ERRORS="OFF"
+            shift
+            ;;
         clean)
             echo "Cleaning build directory..."
             rm -rf build/
@@ -50,6 +55,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --no-tests      Skip building tests"
             echo "  --no-examples   Skip building examples"
             echo "  --lib-only      Build library only (no tests, no examples)"
+            echo "  --no-werror     Disable warnings as errors"
             echo "  clean           Clean build directory"
             echo "  -h, --help      Show help"
             exit 0
@@ -67,12 +73,13 @@ cd build
 
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
-echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES"
+echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS"
 cmake .. \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DCMAKE_CUDA_ARCHITECTURES="89" \
     -DBUILD_TESTS="$BUILD_TESTS" \
-    -DBUILD_EXAMPLES="$BUILD_EXAMPLES"
+    -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
+    -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS"
 
 # Build
 echo "Building with $JOBS jobs..."

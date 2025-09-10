@@ -18,7 +18,6 @@ __global__ void nppiFilter_8u_C1R_kernel(const Npp8u* pSrc, int nSrcStep,
     
     if (x >= width || y >= height) return;
     
-    const Npp8u* src_row = (const Npp8u*)((const char*)pSrc + y * nSrcStep);
     Npp8u* dst_row = (Npp8u*)((char*)pDst + y * nDstStep);
     
     // Perform convolution
@@ -53,7 +52,6 @@ __global__ void nppiFilter_8u_C3R_kernel(const Npp8u* pSrc, int nSrcStep,
     
     if (x >= width || y >= height) return;
     
-    const Npp8u* src_row = (const Npp8u*)((const char*)pSrc + y * nSrcStep);
     Npp8u* dst_row = (Npp8u*)((char*)pDst + y * nDstStep);
     
     // Perform convolution for each channel
@@ -90,7 +88,6 @@ __global__ void nppiFilter_32f_C1R_kernel(const Npp32f* pSrc, int nSrcStep,
     
     if (x >= width || y >= height) return;
     
-    const Npp32f* src_row = (const Npp32f*)((const char*)pSrc + y * nSrcStep);
     Npp32f* dst_row = (Npp32f*)((char*)pDst + y * nDstStep);
     
     // Perform convolution

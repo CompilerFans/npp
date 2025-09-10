@@ -26,6 +26,11 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R(int nMarkerLabels, int* 
 
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx(int nMarkerLabels, int* hpBufferSize,
                                                            NppStreamContext nppStreamCtx) {
+    // 使用流上下文参数以避免未使用警告
+    if (nppStreamCtx.nCudaDeviceId < -1) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+    
     return nppiCompressMarkerLabelsGetBufferSize_32u_C1R(nMarkerLabels, hpBufferSize);
 }
 

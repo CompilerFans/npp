@@ -9,12 +9,7 @@
 // Device function for 3x3 erosion (minimum value in neighborhood)
 template<typename T>
 __device__ inline T erode3x3(const T* pSrc, int nSrcStep, int x, int y, int width, int height) {
-    T minVal;
-    if (sizeof(T) == sizeof(Npp32f)) {
-        minVal = (T)1e10f; // Large value for float
-    } else {
-        minVal = (T)255;   // Maximum value for 8u
-    }
+    T minVal = T(255); // Default maximum value for 8u
     
     // Apply 3x3 structuring element
     for (int dy = -1; dy <= 1; dy++) {
@@ -28,6 +23,33 @@ __device__ inline T erode3x3(const T* pSrc, int nSrcStep, int x, int y, int widt
             
             const T* src_row = (const T*)((const char*)pSrc + srcY * nSrcStep);
             T pixelValue = src_row[srcX];
+            
+            if (pixelValue < minVal) {
+                minVal = pixelValue;
+            }
+        }
+    }
+    
+    return minVal;
+}
+
+// Template specialization for Npp32f (float)
+template<>
+__device__ inline Npp32f erode3x3<Npp32f>(const Npp32f* pSrc, int nSrcStep, int x, int y, int width, int height) {
+    Npp32f minVal = 1e10f; // Large value for float
+    
+    // Apply 3x3 structuring element
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            int srcY = y + dy;
+            int srcX = x + dx;
+            
+            // Handle boundaries by clamping
+            srcY = max(0, min(srcY, height - 1));
+            srcX = max(0, min(srcX, width - 1));
+            
+            const Npp32f* src_row = (const Npp32f*)((const char*)pSrc + srcY * nSrcStep);
+            Npp32f pixelValue = src_row[srcX];
             
             if (pixelValue < minVal) {
                 minVal = pixelValue;
@@ -55,6 +77,33 @@ __device__ inline T dilate3x3(const T* pSrc, int nSrcStep, int x, int y, int wid
             
             const T* src_row = (const T*)((const char*)pSrc + srcY * nSrcStep);
             T pixelValue = src_row[srcX];
+            
+            if (pixelValue > maxVal) {
+                maxVal = pixelValue;
+            }
+        }
+    }
+    
+    return maxVal;
+}
+
+// Template specialization for Npp32f (float) dilation
+template<>
+__device__ inline Npp32f dilate3x3<Npp32f>(const Npp32f* pSrc, int nSrcStep, int x, int y, int width, int height) {
+    Npp32f maxVal = -1e10f; // Very small value for float
+    
+    // Apply 3x3 structuring element
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            int srcY = y + dy;
+            int srcX = x + dx;
+            
+            // Handle boundaries by clamping
+            srcY = max(0, min(srcY, height - 1));
+            srcX = max(0, min(srcX, width - 1));
+            
+            const Npp32f* src_row = (const Npp32f*)((const char*)pSrc + srcY * nSrcStep);
+            Npp32f pixelValue = src_row[srcX];
             
             if (pixelValue > maxVal) {
                 maxVal = pixelValue;

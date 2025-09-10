@@ -79,7 +79,6 @@ extern "C" {
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int nLevels, size_t* hpBufferSize) {
     // Calculate required buffer size
     // For histogram computation, we need space for temporary data
-    size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
     size_t histogramSize = (size_t)(nLevels - 1) * sizeof(Npp32s);
     
     // Buffer size includes space for histogram and some temporary workspace

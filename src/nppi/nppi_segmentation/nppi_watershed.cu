@@ -174,8 +174,6 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel* pPixels, int
         marker_row[x] = neighborLabel;    // 扩展标签
         
         // 将邻居中的MASK像素添加到下一轮处理
-        const Npp8u* grad_row = (const Npp8u*)((const char*)pGradient + y * nGradStep);
-        
         for (int i = 0; i < 4; i++) {
             int nx = x + dx[i];
             int ny = y + dy[i];

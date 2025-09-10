@@ -292,7 +292,6 @@ TEST_F(NPPICompareCTest, CompareC_8u_C1R_Ctx) {
 
 // 测试所有比较操作
 TEST_F(NPPICompareCTest, CompareC_AllOperations) {
-    size_t dataSize = width * height;
     std::vector<Npp8u> srcData = {50, 100, 150, 200, 100};  // 简单测试数据
     std::vector<Npp8u> dstData(5);
     Npp8u constant = 100;

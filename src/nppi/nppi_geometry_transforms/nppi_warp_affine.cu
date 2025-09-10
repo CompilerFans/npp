@@ -95,10 +95,6 @@ __global__ void nppiWarpAffine_8u_C1R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
         double src_x = c00 * dst_x + c01 * dst_y + c02;
         double src_y = c10 * dst_x + c11 * dst_y + c12;
         
-        // 相对于源ROI的坐标
-        float fx = (float)(src_x - oSrcROI.x);
-        float fy = (float)(src_y - oSrcROI.y);
-        
         Npp8u result;
         // 绝对源坐标，不减去ROI偏移
         float abs_fx = (float)src_x;
@@ -143,9 +139,6 @@ __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
         // 应用仿射变换
         double src_x = c00 * dst_x + c01 * dst_y + c02;
         double src_y = c10 * dst_x + c11 * dst_y + c12;
-        
-        float fx = (float)(src_x - oSrcROI.x);
-        float fy = (float)(src_y - oSrcROI.y);
         
         // 绝对源坐标，不减去ROI偏移
         float abs_fx = (float)src_x;
@@ -223,9 +216,6 @@ __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f* pSrc, NppiSize oSrcS
         // 应用仿射变换
         double src_x = c00 * dst_x + c01 * dst_y + c02;
         double src_y = c10 * dst_x + c11 * dst_y + c12;
-        
-        float fx = (float)(src_x - oSrcROI.x);
-        float fy = (float)(src_y - oSrcROI.y);
         
         Npp32f result;
         // 绝对源坐标，不减去ROI偏移

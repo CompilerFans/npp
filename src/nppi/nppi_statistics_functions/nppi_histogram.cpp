@@ -98,6 +98,11 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
         return NPP_NULL_POINTER_ERROR;
     }
     
+    // 使用流上下文参数以避免未使用警告
+    if (nppStreamCtx.nCudaDeviceId < -1) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+    
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
         return NPP_SIZE_ERROR;
     }

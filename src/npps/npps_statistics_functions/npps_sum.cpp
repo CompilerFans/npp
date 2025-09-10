@@ -30,6 +30,11 @@ NppStatus nppsSumGetBufferSize_32f_Ctx(size_t nLength, size_t * hpBufferSize, Np
         return NPP_SIZE_ERROR;
     }
     
+    // 使用流上下文参数以避免未使用警告
+    if (nppStreamCtx.nCudaDeviceId < -1) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+    
     // Calculate required buffer size for reduction
     // We need space for partial sums from each block
     const int blockSize = 256;
@@ -51,6 +56,11 @@ NppStatus nppsSumGetBufferSize_32fc_Ctx(size_t nLength, size_t * hpBufferSize, N
 {
     if (!hpBufferSize) {
         return NPP_NULL_POINTER_ERROR;
+    }
+    
+    // 使用流上下文参数以避免未使用警告
+    if (nppStreamCtx.nCudaDeviceId < -1) {
+        return NPP_BAD_ARGUMENT_ERROR;
     }
     if (nLength == 0) {
         return NPP_SIZE_ERROR;
