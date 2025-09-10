@@ -72,6 +72,7 @@ __global__ void nppiHistogramEven_8u_C1R_kernel_global(const Npp8u* pSrc, int nS
     }
 }
 
+
 extern "C" {
 
 // Get buffer size for histogram computation

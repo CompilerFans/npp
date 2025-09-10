@@ -146,3 +146,61 @@ TEST_F(NPPIHistogramTest, HistogramEven_ErrorHandling) {
                                      255, 0, nullptr);
     EXPECT_NE(status, NPP_SUCCESS);
 }
+
+// 测试增强版8位单通道直方图（更多bins）
+TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Enhanced) {
+    const int width = 32, height = 32;
+    const int nLevels = 33;  // 32个bins + 1个边界  
+    const Npp32s nLowerLevel = 0;
+    const Npp32s nUpperLevel = 256;
+    
+    // 创建测试图像
+    std::vector<Npp8u> imageData(width * height);
+    for (int i = 0; i < width * height; i++) {
+        imageData[i] = (Npp8u)(i % 256);
+    }
+    
+    // 使用nppiMalloc分配图像内存
+    int srcStep;
+    Npp8u* d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+    ASSERT_NE(d_src, nullptr);
+    
+    // 复制图像数据到GPU
+    cudaMemcpy(d_src, imageData.data(), width * height * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    
+    // 分配直方图内存
+    Npp32s* d_hist = (Npp32s*)nppsMalloc_32s(nLevels - 1);
+    ASSERT_NE(d_hist, nullptr);
+    
+    // 获取缓冲区大小并分配
+    size_t bufferSize;
+    NppiSize roi = {width, height};
+    NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+    ASSERT_EQ(status, NPP_SUCCESS);
+    
+    Npp8u* d_buffer = nppsMalloc_8u(bufferSize);
+    ASSERT_NE(d_buffer, nullptr);
+    
+    // 计算直方图
+    status = nppiHistogramEven_8u_C1R(d_src, srcStep, roi, d_hist, nLevels, 
+                                     nLowerLevel, nUpperLevel, d_buffer);
+    ASSERT_EQ(status, NPP_SUCCESS);
+    
+    // 获取结果
+    std::vector<Npp32s> hostHist(nLevels - 1);
+    cudaMemcpy(hostHist.data(), d_hist, (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost);
+    
+    // 验证结果 - 总像素数应该等于图像像素数
+    int totalPixels = 0;
+    for (int i = 0; i < nLevels - 1; i++) {
+        totalPixels += hostHist[i];
+        EXPECT_GE(hostHist[i], 0) << "Histogram bin " << i << " has negative count";
+    }
+    
+    EXPECT_EQ(totalPixels, width * height) << "Enhanced histogram pixel count mismatch";
+    
+    // 清理内存
+    nppiFree(d_src);
+    nppsFree(d_hist);
+    nppsFree(d_buffer);
+}

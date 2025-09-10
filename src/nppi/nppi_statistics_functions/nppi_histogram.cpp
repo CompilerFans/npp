@@ -148,3 +148,4 @@ NppStatus nppiHistogramEven_8u_C1R(const Npp8u* pSrc, int nSrcStep, NppiSize oSi
     return nppiHistogramEven_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pHist, nLevels,
                                        nLowerLevel, nUpperLevel, pDeviceBuffer, nppStreamCtx);
 }
+
