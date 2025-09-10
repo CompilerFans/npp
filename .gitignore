@@ -18,6 +18,8 @@ test_nppcore
 test_nppi_support
 npp_test_runner
 
+examples/cuda-samples
+
 # 但保留测试源码
 !test/*.cpp
 !test/*.h

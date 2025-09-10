@@ -104,3 +104,6 @@ ctest -R "npps_"    # Signal processing tests
 
 ## API Usage Guidelines
 - 绝对不要修改API的内容，我们需要使用默认的版本
+
+## References
+- 相关代码实现可参考git 仓库https://github.com/kunzmi/mpp和它的deepwiki
