@@ -1,5 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
+#include "../../npp_internal.h"
 
 // 声明CUDA函数
 extern "C" {
@@ -42,6 +43,10 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R(NppiSize oSizeROI, int* hpBu
 
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int* hpBufferSize, 
                                                         NppStreamContext nppStreamCtx) {
+    // 使用nppStreamCtx参数进行简单验证以避免未使用警告
+    if (nppStreamCtx.nCudaDeviceId < -1) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
     return nppiFilterCannyBorderGetBufferSize_8u_C1R(oSizeROI, hpBufferSize);
 }
 
@@ -78,8 +83,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R(const Npp8u* pSrc, int nSrcStep, NppiSize
         return NPP_BAD_ARGUMENT_ERROR;
     }
 
-    NppStreamContext nppStreamCtx = {0};
-    nppStreamCtx.hStream = 0; // 默认流
+    NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
 
     return nppiFilterCannyBorder_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcOffset,
                                                  pDst, nDstStep, oSizeROI, eFilterType,

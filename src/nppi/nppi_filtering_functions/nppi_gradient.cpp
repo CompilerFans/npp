@@ -2,6 +2,7 @@
 #include <cuda_runtime.h>
 #include <cstring>
 #include <cstdio>
+#include "../../npp_internal.h"
 
 /**
  * NPP Image Gradient Functions Implementation
@@ -118,7 +119,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R(
     NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiNorm eNorm,
     NppiBorderType eBorderType) {
     
-    NppStreamContext nppStreamCtx = {0};
+    NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
     nppStreamCtx.hStream = 0;
     
     return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(

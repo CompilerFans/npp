@@ -1,5 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
+#include "../../npp_internal.h"
 
 // 声明CUDA函数
 extern "C" {
@@ -49,8 +50,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR(Npp32u* pMarkerLabels, int nMarker
         return NPP_BAD_ARGUMENT_ERROR;
     }
 
-    NppStreamContext nppStreamCtx = {0};
-    nppStreamCtx.hStream = 0; // 默认流
+    NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
 
     return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_cuda(pMarkerLabels, nMarkerLabelsStep,
                                                         oMarkerLabelsROI, nStartingNumber,

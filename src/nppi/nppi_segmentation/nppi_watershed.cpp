@@ -1,5 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
+#include "../../npp_internal.h"
 
 // 声明CUDA函数
 extern "C" {
@@ -39,8 +40,12 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u* pSrcDst, Npp32s nSrcDstStep, Npp32
         return NPP_STEP_ERROR;
     }
 
-    NppStreamContext nppStreamCtx = {0};
-    nppStreamCtx.hStream = 0; // 默认流
+    // 简单验证边界类型参数以避免未使用警告
+    if (eSegmentBoundaryType < 0) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+
+    NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
 
     return nppiSegmentWatershed_8u_C1IR_Ctx_cuda(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep,
                                                 eNorm, oSizeROI, pDeviceMemoryBuffer, nppStreamCtx);
@@ -59,6 +64,16 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u* pSrcDst, Npp32s nSrcDstStep, N
 
     if (nSrcDstStep <= 0 || nMarkerLabelsStep <= 0) {
         return NPP_STEP_ERROR;
+    }
+
+    // 简单验证边界类型参数以避免未使用警告
+    if (eSegmentBoundaryType < 0) {
+        return NPP_BAD_ARGUMENT_ERROR;
+    }
+
+    // 验证流上下文参数
+    if (nppStreamCtx.nCudaDeviceId < -1) {
+        return NPP_BAD_ARGUMENT_ERROR;
     }
 
     return nppiSegmentWatershed_8u_C1IR_Ctx_cuda(pSrcDst, nSrcDstStep, pMarkerLabels, nMarkerLabelsStep,
