@@ -24,6 +24,17 @@ __constant__ float c_gauss5x5[25] = {
     0.0039f, 0.0156f, 0.0234f, 0.0156f, 0.0039f
 };
 
+// 7x7高斯内核
+__constant__ float c_gauss7x7[49] = {
+    0.0009f, 0.0039f, 0.0078f, 0.0098f, 0.0078f, 0.0039f, 0.0009f,
+    0.0039f, 0.0156f, 0.0313f, 0.0391f, 0.0313f, 0.0156f, 0.0039f,
+    0.0078f, 0.0313f, 0.0625f, 0.0781f, 0.0625f, 0.0313f, 0.0078f,
+    0.0098f, 0.0391f, 0.0781f, 0.0977f, 0.0781f, 0.0391f, 0.0098f,
+    0.0078f, 0.0313f, 0.0625f, 0.0781f, 0.0625f, 0.0313f, 0.0078f,
+    0.0039f, 0.0156f, 0.0313f, 0.0391f, 0.0313f, 0.0156f, 0.0039f,
+    0.0009f, 0.0039f, 0.0078f, 0.0098f, 0.0078f, 0.0039f, 0.0009f
+};
+
 // 修复的8位单通道高斯滤波内核
 __global__ void nppiFilterGauss_8u_C1R_kernel_fixed(const Npp8u* pSrc, int nSrcStep,
                                                      Npp8u* pDst, int nDstStep,
@@ -52,8 +63,10 @@ __global__ void nppiFilterGauss_8u_C1R_kernel_fixed(const Npp8u* pSrc, int nSrcS
             float kernelValue;
             if (kernelSize == 3) {
                 kernelValue = c_gauss3x3[ky * kernelSize + kx];
-            } else { // kernelSize == 5
+            } else if (kernelSize == 5) {
                 kernelValue = c_gauss5x5[ky * kernelSize + kx];
+            } else { // kernelSize == 7
+                kernelValue = c_gauss7x7[ky * kernelSize + kx];
             }
             
             result += pixelValue * kernelValue;
@@ -96,8 +109,10 @@ __global__ void nppiFilterGauss_8u_C3R_kernel_fixed(const Npp8u* pSrc, int nSrcS
                 float kernelValue;
                 if (kernelSize == 3) {
                     kernelValue = c_gauss3x3[ky * kernelSize + kx];
-                } else { // kernelSize == 5
+                } else if (kernelSize == 5) {
                     kernelValue = c_gauss5x5[ky * kernelSize + kx];
+                } else { // kernelSize == 7
+                    kernelValue = c_gauss7x7[ky * kernelSize + kx];
                 }
                 
                 result += pixelValue * kernelValue;
@@ -138,8 +153,10 @@ __global__ void nppiFilterGauss_32f_C1R_kernel_fixed(const Npp32f* pSrc, int nSr
             float kernelValue;
             if (kernelSize == 3) {
                 kernelValue = c_gauss3x3[ky * kernelSize + kx];
-            } else { // kernelSize == 5
+            } else if (kernelSize == 5) {
                 kernelValue = c_gauss5x5[ky * kernelSize + kx];
+            } else { // kernelSize == 7
+                kernelValue = c_gauss7x7[ky * kernelSize + kx];
             }
             
             result += pixelValue * kernelValue;
@@ -166,6 +183,9 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(const Npp8u* pSrc, int nSrcStep,
             break;
         case NPP_MASK_SIZE_5_X_5:
             kernelSize = 5;
+            break;
+        case NPP_MASK_SIZE_7_X_7:
+            kernelSize = 7;
             break;
         default:
             return NPP_NOT_SUPPORTED_MODE_ERROR;
@@ -210,6 +230,9 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(const Npp8u* pSrc, int nSrcStep,
         case NPP_MASK_SIZE_5_X_5:
             kernelSize = 5;
             break;
+        case NPP_MASK_SIZE_7_X_7:
+            kernelSize = 7;
+            break;
         default:
             return NPP_NOT_SUPPORTED_MODE_ERROR;
     }
@@ -252,6 +275,9 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f* pSrc, int nSrcSte
             break;
         case NPP_MASK_SIZE_5_X_5:
             kernelSize = 5;
+            break;
+        case NPP_MASK_SIZE_7_X_7:
+            kernelSize = 7;
             break;
         default:
             return NPP_NOT_SUPPORTED_MODE_ERROR;
