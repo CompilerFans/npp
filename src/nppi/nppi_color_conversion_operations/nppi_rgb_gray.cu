@@ -131,7 +131,11 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, Npp8u
     }
     
     // Synchronize to ensure kernel completion
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    if (nppStreamCtx.hStream == 0) {
+        cudaStatus = cudaDeviceSynchronize();
+    } else {
+        cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    }
     if (cudaStatus != cudaSuccess) {
         return NPP_CUDA_KERNEL_EXECUTION_ERROR;
     }
@@ -157,7 +161,11 @@ NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, Npp8
     }
     
     // Synchronize to ensure kernel completion
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    if (nppStreamCtx.hStream == 0) {
+        cudaStatus = cudaDeviceSynchronize();
+    } else {
+        cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    }
     if (cudaStatus != cudaSuccess) {
         return NPP_CUDA_KERNEL_EXECUTION_ERROR;
     }
@@ -183,7 +191,11 @@ NppStatus nppiRGBToGray_32f_C3C1R_Ctx_cuda(const Npp32f* pSrc, int nSrcStep, Npp
     }
     
     // Synchronize to ensure kernel completion
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    if (nppStreamCtx.hStream == 0) {
+        cudaStatus = cudaDeviceSynchronize();
+    } else {
+        cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    }
     if (cudaStatus != cudaSuccess) {
         return NPP_CUDA_KERNEL_EXECUTION_ERROR;
     }
@@ -209,7 +221,11 @@ NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_cuda(const Npp32f* pSrc, int nSrcStep, Np
     }
     
     // Synchronize to ensure kernel completion
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    if (nppStreamCtx.hStream == 0) {
+        cudaStatus = cudaDeviceSynchronize();
+    } else {
+        cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+    }
     if (cudaStatus != cudaSuccess) {
         return NPP_CUDA_KERNEL_EXECUTION_ERROR;
     }

@@ -67,9 +67,14 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_8u_C3C1R_BasicOperation) {
     NppStatus status = nppiRGBToGray_8u_C3C1R(d_src, srcStep, d_dst, dstStep, roi);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // Copy result back to host
+    // Copy result back to host row by row to handle step properly
     std::vector<Npp8u> resultData(width * height);
-    cudaMemcpy(resultData.data(), d_dst, width * height * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width,
+                   (char*)d_dst + y * dstStep,
+                   width * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // Verify results (allow small rounding differences)
     for (int i = 0; i < width * height; i++) {
@@ -121,9 +126,14 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_8u_AC4C1R_BasicOperation) {
     NppStatus status = nppiRGBToGray_8u_AC4C1R(d_src, srcStep, d_dst, dstStep, roi);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // Copy result back to host
+    // Copy result back to host row by row to handle step properly
     std::vector<Npp8u> resultData(width * height);
-    cudaMemcpy(resultData.data(), d_dst, width * height * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width,
+                   (char*)d_dst + y * dstStep,
+                   width * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // Verify results
     for (int i = 0; i < width * height; i++) {
@@ -172,9 +182,14 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_32f_C3C1R_BasicOperation) {
     NppStatus status = nppiRGBToGray_32f_C3C1R(d_src, srcStep, d_dst, dstStep, roi);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // Copy result back to host
+    // Copy result back to host row by row to handle step properly
     std::vector<Npp32f> resultData(width * height);
-    cudaMemcpy(resultData.data(), d_dst, width * height * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width,
+                   (char*)d_dst + y * dstStep,
+                   width * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // Verify results with floating-point precision
     for (int i = 0; i < width * height; i++) {
@@ -275,9 +290,14 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_StreamContext) {
     NppStatus status = nppiRGBToGray_8u_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // Verify result
+    // Verify result - copy row by row to handle step properly
     std::vector<Npp8u> resultData(width * height);
-    cudaMemcpy(resultData.data(), d_dst, width * height * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width,
+                   (char*)d_dst + y * dstStep,
+                   width * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     Npp8u expectedGray = calculateGrayValue8u(128, 128, 128);
     for (int i = 0; i < width * height; i++) {
