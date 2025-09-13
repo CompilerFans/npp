@@ -1,0 +1,73 @@
+=== NPP Library Build Script ===
+Configuring CMake (Release mode)...
+BUILD_TESTS=ON, BUILD_EXAMPLES=ON, WARNINGS_AS_ERRORS=ON, USE_NVIDIA_NPP=ON
+-- Found CUDA Toolkit: 12.8.61
+-- CUDA Include Dirs: /usr/local/cuda/targets/x86_64-linux/include
+-- CUDA Library Dir: /usr/local/cuda/lib64
+-- Using specified CUDA architectures: 89
+-- Warnings will be treated as errors
+-- Using tolerant precision testing (with allowance for minor differences)
+-- Using in-tree GoogleTest source
+-- Found unit test files by module:
+--   [nppcore] nppcore/test_nppcore.cpp
+--   [nppi/arithmetic_operations] nppi/arithmetic_operations/test_nppi_abs.cpp
+--   [nppi/arithmetic_operations] nppi/arithmetic_operations/test_nppi_add.cpp
+--   [nppi/arithmetic_operations] nppi/arithmetic_operations/test_nppi_addc.cpp
+--   [nppi/arithmetic_operations] nppi/arithmetic_operations/test_nppi_div.cpp
+--   [nppi/arithmetic_operations] nppi/arithmetic_operations/test_nppi_mul.cpp
+--   [nppi/arithmetic_operations] nppi/arithmetic_operations/test_nppi_sub.cpp
+--   [nppi/data_exchange_operations] nppi/data_exchange_operations/test_nppi_transpose.cpp
+--   [nppi/linear_transform_operations] nppi/linear_transform_operations/test_nppi_magnitude.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_comparec.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_mulscale.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
+--   [nppi/nppi_arithmetic_operations] nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
+--   [nppi/nppi_color_conversion_operations] nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp
+--   [nppi/nppi_color_conversion_operations] nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
+--   [nppi/nppi_color_conversion_operations] nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
+--   [nppi/nppi_data_exchange_and_initialization] nppi/nppi_data_exchange_and_initialization/test_nppi_compressLabels.cpp
+--   [nppi/nppi_data_exchange_and_initialization] nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
+--   [nppi/nppi_data_exchange_and_initialization] nppi/nppi_data_exchange_and_initialization/test_nppi_lut.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_filter.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_filterCanny.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_filterGauss.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_filterGauss_simple.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_filter_convolution.cpp
+--   [nppi/nppi_filtering_functions] nppi/nppi_filtering_functions/test_nppi_gradient.cpp
+--   [nppi/nppi_geometry_transforms] nppi/nppi_geometry_transforms/test_nppi_copyConstBorder.cpp
+--   [nppi/nppi_geometry_transforms] nppi/nppi_geometry_transforms/test_nppi_geometry.cpp
+--   [nppi/nppi_geometry_transforms] nppi/nppi_geometry_transforms/test_nppi_resize.cpp
+--   [nppi/nppi_geometry_transforms] nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
+--   [nppi/nppi_geometry_transforms] nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
+--   [nppi/nppi_morphological_operations] nppi/nppi_morphological_operations/test_nppi_morphology.cpp
+--   [nppi/nppi_segmentation] nppi/nppi_segmentation/test_nppi_watershed.cpp
+--   [nppi/nppi_statistics_functions] nppi/nppi_statistics_functions/test_nppi_histogram.cpp
+--   [nppi/nppi_threshold_and_compare_operations] nppi/nppi_threshold_and_compare_operations/test_nppi_threshold.cpp
+--   [nppi] nppi/test_nppi_support_functions.cpp
+--   [npps/npps_arithmetic_operations] npps/npps_arithmetic_operations/test_npps_add.cpp
+--   [npps/npps_initialization] npps/npps_initialization/test_npps_set.cpp
+--   [npps/npps_statistics_functions] npps/npps_statistics_functions/test_npps_sum.cpp
+--   [npps] npps/test_npps_support.cpp
+-- Test unit_tests will use NVIDIA NPP libraries
+-- Test unit_tests will use tolerant precision testing
+-- Created test suite: unit
+-- OpenNPP will be installed to: /home/cjxu/npp/build/install
+--   - Headers: /home/cjxu/npp/build/install/include/opennpp
+--   - Libraries: /home/cjxu/npp/build/install/lib
+--   - Samples: /home/cjxu/npp/build/install/share/doc/OpenNPP/examples
+--   - Binaries: /home/cjxu/npp/build/install/bin
+-- Configuring done (2.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/cjxu/npp/build
+Building with 22 jobs...
+[  1%] Built target gtest
+[  2%] Built target gtest_main
+[ 66%] Built target npp
+[ 68%] Built target basic_add_example
+[100%] Built target unit_tests
+Build completed successfully!
