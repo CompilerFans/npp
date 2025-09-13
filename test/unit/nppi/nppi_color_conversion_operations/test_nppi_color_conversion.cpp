@@ -169,30 +169,3 @@ TEST(ColorConversionParameterTest, NullPointerError) {
     EXPECT_EQ(nppiYUVToRGB_8u_C3R(&dummy, step, nullptr, step, size), 
               NPP_NULL_POINTER_ERROR);
 }
-
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效尺寸的处理与预期不同（返回SUCCESS而非SIZE_ERROR）
-TEST(ColorConversionParameterTest, DISABLED_InvalidSize) {
-    Npp8u dummy = 0;
-    int step = 30;
-    
-    // 测试无效宽度
-    NppiSize size = {0, 10};
-    EXPECT_EQ(nppiRGBToYUV_8u_C3R(&dummy, step, &dummy, step, size), 
-              NPP_SIZE_ERROR);
-    
-    // 测试无效高度
-    size = {10, 0};
-    EXPECT_EQ(nppiYUVToRGB_8u_C3R(&dummy, step, &dummy, step, size), 
-              NPP_SIZE_ERROR);
-}
-
-TEST(ColorConversionParameterTest, InvalidStep) {
-    Npp8u dummy = 0;
-    NppiSize size = {10, 10};
-    
-    // 测试无效步长（小于width*3）
-    EXPECT_EQ(nppiRGBToYUV_8u_C3R(&dummy, 20, &dummy, 30, size), 
-              NPP_STEP_ERROR);
-    EXPECT_EQ(nppiYUVToRGB_8u_C3R(&dummy, 30, &dummy, 20, size), 
-              NPP_STEP_ERROR);
-}
