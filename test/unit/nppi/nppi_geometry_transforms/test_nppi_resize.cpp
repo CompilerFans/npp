@@ -47,7 +47,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor) {
     NppStatus status = nppiResize_8u_C1R(
         src.get(), src.step(), srcSize, srcROI,
         dst.get(), dst.step(), dstSize, dstROI, 
-        0); // 0 = nearest neighbor
+        NPPI_INTER_NN); // 最近邻插值
     
     ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C1R failed";
     
@@ -93,7 +93,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_Bilinear) {
     NppStatus status = nppiResize_8u_C1R(
         src.get(), src.step(), srcSize, srcROI,
         dst.get(), dst.step(), dstSize, dstROI, 
-        1); // 1 = bilinear
+        NPPI_INTER_LINEAR); // 双线性插值
     
     ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C1R bilinear failed";
     
@@ -144,7 +144,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
     NppStatus status = nppiResize_8u_C3R(
         src.get(), src.step(), srcSize, srcROI,
         dst.get(), dst.step(), dstSize, dstROI, 
-        0); // 0 = nearest neighbor
+        NPPI_INTER_NN); // 最近邻插值
     
     ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C3R failed";
     
