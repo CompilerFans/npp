@@ -173,6 +173,122 @@ int main() {
         }
     }
     
+    // Test nppiMulScale_8u_C1R behavior (two-source multiplication with scaling)
+    std::cout << "\n--- Testing nppiMulScale_8u_C1R ---" << std::endl;
+    
+    std::vector<Npp8u> mulSrc1Data = {100, 150, 200, 255, 50, 80};
+    std::vector<Npp8u> mulSrc2Data = {200, 100, 128, 64, 255, 160};
+    
+    Npp8u* d_src2 = nppiMalloc_8u_C1(width, height, &srcStep);
+    if (!d_src2) {
+        std::cout << "Failed to allocate second source buffer" << std::endl;
+    } else {
+        // Copy input to GPU
+        cudaMemcpy(d_src, mulSrc1Data.data(), width * sizeof(Npp8u), cudaMemcpyHostToDevice);
+        cudaMemcpy(d_src2, mulSrc2Data.data(), width * sizeof(Npp8u), cudaMemcpyHostToDevice);
+        
+        NppStatus status = nppiMulScale_8u_C1R(d_src, srcStep, d_src2, srcStep, d_dst, dstStep, roi);
+        
+        if (status == NPP_SUCCESS) {
+            std::vector<Npp8u> mulResultData(width);
+            cudaMemcpy(mulResultData.data(), d_dst, width * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+            
+            std::cout << "Src1:   ";
+            for (int i = 0; i < width; i++) std::cout << (int)mulSrc1Data[i] << " ";
+            std::cout << std::endl;
+            
+            std::cout << "Src2:   ";
+            for (int i = 0; i < width; i++) std::cout << (int)mulSrc2Data[i] << " ";
+            std::cout << std::endl;
+            
+            std::cout << "Output: ";
+            for (int i = 0; i < width; i++) std::cout << (int)mulResultData[i] << " ";
+            std::cout << std::endl;
+            
+            std::cout << "Expected (src1*src2/255): ";
+            for (int i = 0; i < width; i++) {
+                int expected = (mulSrc1Data[i] * mulSrc2Data[i]) / 255;
+                std::cout << expected << " ";
+            }
+            std::cout << std::endl;
+        } else {
+            std::cout << "ERROR: " << status << std::endl;
+        }
+        
+        nppiFree(d_src2);
+    }
+    
+    // Test nppiSqrt_8u_C1RSfs behavior
+    std::cout << "\n--- Testing nppiSqrt_8u_C1RSfs ---" << std::endl;
+    
+    std::vector<Npp8u> sqrtSrcData = {0, 1, 4, 9, 16, 25};
+    
+    // Copy input to GPU
+    cudaMemcpy(d_src, sqrtSrcData.data(), width * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    
+    // Test different scale factors for Sqrt
+    for (int scaleFactor = 0; scaleFactor <= 2; scaleFactor++) {
+        std::cout << "Sqrt Scale factor: " << scaleFactor << std::endl;
+        
+        // Execute NVIDIA NPP function
+        NppStatus status = nppiSqrt_8u_C1RSfs(d_src, srcStep, d_dst, dstStep, roi, scaleFactor);
+        
+        if (status != NPP_SUCCESS) {
+            std::cout << "  ERROR: " << status << std::endl;
+            continue;
+        }
+        
+        // Copy result back
+        std::vector<Npp8u> sqrtResultData(width);
+        cudaMemcpy(sqrtResultData.data(), d_dst, width * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+        
+        // Print results
+        std::cout << "  Input:  ";
+        for (int i = 0; i < width; i++) std::cout << (int)sqrtSrcData[i] << " ";
+        std::cout << std::endl;
+        
+        std::cout << "  Output: ";
+        for (int i = 0; i < width; i++) std::cout << (int)sqrtResultData[i] << " ";
+        std::cout << std::endl;
+        
+        std::cout << "  Expected (sqrt(x) << " << scaleFactor << "): ";
+        for (int i = 0; i < width; i++) {
+            double expected = sqrt(sqrtSrcData[i]) * (1 << scaleFactor);
+            std::cout << (int)std::min(255.0, expected) << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
+    
+    // Test nppiSqrt_32f_C1R behavior
+    std::cout << "\n--- Testing nppiSqrt_32f_C1R ---" << std::endl;
+    
+    std::vector<Npp32f> sqrtSrc32f = {0.0f, 1.0f, 4.0f, 9.0f, 16.0f, 25.0f};
+    
+    if (d_src32f && d_dst32f) {
+        cudaMemcpy(d_src32f, sqrtSrc32f.data(), width * sizeof(Npp32f), cudaMemcpyHostToDevice);
+        
+        NppStatus status = nppiSqrt_32f_C1R(d_src32f, srcStep, d_dst32f, dstStep, roi);
+        
+        if (status == NPP_SUCCESS) {
+            std::vector<Npp32f> sqrtResult32f(width);
+            cudaMemcpy(sqrtResult32f.data(), d_dst32f, width * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+            
+            std::cout << "Input:  ";
+            for (int i = 0; i < width; i++) std::cout << sqrtSrc32f[i] << " ";
+            std::cout << std::endl;
+            
+            std::cout << "Output: ";
+            for (int i = 0; i < width; i++) std::cout << sqrtResult32f[i] << " ";
+            std::cout << std::endl;
+            
+            std::cout << "Expected: ";
+            for (int i = 0; i < width; i++) std::cout << sqrt(sqrtSrc32f[i]) << " ";
+            std::cout << std::endl;
+        } else {
+            std::cout << "ERROR: " << status << std::endl;
+        }
+    }
+    
     // Clean up
     nppiFree(d_src);
     nppiFree(d_dst);

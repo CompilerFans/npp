@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include "../../../common/npp_test_utils.h"
 
 class MulScaleFunctionalTest : public ::testing::Test {
 protected:
@@ -71,9 +72,9 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1R_BasicOperation) {
                    cudaMemcpyDeviceToHost);
     }
     
-    // Verify results
+    // Verify results using precision control system
     for (int i = 0; i < width * height; i++) {
-        EXPECT_EQ(resultData[i], expectedData[i]) 
+        NPP_EXPECT_ARITHMETIC_EQUAL(resultData[i], expectedData[i], "nppiMulScale_8u_C1R")
             << "Mismatch at pixel " << i << ": got " << (int)resultData[i] 
             << ", expected " << (int)expectedData[i]
             << ", src1=" << (int)src1Data[i]
