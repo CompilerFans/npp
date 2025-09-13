@@ -3,6 +3,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <cuda_runtime.h>
+#include <iostream>
 
 class NV12ToRGBTest : public ::testing::Test {
 protected:
@@ -248,140 +250,159 @@ TEST_F(NV12ToRGBTest, VariousImageSizes) {
     }
 }
 
-// 参数验证测试
-class NV12ToRGBParameterTest : public ::testing::Test {};
+//======================================================================
+// TorchCodec兼容性测试
+//======================================================================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NV12ToRGBParameterTest, DISABLED_NullPointerError) {
-    NppiSize roi = { 64, 64 };
-    int step = 64;
-    Npp8u dummy;
-    
-    // 测试空指针错误
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(nullptr, step, &dummy, step, roi), 
-              NPP_NULL_POINTER_ERROR);
-    
-    const Npp8u* nullSrc[2] = { nullptr, &dummy };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(nullSrc, step, &dummy, step, roi), 
-              NPP_NULL_POINTER_ERROR);
-    
-    const Npp8u* nullSrc2[2] = { &dummy, nullptr };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(nullSrc2, step, &dummy, step, roi), 
-              NPP_NULL_POINTER_ERROR);
-    
-    const Npp8u* validSrc[2] = { &dummy, &dummy };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(validSrc, step, nullptr, step, roi), 
-              NPP_NULL_POINTER_ERROR);
-}
-
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NV12ToRGBParameterTest, DISABLED_InvalidROI) {
-    Npp8u dummy;
-    const Npp8u* pSrc[2] = { &dummy, &dummy };
-    int step = 64;
-    
-    // 测试无效的ROI
-    NppiSize invalidROI1 = { 0, 64 };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, step, &dummy, step, invalidROI1), 
-              NPP_WRONG_INTERSECTION_ROI_ERROR);
-    
-    NppiSize invalidROI2 = { 64, 0 };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, step, &dummy, step, invalidROI2), 
-              NPP_WRONG_INTERSECTION_ROI_ERROR);
-    
-    NppiSize invalidROI3 = { -10, 64 };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, step, &dummy, step, invalidROI3), 
-              NPP_WRONG_INTERSECTION_ROI_ERROR);
-    
-    // 测试奇数尺寸（NV12要求偶数尺寸）
-    NppiSize oddSize = { 63, 64 };
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, step, &dummy, step, oddSize), 
-              NPP_WRONG_INTERSECTION_ROI_ERROR);
-}
-
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NV12ToRGBParameterTest, DISABLED_InvalidStep) {
-    Npp8u dummy;
-    const Npp8u* pSrc[2] = { &dummy, &dummy };
-    NppiSize roi = { 64, 64 };
-    
-    // 测试无效的step
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, 0, &dummy, 64, roi), 
-              NPP_STEP_ERROR);
-    
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, -1, &dummy, 64, roi), 
-              NPP_STEP_ERROR);
-    
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, 64, &dummy, 0, roi), 
-              NPP_STEP_ERROR);
-    
-    EXPECT_EQ(nppiNV12ToRGB_8u_P2C3R(pSrc, 64, &dummy, -1, roi), 
-              NPP_STEP_ERROR);
-}
-
-// torchcodec兼容性测试
 class TorchCodecCompatibilityTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // torchcodec常用的视频尺寸
-        width = 1920;
+        width = 1920;  // 使用典型的视频分辨率
         height = 1080;
+        ASSERT_EQ(width % 2, 0);
+        ASSERT_EQ(height % 2, 0);
+        
+        // 模拟AVFrame的linesize
+        yLinesize = width;
+        uvLinesize = width;  // NV12 UV plane has same width as Y
+    }
+    
+    void TearDown() override {}
+    
+    // 创建模拟torchcodec使用场景的NV12数据
+    void createTorchCodecNV12Data(std::vector<Npp8u>& yData, std::vector<Npp8u>& uvData) {
+        yData.resize(yLinesize * height);
+        uvData.resize(uvLinesize * height / 2);
+        
+        // 创建更真实的视频帧数据 - 模拟典型场景
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // 模拟有些细节的图像（不是简单渐变）
+                int luminance = 16 + (int)(219 * (0.5 + 0.3 * sin(x * 0.01) + 0.2 * cos(y * 0.015)));
+                yData[y * yLinesize + x] = (Npp8u)std::clamp(luminance, 16, 235);
+            }
+        }
+        
+        // UV plane - 模拟色度信息
+        for (int y = 0; y < height / 2; y++) {
+            for (int x = 0; x < width; x += 2) {
+                int uvIdx = y * uvLinesize + x;
+                // U分量
+                uvData[uvIdx] = (Npp8u)(128 + 64 * sin((x + y) * 0.02));
+                // V分量
+                uvData[uvIdx + 1] = (Npp8u)(128 + 64 * cos((x + y) * 0.02));
+            }
+        }
     }
     
     int width, height;
+    int yLinesize, uvLinesize;
 };
 
-TEST_F(TorchCodecCompatibilityTest, TorchCodecUsagePattern) {
-    // 模拟torchcodec的使用模式
+// 测试TorchCodec中使用的BT.709全范围转换（使用自定义ColorTwist矩阵）
+TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
+    std::vector<Npp8u> yData, uvData;
+    createTorchCodecNV12Data(yData, uvData);
     
-    // 分配NV12数据（模拟从NVDEC解码器输出）
-    Npp8u* d_srcY = nppsMalloc_8u(width * height);
-    Npp8u* d_srcUV = nppsMalloc_8u(width * height / 2);
+    // 分配GPU内存 - 模拟torchcodec的内存布局
+    Npp8u* d_yPlane = nppsMalloc_8u(yLinesize * height);
+    Npp8u* d_uvPlane = nppsMalloc_8u(uvLinesize * height / 2);
     
-    int rgbStep;
-    Npp8u* d_rgb = nppiMalloc_8u_C3(width, height, &rgbStep);
+    // RGB输出 - 模拟PyTorch tensor stride
+    int rgbStep = width * 3;  // 紧密排列
+    Npp8u* d_rgb = nppsMalloc_8u(rgbStep * height);
     
-    if (!d_srcY || !d_srcUV || !d_rgb) {
-        // 清理内存
-        if (d_srcY) nppsFree(d_srcY);
-        if (d_srcUV) nppsFree(d_srcUV);
-        if (d_rgb) nppiFree(d_rgb);
-        
-        GTEST_SKIP() << "Cannot allocate GPU memory for 1920x1080 test";
-    }
+    ASSERT_NE(d_yPlane, nullptr);
+    ASSERT_NE(d_uvPlane, nullptr);
+    ASSERT_NE(d_rgb, nullptr);
     
-    // 初始化测试数据
-    cudaMemset(d_srcY, 128, width * height);      // 中性灰度
-    cudaMemset(d_srcUV, 128, width * height / 2); // 中性色度
+    // 使用RAII确保内存清理
+    struct ResourceGuard {
+        Npp8u* y, *uv, *rgb;
+        ResourceGuard(Npp8u* y_, Npp8u* uv_, Npp8u* rgb_) : y(y_), uv(uv_), rgb(rgb_) {}
+        ~ResourceGuard() {
+            if (y) nppsFree(y);
+            if (uv) nppsFree(uv);
+            if (rgb) nppsFree(rgb);
+        }
+    } guard(d_yPlane, d_uvPlane, d_rgb);
     
-    const Npp8u* pSrc[2] = { d_srcY, d_srcUV };
-    NppiSize roi = { width, height };
+    // 复制数据到GPU
+    cudaMemcpy(d_yPlane, yData.data(), yData.size(), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_uvPlane, uvData.data(), uvData.size(), cudaMemcpyHostToDevice);
     
-    // 测试torchcodec使用的两个主要函数
+    // 测试场景1: BT.709 full range with custom ColorTwist (torchcodec使用的精确矩阵)
+    // 这是torchcodec为了更好匹配CPU结果而使用的自定义矩阵
+    static const Npp32f bt709FullRangeColorTwist[3][4] = {
+        {1.0f, 0.0f, 1.5748f, -179.456f},           // R = Y + 1.5748*V - 179.456
+        {1.0f, -0.18732427f, -0.46812427f, 135.459f}, // G = Y - 0.18732*U - 0.46812*V + 135.459
+        {1.0f, 1.8556f, 0.0f, -226.816f}            // B = Y + 1.8556*U - 226.816
+    };
     
-    // 1. BT.709 color space conversion (for HDTV content)
-    NppStatus status1 = nppiNV12ToRGB_709CSC_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
-    EXPECT_EQ(status1, NPP_NO_ERROR) << "BT.709 conversion failed";
+    // 准备源数据数组（模拟torchcodec中的avFrame->data）
+    Npp8u* yuvData[2] = {d_yPlane, d_uvPlane};
+    int srcStep[2] = {yLinesize, uvLinesize};
+    NppiSize oSizeROI = {width, height};
     
-    // 2. Standard conversion (fallback)
-    NppStatus status2 = nppiNV12ToRGB_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
-    EXPECT_EQ(status2, NPP_NO_ERROR) << "Standard conversion failed";
+    // 执行BT.709 full range转换 - 这是torchcodec中AVCOL_RANGE_JPEG + AVCOL_SPC_BT709的路径
+    NppStreamContext nppStreamCtx = {};
+    nppStreamCtx.hStream = 0;
+    NppStatus status = nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(
+        (const Npp8u**)yuvData,
+        srcStep,
+        d_rgb,
+        rgbStep,
+        oSizeROI,
+        bt709FullRangeColorTwist,
+        nppStreamCtx);
     
-    // 验证结果不为零
-    std::vector<Npp8u> sample(rgbStep);
-    cudaMemcpy(sample.data(), d_rgb, rgbStep, cudaMemcpyDeviceToHost);
+    EXPECT_EQ(status, NPP_SUCCESS) << "BT.709 full range ColorTwist conversion failed";
     
-    bool hasNonZero = false;
-    for (int i = 0; i < rgbStep; i += 3) {
-        if (sample[i] != 0 || sample[i+1] != 0 || sample[i+2] != 0) {
-            hasNonZero = true;
-            break;
+    // 测试场景2: BT.709 limited range (torchcodec中studio range的路径)
+    status = nppiNV12ToRGB_709CSC_8u_P2C3R(
+        (const Npp8u**)yuvData,
+        yLinesize,  // torchcodec使用avFrame->linesize[0]
+        d_rgb,
+        rgbStep,
+        oSizeROI);
+    
+    EXPECT_EQ(status, NPP_SUCCESS) << "BT.709 limited range conversion failed";
+    
+    // 测试场景3: BT.601默认转换（torchcodec的fallback路径）
+    status = nppiNV12ToRGB_8u_P2C3R(
+        (const Npp8u**)yuvData,
+        yLinesize,
+        d_rgb,
+        rgbStep,
+        oSizeROI);
+    
+    EXPECT_EQ(status, NPP_SUCCESS) << "BT.601 conversion failed";
+    
+    // 验证输出有效性
+    std::vector<Npp8u> hostRGB(rgbStep * height);
+    cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
+    
+    // 检查RGB数据的合理性
+    bool hasValidRGB = false;
+    int validPixelCount = 0;
+    
+    for (int y = 0; y < height; y += 10) {  // 采样检查
+        for (int x = 0; x < width; x += 10) {
+            int rgbIdx = y * rgbStep + x * 3;
+            Npp8u r = hostRGB[rgbIdx];
+            Npp8u g = hostRGB[rgbIdx + 1];
+            Npp8u b = hostRGB[rgbIdx + 2];
+            
+            // 检查是否有合理的RGB值（不全为0或255）
+            if ((r > 10 && r < 245) || (g > 10 && g < 245) || (b > 10 && b < 245)) {
+                validPixelCount++;
+                hasValidRGB = true;
+            }
         }
     }
-    EXPECT_TRUE(hasNonZero) << "RGB output appears to be all zeros";
     
-    // 清理内存
-    nppsFree(d_srcY);
-    nppsFree(d_srcUV);
-    nppiFree(d_rgb);
+    EXPECT_TRUE(hasValidRGB) << "No valid RGB pixels found in converted output";
+    EXPECT_GT(validPixelCount, 100) << "Too few valid pixels, conversion may be incorrect";
+    
+    std::cout << "TorchCodec compatibility test passed. Valid pixels: " << validPixelCount << std::endl;
 }
