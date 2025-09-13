@@ -162,6 +162,69 @@ TEST_F(NV12ToRGBTest, NV12ToRGB_709CSC_8u_P2C3R) {
     nppiFree(d_rgb);
 }
 
+// 测试BT.709色彩空间转换 (带Context版本)
+TEST_F(NV12ToRGBTest, NV12ToRGB_709CSC_8u_P2C3R_Ctx) {
+    std::vector<Npp8u> hostYData, hostUVData;
+    createTestNV12Data(hostYData, hostUVData);
+    
+    // 分配GPU内存
+    Npp8u* d_srcY = nppsMalloc_8u(width * height);
+    Npp8u* d_srcUV = nppsMalloc_8u(width * height / 2);
+    
+    int rgbStep;
+    Npp8u* d_rgb = nppiMalloc_8u_C3(width, height, &rgbStep);
+    
+    ASSERT_NE(d_srcY, nullptr);
+    ASSERT_NE(d_srcUV, nullptr);
+    ASSERT_NE(d_rgb, nullptr);
+    
+    // 复制数据到GPU
+    cudaMemcpy(d_srcY, hostYData.data(), hostYData.size(), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_srcUV, hostUVData.data(), hostUVData.size(), cudaMemcpyHostToDevice);
+    
+    // 准备NV12源数组
+    const Npp8u* pSrc[2] = { d_srcY, d_srcUV };
+    NppiSize roi = { width, height };
+    
+    // 创建Stream Context
+    NppStreamContext nppStreamCtx;
+    nppStreamCtx.hStream = 0;  // 使用默认流
+    
+    // 执行BT.709转换 (Context版本)
+    NppStatus status = nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, width, d_rgb, rgbStep, roi, nppStreamCtx);
+    EXPECT_EQ(status, NPP_NO_ERROR) << "BT.709 CSC Context conversion failed";
+    
+    // 读取结果验证
+    std::vector<Npp8u> hostRGB(rgbStep * height);
+    cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
+    
+    // 验证转换结果
+    bool hasValidPixels = false;
+    int validPixelCount = 0;
+    
+    for (int y = 0; y < height; y += 4) {
+        for (int x = 0; x < width; x += 4) {
+            int rgbIdx = y * rgbStep + x * 3;
+            Npp8u r = hostRGB[rgbIdx];
+            Npp8u g = hostRGB[rgbIdx + 1];
+            Npp8u b = hostRGB[rgbIdx + 2];
+            
+            if (isValidRGB(r, g, b)) {
+                hasValidPixels = true;
+                validPixelCount++;
+            }
+        }
+    }
+    
+    EXPECT_TRUE(hasValidPixels) << "No valid RGB pixels found in BT.709 CSC conversion";
+    EXPECT_GT(validPixelCount, 50) << "Too few valid pixels in BT.709 CSC conversion";
+    
+    // 清理内存
+    nppsFree(d_srcY);
+    nppsFree(d_srcUV);
+    nppiFree(d_rgb);
+}
+
 // 测试BT.709 HDTV转换（别名函数）
 TEST_F(NV12ToRGBTest, NV12ToRGB_709HDTV_8u_P2C3R) {
     std::vector<Npp8u> hostYData, hostUVData;
@@ -189,6 +252,69 @@ TEST_F(NV12ToRGBTest, NV12ToRGB_709HDTV_8u_P2C3R) {
     // 执行HDTV转换
     NppStatus status = nppiNV12ToRGB_709HDTV_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
     EXPECT_EQ(status, NPP_NO_ERROR);
+    
+    // 清理内存
+    nppsFree(d_srcY);
+    nppsFree(d_srcUV);
+    nppiFree(d_rgb);
+}
+
+// 测试BT.709 HDTV转换（带Context版本）
+TEST_F(NV12ToRGBTest, NV12ToRGB_709HDTV_8u_P2C3R_Ctx) {
+    std::vector<Npp8u> hostYData, hostUVData;
+    createTestNV12Data(hostYData, hostUVData);
+    
+    // 分配GPU内存
+    Npp8u* d_srcY = nppsMalloc_8u(width * height);
+    Npp8u* d_srcUV = nppsMalloc_8u(width * height / 2);
+    
+    int rgbStep;
+    Npp8u* d_rgb = nppiMalloc_8u_C3(width, height, &rgbStep);
+    
+    ASSERT_NE(d_srcY, nullptr);
+    ASSERT_NE(d_srcUV, nullptr);
+    ASSERT_NE(d_rgb, nullptr);
+    
+    // 复制数据到GPU
+    cudaMemcpy(d_srcY, hostYData.data(), hostYData.size(), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_srcUV, hostUVData.data(), hostUVData.size(), cudaMemcpyHostToDevice);
+    
+    // 准备NV12源数组
+    const Npp8u* pSrc[2] = { d_srcY, d_srcUV };
+    NppiSize roi = { width, height };
+    
+    // 创建Stream Context
+    NppStreamContext nppStreamCtx;
+    nppStreamCtx.hStream = 0;  // 使用默认流
+    
+    // 执行HDTV转换 (Context版本)
+    NppStatus status = nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, width, d_rgb, rgbStep, roi, nppStreamCtx);
+    EXPECT_EQ(status, NPP_NO_ERROR) << "BT.709 HDTV Context conversion failed";
+    
+    // 读取结果验证
+    std::vector<Npp8u> hostRGB(rgbStep * height);
+    cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
+    
+    // 验证转换结果 - HDTV转换应该产生有效的RGB值
+    bool hasValidPixels = false;
+    int validPixelCount = 0;
+    
+    for (int y = 0; y < height; y += 4) {
+        for (int x = 0; x < width; x += 4) {
+            int rgbIdx = y * rgbStep + x * 3;
+            Npp8u r = hostRGB[rgbIdx];
+            Npp8u g = hostRGB[rgbIdx + 1];
+            Npp8u b = hostRGB[rgbIdx + 2];
+            
+            if (isValidRGB(r, g, b)) {
+                hasValidPixels = true;
+                validPixelCount++;
+            }
+        }
+    }
+    
+    EXPECT_TRUE(hasValidPixels) << "No valid RGB pixels found in BT.709 HDTV conversion";
+    EXPECT_GT(validPixelCount, 50) << "Too few valid pixels in BT.709 HDTV conversion";
     
     // 清理内存
     nppsFree(d_srcY);
