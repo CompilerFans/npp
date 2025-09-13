@@ -108,6 +108,73 @@ TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R) {
     nppiFree(d_rgb);
 }
 
+// 测试基本的NV12到RGB转换 (带Context版本)
+TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R_Ctx) {
+    std::vector<Npp8u> hostYData, hostUVData;
+    createTestNV12Data(hostYData, hostUVData);
+    
+    // 分配GPU内存
+    Npp8u* d_srcY = nppsMalloc_8u(width * height);
+    Npp8u* d_srcUV = nppsMalloc_8u(width * height / 2);
+    
+    int rgbStep;
+    Npp8u* d_rgb = nppiMalloc_8u_C3(width, height, &rgbStep);
+    
+    ASSERT_NE(d_srcY, nullptr);
+    ASSERT_NE(d_srcUV, nullptr);
+    ASSERT_NE(d_rgb, nullptr);
+    
+    // 复制数据到GPU
+    cudaMemcpy(d_srcY, hostYData.data(), hostYData.size(), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_srcUV, hostUVData.data(), hostUVData.size(), cudaMemcpyHostToDevice);
+    
+    // 准备NV12源数组
+    const Npp8u* pSrc[2] = { d_srcY, d_srcUV };
+    NppiSize roi = { width, height };
+    
+    // 创建Stream Context
+    NppStreamContext nppStreamCtx;
+    nppStreamCtx.hStream = 0;  // 使用默认流
+    
+    // 执行转换 (Context版本)
+    NppStatus status = nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, width, d_rgb, rgbStep, roi, nppStreamCtx);
+    EXPECT_EQ(status, NPP_NO_ERROR) << "Basic NV12ToRGB Context conversion failed";
+    
+    // 读取结果验证
+    std::vector<Npp8u> hostRGB(rgbStep * height);
+    cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
+    
+    // 验证几个像素点并计算有效像素数量
+    bool hasValidPixels = false;
+    int validPixelCount = 0;
+    
+    for (int y = 0; y < height; y += 8) {
+        for (int x = 0; x < width; x += 8) {
+            int rgbIdx = y * rgbStep + x * 3;
+            Npp8u r = hostRGB[rgbIdx];
+            Npp8u g = hostRGB[rgbIdx + 1];
+            Npp8u b = hostRGB[rgbIdx + 2];
+            
+            if (isValidRGB(r, g, b)) {
+                hasValidPixels = true;
+                validPixelCount++;
+            }
+            
+            EXPECT_TRUE(isValidRGB(r, g, b)) 
+                << "Invalid RGB at (" << x << "," << y << "): " 
+                << (int)r << "," << (int)g << "," << (int)b;
+        }
+    }
+    
+    EXPECT_TRUE(hasValidPixels) << "No valid RGB pixels found in basic NV12ToRGB conversion";
+    EXPECT_GT(validPixelCount, 50) << "Too few valid pixels in basic NV12ToRGB conversion";
+    
+    // 清理内存
+    nppsFree(d_srcY);
+    nppsFree(d_srcUV);
+    nppiFree(d_rgb);
+}
+
 // 测试BT.709色彩空间转换
 TEST_F(NV12ToRGBTest, NV12ToRGB_709CSC_8u_P2C3R) {
     std::vector<Npp8u> hostYData, hostUVData;

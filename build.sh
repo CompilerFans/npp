@@ -86,23 +86,21 @@ fi
 
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
 
-# Create build directory
-mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR"
-
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
 echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
-cmake .. \
+cmake -S .\
+    -B $BUILD_DIR\
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DCMAKE_CUDA_ARCHITECTURES="89" \
     -DBUILD_TESTS="$BUILD_TESTS" \
     -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
-    -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP"
+    -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
+    -G Ninja
 
 # Build
-echo "Building with $JOBS jobs..."
-make -j"$JOBS"
+echo "Building ..."
+cmake --build $BUILD_DIR
 
 echo "Build completed successfully!"
