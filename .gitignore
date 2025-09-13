@@ -1,4 +1,5 @@
 build/
+build-*
 
 # CMake临时文件
 CMakeCache.txt
