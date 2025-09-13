@@ -30,13 +30,46 @@ endfunction()
 function(npp_create_test_target target_name sources library_target)
     add_executable(${target_name} ${sources})
     
-    # 链接库
-    target_link_libraries(${target_name}
-        PRIVATE
-        ${library_target}
-        gtest
-        gtest_main
-    )
+    # 根据选项决定链接哪个NPP库
+    if(USE_NVIDIA_NPP)
+        # 查找NVIDIA NPP库
+        find_library(NVIDIA_NPP_LIBS
+            NAMES nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppcore
+            PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib
+        )
+        
+        if(NOT NVIDIA_NPP_LIBS)
+            message(FATAL_ERROR "NVIDIA NPP libraries not found. Please check your CUDA installation.")
+        endif()
+        
+        # 链接NVIDIA NPP库
+        target_link_libraries(${target_name}
+            PRIVATE
+            -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc -lnpps -lnppcore
+            ${CUDA_LIBRARIES}
+            ${CUDA_cudart_LIBRARY}
+            gtest
+            gtest_main
+        )
+        
+        # 使用NVIDIA NPP头文件
+        target_include_directories(${target_name} 
+            PRIVATE
+            ${CUDA_TOOLKIT_ROOT_DIR}/include
+        )
+        
+        message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
+    else()
+        # 链接OpenNPP库
+        target_link_libraries(${target_name}
+            PRIVATE
+            ${library_target}
+            gtest
+            gtest_main
+        )
+        
+        message(STATUS "Test ${target_name} will use OpenNPP library")
+    endif()
     
     # 设置通用配置
     npp_setup_target(${target_name})

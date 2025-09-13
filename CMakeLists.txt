@@ -22,6 +22,7 @@ add_subdirectory(src)
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
+option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of OpenNPP" OFF)
 
 # 显示配置选项
 if(NPP_WARNINGS_AS_ERRORS)
