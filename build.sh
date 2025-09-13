@@ -13,6 +13,7 @@ BUILD_TESTS="ON"
 BUILD_EXAMPLES="ON"
 WARNINGS_AS_ERRORS="ON"
 USE_NVIDIA_NPP="OFF"
+BUILD_DIR="build"  # Default build directory
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -47,8 +48,8 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         clean)
-            echo "Cleaning build directory..."
-            rm -rf build/
+            echo "Cleaning build directories..."
+            rm -rf build/ build-nvidia/
             echo "Clean completed"
             exit 0
             ;;
@@ -73,9 +74,20 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Set build directory based on NPP library choice
+if [ "$USE_NVIDIA_NPP" = "ON" ]; then
+    BUILD_DIR="build-nvidia"
+    NPP_LIB_NAME="NVIDIA NPP"
+else
+    BUILD_DIR="build"
+    NPP_LIB_NAME="OpenNPP"
+fi
+
+echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
+
 # Create build directory
-mkdir -p build
-cd build
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR"
 
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
