@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include "../../../common/npp_test_utils.h"
 
 class SqrFunctionalTest : public ::testing::Test {
 protected:
@@ -61,9 +62,9 @@ TEST_F(SqrFunctionalTest, Sqr_8u_C1RSfs_BasicOperation) {
                    cudaMemcpyDeviceToHost);
     }
     
-    // Verify results
+    // Verify results using precision control system
     for (int i = 0; i < width * height; i++) {
-        EXPECT_EQ(resultData[i], expectedData[i]) 
+        NPP_EXPECT_ARITHMETIC_EQUAL(resultData[i], expectedData[i], "nppiSqr_8u_C1RSfs")
             << "Mismatch at pixel " << i << ": got " << (int)resultData[i] 
             << ", expected " << (int)expectedData[i];
     }
@@ -115,9 +116,9 @@ TEST_F(SqrFunctionalTest, Sqr_8u_C1RSfs_WithScaling) {
                    cudaMemcpyDeviceToHost);
     }
     
-    // Verify results
+    // Verify results using precision control system
     for (int i = 0; i < width * height; i++) {
-        EXPECT_EQ(resultData[i], expectedData[i]) 
+        NPP_EXPECT_ARITHMETIC_EQUAL(resultData[i], expectedData[i], "nppiSqr_8u_C1RSfs")
             << "Mismatch at pixel " << i << ": got " << (int)resultData[i] 
             << ", expected " << (int)expectedData[i];
     }

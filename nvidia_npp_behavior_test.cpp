@@ -289,6 +289,48 @@ int main() {
         }
     }
     
+    // Test nppiSqr_8u_C1RSfs behavior
+    std::cout << "\n--- Testing nppiSqr_8u_C1RSfs ---" << std::endl;
+    
+    std::vector<Npp8u> sqrSrcData = {0, 1, 2, 3, 4, 5};
+    
+    // Copy input to GPU
+    cudaMemcpy(d_src, sqrSrcData.data(), width * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    
+    // Test different scale factors for Sqr
+    for (int scaleFactor = 0; scaleFactor <= 2; scaleFactor++) {
+        std::cout << "Sqr Scale factor: " << scaleFactor << std::endl;
+        
+        // Execute NVIDIA NPP function
+        NppStatus status = nppiSqr_8u_C1RSfs(d_src, srcStep, d_dst, dstStep, roi, scaleFactor);
+        
+        if (status != NPP_SUCCESS) {
+            std::cout << "  ERROR: " << status << std::endl;
+            continue;
+        }
+        
+        // Copy result back
+        std::vector<Npp8u> sqrResultData(width);
+        cudaMemcpy(sqrResultData.data(), d_dst, width * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+        
+        // Print results
+        std::cout << "  Input:  ";
+        for (int i = 0; i < width; i++) std::cout << (int)sqrSrcData[i] << " ";
+        std::cout << std::endl;
+        
+        std::cout << "  Output: ";
+        for (int i = 0; i < width; i++) std::cout << (int)sqrResultData[i] << " ";
+        std::cout << std::endl;
+        
+        std::cout << "  Expected (x^2 >> " << scaleFactor << "): ";
+        for (int i = 0; i < width; i++) {
+            int sq = sqrSrcData[i] * sqrSrcData[i];
+            int expected = sq >> scaleFactor;
+            std::cout << std::min(255, expected) << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
+    
     // Clean up
     nppiFree(d_src);
     nppiFree(d_dst);
