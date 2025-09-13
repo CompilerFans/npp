@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include "../../../common/npp_test_utils.h"
 
 class ExpFunctionalTest : public ::testing::Test {
 protected:
@@ -23,17 +24,20 @@ TEST_F(ExpFunctionalTest, Exp_8u_C1RSfs_BasicOperation) {
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
-    // Create test data: small values that won't overflow when exponentiated
+    // Create test data: values from 0 to 5 (based on NVIDIA NPP testing)
     for (int i = 0; i < width * height; i++) {
         Npp8u src_val = (Npp8u)(i % 6); // Values 0-5
         srcData[i] = src_val;
         
-        // Expected: exponential with appropriate scaling
-        // Scale input to [0, 5] range for 8-bit
-        float scaled_input = (float)src_val / 255.0f * 5.0f;
-        float exp_val = std::exp(scaled_input);
-        int result = (int)(exp_val + 0.5f); // No additional scaling factor
-        expectedData[i] = (Npp8u)std::min(result, 255);
+        // Expected values based on NVIDIA NPP actual behavior (scale factor 0)
+        // From our testing: Input [0,1,2,3,4,5] -> Output [1,3,7,20,55,148]
+        if (src_val == 0) expectedData[i] = 1;
+        else if (src_val == 1) expectedData[i] = 3;  // NVIDIA NPP gives 3, not 2
+        else if (src_val == 2) expectedData[i] = 7;
+        else if (src_val == 3) expectedData[i] = 20;
+        else if (src_val == 4) expectedData[i] = 55;
+        else if (src_val == 5) expectedData[i] = 148;
+        else expectedData[i] = 255; // saturation
     }
     
     // Allocate GPU memory
@@ -65,13 +69,11 @@ TEST_F(ExpFunctionalTest, Exp_8u_C1RSfs_BasicOperation) {
                    cudaMemcpyDeviceToHost);
     }
     
-    // Verify results (with tolerance for different scaling approaches)
+    // Verify results using new precision control system
     for (int i = 0; i < width * height; i++) {
-        // For exponential, we expect some variation due to scaling
-        int diff = std::abs((int)resultData[i] - (int)expectedData[i]);
-        EXPECT_LE(diff, 5) 
+        NPP_EXPECT_ARITHMETIC_EQUAL(resultData[i], expectedData[i], "nppiExp_8u_C1RSfs")
             << "Mismatch at pixel " << i << ": got " << (int)resultData[i] 
-            << ", expected approximately " << (int)expectedData[i]
+            << ", expected " << (int)expectedData[i]
             << ", src=" << (int)srcData[i];
     }
     

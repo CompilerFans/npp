@@ -62,6 +62,8 @@ function(npp_create_test_target target_name sources library_target)
             ${CUDA_TOOLKIT_ROOT_DIR}/include
         )
         
+        # 定义宏标识使用NVIDIA NPP
+        target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
     else()
         # 链接OpenNPP库
@@ -78,11 +80,21 @@ function(npp_create_test_target target_name sources library_target)
     # 设置通用配置
     npp_setup_target(${target_name})
     
+    # 配置精度测试选项
+    if(NPP_STRICT_TESTING)
+        target_compile_definitions(${target_name} PRIVATE NPP_STRICT_TESTING)
+        message(STATUS "Test ${target_name} will use strict precision testing")
+    else()
+        message(STATUS "Test ${target_name} will use tolerant precision testing")
+    endif()
+    
     # 添加包含目录
-    target_include_directories(${target_name} 
-        PRIVATE
-        ${CMAKE_SOURCE_DIR}     # 项目根目录
-    )
+    if(NOT USE_NVIDIA_NPP)
+        target_include_directories(${target_name} 
+            PRIVATE
+            ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于OpenNPP
+        )
+    endif()
     
     # 设置输出目录到build根目录
     set_target_properties(${target_name} PROPERTIES
