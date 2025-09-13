@@ -44,9 +44,11 @@ protected:
         }
     }
     
-    // 验证RGB值在合理范围内
+    // 验证RGB值在合理范围内 
     bool isValidRGB(Npp8u r, Npp8u g, Npp8u b) {
-        return r <= 255 && g <= 255 && b <= 255;
+        // Npp8u is unsigned char, so values are always 0-255
+        (void)r; (void)g; (void)b; // Suppress unused parameter warnings
+        return true;
     }
     
     int width, height;

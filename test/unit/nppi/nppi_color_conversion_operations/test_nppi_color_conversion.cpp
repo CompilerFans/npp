@@ -171,7 +171,7 @@ TEST(ColorConversionParameterTest, NullPointerError) {
 }
 
 TEST(ColorConversionParameterTest, InvalidSize) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     int step = 30;
     
     // 测试无效宽度
@@ -186,7 +186,7 @@ TEST(ColorConversionParameterTest, InvalidSize) {
 }
 
 TEST(ColorConversionParameterTest, InvalidStep) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     NppiSize size = {10, 10};
     
     // 测试无效步长（小于width*3）

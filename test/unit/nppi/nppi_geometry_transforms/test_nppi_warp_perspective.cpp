@@ -420,7 +420,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_StreamContext) {
     cudaMemcpy2D(d_src, srcStep, srcData.data(), 4, 4, 4, cudaMemcpyHostToDevice);
     
     // 使用默认流上下文
-    NppStreamContext nppStreamCtx = {0};
+    NppStreamContext nppStreamCtx = {};
+    nppStreamCtx.hStream = 0;
     NppStatus status = nppiWarpPerspective_8u_C1R_Ctx(d_src, smallSize, srcStep, smallROI,
                                                       d_dst, dstStep, smallROI,
                                                       coeffs, NPPI_INTER_NN, nppStreamCtx);

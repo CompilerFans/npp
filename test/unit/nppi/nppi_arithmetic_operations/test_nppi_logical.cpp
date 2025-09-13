@@ -165,7 +165,7 @@ TEST(LogicalParameterTest, InvalidSize) {
 }
 
 TEST(LogicalParameterTest, InvalidStep) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     NppiSize size = {10, 10};
     
     // 测试无效步长

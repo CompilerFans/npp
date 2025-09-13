@@ -126,7 +126,7 @@ TEST(FilterParameterTest, NullPointerError) {
 }
 
 TEST(FilterParameterTest, InvalidSize) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     int step = 10;
     NppiSize maskSize = {3, 3};
     NppiPoint anchor = {1, 1};
@@ -142,7 +142,7 @@ TEST(FilterParameterTest, InvalidSize) {
 }
 
 TEST(FilterParameterTest, InvalidMaskSize) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     int step = 10;
     NppiSize size = {10, 10};
     NppiPoint anchor = {1, 1};
@@ -159,7 +159,7 @@ TEST(FilterParameterTest, InvalidMaskSize) {
 }
 
 TEST(FilterParameterTest, InvalidAnchor) {
-    Npp8u dummy;
+    Npp8u dummy = 0;
     int step = 10;
     NppiSize size = {10, 10};
     NppiSize maskSize = {3, 3};

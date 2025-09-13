@@ -87,8 +87,25 @@ diff opennpp_results.txt nvidia_npp_results.txt
 
 1. **API兼容性**：OpenNPP旨在提供与NVIDIA NPP兼容的API，但可能存在细微差异
 2. **性能差异**：两个库的性能可能不同，这是正常的
-3. **功能覆盖**：OpenNPP可能尚未实现所有NVIDIA NPP的功能
-4. **测试失败**：如果使用NVIDIA NPP时测试失败，可能表示OpenNPP的实现与NVIDIA NPP存在差异
+3. **功能覆盖**：
+   - OpenNPP可能尚未实现所有NVIDIA NPP的功能
+   - OpenNPP也实现了一些NVIDIA NPP没有的扩展功能（如nppiLog、nppiPow、nppiArcTan等）
+4. **测试失败**：
+   - 如果使用NVIDIA NPP时测试失败，可能是因为：
+     - OpenNPP的实现与NVIDIA NPP存在差异
+     - 测试使用了OpenNPP的扩展功能，而NVIDIA NPP不支持
+
+## OpenNPP扩展功能
+
+以下函数是OpenNPP实现的扩展功能，NVIDIA NPP不提供：
+- `nppiLog_*` - 常用对数运算
+- `nppiPow_*` - 幂运算
+- `nppiArcTan_*` - 反正切运算
+- `nppiLn_*` - 自然对数运算（如果NVIDIA NPP不支持）
+- `nppiExp_*` - 指数运算（如果NVIDIA NPP不支持）
+- `nppiMulScale_*` - 乘法缩放运算
+
+使用NVIDIA NPP编译时，包含这些函数的测试将无法编译。
 
 ## 调试提示
 

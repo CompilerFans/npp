@@ -284,7 +284,8 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_StreamContext) {
     }
     
     // Create stream context
-    NppStreamContext nppStreamCtx = {0};
+    NppStreamContext nppStreamCtx = {};
+    nppStreamCtx.hStream = 0;
     
     // Execute NPP function with context
     NppStatus status = nppiRGBToGray_8u_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
