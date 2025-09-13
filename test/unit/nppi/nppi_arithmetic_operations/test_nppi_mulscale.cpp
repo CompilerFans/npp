@@ -43,6 +43,18 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1R_BasicOperation) {
     Npp8u* d_src1 = nppiMalloc_8u_C1(width, height, &src1Step);
     Npp8u* d_src2 = nppiMalloc_8u_C1(width, height, &src2Step);
     Npp8u* d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
+    
+    // Use RAII pattern to ensure cleanup even if test fails
+    struct ResourceGuard {
+        Npp8u* src1, *src2, *dst;
+        ResourceGuard(Npp8u* s1, Npp8u* s2, Npp8u* d) : src1(s1), src2(s2), dst(d) {}
+        ~ResourceGuard() {
+            if (src1) nppiFree(src1);
+            if (src2) nppiFree(src2);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src1, d_src2, d_dst);
+    
     ASSERT_NE(d_src1, nullptr);
     ASSERT_NE(d_src2, nullptr);
     ASSERT_NE(d_dst, nullptr);
@@ -81,9 +93,7 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1R_BasicOperation) {
             << ", src2=" << (int)src2Data[i];
     }
     
-    nppiFree(d_src1);
-    nppiFree(d_src2);
-    nppiFree(d_dst);
+    // Resources will be automatically cleaned up by ResourceGuard destructor
 }
 
 // Test 16-bit unsigned multiplication with scaling
@@ -110,6 +120,18 @@ TEST_F(MulScaleFunctionalTest, MulScale_16u_C1R_BasicOperation) {
     Npp16u* d_src1 = nppiMalloc_16u_C1(width, height, &src1Step);
     Npp16u* d_src2 = nppiMalloc_16u_C1(width, height, &src2Step);
     Npp16u* d_dst = nppiMalloc_16u_C1(width, height, &dstStep);
+    
+    // Use RAII pattern to ensure cleanup even if test fails
+    struct ResourceGuard {
+        Npp16u* src1, *src2, *dst;
+        ResourceGuard(Npp16u* s1, Npp16u* s2, Npp16u* d) : src1(s1), src2(s2), dst(d) {}
+        ~ResourceGuard() {
+            if (src1) nppiFree(src1);
+            if (src2) nppiFree(src2);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src1, d_src2, d_dst);
+    
     ASSERT_NE(d_src1, nullptr);
     ASSERT_NE(d_src2, nullptr);
     ASSERT_NE(d_dst, nullptr);
@@ -148,9 +170,7 @@ TEST_F(MulScaleFunctionalTest, MulScale_16u_C1R_BasicOperation) {
             << ", src2=" << src2Data[i];
     }
     
-    nppiFree(d_src1);
-    nppiFree(d_src2);
-    nppiFree(d_dst);
+    // Resources will be automatically cleaned up by ResourceGuard destructor
 }
 
 // Test extreme values for 8-bit
@@ -174,6 +194,18 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1R_ExtremeValues) {
     Npp8u* d_src1 = nppiMalloc_8u_C1(testSize, 1, &src1Step);
     Npp8u* d_src2 = nppiMalloc_8u_C1(testSize, 1, &src2Step);
     Npp8u* d_dst = nppiMalloc_8u_C1(testSize, 1, &dstStep);
+    
+    // Use RAII pattern to ensure cleanup even if test fails
+    struct ResourceGuard {
+        Npp8u* src1, *src2, *dst;
+        ResourceGuard(Npp8u* s1, Npp8u* s2, Npp8u* d) : src1(s1), src2(s2), dst(d) {}
+        ~ResourceGuard() {
+            if (src1) nppiFree(src1);
+            if (src2) nppiFree(src2);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src1, d_src2, d_dst);
+    
     ASSERT_NE(d_src1, nullptr);
     ASSERT_NE(d_src2, nullptr);
     ASSERT_NE(d_dst, nullptr);
@@ -198,9 +230,7 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1R_ExtremeValues) {
             << ", src2=" << (int)src2Data[i];
     }
     
-    nppiFree(d_src1);
-    nppiFree(d_src2);
-    nppiFree(d_dst);
+    // Resources will be automatically cleaned up by ResourceGuard destructor
 }
 
 // Test in-place operation for 8-bit
@@ -226,6 +256,17 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1IR_InPlace) {
     int srcStep, srcDstStep;
     Npp8u* d_src = nppiMalloc_8u_C1(width, height, &srcStep);
     Npp8u* d_srcDst = nppiMalloc_8u_C1(width, height, &srcDstStep);
+    
+    // Use RAII pattern to ensure cleanup even if test fails
+    struct ResourceGuard {
+        Npp8u* src, *srcDst;
+        ResourceGuard(Npp8u* s, Npp8u* sd) : src(s), srcDst(sd) {}
+        ~ResourceGuard() {
+            if (src) nppiFree(src);
+            if (srcDst) nppiFree(srcDst);
+        }
+    } guard(d_src, d_srcDst);
+    
     ASSERT_NE(d_src, nullptr);
     ASSERT_NE(d_srcDst, nullptr);
     
@@ -260,8 +301,7 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1IR_InPlace) {
             << "In-place operation failed at pixel " << i;
     }
     
-    nppiFree(d_src);
-    nppiFree(d_srcDst);
+    // Resources will be automatically cleaned up by ResourceGuard destructor
 }
 
 // Test error handling
@@ -291,6 +331,18 @@ TEST_F(MulScaleFunctionalTest, MulScale_StreamContext) {
     Npp8u* d_src1 = nppiMalloc_8u_C1(width, height, &src1Step);
     Npp8u* d_src2 = nppiMalloc_8u_C1(width, height, &src2Step);
     Npp8u* d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
+    
+    // Use RAII pattern to ensure cleanup even if test fails
+    struct ResourceGuard {
+        Npp8u* src1, *src2, *dst;
+        ResourceGuard(Npp8u* s1, Npp8u* s2, Npp8u* d) : src1(s1), src2(s2), dst(d) {}
+        ~ResourceGuard() {
+            if (src1) nppiFree(src1);
+            if (src2) nppiFree(src2);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src1, d_src2, d_dst);
+    
     ASSERT_NE(d_src1, nullptr);
     ASSERT_NE(d_src2, nullptr);
     ASSERT_NE(d_dst, nullptr);
@@ -330,9 +382,7 @@ TEST_F(MulScaleFunctionalTest, MulScale_StreamContext) {
             << "Stream context test failed at pixel " << i;
     }
     
-    nppiFree(d_src1);
-    nppiFree(d_src2);
-    nppiFree(d_dst);
+    // Resources will be automatically cleaned up by ResourceGuard destructor
 }
 
 // Test overflow handling for 16-bit
@@ -356,6 +406,18 @@ TEST_F(MulScaleFunctionalTest, MulScale_16u_C1R_OverflowHandling) {
     Npp16u* d_src1 = nppiMalloc_16u_C1(testSize, 1, &src1Step);
     Npp16u* d_src2 = nppiMalloc_16u_C1(testSize, 1, &src2Step);
     Npp16u* d_dst = nppiMalloc_16u_C1(testSize, 1, &dstStep);
+    
+    // Use RAII pattern to ensure cleanup even if test fails
+    struct ResourceGuard {
+        Npp16u* src1, *src2, *dst;
+        ResourceGuard(Npp16u* s1, Npp16u* s2, Npp16u* d) : src1(s1), src2(s2), dst(d) {}
+        ~ResourceGuard() {
+            if (src1) nppiFree(src1);
+            if (src2) nppiFree(src2);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src1, d_src2, d_dst);
+    
     ASSERT_NE(d_src1, nullptr);
     ASSERT_NE(d_src2, nullptr);
     ASSERT_NE(d_dst, nullptr);
@@ -380,7 +442,5 @@ TEST_F(MulScaleFunctionalTest, MulScale_16u_C1R_OverflowHandling) {
             << ", src2=" << src2Data[i];
     }
     
-    nppiFree(d_src1);
-    nppiFree(d_src2);
-    nppiFree(d_dst);
+    // Resources will be automatically cleaned up by ResourceGuard destructor
 }

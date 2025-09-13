@@ -109,5 +109,14 @@ ctest -R "npps_"    # Signal processing tests
 ## Test Precision Handling
 - 若是精度的细小差异导致的测试结果，可添加一个选项和宏，选择测试校验是严格匹配还是有一定的宽容度
 
+## Testing Principles
+- nvidia npp的结果是黄金标准，如果nvidia 的测试失败，说明测试的代码写的有问题
+
 ## References
 - 相关代码实现可参考git 仓库https://github.com/kunzmi/mpp和它的deepwiki
+
+## Implementation Guidelines
+- 函数实现可参考nv的官方api定义，以及https://github.com/kunzmi/mpp中对相关api的实现
+
+## Priority Management
+- 优先级最高P0的是crash问题，算法正确性问题P1，算法精度问题优先级P2，异常处理行为不正确优先级P3

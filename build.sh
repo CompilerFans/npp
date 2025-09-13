@@ -12,7 +12,8 @@ JOBS=$(nproc)
 BUILD_TESTS="ON"
 BUILD_EXAMPLES="ON"
 WARNINGS_AS_ERRORS="ON"
-USE_NVIDIA_NPP="OFF"
+# Check environment variable first, then use default
+USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
 BUILD_DIR="build"  # Default build directory
 
 # Parse arguments
