@@ -140,7 +140,7 @@ TEST_F(SetFunctionalTest, Set_8u_C1R_Ctx_PartialROI) {
     
     // 准备内存并初始化为背景值
     NppImageMemory<Npp8u> dst(width, height);
-    cudaMemset(dst.get(), bgValue, dst.sizeInBytes());
+    cudaMemset(dst.get(), bgValue, dst.step() * height);
     
     // 设置ROI为中心区域
     NppiSize oSizeROI = {32, 32};

@@ -44,7 +44,7 @@ static inline NppStatus validateCFAToRGBInputs(const void* pSrc, int nSrcStep, N
     }
     
     // Validate Bayer grid position
-    if (eGrid < NPPI_BAYER_BGGR || eGrid > NPPI_BAYER_GRBG) {
+    if (eGrid < 0 || eGrid > 3) {
         return NPP_BAD_ARGUMENT_ERROR;
     }
     
