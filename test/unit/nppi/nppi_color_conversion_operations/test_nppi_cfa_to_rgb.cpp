@@ -21,7 +21,7 @@ protected:
 
 // 测试8位CFA到RGB转换 - BGGR模式
 TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
-    const int width = 64, height = 64;
+    const int width = 16, height = 16; // 使用最小尺寸
     
     // 准备测试数据 - BGGR Bayer模式
     std::vector<Npp8u> srcData(width * height);

@@ -1,3 +1,5 @@
+#ifndef USE_NVIDIA_NPP
+
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
@@ -202,3 +204,5 @@ NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_cuda(const Npp16u* pSrc, int nSrcStep, Nppi
 }
 
 }
+
+#endif // USE_NVIDIA_NPP
