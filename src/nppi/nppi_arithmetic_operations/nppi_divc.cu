@@ -264,4 +264,66 @@ NppStatus nppiDivC_32f_C1R_Ctx_cuda(const Npp32f* pSrc1, int nSrc1Step, const Np
     return NPP_NO_ERROR;
 }
 
+/**
+ * CUDA kernel for dividing 8-bit unsigned 3-channel image by constants
+ */
+__global__ void divC_8u_C3RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcStep, 
+                                      const Npp8u* __restrict__ aConstants,
+                                      Npp8u* __restrict__ pDst, int nDstStep, 
+                                      int width, int height, int nScaleFactor) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    
+    if (x >= width || y >= height) return;
+    
+    const Npp8u* srcRow = pSrc + y * nSrcStep;
+    Npp8u* dstRow = pDst + y * nDstStep;
+    
+    int srcIdx = x * 3;
+    int dstIdx = x * 3;
+    
+    // Process three channels
+    for (int c = 0; c < 3; c++) {
+        int result = (srcRow[srcIdx + c] / aConstants[c]) >> nScaleFactor;
+        dstRow[dstIdx + c] = (Npp8u)min(255, max(0, result));
+    }
+}
+
+/**
+ * CUDA implementation for nppiDivC_8u_C3RSfs_Ctx
+ */
+NppStatus nppiDivC_8u_C3RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const Npp8u aConstants[3],
+                                      Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx) {
+    
+    // Copy constants to device memory
+    Npp8u* d_constants;
+    cudaMalloc(&d_constants, 3 * sizeof(Npp8u));
+    cudaMemcpy(d_constants, aConstants, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    
+    // Setup kernel launch parameters
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (oSizeROI.width + blockSize.x - 1) / blockSize.x,
+        (oSizeROI.height + blockSize.y - 1) / blockSize.y
+    );
+    
+    // Launch kernel with the specified CUDA stream
+    divC_8u_C3RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc1, nSrc1Step, d_constants, pDst, nDstStep, 
+        oSizeROI.width, oSizeROI.height, nScaleFactor
+    );
+    
+    // Clean up device memory
+    cudaFree(d_constants);
+    
+    // Check for kernel launch errors
+    cudaError_t cudaErr = cudaGetLastError();
+    if (cudaErr != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    return NPP_NO_ERROR;
+}
+
 } // extern "C"
