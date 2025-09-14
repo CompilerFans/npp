@@ -41,8 +41,8 @@ protected:
     }
 };
 
-// NOTE: 测试已被禁用 - 该测试导致CUDA上下文损坏，影响后续所有测试
-TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C1R_EdgeDetection) {
+// 尝试修复CUDA上下文损坏问题后重新启用
+TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_EdgeDetection) {
     const int width = 16, height = 16;
     
     // 创建垂直条纹测试图像
@@ -89,8 +89,8 @@ TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C1R_EdgeDetection) {
     EXPECT_GT(edgeResponses, 0) << "Edge detection should produce responses at vertical edges";
 }
 
-// NOTE: 测试已被禁用 - 该测试导致CUDA上下文损坏，影响后续所有测试
-TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C1R_Sharpen) {
+// 第二个测试：锐化滤波
+TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_Sharpen) {
     const int width = 16, height = 16;
     
     // 创建模糊的中心点图像
@@ -186,8 +186,8 @@ TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C3R_Basic) {
     nppsFree(dstPtr);
 }
 
-// NOTE: 测试已被禁用 - 该测试导致CUDA上下文损坏，影响后续所有测试
-TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_32f_C1R_Gaussian) {
+// 第三个测试：32位浮点高斯滤波
+TEST_F(FilterConvolutionFunctionalTest, Filter_32f_C1R_Gaussian) {
     const int width = 8, height = 8;
     
     // 创建脉冲信号
