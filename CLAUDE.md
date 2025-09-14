@@ -120,3 +120,7 @@ ctest -R "npps_"    # Signal processing tests
 
 ## Priority Management
 - 优先级最高P0的是crash问题，算法正确性问题P1，算法精度问题优先级P2，异常处理行为不正确优先级P3
+
+## Development Notes
+- 问题修正后需要同时修正build和build-nvidia
+- 问题修正后需要同时验证build和build-nvidia

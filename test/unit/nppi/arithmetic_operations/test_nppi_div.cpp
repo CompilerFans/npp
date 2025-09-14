@@ -21,7 +21,7 @@ protected:
 
 // NOTE: 此测试被禁用 - NVIDIA NPP的nppiDiv_8u_C1RSfs函数存在严重缺陷
 // 该函数总是返回0而非正确的除法结果，这是NVIDIA NPP库的已知问题
-TEST_F(DivFunctionalTest, DISABLED_Div_8u_C1RSfs_BasicOperation) {
+TEST_F(DivFunctionalTest, Div_8u_C1RSfs_BasicOperation) {
     const int width = 32;
     const int height = 32;
     const int scaleFactor = 0;
@@ -65,7 +65,7 @@ TEST_F(DivFunctionalTest, DISABLED_Div_8u_C1RSfs_BasicOperation) {
 
 // NOTE: 此测试被禁用 - NVIDIA NPP的除法函数存在复杂的参数顺序和缩放问题
 // 需要进一步研究其确切行为模式  
-TEST_F(DivFunctionalTest, DISABLED_Div_32f_C1R_BasicOperation) {
+TEST_F(DivFunctionalTest, Div_32f_C1R_BasicOperation) {
     const int width = 32;
     const int height = 32;
     
@@ -73,10 +73,10 @@ TEST_F(DivFunctionalTest, DISABLED_Div_32f_C1R_BasicOperation) {
     std::vector<Npp32f> srcData2(width * height);
     std::vector<Npp32f> expectedData(width * height);
     
-    // NVIDIA NPP division: pDst = pSrc1 / pSrc2 (standard order)
-    // To get 20/4=5, we need src1=20, src2=4
-    TestDataGenerator::generateConstant(srcData1, 20.0f); // dividend  
-    TestDataGenerator::generateConstant(srcData2, 4.0f);  // divisor
+    // NVIDIA NPP division: pDst = pSrc2 / pSrc1, not pSrc1 / pSrc2
+    // To get 20/4=5, we need src1=4, src2=20
+    TestDataGenerator::generateConstant(srcData1, 4.0f);  // divisor
+    TestDataGenerator::generateConstant(srcData2, 20.0f); // dividend  
     TestDataGenerator::generateConstant(expectedData, 5.0f); // 20/4=5
     
     NppImageMemory<Npp32f> src1(width, height);

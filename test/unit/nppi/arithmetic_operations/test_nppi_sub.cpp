@@ -21,7 +21,7 @@ protected:
 
 // NOTE: 此测试被禁用 - NVIDIA NPP的nppiSub_8u_C1RSfs函数存在严重缺陷  
 // 该函数总是返回0而非正确的减法结果，这是NVIDIA NPP库的已知问题
-TEST_F(SubFunctionalTest, DISABLED_Sub_8u_C1RSfs_BasicOperation) {
+TEST_F(SubFunctionalTest, Sub_8u_C1RSfs_BasicOperation) {
     const int width = 32;
     const int height = 32;
     const int scaleFactor = 0;
@@ -65,7 +65,7 @@ TEST_F(SubFunctionalTest, DISABLED_Sub_8u_C1RSfs_BasicOperation) {
 
 // NOTE: 此测试被禁用 - NVIDIA NPP的减法函数存在参数顺序和行为问题
 // 需要进一步研究其确切行为模式
-TEST_F(SubFunctionalTest, DISABLED_Sub_32f_C1R_BasicOperation) {
+TEST_F(SubFunctionalTest, Sub_32f_C1R_BasicOperation) {
     const int width = 32;
     const int height = 32;
     

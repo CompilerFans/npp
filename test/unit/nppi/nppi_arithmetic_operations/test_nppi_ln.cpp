@@ -25,7 +25,7 @@ protected:
 };
 
 // Test 8-bit unsigned natural logarithm with scaling
-TEST_F(LnFunctionalTest, DISABLED_Ln_8u_C1RSfs_BasicOperation) {
+TEST_F(LnFunctionalTest, Ln_8u_C1RSfs_BasicOperation) {
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
@@ -141,7 +141,7 @@ TEST_F(LnFunctionalTest, DISABLED_Ln_8u_C1RSfs_WithScaling) {
 }
 
 // Test 32-bit float natural logarithm
-TEST_F(LnFunctionalTest, DISABLED_Ln_32f_C1R_BasicOperation) {
+TEST_F(LnFunctionalTest, Ln_32f_C1R_BasicOperation) {
     std::vector<Npp32f> srcData(width * height);
     std::vector<Npp32f> expectedData(width * height);
     
