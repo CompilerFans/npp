@@ -26,7 +26,7 @@ protected:
 };
 
 // 测试8位到16位Prewitt梯度计算 - 临时禁用，梯度算法需要进一步实现
-TEST_F(NPPIGradientTest, DISABLED_GradientVectorPrewittBorder_8u16s_C1R_Basic) {
+TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_8u16s_C1R_Basic) {
     size_t srcDataSize = srcWidth * srcHeight;
     size_t dstDataSize = dstWidth * dstHeight;
     std::vector<Npp8u> srcData(srcDataSize);
@@ -41,22 +41,26 @@ TEST_F(NPPIGradientTest, DISABLED_GradientVectorPrewittBorder_8u16s_C1R_Basic) {
     
     // 分配GPU内存
     Npp8u *d_src;
-    Npp16s *d_mag, *d_dir;
+    Npp16s *d_x, *d_y, *d_mag, *d_dir;
     int srcStep = srcWidth * sizeof(Npp8u);
+    int xStep = dstWidth * sizeof(Npp16s);
+    int yStep = dstWidth * sizeof(Npp16s);
     int magStep = dstWidth * sizeof(Npp16s);
-    // int dirStep = dstWidth * sizeof(Npp16s); // 暂未使用
+    // int dirStep = dstWidth * sizeof(Npp16s); // 当前测试不使用角度输出
     
     cudaMalloc(&d_src, srcDataSize * sizeof(Npp8u));
+    cudaMalloc(&d_x, dstDataSize * sizeof(Npp16s));
+    cudaMalloc(&d_y, dstDataSize * sizeof(Npp16s));
     cudaMalloc(&d_mag, dstDataSize * sizeof(Npp16s));
     cudaMalloc(&d_dir, dstDataSize * sizeof(Npp16s));
     
     cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
     
-    // 调用NPP函数
+    // 调用NPP函数（提供所有必需的输出参数）
     NppStatus status = nppiGradientVectorPrewittBorder_8u16s_C1R(
         d_src, srcStep, oSrcSizeROI, oSrcOffset,
-        nullptr, 0, nullptr, 0, d_mag, magStep, nullptr, 0, oDstSizeROI,
-        NPP_MASK_SIZE_3_X_3, nppiNormL2, NPP_BORDER_REPLICATE);
+        d_x, xStep, d_y, yStep, d_mag, magStep, nullptr, 0,
+        oDstSizeROI, NPP_MASK_SIZE_3_X_3, nppiNormL2, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 拷贝结果回主机
@@ -74,6 +78,8 @@ TEST_F(NPPIGradientTest, DISABLED_GradientVectorPrewittBorder_8u16s_C1R_Basic) {
     EXPECT_TRUE(hasValidGradient);
     
     cudaFree(d_src);
+    cudaFree(d_x);
+    cudaFree(d_y);
     cudaFree(d_mag);
     cudaFree(d_dir);
 }

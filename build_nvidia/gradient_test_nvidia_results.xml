@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="0.293" timestamp="2025-09-14T23:32:38.640" name="AllTests">
+  <testsuite name="NPPIGradientTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="0.293" timestamp="2025-09-14T23:32:38.640">
+    <testcase name="GradientVectorPrewittBorder_8u16s_C1R_Basic" file="/home/cjxu/npp/test/unit/nppi/nppi_filtering_functions/test_nppi_gradient.cpp" line="29" status="run" result="completed" time="0.293" timestamp="2025-09-14T23:32:38.640" classname="NPPIGradientTest" />
+  </testsuite>
+</testsuites>
