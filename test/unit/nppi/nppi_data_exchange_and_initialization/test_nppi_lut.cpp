@@ -18,7 +18,7 @@ protected:
 
 // 测试8位无符号单通道线性LUT
 // NOTE: 测试已被禁用 - nppiLUT_Linear_8u_C1R函数在NVIDIA NPP中不存在
-TEST_F(NPPILUTTest, DISABLED_LUT_Linear_8u_C1R_Basic) {
+TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
     size_t dataSize = width * height;
     std::vector<Npp8u> srcData(dataSize), dstData(dataSize);
     

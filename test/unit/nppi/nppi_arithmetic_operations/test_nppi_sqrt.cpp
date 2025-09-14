@@ -140,7 +140,7 @@ TEST_F(SqrtFunctionalTest, DISABLED_Sqrt_8u_C1RSfs_WithScaling) {
 }
 
 // Test 32-bit float square root
-TEST_F(SqrtFunctionalTest, DISABLED_Sqrt_32f_C1R_BasicOperation) {
+TEST_F(SqrtFunctionalTest, Sqrt_32f_C1R_BasicOperation) {
     std::vector<Npp32f> srcData(width * height);
     std::vector<Npp32f> expectedData(width * height);
     
