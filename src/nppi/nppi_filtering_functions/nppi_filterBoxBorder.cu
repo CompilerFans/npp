@@ -87,28 +87,59 @@ __global__ void nppiFilterBoxBorder_8u_C3R_kernel(const Npp8u* pSrc, int nSrcSte
                 int src_x = dst_x + oSrcOffset.x + kx - oAnchor.x;
                 int src_y = dst_y + oSrcOffset.y + ky - oAnchor.y;
                 
-                // Handle border for each channel
+                // Handle border for each channel using getBorderPixel for unified border handling
                 for (int c = 0; c < 3; c++) {
+                    // Get border pixel for this channel
+                    // For 3-channel data, we need to access pSrc as if it's single channel
+                    // and then offset by channel index
+                    const Npp8u* channelSrc = pSrc + c;
+                    int channelStep = nSrcStep;  // Step remains same for all channels
+                    
+                    Npp8u pixel = getBorderPixel<Npp8u>(channelSrc, channelStep, oSrcSizeROI,
+                                                        src_x * 3, src_y, eBorderType, 0);
+                    
+                    // For pixels within bounds, manually access correct channel data
                     if (src_x >= 0 && src_x < oSrcSizeROI.width && 
                         src_y >= 0 && src_y < oSrcSizeROI.height) {
                         const Npp8u* src_row = (const Npp8u*)((const char*)pSrc + src_y * nSrcStep);
-                        sum[c] += src_row[src_x * 3 + c];
+                        pixel = src_row[src_x * 3 + c];
                     } else {
-                        // Apply border handling per channel
+                        // Use getBorderPixel approach for out-of-bounds access
+                        // We need to handle 3-channel data specially
+                        int border_x = src_x;
+                        int border_y = src_y;
+                        
                         switch (eBorderType) {
-                            case NPP_BORDER_REPLICATE: {
-                                int border_x = max(0, min(src_x, oSrcSizeROI.width - 1));
-                                int border_y = max(0, min(src_y, oSrcSizeROI.height - 1));
-                                const Npp8u* border_row = (const Npp8u*)((const char*)pSrc + border_y * nSrcStep);
-                                sum[c] += border_row[border_x * 3 + c];
+                            case NPP_BORDER_REPLICATE:
+                                border_x = max(0, min(src_x, oSrcSizeROI.width - 1));
+                                border_y = max(0, min(src_y, oSrcSizeROI.height - 1));
                                 break;
-                            }
+                            case NPP_BORDER_WRAP:
+                                border_x = (src_x + oSrcSizeROI.width) % oSrcSizeROI.width;
+                                border_y = (src_y + oSrcSizeROI.height) % oSrcSizeROI.height;
+                                break;
+                            case NPP_BORDER_MIRROR:
+                                if (src_x < 0) border_x = -src_x - 1;
+                                else if (src_x >= oSrcSizeROI.width) border_x = 2 * oSrcSizeROI.width - src_x - 1;
+                                else border_x = src_x;
+                                
+                                if (src_y < 0) border_y = -src_y - 1;
+                                else if (src_y >= oSrcSizeROI.height) border_y = 2 * oSrcSizeROI.height - src_y - 1;
+                                else border_y = src_y;
+                                break;
                             case NPP_BORDER_CONSTANT:
                             default:
-                                sum[c] += 0;  // Constant border value
+                                pixel = 0;  // Constant border value
                                 break;
                         }
+                        
+                        if (eBorderType != NPP_BORDER_CONSTANT) {
+                            const Npp8u* border_row = (const Npp8u*)((const char*)pSrc + border_y * nSrcStep);
+                            pixel = border_row[border_x * 3 + c];
+                        }
                     }
+                    
+                    sum[c] += pixel;
                 }
                 count++;
             }

@@ -496,17 +496,17 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_ReplicateBorder) {
 
 // 测试CONSTANT边界模式
 TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_ConstantBorder) {
-    testBorderMode(NPP_BORDER_CONSTANT, "CONSTANT", false);
+    testBorderMode(NPP_BORDER_CONSTANT, "CONSTANT", true);
 }
 
 // 测试WRAP边界模式
 TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_WrapBorder) {
-    testBorderMode(NPP_BORDER_WRAP, "WRAP", false);
+    testBorderMode(NPP_BORDER_WRAP, "WRAP", true);
 }
 
 // 测试MIRROR边界模式
 TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_MirrorBorder) {
-    testBorderMode(NPP_BORDER_MIRROR, "MIRROR", false);
+    testBorderMode(NPP_BORDER_MIRROR, "MIRROR", true);
 }
 
 // 测试带上下文的版本
