@@ -30,8 +30,9 @@ __global__ void rotate_8u_C1R_kernel(const Npp8u* __restrict__ pSrc, NppiSize oS
     int dstY = y + oDstROI.y;
     
     // Apply reverse transformation to find source coordinates
-    double srcXf = (dstX - nShiftX) * cosA + (dstY - nShiftY) * sinA;
-    double srcYf = -(dstX - nShiftX) * sinA + (dstY - nShiftY) * cosA;
+    // For rotation, the inverse transformation is: rotate by -angle
+    double srcXf = (dstX - nShiftX) * cosA - (dstY - nShiftY) * sinA;
+    double srcYf = (dstX - nShiftX) * sinA + (dstY - nShiftY) * cosA;
     
     int srcX = (int)(srcXf + 0.5);
     int srcY = (int)(srcYf + 0.5);
@@ -72,8 +73,9 @@ __global__ void rotate_8u_C3R_kernel(const Npp8u* __restrict__ pSrc, NppiSize oS
     int dstY = y + oDstROI.y;
     
     // Apply reverse transformation to find source coordinates
-    double srcXf = (dstX - nShiftX) * cosA + (dstY - nShiftY) * sinA;
-    double srcYf = -(dstX - nShiftX) * sinA + (dstY - nShiftY) * cosA;
+    // For rotation, the inverse transformation is: rotate by -angle
+    double srcXf = (dstX - nShiftX) * cosA - (dstY - nShiftY) * sinA;
+    double srcYf = (dstX - nShiftX) * sinA + (dstY - nShiftY) * cosA;
     
     int srcX = (int)(srcXf + 0.5);
     int srcY = (int)(srcYf + 0.5);
@@ -119,8 +121,9 @@ __global__ void rotate_32f_C1R_kernel(const Npp32f* __restrict__ pSrc, NppiSize 
     int dstY = y + oDstROI.y;
     
     // Apply reverse transformation to find source coordinates
-    double srcXf = (dstX - nShiftX) * cosA + (dstY - nShiftY) * sinA;
-    double srcYf = -(dstX - nShiftX) * sinA + (dstY - nShiftY) * cosA;
+    // For rotation, the inverse transformation is: rotate by -angle
+    double srcXf = (dstX - nShiftX) * cosA - (dstY - nShiftY) * sinA;
+    double srcYf = (dstX - nShiftX) * sinA + (dstY - nShiftY) * cosA;
     
     int srcX = (int)(srcXf + 0.5);
     int srcY = (int)(srcYf + 0.5);

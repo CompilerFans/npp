@@ -31,7 +31,7 @@ __global__ void divC_8u_C1RSfs_kernel(const Npp8u* __restrict__ pSrc, int nSrcSt
         return;
     }
     
-    int result = (static_cast<int>(srcValue) << nScaleFactor) / static_cast<int>(nConstant);
+    int result = (static_cast<int>(srcValue) / static_cast<int>(nConstant)) >> nScaleFactor;
     
     // Clamp to 8-bit range
     result = max(0, min(255, result));
@@ -65,7 +65,7 @@ __global__ void divC_16u_C1RSfs_kernel(const Npp16u* __restrict__ pSrc, int nSrc
         return;
     }
     
-    int result = (static_cast<int>(srcValue) << nScaleFactor) / static_cast<int>(nConstant);
+    int result = (static_cast<int>(srcValue) / static_cast<int>(nConstant)) >> nScaleFactor;
     
     // Clamp to 16-bit unsigned range
     result = max(0, min(65535, result));
@@ -99,7 +99,7 @@ __global__ void divC_16s_C1RSfs_kernel(const Npp16s* __restrict__ pSrc, int nSrc
         return;
     }
     
-    int result = (static_cast<int>(srcValue) << nScaleFactor) / static_cast<int>(nConstant);
+    int result = (static_cast<int>(srcValue) / static_cast<int>(nConstant)) >> nScaleFactor;
     
     // Clamp to 16-bit signed range
     result = max(-32768, min(32767, result));
