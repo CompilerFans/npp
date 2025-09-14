@@ -166,16 +166,31 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C3R) {
     // 生成源数据
     generateRandomData(srcData, srcDataSize, Npp8u(0), Npp8u(255));
     
-    // 分配GPU内存
-    Npp8u *d_src, *d_dst;
-    int nSrcStep = srcWidth * 3 * sizeof(Npp8u);
-    int nDstStep = dstWidth * 3 * sizeof(Npp8u);
+    // 使用NPP内存分配获得正确对齐的步长
+    int nSrcStep, nDstStep;
+    Npp8u* d_src = nppiMalloc_8u_C3(srcWidth, srcHeight, &nSrcStep);
+    Npp8u* d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &nDstStep);
     
-    cudaMalloc(&d_src, srcDataSize * sizeof(Npp8u));
-    cudaMalloc(&d_dst, dstDataSize * sizeof(Npp8u));
+    // 使用RAII模式确保内存清理
+    struct ResourceGuard {
+        Npp8u* src, *dst;
+        ResourceGuard(Npp8u* s, Npp8u* d) : src(s), dst(d) {}
+        ~ResourceGuard() {
+            if (src) nppiFree(src);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src, d_dst);
     
-    // 拷贝数据到GPU
-    cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // 按行复制数据到GPU
+    for (int y = 0; y < srcHeight; y++) {
+        cudaMemcpy((char*)d_src + y * nSrcStep,
+                   srcData.data() + y * srcWidth * 3,
+                   srcWidth * 3 * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
     
     // 调用NPP函数
     NppStatus status = nppiFilterBoxBorder_8u_C3R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
@@ -183,8 +198,13 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C3R) {
                                                   oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // 拷贝结果回主机
-    cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    // 按行复制结果回主机
+    for (int y = 0; y < dstHeight; y++) {
+        cudaMemcpy(dstData.data() + y * dstWidth * 3,
+                   (char*)d_dst + y * nDstStep,
+                   dstWidth * 3 * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // 验证结果存在性（基本检查）
     bool hasNonZero = false;
@@ -196,9 +216,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C3R) {
     }
     EXPECT_TRUE(hasNonZero) << "Filter result seems to be all zeros";
     
-    // 清理GPU内存
-    cudaFree(d_src);
-    cudaFree(d_dst);
+    // 资源将由ResourceGuard自动清理
 }
 
 // 测试16位有符号单通道盒式滤波
@@ -268,16 +286,31 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
         srcData[i] = static_cast<Npp32f>((rand() / (float)RAND_MAX) * 2.0f - 1.0f);  // [-1, 1]
     }
     
-    // 分配GPU内存
-    Npp32f *d_src, *d_dst;
-    int nSrcStep = srcWidth * sizeof(Npp32f);
-    int nDstStep = dstWidth * sizeof(Npp32f);
+    // 使用NPP内存分配获得正确对齐的步长
+    int nSrcStep, nDstStep;
+    Npp32f* d_src = nppiMalloc_32f_C1(srcWidth, srcHeight, &nSrcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C1(dstWidth, dstHeight, &nDstStep);
     
-    cudaMalloc(&d_src, srcDataSize * sizeof(Npp32f));
-    cudaMalloc(&d_dst, dstDataSize * sizeof(Npp32f));
+    // 使用RAII模式确保内存清理
+    struct ResourceGuard {
+        Npp32f* src, *dst;
+        ResourceGuard(Npp32f* s, Npp32f* d) : src(s), dst(d) {}
+        ~ResourceGuard() {
+            if (src) nppiFree(src);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src, d_dst);
     
-    // 拷贝数据到GPU
-    cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // 按行复制数据到GPU
+    for (int y = 0; y < srcHeight; y++) {
+        cudaMemcpy((char*)d_src + y * nSrcStep,
+                   srcData.data() + y * srcWidth,
+                   srcWidth * sizeof(Npp32f),
+                   cudaMemcpyHostToDevice);
+    }
     
     // 调用NPP函数
     NppStatus status = nppiFilterBoxBorder_32f_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
@@ -285,8 +318,13 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
                                                    oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // 拷贝结果回主机
-    cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+    // 按行复制结果回主机
+    for (int y = 0; y < dstHeight; y++) {
+        cudaMemcpy(dstData.data() + y * dstWidth,
+                   (char*)d_dst + y * nDstStep,
+                   dstWidth * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // 验证结果存在性和合理性
     float sum = 0.0f;
@@ -301,9 +339,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
     EXPECT_GE(minVal, -2.0f);
     EXPECT_LE(maxVal, 2.0f);
     
-    // 清理GPU内存
-    cudaFree(d_src);
-    cudaFree(d_dst);
+    // 资源将由ResourceGuard自动清理
 }
 
 // 测试不同滤波核尺寸
@@ -317,16 +353,31 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_DifferentKernelSizes) {
         srcData[i] = static_cast<Npp8u>((i % 10) * 25);  // 0, 25, 50, ..., 225, 0, 25, ...
     }
     
-    // 分配GPU内存
-    Npp8u *d_src, *d_dst;
-    int nSrcStep = srcWidth * sizeof(Npp8u);
-    int nDstStep = dstWidth * sizeof(Npp8u);
+    // 使用NPP内存分配获得正确对齐的步长
+    int nSrcStep, nDstStep;
+    Npp8u* d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &nSrcStep);
+    Npp8u* d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &nDstStep);
     
-    cudaMalloc(&d_src, srcDataSize * sizeof(Npp8u));
-    cudaMalloc(&d_dst, dstDataSize * sizeof(Npp8u));
+    // 使用RAII模式确保内存清理
+    struct ResourceGuard {
+        Npp8u* src, *dst;
+        ResourceGuard(Npp8u* s, Npp8u* d) : src(s), dst(d) {}
+        ~ResourceGuard() {
+            if (src) nppiFree(src);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src, d_dst);
     
-    // 拷贝数据到GPU
-    cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // 按行复制数据到GPU
+    for (int y = 0; y < srcHeight; y++) {
+        cudaMemcpy((char*)d_src + y * nSrcStep,
+                   srcData.data() + y * srcWidth,
+                   srcWidth * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
     
     // 测试5x5滤波核
     oMaskSize.width = 5;
@@ -339,8 +390,13 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_DifferentKernelSizes) {
                                                   oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // 拷贝结果回主机
-    cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    // 按行复制结果回主机
+    for (int y = 0; y < dstHeight; y++) {
+        cudaMemcpy(dstData.data() + y * dstWidth,
+                   (char*)d_dst + y * nDstStep,
+                   dstWidth * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // 5x5滤波器应该产生更平滑的结果
     bool hasValidResult = false;
@@ -352,58 +408,97 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_DifferentKernelSizes) {
     }
     EXPECT_TRUE(hasValidResult);
     
-    // 清理GPU内存
-    cudaFree(d_src);
-    cudaFree(d_dst);
+    // 资源将由ResourceGuard自动清理
 }
 
-// 测试不同边界处理模式 - 临时禁用，边界算法需要进一步实现
+// 测试不同边界处理模式 - NVIDIA NPP限制：仅支持REPLICATE模式
 TEST_F(NPPIFilterBoxBorderTest, DISABLED_FilterBoxBorder_DifferentBorderTypes) {
     size_t srcDataSize = srcWidth * srcHeight;
     size_t dstDataSize = dstWidth * dstHeight;
     std::vector<Npp8u> srcData(srcDataSize), dstDataReplicate(dstDataSize), dstDataConstant(dstDataSize);
     
-    // 生成源数据
-    generateRandomData(srcData, srcDataSize, Npp8u(50), Npp8u(200));
+    // 创建特殊的测试图像：中心高值，边缘低值
+    for (int y = 0; y < srcHeight; y++) {
+        for (int x = 0; x < srcWidth; x++) {
+            if (x == 0 || y == 0 || x == srcWidth-1 || y == srcHeight-1) {
+                srcData[y * srcWidth + x] = 0;  // 边界为0
+            } else {
+                srcData[y * srcWidth + x] = 255; // 内部为255
+            }
+        }
+    }
     
-    // 分配GPU内存
-    Npp8u *d_src, *d_dst;
-    int nSrcStep = srcWidth * sizeof(Npp8u);
-    int nDstStep = dstWidth * sizeof(Npp8u);
+    // 使用NPP内存分配获得正确对齐的步长
+    int nSrcStep, nDstStep;
+    Npp8u* d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &nSrcStep);
+    Npp8u* d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &nDstStep);
     
-    cudaMalloc(&d_src, srcDataSize * sizeof(Npp8u));
-    cudaMalloc(&d_dst, dstDataSize * sizeof(Npp8u));
+    // 使用RAII模式确保内存清理
+    struct ResourceGuard {
+        Npp8u* src, *dst;
+        ResourceGuard(Npp8u* s, Npp8u* d) : src(s), dst(d) {}
+        ~ResourceGuard() {
+            if (src) nppiFree(src);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src, d_dst);
     
-    // 拷贝数据到GPU
-    cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // 按行复制数据到GPU
+    for (int y = 0; y < srcHeight; y++) {
+        cudaMemcpy((char*)d_src + y * nSrcStep,
+                   srcData.data() + y * srcWidth,
+                   srcWidth * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
     
     // 测试REPLICATE边界模式
     NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
                                                   d_dst, nDstStep, oDstSizeROI,
                                                   oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
-    cudaMemcpy(dstDataReplicate.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
     
-    // 测试CONSTANT边界模式
+    // 按行复制结果回主机
+    for (int y = 0; y < dstHeight; y++) {
+        cudaMemcpy(dstDataReplicate.data() + y * dstWidth,
+                   (char*)d_dst + y * nDstStep,
+                   dstWidth * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    // 测试MIRROR边界模式
     status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
                                         d_dst, nDstStep, oDstSizeROI,
-                                        oMaskSize, oAnchor, NPP_BORDER_CONSTANT);
+                                        oMaskSize, oAnchor, NPP_BORDER_MIRROR);
     EXPECT_EQ(status, NPP_SUCCESS);
-    cudaMemcpy(dstDataConstant.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    
+    // 按行复制结果回主机
+    for (int y = 0; y < dstHeight; y++) {
+        cudaMemcpy(dstDataConstant.data() + y * dstWidth,
+                   (char*)d_dst + y * nDstStep,
+                   dstWidth * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // 两种边界模式的结果应该不同
     bool isDifferent = false;
+    int diffCount = 0;
     for (size_t i = 0; i < dstDataSize; i++) {
         if (dstDataReplicate[i] != dstDataConstant[i]) {
             isDifferent = true;
-            break;
+            diffCount++;
+            if (diffCount <= 5) { // 输出前5个差异
+                std::cout << "差异[" << i << "]: REPLICATE=" << (int)dstDataReplicate[i] 
+                         << " CONSTANT=" << (int)dstDataConstant[i] << std::endl;
+            }
         }
     }
+    std::cout << "总差异数量: " << diffCount << "/" << dstDataSize << std::endl;
     EXPECT_TRUE(isDifferent) << "Different border types should produce different results";
     
-    // 清理GPU内存
-    cudaFree(d_src);
-    cudaFree(d_dst);
+    // 资源将由ResourceGuard自动清理
 }
 
 // 测试带上下文的版本
@@ -415,16 +510,31 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
     // 生成源数据
     generateRandomData(srcData, srcDataSize, Npp8u(0), Npp8u(255));
     
-    // 分配GPU内存
-    Npp8u *d_src, *d_dst;
-    int nSrcStep = srcWidth * sizeof(Npp8u);
-    int nDstStep = dstWidth * sizeof(Npp8u);
+    // 使用NPP内存分配获得正确对齐的步长
+    int nSrcStep, nDstStep;
+    Npp8u* d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &nSrcStep);
+    Npp8u* d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &nDstStep);
     
-    cudaMalloc(&d_src, srcDataSize * sizeof(Npp8u));
-    cudaMalloc(&d_dst, dstDataSize * sizeof(Npp8u));
+    // 使用RAII模式确保内存清理
+    struct ResourceGuard {
+        Npp8u* src, *dst;
+        ResourceGuard(Npp8u* s, Npp8u* d) : src(s), dst(d) {}
+        ~ResourceGuard() {
+            if (src) nppiFree(src);
+            if (dst) nppiFree(dst);
+        }
+    } guard(d_src, d_dst);
     
-    // 拷贝数据到GPU
-    cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // 按行复制数据到GPU
+    for (int y = 0; y < srcHeight; y++) {
+        cudaMemcpy((char*)d_src + y * nSrcStep,
+                   srcData.data() + y * srcWidth,
+                   srcWidth * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
     
     // 创建流上下文
     NppStreamContext nppStreamCtx;
@@ -436,8 +546,13 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
                                                       oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     EXPECT_EQ(status, NPP_SUCCESS);
     
-    // 拷贝结果回主机
-    cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    // 按行复制结果回主机
+    for (int y = 0; y < dstHeight; y++) {
+        cudaMemcpy(dstData.data() + y * dstWidth,
+                   (char*)d_dst + y * nDstStep,
+                   dstWidth * sizeof(Npp8u),
+                   cudaMemcpyDeviceToHost);
+    }
     
     // 验证结果存在性
     bool hasNonZero = false;
@@ -449,9 +564,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
     }
     EXPECT_TRUE(hasNonZero);
     
-    // 清理GPU内存
-    cudaFree(d_src);
-    cudaFree(d_dst);
+    // 资源将由ResourceGuard自动清理
 }
 
 // 测试错误处理
