@@ -28,7 +28,7 @@ TEST_F(SetFunctionalTest, Set_8u_C1R_Ctx_Basic) {
     NppImageMemory<Npp8u> dst(width, height);
     
     // 初始化为0
-    cudaMemset(dst.get(), 0, dst.size());
+    cudaMemset(dst.get(), 0, dst.sizeInBytes());
     
     // 设置参数
     NppiSize oSizeROI = {width, height};
@@ -65,7 +65,7 @@ TEST_F(SetFunctionalTest, Set_8u_C3R_Ctx_ColorValues) {
     NppImageMemory<Npp8u> dst(width, height, 3);
     
     // 初始化为0
-    cudaMemset(dst.get(), 0, dst.size());
+    cudaMemset(dst.get(), 0, dst.sizeInBytes());
     
     // 设置参数
     NppiSize oSizeROI = {width, height};
@@ -104,7 +104,7 @@ TEST_F(SetFunctionalTest, Set_32f_C1R_Ctx_FloatValue) {
     NppImageMemory<Npp32f> dst(width, height);
     
     // 初始化为0
-    cudaMemset(dst.get(), 0, dst.size());
+    cudaMemset(dst.get(), 0, dst.sizeInBytes());
     
     // 设置参数
     NppiSize oSizeROI = {width, height};
@@ -140,7 +140,7 @@ TEST_F(SetFunctionalTest, Set_8u_C1R_Ctx_PartialROI) {
     
     // 准备内存并初始化为背景值
     NppImageMemory<Npp8u> dst(width, height);
-    cudaMemset(dst.get(), bgValue, dst.size());
+    cudaMemset(dst.get(), bgValue, dst.sizeInBytes());
     
     // 设置ROI为中心区域
     NppiSize oSizeROI = {32, 32};

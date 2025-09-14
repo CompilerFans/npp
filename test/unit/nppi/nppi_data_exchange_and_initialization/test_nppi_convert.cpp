@@ -127,7 +127,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
     NppImageMemory<Npp32f> dst(width, height);
     
     src.copyFromHost(srcData);
-    cudaMemset(dst.get(), 0, dst.size()); // 初始化为0
+    cudaMemset(dst.get(), 0, dst.sizeInBytes()); // 初始化为0
     
     // 设置ROI为中心区域
     NppiSize oSizeROI = {16, 16};

@@ -23,7 +23,7 @@ NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_cuda(const Npp16u* pSrc, int nSrcStep, Nppi
 // Input validation helper
 static inline NppStatus validateCFAToRGBInputs(const void* pSrc, int nSrcStep, NppiSize oSrcSize,
                                                NppiRect oSrcROI, void* pDst, int nDstStep,
-                                               NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation) {
+                                               NppiBayerGridPosition eGrid, NppiInterpolationMode /*eInterpolation*/) {
     if (oSrcSize.width <= 0 || oSrcSize.height <= 0) {
         return NPP_SIZE_ERROR;
     }

@@ -131,7 +131,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C4R_Ctx_WithAlpha) {
     nppGetStreamContext(&nppStreamCtx);
     
     // 执行转换
-    NppStatus status = nppiNV12ToBGR_8u_P2C4R_Ctx(
+    NppStatus status = nppiNV12ToBGR_8u_P2C3R_Ctx(
         pSrc, srcStep,
         bgrImage.get(), bgrImage.step(),
         oSizeROI, nppStreamCtx);

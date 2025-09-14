@@ -35,7 +35,7 @@ TEST_F(CopyExtendedTest, Copy_8u_C1R_Ctx_Basic) {
     NppImageMemory<Npp8u> dst(width, height);
     
     src.copyFromHost(srcData);
-    cudaMemset(dst.get(), 0, dst.size()); // 初始化为0
+    cudaMemset(dst.get(), 0, dst.sizeInBytes()); // 初始化为0
     
     // 设置参数
     NppiSize oSizeROI = {width, height};
@@ -82,7 +82,7 @@ TEST_F(CopyExtendedTest, Copy_8u_C3R_Ctx_ColorImage) {
     NppImageMemory<Npp8u> dst(width, height, 3);
     
     src.copyFromHost(srcData);
-    cudaMemset(dst.get(), 0, dst.size()); // 初始化为0
+    cudaMemset(dst.get(), 0, dst.sizeInBytes()); // 初始化为0
     
     // 设置参数
     NppiSize oSizeROI = {width, height};
@@ -124,7 +124,7 @@ TEST_F(CopyExtendedTest, Copy_8u_C1R_Ctx_PartialROI) {
     NppImageMemory<Npp8u> dst(width, height);
     
     src.copyFromHost(srcData);
-    cudaMemset(dst.get(), 0, dst.size()); // 初始化为0
+    cudaMemset(dst.get(), 0, dst.sizeInBytes()); // 初始化为0
     
     // 设置ROI为中心区域
     NppiSize oSizeROI = {32, 32};

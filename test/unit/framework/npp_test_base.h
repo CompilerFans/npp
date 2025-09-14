@@ -147,10 +147,10 @@ private:
 template<typename T>
 class NppImageMemory {
 public:
-    NppImageMemory() : ptr_(nullptr), step_(0), width_(0), height_(0) {}
+    NppImageMemory() : ptr_(nullptr), step_(0), width_(0), height_(0), channels_(1) {}
     
-    NppImageMemory(int width, int height) : ptr_(nullptr), step_(0), width_(width), height_(height) {
-        allocate(width, height);
+    NppImageMemory(int width, int height, int channels = 1) : ptr_(nullptr), step_(0), width_(width), height_(height), channels_(channels) {
+        allocate(width, height, channels);
     }
     
     ~NppImageMemory() {
@@ -164,28 +164,61 @@ public:
     // 支持移动
     NppImageMemory(NppImageMemory&& other) noexcept 
         : ptr_(other.ptr_), step_(other.step_), 
-          width_(other.width_), height_(other.height_) {
+          width_(other.width_), height_(other.height_), channels_(other.channels_) {
         other.ptr_ = nullptr;
         other.step_ = 0;
         other.width_ = 0;
         other.height_ = 0;
+        other.channels_ = 1;
     }
     
-    void allocate(int width, int height) {
+    void allocate(int width, int height, int channels = 1) {
         free();
         width_ = width;
         height_ = height;
+        channels_ = channels;
         
         if constexpr (std::is_same_v<T, Npp8u>) {
-            ptr_ = nppiMalloc_8u_C1(width, height, &step_);
+            if (channels == 1) {
+                ptr_ = nppiMalloc_8u_C1(width, height, &step_);
+            } else if (channels == 2) {
+                ptr_ = nppiMalloc_8u_C2(width, height, &step_);
+            } else if (channels == 3) {
+                ptr_ = nppiMalloc_8u_C3(width, height, &step_);
+            } else if (channels == 4) {
+                ptr_ = nppiMalloc_8u_C4(width, height, &step_);
+            } else {
+                throw std::runtime_error("Unsupported channel count for Npp8u");
+            }
         } else if constexpr (std::is_same_v<T, Npp8s>) {
-            ptr_ = reinterpret_cast<T*>(nppiMalloc_8u_C1(width, height, &step_));  // 使用8u的内存分配
+            static_assert(sizeof(T) == 0, "Unsupported NPP data type");
+            ptr_ = reinterpret_cast<T*>(nppiMalloc_8u_C1(width, height * channels, &step_));
         } else if constexpr (std::is_same_v<T, Npp16u>) {
-            ptr_ = nppiMalloc_16u_C1(width, height, &step_);
+            if (channels == 1) {
+                ptr_ = nppiMalloc_16u_C1(width, height, &step_);
+            } else if (channels == 3) {
+                ptr_ = nppiMalloc_16u_C3(width, height, &step_);
+            } else if (channels == 4) {
+                ptr_ = nppiMalloc_16u_C4(width, height, &step_);
+            } else {
+                throw std::runtime_error("Unsupported channel count for Npp16u");
+            }
         } else if constexpr (std::is_same_v<T, Npp16s>) {
-            ptr_ = nppiMalloc_16s_C1(width, height, &step_);
+            if (channels == 1) {
+                ptr_ = nppiMalloc_16s_C1(width, height, &step_);
+            } else {
+                throw std::runtime_error("Unsupported channel count for Npp16s");
+            }
         } else if constexpr (std::is_same_v<T, Npp32f>) {
-            ptr_ = nppiMalloc_32f_C1(width, height, &step_);
+            if (channels == 1) {
+                ptr_ = nppiMalloc_32f_C1(width, height, &step_);
+            } else if (channels == 3) {
+                ptr_ = nppiMalloc_32f_C3(width, height, &step_);
+            } else if (channels == 4) {
+                ptr_ = nppiMalloc_32f_C4(width, height, &step_);
+            } else {
+                throw std::runtime_error("Unsupported channel count for Npp32f");
+            }
         } else if constexpr (std::is_same_v<T, Npp32fc>) {
             ptr_ = nppiMalloc_32fc_C1(width, height, &step_);
         } else {
@@ -204,6 +237,7 @@ public:
             step_ = 0;
             width_ = 0;
             height_ = 0;
+            channels_ = 1;
         }
     }
     
@@ -211,27 +245,29 @@ public:
     int step() const { return step_; }
     int width() const { return width_; }
     int height() const { return height_; }
+    int channels() const { return channels_; }
     NppiSize size() const { return {width_, height_}; }
+    size_t sizeInBytes() const { return width_ * height_ * channels_ * sizeof(T); }
     
     // 数据传输
     void copyFromHost(const std::vector<T>& hostData) {
-        ASSERT_EQ(hostData.size(), width_ * height_) << "Size mismatch in copyFromHost";
+        ASSERT_EQ(hostData.size(), width_ * height_ * channels_) << "Size mismatch in copyFromHost";
         cudaError_t err = cudaMemcpy2D(ptr_, step_, hostData.data(), 
-                                     width_ * sizeof(T), width_ * sizeof(T), 
+                                     width_ * channels_ * sizeof(T), width_ * channels_ * sizeof(T), 
                                      height_, cudaMemcpyHostToDevice);
         ASSERT_EQ(err, cudaSuccess) << "Failed to copy from host";
     }
     
     void copyToHost(std::vector<T>& hostData) const {
-        hostData.resize(width_ * height_);
-        cudaError_t err = cudaMemcpy2D(hostData.data(), width_ * sizeof(T),
-                                     ptr_, step_, width_ * sizeof(T), 
+        hostData.resize(width_ * height_ * channels_);
+        cudaError_t err = cudaMemcpy2D(hostData.data(), width_ * channels_ * sizeof(T),
+                                     ptr_, step_, width_ * channels_ * sizeof(T), 
                                      height_, cudaMemcpyDeviceToHost);
         ASSERT_EQ(err, cudaSuccess) << "Failed to copy to host";
     }
     
     void fill(T value) {
-        std::vector<T> hostData(width_ * height_, value);
+        std::vector<T> hostData(width_ * height_ * channels_, value);
         copyFromHost(hostData);
     }
 
@@ -240,6 +276,7 @@ private:
     int step_;
     int width_;
     int height_;
+    int channels_;
 };
 
 /**

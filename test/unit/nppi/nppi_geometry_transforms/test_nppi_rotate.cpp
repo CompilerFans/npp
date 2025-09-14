@@ -44,6 +44,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C1R_Ctx_90Degrees) {
     src.copyFromHost(srcData);
     
     // 设置参数
+    NppiSize srcSize = {width, height};
     NppiRect srcROI = {0, 0, width, height};
     double angle = 90.0; // 90度
     double shiftX = 0.0;
@@ -55,7 +56,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C1R_Ctx_90Degrees) {
     
     // 执行旋转
     NppStatus status = nppiRotate_8u_C1R_Ctx(
-        src.get(), src.step(), srcROI,
+        src.get(), srcSize, src.step(), srcROI,
         dst.get(), dst.step(), srcROI,
         angle, shiftX, shiftY, NPPI_INTER_NN, nppStreamCtx);
     
@@ -99,6 +100,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C3R_Ctx_45Degrees) {
     src.copyFromHost(srcData);
     
     // 设置参数
+    NppiSize srcSize = {width, height};
     NppiRect srcROI = {0, 0, width, height};
     double angle = 45.0; // 45度
     double shiftX = 0.0;
@@ -110,7 +112,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C3R_Ctx_45Degrees) {
     
     // 执行旋转
     NppStatus status = nppiRotate_8u_C3R_Ctx(
-        src.get(), src.step(), srcROI,
+        src.get(), srcSize, src.step(), srcROI,
         dst.get(), dst.step(), srcROI,
         angle, shiftX, shiftY, NPPI_INTER_LINEAR, nppStreamCtx);
     
@@ -152,6 +154,7 @@ TEST_F(RotateFunctionalTest, Rotate_32f_C1R_Ctx_180Degrees) {
     src.copyFromHost(srcData);
     
     // 设置参数
+    NppiSize srcSize = {width, height};
     NppiRect srcROI = {0, 0, width, height};
     double angle = 180.0; // 180度
     double shiftX = 0.0;
@@ -163,7 +166,7 @@ TEST_F(RotateFunctionalTest, Rotate_32f_C1R_Ctx_180Degrees) {
     
     // 执行旋转
     NppStatus status = nppiRotate_32f_C1R_Ctx(
-        src.get(), src.step(), srcROI,
+        src.get(), srcSize, src.step(), srcROI,
         dst.get(), dst.step(), srcROI,
         angle, shiftX, shiftY, NPPI_INTER_CUBIC, nppStreamCtx);
     
