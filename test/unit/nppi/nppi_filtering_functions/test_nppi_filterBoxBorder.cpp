@@ -98,6 +98,84 @@ protected:
                                       << " reference=" << (int)reference[i];
         }
     }
+    
+    // 辅助函数：测试特定边界模式
+    void testBorderMode(NppiBorderType borderType, const char* modeName, bool expectSupported = true) {
+        size_t srcDataSize = srcWidth * srcHeight;
+        size_t dstDataSize = dstWidth * dstHeight;
+        std::vector<Npp8u> srcData(srcDataSize), dstData(dstDataSize);
+        
+        // 创建边界测试图像：边界为0，内部为255，便于观察边界处理效果
+        for (int y = 0; y < srcHeight; y++) {
+            for (int x = 0; x < srcWidth; x++) {
+                if (x == 0 || y == 0 || x == srcWidth-1 || y == srcHeight-1) {
+                    srcData[y * srcWidth + x] = 0;  // 边界为0
+                } else {
+                    srcData[y * srcWidth + x] = 255; // 内部为255
+                }
+            }
+        }
+        
+        // 使用NPP内存分配获得正确对齐的步长
+        int nSrcStep, nDstStep;
+        Npp8u* d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &nSrcStep);
+        Npp8u* d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &nDstStep);
+        
+        // 使用RAII模式确保内存清理
+        struct ResourceGuard {
+            Npp8u* src, *dst;
+            ResourceGuard(Npp8u* s, Npp8u* d) : src(s), dst(d) {}
+            ~ResourceGuard() {
+                if (src) nppiFree(src);
+                if (dst) nppiFree(dst);
+            }
+        } guard(d_src, d_dst);
+        
+        ASSERT_NE(d_src, nullptr);
+        ASSERT_NE(d_dst, nullptr);
+        
+        // 按行复制数据到GPU
+        for (int y = 0; y < srcHeight; y++) {
+            cudaMemcpy((char*)d_src + y * nSrcStep,
+                       srcData.data() + y * srcWidth,
+                       srcWidth * sizeof(Npp8u),
+                       cudaMemcpyHostToDevice);
+        }
+        
+        // 测试边界模式
+        NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
+                                                      d_dst, nDstStep, oDstSizeROI,
+                                                      oMaskSize, oAnchor, borderType);
+        
+        if (expectSupported) {
+            EXPECT_EQ(status, NPP_SUCCESS) << modeName << " border mode should be supported";
+            
+            if (status == NPP_SUCCESS) {
+                // 按行复制结果回主机
+                for (int y = 0; y < dstHeight; y++) {
+                    cudaMemcpy(dstData.data() + y * dstWidth,
+                               (char*)d_dst + y * nDstStep,
+                               dstWidth * sizeof(Npp8u),
+                               cudaMemcpyDeviceToHost);
+                }
+                
+                // 验证结果不为全零
+                bool hasNonZero = false;
+                for (size_t i = 0; i < dstDataSize; i++) {
+                    if (dstData[i] != 0) {
+                        hasNonZero = true;
+                        break;
+                    }
+                }
+                EXPECT_TRUE(hasNonZero) << modeName << " border mode should produce non-zero results";
+                
+                std::cout << modeName << " border mode: 支持 ✓" << std::endl;
+            }
+        } else {
+            EXPECT_NE(status, NPP_SUCCESS) << modeName << " border mode should not be supported in NVIDIA NPP";
+            std::cout << modeName << " border mode: 不支持 ✗ (错误码: " << status << ")" << std::endl;
+        }
+    }
 };
 
 // 测试8位无符号单通道盒式滤波
@@ -411,94 +489,24 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_DifferentKernelSizes) {
     // 资源将由ResourceGuard自动清理
 }
 
-// 测试不同边界处理模式 - NVIDIA NPP限制：仅支持REPLICATE模式
-TEST_F(NPPIFilterBoxBorderTest, DISABLED_FilterBoxBorder_DifferentBorderTypes) {
-    size_t srcDataSize = srcWidth * srcHeight;
-    size_t dstDataSize = dstWidth * dstHeight;
-    std::vector<Npp8u> srcData(srcDataSize), dstDataReplicate(dstDataSize), dstDataConstant(dstDataSize);
-    
-    // 创建特殊的测试图像：中心高值，边缘低值
-    for (int y = 0; y < srcHeight; y++) {
-        for (int x = 0; x < srcWidth; x++) {
-            if (x == 0 || y == 0 || x == srcWidth-1 || y == srcHeight-1) {
-                srcData[y * srcWidth + x] = 0;  // 边界为0
-            } else {
-                srcData[y * srcWidth + x] = 255; // 内部为255
-            }
-        }
-    }
-    
-    // 使用NPP内存分配获得正确对齐的步长
-    int nSrcStep, nDstStep;
-    Npp8u* d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &nSrcStep);
-    Npp8u* d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &nDstStep);
-    
-    // 使用RAII模式确保内存清理
-    struct ResourceGuard {
-        Npp8u* src, *dst;
-        ResourceGuard(Npp8u* s, Npp8u* d) : src(s), dst(d) {}
-        ~ResourceGuard() {
-            if (src) nppiFree(src);
-            if (dst) nppiFree(dst);
-        }
-    } guard(d_src, d_dst);
-    
-    ASSERT_NE(d_src, nullptr);
-    ASSERT_NE(d_dst, nullptr);
-    
-    // 按行复制数据到GPU
-    for (int y = 0; y < srcHeight; y++) {
-        cudaMemcpy((char*)d_src + y * nSrcStep,
-                   srcData.data() + y * srcWidth,
-                   srcWidth * sizeof(Npp8u),
-                   cudaMemcpyHostToDevice);
-    }
-    
-    // 测试REPLICATE边界模式
-    NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
-                                                  d_dst, nDstStep, oDstSizeROI,
-                                                  oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
-    EXPECT_EQ(status, NPP_SUCCESS);
-    
-    // 按行复制结果回主机
-    for (int y = 0; y < dstHeight; y++) {
-        cudaMemcpy(dstDataReplicate.data() + y * dstWidth,
-                   (char*)d_dst + y * nDstStep,
-                   dstWidth * sizeof(Npp8u),
-                   cudaMemcpyDeviceToHost);
-    }
-    
-    // 测试MIRROR边界模式
-    status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset,
-                                        d_dst, nDstStep, oDstSizeROI,
-                                        oMaskSize, oAnchor, NPP_BORDER_MIRROR);
-    EXPECT_EQ(status, NPP_SUCCESS);
-    
-    // 按行复制结果回主机
-    for (int y = 0; y < dstHeight; y++) {
-        cudaMemcpy(dstDataConstant.data() + y * dstWidth,
-                   (char*)d_dst + y * nDstStep,
-                   dstWidth * sizeof(Npp8u),
-                   cudaMemcpyDeviceToHost);
-    }
-    
-    // 两种边界模式的结果应该不同
-    bool isDifferent = false;
-    int diffCount = 0;
-    for (size_t i = 0; i < dstDataSize; i++) {
-        if (dstDataReplicate[i] != dstDataConstant[i]) {
-            isDifferent = true;
-            diffCount++;
-            if (diffCount <= 5) { // 输出前5个差异
-                std::cout << "差异[" << i << "]: REPLICATE=" << (int)dstDataReplicate[i] 
-                         << " CONSTANT=" << (int)dstDataConstant[i] << std::endl;
-            }
-        }
-    }
-    std::cout << "总差异数量: " << diffCount << "/" << dstDataSize << std::endl;
-    EXPECT_TRUE(isDifferent) << "Different border types should produce different results";
-    
-    // 资源将由ResourceGuard自动清理
+// 测试REPLICATE边界模式（所有版本都支持）
+TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_ReplicateBorder) {
+    testBorderMode(NPP_BORDER_REPLICATE, "REPLICATE", true);
+}
+
+// 测试CONSTANT边界模式
+TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_ConstantBorder) {
+    testBorderMode(NPP_BORDER_CONSTANT, "CONSTANT", false);
+}
+
+// 测试WRAP边界模式
+TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_WrapBorder) {
+    testBorderMode(NPP_BORDER_WRAP, "WRAP", false);
+}
+
+// 测试MIRROR边界模式
+TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_MirrorBorder) {
+    testBorderMode(NPP_BORDER_MIRROR, "MIRROR", false);
 }
 
 // 测试带上下文的版本
