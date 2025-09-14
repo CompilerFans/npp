@@ -58,10 +58,24 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
                    cudaMemcpyHostToDevice);
     }
     
-    // 调用NPP函数
+    // 分配设备内存用于LUT表
+    Npp32s* d_pValues;
+    Npp32s* d_pLevels;
+    cudaMalloc(&d_pValues, nLevels * sizeof(Npp32s));
+    cudaMalloc(&d_pLevels, nLevels * sizeof(Npp32s));
+    
+    // 复制LUT数据到设备
+    cudaMemcpy(d_pValues, pValues.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_pLevels, pLevels.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice);
+    
+    // 调用NPP函数（使用设备内存指针）
     NppStatus status = nppiLUT_Linear_8u_C1R(d_src, srcStep, d_dst, dstStep, roi,
-                                             pValues.data(), pLevels.data(), nLevels);
+                                             d_pValues, d_pLevels, nLevels);
     std::cout << "NPP status: " << status << std::endl;
+    
+    // 清理LUT设备内存
+    cudaFree(d_pValues);
+    cudaFree(d_pLevels);
     EXPECT_EQ(status, NPP_SUCCESS);
     
     // 按行拷贝结果回主机
