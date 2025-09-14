@@ -61,7 +61,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
     NppStatus status = nppiCFAToRGB_8u_C1C3R_Ctx(
         src.get(), src.step(), oSrcSize, oSrcROI,
         dst.get(), dst.step(),
-        NPPI_BAYER_BGGR, NPPI_INTER_LINEAR, nppStreamCtx);
+        NPPI_BAYER_BGGR, NPPI_INTER_UNDEFINED, nppStreamCtx);
     
     ASSERT_EQ(status, NPP_SUCCESS);
     
@@ -126,7 +126,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_16u_C1C3R_Ctx_RGGB) {
     NppStatus status = nppiCFAToRGB_16u_C1C3R_Ctx(
         src.get(), src.step(), oSrcSize, oSrcROI,
         dst.get(), dst.step(),
-        NPPI_BAYER_RGGB, NPPI_INTER_LINEAR, nppStreamCtx);
+        NPPI_BAYER_RGGB, NPPI_INTER_UNDEFINED, nppStreamCtx);
     
     ASSERT_EQ(status, NPP_SUCCESS);
     
@@ -185,7 +185,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_AllPatterns) {
         NppStatus status = nppiCFAToRGB_8u_C1C3R_Ctx(
             src.get(), src.step(), oSrcSize, oSrcROI,
             dst.get(), dst.step(),
-            pattern, NPPI_INTER_LINEAR, nppStreamCtx);
+            pattern, NPPI_INTER_UNDEFINED, nppStreamCtx);
         
         ASSERT_EQ(status, NPP_SUCCESS);
         
