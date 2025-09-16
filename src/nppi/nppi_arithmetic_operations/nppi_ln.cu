@@ -26,9 +26,9 @@ __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u* pSrc, int nSrcStep,
         if (src_val <= 0) {
             *dst_pixel = 0; // Set to 0 for non-positive inputs
         } else {
-            // Compute natural logarithm and apply NVIDIA NPP scaling: 2^(-nScaleFactor)
+            // Compute natural logarithm and apply NVIDIA NPP scaling: 2^nScaleFactor
             float ln_val = logf((float)src_val);
-            int result = (int)(ln_val / (1 << nScaleFactor) + 0.5f);
+            int result = (int)(ln_val * (1 << nScaleFactor) + 0.5f);
             
             // Saturate to 8-bit range
             *dst_pixel = (Npp8u)max(min(result, 255), 0);
@@ -57,7 +57,7 @@ __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u* pSrc, int nSrcStep,
         } else {
             // Compute natural logarithm and apply scaling
             float ln_val = logf((float)src_val);
-            int result = (int)(ln_val / (1 << nScaleFactor) + 0.5f);
+            int result = (int)(ln_val * (1 << nScaleFactor) + 0.5f);
             
             // Saturate to 16-bit unsigned range
             *dst_pixel = (Npp16u)max(min(result, 65535), 0);
@@ -86,7 +86,7 @@ __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s* pSrc, int nSrcStep,
         } else {
             // Compute natural logarithm and apply scaling
             float ln_val = logf((float)src_val);
-            int result = (int)(ln_val / (1 << nScaleFactor) + 0.5f);
+            int result = (int)(ln_val * (1 << nScaleFactor) + 0.5f);
             
             // Saturate to 16-bit signed range
             *dst_pixel = (Npp16s)max(min(result, 32767), -32768);
@@ -104,17 +104,18 @@ __global__ void nppiLn_32f_C1R_kernel(const Npp32f* pSrc, int nSrcStep,
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < width && y < height) {
-        const Npp32f* src_pixel = (const Npp32f*)((const char*)pSrc + y * nSrcStep) + x;
-        Npp32f* dst_pixel = (Npp32f*)((char*)pDst + y * nDstStep) + x;
+        // Correct pointer arithmetic for step sizes
+        const Npp32f* src_row = (const Npp32f*)((const char*)pSrc + y * nSrcStep);
+        Npp32f* dst_row = (Npp32f*)((char*)pDst + y * nDstStep);
         
-        float src_val = *src_pixel;
+        float src_val = src_row[x];
         
         // Handle non-positive values - ln(x) is undefined for x <= 0
         if (src_val <= 0.0f) {
-            // Set to -infinity or a large negative value for non-positive inputs
-            *dst_pixel = -HUGE_VALF;
+            // For compatibility with NVIDIA NPP, return NaN for non-positive values
+            dst_row[x] = __fdividef(0.0f, 0.0f); // Generate NaN
         } else {
-            *dst_pixel = logf(src_val);
+            dst_row[x] = logf(src_val);
         }
     }
 }

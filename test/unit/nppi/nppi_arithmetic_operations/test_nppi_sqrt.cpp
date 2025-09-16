@@ -82,7 +82,7 @@ TEST_F(SqrtFunctionalTest, Sqrt_8u_C1RSfs_BasicOperation) {
 }
 
 // Test 8-bit unsigned square root with scaling factor
-TEST_F(SqrtFunctionalTest, DISABLED_Sqrt_8u_C1RSfs_WithScaling) {
+TEST_F(SqrtFunctionalTest, Sqrt_8u_C1RSfs_WithScaling) {
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
@@ -253,7 +253,7 @@ TEST_F(SqrtFunctionalTest, Sqrt_16s_C1RSfs_BasicOperation) {
 }
 
 // Test special values for 32-bit float
-TEST_F(SqrtFunctionalTest, DISABLED_Sqrt_32f_C1R_SpecialValues) {
+TEST_F(SqrtFunctionalTest, Sqrt_32f_C1R_SpecialValues) {
     const int testSize = 6;
     NppiSize testRoi = {testSize, 1};
     
