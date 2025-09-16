@@ -1,5 +1,3 @@
-#ifndef USE_NVIDIA_NPP
-
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <cstring>
@@ -110,5 +108,3 @@ NppStatus nppiCFAToRGB_16u_C1C3R(const Npp16u* pSrc, int nSrcStep, NppiSize oSrc
                                      pDst, nDstStep, eGrid, eInterpolation,
                                      nppStreamCtx);
 }
-
-#endif // USE_NVIDIA_NPP
