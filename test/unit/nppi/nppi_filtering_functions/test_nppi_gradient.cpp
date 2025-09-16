@@ -85,8 +85,7 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_8u16s_C1R_Basic) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPIGradientTest, DISABLED_GradientVectorPrewittBorder_ErrorHandling) {
+TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_ErrorHandling) {
     // 测试空指针
     NppStatus status = nppiGradientVectorPrewittBorder_8u16s_C1R(
         nullptr, 32, oSrcSizeROI, oSrcOffset,
