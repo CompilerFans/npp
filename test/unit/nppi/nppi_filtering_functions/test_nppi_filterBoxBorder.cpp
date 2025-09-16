@@ -496,17 +496,35 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_ReplicateBorder) {
 
 // 测试CONSTANT边界模式
 TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_ConstantBorder) {
+#ifdef USE_NVIDIA_NPP_TESTS
+    // NVIDIA NPP不支持CONSTANT边界模式
+    testBorderMode(NPP_BORDER_CONSTANT, "CONSTANT", false);
+#else
+    // OpenNPP支持CONSTANT边界模式
     testBorderMode(NPP_BORDER_CONSTANT, "CONSTANT", true);
+#endif
 }
 
 // 测试WRAP边界模式
 TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_WrapBorder) {
+#ifdef USE_NVIDIA_NPP_TESTS
+    // NVIDIA NPP不支持WRAP边界模式
+    testBorderMode(NPP_BORDER_WRAP, "WRAP", false);
+#else
+    // OpenNPP支持WRAP边界模式
     testBorderMode(NPP_BORDER_WRAP, "WRAP", true);
+#endif
 }
 
 // 测试MIRROR边界模式
 TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_MirrorBorder) {
+#ifdef USE_NVIDIA_NPP_TESTS
+    // NVIDIA NPP不支持MIRROR边界模式
+    testBorderMode(NPP_BORDER_MIRROR, "MIRROR", false);
+#else
+    // OpenNPP支持MIRROR边界模式
     testBorderMode(NPP_BORDER_MIRROR, "MIRROR", true);
+#endif
 }
 
 // 测试带上下文的版本
