@@ -26,9 +26,9 @@ __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u* pSrc, int nSrcStep,
         if (src_val <= 0) {
             *dst_pixel = 0; // Set to 0 for non-positive inputs
         } else {
-            // Compute natural logarithm and apply scaling
+            // Compute natural logarithm and apply NVIDIA NPP scaling: 2^(-nScaleFactor)
             float ln_val = logf((float)src_val);
-            int result = (int)(ln_val * (1 << nScaleFactor) + 0.5f);
+            int result = (int)(ln_val / (1 << nScaleFactor) + 0.5f);
             
             // Saturate to 8-bit range
             *dst_pixel = (Npp8u)max(min(result, 255), 0);
@@ -57,7 +57,7 @@ __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u* pSrc, int nSrcStep,
         } else {
             // Compute natural logarithm and apply scaling
             float ln_val = logf((float)src_val);
-            int result = (int)(ln_val * (1 << nScaleFactor) + 0.5f);
+            int result = (int)(ln_val / (1 << nScaleFactor) + 0.5f);
             
             // Saturate to 16-bit unsigned range
             *dst_pixel = (Npp16u)max(min(result, 65535), 0);
@@ -86,7 +86,7 @@ __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s* pSrc, int nSrcStep,
         } else {
             // Compute natural logarithm and apply scaling
             float ln_val = logf((float)src_val);
-            int result = (int)(ln_val * (1 << nScaleFactor) + 0.5f);
+            int result = (int)(ln_val / (1 << nScaleFactor) + 0.5f);
             
             // Saturate to 16-bit signed range
             *dst_pixel = (Npp16s)max(min(result, 32767), -32768);

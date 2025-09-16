@@ -83,7 +83,7 @@ TEST_F(LnFunctionalTest, Ln_8u_C1RSfs_BasicOperation) {
 }
 
 // Test 8-bit unsigned natural logarithm with scaling factor
-TEST_F(LnFunctionalTest, DISABLED_Ln_8u_C1RSfs_WithScaling) {
+TEST_F(LnFunctionalTest, Ln_8u_C1RSfs_WithScaling) {
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
@@ -92,9 +92,9 @@ TEST_F(LnFunctionalTest, DISABLED_Ln_8u_C1RSfs_WithScaling) {
         Npp8u src_val = (Npp8u)std::min((int)std::exp(i % 5 + 1), 255);
         srcData[i] = src_val;
         
-        // Expected: natural logarithm with scaling factor 2 (multiply by 4)
+        // Expected: natural logarithm with NVIDIA NPP scaling 2^(-nScaleFactor) = 2^(-2) = 0.25
         float ln_val = std::log((float)src_val);
-        int result = (int)(ln_val * 4.0f + 0.5f);
+        int result = (int)(ln_val / 4.0f + 0.5f);
         expectedData[i] = (Npp8u)std::max(std::min(result, 255), 0);
     }
     
