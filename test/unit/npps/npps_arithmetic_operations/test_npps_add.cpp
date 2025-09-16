@@ -224,30 +224,43 @@ TEST_F(NPPSAddFunctionalTest, Add_32fc_BasicOperation) {
 // Error Handling Tests
 // ==============================================================================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
+// 测试OpenNPP的错误处理机制 - 空指针检测
+TEST_F(NPPSAddFunctionalTest, ErrorHandling_NullPointers) {
     const size_t nLength = 100;
     
-    // 测试空指针错误处理
+    // 测试所有参数都为null的情况
     EXPECT_EQ(nppsAdd_32f(nullptr, nullptr, nullptr, nLength), NPP_NULL_POINTER_ERROR);
     
-    Npp32f* d_dummy = nullptr;
-    cudaMalloc(&d_dummy, nLength * sizeof(Npp32f));
+    // 分配有效的GPU内存用于测试
+    Npp32f* d_valid = nullptr;
+    cudaError_t cudaStatus = cudaMalloc(&d_valid, nLength * sizeof(Npp32f));
+    ASSERT_EQ(cudaStatus, cudaSuccess) << "Failed to allocate GPU memory";
     
-    EXPECT_EQ(nppsAdd_32f(nullptr, d_dummy, d_dummy, nLength), NPP_NULL_POINTER_ERROR);
-    EXPECT_EQ(nppsAdd_32f(d_dummy, nullptr, d_dummy, nLength), NPP_NULL_POINTER_ERROR);
-    EXPECT_EQ(nppsAdd_32f(d_dummy, d_dummy, nullptr, nLength), NPP_NULL_POINTER_ERROR);
+    // 测试各种单个null指针情况
+    EXPECT_EQ(nppsAdd_32f(nullptr, d_valid, d_valid, nLength), NPP_NULL_POINTER_ERROR);
+    EXPECT_EQ(nppsAdd_32f(d_valid, nullptr, d_valid, nLength), NPP_NULL_POINTER_ERROR);
+    EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, nullptr, nLength), NPP_NULL_POINTER_ERROR);
     
-    cudaFree(d_dummy);
+    // 验证有效参数时函数正常工作
+    EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, d_valid, nLength), NPP_NO_ERROR);
+    
+    // 清理内存
+    cudaFree(d_valid);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
-    Npp32f* d_dummy = nullptr;
-    cudaMalloc(&d_dummy, sizeof(Npp32f));
+// 测试OpenNPP的错误处理机制 - 大小验证
+TEST_F(NPPSAddFunctionalTest, ErrorHandling_ZeroLength) {
+    // 分配有效的GPU内存
+    Npp32f* d_valid = nullptr;
+    cudaError_t cudaStatus = cudaMalloc(&d_valid, sizeof(Npp32f));
+    ASSERT_EQ(cudaStatus, cudaSuccess) << "Failed to allocate GPU memory";
     
-    // 测试零长度错误处理
-    EXPECT_EQ(nppsAdd_32f(d_dummy, d_dummy, d_dummy, 0), NPP_SIZE_ERROR);
+    // 测试零长度应该返回错误
+    EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, d_valid, 0), NPP_SIZE_ERROR);
     
-    cudaFree(d_dummy);
+    // 验证正常长度时函数工作
+    EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, d_valid, 1), NPP_NO_ERROR);
+    
+    // 清理内存
+    cudaFree(d_valid);
 }

@@ -227,26 +227,35 @@ TEST_F(NppCoreFunctionalTest, Memory_AllocationLimits) {
 
 // ==================== 错误处理测试 ====================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NppCoreFunctionalTest, DISABLED_ErrorHandling_StatusCodes) {
+// 测试NPP状态码定义是否正确
+TEST_F(NppCoreFunctionalTest, ErrorHandling_StatusCodes) {
     // 测试各种状态码的定义
-    EXPECT_EQ(static_cast<int>(NPP_NO_ERROR), 0);
-    EXPECT_LT(static_cast<int>(NPP_ERROR), 0);
-    EXPECT_LT(static_cast<int>(NPP_NULL_POINTER_ERROR), 0);
-    EXPECT_LT(static_cast<int>(NPP_SIZE_ERROR), 0);
-    EXPECT_LT(static_cast<int>(NPP_BAD_ARGUMENT_ERROR), 0);
+    EXPECT_EQ(static_cast<int>(NPP_NO_ERROR), 0) << "NPP_NO_ERROR should be 0";
+    EXPECT_LT(static_cast<int>(NPP_ERROR), 0) << "NPP_ERROR should be negative";
+    EXPECT_LT(static_cast<int>(NPP_NULL_POINTER_ERROR), 0) << "NPP_NULL_POINTER_ERROR should be negative";
+    EXPECT_LT(static_cast<int>(NPP_SIZE_ERROR), 0) << "NPP_SIZE_ERROR should be negative";
+    EXPECT_LT(static_cast<int>(NPP_BAD_ARGUMENT_ERROR), 0) << "NPP_BAD_ARGUMENT_ERROR should be negative";
+    
+    // 验证错误码不重复
+    EXPECT_NE(static_cast<int>(NPP_NULL_POINTER_ERROR), static_cast<int>(NPP_SIZE_ERROR));
+    EXPECT_NE(static_cast<int>(NPP_SIZE_ERROR), static_cast<int>(NPP_BAD_ARGUMENT_ERROR));
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(NppCoreFunctionalTest, DISABLED_ErrorHandling_NullPointerDetection) {
-    // 模拟null pointer错误
+// 测试基础的stream操作行为
+TEST_F(NppCoreFunctionalTest, ErrorHandling_StreamOperations) {
+    // 获取当前stream上下文
     NppStreamContext ctx;
-    nppGetStreamContext(&ctx);
+    NppStatus status = nppGetStreamContext(&ctx);
+    EXPECT_EQ(status, NPP_NO_ERROR) << "nppGetStreamContext should succeed";
     
-    // 大部分NPP函数应该检测null pointer并返回相应错误
-    // 这里我们测试stream设置的边界情况
-    NppStatus status = nppSetStream(nullptr);  // 这应该是允许的（设置为默认stream）
-    EXPECT_EQ(status, NPP_SUCCESS);
+    // 设置默认stream应该是允许的
+    status = nppSetStream(nullptr);  // nullptr表示使用默认stream
+    EXPECT_EQ(status, NPP_NO_ERROR) << "nppSetStream with nullptr should succeed";
+    
+    // 验证我们可以重新获取上下文
+    NppStreamContext newCtx;
+    status = nppGetStreamContext(&newCtx);
+    EXPECT_EQ(status, NPP_NO_ERROR) << "nppGetStreamContext should work after nppSetStream";
 }
 
 // ==================== 计算能力测试 ====================
