@@ -134,8 +134,8 @@ TEST_F(ExpFunctionalTest, Exp_32f_C1R_BasicOperation) {
 }
 
 // Test 16-bit signed exponential with scaling
-// NOTE: 16位指数测试已被禁用 - NVIDIA NPP与数学期望存在巨大差异 (got 7, expected 1)
-TEST_F(ExpFunctionalTest, DISABLED_Exp_16s_C1RSfs_BasicOperation) {
+// 修复：NVIDIA NPP直接计算exp(输入值)，不进行输入缩放
+TEST_F(ExpFunctionalTest, Exp_16s_C1RSfs_BasicOperation) {
     std::vector<Npp16s> srcData(width * height);
     std::vector<Npp16s> expectedData(width * height);
     
@@ -144,10 +144,9 @@ TEST_F(ExpFunctionalTest, DISABLED_Exp_16s_C1RSfs_BasicOperation) {
         Npp16s src_val = (Npp16s)((i % 21) - 10); // Values from -10 to 10
         srcData[i] = src_val;
         
-        // Expected: exponential with scaling
-        // Scale input appropriately for 16-bit signed
-        float scaled_input = (float)src_val / 32768.0f * 5.0f;
-        float exp_val = std::exp(scaled_input);
+        // Expected: NVIDIA NPP computes exp(src_val) directly
+        // This matches observed behavior: input 2 -> output 7 (e^2 ≈ 7.39)
+        float exp_val = std::exp((float)src_val);
         int result = (int)(exp_val + 0.5f);
         expectedData[i] = (Npp16s)std::max(std::min(result, 32767), -32768);
     }

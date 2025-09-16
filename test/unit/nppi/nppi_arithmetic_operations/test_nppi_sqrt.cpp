@@ -192,7 +192,7 @@ TEST_F(SqrtFunctionalTest, Sqrt_32f_C1R_BasicOperation) {
 }
 
 // Test 16-bit signed square root with scaling
-TEST_F(SqrtFunctionalTest, DISABLED_Sqrt_16s_C1RSfs_BasicOperation) {
+TEST_F(SqrtFunctionalTest, Sqrt_16s_C1RSfs_BasicOperation) {
     std::vector<Npp16s> srcData(width * height);
     std::vector<Npp16s> expectedData(width * height);
     

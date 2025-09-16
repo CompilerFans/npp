@@ -96,11 +96,9 @@ __global__ void nppiExp_16s_C1RSfs_kernel(const Npp16s* pSrc, int nSrcStep,
         
         int src_val = *src_pixel;
         
-        // Scale input to reasonable range for exp (can be negative)
-        float scaled_input = (float)src_val / 32768.0f * 5.0f; // Scale to [-5, 5] range
-        
-        // Compute exponential and apply scaling
-        float exp_val = expf(scaled_input);
+        // NVIDIA NPP computes exp(src_val) directly, no input scaling
+        // This matches the observed behavior: input 2 -> output 7 (e^2 ≈ 7.39)
+        float exp_val = expf((float)src_val);
         int result = (int)(exp_val * (1 << nScaleFactor) + 0.5f);
         
         // Saturate to 16-bit signed range
