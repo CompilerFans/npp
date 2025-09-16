@@ -278,8 +278,8 @@ TEST_F(AddFunctionalTest, Add_32f_C1IR_InPlaceOperation) {
 
 // ==================== 错误处理测试 ====================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_NullPointer) {
+// Test error handling for null pointers
+TEST_F(AddFunctionalTest, Add_ErrorHandling_NullPointer) {
     const int width = 16;
     const int height = 16;
     
@@ -298,8 +298,8 @@ TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_NullPointer) {
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null pointer";
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_InvalidROI) {
+// Test error handling for invalid ROI
+TEST_F(AddFunctionalTest, Add_ErrorHandling_InvalidROI) {
     const int width = 16;
     const int height = 16;
     

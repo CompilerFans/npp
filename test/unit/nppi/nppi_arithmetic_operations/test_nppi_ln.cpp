@@ -351,7 +351,7 @@ TEST_F(LnFunctionalTest, DISABLED_Ln_32f_C1IR_InPlace) {
 }
 
 // Test error handling
-TEST_F(LnFunctionalTest, DISABLED_Ln_ErrorHandling) {
+TEST_F(LnFunctionalTest, Ln_ErrorHandling) {
     // Test null pointer
     NppStatus status = nppiLn_32f_C1R(nullptr, 32, nullptr, 16, roi);
     EXPECT_NE(status, NPP_SUCCESS);

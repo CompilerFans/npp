@@ -298,8 +298,7 @@ TEST_F(ExpFunctionalTest, Exp_32f_C1IR_InPlace) {
 }
 
 // Test error handling
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
-TEST_F(ExpFunctionalTest, DISABLED_Exp_ErrorHandling) {
+TEST_F(ExpFunctionalTest, Exp_ErrorHandling) {
     // Test null pointer
     NppStatus status = nppiExp_32f_C1R(nullptr, 32, nullptr, 16, roi);
     EXPECT_NE(status, NPP_SUCCESS);
