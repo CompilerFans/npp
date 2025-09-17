@@ -48,8 +48,14 @@ static NppStatus validateDualSourceParameters(
         return NPP_NULL_POINTER_ERROR;
     }
     
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    // NVIDIA NPP behavior: zero-size ROI returns success (no processing needed)
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
         return NPP_SIZE_ERROR;
+    }
+    
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
     }
     
     int minStep = oSizeROI.width * elementSize;

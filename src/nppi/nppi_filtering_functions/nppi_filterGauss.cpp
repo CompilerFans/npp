@@ -28,8 +28,14 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f* pSrc, int nSrcSte
 static inline NppStatus validateFilterGaussInputs(const void* pSrc, int nSrcStep, 
                                                   void* pDst, int nDstStep, 
                                                   NppiSize oSizeROI, NppiMaskSize eMaskSize) {
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    // NVIDIA NPP behavior: zero-size ROI returns success (no processing needed)
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
         return NPP_SIZE_ERROR;
+    }
+    
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_SUCCESS;
     }
     
     if (nSrcStep <= 0 || nDstStep <= 0) {
