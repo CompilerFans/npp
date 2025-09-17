@@ -286,9 +286,9 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const N
                                       Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx)
 {
-    // Validate ROI parameters
+    // Early return for zero-size ROI to avoid invalid kernel configurations
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
-        return NPP_SIZE_ERROR;
+        return NPP_NO_ERROR;
     }
     
     // Set up CUDA grid and block dimensions

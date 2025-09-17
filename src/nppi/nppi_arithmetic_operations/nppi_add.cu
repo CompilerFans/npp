@@ -302,6 +302,11 @@ NppStatus nppiAdd_32f_C1R_Ctx_cuda(
     Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
     NppStreamContext nppStreamCtx)
 {
+    // Early return for zero-size ROI to avoid invalid kernel configurations
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+        return NPP_NO_ERROR;
+    }
+    
     dim3 blockSize(32, 8);
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
                   (oSizeROI.height + blockSize.y - 1) / blockSize.y);
