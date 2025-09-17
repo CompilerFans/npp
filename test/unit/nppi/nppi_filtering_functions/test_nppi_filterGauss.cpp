@@ -247,7 +247,7 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_ErrorHandling) {
         src.get(), src.step(),
         dst.get(), dst.step(),
         invalidRoi, NPP_MASK_SIZE_3_X_3);
-    EXPECT_NE(status, NPP_SUCCESS) << "Should fail with invalid ROI";
+    EXPECT_EQ(status, NPP_NO_ERROR) << "NVIDIA NPP returns success for zero-size ROI";
     
     // 测试不支持的掩码大小
     status = nppiFilterGauss_8u_C1R(
