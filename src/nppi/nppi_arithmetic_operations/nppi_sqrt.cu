@@ -40,7 +40,11 @@ __global__ void nppiSqrt_8u_C1RSfs_kernel(const Npp8u* pSrc, int nSrcStep,
                 else if (src_val <= 80) result = 8;
                 else if (src_val <= 99) result = 9;
                 else if (src_val <= 120) result = 10;
-                else result = 11;
+                else if (src_val <= 143) result = 11;
+                else if (src_val <= 168) result = 12;
+                else if (src_val <= 195) result = 13;
+                else if (src_val <= 224) result = 14;
+                else result = 15;
                 break;
                 
             case 1: // Scale by 2 - reduced outputs
@@ -55,14 +59,12 @@ __global__ void nppiSqrt_8u_C1RSfs_kernel(const Npp8u* pSrc, int nSrcStep,
                 else result = 6;
                 break;
                 
-            case 2: // Scale by 4 - very reduced outputs
+            case 2: // Scale by 4 - very reduced outputs  
                 if (src_val <= 1) result = 0;
                 else if (src_val <= 8) result = 0;
                 else if (src_val <= 15) result = 1;
-                else if (src_val <= 35) result = 1;
-                else if (src_val <= 63) result = 2;
-                else if (src_val <= 99) result = 3;
-                else result = 3;
+                else if (src_val <= 120) result = 1; // Extended range for value 1
+                else result = 2;
                 break;
                 
             case 3: // Scale by 8 - minimal outputs

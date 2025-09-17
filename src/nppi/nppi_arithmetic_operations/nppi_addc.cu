@@ -1,6 +1,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#include <cstdio>
 
 /**
  * CUDA kernels for NPP Image Add Constant operations
@@ -285,6 +286,11 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const N
                                       Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx)
 {
+    // Validate ROI parameters
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+        return NPP_SIZE_ERROR;
+    }
+    
     // Set up CUDA grid and block dimensions
     dim3 blockSize(16, 16);
     dim3 gridSize(
@@ -292,14 +298,34 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const N
         (oSizeROI.height + blockSize.y - 1) / blockSize.y
     );
     
-    // Launch kernel with the specified CUDA stream
-    addC_8u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+    // Ensure CUDA context is active before kernel launch
+    cudaError_t ctxErr = cudaSetDevice(nppStreamCtx.nCudaDeviceId);
+    if (ctxErr != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    // For null stream, directly use nullptr which is valid for default stream
+    cudaStream_t stream = nppStreamCtx.hStream;
+    
+    // Validate grid configuration before kernel launch
+    if (gridSize.x == 0 || gridSize.y == 0 || blockSize.x == 0 || blockSize.y == 0) {
+        return NPP_SIZE_ERROR;
+    }
+    
+    // Launch kernel - nullptr is valid for default stream in CUDA
+    addC_8u_C1RSfs_kernel<<<gridSize, blockSize, 0, stream>>>(
         pSrc1, nSrc1Step, nConstant, pDst, nDstStep, 
         oSizeROI.width, oSizeROI.height, nScaleFactor
     );
     
     // Check for kernel launch errors
     cudaError_t cudaErr = cudaGetLastError();
+    if (cudaErr != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    // Synchronize to catch runtime errors
+    cudaErr = cudaStreamSynchronize(stream);
     if (cudaErr != cudaSuccess) {
         return NPP_CUDA_KERNEL_EXECUTION_ERROR;
     }

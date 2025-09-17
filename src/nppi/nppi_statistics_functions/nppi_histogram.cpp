@@ -84,7 +84,7 @@ NppStatus nppiEvenLevelsHost_32f(Npp32f* pLevels, int nLevels, Npp32f nLowerBoun
 
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, size_t* hpBufferSize) {
     NppStreamContext nppStreamCtx;
-    nppStreamCtx.hStream = 0;
+    nppGetStreamContext(&nppStreamCtx);
     return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
@@ -98,10 +98,8 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
         return NPP_NULL_POINTER_ERROR;
     }
     
-    // 使用流上下文参数以避免未使用警告
-    if (nppStreamCtx.nCudaDeviceId < -1) {
-        return NPP_BAD_ARGUMENT_ERROR;
-    }
+    // 流上下文验证 - 接受任何有效的设备ID
+    (void)nppStreamCtx; // 避免未使用警告
     
     if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
         return NPP_SIZE_ERROR;
@@ -149,7 +147,7 @@ NppStatus nppiHistogramEven_8u_C1R(const Npp8u* pSrc, int nSrcStep, NppiSize oSi
                                    Npp32s* pHist, int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel,
                                    Npp8u* pDeviceBuffer) {
     NppStreamContext nppStreamCtx;
-    nppStreamCtx.hStream = 0;
+    nppGetStreamContext(&nppStreamCtx);
     return nppiHistogramEven_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pHist, nLevels,
                                        nLowerLevel, nUpperLevel, pDeviceBuffer, nppStreamCtx);
 }

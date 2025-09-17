@@ -175,6 +175,11 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(const Npp8u* pSrc, int nSrcStep,
                                                  Npp8u* pDst, int nDstStep, 
                                                  NppiSize oSizeROI, NppiMaskSize eMaskSize, 
                                                  NppStreamContext nppStreamCtx) {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     int kernelSize;
     
     switch (eMaskSize) {
@@ -221,6 +226,11 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(const Npp8u* pSrc, int nSrcStep,
                                                  Npp8u* pDst, int nDstStep, 
                                                  NppiSize oSizeROI, NppiMaskSize eMaskSize, 
                                                  NppStreamContext nppStreamCtx) {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     int kernelSize;
     
     switch (eMaskSize) {
@@ -267,6 +277,11 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f* pSrc, int nSrcSte
                                                   Npp32f* pDst, int nDstStep, 
                                                   NppiSize oSizeROI, NppiMaskSize eMaskSize, 
                                                   NppStreamContext nppStreamCtx) {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     int kernelSize;
     
     switch (eMaskSize) {

@@ -35,7 +35,7 @@ static inline NppStatus validateFilterGaussInputs(const void* pSrc, int nSrcStep
     
     // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
     if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-        return NPP_SUCCESS;
+        return NPP_NO_ERROR;
     }
     
     if (nSrcStep <= 0 || nDstStep <= 0) {
