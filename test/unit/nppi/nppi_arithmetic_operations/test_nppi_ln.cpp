@@ -309,7 +309,7 @@ TEST_F(LnFunctionalTest, Ln_32f_C1R_SpecialValues) {
 }
 
 // Test in-place operation
-TEST_F(LnFunctionalTest, DISABLED_Ln_32f_C1IR_InPlace) {
+TEST_F(LnFunctionalTest, Ln_32f_C1IR_InPlace) {
     std::vector<Npp32f> data(width * height);
     std::vector<Npp32f> expectedData(width * height);
     

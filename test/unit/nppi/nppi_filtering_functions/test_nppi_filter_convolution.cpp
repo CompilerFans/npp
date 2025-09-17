@@ -163,8 +163,8 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_Sharpen) {
     EXPECT_GT(resultData[centerIdx], srcData[centerIdx]) << "Sharpening should enhance the center bright point";
 }
 
-// NOTE: 测试已被禁用 - 该测试导致CUDA上下文损坏，影响后续所有测试
-TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C3R_Basic) {
+// NOTE: 重新启用测试 - 检查CUDA上下文损坏问题是否已解决
+TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C3R_Basic) {
     const int width = 8, height = 8;
     
     // 创建彩色测试图像
