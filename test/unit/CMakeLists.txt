@@ -1,13 +1,27 @@
 # NPP单元测试CMake配置
+# 基于API头文件结构组织的测试架构
 
-# 单元测试源文件
-set(UNIT_TEST_SOURCES
-    nppcore/test_nppcore.cpp
-    nppi/arithmetic/test_add.cpp
-    nppi/arithmetic/test_constants.cpp
-    nppi/arithmetic/test_dual_source.cpp
-    nppi/data_exchange/test_transpose.cpp
+# 递归查找所有测试文件
+file(GLOB_RECURSE UNIT_TEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/*/test_*.cpp
 )
+
+# 显示找到的测试文件 (按模块分组)
+message(STATUS "Found unit test files by module:")
+
+# 按模块分类显示
+foreach(test_file ${UNIT_TEST_SOURCES})
+    file(RELATIVE_PATH rel_path ${CMAKE_CURRENT_SOURCE_DIR} ${test_file})
+    get_filename_component(module_dir ${rel_path} DIRECTORY)
+    message(STATUS "  [${module_dir}] ${rel_path}")
+endforeach()
 
 # 使用模块化函数创建单元测试
 npp_create_test_suite("unit" "${UNIT_TEST_SOURCES}" npp)
+
+# 为单元测试添加特定的包含路径
+target_include_directories(unit_tests 
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../framework  # 测试框架
+    ${CMAKE_CURRENT_SOURCE_DIR}               # 单元测试根目录
+)

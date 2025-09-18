@@ -1,5 +1,7 @@
 # NPP项目公共配置
 
+include(GNUInstallDirs)
+
 # 设置通用编译标准
 function(npp_set_common_standards target)
     set_target_properties(${target} PROPERTIES
@@ -17,13 +19,34 @@ function(npp_set_common_compile_options target)
         $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wextra>
         $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --expt-relaxed-constexpr>
     )
+    
+    # 添加警告作为错误选项
+    if(NPP_WARNINGS_AS_ERRORS)
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            target_compile_options(${target} PRIVATE
+                $<$<COMPILE_LANGUAGE:CXX>:-Werror>
+            )
+        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+            target_compile_options(${target} PRIVATE
+                $<$<COMPILE_LANGUAGE:CXX>:/WX>
+            )
+        endif()
+        
+        # CUDA警告作为错误
+        if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
+            target_compile_options(${target} PRIVATE
+                $<$<COMPILE_LANGUAGE:CUDA>:-Werror all-warnings>
+            )
+        endif()
+    endif()
 endfunction()
 
 # 添加NPP通用包含目录
 function(npp_add_common_includes target)
     target_include_directories(${target} PUBLIC 
-        ${CMAKE_SOURCE_DIR}/API
-        ${CMAKE_SOURCE_DIR}/src/include
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/API>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
     target_include_directories(${target} PRIVATE
         ${CUDAToolkit_INCLUDE_DIRS}

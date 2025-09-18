@@ -278,6 +278,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1IR_InPlaceOperation) {
 
 // ==================== 错误处理测试 ====================
 
+// Test error handling for null pointers
 TEST_F(AddFunctionalTest, Add_ErrorHandling_NullPointer) {
     const int width = 16;
     const int height = 16;
@@ -297,6 +298,7 @@ TEST_F(AddFunctionalTest, Add_ErrorHandling_NullPointer) {
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null pointer";
 }
 
+// Test error handling for invalid ROI
 TEST_F(AddFunctionalTest, Add_ErrorHandling_InvalidROI) {
     const int width = 16;
     const int height = 16;
@@ -313,7 +315,7 @@ TEST_F(AddFunctionalTest, Add_ErrorHandling_InvalidROI) {
         dst.get(), dst.step(),
         roi);
     
-    EXPECT_EQ(status, NPP_SIZE_ERROR) << "Should detect invalid ROI size";
+    EXPECT_EQ(status, NPP_NO_ERROR) << "NVIDIA NPP returns success for zero-size ROI";
 }
 
 // ==================== 边界情况测试 ====================

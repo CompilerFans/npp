@@ -24,11 +24,18 @@ function(npp_find_all_sources cpp_var cuda_var search_dir)
     set(${cuda_var} ${${cuda_var}} PARENT_SCOPE)
 endfunction()
 
-# 查找测试源文件
+# 查找测试源文件 - 递归后缀匹配
 function(npp_find_test_sources output_var test_dir)
-    file(GLOB ${output_var}
-        "${test_dir}/*.cpp"
-        "${test_dir}/*/*.cpp"
+    file(GLOB_RECURSE ${output_var}
+        "${test_dir}/**.cpp"
     )
-    set(${output_var} ${${output_var}} PARENT_SCOPE)
+    # 只包含以test_开头的文件
+    set(filtered_sources)
+    foreach(source_file ${${output_var}})
+        get_filename_component(filename ${source_file} NAME)
+        if(filename MATCHES "^test_.*\\.cpp$")
+            list(APPEND filtered_sources ${source_file})
+        endif()
+    endforeach()
+    set(${output_var} ${filtered_sources} PARENT_SCOPE)
 endfunction()

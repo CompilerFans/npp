@@ -125,6 +125,11 @@ template<typename T, int nChannels>
 static NppStatus launchAbsKernel(const T* pSrc, int nSrcStep, T* pDst, int nDstStep, 
                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx)
 {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     dim3 blockSize(BLOCK_SIZE_X, BLOCK_SIZE_Y);
     dim3 gridSize(
         (oSizeROI.width + blockSize.x - 1) / blockSize.x,
@@ -147,6 +152,11 @@ template<typename T, int nChannels>
 static NppStatus launchAbsInplaceKernel(T* pSrcDst, int nSrcDstStep, 
                                        NppiSize oSizeROI, NppStreamContext nppStreamCtx)
 {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     dim3 blockSize(BLOCK_SIZE_X, BLOCK_SIZE_Y);
     dim3 gridSize(
         (oSizeROI.width + blockSize.x - 1) / blockSize.x,
@@ -169,6 +179,11 @@ template<typename T>
 static NppStatus launchAbsAC4Kernel(const T* pSrc, int nSrcStep, T* pDst, int nDstStep, 
                                    NppiSize oSizeROI, NppStreamContext nppStreamCtx)
 {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     dim3 blockSize(BLOCK_SIZE_X, BLOCK_SIZE_Y);
     dim3 gridSize(
         (oSizeROI.width + blockSize.x - 1) / blockSize.x,
@@ -191,6 +206,11 @@ template<typename T>
 static NppStatus launchAbsAC4InplaceKernel(T* pSrcDst, int nSrcDstStep, 
                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx)
 {
+    // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    
     dim3 blockSize(BLOCK_SIZE_X, BLOCK_SIZE_Y);
     dim3 gridSize(
         (oSizeROI.width + blockSize.x - 1) / blockSize.x,

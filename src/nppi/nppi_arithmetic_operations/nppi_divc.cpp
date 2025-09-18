@@ -24,6 +24,10 @@ NppStatus nppiDivC_16s_C1RSfs_Ctx_cuda(const Npp16s* pSrc1, int nSrc1Step, const
 NppStatus nppiDivC_32f_C1R_Ctx_cuda(const Npp32f* pSrc1, int nSrc1Step, const Npp32f nConstant,
                                     Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx);
+
+NppStatus nppiDivC_8u_C3RSfs_Ctx_cuda(const Npp8u* pSrc1, int nSrc1Step, const Npp8u aConstants[3],
+                                      Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx);
 }
 
 /**
@@ -298,4 +302,33 @@ NppStatus nppiDivC_32f_C1IR(const Npp32f nConstant, Npp32f * pSrcDst, int nSrcDs
     
     return nppiDivC_32f_C1IR_Ctx(nConstant, pSrcDst, nSrcDstStep, 
                                  oSizeROI, nppStreamCtx);
+}
+
+/**
+ * 8-bit unsigned, 3 channel image divide constant with scale
+ */
+NppStatus nppiDivC_8u_C3RSfs_Ctx(const Npp8u* pSrc1, int nSrc1Step, const Npp8u aConstants[3],
+                                 Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                 NppStreamContext nppStreamCtx) {
+    // Parameter validation
+    if (!pSrc1 || !pDst || !aConstants) return NPP_NULL_POINTER_ERROR;
+    if (nSrc1Step <= 0 || nDstStep <= 0) return NPP_STEP_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_SIZE_ERROR;
+    if (aConstants[0] == 0 || aConstants[1] == 0 || aConstants[2] == 0) return NPP_DIVISOR_ERROR;
+    
+    return nppiDivC_8u_C3RSfs_Ctx_cuda(pSrc1, nSrc1Step, aConstants, pDst, nDstStep, 
+                                       oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+/**
+ * 8-bit unsigned, 3 channel image divide constant with scale (no stream context)
+ */
+NppStatus nppiDivC_8u_C3RSfs(const Npp8u* pSrc1, int nSrc1Step, const Npp8u aConstants[3],
+                             Npp8u* pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+    // Get default stream context
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    
+    return nppiDivC_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, aConstants, pDst, nDstStep, 
+                                  oSizeROI, nScaleFactor, nppStreamCtx);
 }

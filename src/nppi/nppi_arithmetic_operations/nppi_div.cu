@@ -26,20 +26,20 @@ __global__ void nppiDiv_8u_C1RSfs_kernel(
         const Npp8u* src2Row = (const Npp8u*)((const char*)pSrc2 + y * nSrc2Step);
         Npp8u* dstRow = (Npp8u*)((char*)pDst + y * nDstStep);
         
-        // Division with scaling (pSrc1 / pSrc2)
-        int src1Val = (int)src1Row[x];
-        int src2Val = (int)src2Row[x];
+        // Division with scaling (pSrc2 / pSrc1) - following NPP convention
+        int src1Val = (int)src1Row[x];  // divisor
+        int src2Val = (int)src2Row[x];  // dividend
         int result;
         
-        if (src2Val == 0) {
+        if (src1Val == 0) {
             // Division by zero - saturate to maximum value
             result = 255;
         } else {
             // Scale up numerator before division to maintain precision
             if (nScaleFactor > 0) {
-                src1Val <<= nScaleFactor;
+                src2Val <<= nScaleFactor;
             }
-            result = src1Val / src2Val;
+            result = src2Val / src1Val;
         }
         
         // Saturate to 8-bit range (clamp to 0-255)
@@ -70,15 +70,15 @@ __global__ void nppiDiv_8u_C3RSfs_kernel(
             int src2Val = (int)src2Row[idx + c];
             int result;
             
-            if (src2Val == 0) {
+            if (src1Val == 0) {
                 // Division by zero - saturate to maximum value
                 result = 255;
             } else {
                 // Scale up numerator before division to maintain precision
                 if (nScaleFactor > 0) {
-                    src1Val <<= nScaleFactor;
+                    src2Val <<= nScaleFactor;
                 }
-                result = src1Val / src2Val;
+                result = src2Val / src1Val;
             }
             
             // Saturate to 8-bit range
@@ -107,15 +107,15 @@ __global__ void nppiDiv_16u_C1RSfs_kernel(
         long long src2Val = (long long)src2Row[x];
         long long result;
         
-        if (src2Val == 0) {
+        if (src1Val == 0) {
             // Division by zero - saturate to maximum value
             result = 65535;
         } else {
             // Scale up numerator before division to maintain precision
             if (nScaleFactor > 0) {
-                src1Val <<= nScaleFactor;
+                src2Val <<= nScaleFactor;
             }
-            result = src1Val / src2Val;
+            result = src2Val / src1Val;
         }
         
         // Saturate to 16-bit range
@@ -143,15 +143,15 @@ __global__ void nppiDiv_16s_C1RSfs_kernel(
         long long src2Val = (long long)src2Row[x];
         long long result;
         
-        if (src2Val == 0) {
-            // Division by zero - saturate based on sign of numerator
-            result = (src1Val >= 0) ? 32767 : -32768;
+        if (src1Val == 0) {
+            // Division by zero - saturate based on sign of numerator  
+            result = (src2Val >= 0) ? 32767 : -32768;
         } else {
             // Scale up numerator before division to maintain precision
             if (nScaleFactor > 0) {
-                src1Val <<= nScaleFactor;
+                src2Val <<= nScaleFactor;
             }
-            result = src1Val / src2Val;
+            result = src2Val / src1Val;
         }
         
         // Saturate to 16-bit signed range
@@ -174,8 +174,8 @@ __global__ void nppiDiv_32f_C1R_kernel(
         const Npp32f* src2Row = (const Npp32f*)((const char*)pSrc2 + y * nSrc2Step);
         Npp32f* dstRow = (Npp32f*)((char*)pDst + y * nDstStep);
         
-        // Float division - handles IEEE 754 division by zero automatically
-        dstRow[x] = src1Row[x] / src2Row[x];
+        // Float division (pSrc2 / pSrc1) - handles IEEE 754 division by zero automatically
+        dstRow[x] = src2Row[x] / src1Row[x];
     }
 }
 
@@ -196,10 +196,10 @@ __global__ void nppiDiv_32f_C3R_kernel(
         
         int idx = x * 3;
         
-        // Process 3 channels - IEEE 754 handles division by zero
-        dstRow[idx] = src1Row[idx] / src2Row[idx];       // R
-        dstRow[idx + 1] = src1Row[idx + 1] / src2Row[idx + 1]; // G
-        dstRow[idx + 2] = src1Row[idx + 2] / src2Row[idx + 2]; // B
+        // Process 3 channels (pSrc2 / pSrc1) - IEEE 754 handles division by zero
+        dstRow[idx] = src2Row[idx] / src1Row[idx];       // R
+        dstRow[idx + 1] = src2Row[idx + 1] / src1Row[idx + 1]; // G
+        dstRow[idx + 2] = src2Row[idx + 2] / src1Row[idx + 2]; // B
     }
 }
 

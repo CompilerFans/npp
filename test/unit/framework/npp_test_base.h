@@ -38,8 +38,6 @@ protected:
         // 获取设备属性
         err = cudaGetDeviceProperties(&deviceProp_, 0);
         ASSERT_EQ(err, cudaSuccess) << "Failed to get device properties";
-        
-        std::cout << "Using GPU: " << deviceProp_.name << std::endl;
     }
     
     void TearDown() override {
@@ -180,6 +178,8 @@ public:
         
         if constexpr (std::is_same_v<T, Npp8u>) {
             ptr_ = nppiMalloc_8u_C1(width, height, &step_);
+        } else if constexpr (std::is_same_v<T, Npp8s>) {
+            ptr_ = reinterpret_cast<T*>(nppiMalloc_8u_C1(width, height, &step_));  // 使用8u的内存分配
         } else if constexpr (std::is_same_v<T, Npp16u>) {
             ptr_ = nppiMalloc_16u_C1(width, height, &step_);
         } else if constexpr (std::is_same_v<T, Npp16s>) {
