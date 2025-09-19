@@ -24,7 +24,7 @@ protected:
 TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_Identity) {
     const int width = 32, height = 32;
     
-    // 准备测试数据 - RGB渐变
+    // prepare test data - RGB渐变
     std::vector<Npp8u> srcData(width * height * 3);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -77,7 +77,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_Identity) {
 TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_SwapChannels) {
     const int width = 32, height = 32;
     
-    // 准备测试数据 - 纯色通道
+    // prepare test data - 纯色通道
     std::vector<Npp8u> srcData(width * height * 3);
     for (int i = 0; i < width * height; i++) {
         srcData[i * 3 + 0] = 255; // 纯红
@@ -129,7 +129,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_SwapChannels) {
 TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C1R_Ctx_Brightness) {
     const int width = 64, height = 64;
     
-    // 准备测试数据 - 灰度渐变
+    // prepare test data - 灰度渐变
     std::vector<Npp8u> srcData(width * height);
     for (int i = 0; i < width * height; i++) {
         srcData[i] = static_cast<Npp8u>(i % 256);

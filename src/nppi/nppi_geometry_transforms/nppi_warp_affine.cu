@@ -5,11 +5,11 @@
 
 /**
  * CUDA kernels for NPP Affine Warp Operations
- * 实现仿射变换的GPU加速计算
+ * GPU-accelerated affine transformation implementation
  */
 
 /**
- * 最近邻插值
+ * Nearest neighbor interpolation
  */
 template<typename T>
 __device__ T nearestInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
@@ -17,7 +17,7 @@ __device__ T nearestInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize,
     int iy = (int)(fy + 0.5f);
     
     if (ix < 0 || ix >= srcSize.width || iy < 0 || iy >= srcSize.height) {
-        return T(0); // 边界外返回0
+        return T(0); // Return 0 for out-of-bounds
     }
     
     const T* src_pixel = (const T*)((const char*)pSrc + iy * nSrcStep) + ix;
@@ -25,7 +25,7 @@ __device__ T nearestInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize,
 }
 
 /**
- * 双线性插值
+ * Bilinear interpolation
  */
 template<typename T>
 __device__ T bilinearInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
@@ -37,13 +37,13 @@ __device__ T bilinearInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize
     float dx = fx - x0;
     float dy = fy - y0;
     
-    // 边界检查 - 如果任何一个点超出边界，使用最近邻插值
+    // Boundary check - use nearest neighbor if any point is out of bounds
     if (x0 < 0 || x1 >= srcSize.width || y0 < 0 || y1 >= srcSize.height) {
-        // 边界外使用最近邻插值
+        // Use nearest neighbor for out-of-bounds
         int ix = (int)(fx + 0.5f);
         int iy = (int)(fy + 0.5f);
         
-        // 限制在边界内
+        // Clamp to boundaries
         ix = (ix < 0) ? 0 : ((ix >= srcSize.width) ? srcSize.width - 1 : ix);
         iy = (iy < 0) ? 0 : ((iy >= srcSize.height) ? srcSize.height - 1 : iy);
         
@@ -51,13 +51,13 @@ __device__ T bilinearInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize
         return *pixel;
     }
     
-    // 获取四个角点像素值
+    // Get four corner pixel values
     const T* p00 = (const T*)((const char*)pSrc + y0 * nSrcStep) + x0;
     const T* p01 = (const T*)((const char*)pSrc + y0 * nSrcStep) + x1;
     const T* p10 = (const T*)((const char*)pSrc + y1 * nSrcStep) + x0;
     const T* p11 = (const T*)((const char*)pSrc + y1 * nSrcStep) + x1;
     
-    // 双线性插值计算
+    // Bilinear interpolation calculation
     T v0 = *p00 * (1.0f - dx) + *p01 * dx;
     T v1 = *p10 * (1.0f - dx) + *p11 * dx;
     T result = v0 * (1.0f - dy) + v1 * dy;
@@ -66,17 +66,17 @@ __device__ T bilinearInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize
 }
 
 /**
- * 三次插值（简化的双三次插值）
+ * Cubic interpolation (simplified bicubic)
  */
 template<typename T>
 __device__ T cubicInterpolation(const T* pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
-    // 简化版本：降级为双线性插值
-    // 完整的双三次插值计算量较大，这里使用双线性近似
+    // Simplified version: fallback to bilinear
+    // Full bicubic is expensive, use bilinear approximation
     return bilinearInterpolation<T>(pSrc, nSrcStep, srcSize, fx, fy);
 }
 
 /**
- * 8位单通道仿射变换内核
+ * 8-bit single channel affine warp kernel
  */
 __global__ void nppiWarpAffine_8u_C1R_kernel(const Npp8u* pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u* pDst, int nDstStep, NppiRect oDstROI,
@@ -86,17 +86,17 @@ __global__ void nppiWarpAffine_8u_C1R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < oDstROI.width && y < oDstROI.height) {
-        // 绝对目标坐标（全图像坐标系）
+        // Absolute destination coordinates (full image coordinates)
         int dst_x = x + oDstROI.x;
         int dst_y = y + oDstROI.y;
         
-        // 应用仿射变换（逆变换）
-        // 目标坐标变换到源坐标：[x' y' 1] = [dst_x dst_y 1] * inv(M)
+        // Apply affine transform (inverse)
+        // Transform destination to source: [x' y' 1] = [dst_x dst_y 1] * inv(M)
         double src_x = c00 * dst_x + c01 * dst_y + c02;
         double src_y = c10 * dst_x + c11 * dst_y + c12;
         
         Npp8u result;
-        // 绝对源坐标，不减去ROI偏移
+        // Absolute source coordinates, no ROI offset subtraction
         float abs_fx = (float)src_x;
         float abs_fy = (float)src_y;
         
@@ -115,14 +115,14 @@ __global__ void nppiWarpAffine_8u_C1R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
                 break;
         }
         
-        // 写入目标像素（y和x已经是ROI内的相对坐标）
+        // Write to destination pixel (y and x are ROI-relative coordinates)
         Npp8u* dst_pixel = (Npp8u*)((char*)pDst + y * nDstStep) + x;
         *dst_pixel = result;
     }
 }
 
 /**
- * 8位三通道仿射变换内核
+ * 8-bit three channel affine warp kernel
  */
 __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u* pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u* pDst, int nDstStep, NppiRect oDstROI,
@@ -132,19 +132,19 @@ __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < oDstROI.width && y < oDstROI.height) {
-        // 绝对目标坐标（全图像坐标系）
+        // Absolute destination coordinates (full image coordinates)
         int dst_x = x + oDstROI.x;
         int dst_y = y + oDstROI.y;
         
-        // 应用仿射变换
+        // Apply affine transform
         double src_x = c00 * dst_x + c01 * dst_y + c02;
         double src_y = c10 * dst_x + c11 * dst_y + c12;
         
-        // 绝对源坐标，不减去ROI偏移
+        // Absolute source coordinates, no ROI offset subtraction
         float abs_fx = (float)src_x;
         float abs_fy = (float)src_y;
         
-        // 处理三个通道
+        // Process three channels
         for (int c = 0; c < 3; c++) {
             Npp8u result = 0;
             
@@ -181,7 +181,7 @@ __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
                 }
                 case NPPI_INTER_CUBIC:
                 default:
-                    // 简化为最近邻
+                    // Simplify to nearest neighbor
                     int ix = (int)(abs_fx + 0.5f);
                     int iy = (int)(abs_fy + 0.5f);
                     if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
@@ -191,7 +191,7 @@ __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
                     break;
             }
             
-            // 写入目标像素（y和x已经是ROI内的相对坐标）
+            // Write to destination pixel (y and x are ROI-relative coordinates)
             Npp8u* dst_pixel = (Npp8u*)((char*)pDst + y * nDstStep) + x * 3 + c;
             *dst_pixel = result;
         }
@@ -199,7 +199,7 @@ __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u* pSrc, NppiSize oSrcSiz
 }
 
 /**
- * 32位浮点单通道仿射变换内核
+ * 32-bit float single channel affine warp kernel
  */
 __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f* pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                Npp32f* pDst, int nDstStep, NppiRect oDstROI,
@@ -209,16 +209,16 @@ __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f* pSrc, NppiSize oSrcS
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
     if (x < oDstROI.width && y < oDstROI.height) {
-        // 绝对目标坐标（全图像坐标系）
+        // Absolute destination coordinates (full image coordinates)
         int dst_x = x + oDstROI.x;
         int dst_y = y + oDstROI.y;
         
-        // 应用仿射变换
+        // Apply affine transform
         double src_x = c00 * dst_x + c01 * dst_y + c02;
         double src_y = c10 * dst_x + c11 * dst_y + c12;
         
         Npp32f result;
-        // 绝对源坐标，不减去ROI偏移
+        // Absolute source coordinates, no ROI offset subtraction
         float abs_fx = (float)src_x;
         float abs_fy = (float)src_y;
         
@@ -237,7 +237,7 @@ __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f* pSrc, NppiSize oSrcS
                 break;
         }
         
-        // 写入目标像素（y和x已经是ROI内的相对坐标）
+        // Write to destination pixel (y and x are ROI-relative coordinates)
         Npp32f* dst_pixel = (Npp32f*)((char*)pDst + y * nDstStep) + x;
         *dst_pixel = result;
     }
@@ -246,13 +246,13 @@ __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f* pSrc, NppiSize oSrcS
 extern "C" {
 
 /**
- * 8位单通道仿射变换CUDA实现
+ * 8-bit single channel affine warp CUDA implementation
  */
 NppStatus nppiWarpAffine_8u_C1R_Ctx_cuda(const Npp8u* pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                           Npp8u* pDst, int nDstStep, NppiRect oDstROI,
                                           const double aCoeffs[2][3], int eInterpolation, 
                                           NppStreamContext nppStreamCtx) {
-    // 将二维数组转换为一维数组
+    // Convert 2D array to 1D array
     double flatCoeffs[6] = {
         aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
         aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2]
@@ -284,13 +284,13 @@ NppStatus nppiWarpAffine_8u_C1R_Ctx_cuda(const Npp8u* pSrc, NppiSize oSrcSize, i
 }
 
 /**
- * 8位三通道仿射变换CUDA实现
+ * 8-bit three channel affine warp CUDA implementation
  */
 NppStatus nppiWarpAffine_8u_C3R_Ctx_cuda(const Npp8u* pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                           Npp8u* pDst, int nDstStep, NppiRect oDstROI,
                                           const double aCoeffs[2][3], int eInterpolation, 
                                           NppStreamContext nppStreamCtx) {
-    // 将二维数组转换为一维数组
+    // Convert 2D array to 1D array
     double flatCoeffs[6] = {
         aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
         aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2]
@@ -322,13 +322,13 @@ NppStatus nppiWarpAffine_8u_C3R_Ctx_cuda(const Npp8u* pSrc, NppiSize oSrcSize, i
 }
 
 /**
- * 32位浮点单通道仿射变换CUDA实现
+ * 32-bit float single channel affine warp CUDA implementation
  */
 NppStatus nppiWarpAffine_32f_C1R_Ctx_cuda(const Npp32f* pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                            Npp32f* pDst, int nDstStep, NppiRect oDstROI,
                                            const double aCoeffs[2][3], int eInterpolation, 
                                            NppStreamContext nppStreamCtx) {
-    // 将二维数组转换为一维数组
+    // Convert 2D array to 1D array
     double flatCoeffs[6] = {
         aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
         aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2]

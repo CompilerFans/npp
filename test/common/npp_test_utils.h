@@ -5,82 +5,82 @@
 
 namespace NPPTestUtils {
 
-// 获取整数类型的容差
+// Get tolerance for integer types
 inline int GetIntegerTolerance() {
 #ifdef NPP_STRICT_TESTING
-    return 0;  // 严格模式：不允许差异
+    return 0;  // Strict mode: no difference allowed
 #else
-    return 1;  // 宽容模式：允许1个单位的差异
+    return 1;  // Tolerant mode: allow 1 unit difference
 #endif
 }
 
-// 精度控制的比较函数
+// Precision-controlled comparison function
 template<typename T>
 bool IsEqual(T actual, T expected) {
 #ifdef NPP_STRICT_TESTING
-    // 严格模式：要求完全相等
+    // Strict mode: require exact equality
     return actual == expected;
 #else
-    // 宽容模式：允许小的差异
+    // Tolerant mode: allow small differences
     if constexpr (std::is_floating_point_v<T>) {
-        // 浮点数：使用相对误差
+        // Floating point: use relative error
         T abs_actual = std::abs(actual);
         T abs_expected = std::abs(expected);
         T max_val = std::max(abs_actual, abs_expected);
         
         if (max_val < 1e-7f) {
-            // 对于非常小的数值，使用绝对误差
+            // For very small values, use absolute error
             return std::abs(actual - expected) <= 1e-7f;
         } else {
-            // 使用相对误差 0.1%
+            // Use relative error of 0.1%
             return std::abs(actual - expected) <= max_val * 0.001f;
         }
     } else {
-        // 整数类型：允许小的差异
+        // Integer types: allow small differences
         return std::abs(static_cast<int>(actual) - static_cast<int>(expected)) <= GetIntegerTolerance();
     }
 #endif
 }
 
-// 获取浮点类型的容差
+// Get tolerance for floating point types
 template<typename T>
 T GetFloatTolerance() {
 #ifdef NPP_STRICT_TESTING
-    return T(0);  // 严格模式：不允许差异
+    return T(0);  // Strict mode: no difference allowed
 #else
     if constexpr (std::is_same_v<T, float>) {
-        return 1e-5f;  // 32位浮点：1e-5
+        return 1e-5f;  // 32-bit float: 1e-5
     } else {
-        return 1e-10;  // 64位浮点：1e-10
+        return 1e-10;  // 64-bit float: 1e-10
     }
 #endif
 }
 
-// 算术函数特殊容差 - 用于处理不同算法实现的差异
+// Special tolerance for arithmetic functions - handle differences in algorithm implementations
 template<typename T>
 bool IsArithmeticEqual(T actual, T expected, const char* func_name = nullptr) {
 #ifdef NPP_STRICT_TESTING
     return actual == expected;
 #else
-    // 根据函数类型设置不同的容差
+    // Set different tolerance based on function type
     if (func_name) {
         if (strstr(func_name, "Exp") || strstr(func_name, "exp")) {
-            // 指数函数：较大容差因为算法差异
+            // Exponential functions: larger tolerance due to algorithm differences
             if constexpr (std::is_floating_point_v<T>) {
                 return std::abs(actual - expected) <= std::max(std::abs(expected) * 0.01f, T(0.01f));
             } else {
-                // 8位整数指数：允许更大差异
+                // 8-bit integer exponential: allow larger differences
                 return std::abs(static_cast<int>(actual) - static_cast<int>(expected)) <= 5;
             }
         } else if (strstr(func_name, "Ln") || strstr(func_name, "ln") || strstr(func_name, "Log")) {
-            // 对数函数：中等容差
+            // Logarithmic functions: medium tolerance
             if constexpr (std::is_floating_point_v<T>) {
                 return std::abs(actual - expected) <= std::max(std::abs(expected) * 0.005f, T(0.005f));
             } else {
                 return std::abs(static_cast<int>(actual) - static_cast<int>(expected)) <= 3;
             }
         } else if (strstr(func_name, "Sqrt") || strstr(func_name, "sqrt")) {
-            // 平方根：小容差
+            // Square root: small tolerance
             if constexpr (std::is_floating_point_v<T>) {
                 return std::abs(actual - expected) <= std::max(std::abs(expected) * 0.002f, T(0.001f));
             } else {
@@ -89,12 +89,12 @@ bool IsArithmeticEqual(T actual, T expected, const char* func_name = nullptr) {
         }
     }
     
-    // 默认使用标准容差
+    // Default to standard tolerance
     return IsEqual(actual, expected);
 #endif
 }
 
-// 获取测试模式描述
+// Get test mode description
 inline const char* GetTestModeDescription() {
 #ifdef NPP_STRICT_TESTING
     return "Strict Testing Mode (exact match required)";
@@ -103,7 +103,7 @@ inline const char* GetTestModeDescription() {
 #endif
 }
 
-// 用于测试输出的宏
+// Macros for test output
 #define NPP_EXPECT_EQUAL(actual, expected) \
     EXPECT_TRUE(NPPTestUtils::IsEqual(actual, expected)) \
         << "Values differ: actual=" << actual << ", expected=" << expected \

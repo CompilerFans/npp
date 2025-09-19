@@ -48,7 +48,7 @@ protected:
 TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_BasicSquareMatrix) {
     const int size = 4;  // 4x4矩阵
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> src_data(size * size);
     generateTestMatrix(src_data, size, size);
     
@@ -98,7 +98,7 @@ TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_BasicSquareMatrix) {
 TEST_F(TransposeFunctionalTest, Transpose_32f_C1R_BasicSquareMatrix) {
     const int size = 3;  // 3x3矩阵
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> src_data = {
         1.0f, 2.0f, 3.0f,
         4.0f, 5.0f, 6.0f,
@@ -137,7 +137,7 @@ TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_RectangularMatrix) {
     const int width = 6;
     const int height = 4;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> src_data(width * height);
     generateTestMatrix(src_data, width, height);
     

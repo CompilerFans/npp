@@ -30,7 +30,7 @@ NppStatus nppsSumGetBufferSize_32f_Ctx(size_t nLength, size_t * hpBufferSize, Np
         return NPP_SIZE_ERROR;
     }
     
-    // 使用流上下文参数以避免未使用警告
+    // Use stream context parameter to avoid unused warning
     if (nppStreamCtx.nCudaDeviceId < -1) {
         return NPP_BAD_ARGUMENT_ERROR;
     }
@@ -58,7 +58,7 @@ NppStatus nppsSumGetBufferSize_32fc_Ctx(size_t nLength, size_t * hpBufferSize, N
         return NPP_NULL_POINTER_ERROR;
     }
     
-    // 使用流上下文参数以避免未使用警告
+    // Use stream context parameter to avoid unused warning
     if (nppStreamCtx.nCudaDeviceId < -1) {
         return NPP_BAD_ARGUMENT_ERROR;
     }

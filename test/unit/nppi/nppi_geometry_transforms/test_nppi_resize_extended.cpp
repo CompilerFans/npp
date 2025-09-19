@@ -25,7 +25,7 @@ TEST_F(ResizeExtendedTest, Resize_16u_C1R_Ctx_LinearInterpolation) {
     const int srcWidth = 32, srcHeight = 32;
     const int dstWidth = 64, dstHeight = 64;
     
-    // 准备测试数据 - 渐变图案
+    // prepare test data - 渐变图案
     std::vector<Npp16u> srcData(srcWidth * srcHeight);
     for (int y = 0; y < srcHeight; y++) {
         for (int x = 0; x < srcWidth; x++) {
@@ -77,7 +77,7 @@ TEST_F(ResizeExtendedTest, Resize_32f_C1R_Ctx_CubicInterpolation) {
     const int srcWidth = 32, srcHeight = 32;
     const int dstWidth = 48, dstHeight = 48;
     
-    // 准备测试数据 - 正弦波图案
+    // prepare test data - 正弦波图案
     std::vector<Npp32f> srcData(srcWidth * srcHeight);
     for (int y = 0; y < srcHeight; y++) {
         for (int x = 0; x < srcWidth; x++) {
@@ -124,7 +124,7 @@ TEST_F(ResizeExtendedTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
     const int srcWidth = 32, srcHeight = 32;
     const int dstWidth = 64, dstHeight = 64;
     
-    // 准备测试数据 - 彩色渐变
+    // prepare test data - 彩色渐变
     std::vector<Npp32f> srcData(srcWidth * srcHeight * 3);
     for (int y = 0; y < srcHeight; y++) {
         for (int x = 0; x < srcWidth; x++) {

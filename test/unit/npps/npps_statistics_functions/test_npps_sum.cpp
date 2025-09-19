@@ -22,7 +22,7 @@ protected:
 TEST_F(NPPSSumFunctionalTest, Sum_32f_BasicOperation) {
     const size_t nLength = 1024;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> src(nLength);
     float expectedSum = 0.0f;
     for (size_t i = 0; i < nLength; i++) {

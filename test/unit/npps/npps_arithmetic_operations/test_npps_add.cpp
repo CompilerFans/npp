@@ -25,7 +25,7 @@ protected:
 TEST_F(NPPSAddFunctionalTest, Add_32f_BasicOperation) {
     const size_t nLength = 1024;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> src1(nLength), src2(nLength), expected(nLength);
     for (size_t i = 0; i < nLength; i++) {
         src1[i] = static_cast<Npp32f>(i + 1);
@@ -122,7 +122,7 @@ TEST_F(NPPSAddFunctionalTest, Add_32f_LargeSignals) {
 TEST_F(NPPSAddFunctionalTest, Add_16s_BasicOperation) {
     const size_t nLength = 512;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp16s> src1(nLength), src2(nLength), expected(nLength);
     for (size_t i = 0; i < nLength; i++) {
         src1[i] = static_cast<Npp16s>(i % 100);
@@ -173,7 +173,7 @@ TEST_F(NPPSAddFunctionalTest, Add_16s_BasicOperation) {
 TEST_F(NPPSAddFunctionalTest, Add_32fc_BasicOperation) {
     const size_t nLength = 256;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32fc> src1(nLength), src2(nLength), expected(nLength);
     for (size_t i = 0; i < nLength; i++) {
         src1[i].re = static_cast<float>(i);

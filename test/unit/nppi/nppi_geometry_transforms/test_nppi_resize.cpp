@@ -22,7 +22,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor) {
     const int srcWidth = 32, srcHeight = 32;
     const int dstWidth = 64, dstHeight = 64;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(srcWidth * srcHeight);
     
     // 生成棋盘图案

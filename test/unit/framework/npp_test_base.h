@@ -1,8 +1,8 @@
 /**
  * @file npp_test_base.h
- * @brief NPP功能测试基础框架
+ * @brief NPP functional test base framework
  * 
- * 提供纯功能单元测试的基础设施，专注于API功能验证，不依赖NVIDIA NPP库
+ * Provides infrastructure for pure functional unit tests, focused on API functionality verification, independent of NVIDIA NPP library
  */
 
 #pragma once
@@ -18,41 +18,41 @@
 namespace npp_functional_test {
 
 /**
- * @brief NPP功能测试基类
+ * @brief NPP functional test base class
  * 
- * 提供CUDA设备管理、内存管理、数据生成等通用功能
+ * Provides common functionality for CUDA device management, memory management, data generation, etc.
  */
 class NppTestBase : public ::testing::Test {
 protected:
     void SetUp() override {
-        // 初始化CUDA设备
+        // Initialize CUDA device
         cudaError_t err = cudaSetDevice(0);
         ASSERT_EQ(err, cudaSuccess) << "Failed to set CUDA device";
         
-        // 检查设备可用性
+        // Check device availability
         int deviceCount;
         err = cudaGetDeviceCount(&deviceCount);
         ASSERT_EQ(err, cudaSuccess) << "Failed to get device count";
         ASSERT_GT(deviceCount, 0) << "No CUDA devices available";
         
-        // 获取设备属性
+        // Get device properties
         err = cudaGetDeviceProperties(&deviceProp_, 0);
         ASSERT_EQ(err, cudaSuccess) << "Failed to get device properties";
     }
     
     void TearDown() override {
-        // 同步设备并检查错误
+        // Synchronize device and check for errors
         cudaError_t err = cudaDeviceSynchronize();
         EXPECT_EQ(err, cudaSuccess) << "CUDA error after test: " 
                                    << cudaGetErrorString(err);
     }
     
-    // 设备属性访问
+    // Device properties access
     const cudaDeviceProp& getDeviceProperties() const {
         return deviceProp_;
     }
     
-    // 检查计算能力
+    // Check compute capability
     bool hasComputeCapability(int major, int minor) const {
         return deviceProp_.major > major || 
                (deviceProp_.major == major && deviceProp_.minor >= minor);
@@ -63,7 +63,7 @@ private:
 };
 
 /**
- * @brief 内存管理辅助类模板
+ * @brief Memory management helper class template
  */
 template<typename T>
 class DeviceMemory {
@@ -78,11 +78,11 @@ public:
         free();
     }
     
-    // 禁止拷贝
+    // Disable copy
     DeviceMemory(const DeviceMemory&) = delete;
     DeviceMemory& operator=(const DeviceMemory&) = delete;
     
-    // 支持移动
+    // Support move
     DeviceMemory(DeviceMemory&& other) noexcept 
         : ptr_(other.ptr_), size_(other.size_) {
         other.ptr_ = nullptr;
@@ -121,7 +121,7 @@ public:
     T* get() const { return ptr_; }
     size_t size() const { return size_; }
     
-    // 数据传输
+    // Data transfer
     void copyFromHost(const std::vector<T>& hostData) {
         ASSERT_EQ(hostData.size(), size_) << "Size mismatch in copyFromHost";
         cudaError_t err = cudaMemcpy(ptr_, hostData.data(), 
@@ -142,7 +142,7 @@ private:
 };
 
 /**
- * @brief NPP图像内存管理辅助类
+ * @brief NPP image memory management helper class
  */
 template<typename T>
 class NppImageMemory {
@@ -157,11 +157,11 @@ public:
         free();
     }
     
-    // 禁止拷贝
+    // Disable copy
     NppImageMemory(const NppImageMemory&) = delete;
     NppImageMemory& operator=(const NppImageMemory&) = delete;
     
-    // 支持移动
+    // Support move
     NppImageMemory(NppImageMemory&& other) noexcept 
         : ptr_(other.ptr_), step_(other.step_), 
           width_(other.width_), height_(other.height_), channels_(other.channels_) {
@@ -249,7 +249,7 @@ public:
     NppiSize size() const { return {width_, height_}; }
     size_t sizeInBytes() const { return width_ * height_ * channels_ * sizeof(T); }
     
-    // 数据传输
+    // Data transfer
     void copyFromHost(const std::vector<T>& hostData) {
         ASSERT_EQ(hostData.size(), width_ * height_ * channels_) << "Size mismatch in copyFromHost";
         cudaError_t err = cudaMemcpy2D(ptr_, step_, hostData.data(), 
@@ -280,11 +280,11 @@ private:
 };
 
 /**
- * @brief 数据生成工具类
+ * @brief Data generation utility class
  */
 class TestDataGenerator {
 public:
-    // 生成随机数据
+    // Generate random data
     template<typename T>
     static void generateRandom(std::vector<T>& data, T minVal, T maxVal, 
                               unsigned seed = std::random_device{}()) {
@@ -303,7 +303,7 @@ public:
         }
     }
     
-    // 生成递增数据
+    // Generate sequential data
     template<typename T>
     static void generateSequential(std::vector<T>& data, T startVal = T{}, T step = T{1}) {
         T current = startVal;
@@ -313,13 +313,13 @@ public:
         }
     }
     
-    // 生成常量数据
+    // Generate constant data
     template<typename T>
     static void generateConstant(std::vector<T>& data, T value) {
         std::fill(data.begin(), data.end(), value);
     }
     
-    // 生成测试模式数据（棋盘、条纹等）
+    // Generate test pattern data (checkerboard, stripes, etc.)
     template<typename T>
     static void generateCheckerboard(std::vector<T>& data, int width, int height, 
                                     T value1, T value2) {
@@ -335,11 +335,11 @@ public:
 };
 
 /**
- * @brief 结果验证工具类
+ * @brief Result validation utility class
  */
 class ResultValidator {
 public:
-    // 验证数组相等（整数类型）
+    // Verify array equality (integer types)
     template<typename T>
     static bool arraysEqual(const std::vector<T>& a, const std::vector<T>& b, 
                            T tolerance = T{}) {
@@ -361,7 +361,7 @@ public:
         return true;
     }
     
-    // 查找第一个不匹配的位置
+    // Find first mismatch position
     template<typename T>
     static std::pair<bool, size_t> findFirstMismatch(const std::vector<T>& a, 
                                                      const std::vector<T>& b,
@@ -385,7 +385,7 @@ public:
         return {true, 0};
     }
     
-    // 计算数组的统计信息
+    // Compute array statistics
     template<typename T>
     static void computeStats(const std::vector<T>& data, T& minVal, T& maxVal, 
                            double& mean, double& stddev) {

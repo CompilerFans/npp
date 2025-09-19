@@ -26,7 +26,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_Basic) {
     const Npp8u divisor = 2;
     const int nScaleFactor = 0;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(width * height);
     for (int i = 0; i < width * height; i++) {
         srcData[i] = static_cast<Npp8u>((i % 200) + 50); // 50-249范围
@@ -75,7 +75,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C3RSfs_Ctx_ColorImage) {
     const Npp8u aDivisor[3] = {2, 4, 8}; // RGB各通道不同的除数
     const int nScaleFactor = 0;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(width * height * 3);
     for (int i = 0; i < width * height; i++) {
         srcData[i * 3 + 0] = static_cast<Npp8u>(200);  // R
@@ -122,7 +122,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_FloatingPoint) {
     const int width = 48, height = 48;
     const Npp32f divisor = 3.14159f;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> srcData(width * height);
     for (int i = 0; i < width * height; i++) {
         srcData[i] = static_cast<float>(i + 1); // 1, 2, 3, ...
@@ -167,7 +167,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
     const Npp8u divisor = 2;
     const int nScaleFactor = 1; // 结果左移1位（乘以2）
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(width * height);
     srcData[0] = 100;  // 测试值
     srcData[1] = 200;
@@ -214,7 +214,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
     const int width = 8, height = 8;
     const Npp32f divisor = 1e-6f; // 非常小的数
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> srcData(width * height, 1.0f);
     
     NppImageMemory<Npp32f> src(width, height);

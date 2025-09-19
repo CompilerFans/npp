@@ -26,7 +26,7 @@ protected:
 TEST_F(RotateFunctionalTest, Rotate_8u_C1R_Ctx_90Degrees) {
     const int width = 64, height = 64;
     
-    // 准备测试数据 - 带有明显特征的图案
+    // prepare test data - 带有明显特征的图案
     std::vector<Npp8u> srcData(width * height, 0);
     // 创建一个L形图案
     for (int y = 10; y < 50; y++) {
@@ -83,7 +83,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C1R_Ctx_90Degrees) {
 TEST_F(RotateFunctionalTest, Rotate_8u_C3R_Ctx_45Degrees) {
     const int width = 64, height = 64;
     
-    // 准备测试数据 - RGB条纹
+    // prepare test data - RGB条纹
     std::vector<Npp8u> srcData(width * height * 3, 0);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -143,7 +143,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C3R_Ctx_45Degrees) {
 TEST_F(RotateFunctionalTest, Rotate_32f_C1R_Ctx_180Degrees) {
     const int width = 32, height = 32;
     
-    // 准备测试数据 - 对角线渐变
+    // prepare test data - 对角线渐变
     std::vector<Npp32f> srcData(width * height);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {

@@ -5,23 +5,23 @@
 class NppsSupportTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // 测试用的信号长度
+        // Signal length for testing
         signal_size = 1024;
     }
 
     void TearDown() override {
-        // 基类清理
+        // Base class cleanup
     }
 
     size_t signal_size;
 };
 
-// 测试8位无符号信号内存分配
+// Test 8-bit unsigned signal memory allocation
 TEST_F(NppsSupportTest, Malloc_8u) {
     Npp8u* signal = nppsMalloc_8u(signal_size);
     ASSERT_NE(signal, nullptr) << "Failed to allocate 8u signal memory";
     
-    // 测试写入和读取
+    // Test write and read
     std::vector<Npp8u> host_data(signal_size);
     for (size_t i = 0; i < signal_size; ++i) {
         host_data[i] = static_cast<Npp8u>(i % 256);
@@ -36,7 +36,7 @@ TEST_F(NppsSupportTest, Malloc_8u) {
                      signal_size * sizeof(Npp8u), cudaMemcpyDeviceToHost);
     ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
     
-    // 验证数据完整性
+    // Verify data integrity
     for (size_t i = 0; i < signal_size; ++i) {
         EXPECT_EQ(result[i], host_data[i]);
     }
@@ -44,12 +44,12 @@ TEST_F(NppsSupportTest, Malloc_8u) {
     nppsFree(signal);
 }
 
-// 测试16位有符号信号内存分配
+// Test 16-bit signed signal memory allocation
 TEST_F(NppsSupportTest, Malloc_16s) {
     Npp16s* signal = nppsMalloc_16s(signal_size);
     ASSERT_NE(signal, nullptr) << "Failed to allocate 16s signal memory";
     
-    // 测试写入和读取
+    // Test write and read
     std::vector<Npp16s> host_data(signal_size);
     for (size_t i = 0; i < signal_size; ++i) {
         host_data[i] = static_cast<Npp16s>(i - 512);
@@ -64,7 +64,7 @@ TEST_F(NppsSupportTest, Malloc_16s) {
                      signal_size * sizeof(Npp16s), cudaMemcpyDeviceToHost);
     ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
     
-    // 验证数据完整性
+    // Verify data integrity
     for (size_t i = 0; i < signal_size; ++i) {
         EXPECT_EQ(result[i], host_data[i]);
     }
@@ -72,12 +72,12 @@ TEST_F(NppsSupportTest, Malloc_16s) {
     nppsFree(signal);
 }
 
-// 测试32位浮点信号内存分配
+// Test 32-bit float signal memory allocation
 TEST_F(NppsSupportTest, Malloc_32f) {
     Npp32f* signal = nppsMalloc_32f(signal_size);
     ASSERT_NE(signal, nullptr) << "Failed to allocate 32f signal memory";
     
-    // 测试写入和读取
+    // Test write and read
     std::vector<Npp32f> host_data(signal_size);
     for (size_t i = 0; i < signal_size; ++i) {
         host_data[i] = static_cast<Npp32f>(i) * 0.5f;
@@ -92,7 +92,7 @@ TEST_F(NppsSupportTest, Malloc_32f) {
                      signal_size * sizeof(Npp32f), cudaMemcpyDeviceToHost);
     ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
     
-    // 验证数据完整性
+    // Verify data integrity
     for (size_t i = 0; i < signal_size; ++i) {
         EXPECT_FLOAT_EQ(result[i], host_data[i]);
     }
@@ -100,12 +100,12 @@ TEST_F(NppsSupportTest, Malloc_32f) {
     nppsFree(signal);
 }
 
-// 测试32位复数信号内存分配
+// Test 32-bit complex signal memory allocation
 TEST_F(NppsSupportTest, Malloc_32fc) {
     Npp32fc* signal = nppsMalloc_32fc(signal_size);
     ASSERT_NE(signal, nullptr) << "Failed to allocate 32fc signal memory";
     
-    // 测试写入和读取
+    // Test write and read
     std::vector<Npp32fc> host_data(signal_size);
     for (size_t i = 0; i < signal_size; ++i) {
         host_data[i].re = static_cast<Npp32f>(i) * 0.5f;
@@ -121,7 +121,7 @@ TEST_F(NppsSupportTest, Malloc_32fc) {
                      signal_size * sizeof(Npp32fc), cudaMemcpyDeviceToHost);
     ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
     
-    // 验证数据完整性
+    // Verify data integrity
     for (size_t i = 0; i < signal_size; ++i) {
         EXPECT_FLOAT_EQ(result[i].re, host_data[i].re);
         EXPECT_FLOAT_EQ(result[i].im, host_data[i].im);
@@ -130,12 +130,12 @@ TEST_F(NppsSupportTest, Malloc_32fc) {
     nppsFree(signal);
 }
 
-// 测试64位浮点信号内存分配
+// Test 64-bit float signal memory allocation
 TEST_F(NppsSupportTest, Malloc_64f) {
     Npp64f* signal = nppsMalloc_64f(signal_size);
     ASSERT_NE(signal, nullptr) << "Failed to allocate 64f signal memory";
     
-    // 测试写入和读取
+    // Test write and read
     std::vector<Npp64f> host_data(signal_size);
     for (size_t i = 0; i < signal_size; ++i) {
         host_data[i] = static_cast<Npp64f>(i) * 0.123456789;
@@ -150,7 +150,7 @@ TEST_F(NppsSupportTest, Malloc_64f) {
                      signal_size * sizeof(Npp64f), cudaMemcpyDeviceToHost);
     ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
     
-    // 验证数据完整性
+    // Verify data integrity
     for (size_t i = 0; i < signal_size; ++i) {
         EXPECT_DOUBLE_EQ(result[i], host_data[i]);
     }
@@ -158,34 +158,34 @@ TEST_F(NppsSupportTest, Malloc_64f) {
     nppsFree(signal);
 }
 
-// 错误参数测试
+// Error parameter tests
 TEST(NppsSupportParameterTest, NullSize) {
-    // 测试零大小分配
+    // Test zero size allocation
     EXPECT_EQ(nppsMalloc_32f(0), nullptr);
     EXPECT_EQ(nppsMalloc_16s(0), nullptr);
     EXPECT_EQ(nppsMalloc_32fc(0), nullptr);
 }
 
 TEST(NppsSupportParameterTest, FreeSafety) {
-    // 测试空指针释放的安全性
+    // Test null pointer free safety
     EXPECT_NO_THROW(nppsFree(nullptr));
     
-    // 测试正常分配和释放
+    // Test normal allocation and free
     Npp32f* signal = nppsMalloc_32f(100);
     ASSERT_NE(signal, nullptr);
     EXPECT_NO_THROW(nppsFree(signal));
 }
 
-// 内存对齐测试
+// Memory alignment test
 TEST_F(NppsSupportTest, MemoryAlignment) {
-    // 测试内存对齐（CUDA内存通常是256字节对齐）
+    // Test memory alignment (CUDA memory is typically 256-byte aligned)
     Npp32f* signal1 = nppsMalloc_32f(signal_size);
     Npp32f* signal2 = nppsMalloc_32f(signal_size);
     
     ASSERT_NE(signal1, nullptr);
     ASSERT_NE(signal2, nullptr);
     
-    // 检查指针是否为有效的设备指针
+    // Check if pointers are valid device pointers
     cudaPointerAttributes attr1, attr2;
     cudaError_t err1 = cudaPointerGetAttributes(&attr1, signal1);
     cudaError_t err2 = cudaPointerGetAttributes(&attr2, signal2);
@@ -202,15 +202,15 @@ TEST_F(NppsSupportTest, MemoryAlignment) {
     nppsFree(signal2);
 }
 
-// 大内存分配测试
+// Large memory allocation test
 TEST(NppsSupportLargeMemoryTest, LargeAllocation) {
-    // 测试分配较大的信号（1M个元素）
+    // Test allocation of large signal (1M elements)
     const size_t large_size = 1024 * 1024;
     
     Npp32f* large_signal = nppsMalloc_32f(large_size);
     
     if (large_signal != nullptr) {
-        // 如果分配成功，测试基本的读写操作
+        // If allocation succeeds, test basic read/write operations
         Npp32f test_value = 42.0f;
         cudaError_t err = cudaMemset(large_signal, 0, large_size * sizeof(Npp32f));
         EXPECT_EQ(err, cudaSuccess);
@@ -225,7 +225,7 @@ TEST(NppsSupportLargeMemoryTest, LargeAllocation) {
         
         nppsFree(large_signal);
     } else {
-        // 如果分配失败，这可能是由于内存不足，这是可以接受的
+        // If allocation fails, this may be due to insufficient memory, which is acceptable
         GTEST_SKIP() << "Large memory allocation failed - possibly due to insufficient GPU memory";
     }
 }

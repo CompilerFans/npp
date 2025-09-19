@@ -24,7 +24,7 @@ protected:
 TEST_F(RemapFunctionalTest, Remap_8u_C1R_Ctx_Identity) {
     const int width = 64, height = 64;
     
-    // 准备测试数据 - 渐变图案
+    // prepare test data - 渐变图案
     std::vector<Npp8u> srcData(width * height);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -85,7 +85,7 @@ TEST_F(RemapFunctionalTest, Remap_8u_C1R_Ctx_Identity) {
 TEST_F(RemapFunctionalTest, Remap_16u_C3R_Ctx_Mirror) {
     const int width = 32, height = 32;
     
-    // 准备测试数据 - RGB渐变
+    // prepare test data - RGB渐变
     std::vector<Npp16u> srcData(width * height * 3);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -150,7 +150,7 @@ TEST_F(RemapFunctionalTest, Remap_16u_C3R_Ctx_Mirror) {
 TEST_F(RemapFunctionalTest, Remap_32f_C1R_Ctx_Rotation) {
     const int width = 64, height = 64;
     
-    // 准备测试数据 - 中心有一个正方形
+    // prepare test data - 中心有一个正方形
     std::vector<Npp32f> srcData(width * height, 0.0f);
     for (int y = 20; y < 40; y++) {
         for (int x = 20; x < 40; x++) {

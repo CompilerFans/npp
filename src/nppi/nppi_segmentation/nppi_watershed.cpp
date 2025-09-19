@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include "../../npp_internal.h"
 
-// 声明CUDA函数
+// Forward declarations for CUDA functions
 extern "C" {
     NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, size_t* hpBufferSize);
     NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_cuda(Npp8u* pSrcDst, Npp32s nSrcDstStep,
@@ -11,7 +11,7 @@ extern "C" {
                                                     Npp8u* pDeviceBuffer, NppStreamContext nppStreamCtx);
 }
 
-// 获取Watershed分割所需缓冲区大小
+// Get buffer size required for Watershed segmentation
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t* hpDeviceMemoryBufferSize) {
     if (hpDeviceMemoryBufferSize == nullptr) {
         return NPP_NULL_POINTER_ERROR;
@@ -24,10 +24,10 @@ NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t* hp
     return nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(oSizeROI, hpDeviceMemoryBufferSize);
 }
 
-// Watershed图像分割
+// Watershed image segmentation
 NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u* pSrcDst, Npp32s nSrcDstStep, Npp32u* pMarkerLabels, Npp32s nMarkerLabelsStep, NppiNorm eNorm, 
                                        NppiWatershedSegmentBoundaryType eSegmentBoundaryType, NppiSize oSizeROI, Npp8u* pDeviceMemoryBuffer) {
-    // 参数验证
+    // Parameter validation
     if (pSrcDst == nullptr || pMarkerLabels == nullptr || pDeviceMemoryBuffer == nullptr) {
         return NPP_NULL_POINTER_ERROR;
     }
@@ -40,7 +40,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u* pSrcDst, Npp32s nSrcDstStep, Npp32
         return NPP_STEP_ERROR;
     }
 
-    // 简单验证边界类型参数以避免未使用警告
+    // Basic validation of boundary type parameter to avoid unused warning
     if (eSegmentBoundaryType < 0) {
         return NPP_BAD_ARGUMENT_ERROR;
     }
@@ -53,7 +53,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u* pSrcDst, Npp32s nSrcDstStep, Npp32
 
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u* pSrcDst, Npp32s nSrcDstStep, Npp32u* pMarkerLabels, Npp32s nMarkerLabelsStep, NppiNorm eNorm, 
                                           NppiWatershedSegmentBoundaryType eSegmentBoundaryType, NppiSize oSizeROI, Npp8u* pDeviceMemoryBuffer, NppStreamContext nppStreamCtx) {
-    // 参数验证
+    // Parameter validation
     if (pSrcDst == nullptr || pMarkerLabels == nullptr || pDeviceMemoryBuffer == nullptr) {
         return NPP_NULL_POINTER_ERROR;
     }
@@ -66,12 +66,12 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u* pSrcDst, Npp32s nSrcDstStep, N
         return NPP_STEP_ERROR;
     }
 
-    // 简单验证边界类型参数以避免未使用警告
+    // Basic validation of boundary type parameter to avoid unused warning
     if (eSegmentBoundaryType < 0) {
         return NPP_BAD_ARGUMENT_ERROR;
     }
 
-    // 验证流上下文参数
+    // Validate stream context parameter
     if (nppStreamCtx.nCudaDeviceId < -1) {
         return NPP_BAD_ARGUMENT_ERROR;
     }

@@ -129,4 +129,7 @@ ctest -R "npps_"    # Signal processing tests
 - GTEST_SKIP禁止使用
 
 ## Code Documentation
-- 注释使用英文，简要，不要像api生成的
+- Check existing comments in the code
+- Modify comments to be brief and concise in English
+- Strictly prohibit using Chinese in comments
+- Aim for clarity and simplicity in comment language

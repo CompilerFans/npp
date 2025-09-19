@@ -24,7 +24,7 @@ protected:
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
     const int width = 64, height = 64;
     
-    // 准备测试数据 - 全范围8位值
+    // prepare test data - 全范围8位值
     std::vector<Npp8u> srcData(width * height);
     for (int i = 0; i < width * height; i++) {
         srcData[i] = static_cast<Npp8u>(i % 256);
@@ -65,7 +65,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_BoundaryValues) {
     const int width = 16, height = 16;
     
-    // 准备测试数据 - 边界值
+    // prepare test data - 边界值
     std::vector<Npp8u> srcData(width * height);
     srcData[0] = 0;       // 最小值
     srcData[1] = 255;     // 最大值
@@ -111,11 +111,11 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_BoundaryValues) {
     ASSERT_FLOAT_EQ(dstData[4], 128.0f);
 }
 
-// 测试ROI部分转换
+// test roi part trans
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
     const int width = 32, height = 32;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(width * height);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {

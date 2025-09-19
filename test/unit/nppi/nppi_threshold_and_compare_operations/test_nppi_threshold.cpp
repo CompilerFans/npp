@@ -23,7 +23,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_8u_C1R_Less) {
     const int width = 32, height = 32;
     const Npp8u threshold = 128;
     
-    // 准备测试数据 - 渐变图像
+    // prepare test data - 渐变图像
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
@@ -59,7 +59,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_8u_C1R_Greater) {
     const int width = 32, height = 32;
     const Npp8u threshold = 128;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
@@ -95,7 +95,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_8u_C1IR_InPlace) {
     const int width = 16, height = 16;
     const Npp8u threshold = 100;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp8u> srcData(width * height);
     std::vector<Npp8u> expectedData(width * height);
     
@@ -131,7 +131,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_32f_C1R_Float) {
     const int width = 16, height = 16;
     const Npp32f threshold = 0.5f;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> srcData(width * height);
     std::vector<Npp32f> expectedData(width * height);
     
@@ -200,7 +200,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_BinaryImage) {
     const int width = 32, height = 32;
     const Npp8u threshold = 128;
     
-    // 准备测试数据 - 创建一个包含噪声的二值化场景
+    // prepare test data - 创建一个包含噪声的二值化场景
     std::vector<Npp8u> srcData(width * height);
     
     for (int i = 0; i < width * height; i++) {

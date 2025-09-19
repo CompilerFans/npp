@@ -23,7 +23,7 @@ protected:
 TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
     const int width = 16, height = 16; // 使用最小尺寸
     
-    // 准备测试数据 - BGGR Bayer模式
+    // prepare test data - BGGR Bayer模式
     std::vector<Npp8u> srcData(width * height);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -88,7 +88,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
 TEST_F(CFAToRGBFunctionalTest, CFAToRGB_16u_C1C3R_Ctx_RGGB) {
     const int width = 32, height = 32;
     
-    // 准备测试数据 - RGGB Bayer模式，使用16位值
+    // prepare test data - RGGB Bayer模式，使用16位值
     std::vector<Npp16u> srcData(width * height);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {

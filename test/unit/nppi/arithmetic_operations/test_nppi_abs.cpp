@@ -28,7 +28,7 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1R_BasicOperation) {
     const int width = 32;
     const int height = 32;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> srcData(width * height);
     std::vector<Npp32f> expectedData(width * height);
     
@@ -69,7 +69,7 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1IR_InPlaceOperation) {
     const int width = 16;
     const int height = 16;
     
-    // 准备测试数据
+    // prepare test data
     std::vector<Npp32f> srcData(width * height);
     std::vector<Npp32f> expectedData(width * height);
     

@@ -19,7 +19,7 @@ protected:
         ASSERT_NE(d_src, nullptr) << "Failed to allocate src memory";
         ASSERT_NE(d_dst, nullptr) << "Failed to allocate dst memory";
 
-        // 准备测试数据
+        // prepare test data
         h_src.resize(width * height * 3);
         h_dst.resize(width * height * 3);
         h_expected.resize(width * height * 3);
