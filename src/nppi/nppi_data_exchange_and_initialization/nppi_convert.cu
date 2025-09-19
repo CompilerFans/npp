@@ -24,6 +24,26 @@ __global__ void convert_8u32f_C1R_kernel(const Npp8u* __restrict__ pSrc, int nSr
     dstRow[x] = (Npp32f)srcRow[x];
 }
 
+/**
+ * CUDA kernel for converting 8-bit unsigned to 32-bit float, three channel
+ */
+__global__ void convert_8u32f_C3R_kernel(const Npp8u* __restrict__ pSrc, int nSrcStep,
+                                         Npp32f* __restrict__ pDst, int nDstStep,
+                                         int width, int height) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    
+    if (x >= width || y >= height) return;
+    
+    const Npp8u* srcRow = (const Npp8u*)(((const char*)pSrc) + y * nSrcStep);
+    Npp32f* dstRow = (Npp32f*)(((char*)pDst) + y * nDstStep);
+    
+    // Convert all three channels: 8-bit unsigned to 32-bit float (0-255 -> 0.0-255.0)
+    dstRow[x * 3 + 0] = (Npp32f)srcRow[x * 3 + 0]; // Channel 0 (R/B)
+    dstRow[x * 3 + 1] = (Npp32f)srcRow[x * 3 + 1]; // Channel 1 (G)
+    dstRow[x * 3 + 2] = (Npp32f)srcRow[x * 3 + 2]; // Channel 2 (B/R)
+}
+
 extern "C" {
 
 /**
@@ -42,6 +62,35 @@ NppStatus nppiConvert_8u32f_C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep,
     
     // Launch kernel with the specified CUDA stream
     convert_8u32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, 
+        oSizeROI.width, oSizeROI.height
+    );
+    
+    // Check for kernel launch errors
+    cudaError_t cudaErr = cudaGetLastError();
+    if (cudaErr != cudaSuccess) {
+        return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    
+    return NPP_NO_ERROR;
+}
+
+/**
+ * CUDA implementation for nppiConvert_8u32f_C3R_Ctx
+ */
+NppStatus nppiConvert_8u32f_C3R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, 
+                                         Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
+    
+    // Setup kernel launch parameters
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (oSizeROI.width + blockSize.x - 1) / blockSize.x,
+        (oSizeROI.height + blockSize.y - 1) / blockSize.y
+    );
+    
+    // Launch kernel with the specified CUDA stream
+    convert_8u32f_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, 
         oSizeROI.width, oSizeROI.height
     );

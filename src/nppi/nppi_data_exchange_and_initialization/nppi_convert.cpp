@@ -12,6 +12,9 @@ extern "C" {
 NppStatus nppiConvert_8u32f_C1R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, 
                                          Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx);
+NppStatus nppiConvert_8u32f_C3R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep, 
+                                         Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx);
 }
 
 /**
@@ -51,5 +54,34 @@ NppStatus nppiConvert_8u32f_C1R(const Npp8u* pSrc, int nSrcStep,
     nppGetStreamContext(&nppStreamCtx);
     
     return nppiConvert_8u32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, 
+                                    oSizeROI, nppStreamCtx);
+}
+
+/**
+ * 8-bit unsigned to 32-bit float, three channel convert
+ */
+NppStatus nppiConvert_8u32f_C3R_Ctx(const Npp8u* pSrc, int nSrcStep, 
+                                   Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+    // Parameter validation
+    NppStatus status = validateConvertInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+    if (status != NPP_SUCCESS) {
+        return status;
+    }
+    
+    return nppiConvert_8u32f_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, 
+                                         oSizeROI, nppStreamCtx);
+}
+
+/**
+ * 8-bit unsigned to 32-bit float, three channel convert (no stream context)
+ */
+NppStatus nppiConvert_8u32f_C3R(const Npp8u* pSrc, int nSrcStep, 
+                               Npp32f* pDst, int nDstStep, NppiSize oSizeROI) {
+    // Get default stream context
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    
+    return nppiConvert_8u32f_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, 
                                     oSizeROI, nppStreamCtx);
 }
