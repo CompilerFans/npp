@@ -660,7 +660,7 @@ TEST_F(NPPIComprehensiveTest, Copy_32f_C3R_ConcurrentOperations) {
 // ==============================================================================
 
 // Test memory alignment guarantees
-TEST_F(NPPIComprehensiveTest, MemoryManagement_AlignmentTest) {
+TEST_F(NPPIComprehensiveTest, nppiMalloc_32f_AlignmentTest) {
     const int numAllocations = 100;
     std::vector<Npp32f*> ptrs1;
     std::vector<Npp32f*> ptrs3;
@@ -706,7 +706,7 @@ TEST_F(NPPIComprehensiveTest, MemoryManagement_AlignmentTest) {
 }
 
 // Stress test allocation/deallocation cycles
-TEST_F(NPPIComprehensiveTest, MemoryManagement_StressTest) {
+TEST_F(NPPIComprehensiveTest, nppiMalloc_nppiFree_StressTest) {
     const int cycles = 1000;
     const int maxAllocations = 10;
     
@@ -764,7 +764,7 @@ TEST_F(NPPIComprehensiveTest, MemoryManagement_StressTest) {
 }
 
 // Test memory limits and error handling
-TEST_F(NPPIComprehensiveTest, MemoryManagement_LimitsAndErrors) {
+TEST_F(NPPIComprehensiveTest, nppiMalloc_nppiFree_LimitsAndErrors) {
     // Test zero-size allocations
     int step;
     EXPECT_EQ(nppiMalloc_32f_C1(0, 100, &step), nullptr);
@@ -789,7 +789,7 @@ TEST_F(NPPIComprehensiveTest, MemoryManagement_LimitsAndErrors) {
 }
 
 // Test memory usage patterns
-TEST_F(NPPIComprehensiveTest, MemoryManagement_UsagePatterns) {
+TEST_F(NPPIComprehensiveTest, nppiMalloc_32f_UsagePatterns) {
     // Track memory usage
     size_t freeStart, totalStart;
     cudaMemGetInfo(&freeStart, &totalStart);
