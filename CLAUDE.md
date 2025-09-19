@@ -127,3 +127,6 @@ ctest -R "npps_"    # Signal processing tests
 
 ## Testing Restrictions
 - GTEST_SKIP禁止使用
+
+## Code Documentation
+- 注释使用英文，简要，不要像api生成的
