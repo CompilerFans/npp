@@ -12,7 +12,7 @@ cat > .clang-format << EOF
 ---
 BasedOnStyle: LLVM
 IndentWidth: 2
-ColumnLimit: 80
+ColumnLimit: 120
 EOF
 
 echo "Formatting C/C++/CUDA files in src/ and test/ directories..."
