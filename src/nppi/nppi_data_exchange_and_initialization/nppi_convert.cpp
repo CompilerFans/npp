@@ -63,12 +63,6 @@ NppStatus nppiConvert_8u32f_C1R(const Npp8u* pSrc, int nSrcStep,
 NppStatus nppiConvert_8u32f_C3R_Ctx(const Npp8u* pSrc, int nSrcStep, 
                                    Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
-    // Parameter validation
-    NppStatus status = validateConvertInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
-    if (status != NPP_SUCCESS) {
-        return status;
-    }
-    
     return nppiConvert_8u32f_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, 
                                          oSizeROI, nppStreamCtx);
 }

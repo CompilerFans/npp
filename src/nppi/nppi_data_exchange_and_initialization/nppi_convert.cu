@@ -82,6 +82,13 @@ NppStatus nppiConvert_8u32f_C3R_Ctx_cuda(const Npp8u* pSrc, int nSrcStep,
                                          Npp32f* pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
     
+    // Parameter validation
+    if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
+    if (nDstStep <= 0) return NPP_STEP_ERROR;
+    if (nSrcStep <= 0) return NPP_NO_ERROR;
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+    
     // Setup kernel launch parameters
     dim3 blockSize(16, 16);
     dim3 gridSize(

@@ -124,3 +124,6 @@ ctest -R "npps_"    # Signal processing tests
 ## Development Notes
 - 问题修正后需要同时修正build和build-nvidia
 - 问题修正后需要同时验证build和build-nvidia
+
+## Testing Restrictions
+- GTEST_SKIP禁止使用
