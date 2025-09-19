@@ -325,3 +325,505 @@ TEST_F(NppCoreFunctionalTest, Integration_CompleteWorkflow) {
     
     std::cout << "Complete workflow test passed" << std::endl;
 }
+
+// ==================== 参数化内存分配测试 ====================
+
+// Memory allocation size parameters
+struct MemoryAllocParams {
+    int width;
+    int height;
+    std::string name;
+    size_t expected_min_bytes;
+};
+
+// Parameterized test class for memory allocation
+class MemoryAllocSizeTest : public NppCoreFunctionalTest, 
+                           public ::testing::WithParamInterface<MemoryAllocParams> {};
+
+// Size combinations for testing
+INSTANTIATE_TEST_SUITE_P(
+    MemorySizes,
+    MemoryAllocSizeTest,
+    ::testing::Values(
+        MemoryAllocParams{1, 1, "SinglePixel", 4},
+        MemoryAllocParams{2, 1, "TwoPixelRow", 8},
+        MemoryAllocParams{1, 2, "TwoPixelCol", 4},
+        MemoryAllocParams{3, 3, "SmallSquare", 36},
+        MemoryAllocParams{4, 4, "BasicSquare", 64},
+        MemoryAllocParams{8, 8, "SmallBlock", 256},
+        MemoryAllocParams{16, 16, "MediumBlock", 1024},
+        MemoryAllocParams{32, 32, "StandardBlock", 4096},
+        MemoryAllocParams{64, 64, "LargeBlock", 16384},
+        MemoryAllocParams{128, 128, "VeryLargeBlock", 65536},
+        MemoryAllocParams{256, 256, "HighRes", 262144},
+        MemoryAllocParams{512, 512, "UltraHighRes", 1048576},
+        MemoryAllocParams{1024, 1024, "ExtremeRes", 4194304},
+        MemoryAllocParams{5, 7, "OddSize1", 140},
+        MemoryAllocParams{13, 17, "OddSize2", 884},
+        MemoryAllocParams{100, 50, "RectSize1", 20000},
+        MemoryAllocParams{200, 100, "RectSize2", 80000},
+        MemoryAllocParams{1920, 1080, "HDSize", 8294400}
+    ),
+    [](const ::testing::TestParamInfo<MemoryAllocParams>& info) {
+        return info.param.name;
+    }
+);
+
+TEST_P(MemoryAllocSizeTest, nppiMalloc_32f_C1_SizeParameterized) {
+    auto params = GetParam();
+    int step = 0;
+    
+    // Test allocation
+    Npp32f* ptr = nppiMalloc_32f_C1(params.width, params.height, &step);
+    
+    // Verify allocation success
+    EXPECT_NE(ptr, nullptr) << "Failed to allocate " << params.name 
+                           << " memory of size " << params.width << "x" << params.height;
+    
+    if (ptr != nullptr) {
+        // Verify step validity
+        EXPECT_GT(step, 0) << "Step should be positive for " << params.name;
+        EXPECT_GE(step, params.width * sizeof(Npp32f)) 
+            << "Step too small for " << params.name;
+        EXPECT_EQ(step % sizeof(Npp32f), 0) 
+            << "Step not aligned for " << params.name;
+        
+        // Test basic memory operations
+        std::vector<Npp32f> test_data(params.width * params.height, 123.456f);
+        cudaError_t err = cudaMemcpy2D(ptr, step,
+                                      test_data.data(), params.width * sizeof(Npp32f),
+                                      params.width * sizeof(Npp32f), params.height,
+                                      cudaMemcpyHostToDevice);
+        EXPECT_EQ(err, cudaSuccess) << "Failed to copy data to GPU for " << params.name;
+        
+        // Verify memory can be read back
+        std::vector<Npp32f> result_data(params.width * params.height);
+        err = cudaMemcpy2D(result_data.data(), params.width * sizeof(Npp32f),
+                          ptr, step,
+                          params.width * sizeof(Npp32f), params.height,
+                          cudaMemcpyDeviceToHost);
+        EXPECT_EQ(err, cudaSuccess) << "Failed to copy data from GPU for " << params.name;
+        
+        // Verify data integrity
+        for (int i = 0; i < params.width * params.height; i++) {
+            EXPECT_FLOAT_EQ(result_data[i], 123.456f) 
+                << "Data mismatch at index " << i << " for " << params.name;
+        }
+        
+        // Test deallocation
+        nppiFree(ptr);
+        // Note: No direct way to verify free success, but subsequent allocations should work
+    }
+}
+
+TEST_P(MemoryAllocSizeTest, nppiMalloc_32f_C3_SizeParameterized) {
+    auto params = GetParam();
+    int step = 0;
+    
+    // Test allocation for 3-channel
+    Npp32f* ptr = nppiMalloc_32f_C3(params.width, params.height, &step);
+    
+    // Verify allocation success
+    EXPECT_NE(ptr, nullptr) << "Failed to allocate " << params.name 
+                           << " C3 memory of size " << params.width << "x" << params.height;
+    
+    if (ptr != nullptr) {
+        // Verify step validity for 3-channel
+        EXPECT_GT(step, 0) << "Step should be positive for C3 " << params.name;
+        EXPECT_GE(step, params.width * 3 * sizeof(Npp32f)) 
+            << "Step too small for C3 " << params.name;
+        EXPECT_EQ(step % sizeof(Npp32f), 0) 
+            << "Step not aligned for C3 " << params.name;
+        
+        // Test memory operations with 3-channel data
+        std::vector<Npp32f> test_data(params.width * params.height * 3);
+        for (int i = 0; i < params.width * params.height * 3; i++) {
+            test_data[i] = static_cast<Npp32f>(i % 256) / 255.0f;  // Pattern data
+        }
+        
+        cudaError_t err = cudaMemcpy2D(ptr, step,
+                                      test_data.data(), params.width * 3 * sizeof(Npp32f),
+                                      params.width * 3 * sizeof(Npp32f), params.height,
+                                      cudaMemcpyHostToDevice);
+        EXPECT_EQ(err, cudaSuccess) << "Failed to copy C3 data to GPU for " << params.name;
+        
+        // Verify memory can be read back
+        std::vector<Npp32f> result_data(params.width * params.height * 3);
+        err = cudaMemcpy2D(result_data.data(), params.width * 3 * sizeof(Npp32f),
+                          ptr, step,
+                          params.width * 3 * sizeof(Npp32f), params.height,
+                          cudaMemcpyDeviceToHost);
+        EXPECT_EQ(err, cudaSuccess) << "Failed to copy C3 data from GPU for " << params.name;
+        
+        // Verify data integrity
+        for (int i = 0; i < params.width * params.height * 3; i++) {
+            EXPECT_FLOAT_EQ(result_data[i], test_data[i]) 
+                << "C3 data mismatch at index " << i << " for " << params.name;
+        }
+        
+        // Test deallocation
+        nppiFree(ptr);
+    }
+}
+
+// ==================== 内存分配模式测试 ====================
+
+// Memory allocation pattern parameters
+struct MemoryPatternParams {
+    std::string pattern_name;
+    std::function<std::vector<Npp32f>(int, int)> data_generator;
+    std::function<bool(const std::vector<Npp32f>&, const std::vector<Npp32f>&)> validator;
+};
+
+class MemoryPatternTest : public NppCoreFunctionalTest,
+                         public ::testing::WithParamInterface<MemoryPatternParams> {};
+
+INSTANTIATE_TEST_SUITE_P(
+    MemoryPatterns,
+    MemoryPatternTest,
+    ::testing::Values(
+        MemoryPatternParams{
+            "ZeroPattern",
+            [](int w, int h) -> std::vector<Npp32f> {
+                return std::vector<Npp32f>(w * h, 0.0f);
+            },
+            [](const std::vector<Npp32f>& original, const std::vector<Npp32f>& result) -> bool {
+                (void)original; // Suppress unused parameter warning
+                return std::all_of(result.begin(), result.end(), [](Npp32f val) { return val == 0.0f; });
+            }
+        },
+        MemoryPatternParams{
+            "OnePattern",
+            [](int w, int h) -> std::vector<Npp32f> {
+                return std::vector<Npp32f>(w * h, 1.0f);
+            },
+            [](const std::vector<Npp32f>& original, const std::vector<Npp32f>& result) -> bool {
+                (void)original; // Suppress unused parameter warning
+                return std::all_of(result.begin(), result.end(), [](Npp32f val) { return val == 1.0f; });
+            }
+        },
+        MemoryPatternParams{
+            "RandomPattern",
+            [](int w, int h) -> std::vector<Npp32f> {
+                std::vector<Npp32f> data(w * h);
+                for (int i = 0; i < w * h; i++) {
+                    data[i] = static_cast<Npp32f>(rand()) / RAND_MAX;
+                }
+                return data;
+            },
+            [](const std::vector<Npp32f>& original, const std::vector<Npp32f>& result) -> bool {
+                for (size_t i = 0; i < original.size(); i++) {
+                    if (std::abs(original[i] - result[i]) > 1e-6f) return false;
+                }
+                return true;
+            }
+        },
+        MemoryPatternParams{
+            "GradientPattern",
+            [](int w, int h) -> std::vector<Npp32f> {
+                std::vector<Npp32f> data(w * h);
+                for (int y = 0; y < h; y++) {
+                    for (int x = 0; x < w; x++) {
+                        data[y * w + x] = static_cast<Npp32f>(x + y) / (w + h - 2);
+                    }
+                }
+                return data;
+            },
+            [](const std::vector<Npp32f>& original, const std::vector<Npp32f>& result) -> bool {
+                for (size_t i = 0; i < original.size(); i++) {
+                    if (std::abs(original[i] - result[i]) > 1e-6f) return false;
+                }
+                return true;
+            }
+        },
+        MemoryPatternParams{
+            "CheckerboardPattern",
+            [](int w, int h) -> std::vector<Npp32f> {
+                std::vector<Npp32f> data(w * h);
+                for (int y = 0; y < h; y++) {
+                    for (int x = 0; x < w; x++) {
+                        data[y * w + x] = ((x + y) % 2 == 0) ? 1.0f : 0.0f;
+                    }
+                }
+                return data;
+            },
+            [](const std::vector<Npp32f>& original, const std::vector<Npp32f>& result) -> bool {
+                for (size_t i = 0; i < original.size(); i++) {
+                    if (std::abs(original[i] - result[i]) > 1e-6f) return false;
+                }
+                return true;
+            }
+        }
+    ),
+    [](const ::testing::TestParamInfo<MemoryPatternParams>& info) {
+        return info.param.pattern_name;
+    }
+);
+
+TEST_P(MemoryPatternTest, MemoryPattern_32f_C1) {
+    auto params = GetParam();
+    const int width = 64;
+    const int height = 64;
+    int step = 0;
+    
+    // Allocate memory
+    Npp32f* ptr = nppiMalloc_32f_C1(width, height, &step);
+    ASSERT_NE(ptr, nullptr) << "Failed to allocate memory for " << params.pattern_name;
+    
+    // Generate test data
+    auto test_data = params.data_generator(width, height);
+    
+    // Copy to GPU
+    cudaError_t err = cudaMemcpy2D(ptr, step,
+                                  test_data.data(), width * sizeof(Npp32f),
+                                  width * sizeof(Npp32f), height,
+                                  cudaMemcpyHostToDevice);
+    EXPECT_EQ(err, cudaSuccess) << "Failed to copy " << params.pattern_name << " to GPU";
+    
+    // Copy back from GPU
+    std::vector<Npp32f> result_data(width * height);
+    err = cudaMemcpy2D(result_data.data(), width * sizeof(Npp32f),
+                      ptr, step,
+                      width * sizeof(Npp32f), height,
+                      cudaMemcpyDeviceToHost);
+    EXPECT_EQ(err, cudaSuccess) << "Failed to copy " << params.pattern_name << " from GPU";
+    
+    // Validate pattern
+    EXPECT_TRUE(params.validator(test_data, result_data)) 
+        << "Pattern validation failed for " << params.pattern_name;
+    
+    // Free memory
+    nppiFree(ptr);
+}
+
+TEST_P(MemoryPatternTest, MemoryPattern_32f_C3) {
+    auto params = GetParam();
+    const int width = 64;
+    const int height = 64;
+    int step = 0;
+    
+    // Allocate memory for 3-channel
+    Npp32f* ptr = nppiMalloc_32f_C3(width, height, &step);
+    ASSERT_NE(ptr, nullptr) << "Failed to allocate C3 memory for " << params.pattern_name;
+    
+    // Generate test data for 3 channels
+    auto channel_data = params.data_generator(width, height);
+    std::vector<Npp32f> test_data(width * height * 3);
+    for (int i = 0; i < width * height; i++) {
+        test_data[i * 3 + 0] = channel_data[i];          // R channel
+        test_data[i * 3 + 1] = channel_data[i] * 0.5f;   // G channel (scaled)
+        test_data[i * 3 + 2] = channel_data[i] * 0.25f;  // B channel (scaled)
+    }
+    
+    // Copy to GPU
+    cudaError_t err = cudaMemcpy2D(ptr, step,
+                                  test_data.data(), width * 3 * sizeof(Npp32f),
+                                  width * 3 * sizeof(Npp32f), height,
+                                  cudaMemcpyHostToDevice);
+    EXPECT_EQ(err, cudaSuccess) << "Failed to copy C3 " << params.pattern_name << " to GPU";
+    
+    // Copy back from GPU
+    std::vector<Npp32f> result_data(width * height * 3);
+    err = cudaMemcpy2D(result_data.data(), width * 3 * sizeof(Npp32f),
+                      ptr, step,
+                      width * 3 * sizeof(Npp32f), height,
+                      cudaMemcpyDeviceToHost);
+    EXPECT_EQ(err, cudaSuccess) << "Failed to copy C3 " << params.pattern_name << " from GPU";
+    
+    // Validate each channel
+    for (int i = 0; i < width * height; i++) {
+        EXPECT_FLOAT_EQ(result_data[i * 3 + 0], test_data[i * 3 + 0]) 
+            << "R channel mismatch at pixel " << i << " for " << params.pattern_name;
+        EXPECT_FLOAT_EQ(result_data[i * 3 + 1], test_data[i * 3 + 1]) 
+            << "G channel mismatch at pixel " << i << " for " << params.pattern_name;
+        EXPECT_FLOAT_EQ(result_data[i * 3 + 2], test_data[i * 3 + 2]) 
+            << "B channel mismatch at pixel " << i << " for " << params.pattern_name;
+    }
+    
+    // Free memory
+    nppiFree(ptr);
+}
+
+// ==================== 内存对齐和步长测试 ====================
+
+// Step alignment test parameters
+struct StepAlignmentParams {
+    int width;
+    int height;
+    std::string test_name;
+    int expected_alignment;
+};
+
+class StepAlignmentTest : public NppCoreFunctionalTest,
+                         public ::testing::WithParamInterface<StepAlignmentParams> {};
+
+INSTANTIATE_TEST_SUITE_P(
+    StepAlignments,
+    StepAlignmentTest,
+    ::testing::Values(
+        StepAlignmentParams{1, 1, "MinSize", 4},
+        StepAlignmentParams{3, 1, "OddWidth", 4},
+        StepAlignmentParams{5, 1, "PrimeWidth", 4},
+        StepAlignmentParams{7, 1, "SevenWidth", 4},
+        StepAlignmentParams{15, 1, "FifteenWidth", 4},
+        StepAlignmentParams{17, 1, "SeventeenWidth", 4},
+        StepAlignmentParams{31, 1, "ThirtyOneWidth", 4},
+        StepAlignmentParams{33, 1, "ThirtyThreeWidth", 4},
+        StepAlignmentParams{63, 1, "SixtyThreeWidth", 4},
+        StepAlignmentParams{65, 1, "SixtyFiveWidth", 4},
+        StepAlignmentParams{127, 1, "HundredTwentySevenWidth", 4},
+        StepAlignmentParams{129, 1, "HundredTwentyNineWidth", 4}
+    ),
+    [](const ::testing::TestParamInfo<StepAlignmentParams>& info) {
+        return info.param.test_name;
+    }
+);
+
+TEST_P(StepAlignmentTest, StepAlignment_32f_C1) {
+    auto params = GetParam();
+    int step = 0;
+    
+    Npp32f* ptr = nppiMalloc_32f_C1(params.width, params.height, &step);
+    ASSERT_NE(ptr, nullptr) << "Failed to allocate memory for " << params.test_name;
+    
+    // Verify step alignment
+    EXPECT_EQ(step % params.expected_alignment, 0) 
+        << "Step not aligned to " << params.expected_alignment << " bytes for " << params.test_name;
+    
+    // Verify minimum step size
+    EXPECT_GE(step, params.width * sizeof(Npp32f)) 
+        << "Step too small for " << params.test_name;
+    
+    // Test memory access patterns at different alignments
+    std::vector<Npp32f> test_data(params.width * params.height);
+    for (int i = 0; i < params.width * params.height; i++) {
+        test_data[i] = static_cast<Npp32f>(i % 256) / 255.0f;
+    }
+    
+    cudaError_t err = cudaMemcpy2D(ptr, step,
+                                  test_data.data(), params.width * sizeof(Npp32f),
+                                  params.width * sizeof(Npp32f), params.height,
+                                  cudaMemcpyHostToDevice);
+    EXPECT_EQ(err, cudaSuccess) << "Failed to copy data for " << params.test_name;
+    
+    nppiFree(ptr);
+}
+
+TEST_P(StepAlignmentTest, StepAlignment_32f_C3) {
+    auto params = GetParam();
+    int step = 0;
+    
+    Npp32f* ptr = nppiMalloc_32f_C3(params.width, params.height, &step);
+    ASSERT_NE(ptr, nullptr) << "Failed to allocate C3 memory for " << params.test_name;
+    
+    // Verify step alignment
+    EXPECT_EQ(step % params.expected_alignment, 0) 
+        << "C3 step not aligned to " << params.expected_alignment << " bytes for " << params.test_name;
+    
+    // Verify minimum step size for 3-channel
+    EXPECT_GE(step, params.width * 3 * sizeof(Npp32f)) 
+        << "C3 step too small for " << params.test_name;
+    
+    // Test memory access for 3-channel data
+    std::vector<Npp32f> test_data(params.width * params.height * 3);
+    for (int i = 0; i < params.width * params.height * 3; i++) {
+        test_data[i] = static_cast<Npp32f>(i % 256) / 255.0f;
+    }
+    
+    cudaError_t err = cudaMemcpy2D(ptr, step,
+                                  test_data.data(), params.width * 3 * sizeof(Npp32f),
+                                  params.width * 3 * sizeof(Npp32f), params.height,
+                                  cudaMemcpyHostToDevice);
+    EXPECT_EQ(err, cudaSuccess) << "Failed to copy C3 data for " << params.test_name;
+    
+    nppiFree(ptr);
+}
+
+// ==================== 内存泄漏和重复分配测试 ====================
+
+TEST_F(NppCoreFunctionalTest, MemoryStress_MultipleAllocations) {
+    const int num_allocations = 50;
+    const int width = 128;
+    const int height = 128;
+    
+    std::vector<Npp32f*> c1_ptrs;
+    std::vector<Npp32f*> c3_ptrs;
+    std::vector<int> c1_steps;
+    std::vector<int> c3_steps;
+    
+    // Multiple C1 allocations
+    for (int i = 0; i < num_allocations; i++) {
+        int step = 0;
+        Npp32f* ptr = nppiMalloc_32f_C1(width, height, &step);
+        EXPECT_NE(ptr, nullptr) << "Failed C1 allocation " << i;
+        if (ptr) {
+            c1_ptrs.push_back(ptr);
+            c1_steps.push_back(step);
+        }
+    }
+    
+    // Multiple C3 allocations
+    for (int i = 0; i < num_allocations; i++) {
+        int step = 0;
+        Npp32f* ptr = nppiMalloc_32f_C3(width, height, &step);
+        EXPECT_NE(ptr, nullptr) << "Failed C3 allocation " << i;
+        if (ptr) {
+            c3_ptrs.push_back(ptr);
+            c3_steps.push_back(step);
+        }
+    }
+    
+    // Verify all pointers are unique
+    std::set<void*> unique_ptrs;
+    for (auto ptr : c1_ptrs) {
+        EXPECT_TRUE(unique_ptrs.insert(ptr).second) << "Duplicate C1 pointer detected";
+    }
+    for (auto ptr : c3_ptrs) {
+        EXPECT_TRUE(unique_ptrs.insert(ptr).second) << "Duplicate C3 pointer detected";
+    }
+    
+    // Free all allocations
+    for (auto ptr : c1_ptrs) {
+        nppiFree(ptr);
+    }
+    for (auto ptr : c3_ptrs) {
+        nppiFree(ptr);
+    }
+    
+    std::cout << "Successfully allocated and freed " << num_allocations 
+              << " C1 and " << num_allocations << " C3 memory blocks" << std::endl;
+}
+
+TEST_F(NppCoreFunctionalTest, MemoryStress_AllocFreeCycle) {
+    const int cycles = 100;
+    const int width = 256;
+    const int height = 256;
+    
+    for (int cycle = 0; cycle < cycles; cycle++) {
+        int step_c1 = 0, step_c3 = 0;
+        
+        // Allocate
+        Npp32f* ptr_c1 = nppiMalloc_32f_C1(width, height, &step_c1);
+        Npp32f* ptr_c3 = nppiMalloc_32f_C3(width, height, &step_c3);
+        
+        EXPECT_NE(ptr_c1, nullptr) << "Failed C1 allocation in cycle " << cycle;
+        EXPECT_NE(ptr_c3, nullptr) << "Failed C3 allocation in cycle " << cycle;
+        
+        if (ptr_c1 && ptr_c3) {
+            // Quick memory test
+            std::vector<Npp32f> test_data_c1(width * height, static_cast<Npp32f>(cycle));
+            std::vector<Npp32f> test_data_c3(width * height * 3, static_cast<Npp32f>(cycle) * 0.5f);
+            
+            cudaMemcpy2D(ptr_c1, step_c1, test_data_c1.data(), width * sizeof(Npp32f),
+                        width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+            cudaMemcpy2D(ptr_c3, step_c3, test_data_c3.data(), width * 3 * sizeof(Npp32f),
+                        width * 3 * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+        }
+        
+        // Free
+        if (ptr_c1) nppiFree(ptr_c1);
+        if (ptr_c3) nppiFree(ptr_c3);
+    }
+    
+    std::cout << "Successfully completed " << cycles << " alloc/free cycles" << std::endl;
+}
