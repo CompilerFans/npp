@@ -631,3 +631,364 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_PerformanceTest) {
     nppiFree(d_src);
     nppiFree(d_dst);
 }
+
+// Enhanced parameterized tests for nppiConvert_8u32f_C3R
+struct ConvertSizeParams {
+    int width;
+    int height;
+    std::string description;
+};
+
+class ConvertC3RSizeTest : public ::testing::TestWithParam<ConvertSizeParams> {
+protected:
+    void SetUp() override {
+        auto params = GetParam();
+        width = params.width;
+        height = params.height;
+        roi.width = width;
+        roi.height = height;
+    }
+
+    int width, height;
+    NppiSize roi;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    ConvertC3RSizes,
+    ConvertC3RSizeTest,
+    ::testing::Values(
+        ConvertSizeParams{1, 1, "SinglePixel"},
+        ConvertSizeParams{2, 1, "TwoPixelRow"},
+        ConvertSizeParams{1, 2, "TwoPixelCol"},
+        ConvertSizeParams{3, 2, "SmallRect"},
+        ConvertSizeParams{4, 4, "SmallSquare"},
+        ConvertSizeParams{5, 7, "OddSize"},
+        ConvertSizeParams{8, 6, "BasicSize"},
+        ConvertSizeParams{16, 8, "Rect16x8"},
+        ConvertSizeParams{8, 16, "Rect8x16"},
+        ConvertSizeParams{32, 32, "Square32"},
+        ConvertSizeParams{64, 16, "WideRect"},
+        ConvertSizeParams{16, 64, "TallRect"},
+        ConvertSizeParams{128, 96, "MediumSize"},
+        ConvertSizeParams{256, 192, "LargeSize"},
+        ConvertSizeParams{512, 384, "VeryLarge"},
+        ConvertSizeParams{1024, 768, "HighRes"},
+        ConvertSizeParams{2048, 1536, "UltraHighRes"},
+        ConvertSizeParams{4096, 2048, "ExtremeSize"}
+    ),
+    [](const ::testing::TestParamInfo<ConvertSizeParams>& info) {
+        return info.param.description + "_" + 
+               std::to_string(info.param.width) + "x" + 
+               std::to_string(info.param.height);
+    }
+);
+
+TEST_P(ConvertC3RSizeTest, Convert_8u32f_C3R_SizeParameterized) {
+    const int channels = 3;
+    std::vector<Npp8u> srcData(width * height * channels);
+    std::vector<Npp32f> expectedData(width * height * channels);
+    
+    // Create size-dependent test pattern
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * channels;
+            
+            // R channel: position encoding with size factor
+            Npp8u r_val = (Npp8u)((x * 255) / std::max(1, width - 1));
+            // G channel: vertical gradient with size factor  
+            Npp8u g_val = (Npp8u)((y * 255) / std::max(1, height - 1));
+            // B channel: combined pattern
+            Npp8u b_val = (Npp8u)(((x + y) * 255) / std::max(1, width + height - 2));
+            
+            srcData[idx + 0] = r_val;
+            srcData[idx + 1] = g_val;
+            srcData[idx + 2] = b_val;
+            
+            expectedData[idx + 0] = (Npp32f)r_val;
+            expectedData[idx + 1] = (Npp32f)g_val;
+            expectedData[idx + 2] = (Npp32f)b_val;
+        }
+    }
+    
+    // Allocate GPU memory
+    int srcStep, dstStep;
+    Npp8u* d_src = nppiMalloc_8u_C3(width, height, &srcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C3(width, height, &dstStep);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // Copy input data to GPU
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy((char*)d_src + y * srcStep,
+                   srcData.data() + y * width * channels,
+                   width * channels * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
+    
+    // Execute conversion
+    NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
+    EXPECT_EQ(status, NPP_SUCCESS);
+    
+    // Copy result back to host
+    std::vector<Npp32f> resultData(width * height * channels);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width * channels,
+                   (char*)d_dst + y * dstStep,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    // Verify results
+    for (int i = 0; i < width * height * channels; i++) {
+        EXPECT_FLOAT_EQ(resultData[i], expectedData[i]) 
+            << "Size test failed at index " << i << " for size " << width << "x" << height;
+    }
+    
+    nppiFree(d_src);
+    nppiFree(d_dst);
+}
+
+// Data pattern tests for different conversion scenarios
+struct ConvertPatternParams {
+    std::string name;
+    std::function<Npp8u(int, int, int, int, int)> generator; // x, y, width, height, channel
+};
+
+class ConvertC3RPatternTest : public ::testing::TestWithParam<ConvertPatternParams> {
+protected:
+    void SetUp() override {
+        width = 16;
+        height = 12;
+        roi.width = width;
+        roi.height = height;
+    }
+
+    int width, height;
+    NppiSize roi;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    ConvertC3RPatterns,
+    ConvertC3RPatternTest,
+    ::testing::Values(
+        ConvertPatternParams{
+            "FullRange",
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                (void)w; (void)h; (void)c;
+                return (Npp8u)(((x + y) * 255) / 27); 
+            }
+        },
+        ConvertPatternParams{
+            "Boundaries", 
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                (void)c;
+                if (x == 0 || y == 0 || x == w-1 || y == h-1) return 255;
+                return 0;
+            }
+        },
+        ConvertPatternParams{
+            "Checkerboard",
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                (void)w; (void)h; (void)c;
+                return ((x + y) % 2) ? 255 : 0; 
+            }
+        },
+        ConvertPatternParams{
+            "ChannelGradients",
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                if (c == 0) return (Npp8u)((x * 255) / std::max(1, w - 1));      // R: horizontal
+                if (c == 1) return (Npp8u)((y * 255) / std::max(1, h - 1));      // G: vertical
+                return (Npp8u)(((x + y) * 255) / std::max(1, w + h - 2));        // B: diagonal
+            }
+        },
+        ConvertPatternParams{
+            "RGBPrimaries",
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                (void)y; (void)h; // Suppress unused variable warnings
+                int block_w = w / 3;
+                int block_x = x / std::max(1, block_w);
+                
+                if (block_x == 0 && c == 0) return 255;      // Red region
+                if (block_x == 1 && c == 1) return 255;      // Green region  
+                if (block_x == 2 && c == 2) return 255;      // Blue region
+                return 0;
+            }
+        },
+        ConvertPatternParams{
+            "NoisePattern",
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                // Deterministic pseudo-random pattern
+                unsigned int seed = (unsigned int)(x * 1000 + y * 100 + c * 10 + w + h);
+                seed = seed * 1103515245 + 12345;
+                return (Npp8u)(seed % 256);
+            }
+        },
+        ConvertPatternParams{
+            "Stripes",
+            [](int x, int y, int w, int h, int c) -> Npp8u { 
+                (void)w; (void)h;
+                if (c == 0) return (y % 4 < 2) ? 255 : 0;    // R: horizontal stripes
+                if (c == 1) return (x % 4 < 2) ? 255 : 0;    // G: vertical stripes
+                return ((x + y) % 4 < 2) ? 255 : 0;          // B: diagonal stripes
+            }
+        }
+    ),
+    [](const ::testing::TestParamInfo<ConvertPatternParams>& info) {
+        return info.param.name;
+    }
+);
+
+TEST_P(ConvertC3RPatternTest, Convert_8u32f_C3R_DataPatterns) {
+    auto params = GetParam();
+    const int channels = 3;
+    std::vector<Npp8u> srcData(width * height * channels);
+    std::vector<Npp32f> expectedData(width * height * channels);
+    
+    // Generate test data using pattern
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * channels;
+            for (int c = 0; c < channels; c++) {
+                Npp8u val = params.generator(x, y, width, height, c);
+                srcData[idx + c] = val;
+                expectedData[idx + c] = (Npp32f)val;
+            }
+        }
+    }
+    
+    // Allocate GPU memory
+    int srcStep, dstStep;
+    Npp8u* d_src = nppiMalloc_8u_C3(width, height, &srcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C3(width, height, &dstStep);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // Copy input data to GPU
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy((char*)d_src + y * srcStep,
+                   srcData.data() + y * width * channels,
+                   width * channels * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
+    
+    // Execute conversion
+    NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
+    EXPECT_EQ(status, NPP_SUCCESS);
+    
+    // Copy result back to host
+    std::vector<Npp32f> resultData(width * height * channels);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width * channels,
+                   (char*)d_dst + y * dstStep,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    // Verify conversion results
+    for (int i = 0; i < width * height * channels; i++) {
+        EXPECT_FLOAT_EQ(resultData[i], expectedData[i]) 
+            << "Pattern test failed at index " << i << " for pattern: " << params.name;
+    }
+    
+    nppiFree(d_src);
+    nppiFree(d_dst);
+}
+
+// Stream context tests for different sizes
+class ConvertC3RStreamTest : public ::testing::TestWithParam<ConvertSizeParams> {
+protected:
+    void SetUp() override {
+        auto params = GetParam();
+        width = params.width;
+        height = params.height;
+        roi.width = width;
+        roi.height = height;
+    }
+
+    int width, height;
+    NppiSize roi;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    ConvertC3RStreamSizes,
+    ConvertC3RStreamTest,
+    ::testing::Values(
+        ConvertSizeParams{4, 4, "Small"},
+        ConvertSizeParams{16, 16, "Medium"},
+        ConvertSizeParams{64, 64, "Large"},
+        ConvertSizeParams{256, 256, "VeryLarge"},
+        ConvertSizeParams{1024, 512, "HighRes"}
+    ),
+    [](const ::testing::TestParamInfo<ConvertSizeParams>& info) {
+        return info.param.description + "_" + 
+               std::to_string(info.param.width) + "x" + 
+               std::to_string(info.param.height);
+    }
+);
+
+TEST_P(ConvertC3RStreamTest, Convert_8u32f_C3R_StreamContext) {
+    const int channels = 3;
+    std::vector<Npp8u> srcData(width * height * channels);
+    std::vector<Npp32f> expectedData(width * height * channels);
+    
+    // Create stream-specific test pattern
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * channels;
+            
+            // Generate pattern based on position
+            Npp8u r_val = (Npp8u)(x % 256);
+            Npp8u g_val = (Npp8u)(y % 256);  
+            Npp8u b_val = (Npp8u)((x + y) % 256);
+            
+            srcData[idx + 0] = r_val;
+            srcData[idx + 1] = g_val;
+            srcData[idx + 2] = b_val;
+            
+            expectedData[idx + 0] = (Npp32f)r_val;
+            expectedData[idx + 1] = (Npp32f)g_val;
+            expectedData[idx + 2] = (Npp32f)b_val;
+        }
+    }
+    
+    // Allocate GPU memory
+    int srcStep, dstStep;
+    Npp8u* d_src = nppiMalloc_8u_C3(width, height, &srcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C3(width, height, &dstStep);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // Copy input data to GPU
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy((char*)d_src + y * srcStep,
+                   srcData.data() + y * width * channels,
+                   width * channels * sizeof(Npp8u),
+                   cudaMemcpyHostToDevice);
+    }
+    
+    // Create stream context
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    
+    // Execute conversion with stream context
+    NppStatus status = nppiConvert_8u32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
+    EXPECT_EQ(status, NPP_SUCCESS);
+    
+    // Copy result back to host
+    std::vector<Npp32f> resultData(width * height * channels);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width * channels,
+                   (char*)d_dst + y * dstStep,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    // Verify stream context results
+    for (int i = 0; i < width * height * channels; i++) {
+        EXPECT_FLOAT_EQ(resultData[i], expectedData[i]) 
+            << "Stream test failed at index " << i << " for size " << width << "x" << height;
+    }
+    
+    nppiFree(d_src);
+    nppiFree(d_dst);
+}
