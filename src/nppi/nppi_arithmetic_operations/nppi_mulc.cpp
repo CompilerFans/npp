@@ -33,7 +33,7 @@ static NppStatus validateParameters(const void *pSrc, int nSrcStep, const void *
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -205,7 +205,7 @@ NppStatus nppiMulC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

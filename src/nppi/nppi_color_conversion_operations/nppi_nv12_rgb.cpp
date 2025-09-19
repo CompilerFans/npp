@@ -33,7 +33,7 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -80,7 +80,7 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -160,7 +160,7 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
     return NPP_STEP_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -208,7 +208,7 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -257,7 +257,7 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 

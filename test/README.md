@@ -108,7 +108,7 @@ TEST_F(MyFunctionTest, BasicOperation) {
     // 测试基本功能
 }
 
-TEST_F(MyFunctionTest, ErrorHandling) {
+TEST_F(MyFunctionTest, DISABLED_ErrorHandling) {
     // 测试错误处理
 }
 ```

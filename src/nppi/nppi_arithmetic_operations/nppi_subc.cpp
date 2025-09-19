@@ -259,7 +259,7 @@ NppStatus nppiSubC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -337,7 +337,7 @@ NppStatus nppiSubC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -370,7 +370,7 @@ NppStatus nppiSubC_16u_C3RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -403,7 +403,7 @@ NppStatus nppiSubC_32f_C3R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -431,7 +431,7 @@ NppStatus nppiSubC_8u_C4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

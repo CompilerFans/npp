@@ -16,7 +16,7 @@ NppStatus nppiAnd_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSr
   if (!pSrc1 || !pSrc2 || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrc1Step < oSizeROI.width || nSrc2Step < oSizeROI.width || nDstStep < oSizeROI.width) {
@@ -43,7 +43,7 @@ NppStatus nppiAndC_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u nCons
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width || nDstStep < oSizeROI.width) {

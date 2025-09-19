@@ -20,7 +20,7 @@ NppStatus nppiSet_32f_C1R_Ctx_cuda(Npp32f nValue, Npp32f *pDst, int nDstStep, Np
 
 // Input validation helper
 static inline NppStatus validateSetInputs(void *pDst, int nDstStep, NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

@@ -16,7 +16,7 @@ NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t *hp
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -33,7 +33,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -61,7 +61,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u *pSrcDst, Npp32s nSrcDstStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

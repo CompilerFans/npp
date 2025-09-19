@@ -25,7 +25,7 @@ NppStatus nppiFilter_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *
 static inline NppStatus validateFilterInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                              NppiSize oSizeROI, const void *pKernel, NppiSize oKernelSize,
                                              NppiPoint oAnchor) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

@@ -24,7 +24,7 @@ NppStatus nppiSqrt_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
  */
 static inline NppStatus validateSqrtInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                            NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

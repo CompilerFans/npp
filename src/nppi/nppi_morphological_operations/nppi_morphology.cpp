@@ -23,7 +23,7 @@ NppStatus nppiDilate3x3_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32
 // Input validation helper for morphological operations
 static inline NppStatus validateMorphologyInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                                  NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

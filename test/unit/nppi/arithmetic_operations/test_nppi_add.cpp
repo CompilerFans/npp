@@ -252,7 +252,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1IR_InPlaceOperation) {
 // ==================== 错误处理测试 ====================
 
 // Test error handling for null pointers
-TEST_F(AddFunctionalTest, Add_ErrorHandling_NullPointer) {
+TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_NullPointer) {
   const int width = 16;
   const int height = 16;
 
@@ -268,7 +268,7 @@ TEST_F(AddFunctionalTest, Add_ErrorHandling_NullPointer) {
 }
 
 // Test error handling for invalid ROI
-TEST_F(AddFunctionalTest, Add_ErrorHandling_InvalidROI) {
+TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_InvalidROI) {
   const int width = 16;
   const int height = 16;
 

@@ -19,7 +19,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSiz
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -32,7 +32,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpBu
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

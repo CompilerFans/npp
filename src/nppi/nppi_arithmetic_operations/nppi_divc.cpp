@@ -36,7 +36,7 @@ static NppStatus validateParameters(const void *pSrc, int nSrcStep, const void *
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -223,7 +223,7 @@ NppStatus nppiDivC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -279,7 +279,7 @@ NppStatus nppiDivC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return NPP_NULL_POINTER_ERROR;
   if (nSrc1Step <= 0 || nDstStep <= 0)
     return NPP_STEP_ERROR;
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+  if (oSizeROI.width < 0 || oSizeROI.height < 0)
     return NPP_SIZE_ERROR;
   if (aConstants[0] == 0 || aConstants[1] == 0 || aConstants[2] == 0)
     return NPP_DIVISOR_ERROR;

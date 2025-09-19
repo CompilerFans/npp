@@ -22,7 +22,7 @@ NppStatus nppiAbsDiff_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const
 static inline NppStatus validateAbsDiffInputs(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                               void *pDst, int nDstStep, NppiSize oSizeROI) {
   // 按NPP标准的错误检查优先级顺序
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

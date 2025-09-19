@@ -14,7 +14,7 @@ NppStatus nppiFilterBox_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) {

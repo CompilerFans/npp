@@ -280,7 +280,7 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI to avoid invalid kernel configurations
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_NO_ERROR;
   }
 

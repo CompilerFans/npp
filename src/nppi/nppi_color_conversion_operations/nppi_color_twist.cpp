@@ -21,7 +21,7 @@ NppStatus nppiColorTwist32f_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp
 // Input validation helper
 static inline NppStatus validateColorTwistInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                                  NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

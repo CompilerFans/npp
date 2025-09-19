@@ -24,7 +24,7 @@ NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Np
  */
 static inline NppStatus validateRGBToGrayInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                                 NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

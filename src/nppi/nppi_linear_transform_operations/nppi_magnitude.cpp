@@ -25,7 +25,7 @@ static NppStatus validateMagnitudeParameters(const void *pSrc, int nSrcStep, con
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -95,7 +95,7 @@ NppStatus nppiMagnitude_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, 
   if (pSrc == nullptr || pDst == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * 2 * (int)sizeof(Npp32f) || nDstStep < oSizeROI.width * (int)sizeof(Npp32f)) {

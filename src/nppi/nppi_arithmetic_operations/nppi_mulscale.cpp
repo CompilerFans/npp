@@ -21,7 +21,7 @@ NppStatus nppiMulScale_16u_C1R_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, cons
  */
 static inline NppStatus validateMulScaleInputs(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                                void *pDst, int nDstStep, NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -41,7 +41,7 @@ static inline NppStatus validateMulScaleInputs(const void *pSrc1, int nSrc1Step,
  */
 static inline NppStatus validateMulScaleInPlaceInputs(const void *pSrc, int nSrcStep, void *pSrcDst, int nSrcDstStep,
                                                       NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
