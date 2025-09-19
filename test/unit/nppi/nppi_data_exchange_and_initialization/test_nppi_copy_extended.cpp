@@ -461,6 +461,321 @@ TEST_P(CopyDataPatternTest, Copy_32f_C3R_DataPatterns) {
     nppiFree(d_dst);
 }
 
+// Enhanced parameterized tests for nppiCopy_32f_C3R
+class CopyC3REnhancedTest : public ::testing::TestWithParam<ImageSizeParams> {
+protected:
+    void SetUp() override {
+        auto params = GetParam();
+        width = params.width;
+        height = params.height;
+        roi.width = width;
+        roi.height = height;
+    }
+
+    int width, height;
+    NppiSize roi;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    C3REnhancedSizes,
+    CopyC3REnhancedTest,
+    ::testing::Values(
+        ImageSizeParams{1, 1, "SinglePixel"},
+        ImageSizeParams{2, 3, "SmallRect"},
+        ImageSizeParams{3, 3, "SmallSquare"},
+        ImageSizeParams{5, 7, "OddSize"},
+        ImageSizeParams{16, 8, "Rect16x8"},
+        ImageSizeParams{32, 32, "Square32x32"},
+        ImageSizeParams{64, 16, "WideRect"},
+        ImageSizeParams{8, 64, "TallRect"},
+        ImageSizeParams{128, 96, "MediumSize"},
+        ImageSizeParams{256, 192, "LargeSize"}
+    ),
+    [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
+        return info.param.description + "_" + 
+               std::to_string(info.param.width) + "x" + 
+               std::to_string(info.param.height);
+    }
+);
+
+TEST_P(CopyC3REnhancedTest, Copy_32f_C3R_EnhancedSizes) {
+    const int channels = 3;
+    std::vector<Npp32f> srcData(width * height * channels);
+    
+    // Create RGB channel-specific test data
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * channels;
+            srcData[idx + 0] = (float)(x + y * 1000.0f);        // R: position encoding
+            srcData[idx + 1] = (float)(x * y + 10000.0f);       // G: product encoding
+            srcData[idx + 2] = (float)((x ^ y) + 20000.0f);     // B: XOR encoding
+        }
+    }
+    
+    // Allocate GPU memory
+    int srcStep, dstStep;
+    Npp32f* d_src = nppiMalloc_32f_C3(width, height, &srcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C3(width, height, &dstStep);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // Copy data to GPU
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy((char*)d_src + y * srcStep,
+                   srcData.data() + y * width * channels,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyHostToDevice);
+    }
+    
+    // Execute copy
+    NppStatus status = nppiCopy_32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
+    EXPECT_EQ(status, NPP_SUCCESS);
+    
+    // Verify result
+    std::vector<Npp32f> resultData(width * height * channels);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width * channels,
+                   (char*)d_dst + y * dstStep,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    for (int i = 0; i < width * height * channels; i++) {
+        EXPECT_FLOAT_EQ(resultData[i], srcData[i]) 
+            << "Enhanced C3R copy failed at index " << i << " for size " << width << "x" << height;
+    }
+    
+    nppiFree(d_src);
+    nppiFree(d_dst);
+}
+
+// Data pattern tests for nppiCopy_32f_C3R
+class CopyC3RDataPatternTest : public ::testing::TestWithParam<DataPatternParams> {
+protected:
+    void SetUp() override {
+        width = 16;
+        height = 12;
+        roi.width = width;
+        roi.height = height;
+    }
+
+    int width, height;
+    NppiSize roi;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    C3RDataPatterns,
+    CopyC3RDataPatternTest,
+    ::testing::Values(
+        DataPatternParams{
+            "Constant",
+            [](int x, int y, int w, int h, int c) -> float { 
+                (void)x; (void)y; (void)w; (void)h;
+                return (float)(c + 1) * 100.0f; 
+            }
+        },
+        DataPatternParams{
+            "RGBGradients",
+            [](int x, int y, int w, int h, int c) -> float { 
+                if (c == 0) return (float)x / (w - 1) * 255.0f;        // R: horizontal gradient
+                if (c == 1) return (float)y / (h - 1) * 255.0f;        // G: vertical gradient
+                return (float)(x + y) / (w + h - 2) * 255.0f;          // B: diagonal gradient
+            }
+        },
+        DataPatternParams{
+            "RGBCheckers",
+            [](int x, int y, int w, int h, int c) -> float { 
+                (void)w; (void)h;
+                bool checker = ((x + y) % 2) == 0;
+                if (c == 0) return checker ? 255.0f : 0.0f;            // R: checkerboard
+                if (c == 1) return checker ? 0.0f : 255.0f;            // G: inverted checkerboard
+                return checker == ((x + y + 1) % 2) ? 128.0f : 64.0f;  // B: offset pattern
+            }
+        },
+        DataPatternParams{
+            "RGBSines",
+            [](int x, int y, int w, int h, int c) -> float { 
+                float pi = 3.14159f;
+                if (c == 0) return sin((float)x * pi / w) * 127.5f + 127.5f;           // R: horizontal sine
+                if (c == 1) return cos((float)y * pi / h) * 127.5f + 127.5f;           // G: vertical cosine
+                return sin((float)(x + y) * pi / (w + h)) * 127.5f + 127.5f;           // B: diagonal sine
+            }
+        },
+        DataPatternParams{
+            "RGBCircles",
+            [](int x, int y, int w, int h, int c) -> float { 
+                float cx = w / 2.0f, cy = h / 2.0f;
+                float dx = x - cx, dy = y - cy;
+                float dist = sqrt(dx*dx + dy*dy);
+                float maxDist = sqrt(cx*cx + cy*cy);
+                if (c == 0) return (1.0f - dist / maxDist) * 255.0f;                   // R: radial gradient
+                if (c == 1) return sin(dist * 0.5f) * 127.5f + 127.5f;                 // G: concentric circles
+                return cos(dist * 0.3f + c) * 127.5f + 127.5f;                         // B: phase-shifted circles
+            }
+        },
+        DataPatternParams{
+            "RGBNoise",
+            [](int x, int y, int w, int h, int c) -> float { 
+                // Deterministic pseudo-random based on position and channel
+                unsigned int seed = (unsigned int)(x * 1000 + y * 100 + c * 10 + w + h);
+                seed = seed * 1103515245 + 12345;
+                return (float)(seed % 256);
+            }
+        },
+        DataPatternParams{
+            "RGBBoundaries",
+            [](int x, int y, int w, int h, int c) -> float { 
+                bool isEdge = (x == 0 || y == 0 || x == w-1 || y == h-1);
+                bool isCorner = (x == 0 || x == w-1) && (y == 0 || y == h-1);
+                if (c == 0) return isCorner ? 255.0f : (isEdge ? 128.0f : 64.0f);      // R: corner/edge detection
+                if (c == 1) return isEdge ? 255.0f : 0.0f;                             // G: edge detection
+                return (float)((x + y) % 256);                                         // B: position-based
+            }
+        }
+    ),
+    [](const ::testing::TestParamInfo<DataPatternParams>& info) {
+        return info.param.name;
+    }
+);
+
+TEST_P(CopyC3RDataPatternTest, Copy_32f_C3R_DataPatterns) {
+    auto params = GetParam();
+    const int channels = 3;
+    std::vector<Npp32f> srcData(width * height * channels);
+    
+    // Generate RGB test data using pattern
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * channels;
+            for (int c = 0; c < channels; c++) {
+                srcData[idx + c] = params.generator(x, y, width, height, c);
+            }
+        }
+    }
+    
+    // Allocate GPU memory
+    int srcStep, dstStep;
+    Npp32f* d_src = nppiMalloc_32f_C3(width, height, &srcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C3(width, height, &dstStep);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // Copy data to GPU
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy((char*)d_src + y * srcStep,
+                   srcData.data() + y * width * channels,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyHostToDevice);
+    }
+    
+    // Execute copy
+    NppStatus status = nppiCopy_32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
+    EXPECT_EQ(status, NPP_SUCCESS);
+    
+    // Verify result
+    std::vector<Npp32f> resultData(width * height * channels);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width * channels,
+                   (char*)d_dst + y * dstStep,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    for (int i = 0; i < width * height * channels; i++) {
+        EXPECT_FLOAT_EQ(resultData[i], srcData[i]) 
+            << "C3R pattern test failed at index " << i << " for pattern: " << params.name;
+    }
+    
+    nppiFree(d_src);
+    nppiFree(d_dst);
+}
+
+
+// Stream context tests for nppiCopy_32f_C3R
+class CopyC3RStreamTest : public ::testing::TestWithParam<ImageSizeParams> {
+protected:
+    void SetUp() override {
+        auto params = GetParam();
+        width = params.width;
+        height = params.height;
+        roi.width = width;
+        roi.height = height;
+    }
+
+    int width, height;
+    NppiSize roi;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    C3RStreamSizes,
+    CopyC3RStreamTest,
+    ::testing::Values(
+        ImageSizeParams{4, 4, "Small"},
+        ImageSizeParams{16, 16, "Medium"},
+        ImageSizeParams{64, 64, "Large"}
+    ),
+    [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
+        return info.param.description + "_" + 
+               std::to_string(info.param.width) + "x" + 
+               std::to_string(info.param.height);
+    }
+);
+
+TEST_P(CopyC3RStreamTest, Copy_32f_C3R_StreamContext) {
+    const int channels = 3;
+    std::vector<Npp32f> srcData(width * height * channels);
+    
+    // Create test data with RGB patterns
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * channels;
+            srcData[idx + 0] = (float)(x % 256);          // R: horizontal pattern
+            srcData[idx + 1] = (float)(y % 256);          // G: vertical pattern
+            srcData[idx + 2] = (float)((x + y) % 256);    // B: diagonal pattern
+        }
+    }
+    
+    // Allocate GPU memory
+    int srcStep, dstStep;
+    Npp32f* d_src = nppiMalloc_32f_C3(width, height, &srcStep);
+    Npp32f* d_dst = nppiMalloc_32f_C3(width, height, &dstStep);
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    // Copy data to GPU
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy((char*)d_src + y * srcStep,
+                   srcData.data() + y * width * channels,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyHostToDevice);
+    }
+    
+    // Create stream context
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    
+    // Execute copy with stream context
+    NppStatus status = nppiCopy_32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
+    EXPECT_EQ(status, NPP_SUCCESS);
+    
+    // Verify result
+    std::vector<Npp32f> resultData(width * height * channels);
+    for (int y = 0; y < height; y++) {
+        cudaMemcpy(resultData.data() + y * width * channels,
+                   (char*)d_dst + y * dstStep,
+                   width * channels * sizeof(Npp32f),
+                   cudaMemcpyDeviceToHost);
+    }
+    
+    for (int i = 0; i < width * height * channels; i++) {
+        EXPECT_FLOAT_EQ(resultData[i], srcData[i]) 
+            << "C3R stream context test failed at index " << i;
+    }
+    
+    nppiFree(d_src);
+    nppiFree(d_dst);
+}
+
 // Parameterized tests for nppiCopy_32f_C1R
 class CopyC1RParameterizedTest : public ::testing::TestWithParam<ImageSizeParams> {
 protected:
