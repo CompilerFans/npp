@@ -270,7 +270,8 @@ INSTANTIATE_TEST_SUITE_P(
         ImageSizeParams{32, 32, "Square32x32"},
         ImageSizeParams{64, 16, "WideRect"},
         ImageSizeParams{8, 64, "TallRect"},
-        ImageSizeParams{128, 96, "MediumSize"}
+        ImageSizeParams{128, 96, "MediumSize"},
+        ImageSizeParams{8192, 4096, "Large"}
     ),
     [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
         return info.param.description + "_" + 
@@ -489,7 +490,8 @@ INSTANTIATE_TEST_SUITE_P(
         ImageSizeParams{64, 16, "WideRect"},
         ImageSizeParams{8, 64, "TallRect"},
         ImageSizeParams{128, 96, "MediumSize"},
-        ImageSizeParams{256, 192, "LargeSize"}
+        ImageSizeParams{256, 192, "LargeSize"},
+        ImageSizeParams{8192, 4096, "Large"}
     ),
     [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
         return info.param.description + "_" + 
@@ -712,7 +714,8 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(
         ImageSizeParams{4, 4, "Small"},
         ImageSizeParams{16, 16, "Medium"},
-        ImageSizeParams{64, 64, "Large"}
+        ImageSizeParams{64, 64, "Large"},
+        ImageSizeParams{4096, 2048, "Large2"}
     ),
     [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
         return info.param.description + "_" + 
@@ -803,7 +806,8 @@ INSTANTIATE_TEST_SUITE_P(
         ImageSizeParams{32, 32, "Square32x32"},
         ImageSizeParams{64, 16, "WideRect"},
         ImageSizeParams{8, 64, "TallRect"},
-        ImageSizeParams{128, 96, "MediumSize"}
+        ImageSizeParams{128, 96, "MediumSize"},
+        ImageSizeParams{8192, 4096, "Large"}
     ),
     [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
         return info.param.description + "_" + 
@@ -1005,7 +1009,8 @@ INSTANTIATE_TEST_SUITE_P(
         ImageSizeParams{32, 32, "Square32x32"},
         ImageSizeParams{64, 16, "WideRect"},
         ImageSizeParams{8, 64, "TallRect"},
-        ImageSizeParams{128, 96, "MediumSize"}
+        ImageSizeParams{128, 96, "MediumSize"},
+        ImageSizeParams{8192, 4096, "Large"}
     ),
     [](const ::testing::TestParamInfo<ImageSizeParams>& info) {
         return info.param.description + "_" + 
