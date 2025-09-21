@@ -471,12 +471,12 @@ TEST_F(NppiConvert8u32fC3RTest, ExtremeDimensions) {
 // Test 11: Gradient Pattern Conversion
 TEST_F(NppiConvert8u32fC3RTest, GradientPatternConversion) {
   const int width = 64, height = 64;
-  
+
   Npp8u *d_src = nullptr;
   Npp32f *d_dst = nullptr;
   int srcStep, dstStep;
   allocateAlignedImage(&d_src, &d_dst, width, height, &srcStep, &dstStep);
-  
+
   // Create gradient pattern
   std::vector<Npp8u> hostSrc(width * height * 3);
   for (int y = 0; y < height; y++) {
@@ -487,20 +487,20 @@ TEST_F(NppiConvert8u32fC3RTest, GradientPatternConversion) {
       hostSrc[idx + 2] = static_cast<Npp8u>((y * 2) % 256); // B channel
     }
   }
-  
+
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
-  
+
   NppiSize roi = {width, height};
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
   ASSERT_EQ(status, NPP_SUCCESS);
-  
+
   std::vector<Npp32f> hostDst(width * height * 3);
-  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, 
-               width * 3 * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
-  
+  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
   // Verify gradient conversion
   EXPECT_TRUE(verifyConversion(hostSrc, hostDst, width, height));
-  
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -508,12 +508,12 @@ TEST_F(NppiConvert8u32fC3RTest, GradientPatternConversion) {
 // Test 12: Channel Independence Verification
 TEST_F(NppiConvert8u32fC3RTest, ChannelIndependenceVerification) {
   const int width = 32, height = 32;
-  
+
   Npp8u *d_src = nullptr;
   Npp32f *d_dst = nullptr;
   int srcStep, dstStep;
   allocateAlignedImage(&d_src, &d_dst, width, height, &srcStep, &dstStep);
-  
+
   // Create data where each channel has distinct values
   std::vector<Npp8u> hostSrc(width * height * 3);
   for (int i = 0; i < width * height; i++) {
@@ -521,24 +521,24 @@ TEST_F(NppiConvert8u32fC3RTest, ChannelIndependenceVerification) {
     hostSrc[i * 3 + 1] = 150; // G channel constant
     hostSrc[i * 3 + 2] = 200; // B channel constant
   }
-  
+
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
-  
+
   NppiSize roi = {width, height};
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
   ASSERT_EQ(status, NPP_SUCCESS);
-  
+
   std::vector<Npp32f> hostDst(width * height * 3);
-  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep,
-               width * 3 * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
-  
+  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
   // Verify each channel maintains its distinct value
   for (int i = 0; i < width * height; i++) {
     EXPECT_FLOAT_EQ(hostDst[i * 3], 100.0f) << "R channel mismatch at pixel " << i;
     EXPECT_FLOAT_EQ(hostDst[i * 3 + 1], 150.0f) << "G channel mismatch at pixel " << i;
     EXPECT_FLOAT_EQ(hostDst[i * 3 + 2], 200.0f) << "B channel mismatch at pixel " << i;
   }
-  
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }

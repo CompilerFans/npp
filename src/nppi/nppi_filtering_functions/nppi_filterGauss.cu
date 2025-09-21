@@ -20,9 +20,9 @@ __constant__ float c_gauss7x7[49] = {
     0.0391f, 0.0098f, 0.0078f, 0.0313f, 0.0625f, 0.0781f, 0.0625f, 0.0313f, 0.0078f, 0.0039f, 0.0156f, 0.0313f, 0.0391f,
     0.0313f, 0.0156f, 0.0039f, 0.0009f, 0.0039f, 0.0078f, 0.0098f, 0.0078f, 0.0039f, 0.0009f};
 
-// 修复的8位单通道高斯滤波kernel
-__global__ void nppiFilterGauss_8u_C1R_kernel_fixed(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                    int width, int height, int kernelSize) {
+// 8位单通道高斯滤波kernel
+__global__ void nppiFilterGauss_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                              int height, int kernelSize) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -63,9 +63,9 @@ __global__ void nppiFilterGauss_8u_C1R_kernel_fixed(const Npp8u *pSrc, int nSrcS
   *dst_pixel = (Npp8u)fmaxf(0.0f, fminf(255.0f, result));
 }
 
-// 修复的8位三通道高斯滤波kernel
-__global__ void nppiFilterGauss_8u_C3R_kernel_fixed(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                    int width, int height, int kernelSize) {
+// 8位三通道高斯滤波kernel
+__global__ void nppiFilterGauss_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                              int height, int kernelSize) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -110,9 +110,9 @@ __global__ void nppiFilterGauss_8u_C3R_kernel_fixed(const Npp8u *pSrc, int nSrcS
   }
 }
 
-// 修复的32位浮点单通道高斯滤波kernel
-__global__ void nppiFilterGauss_32f_C1R_kernel_fixed(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                     int width, int height, int kernelSize) {
+// 32位浮点单通道高斯滤波kernel
+__global__ void nppiFilterGauss_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
+                                               int height, int kernelSize) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -156,9 +156,8 @@ __global__ void nppiFilterGauss_32f_C1R_kernel_fixed(const Npp32f *pSrc, int nSr
 extern "C" {
 
 // 8位单通道高斯滤波实现
-NppStatus nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiMaskSize eMaskSize,
-                                                NppStreamContext nppStreamCtx) {
+NppStatus nppiFilterGauss_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
@@ -183,7 +182,7 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep,
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterGauss_8u_C1R_kernel_fixed<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  nppiFilterGauss_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, kernelSize);
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -205,9 +204,8 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep,
 }
 
 // 8位三通道高斯滤波实现
-NppStatus nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiMaskSize eMaskSize,
-                                                NppStreamContext nppStreamCtx) {
+NppStatus nppiFilterGauss_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
@@ -232,7 +230,7 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep,
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterGauss_8u_C3R_kernel_fixed<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  nppiFilterGauss_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, kernelSize);
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -254,9 +252,8 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep,
 }
 
 // 32位浮点单通道高斯滤波实现
-NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                 NppiSize oSizeROI, NppiMaskSize eMaskSize,
-                                                 NppStreamContext nppStreamCtx) {
+NppStatus nppiFilterGauss_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+                                           NppiSize oSizeROI, NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
@@ -281,7 +278,7 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f *pSrc, int nSrcSte
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterGauss_32f_C1R_kernel_fixed<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  nppiFilterGauss_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, kernelSize);
 
   cudaError_t cudaStatus = cudaGetLastError();

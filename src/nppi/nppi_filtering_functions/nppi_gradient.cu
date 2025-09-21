@@ -250,7 +250,7 @@ NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, i
 }
 
 // 原始版本重命名为带_magdir后缀（保持原始实现）
-NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_magdir(const Npp8u *pSrc, int nSrcStep,
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_magdir(const Npp8u *pSrc, int nSrcStep,
                                                                     NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                                                     Npp16s *pDstMag, int nDstMagStep, Npp16s *pDstDir,
                                                                     int nDstDirStep, NppiSize oDstSizeROI,
@@ -353,7 +353,7 @@ __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, 
   }
 }
 
-extern "C" NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_xy(
+extern "C" NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(
     const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s *pDstX, int nDstXStep,
     Npp16s *pDstY, int nDstYStep, Npp16s *pDstMag, int nDstMagStep, Npp32f *pDstAngle, int nDstAngleStep,
     NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType,

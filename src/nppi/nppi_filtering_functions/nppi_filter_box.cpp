@@ -87,8 +87,9 @@ NppStatus nppiFilterBox_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, 
 }
 
 // nppiFilterBox_32f_C1R implementation
-NppStatus nppiFilterBox_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                                    NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
+NppStatus nppiFilterBox_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
+                                    NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                    NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
@@ -102,7 +103,8 @@ NppStatus nppiFilterBox_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
   if (oMaskSize.width > oSizeROI.width || oMaskSize.height > oSizeROI.height) {
     return NPP_MASK_SIZE_ERROR;
   }
-  if (nSrcStep < static_cast<Npp32s>(oSizeROI.width * sizeof(Npp32f)) || nDstStep < static_cast<Npp32s>(oSizeROI.width * sizeof(Npp32f))) {
+  if (nSrcStep < static_cast<Npp32s>(oSizeROI.width * sizeof(Npp32f)) ||
+      nDstStep < static_cast<Npp32s>(oSizeROI.width * sizeof(Npp32f))) {
     return NPP_STEP_ERROR;
   }
   if (oAnchor.x < 0 || oAnchor.x >= oMaskSize.width || oAnchor.y < 0 || oAnchor.y >= oMaskSize.height) {

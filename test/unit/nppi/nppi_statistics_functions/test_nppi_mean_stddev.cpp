@@ -3,11 +3,11 @@
 #include "npp.h"
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <random>
 #include <vector>
-#include <cmath>
 
 class NppiMeanStdDevTest : public ::testing::Test {
 protected:
@@ -22,16 +22,15 @@ protected:
   }
 
   // Function to calculate reference mean and standard deviation
-  template<typename T>
-  void calculateReferenceMeanStdDev(const std::vector<T>& data, double& mean, double& stddev) {
+  template <typename T> void calculateReferenceMeanStdDev(const std::vector<T> &data, double &mean, double &stddev) {
     double sum = 0.0;
-    for (const auto& val : data) {
+    for (const auto &val : data) {
       sum += static_cast<double>(val);
     }
     mean = sum / data.size();
-    
+
     double sumSquaredDiff = 0.0;
-    for (const auto& val : data) {
+    for (const auto &val : data) {
       double diff = static_cast<double>(val) - mean;
       sumSquaredDiff += diff * diff;
     }
@@ -43,19 +42,18 @@ protected:
 TEST_F(NppiMeanStdDevTest, MeanStdDevGetBufferHostSize_8u_C1R) {
   NppiSize oSizeROI = {256, 256};
   size_t bufferSize = 0;
-  
+
   NppStatus status = nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &bufferSize);
   ASSERT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
+
   // Test with different sizes
   NppiSize smallROI = {64, 64};
   size_t smallBufferSize = 0;
   status = nppiMeanStdDevGetBufferHostSize_8u_C1R(smallROI, &smallBufferSize);
   ASSERT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(smallBufferSize, 0);
-  
-  
+
   // Larger image should require larger buffer
   EXPECT_GT(bufferSize, smallBufferSize);
 }
@@ -64,7 +62,7 @@ TEST_F(NppiMeanStdDevTest, MeanStdDevGetBufferHostSize_8u_C1R) {
 TEST_F(NppiMeanStdDevTest, MeanStdDevGetBufferHostSize_32f_C1R) {
   NppiSize oSizeROI = {512, 512};
   size_t bufferSize = 0;
-  
+
   NppStatus status = nppiMeanStdDevGetBufferHostSize_32f_C1R(oSizeROI, &bufferSize);
   ASSERT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
@@ -150,7 +148,8 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_32f_C1R_GradientData) {
   ASSERT_NE(d_src, nullptr);
 
   // Upload data
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
 
   // Get buffer size and allocate buffer
   NppiSize oSizeROI = {width, height};
@@ -199,8 +198,8 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(0, 255);
-  
-  for (auto& val : hostSrc) {
+
+  for (auto &val : hostSrc) {
     val = static_cast<Npp8u>(dis(gen));
   }
 
@@ -234,7 +233,7 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
   cudaMalloc(&pDeviceBuffer, bufferSize);
   ASSERT_NE(pDeviceBuffer, nullptr);
 
-  // Allocate device memory for results  
+  // Allocate device memory for results
   Npp64f *pMean = nullptr;
   Npp64f *pStdDev = nullptr;
   cudaMalloc(&pMean, sizeof(Npp64f));
@@ -248,13 +247,13 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
 
   // Synchronize stream and get results
   cudaStreamSynchronize(stream);
-  
+
   Npp64f hostMean, hostStdDev;
   cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
   cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
 
   // Compare with reference values
-  EXPECT_NEAR(hostMean, refMean, 1.0);    // Allow for some numerical differences with random data
+  EXPECT_NEAR(hostMean, refMean, 1.0); // Allow for some numerical differences with random data
   EXPECT_NEAR(hostStdDev, refStdDev, 1.0);
 
   // Cleanup
@@ -284,7 +283,8 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_PerformanceComparison) {
 
   // Upload data
   cudaMemcpy2D(d_src8u, srcStep8u, hostSrc8u.data(), width, width, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src32f, srcStep32f, hostSrc32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src32f, srcStep32f, hostSrc32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
 
   // Allocate buffers
   NppiSize oSizeROI = {width, height};
@@ -361,10 +361,10 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_ErrorHandling) {
   Npp8u *d_src = nullptr;
   int srcStep = 100;
   d_src = nppiMalloc_8u_C1(100, 100, &srcStep);
-  
+
   Npp8u *pDeviceBuffer = nullptr;
   cudaMalloc(&pDeviceBuffer, 1024);
-  
+
   Npp64f *pMean = nullptr, *pStdDev = nullptr;
   cudaMalloc(&pMean, sizeof(Npp64f));
   cudaMalloc(&pStdDev, sizeof(Npp64f));

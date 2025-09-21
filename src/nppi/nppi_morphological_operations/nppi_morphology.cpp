@@ -18,22 +18,30 @@ NppStatus nppiDilate3x3_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32
 
 // General kernel implementations
 NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                    const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                    const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                    NppStreamContext nppStreamCtx);
 NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                    const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                    const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                    NppStreamContext nppStreamCtx);
 NppStatus nppiErode_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                     NppStreamContext nppStreamCtx);
 NppStatus nppiErode_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                     NppStreamContext nppStreamCtx);
 
 NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                     NppStreamContext nppStreamCtx);
 NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                     NppStreamContext nppStreamCtx);
 NppStatus nppiDilate_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                      NppStreamContext nppStreamCtx);
 NppStatus nppiDilate_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx);
+                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                      NppStreamContext nppStreamCtx);
 }
 
 // Input validation helper for morphological operations
@@ -163,8 +171,10 @@ NppStatus nppiDilate3x3_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDs
 
 // 8-bit unsigned single channel general erosion
 NppStatus nppiErode_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                               const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                               NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -173,7 +183,7 @@ NppStatus nppiErode_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, 
 }
 
 NppStatus nppiErode_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                          const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                           const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiErode_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -181,8 +191,10 @@ NppStatus nppiErode_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp3
 
 // 8-bit unsigned 4-channel general erosion
 NppStatus nppiErode_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                               const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                               const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                               NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -191,7 +203,7 @@ NppStatus nppiErode_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
 }
 
 NppStatus nppiErode_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                          const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                           const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiErode_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -199,8 +211,10 @@ NppStatus nppiErode_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDs
 
 // 32-bit float single channel general erosion
 NppStatus nppiErode_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -209,7 +223,7 @@ NppStatus nppiErode_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDs
 }
 
 NppStatus nppiErode_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                           const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                            const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiErode_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -217,8 +231,10 @@ NppStatus nppiErode_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, N
 
 // 32-bit float 4-channel general erosion
 NppStatus nppiErode_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -227,7 +243,7 @@ NppStatus nppiErode_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, 
 }
 
 NppStatus nppiErode_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                           const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                            const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiErode_32f_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -239,8 +255,10 @@ NppStatus nppiErode_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int 
 
 // 8-bit unsigned single channel general dilation
 NppStatus nppiDilate_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -249,7 +267,7 @@ NppStatus nppiDilate_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst,
 }
 
 NppStatus nppiDilate_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                           const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                            const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiDilate_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -257,8 +275,10 @@ NppStatus nppiDilate_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp
 
 // 8-bit unsigned 4-channel general dilation
 NppStatus nppiDilate_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                                const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -267,7 +287,7 @@ NppStatus nppiDilate_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
 }
 
 NppStatus nppiDilate_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                           const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                            const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiDilate_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -275,8 +295,10 @@ NppStatus nppiDilate_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nD
 
 // 32-bit float single channel general dilation
 NppStatus nppiDilate_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                                 const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                                 const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                 NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -285,7 +307,7 @@ NppStatus nppiDilate_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pD
 }
 
 NppStatus nppiDilate_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                            const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                             const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiDilate_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);
@@ -293,8 +315,10 @@ NppStatus nppiDilate_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, 
 
 // 32-bit float 4-channel general dilation
 NppStatus nppiDilate_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                 const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
+                                 const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
+                                 NppStreamContext nppStreamCtx) {
+  NppStatus status =
+      validateMorphologyInputsWithKernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -303,7 +327,7 @@ NppStatus nppiDilate_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst,
 }
 
 NppStatus nppiDilate_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                            const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
+                             const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiDilate_32f_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppStreamCtx);

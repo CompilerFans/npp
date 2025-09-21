@@ -1,7 +1,7 @@
 #include "nppdefs.h"
+#include <cooperative_groups.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include <cooperative_groups.h>
 
 using namespace cooperative_groups;
 
@@ -21,13 +21,15 @@ __device__ __forceinline__ double blockReduceSum(double val) {
 
   val = warpReduceSum(val);
 
-  if (lane == 0) shared[wid] = val;
+  if (lane == 0)
+    shared[wid] = val;
   __syncthreads();
 
   // Read from shared memory only if that warp existed
   val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
 
-  if (wid == 0) val = warpReduceSum(val);
+  if (wid == 0)
+    val = warpReduceSum(val);
 
   return val;
 }
@@ -37,7 +39,7 @@ __global__ void nppiMean_StdDev_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcSt
                                                    double *pBlockSums, double *pBlockSumSquares) {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int totalPixels = width * height;
-  
+
   double localSum = 0.0;
   double localSumSquares = 0.0;
 
@@ -45,10 +47,10 @@ __global__ void nppiMean_StdDev_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcSt
   for (int i = tid; i < totalPixels; i += blockDim.x * gridDim.x) {
     int y = i / width;
     int x = i % width;
-    
+
     const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
     double pixelValue = (double)pSrcRow[x];
-    
+
     localSum += pixelValue;
     localSumSquares += pixelValue * pixelValue;
   }
@@ -65,8 +67,8 @@ __global__ void nppiMean_StdDev_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcSt
 }
 
 // Final reduction kernel
-__global__ void finalReduction_kernel(double *pBlockSums, double *pBlockSumSquares, int numBlocks,
-                                     int totalPixels, double *pMean, double *pStdDev) {
+__global__ void finalReduction_kernel(double *pBlockSums, double *pBlockSumSquares, int numBlocks, int totalPixels,
+                                      double *pMean, double *pStdDev) {
   double totalSum = 0.0;
   double totalSumSquares = 0.0;
 
@@ -93,7 +95,7 @@ __global__ void nppiMean_StdDev_32f_C1R_kernel_impl(const Npp32f *pSrc, int nSrc
                                                     double *pBlockSums, double *pBlockSumSquares) {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int totalPixels = width * height;
-  
+
   double localSum = 0.0;
   double localSumSquares = 0.0;
 
@@ -101,11 +103,11 @@ __global__ void nppiMean_StdDev_32f_C1R_kernel_impl(const Npp32f *pSrc, int nSrc
   for (int i = tid; i < totalPixels; i += blockDim.x * gridDim.x) {
     int y = i / width;
     int x = i % width;
-    
+
     // Calculate byte offset for float data
     const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
     double pixelValue = (double)pSrcRow[x];
-    
+
     localSum += pixelValue;
     localSumSquares += pixelValue * pixelValue;
   }
@@ -122,27 +124,27 @@ __global__ void nppiMean_StdDev_32f_C1R_kernel_impl(const Npp32f *pSrc, int nSrc
 }
 
 extern "C" {
-cudaError_t nppiMean_StdDev_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, 
-                                          Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, 
-                                          cudaStream_t stream) {
+cudaError_t nppiMean_StdDev_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                                          Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream) {
   int totalPixels = oSizeROI.width * oSizeROI.height;
   int blockSize = 256;
   int numBlocks = (totalPixels + blockSize - 1) / blockSize;
-  
+
   // Use device buffer for intermediate results
   double *pBlockSums = (double *)pDeviceBuffer;
   double *pBlockSumSquares = pBlockSums + numBlocks;
 
   // Launch first kernel for block-wise reduction
   nppiMean_StdDev_8u_C1R_kernel_impl<<<numBlocks, blockSize, 0, stream>>>(
-    pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pBlockSums, pBlockSumSquares);
+      pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pBlockSums, pBlockSumSquares);
 
   cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) return err;
+  if (err != cudaSuccess)
+    return err;
 
   // Launch final reduction kernel
-  finalReduction_kernel<<<1, blockSize, 0, stream>>>(
-    pBlockSums, pBlockSumSquares, numBlocks, totalPixels, pMean, pStdDev);
+  finalReduction_kernel<<<1, blockSize, 0, stream>>>(pBlockSums, pBlockSumSquares, numBlocks, totalPixels, pMean,
+                                                     pStdDev);
 
   err = cudaGetLastError();
   if (err != cudaSuccess) {
@@ -153,27 +155,27 @@ cudaError_t nppiMean_StdDev_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiS
   return err;
 }
 
-cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, 
-                                           Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, 
-                                           cudaStream_t stream) {
+cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                                           Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream) {
   int totalPixels = oSizeROI.width * oSizeROI.height;
   int blockSize = 256;
   int numBlocks = (totalPixels + blockSize - 1) / blockSize;
-  
+
   // Use device buffer for intermediate results
   double *pBlockSums = (double *)pDeviceBuffer;
   double *pBlockSumSquares = pBlockSums + numBlocks;
 
   // Launch first kernel for block-wise reduction
   nppiMean_StdDev_32f_C1R_kernel_impl<<<numBlocks, blockSize, 0, stream>>>(
-    pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pBlockSums, pBlockSumSquares);
+      pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pBlockSums, pBlockSumSquares);
 
   cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) return err;
+  if (err != cudaSuccess)
+    return err;
 
   // Launch final reduction kernel
-  finalReduction_kernel<<<1, blockSize, 0, stream>>>(
-    pBlockSums, pBlockSumSquares, numBlocks, totalPixels, pMean, pStdDev);
+  finalReduction_kernel<<<1, blockSize, 0, stream>>>(pBlockSums, pBlockSumSquares, numBlocks, totalPixels, pMean,
+                                                     pStdDev);
 
   err = cudaGetLastError();
   if (err != cudaSuccess) {

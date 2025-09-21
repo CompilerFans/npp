@@ -5,8 +5,8 @@
 #include <chrono>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 class NppiMorphologyExtendedTest : public ::testing::Test {
 protected:
@@ -21,32 +21,14 @@ protected:
   }
 
   // Create 3x3 cross structure element
-  std::vector<Npp8u> createCrossKernel() {
-    return {
-      0, 1, 0,
-      1, 1, 1,
-      0, 1, 0
-    };
-  }
+  std::vector<Npp8u> createCrossKernel() { return {0, 1, 0, 1, 1, 1, 0, 1, 0}; }
 
   // Create 3x3 box structure element
-  std::vector<Npp8u> createBoxKernel() {
-    return {
-      1, 1, 1,
-      1, 1, 1,
-      1, 1, 1
-    };
-  }
+  std::vector<Npp8u> createBoxKernel() { return {1, 1, 1, 1, 1, 1, 1, 1, 1}; }
 
   // Create 5x5 circle structure element
   std::vector<Npp8u> createCircleKernel() {
-    return {
-      0, 0, 1, 0, 0,
-      0, 1, 1, 1, 0,
-      1, 1, 1, 1, 1,
-      0, 1, 1, 1, 0,
-      0, 0, 1, 0, 0
-    };
+    return {0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0};
   }
 };
 
@@ -202,7 +184,8 @@ TEST_F(NppiMorphologyExtendedTest, Erode_Dilate_32f_C1R_Comparison) {
   ASSERT_NE(d_dilated, nullptr);
 
   // Upload source data
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
 
   // Create structure element
   auto kernel = createCrossKernel();
@@ -223,12 +206,14 @@ TEST_F(NppiMorphologyExtendedTest, Erode_Dilate_32f_C1R_Comparison) {
   // Copy results back to host
   std::vector<Npp32f> hostEroded(width * height);
   std::vector<Npp32f> hostDilated(width * height);
-  cudaMemcpy2D(hostEroded.data(), width * sizeof(Npp32f), d_eroded, erodedStep, width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
-  cudaMemcpy2D(hostDilated.data(), width * sizeof(Npp32f), d_dilated, dilatedStep, width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(hostEroded.data(), width * sizeof(Npp32f), d_eroded, erodedStep, width * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(hostDilated.data(), width * sizeof(Npp32f), d_dilated, dilatedStep, width * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
 
   // Verify morphological properties: eroded <= original <= dilated
   bool morphologyValid = true;
-  for (int i = 1; i < (width-1) * (height-1); i++) {
+  for (int i = 1; i < (width - 1) * (height - 1); i++) {
     if (hostEroded[i] > hostSrc[i] || hostSrc[i] > hostDilated[i]) {
       morphologyValid = false;
       break;
@@ -275,8 +260,8 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
   nppStreamCtx.hStream = stream;
 
   // Upload data asynchronously
-  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * 4 * sizeof(Npp32f), 
-                    width * 4 * sizeof(Npp32f), height, cudaMemcpyHostToDevice, stream);
+  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * 4 * sizeof(Npp32f), width * 4 * sizeof(Npp32f), height,
+                    cudaMemcpyHostToDevice, stream);
 
   // Create structure element
   auto kernel = createCircleKernel();
@@ -289,7 +274,8 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
   NppiPoint oAnchor = {2, 2};
 
   // Perform erosion with stream context
-  NppStatus status = nppiErode_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+  NppStatus status =
+      nppiErode_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream
@@ -297,12 +283,12 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
 
   // Copy result back to host
   std::vector<Npp32f> hostDst(width * height * 4);
-  cudaMemcpy2D(hostDst.data(), width * 4 * sizeof(Npp32f), d_dst, dstStep, 
-               width * 4 * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(hostDst.data(), width * 4 * sizeof(Npp32f), d_dst, dstStep, width * 4 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
 
   // Basic verification - results should not be all zeros
   bool hasNonZeroResults = false;
-  for (const auto& val : hostDst) {
+  for (const auto &val : hostDst) {
     if (val > 0.0f) {
       hasNonZeroResults = true;
       break;
@@ -332,9 +318,12 @@ TEST_F(NppiMorphologyExtendedTest, Morphology_ErrorHandling) {
   cudaMalloc(&d_mask, 9);
 
   // Test null pointer errors
-  EXPECT_EQ(nppiErode_8u_C1R(nullptr, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, nullptr, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, nullptr, oMaskSize, oAnchor), NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiErode_8u_C1R(nullptr, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, nullptr, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, nullptr, oMaskSize, oAnchor),
+            NPP_NULL_POINTER_ERROR);
 
   // Test invalid ROI size
   NppiSize invalidROI = {-1, 100};
@@ -342,14 +331,17 @@ TEST_F(NppiMorphologyExtendedTest, Morphology_ErrorHandling) {
 
   // Test invalid mask size
   NppiSize invalidMaskSize = {0, 3};
-  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, invalidMaskSize, oAnchor), NPP_MASK_SIZE_ERROR);
+  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, invalidMaskSize, oAnchor),
+            NPP_MASK_SIZE_ERROR);
 
   // Test invalid anchor
   NppiPoint invalidAnchor = {-1, 1};
-  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, invalidAnchor), NPP_ANCHOR_ERROR);
-  
+  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, invalidAnchor),
+            NPP_ANCHOR_ERROR);
+
   invalidAnchor = {3, 1}; // Anchor outside mask bounds
-  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, invalidAnchor), NPP_ANCHOR_ERROR);
+  EXPECT_EQ(nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, invalidAnchor),
+            NPP_ANCHOR_ERROR);
 
   // Cleanup
   nppiFree(d_src);
@@ -371,7 +363,7 @@ TEST_F(NppiMorphologyExtendedTest, Morphology_PerformanceComparison) {
   Npp8u *d_src8u = nullptr, *d_dst8u = nullptr;
   Npp32f *d_src32f = nullptr, *d_dst32f = nullptr;
   int srcStep8u, dstStep8u, srcStep32f, dstStep32f;
-  
+
   d_src8u = nppiMalloc_8u_C1(width, height, &srcStep8u);
   d_dst8u = nppiMalloc_8u_C1(width, height, &dstStep8u);
   d_src32f = nppiMalloc_32f_C1(width, height, &srcStep32f);
@@ -379,7 +371,8 @@ TEST_F(NppiMorphologyExtendedTest, Morphology_PerformanceComparison) {
 
   // Upload data
   cudaMemcpy2D(d_src8u, srcStep8u, hostSrc8u.data(), width, width, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src32f, srcStep32f, hostSrc32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src32f, srcStep32f, hostSrc32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
 
   // Create structure element
   auto kernel = createBoxKernel();
@@ -432,7 +425,7 @@ TEST_F(NppiMorphologyExtendedTest, Morphology_PerformanceComparison) {
 TEST_F(NppiMorphologyExtendedTest, Morphology_LargeKernel) {
   const int width = 64;
   const int height = 64;
-  
+
   // Create test image
   std::vector<Npp8u> hostSrc(width * height, 100);
   // Add a bright region in the center

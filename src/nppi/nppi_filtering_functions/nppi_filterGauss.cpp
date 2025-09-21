@@ -7,15 +7,12 @@
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiMaskSize eMaskSize,
-                                                NppStreamContext nppStreamCtx);
-NppStatus nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiMaskSize eMaskSize,
-                                                NppStreamContext nppStreamCtx);
-NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                 NppiSize oSizeROI, NppiMaskSize eMaskSize,
-                                                 NppStreamContext nppStreamCtx);
+NppStatus nppiFilterGauss_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx);
+NppStatus nppiFilterGauss_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx);
+NppStatus nppiFilterGauss_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+                                           NppiSize oSizeROI, NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx);
 }
 
 // Input validation helper
@@ -55,7 +52,7 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *
     return status;
   }
 
-  return nppiFilterGauss_8u_C1R_Ctx_cuda_fixed(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx);
+  return nppiFilterGauss_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx);
 }
 
 NppStatus nppiFilterGauss_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
@@ -73,7 +70,7 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *
     return status;
   }
 
-  return nppiFilterGauss_8u_C3R_Ctx_cuda_fixed(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx);
+  return nppiFilterGauss_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx);
 }
 
 NppStatus nppiFilterGauss_8u_C3R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
@@ -91,7 +88,7 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32
     return status;
   }
 
-  return nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx);
+  return nppiFilterGauss_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx);
 }
 
 NppStatus nppiFilterGauss_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,

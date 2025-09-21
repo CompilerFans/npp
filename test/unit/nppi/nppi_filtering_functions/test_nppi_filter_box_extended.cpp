@@ -34,7 +34,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_BasicTest) {
       int idx = (y * width + x) * channels;
       hostSrc[idx] = (x + y) % 256;         // R channel
       hostSrc[idx + 1] = (x * 2) % 256;     // G channel
-      hostSrc[idx + 2] = (y * 2) % 256;     // B channel  
+      hostSrc[idx + 2] = (y * 2) % 256;     // B channel
       hostSrc[idx + 3] = (x + y * 2) % 256; // A channel
     }
   }
@@ -55,7 +55,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_BasicTest) {
   NppiSize oSizeROI = {width, height};
   NppiSize oMaskSize = {3, 3};
   NppiPoint oAnchor = {1, 1};
-  
+
   NppStatus status = nppiFilterBox_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -67,7 +67,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_BasicTest) {
   int centerX = width / 2;
   int centerY = height / 2;
   int centerIdx = (centerY * width + centerX) * channels;
-  
+
   // Check that result is within reasonable range for each channel
   for (int c = 0; c < channels; c++) {
     EXPECT_GE(hostDst[centerIdx + c], 0);
@@ -101,25 +101,27 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_32f_C1R_BasicTest) {
   ASSERT_NE(d_dst, nullptr);
 
   // Upload source data
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
 
   // Apply 5x5 box filter
   NppiSize oSizeROI = {width, height};
   NppiSize oMaskSize = {5, 5};
   NppiPoint oAnchor = {2, 2};
-  
+
   NppStatus status = nppiFilterBox_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Download result
   std::vector<Npp32f> hostDst(width * height);
-  cudaMemcpy2D(hostDst.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(hostDst.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
 
   // Verify that the filter smooths the gradient
   // Center pixel should be average of surrounding 5x5 area
   int centerX = width / 2;
   int centerY = height / 2;
-  
+
   // Calculate expected value manually for center pixel
   float expectedSum = 0.0f;
   int count = 0;
@@ -134,7 +136,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_32f_C1R_BasicTest) {
     }
   }
   float expectedValue = expectedSum / count;
-  
+
   float actualValue = hostDst[centerY * width + centerX];
   EXPECT_NEAR(actualValue, expectedValue, 0.1f);
 
@@ -168,15 +170,16 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_StreamContext) {
   nppStreamCtx.hStream = stream;
 
   // Upload data
-  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * channels, width * channels, height, 
-                    cudaMemcpyHostToDevice, stream);
+  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * channels, width * channels, height, cudaMemcpyHostToDevice,
+                    stream);
 
   // Apply filter with stream context
   NppiSize oSizeROI = {width, height};
   NppiSize oMaskSize = {3, 3};
   NppiPoint oAnchor = {1, 1};
-  
-  NppStatus status = nppiFilterBox_8u_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, nppStreamCtx);
+
+  NppStatus status =
+      nppiFilterBox_8u_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream
@@ -209,8 +212,8 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_PerformanceComparison) {
   int srcStep8u, dstStep8u;
   d_src8u = nppiMalloc_8u_C1(width, height, &srcStep8u);
   d_dst8u = nppiMalloc_8u_C1(width, height, &dstStep8u);
-  
-  // Allocate memory for 32f test  
+
+  // Allocate memory for 32f test
   Npp32f *d_src32f = nullptr, *d_dst32f = nullptr;
   int srcStep32f, dstStep32f;
   d_src32f = nppiMalloc_32f_C1(width, height, &srcStep32f);
@@ -223,7 +226,8 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_PerformanceComparison) {
 
   // Upload data
   cudaMemcpy2D(d_src8u, srcStep8u, hostSrc8u.data(), width, width, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src32f, srcStep32f, hostSrc32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src32f, srcStep32f, hostSrc32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {width, height};
   NppiSize oMaskSize = {5, 5};
@@ -281,8 +285,10 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_ErrorHandling) {
   NppiPoint oAnchor = {1, 1};
 
   // Test null pointers
-  EXPECT_EQ(nppiFilterBox_8u_C4R(nullptr, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiFilterBox_8u_C4R(d_src, srcStep, nullptr, dstStep, oSizeROI, oMaskSize, oAnchor), NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiFilterBox_8u_C4R(nullptr, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiFilterBox_8u_C4R(d_src, srcStep, nullptr, dstStep, oSizeROI, oMaskSize, oAnchor),
+            NPP_NULL_POINTER_ERROR);
 
   // Test invalid ROI
   NppiSize invalidROI = {-1, height};

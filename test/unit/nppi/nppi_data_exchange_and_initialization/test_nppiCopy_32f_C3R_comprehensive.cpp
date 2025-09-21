@@ -512,13 +512,13 @@ TEST_F(NppiCopy32fC3RTest, DISABLED_ExtremeDimensions3Channel) {
 // Test 11: Channel-Specific Pattern Verification
 TEST_F(NppiCopy32fC3RTest, ChannelSpecificPatternVerification) {
   const int width = 64, height = 64;
-  
+
   Npp32f *d_src = nullptr;
   Npp32f *d_dst = nullptr;
   int srcStep, dstStep;
   allocateImage(&d_src, width, height, &srcStep);
   allocateImage(&d_dst, width, height, &dstStep);
-  
+
   // Create distinct patterns for each channel to verify channel integrity
   std::vector<Npp32f> hostSrc(width * height * 3);
   for (int y = 0; y < height; y++) {
@@ -526,48 +526,48 @@ TEST_F(NppiCopy32fC3RTest, ChannelSpecificPatternVerification) {
       int idx = (y * width + x) * 3;
       // R channel: sine wave pattern
       hostSrc[idx] = 128.0f + 127.0f * std::sin(2.0f * M_PI * x / width);
-      // G channel: cosine wave pattern  
+      // G channel: cosine wave pattern
       hostSrc[idx + 1] = 128.0f + 127.0f * std::cos(2.0f * M_PI * y / height);
       // B channel: checkerboard pattern
       hostSrc[idx + 2] = ((x / 8 + y / 8) % 2) ? 255.0f : 0.0f;
     }
   }
-  
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3 * sizeof(Npp32f),
-               width * 3 * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
-  
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3 * sizeof(Npp32f), width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
   NppiSize roi = {width, height};
   NppStatus status = nppiCopy_32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
   ASSERT_EQ(status, NPP_SUCCESS);
-  
+
   std::vector<Npp32f> hostDst(width * height * 3);
-  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep,
-               width * 3 * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
-  
+  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
   // Verify pattern integrity at strategic points
-  int testPoints[][2] = {{0, 0}, {width/4, height/4}, {width/2, height/2}, 
-                         {3*width/4, 3*height/4}, {width-1, height-1}};
-  
+  int testPoints[][2] = {{0, 0},
+                         {width / 4, height / 4},
+                         {width / 2, height / 2},
+                         {3 * width / 4, 3 * height / 4},
+                         {width - 1, height - 1}};
+
   for (auto &pt : testPoints) {
     int x = pt[0], y = pt[1];
     int idx = (y * width + x) * 3;
-    
+
     // Verify R channel (sine wave)
     float expectedR = 128.0f + 127.0f * std::sin(2.0f * M_PI * x / width);
-    EXPECT_NEAR(hostDst[idx], expectedR, 0.01f) 
-      << "R channel pattern mismatch at (" << x << "," << y << ")";
-    
+    EXPECT_NEAR(hostDst[idx], expectedR, 0.01f) << "R channel pattern mismatch at (" << x << "," << y << ")";
+
     // Verify G channel (cosine wave)
     float expectedG = 128.0f + 127.0f * std::cos(2.0f * M_PI * y / height);
-    EXPECT_NEAR(hostDst[idx + 1], expectedG, 0.01f)
-      << "G channel pattern mismatch at (" << x << "," << y << ")";
-    
+    EXPECT_NEAR(hostDst[idx + 1], expectedG, 0.01f) << "G channel pattern mismatch at (" << x << "," << y << ")";
+
     // Verify B channel (checkerboard)
     float expectedB = ((x / 8 + y / 8) % 2) ? 255.0f : 0.0f;
-    EXPECT_FLOAT_EQ(hostDst[idx + 2], expectedB)
-      << "B channel pattern mismatch at (" << x << "," << y << ")";
+    EXPECT_FLOAT_EQ(hostDst[idx + 2], expectedB) << "B channel pattern mismatch at (" << x << "," << y << ")";
   }
-  
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -576,66 +576,65 @@ TEST_F(NppiCopy32fC3RTest, ChannelSpecificPatternVerification) {
 TEST_F(NppiCopy32fC3RTest, MultiROIPerformanceAndCorrectness) {
   const int width = 512, height = 512;
   const int numROIs = 9; // 3x3 grid of ROIs
-  
+
   Npp32f *d_src = nullptr;
   Npp32f *d_dst = nullptr;
   int srcStep, dstStep;
   allocateImage(&d_src, width, height, &srcStep);
   allocateImage(&d_dst, width, height, &dstStep);
-  
+
   // Initialize source with position-dependent values
   std::vector<Npp32f> hostSrc(width * height * 3);
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int idx = (y * width + x) * 3;
-      hostSrc[idx] = y * 1000.0f + x;          // R: position encoding
+      hostSrc[idx] = y * 1000.0f + x;            // R: position encoding
       hostSrc[idx + 1] = y * 1000.0f + x + 0.5f; // G: slight offset
       hostSrc[idx + 2] = y * 1000.0f + x + 1.0f; // B: larger offset
     }
   }
-  
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3 * sizeof(Npp32f),
-               width * 3 * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
-  
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3 * sizeof(Npp32f), width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
   // Clear destination
   cudaMemset(d_dst, 0, dstStep * height);
-  
+
   // Define 3x3 grid of ROIs
   const int roiWidth = width / 3;
   const int roiHeight = height / 3;
-  
+
   auto start = std::chrono::high_resolution_clock::now();
-  
+
   // Copy each ROI
   for (int roiY = 0; roiY < 3; roiY++) {
     for (int roiX = 0; roiX < 3; roiX++) {
       int startX = roiX * roiWidth;
       int startY = roiY * roiHeight;
-      
+
       // Handle edge cases for last ROI
       int actualWidth = (roiX == 2) ? width - startX : roiWidth;
       int actualHeight = (roiY == 2) ? height - startY : roiHeight;
-      
+
       Npp32f *pSrcROI = (Npp32f *)((Npp8u *)d_src + startY * srcStep) + startX * 3;
       Npp32f *pDstROI = (Npp32f *)((Npp8u *)d_dst + startY * dstStep) + startX * 3;
-      
+
       NppiSize roi = {actualWidth, actualHeight};
       NppStatus status = nppiCopy_32f_C3R(pSrcROI, srcStep, pDstROI, dstStep, roi);
       ASSERT_EQ(status, NPP_SUCCESS) << "ROI (" << roiX << "," << roiY << ") failed";
     }
   }
-  
+
   auto end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-  
-  std::cout << "Multi-ROI copy (" << numROIs << " ROIs) completed in " 
-            << duration << " microseconds" << std::endl;
-  
+
+  std::cout << "Multi-ROI copy (" << numROIs << " ROIs) completed in " << duration << " microseconds" << std::endl;
+
   // Verify correctness
   std::vector<Npp32f> hostDst(width * height * 3);
-  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep,
-               width * 3 * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
-  
+  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
   // Sample verification across all ROIs
   for (int roiY = 0; roiY < 3; roiY++) {
     for (int roiX = 0; roiX < 3; roiX++) {
@@ -643,23 +642,23 @@ TEST_F(NppiCopy32fC3RTest, MultiROIPerformanceAndCorrectness) {
       int startY = roiY * roiHeight;
       int endX = (roiX == 2) ? width : (roiX + 1) * roiWidth;
       int endY = (roiY == 2) ? height : (roiY + 1) * roiHeight;
-      
+
       // Test a few sample points in each ROI
       for (int sy = startY; sy < endY; sy += (endY - startY) / 3 + 1) {
         for (int sx = startX; sx < endX; sx += (endX - startX) / 3 + 1) {
           int idx = (sy * width + sx) * 3;
-          
+
           EXPECT_FLOAT_EQ(hostDst[idx], hostSrc[idx])
-            << "R mismatch at ROI(" << roiX << "," << roiY << ") pos(" << sx << "," << sy << ")";
+              << "R mismatch at ROI(" << roiX << "," << roiY << ") pos(" << sx << "," << sy << ")";
           EXPECT_FLOAT_EQ(hostDst[idx + 1], hostSrc[idx + 1])
-            << "G mismatch at ROI(" << roiX << "," << roiY << ") pos(" << sx << "," << sy << ")";
+              << "G mismatch at ROI(" << roiX << "," << roiY << ") pos(" << sx << "," << sy << ")";
           EXPECT_FLOAT_EQ(hostDst[idx + 2], hostSrc[idx + 2])
-            << "B mismatch at ROI(" << roiX << "," << roiY << ") pos(" << sx << "," << sy << ")";
+              << "B mismatch at ROI(" << roiX << "," << roiY << ") pos(" << sx << "," << sy << ")";
         }
       }
     }
   }
-  
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }
