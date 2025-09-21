@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "npp.h"
 #include <algorithm>
 #include <chrono>
@@ -469,7 +467,7 @@ TEST_F(NppiCopy32fC3P3RTest, ConcurrentStreams) {
 
   // Create streams and allocate buffers
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamCreate(&streams[i]);
+    gpuStreamCreate(&streams[i]);
     srcBuffers[i] = nppiMalloc_32f_C3(width, height, &srcSteps[i]);
     ASSERT_NE(srcBuffers[i], nullptr);
 
@@ -503,7 +501,7 @@ TEST_F(NppiCopy32fC3P3RTest, ConcurrentStreams) {
 
   // Wait for all to complete and verify
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamSynchronize(streams[i]);
+    gpuStreamSynchronize(streams[i]);
 
     // Verify first pixel of each plane
     Npp32f sampleR, sampleG, sampleB;
@@ -518,7 +516,7 @@ TEST_F(NppiCopy32fC3P3RTest, ConcurrentStreams) {
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamDestroy(streams[i]);
+    gpuStreamDestroy(streams[i]);
     nppiFree(srcBuffers[i]);
     for (int j = 0; j < 3; j++) {
       nppiFree(dstBuffers[i][j]);
@@ -762,7 +760,7 @@ TEST_F(NppiCopy32fC3P3RTest, StreamContextSynchronization) {
 
   // Create streams and allocate memory
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamCreate(&streams[i]);
+    gpuStreamCreate(&streams[i]);
     srcBuffers[i] = nppiMalloc_32f_C3(width, height, &srcSteps[i]);
     ASSERT_NE(srcBuffers[i], nullptr);
 
@@ -797,7 +795,7 @@ TEST_F(NppiCopy32fC3P3RTest, StreamContextSynchronization) {
 
   // Wait for all streams and verify cross-stream independence
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamSynchronize(streams[i]);
+    gpuStreamSynchronize(streams[i]);
 
     // Verify each plane has correct stream-specific data
     for (int plane = 0; plane < 3; plane++) {
@@ -811,7 +809,7 @@ TEST_F(NppiCopy32fC3P3RTest, StreamContextSynchronization) {
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamDestroy(streams[i]);
+    gpuStreamDestroy(streams[i]);
     nppiFree(srcBuffers[i]);
     for (int j = 0; j < 3; j++) {
       nppiFree(dstBuffers[i][j]);

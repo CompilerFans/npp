@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "npp.h"
 #include <algorithm>
 #include <chrono>
@@ -245,7 +243,7 @@ TEST_F(NppiCopy32fC1RTest, DISABLED_ConcurrentStreams) {
 
   // Create streams and allocate buffers
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamCreate(&streams[i]);
+    gpuStreamCreate(&streams[i]);
     allocateImage(&srcBuffers[i], width, height, &srcSteps[i]);
     allocateImage(&dstBuffers[i], width, height, &dstSteps[i]);
 
@@ -269,7 +267,7 @@ TEST_F(NppiCopy32fC1RTest, DISABLED_ConcurrentStreams) {
 
   // Verify results
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamSynchronize(streams[i]);
+    gpuStreamSynchronize(streams[i]);
 
     std::vector<Npp32f> result(width * height);
     cudaMemcpy2D(result.data(), width * sizeof(Npp32f), dstBuffers[i], dstSteps[i], width * sizeof(Npp32f), height,
@@ -284,7 +282,7 @@ TEST_F(NppiCopy32fC1RTest, DISABLED_ConcurrentStreams) {
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamDestroy(streams[i]);
+    gpuStreamDestroy(streams[i]);
     nppiFree(srcBuffers[i]);
     nppiFree(dstBuffers[i]);
   }
@@ -550,7 +548,7 @@ TEST_F(NppiCopy32fC1RTest, StreamContextPerformance) {
     NppStatus status = nppiCopy_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, ctx);
     ASSERT_EQ(status, NPP_SUCCESS);
   }
-  cudaStreamSynchronize(ctx.hStream);
+  gpuStreamSynchronize(ctx.hStream);
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();

@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 #include <cmath>
@@ -48,7 +46,7 @@ TEST_F(ResizeExtendedTest, Resize_16u_C1R_Ctx_LinearInterpolation) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp16u> dstData(dstWidth * dstHeight);
   dst.copyToHost(dstData);
 
@@ -98,7 +96,7 @@ TEST_F(ResizeExtendedTest, Resize_32f_C1R_Ctx_CubicInterpolation) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(dstWidth * dstHeight);
   dst.copyToHost(dstData);
 
@@ -146,7 +144,7 @@ TEST_F(ResizeExtendedTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(dstWidth * dstHeight * 3);
   dst.copyToHost(dstData);
 

@@ -192,7 +192,7 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // Call GPU kernel - 使用RGBkernel然后交换通道
+  // 
   cudaError_t cudaStatus = nppiNV12ToRGB_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                          pSrc[1], rSrcStep, // UV plane (interleaved)
                                                          pDst, nDstStep,    // BGR output (will swap R and B)

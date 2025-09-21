@@ -18,7 +18,7 @@ protected:
   }
 
   void TearDown() override {
-    // 清理在测试中分配的内存
+    // Allocate memory
   }
 
   // 创建测试用的NV12数据
@@ -413,7 +413,7 @@ TEST_F(NV12ToRGBTest, VariousImageSizes) {
     Npp8u *d_rgb = nppiMalloc_8u_C3(size.width, size.height, &rgbStep);
 
     if (!d_srcY || !d_srcUV || !d_rgb) {
-      // 清理已分配的内存
+      // Allocate memory
       if (d_srcY)
         nppsFree(d_srcY);
       if (d_srcUV)

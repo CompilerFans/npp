@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 #include <chrono>
@@ -127,7 +125,7 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Convert_8u32f_C3R_ConcurrentStreams)
 
   // Create streams and contexts
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamCreate(&streams[i]);
+    gpuStreamCreate(&streams[i]);
     nppGetStreamContext(&contexts[i]);
     contexts[i].hStream = streams[i];
   }
@@ -158,7 +156,7 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Convert_8u32f_C3R_ConcurrentStreams)
 
   // Wait for all streams
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamSynchronize(streams[i]);
+    gpuStreamSynchronize(streams[i]);
   }
 
   // Verify all results are identical
@@ -176,7 +174,7 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Convert_8u32f_C3R_ConcurrentStreams)
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamDestroy(streams[i]);
+    gpuStreamDestroy(streams[i]);
   }
 }
 
@@ -450,7 +448,7 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Copy_32f_C3R_ConcurrentOperations) {
   std::vector<NppStreamContext> contexts(numOperations);
 
   for (int i = 0; i < numOperations; i++) {
-    cudaStreamCreate(&streams[i]);
+    gpuStreamCreate(&streams[i]);
     nppGetStreamContext(&contexts[i]);
     contexts[i].hStream = streams[i];
   }
@@ -482,7 +480,7 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Copy_32f_C3R_ConcurrentOperations) {
 
   // Wait for completion
   for (int i = 0; i < numOperations; i++) {
-    cudaStreamSynchronize(streams[i]);
+    gpuStreamSynchronize(streams[i]);
   }
 
   auto end = std::chrono::high_resolution_clock::now();
@@ -506,7 +504,7 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Copy_32f_C3R_ConcurrentOperations) {
 
   // Cleanup
   for (int i = 0; i < numOperations; i++) {
-    cudaStreamDestroy(streams[i]);
+    gpuStreamDestroy(streams[i]);
   }
 }
 

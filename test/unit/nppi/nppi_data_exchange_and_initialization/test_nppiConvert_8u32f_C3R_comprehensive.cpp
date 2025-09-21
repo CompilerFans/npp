@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "npp.h"
 #include <chrono>
 #include <cuda_runtime.h>
@@ -261,7 +259,7 @@ TEST_F(NppiConvert8u32fC3RTest, StreamContextPerformance) {
 
   // Create stream
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  gpuStreamCreate(&stream);
 
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
@@ -271,14 +269,14 @@ TEST_F(NppiConvert8u32fC3RTest, StreamContextPerformance) {
 
   // Warm up
   nppiConvert_8u32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
-  cudaStreamSynchronize(stream);
+  gpuStreamSynchronize(stream);
 
   // Measure performance
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < iterations; i++) {
     nppiConvert_8u32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
   }
-  cudaStreamSynchronize(stream);
+  gpuStreamSynchronize(stream);
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -291,7 +289,7 @@ TEST_F(NppiConvert8u32fC3RTest, StreamContextPerformance) {
   std::cout << "Average time per conversion: " << avgTime << " us" << std::endl;
   std::cout << "Throughput: " << throughput << " MB/s" << std::endl;
 
-  cudaStreamDestroy(stream);
+  gpuStreamDestroy(stream);
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -377,7 +375,7 @@ TEST_F(NppiConvert8u32fC3RTest, ConcurrentExecution) {
 
   // Create streams and allocate buffers
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamCreate(&streams[i]);
+    gpuStreamCreate(&streams[i]);
     srcBuffers[i] = nppiMalloc_8u_C3(width, height, &srcSteps[i]);
     dstBuffers[i] = nppiMalloc_32f_C3(width, height, &dstSteps[i]);
     ASSERT_NE(srcBuffers[i], nullptr);
@@ -400,7 +398,7 @@ TEST_F(NppiConvert8u32fC3RTest, ConcurrentExecution) {
 
   // Wait for all to complete
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamSynchronize(streams[i]);
+    gpuStreamSynchronize(streams[i]);
   }
 
   // Verify results
@@ -415,7 +413,7 @@ TEST_F(NppiConvert8u32fC3RTest, ConcurrentExecution) {
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    cudaStreamDestroy(streams[i]);
+    gpuStreamDestroy(streams[i]);
     nppiFree(srcBuffers[i]);
     nppiFree(dstBuffers[i]);
   }

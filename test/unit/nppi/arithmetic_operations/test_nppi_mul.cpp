@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 
 using namespace npp_functional_test;

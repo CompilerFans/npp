@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "npp.h"
 #include <algorithm>
 #include <atomic>
@@ -28,7 +26,7 @@ protected:
   bool isAligned(void *ptr, size_t alignment) { return (reinterpret_cast<uintptr_t>(ptr) % alignment) == 0; }
 
   // Helper to get device memory info
-  void getMemoryInfo(size_t &free, size_t &total) { cudaMemGetInfo(&free, &total); }
+  void getMemoryInfo(size_t &free, size_t &total) { gpuMemGetInfo(&free, &total); }
 };
 
 // Test 1: Basic malloc/free for single channel

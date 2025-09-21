@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 
@@ -55,7 +53,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> bgrData(width * height * 3);
   bgrImage.copyToHost(bgrData);
 

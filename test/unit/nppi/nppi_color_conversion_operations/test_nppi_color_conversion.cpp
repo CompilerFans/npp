@@ -41,7 +41,7 @@ protected:
 };
 
 TEST_F(ColorConversionTest, RGBToYUV_BasicColors) {
-  // 测试基本颜色转换
+  // Color conversion
   // 设置纯色测试数据
   for (int i = 0; i < width * height; ++i) {
     int idx = i * 3;

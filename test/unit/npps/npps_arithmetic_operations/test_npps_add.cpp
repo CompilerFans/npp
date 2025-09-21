@@ -246,7 +246,7 @@ TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
 
 // 测试错误处理机制 - 大小Validate
 TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
-  // 分配有效的GPU内存
+  // Allocate memory
   Npp32f *d_valid = nullptr;
   cudaError_t cudaStatus = cudaMalloc(&d_valid, sizeof(Npp32f));
   ASSERT_EQ(cudaStatus, cudaSuccess) << "Failed to allocate GPU memory";

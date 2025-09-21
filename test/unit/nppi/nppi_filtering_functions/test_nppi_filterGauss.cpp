@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 #include <cmath>
 

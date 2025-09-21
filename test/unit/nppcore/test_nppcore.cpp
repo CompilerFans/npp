@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../framework/npp_test_base.h"
 
 using namespace npp_functional_test;
@@ -83,7 +81,7 @@ TEST_F(NppCoreFunctionalTest, StreamContext_DefaultContext) {
 TEST_F(NppCoreFunctionalTest, StreamContext_CustomStream) {
   // 创建自定义GPU stream
   cudaStream_t custom_stream;
-  cudaError_t err = cudaStreamCreate(&custom_stream);
+  cudaError_t err = gpuStreamCreate(&custom_stream);
   ASSERT_EQ(err, cudaSuccess) << "Failed to create GPU stream";
 
   // 设置自定义stream
@@ -95,7 +93,7 @@ TEST_F(NppCoreFunctionalTest, StreamContext_CustomStream) {
   EXPECT_EQ(status, NPP_SUCCESS) << "Failed to set default stream";
 
   // 清理
-  cudaStreamDestroy(custom_stream);
+  gpuStreamDestroy(custom_stream);
 }
 
 TEST_F(NppCoreFunctionalTest, StreamContext_GetStream) {

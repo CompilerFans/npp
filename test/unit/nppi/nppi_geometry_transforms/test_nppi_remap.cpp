@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 #include <cmath>
@@ -61,7 +59,7 @@ TEST_F(RemapFunctionalTest, Remap_8u_C1R_Ctx_Identity) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -122,11 +120,11 @@ TEST_F(RemapFunctionalTest, Remap_16u_C3R_Ctx_Mirror) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp16u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // Validate水平镜像 - 第一列应该变成最后一列
+  // 
   int firstIdx = 0;
   int lastIdx = (width - 1) * 3;
   ASSERT_EQ(srcData[firstIdx], dstData[lastIdx]);         // R通道
@@ -191,7 +189,7 @@ TEST_F(RemapFunctionalTest, Remap_32f_C1R_Ctx_Rotation) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 

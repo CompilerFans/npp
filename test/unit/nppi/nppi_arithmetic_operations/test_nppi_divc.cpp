@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 #include <cmath>
@@ -44,7 +42,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_Basic) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -91,7 +89,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C3RSfs_Ctx_ColorImage) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -133,7 +131,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_FloatingPoint) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -179,7 +177,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -192,7 +190,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
 // 测试除零保护
 TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
   const int width = 8, height = 8;
-  const Npp32f divisor = 1e-6f; // 非常小的数
+  const Npp32f divisor = 1e-6f; 
 
   // prepare test data
   std::vector<Npp32f> srcData(width * height, 1.0f);
@@ -216,7 +214,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
+  gpuStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 

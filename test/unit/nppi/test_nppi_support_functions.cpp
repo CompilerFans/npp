@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../framework/npp_test_base.h"
 
 using namespace npp_functional_test;
@@ -69,7 +67,7 @@ TEST_F(SupportFunctionsTest, GetStreamContext_BasicTest) {
 }
 
 TEST_F(SupportFunctionsTest, SetGetStreamContext_BasicTest) {
-  // 首先获取当前的流上下文
+  // 
   NppStreamContext currentCtx;
   NppStatus status = nppGetStreamContext(&currentCtx);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppGetStreamContext should succeed";

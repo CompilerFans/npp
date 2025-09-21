@@ -254,7 +254,7 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
 
   // Create stream
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  gpuStreamCreate(&stream);
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   nppStreamCtx.hStream = stream;
@@ -279,7 +279,7 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream
-  cudaStreamSynchronize(stream);
+  gpuStreamSynchronize(stream);
 
   // Copy result back to host
   std::vector<Npp32f> hostDst(width * height * 4);
@@ -298,7 +298,7 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
   EXPECT_TRUE(hasNonZeroResults);
 
   // Cleanup
-  cudaStreamDestroy(stream);
+  gpuStreamDestroy(stream);
   nppiFree(d_src);
   nppiFree(d_dst);
   cudaFree(d_mask);

@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "npp.h"
 #include <algorithm>
 #include <chrono>
@@ -215,7 +213,7 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
 
   // Create stream
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  gpuStreamCreate(&stream);
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   nppStreamCtx.hStream = stream;
@@ -246,7 +244,7 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream and get results
-  cudaStreamSynchronize(stream);
+  gpuStreamSynchronize(stream);
 
   Npp64f hostMean, hostStdDev;
   cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
@@ -257,7 +255,7 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
   EXPECT_NEAR(hostStdDev, refStdDev, 1.0);
 
   // Cleanup
-  cudaStreamDestroy(stream);
+  gpuStreamDestroy(stream);
   nppiFree(d_src);
   cudaFree(pDeviceBuffer);
   cudaFree(pMean);

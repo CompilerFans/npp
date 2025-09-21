@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "../../../common/npp_test_utils.h"
 #include "../../framework/npp_test_base.h"
 

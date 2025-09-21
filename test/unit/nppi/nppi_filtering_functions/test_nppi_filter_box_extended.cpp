@@ -1,5 +1,3 @@
-// Implementation file
-
 #include "npp.h"
 #include <algorithm>
 #include <chrono>
@@ -164,7 +162,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_StreamContext) {
 
   // Create stream
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  gpuStreamCreate(&stream);
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   nppStreamCtx.hStream = stream;
@@ -183,7 +181,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_StreamContext) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream
-  cudaStreamSynchronize(stream);
+  gpuStreamSynchronize(stream);
 
   // Verify result
   std::vector<Npp8u> hostDst(width * height * channels);
@@ -192,7 +190,7 @@ TEST_F(NppiFilterBoxExtendedTest, FilterBox_8u_C4R_StreamContext) {
   // With uniform input of 128, output should also be close to 128
   EXPECT_NEAR(hostDst[width * height * channels / 2], 128, 5);
 
-  cudaStreamDestroy(stream);
+  gpuStreamDestroy(stream);
   nppiFree(d_src);
   nppiFree(d_dst);
 }

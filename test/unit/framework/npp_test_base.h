@@ -1,5 +1,3 @@
-// Implementation file
-
 #pragma once
 
 #include "npp.h"
