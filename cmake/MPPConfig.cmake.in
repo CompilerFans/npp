@@ -1,0 +1,31 @@
+@PACKAGE_INIT@
+
+# MPP CMake配置文件
+
+set(MPP_VERSION "@PROJECT_VERSION@")
+
+# 检查依赖项
+include(CMakeFindDependencyMacro)
+find_dependency(CUDAToolkit REQUIRED)
+
+# 包含导出的目标
+include("${CMAKE_CURRENT_LIST_DIR}/MPPTargets.cmake")
+
+# 设置变量
+set_and_check(MPP_INCLUDE_DIR "@PACKAGE_INSTALL_INCLUDEDIR@")
+set_and_check(MPP_LIB_DIR "@PACKAGE_INSTALL_LIBDIR@")
+
+# 验证所有组件都找到了
+check_required_components(MPP)
+
+# 提供便捷的目标别名
+if(TARGET MPP::npp AND NOT TARGET MPP::MPP)
+    add_library(MPP::MPP ALIAS MPP::npp)
+endif()
+
+# 输出找到的信息
+if(NOT MPP_FIND_QUIETLY)
+    message(STATUS "Found MPP: ${MPP_VERSION}")
+    message(STATUS "  Include dir: ${MPP_INCLUDE_DIR}")
+    message(STATUS "  Library dir: ${MPP_LIB_DIR}")
+endif()

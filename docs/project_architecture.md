@@ -1,4 +1,4 @@
-# OpenNPP Project Architecture
+# MPP Project Architecture
 
 ## PROJECT OVERVIEW
 ```
@@ -59,7 +59,7 @@ test/
 ├── framework/
 │   ├── nvidia_comparison_test_base.h  # NVIDIA NPP comparison
 │   ├── nvidia_npp_loader.h           # Dynamic loading of NVIDIA libs
-│   ├── opennpp_loader.h              # Dynamic loading of OpenNPP
+│   ├── opennpp_loader.h              # Dynamic loading of MPP
 │   └── dual_library_test_base.h     # Dual library testing
 ├── unit/                             # Unit tests
 │   ├── nppcore/                      # Core function tests
@@ -84,7 +84,7 @@ test/
 
 ### 1. **Three-Way Validation Architecture**
 ```
-OpenNPP ←→ NVIDIA NPP ←→ CPU Reference
+MPP ←→ NVIDIA NPP ←→ CPU Reference
    ↓           ↓            ↓
    └───────────┴────────────┘
           Validation Tests
@@ -115,7 +115,7 @@ This ensures pixel-perfect compatibility with NVIDIA's implementation.
 - Warnings: Positive values
 
 ### 5. **Testing Strategy**
-- **Dynamic Library Loading**: Avoids symbol conflicts between OpenNPP and NVIDIA NPP
+- **Dynamic Library Loading**: Avoids symbol conflicts between MPP and NVIDIA NPP
 - **CPU Reference**: Independent verification of correctness
 - **Comprehensive Coverage**: Edge cases, precision, memory alignment
 
@@ -165,7 +165,7 @@ Application Code
        ↓
 NPP API (npp.h)
        ↓
-OpenNPP Wrapper (.cpp)
+MPP Wrapper (.cpp)
    - Parameter validation
    - Error checking
        ↓
@@ -187,7 +187,7 @@ nppiFree → cudaFree
 ### Test Validation Flow
 ```
 Test Input Data
-    ├─→ OpenNPP Implementation
+    ├─→ MPP Implementation
     ├─→ NVIDIA NPP (via dlopen)
     └─→ CPU Reference
            ↓

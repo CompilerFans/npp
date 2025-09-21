@@ -63,7 +63,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --no-examples   Skip building examples"
             echo "  --lib-only      Build library only (no tests, no examples)"
             echo "  --no-werror     Disable warnings as errors"
-            echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of OpenNPP"
+            echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
             echo "  clean           Clean build directory"
             echo "  -h, --help      Show help"
             exit 0
@@ -81,7 +81,7 @@ if [ "$USE_NVIDIA_NPP" = "ON" ]; then
     NPP_LIB_NAME="NVIDIA NPP"
 else
     BUILD_DIR="build"
-    NPP_LIB_NAME="OpenNPP"
+    NPP_LIB_NAME="MPP"
 fi
 
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"

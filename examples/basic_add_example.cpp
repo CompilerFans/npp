@@ -1,15 +1,15 @@
 /**
  * @file basic_add_example.cpp
- * @brief OpenNPP基础加法运算示例
+ * @brief MPP基础加法运算示例
  * 
- * 演示如何使用OpenNPP库进行基本的图像加法运算
+ * 演示如何使用MPP库进行基本的图像加法运算
  */
 
 #include <iostream>
 #include <vector>
 #include <cuda_runtime.h>
 
-// 包含OpenNPP头文件
+// 包含MPP头文件
 #include "npp.h"
 
 void printCudaError(cudaError_t error, const char* operation) {
@@ -27,11 +27,11 @@ void printNppStatus(NppStatus status, const char* operation) {
 }
 
 int main() {
-    std::cout << "=== OpenNPP基础加法运算示例 ===" << std::endl;
+    std::cout << "=== MPP基础加法运算示例 ===" << std::endl;
     
     // 获取并显示库版本信息
     const NppLibraryVersion* version = nppGetLibVersion();
-    std::cout << "OpenNPP版本: " << version->major << "." 
+    std::cout << "MPP版本: " << version->major << "." 
               << version->minor << "." << version->build << std::endl;
     
     // 获取CUDA设备信息

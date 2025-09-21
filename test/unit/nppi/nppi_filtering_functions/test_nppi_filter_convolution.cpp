@@ -62,7 +62,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_EdgeDetection) {
   NppStatus status =
       nppiFilter_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, anchor, divisor);
 #else
-  // OpenNPP需要设备内存中的kernel
+  // MPP需要设备内存中的kernel
   Npp32s *d_kernel;
   size_t kernelBytes = kernel.size() * sizeof(Npp32s);
   cudaMalloc(&d_kernel, kernelBytes);
@@ -120,7 +120,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_Sharpen) {
   NppStatus status =
       nppiFilter_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, anchor, divisor);
 #else
-  // OpenNPP需要设备内存中的kernel
+  // MPP需要设备内存中的kernel
   Npp32s *d_kernel;
   size_t kernelBytes = kernel.size() * sizeof(Npp32s);
   cudaMalloc(&d_kernel, kernelBytes);
@@ -230,7 +230,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_32f_C1R_Gaussian) {
   NppStatus status =
       nppiFilter_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, anchor);
 #else
-  // OpenNPP需要设备内存中的kernel
+  // MPP需要设备内存中的kernel
   Npp32f *d_kernel;
   size_t kernelBytes = kernel.size() * sizeof(Npp32f);
   cudaMalloc(&d_kernel, kernelBytes);

@@ -1,6 +1,6 @@
 # NPP 单元测试
 
-这个目录包含OpenNPP库的单元测试，采用GoogleTest框架。
+这个目录包含MPP库的单元测试，采用GoogleTest框架。
 
 ## 目录结构
 
@@ -138,4 +138,4 @@ TEST_F(MyFunctionTest, DISABLED_ErrorHandling) {
 4. **错误处理验证** - 无效参数返回正确错误码
 5. **内存安全** - 无内存泄漏，正确的CUDA内存管理
 
-通过这些测试，我们确保OpenNPP库的功能正确性和稳定性。
+通过这些测试，我们确保MPP库的功能正确性和稳定性。

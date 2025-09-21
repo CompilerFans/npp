@@ -17,7 +17,7 @@ npp_add_common_includes(npp)
 
 # 设置库的导出名称
 set_target_properties(npp PROPERTIES
-    OUTPUT_NAME "opennpp"
+    OUTPUT_NAME "mpp"
     EXPORT_NAME "npp"
 )
 

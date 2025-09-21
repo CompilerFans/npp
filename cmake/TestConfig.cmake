@@ -74,7 +74,7 @@ function(npp_create_test_target target_name sources library_target)
             gtest_main
         )
         
-        message(STATUS "Test ${target_name} will use OpenNPP library")
+        message(STATUS "Test ${target_name} will use MPP library")
     endif()
     
     # 设置通用配置

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-# CUDA NPP Samples using OpenNPP
+# CUDA NPP Samples using MPP
 project(cuda_npp_samples LANGUAGES CXX CUDA)
 
 # Set C++ Standard
@@ -12,18 +12,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(CUDAToolkit REQUIRED)
 find_package(PkgConfig QUIET)
 
-# OpenNPP library
-set(OPENNPP_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(OPENNPP_INCLUDE_DIR ${OPENNPP_ROOT_DIR}/API)
-set(OPENNPP_LIBRARY_DIR ${OPENNPP_ROOT_DIR}/build/src)
+# MPP library
+set(MPP_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set(MPP_INCLUDE_DIR ${MPP_ROOT_DIR}/API)
+set(MPP_LIBRARY_DIR ${MPP_ROOT_DIR}/build/src)
 
-# Add OpenNPP includes
-include_directories(${OPENNPP_INCLUDE_DIR})
+# Add MPP includes
+include_directories(${MPP_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Common)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Common/UtilNPP)
 
 # Link directories
-link_directories(${OPENNPP_LIBRARY_DIR})
+link_directories(${MPP_LIBRARY_DIR})
 
 # Common sources
 set(COMMON_SOURCES
@@ -70,8 +70,8 @@ function(add_npp_sample SAMPLE_NAME)
             set_property(TARGET ${SAMPLE_NAME} PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
             set_target_properties(${SAMPLE_NAME} PROPERTIES CUDA_ARCHITECTURES "89")
             
-            # Link OpenNPP and CUDA runtime
-            target_link_libraries(${SAMPLE_NAME} opennpp CUDA::cudart CUDA::cudart_static)
+            # Link MPP and CUDA runtime
+            target_link_libraries(${SAMPLE_NAME} mpp CUDA::cudart CUDA::cudart_static)
             
             # Add FreeImage if available and needed
             if(FREEIMAGE_FOUND)
@@ -105,8 +105,8 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Common/data DESTINATION ${CMAKE_BINARY_DIR
 message(STATUS "========================================")
 message(STATUS "CUDA NPP Samples Configuration Summary")
 message(STATUS "========================================")
-message(STATUS "OpenNPP Include Dir: ${OPENNPP_INCLUDE_DIR}")
-message(STATUS "OpenNPP Library Dir: ${OPENNPP_LIBRARY_DIR}")
+message(STATUS "MPP Include Dir: ${MPP_INCLUDE_DIR}")
+message(STATUS "MPP Library Dir: ${MPP_LIBRARY_DIR}")
 message(STATUS "FreeImage Found:     ${FREEIMAGE_FOUND}")
 message(STATUS "CUDA Version:        ${CUDA_VERSION}")
 message(STATUS "========================================")
@@ -116,7 +116,7 @@ add_executable(verify_results verify_results.cpp)
 set_property(TARGET verify_results PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 set_property(TARGET verify_results PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 set_target_properties(verify_results PROPERTIES CUDA_ARCHITECTURES "89")
-target_link_libraries(verify_results opennpp CUDA::cudart CUDA::cudart_static)
+target_link_libraries(verify_results mpp CUDA::cudart CUDA::cudart_static)
 set_target_properties(verify_results PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )

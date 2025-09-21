@@ -10,8 +10,8 @@ endif()
 # 定义安装路径
 set(INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
-set(INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/opennpp)
-set(INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/OpenNPP)
+set(INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/mpp)
+set(INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/MPP)
 set(INSTALL_SAMPLEDIR ${CMAKE_INSTALL_DOCDIR}/examples)
 
 # 安装API头文件
@@ -37,7 +37,7 @@ endfunction()
 function(npp_install_library target)
     # 安装目标文件
     install(TARGETS ${target}
-        EXPORT OpenNPPTargets
+        EXPORT MPPTargets
         RUNTIME DESTINATION ${INSTALL_BINDIR}
         LIBRARY DESTINATION ${INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${INSTALL_LIBDIR}
@@ -49,30 +49,30 @@ endfunction()
 function(npp_install_cmake_config)
     # 生成版本文件
     write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenNPPConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/MPPConfigVersion.cmake"
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY AnyNewerVersion
     )
     
     # 生成配置文件
     configure_package_config_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/OpenNPPConfig.cmake.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenNPPConfig.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MPPConfig.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/MPPConfig.cmake"
         INSTALL_DESTINATION ${INSTALL_CMAKEDIR}
         PATH_VARS INSTALL_INCLUDEDIR INSTALL_LIBDIR
     )
     
     # 安装导出文件
-    install(EXPORT OpenNPPTargets
-        FILE OpenNPPTargets.cmake
-        NAMESPACE OpenNPP::
+    install(EXPORT MPPTargets
+        FILE MPPTargets.cmake
+        NAMESPACE MPP::
         DESTINATION ${INSTALL_CMAKEDIR}
     )
     
     # 安装配置文件
     install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenNPPConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenNPPConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/MPPConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/MPPConfigVersion.cmake"
         DESTINATION ${INSTALL_CMAKEDIR}
     )
 endfunction()
@@ -82,13 +82,6 @@ function(npp_install_docs_examples)
     # 安装README等文档
     if(EXISTS "${CMAKE_SOURCE_DIR}/README.md")
         install(FILES "${CMAKE_SOURCE_DIR}/README.md"
-            DESTINATION ${CMAKE_INSTALL_DOCDIR}
-        )
-    endif()
-    
-    # 安装CLAUDE.md
-    if(EXISTS "${CMAKE_SOURCE_DIR}/CLAUDE.md")
-        install(FILES "${CMAKE_SOURCE_DIR}/CLAUDE.md"
             DESTINATION ${CMAKE_INSTALL_DOCDIR}
         )
     endif()
@@ -130,7 +123,7 @@ function(npp_configure_install)
     npp_install_cmake_config()
     
     # 安装文档和示例
-    npp_install_docs_examples()
+    # npp_install_docs_examples()
     
     # 安装示例可执行文件
     npp_install_samples()
@@ -147,7 +140,7 @@ function(npp_configure_install)
     endif()
     
     # 添加install目标的打印信息
-    message(STATUS "OpenNPP will be installed to: ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "MPP will be installed to: ${CMAKE_INSTALL_PREFIX}")
     message(STATUS "  - Headers: ${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDEDIR}")
     message(STATUS "  - Libraries: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIBDIR}")
     message(STATUS "  - Samples: ${CMAKE_INSTALL_PREFIX}/${INSTALL_SAMPLEDIR}")

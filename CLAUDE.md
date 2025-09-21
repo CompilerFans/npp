@@ -5,6 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 This is the NVIDIA Performance Primitives (NPP) library - a comprehensive GPU-accelerated image and signal processing library. NPP provides high-performance primitives for image processing, signal processing, and computer vision applications on CUDA-enabled GPUs.
 
+Create a open source cuda implement lib, called MPP.
+
 ## Architecture
 NPP is organized into several distinct modules:
 - **Core**: Basic types, error handling, and utility functions
@@ -43,16 +45,11 @@ This is a CUDA library that typically uses:
 
 ### Common Build Commands
 ```bash
-# Configure build
-mkdir build && cd build
-cmake ..
+# Configure cmake and build by this project mpp
+./build.sh
 
-# Build the library
-make -j$(nproc)
-
-# Build specific components
-make npp_static  # Static library
-make npp_shared  # Shared library
+# Configue cmake and build by test depends on nvidia npp
+ ./build.sh --use-nvidia-npp
 ```
 
 ### Testing

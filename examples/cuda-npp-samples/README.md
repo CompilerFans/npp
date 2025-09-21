@@ -1,10 +1,10 @@
-# CUDA NPP Samples - OpenNPP适配版本
+# CUDA NPP Samples - MPP适配版本
 
-本项目成功将NVIDIA CUDA Samples中的NPP相关示例适配到OpenNPP开源实现。
+本项目成功将NVIDIA CUDA Samples中的NPP相关示例适配到MPP开源实现。
 
 ## 项目概述
 
-从原始cuda-samples项目中提取了6个NPP相关示例，全部成功适配到OpenNPP库：
+从原始cuda-samples项目中提取了6个NPP相关示例，全部成功适配到MPP库：
 
 ### ✅ 核心图像处理示例 (5个)
 
@@ -117,4 +117,4 @@ cuda-npp-samples/
 
 ## 开发说明
 
-本项目展示了OpenNPP作为NVIDIA NPP开源替代方案的可行性，为GPU加速的图像和信号处理应用提供了完整的解决方案。
+本项目展示了MPP作为NVIDIA NPP开源替代方案的可行性，为GPU加速的图像和信号处理应用提供了完整的解决方案。

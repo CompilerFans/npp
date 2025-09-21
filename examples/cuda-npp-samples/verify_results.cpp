@@ -1,4 +1,3 @@
-// 验证OpenNPP样本结果的程序
 #include <npp.h>
 #include <cuda_runtime.h>
 #include <iostream>
@@ -40,9 +39,9 @@ bool readPGM(const char* filename, std::vector<Npp8u>& data, int& width, int& he
 }
 
 // 像素级对比两个图像
-bool compareImages(const char* nvidia_file, const char* opennpp_file, const char* name) {
-    std::vector<Npp8u> nvidia_data, opennpp_data;
-    int nvidia_w, nvidia_h, opennpp_w, opennpp_h;
+bool compareImages(const char* nvidia_file, const char* mpp_file, const char* name) {
+    std::vector<Npp8u> nvidia_data, mpp_data;
+    int nvidia_w, nvidia_h, mpp_w, mpp_h;
     
     std::cout << "\n=== " << name << " 像素级对比 ===" << std::endl;
     
@@ -51,14 +50,14 @@ bool compareImages(const char* nvidia_file, const char* opennpp_file, const char
         return false;
     }
     
-    if (!readPGM(opennpp_file, opennpp_data, opennpp_w, opennpp_h)) {
-        std::cout << "❌ 无法读取OpenNPP文件: " << opennpp_file << std::endl;
+    if (!readPGM(mpp_file, mpp_data, mpp_w, mpp_h)) {
+        std::cout << "❌ 无法读取MPP文件: " << mpp_file << std::endl;
         return false;
     }
     
-    if (nvidia_w != opennpp_w || nvidia_h != opennpp_h) {
+    if (nvidia_w != mpp_w || nvidia_h != mpp_h) {
         std::cout << "❌ 图像尺寸不匹配: NVIDIA(" << nvidia_w << "x" << nvidia_h 
-                  << ") vs OpenNPP(" << opennpp_w << "x" << opennpp_h << ")" << std::endl;
+                  << ") vs MPP(" << mpp_w << "x" << mpp_h << ")" << std::endl;
         return false;
     }
     
@@ -69,7 +68,7 @@ bool compareImages(const char* nvidia_file, const char* opennpp_file, const char
     
     // 计算统计信息
     for (int i = 0; i < total_pixels; i++) {
-        int diff = std::abs(static_cast<int>(nvidia_data[i]) - static_cast<int>(opennpp_data[i]));
+        int diff = std::abs(static_cast<int>(nvidia_data[i]) - static_cast<int>(mpp_data[i]));
         if (diff > 0) {
             diff_pixels++;
             max_diff = std::max(max_diff, diff);
@@ -91,7 +90,7 @@ bool compareImages(const char* nvidia_file, const char* opennpp_file, const char
     if (diff_pixels > 0) {
         std::vector<int> diff_histogram(256, 0);
         for (int i = 0; i < total_pixels; i++) {
-            int diff = std::abs(static_cast<int>(nvidia_data[i]) - static_cast<int>(opennpp_data[i]));
+            int diff = std::abs(static_cast<int>(nvidia_data[i]) - static_cast<int>(mpp_data[i]));
             diff_histogram[diff]++;
         }
         
@@ -196,7 +195,7 @@ void generateTestPattern(std::vector<Npp8u>& image, int width, int height, const
 }
 
 int main(int argc, char* argv[]) {
-    std::cout << "\n=== OpenNPP 验证程序 ===" << std::endl;
+    std::cout << "\n=== MPP 验证程序 ===" << std::endl;
     
     // 初始化NPP
     const NppLibraryVersion* libVer = nppGetLibVersion();
@@ -289,18 +288,18 @@ int main(int argc, char* argv[]) {
     // 对比基础处理结果
     struct ComparisonTest {
         const char* nvidia_file;
-        const char* opennpp_file;
+        const char* mpp_file;
         const char* name;
     };
     
     ComparisonTest tests[] = {
-        {"reference_nvidia_npp/teapot512_boxFilter.pgm", "opennpp_results/teapot512_boxFilter.pgm", "盒式滤波"},
-        {"reference_nvidia_npp/teapot512_cannyEdgeDetection.pgm", "opennpp_results/teapot512_cannyEdgeDetection.pgm", "Canny边缘检测"},
-        {"reference_nvidia_npp/teapot512_histEqualization.pgm", "opennpp_results/teapot512_histEqualization.pgm", "直方图均衡化"},
+        {"reference_nvidia_npp/teapot512_boxFilter.pgm", "mpp_results/teapot512_boxFilter.pgm", "盒式滤波"},
+        {"reference_nvidia_npp/teapot512_cannyEdgeDetection.pgm", "mpp_results/teapot512_cannyEdgeDetection.pgm", "Canny边缘检测"},
+        {"reference_nvidia_npp/teapot512_histEqualization.pgm", "mpp_results/teapot512_histEqualization.pgm", "直方图均衡化"},
     };
     
     for (const auto& test : tests) {
-        bool result = compareImages(test.nvidia_file, test.opennpp_file, test.name);
+        bool result = compareImages(test.nvidia_file, test.mpp_file, test.name);
         if (!result) {
             all_comparisons_passed = false;
         }
@@ -327,9 +326,9 @@ int main(int argc, char* argv[]) {
     
     for (int i = 0; i < 6; i++) {
         std::string nvidia_path = "reference_nvidia_npp/FilterBorderControl/" + std::string(filter_files[i]);
-        std::string opennpp_path = "opennpp_results/FilterBorderControl/" + std::string(filter_files[i]);
+        std::string mpp_path = "mpp_results/FilterBorderControl/" + std::string(filter_files[i]);
         
-        bool result = compareImages(nvidia_path.c_str(), opennpp_path.c_str(), filter_names[i]);
+        bool result = compareImages(nvidia_path.c_str(), mpp_path.c_str(), filter_names[i]);
         if (!result) {
             all_comparisons_passed = false;
         }
@@ -343,10 +342,10 @@ int main(int argc, char* argv[]) {
     std::cout << std::string(60, '=') << std::endl;
     
     bool overall_passed = passed && edgeTest && all_comparisons_passed;
-    std::cout << "\n🎯 最终结果: " << (overall_passed ? "完全通过 ✅" : "存在问题 ❌") << std::endl;
+    std::cout << "\n 最终结果: " << (overall_passed ? "完全通过 ✅" : "存在问题 ❌") << std::endl;
     
     if (overall_passed) {
-        std::cout << "🎉 OpenNPP实现与NVIDIA NPP完全一致！" << std::endl;
+        std::cout << "pass！" << std::endl;
     }
     
     return overall_passed ? 0 : -1;

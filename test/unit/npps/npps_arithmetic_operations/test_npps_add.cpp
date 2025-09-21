@@ -223,7 +223,7 @@ TEST_F(NPPSAddFunctionalTest, Add_32fc_BasicOperation) {
 // Error Handling Tests
 // ==============================================================================
 
-// 测试OpenNPP的错误处理机制 - 空指针检测
+// 测试错误处理机制 - 空指针检测
 TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   const size_t nLength = 100;
 
@@ -247,7 +247,7 @@ TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   cudaFree(d_valid);
 }
 
-// 测试OpenNPP的错误处理机制 - 大小验证
+// 测试错误处理机制 - 大小验证
 TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
   // 分配有效的GPU内存
   Npp32f *d_valid = nullptr;
