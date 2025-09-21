@@ -11,6 +11,7 @@ BUILD_TYPE="Release"
 JOBS=$(nproc)
 BUILD_TESTS="ON"
 BUILD_EXAMPLES="ON"
+BUILD_SHARED_LIBS="OFF"
 WARNINGS_AS_ERRORS="ON"
 # Check environment variable first, then use default
 USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
@@ -48,6 +49,10 @@ while [[ $# -gt 0 ]]; do
             USE_NVIDIA_NPP="ON"
             shift
             ;;
+        --shared)
+            BUILD_SHARED_LIBS="ON"
+            shift
+            ;;
         clean)
             echo "Cleaning build directories..."
             rm -rf build/ build-nvidia/
@@ -62,6 +67,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --no-tests      Skip building tests"
             echo "  --no-examples   Skip building examples"
             echo "  --lib-only      Build library only (no tests, no examples)"
+            echo "  --shared        Build shared libraries (.so/.dll) instead of static (.a/.lib)"
             echo "  --no-werror     Disable warnings as errors"
             echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
             echo "  clean           Clean build directory"
@@ -88,13 +94,14 @@ echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
 
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
-echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
+echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
 cmake -S .\
     -B $BUILD_DIR\
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DCMAKE_CUDA_ARCHITECTURES="89" \
     -DBUILD_TESTS="$BUILD_TESTS" \
     -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
+    -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
     -G Ninja

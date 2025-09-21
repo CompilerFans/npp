@@ -5,7 +5,7 @@
 ├── Architecture: GPU-accelerated Image and Signal Processing Library
 ├── Main Technologies: CUDA, C++17, CMake, Google Test
 ├── Key Patterns: NVIDIA NPP API Compatible Implementation
-└── Entry Point: libopennpp.a/libopennpp.so (Library)
+└── Entry Point: libmpp.a/libmpp.so (Library)
 ```
 
 ## COMPONENT MAP
@@ -59,7 +59,7 @@ test/
 ├── framework/
 │   ├── nvidia_comparison_test_base.h  # NVIDIA NPP comparison
 │   ├── nvidia_npp_loader.h           # Dynamic loading of NVIDIA libs
-│   ├── opennpp_loader.h              # Dynamic loading of MPP
+│   ├── mpp_loader.h              # Dynamic loading of MPP
 │   └── dual_library_test_base.h     # Dual library testing
 ├── unit/                             # Unit tests
 │   ├── nppcore/                      # Core function tests
@@ -131,9 +131,9 @@ Current coverage:
 - ❌ Filtering, morphology, color conversion
 
 ### 7. **Build Artifacts**
-- `libopennpp.a`: Static library
-- `libopennpp.so`: Shared library
-- `opennpp_test`: Unified test executable
+- `libmpp.a`: Static library
+- `libmpp.so`: Shared library
+- `mpp_test`: Unified test executable
 
 ### 8. **Key Design Decisions**
 - **100% API Compatibility**: Drop-in replacement for NVIDIA NPP

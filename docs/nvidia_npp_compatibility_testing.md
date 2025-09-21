@@ -72,7 +72,7 @@ cmake .. -DUSE_NVIDIA_NPP=ON
 # 使用MPP运行测试
 ./build.sh clean
 ./build.sh
-./build/unit_tests > opennpp_results.txt
+./build/unit_tests > mpp_results.txt
 
 # 使用NVIDIA NPP运行测试
 ./build.sh clean
@@ -80,7 +80,7 @@ cmake .. -DUSE_NVIDIA_NPP=ON
 ./build/unit_tests > nvidia_npp_results.txt
 
 # 对比结果
-diff opennpp_results.txt nvidia_npp_results.txt
+diff mpp_results.txt nvidia_npp_results.txt
 ```
 
 ## 注意事项
