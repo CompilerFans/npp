@@ -3,11 +3,11 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 #define M_PI 3.14159265358979323846
 
-// Implementation file
+
 __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp8u *__restrict__ pDst, int nDstStep, NppiRect oDstROI, double nAngle,
                                      double nShiftX, double nShiftY) {
@@ -48,7 +48,7 @@ __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oS
   }
 }
 
-// Implementation file
+
 __global__ void rotate_8u_C3R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp8u *__restrict__ pDst, int nDstStep, NppiRect oDstROI, double nAngle,
                                      double nShiftX, double nShiftY) {
@@ -94,7 +94,7 @@ __global__ void rotate_8u_C3R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oS
   }
 }
 
-// Implementation file
+
 __global__ void rotate_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep,
                                       NppiRect oSrcROI, Npp32f *__restrict__ pDst, int nDstStep, NppiRect oDstROI,
                                       double nAngle, double nShiftX, double nShiftY) {
@@ -137,7 +137,7 @@ __global__ void rotate_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, NppiSize 
 
 extern "C" {
 
-// Implementation file
+
 NppStatus nppiRotate_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -159,7 +159,7 @@ NppStatus nppiRotate_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int n
   return NPP_NO_ERROR;
 }
 
-// Implementation file
+
 NppStatus nppiRotate_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -181,7 +181,7 @@ NppStatus nppiRotate_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int n
   return NPP_NO_ERROR;
 }
 
-// Implementation file
+
 NppStatus nppiRotate_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX,
                                       double nShiftY, int eInterpolation, NppStreamContext nppStreamCtx) {

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -49,7 +49,7 @@ NppStatus nppiAbs_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDs
 NppStatus nppiAbs_32f_C4IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static NppStatus validateAbsParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                        NppiSize oSizeROI, int nChannels, int nElementSize) {
   // For in-place operations, pDst will be nullptr
@@ -436,7 +436,7 @@ NppStatus nppiAbs_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) 
   return nppiAbs_32f_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-// ==================== 8位有符号绝对值 (未实现) ====================
+// ==================== 8位有符号绝对值 (未implementation) ====================
 
 NppStatus nppiAbs_8s_C1R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI) {
   // Parameter validation
@@ -451,7 +451,7 @@ NppStatus nppiAbs_8s_C1R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstS
     return NPP_STEP_ERROR;
   }
 
-  // 打印未实现警告
+  // 打印未implementation警告
   fprintf(stderr, "WARNING: nppiAbs_8s_C1R is not implemented in this NPP library build\n");
 
   return NPP_NOT_IMPLEMENTED_ERROR;

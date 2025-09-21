@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Set kernel for 8-bit single channel
 __global__ void nppiSet_8u_C1R_kernel(Npp8u nValue, Npp8u *pDst, int nDstStep, int width, int height) {

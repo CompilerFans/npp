@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -18,7 +18,7 @@ NppStatus nppiWarpAffine_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize,
                                           int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static inline NppStatus validateWarpAffineInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                  void *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                                  int eInterpolation) {
@@ -56,7 +56,7 @@ static inline NppStatus validateWarpAffineInputs(const void *pSrc, NppiSize oSrc
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiWarpAffine_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -78,7 +78,7 @@ NppStatus nppiWarpAffine_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
                                    nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiWarpAffine_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -100,7 +100,7 @@ NppStatus nppiWarpAffine_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
                                    nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiWarpAffine_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                      int eInterpolation, NppStreamContext nppStreamCtx) {

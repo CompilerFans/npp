@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Simple bilinear demosaicing kernel for CFA data
 template <typename T>

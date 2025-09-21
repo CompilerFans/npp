@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Device function for threshold operation
 template <typename T> __device__ inline T performThreshold(T src, T threshold, NppCmpOp op) {

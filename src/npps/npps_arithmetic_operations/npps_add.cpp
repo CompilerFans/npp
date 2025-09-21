@@ -12,13 +12,13 @@ cudaError_t nppsAdd_32fc_kernel(const Npp32fc *pSrc1, const Npp32fc *pSrc2, Npp3
                                 cudaStream_t stream);
 }
 
-// Implementation file
+
 
 // ==============================================================================
 // Add Operations - Element-wise addition of two signals
 // ==============================================================================
 
-// Implementation file
+
 NppStatus nppsAdd_32f_Ctx(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst, size_t nLength,
                           NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -49,7 +49,7 @@ NppStatus nppsAdd_32f(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst, si
   return nppsAdd_32f_Ctx(pSrc1, pSrc2, pDst, nLength, defaultContext);
 }
 
-// Implementation file
+
 NppStatus nppsAdd_16s_Ctx(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s *pDst, size_t nLength,
                           NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -80,7 +80,7 @@ NppStatus nppsAdd_16s(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s *pDst, si
   return nppsAdd_16s_Ctx(pSrc1, pSrc2, pDst, nLength, defaultContext);
 }
 
-// Implementation file
+
 NppStatus nppsAdd_32fc_Ctx(const Npp32fc *pSrc1, const Npp32fc *pSrc2, Npp32fc *pDst, size_t nLength,
                            NppStreamContext nppStreamCtx) {
   // Parameter validation

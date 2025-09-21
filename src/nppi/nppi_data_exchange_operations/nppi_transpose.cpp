@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -42,7 +42,7 @@ NppStatus nppiTranspose_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32
                                          NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static NppStatus validateTransposeParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                              NppiSize oSrcROI, int elementSize, int channels) {
   if (!pSrc || !pDst) {
@@ -67,7 +67,7 @@ static NppStatus validateTransposeParameters(const void *pSrc, int nSrcStep, con
 // 8-bit unsigned implementations
 // ============================================================================
 
-// Implementation file
+
 NppStatus nppiTranspose_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 1);
@@ -84,7 +84,7 @@ NppStatus nppiTranspose_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   return nppiTranspose_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiTranspose_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 3);
@@ -101,7 +101,7 @@ NppStatus nppiTranspose_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   return nppiTranspose_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiTranspose_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 4);

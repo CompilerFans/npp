@@ -20,7 +20,7 @@ NppStatus nppiMirror_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
   if (nSrcStep < oROI.width || nDstStep < oROI.width) {
     return NPP_STEP_ERROR;
   }
-  // Validateflip参数
+  // Validate flip parameters
   if (flip != NPP_HORIZONTAL_AXIS && flip != NPP_VERTICAL_AXIS && flip != NPP_BOTH_AXIS) {
     return NPP_MIRROR_FLIP_ERROR;
   }

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -40,7 +40,7 @@ static inline NppStatus validateResizeInputs(const void *pSrc, int nSrcStep, Npp
     return NPP_NULL_POINTER_ERROR;
   }
 
-  // Validate插值参数以避免未使用警告
+  // Validate插值参数以Avoid unused warning
   if (eInterpolation < 0) {
     return NPP_BAD_ARGUMENT_ERROR;
   }

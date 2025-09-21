@@ -2,9 +2,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
 
-// Implementation file
+
+
 __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -20,7 +20,7 @@ __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   dstRow[x] = (Npp32f)srcRow[x];
 }
 
-// Implementation file
+
 __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -40,7 +40,7 @@ __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSr
 
 extern "C" {
 
-// Implementation file
+
 NppStatus nppiConvert_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
 
@@ -61,7 +61,7 @@ NppStatus nppiConvert_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
   return NPP_NO_ERROR;
 }
 
-// Implementation file
+
 NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
 

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -38,7 +38,7 @@ static inline NppStatus validateLUTLinearInputs(const void *pSrc, int nSrcStep, 
     return NPP_STEP_ERROR;
   }
 
-  if (nLevels < 2) { // 至少需要2个等级点进行线性插值
+  if (nLevels < 2) { // At least 2 level points needed for linear interpolation
     return NPP_LUT_NUMBER_OF_LEVELS_ERROR;
   }
 
@@ -69,7 +69,7 @@ NppStatus nppiLUT_Linear_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
 NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
                                     NppStreamContext nppStreamCtx) {
-  // Validate基本参数
+  // Validate basic parameters
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -86,7 +86,7 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
     return NPP_STEP_ERROR;
   }
 
-  // Validate每个通道的参数
+  // Validate parameters for each channel
   for (int c = 0; c < 3; c++) {
     if (!pValues[c] || !pLevels[c]) {
       return NPP_NULL_POINTER_ERROR;

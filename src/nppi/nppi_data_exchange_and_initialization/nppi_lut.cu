@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Device function for linear interpolation between two points
 __device__ inline int linearInterpolate(int input, int level0, int level1, int value0, int value1) {

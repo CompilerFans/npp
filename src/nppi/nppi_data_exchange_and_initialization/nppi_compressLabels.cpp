@@ -2,7 +2,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-// 声明GPU函数
+// Declare GPU functions
 extern "C" {
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize);
 NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
@@ -11,7 +11,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
                                                        NppStreamContext nppStreamCtx);
 }
 
-// 获取标签压缩所需缓冲区大小
+// Get required buffer size
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R(int nMarkerLabels, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
@@ -26,7 +26,7 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R(int nMarkerLabels, int *
 
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx(int nMarkerLabels, int *hpBufferSize,
                                                             NppStreamContext nppStreamCtx) {
-  // 使用流上下文参数以避免未使用警告
+  // 使用流上下文参数以Avoid unused warning
   if (nppStreamCtx.nCudaDeviceId < -1) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
@@ -34,7 +34,7 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx(int nMarkerLabels, i
   return nppiCompressMarkerLabelsGetBufferSize_32u_C1R(nMarkerLabels, hpBufferSize);
 }
 
-// 使用Union-Find算法压缩标记标签
+// Use Union-Find algorithm to compress marker labels
 NppStatus nppiCompressMarkerLabelsUF_32u_C1IR(Npp32u *pMarkerLabels, int nMarkerLabelsStep, NppiSize oMarkerLabelsROI,
                                               int nStartingNumber, int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer) {
   // Parameter validation

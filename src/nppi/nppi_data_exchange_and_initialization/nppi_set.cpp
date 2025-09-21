@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -32,7 +32,7 @@ static inline NppStatus validateSetInputs(void *pDst, int nDstStep, NppiSize oSi
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiSet_8u_C1R_Ctx(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                              NppStreamContext nppStreamCtx) {
   NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
@@ -49,7 +49,7 @@ NppStatus nppiSet_8u_C1R(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiSize oSize
   return nppiSet_8u_C1R_Ctx(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiSet_8u_C3R_Ctx(const Npp8u aValue[3], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                              NppStreamContext nppStreamCtx) {
   NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
@@ -70,7 +70,7 @@ NppStatus nppiSet_8u_C3R(const Npp8u aValue[3], Npp8u *pDst, int nDstStep, NppiS
   return nppiSet_8u_C3R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiSet_32f_C1R_Ctx(Npp32f nValue, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
   NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);

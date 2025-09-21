@@ -6,7 +6,7 @@
 #include <thrust/sort.h>
 #include <thrust/unique.h>
 
-// Implementation file
+
 
 // Union-Find数据结构
 struct UnionFind {
@@ -84,7 +84,7 @@ __global__ void buildConnectivity_kernel(const Npp32u *pMarkerLabels, int nMarke
 
   UnionFind uf(parent, rank, 65536); // 假设最大标签数为65536
 
-  // 检查4连通邻域
+  // Check 4-connected neighborhood
   int dx[] = {-1, 1, 0, 0};
   int dy[] = {0, 0, -1, 1};
 
@@ -161,7 +161,7 @@ __global__ void relabelImage_kernel(Npp32u *pMarkerLabels, int nMarkerLabelsStep
 
 extern "C" {
 
-// 获取标签压缩所需缓冲区大小
+// Get required buffer size
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize) {
   // Union-Find需要的空间：
   // 1. parent数组 (Npp32u * maxLabels)
@@ -176,13 +176,13 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabe
   size_t usedSize = maxLabels * sizeof(bool);
 
   size_t totalSize = parentSize + rankSize + tempLabelSize + usedSize;
-  size_t alignedSize = (totalSize + 511) & ~511; // 512字节对齐
+  size_t alignedSize = (totalSize + 511) & ~511; // 512byte alignment
 
   *hpBufferSize = (int)alignedSize;
   return NPP_SUCCESS;
 }
 
-// Union-Find标签压缩实现
+// Union-Find标签压缩implementation
 NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
                                                        NppiSize oMarkerLabelsROI, int nStartingNumber,
                                                        int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer,
@@ -191,7 +191,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
   int height = oMarkerLabelsROI.height;
   int maxLabels = 65536;
 
-  // 设置缓冲区
+  // Setup buffers
   Npp32u *parent = (Npp32u *)pDeviceBuffer;
   int *rank = (int *)(parent + maxLabels);
   Npp32u *labelMapping = (Npp32u *)(rank + maxLabels);

@@ -9,13 +9,13 @@ cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f *pDst, size_t nLength, cuda
 cudaError_t nppsSet_32fc_kernel(Npp32fc nValue, Npp32fc *pDst, size_t nLength, cudaStream_t stream);
 }
 
-// Implementation file
+
 
 // ==============================================================================
 // Set Operations - Initialize signal elements with constant values
 // ==============================================================================
 
-// Implementation file
+
 NppStatus nppsSet_8u_Ctx(Npp8u nValue, Npp8u *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pDst) {
@@ -45,7 +45,7 @@ NppStatus nppsSet_8u(Npp8u nValue, Npp8u *pDst, size_t nLength) {
   return nppsSet_8u_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
-// Implementation file
+
 NppStatus nppsSet_32f_Ctx(Npp32f nValue, Npp32f *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pDst) {
@@ -75,7 +75,7 @@ NppStatus nppsSet_32f(Npp32f nValue, Npp32f *pDst, size_t nLength) {
   return nppsSet_32f_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
-// Implementation file
+
 NppStatus nppsSet_32fc_Ctx(Npp32fc nValue, Npp32fc *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pDst) {
@@ -105,7 +105,7 @@ NppStatus nppsSet_32fc(Npp32fc nValue, Npp32fc *pDst, size_t nLength) {
   return nppsSet_32fc_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
-// Implementation file
+
 NppStatus nppsZero_32f_Ctx(Npp32f *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   return nppsSet_32f_Ctx(0.0f, pDst, nLength, nppStreamCtx);
 }

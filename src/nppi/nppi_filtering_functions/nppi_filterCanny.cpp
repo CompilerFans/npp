@@ -2,7 +2,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-// 声明GPU函数
+// Declare GPU functions
 extern "C" {
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
@@ -13,7 +13,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
                                                 NppStreamContext nppStreamCtx);
 }
 
-// 获取Canny边缘检测所需缓冲区大小 - 简化版本（GPU Samples使用）
+// Get required buffer size - simplified version (used by GPU Samples)
 NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
@@ -26,7 +26,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSiz
   return nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, hpBufferSize);
 }
 
-// 获取Canny边缘检测所需缓冲区大小
+// Get required buffer size
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
@@ -41,14 +41,14 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpBu
 
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
                                                         NppStreamContext nppStreamCtx) {
-  // 使用nppStreamCtx参数进行简单Validate以避免未使用警告
+  // Use nppStreamCtx parameter for simple validation to avoid unused warning
   if (nppStreamCtx.nCudaDeviceId < -1) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
   return nppiFilterCannyBorderGetBufferSize_8u_C1R(oSizeROI, hpBufferSize);
 }
 
-// Canny边缘检测实现
+// Canny边缘检测implementation
 NppStatus nppiFilterCannyBorder_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiDifferentialKernel eFilterType,
                                        NppiMaskSize eMaskSize, Npp16s nLowThreshold, Npp16s nHighThreshold,

@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Bilinear interpolation helper
 __device__ inline float lerp(float a, float b, float t) { return a + t * (b - a); }

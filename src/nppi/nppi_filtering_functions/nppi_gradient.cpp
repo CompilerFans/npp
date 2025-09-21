@@ -4,11 +4,11 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-// 带X/Y分量输出的版本（FilterBorderControlNPP使用）
+// Version with X/Y component output (used by FilterBorderControlNPP)
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
                                                                 NppiPoint oSrcOffset, Npp16s *pDstX, int nDstXStep,
                                                                 Npp16s *pDstY, int nDstYStep, Npp16s *pDstMag,
@@ -17,7 +17,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(const Npp8u *pSr
                                                                 NppiNorm eNorm, NppiBorderType eBorderType,
                                                                 NppStreamContext nppStreamCtx);
 
-// 原始版本（带mag/dir输出）
+// Original version (with mag/dir output)
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_magdir(const Npp8u *pSrc, int nSrcStep,
                                                                     NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                                                     Npp16s *pDstMag, int nDstMagStep, Npp16s *pDstDir,
@@ -67,7 +67,7 @@ static inline NppStatus validateGradientVectorInputs(const void *pSrc, int nSrcS
   return NPP_SUCCESS;
 }
 
-// 新版本 - 带X/Y分量输出（用于FilterBorderControlNPP）
+// New version - with X/Y component output (for FilterBorderControlNPP)
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
                                                         NppiPoint oSrcOffset, Npp16s *pDstX, int nDstXStep,
                                                         Npp16s *pDstY, int nDstYStep, Npp16s *pDstMag, int nDstMagStep,
@@ -100,13 +100,13 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(const Npp8u *pSrc, int n
     return NPP_MASK_SIZE_ERROR;
   }
 
-  // CallGPU实现
+  // CallGPUimplementation
   return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(
       pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag, nDstMagStep, pDstAngle,
       nDstAngleStep, oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx);
 }
 
-// 不带上下文的版本
+// Version without context
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
                                                     NppiPoint oSrcOffset, Npp16s *pDstX, int nDstXStep, Npp16s *pDstY,
                                                     int nDstYStep, Npp16s *pDstMag, int nDstMagStep, Npp32f *pDstAngle,
@@ -121,7 +121,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R(const Npp8u *pSrc, int nSrcS
                                                        oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx);
 }
 
-// 原始版本 - 8-bit unsigned to 16-bit signed gradient vector with Prewitt operator (mag/dir输出)
+// Original version - 8-bit unsigned to 16-bit signed gradient vector with Prewitt operator (mag/dir output)
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_magdir(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                                NppiPoint oSrcOffset, Npp16s *pDstMag, int nDstMagStep,
                                                                Npp16s *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,

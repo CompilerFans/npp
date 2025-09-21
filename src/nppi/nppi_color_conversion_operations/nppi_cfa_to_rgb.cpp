@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -45,7 +45,7 @@ static inline NppStatus validateCFAToRGBInputs(const void *pSrc, int nSrcStep, N
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiCFAToRGB_8u_C1C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -66,7 +66,7 @@ NppStatus nppiCFAToRGB_8u_C1C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSi
                                    nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiCFAToRGB_16u_C1C3R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                      Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                      NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {

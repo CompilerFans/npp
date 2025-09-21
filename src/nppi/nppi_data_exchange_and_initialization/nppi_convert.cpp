@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -12,7 +12,7 @@ NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
                                          NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static inline NppStatus validateConvertInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                               NppiSize oSizeROI) {
   if (!pSrc || !pDst)
@@ -24,7 +24,7 @@ static inline NppStatus validateConvertInputs(const void *pSrc, int nSrcStep, vo
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiConvert_8u32f_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -36,7 +36,7 @@ NppStatus nppiConvert_8u32f_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32f *pDs
   return nppiConvert_8u32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiConvert_8u32f_C1R(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
   // Get default stream context
   NppStreamContext nppStreamCtx;
@@ -45,13 +45,13 @@ NppStatus nppiConvert_8u32f_C1R(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, i
   return nppiConvert_8u32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiConvert_8u32f_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx) {
   return nppiConvert_8u32f_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiConvert_8u32f_C3R(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
   // Get default stream context
   NppStreamContext nppStreamCtx;

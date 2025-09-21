@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Kernel for 8-bit unsigned single channel copy with constant border
 __global__ void nppiCopyConstBorder_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,

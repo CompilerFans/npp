@@ -3,9 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
 
-// Implementation file
+
+
 __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -24,7 +24,7 @@ __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int n
   }
 }
 
-// Implementation file
+
 __global__ void magnitude_sqr_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                              int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;

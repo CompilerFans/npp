@@ -3,23 +3,23 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
 
-// Implementation file
+
+
 template <typename T>
 __device__ T nearestInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   int ix = (int)(fx + 0.5f);
   int iy = (int)(fy + 0.5f);
 
   if (ix < 0 || ix >= srcSize.width || iy < 0 || iy >= srcSize.height) {
-    return T(0); // 边界外返回0
+    return T(0); // Return 0 for out of bounds
   }
 
   const T *src_pixel = (const T *)((const char *)pSrc + iy * nSrcStep) + ix;
   return *src_pixel;
 }
 
-// Implementation file
+
 template <typename T>
 __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   int x0 = (int)floorf(fx);
@@ -30,13 +30,13 @@ __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize
   float dx = fx - x0;
   float dy = fy - y0;
 
-  // 边界检查 - 如果任何一个点超出边界，使用最近邻插值
+  // Boundary check - use nearest neighbor interpolation if any point is out of bounds
   if (x0 < 0 || x1 >= srcSize.width || y0 < 0 || y1 >= srcSize.height) {
-    // 边界外使用最近邻插值
+    // Use nearest neighbor interpolation for out of bounds
     int ix = (int)(fx + 0.5f);
     int iy = (int)(fy + 0.5f);
 
-    // 限制在边界内
+    // Clamp within boundaries
     ix = (ix < 0) ? 0 : ((ix >= srcSize.width) ? srcSize.width - 1 : ix);
     iy = (iy < 0) ? 0 : ((iy >= srcSize.height) ? srcSize.height - 1 : iy);
 
@@ -44,13 +44,13 @@ __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize
     return *pixel;
   }
 
-  // 获取四个角点像素值
+  // Get four corner pixel values
   const T *p00 = (const T *)((const char *)pSrc + y0 * nSrcStep) + x0;
   const T *p01 = (const T *)((const char *)pSrc + y0 * nSrcStep) + x1;
   const T *p10 = (const T *)((const char *)pSrc + y1 * nSrcStep) + x0;
   const T *p11 = (const T *)((const char *)pSrc + y1 * nSrcStep) + x1;
 
-  // 双线性插值计算
+  // Bilinear interpolation computation
   T v0 = *p00 * (1.0f - dx) + *p01 * dx;
   T v1 = *p10 * (1.0f - dx) + *p11 * dx;
   T result = v0 * (1.0f - dy) + v1 * dy;
@@ -58,15 +58,15 @@ __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize
   return result;
 }
 
-// Implementation file
+
 template <typename T>
 __device__ T cubicInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
-  // 简化版本：降级为双线性插值
-  // 完整的双三次插值计算量较大，这里使用双线性近似
+  // Simplified version: fallback to bilinear interpolation
+  // Full bicubic interpolation is computationally expensive, use bilinear approximation here
   return bilinearInterpolation<T>(pSrc, nSrcStep, srcSize, fx, fy);
 }
 
-// Implementation file
+
 __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                                   double c02, double c10, double c11, double c12, double c20,
@@ -75,16 +75,16 @@ __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oS
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x < oDstROI.width && y < oDstROI.height) {
-    // 绝对目标坐标（全图像坐标系）
+    // Absolute destination coordinates (full image coordinate system)
     int dst_x = x + oDstROI.x;
     int dst_y = y + oDstROI.y;
 
-    // 应用透视变换（逆变换）
-    // 目标坐标变换到源坐标：[x' y' w'] = [dst_x dst_y 1] * inv(M)
-    // 透视变换需要处理齐次坐标
+    // Apply perspective transform (inverse transform)
+    // Transform destination coordinates to source coordinates:[x' y' w'] = [dst_x dst_y 1] * inv(M)
+    // Perspective transform requires handling homogeneous coordinates
     double w = c20 * dst_x + c21 * dst_y + c22;
 
-    // 防止除零错误
+    // Prevent division by zero
     if (fabs(w) < 1e-10) {
       Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x;
       *dst_pixel = 0;
@@ -94,7 +94,7 @@ __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oS
     double src_x = (c00 * dst_x + c01 * dst_y + c02) / w;
     double src_y = (c10 * dst_x + c11 * dst_y + c12) / w;
 
-    // 绝对源坐标
+    // Absolute source coordinates
     float abs_fx = (float)src_x;
     float abs_fy = (float)src_y;
 
@@ -114,13 +114,13 @@ __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oS
       break;
     }
 
-    // 写入目标像素（y和x已经是ROI内的相对坐标）
+    // Write destination pixel (y and x are already relative coordinates within ROI)
     Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x;
     *dst_pixel = result;
   }
 }
 
-// Implementation file
+
 __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                                   double c02, double c10, double c11, double c12, double c20,
@@ -129,14 +129,14 @@ __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oS
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x < oDstROI.width && y < oDstROI.height) {
-    // 绝对目标坐标（全图像坐标系）
+    // Absolute destination coordinates (full image coordinate system)
     int dst_x = x + oDstROI.x;
     int dst_y = y + oDstROI.y;
 
-    // 应用透视变换
+    // Apply perspective transform
     double w = c20 * dst_x + c21 * dst_y + c22;
 
-    // 防止除零错误
+    // Prevent division by zero
     if (fabs(w) < 1e-10) {
       Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x * 3;
       dst_pixel[0] = dst_pixel[1] = dst_pixel[2] = 0;
@@ -146,11 +146,11 @@ __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oS
     double src_x = (c00 * dst_x + c01 * dst_y + c02) / w;
     double src_y = (c10 * dst_x + c11 * dst_y + c12) / w;
 
-    // 绝对源坐标
+    // Absolute source coordinates
     float abs_fx = (float)src_x;
     float abs_fy = (float)src_y;
 
-    // 处理三个通道
+    // Process three channels
     for (int c = 0; c < 3; c++) {
       Npp8u result = 0;
 
@@ -187,7 +187,7 @@ __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oS
       }
       case NPPI_INTER_CUBIC:
       default:
-        // 简化为最近邻
+        // Simplified to nearest neighbor
         int ix = (int)(abs_fx + 0.5f);
         int iy = (int)(abs_fy + 0.5f);
         if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
@@ -197,14 +197,14 @@ __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oS
         break;
       }
 
-      // 写入目标像素（y和x已经是ROI内的相对坐标）
+      // Write destination pixel (y and x are already relative coordinates within ROI)
       Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x * 3 + c;
       *dst_pixel = result;
     }
   }
 }
 
-// Implementation file
+
 __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
                                                    NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
                                                    double c00, double c01, double c02, double c10, double c11,
@@ -213,14 +213,14 @@ __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize 
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x < oDstROI.width && y < oDstROI.height) {
-    // 绝对目标坐标（全图像坐标系）
+    // Absolute destination coordinates (full image coordinate system)
     int dst_x = x + oDstROI.x;
     int dst_y = y + oDstROI.y;
 
-    // 应用透视变换
+    // Apply perspective transform
     double w = c20 * dst_x + c21 * dst_y + c22;
 
-    // 防止除零错误
+    // Prevent division by zero
     if (fabs(w) < 1e-10) {
       Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x;
       *dst_pixel = 0.0f;
@@ -230,7 +230,7 @@ __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize 
     double src_x = (c00 * dst_x + c01 * dst_y + c02) / w;
     double src_y = (c10 * dst_x + c11 * dst_y + c12) / w;
 
-    // 绝对源坐标
+    // Absolute source coordinates
     float abs_fx = (float)src_x;
     float abs_fy = (float)src_y;
 
@@ -250,7 +250,7 @@ __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize 
       break;
     }
 
-    // 写入目标像素
+    // Write destination pixel
     Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x;
     *dst_pixel = result;
   }
@@ -258,11 +258,11 @@ __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize 
 
 extern "C" {
 
-// Implementation file
+
 NppStatus nppiWarpPerspective_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
-  // 将二维数组转换为单独的参数
+  // Convert 2D array to separate parameters
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -287,7 +287,7 @@ NppStatus nppiWarpPerspective_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiWarpPerspective_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -315,7 +315,7 @@ NppStatus nppiWarpPerspective_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiWarpPerspective_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                                int eInterpolation, NppStreamContext nppStreamCtx) {

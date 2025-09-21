@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -13,7 +13,7 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcSte
                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static NppStatus validateMagnitudeParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                              NppiSize oSizeROI, int srcElementSize, int dstElementSize) {
   if (!pSrc || !pDst) {
@@ -38,7 +38,7 @@ static NppStatus validateMagnitudeParameters(const void *pSrc, int nSrcStep, con
 // Magnitude functions
 // ============================================================================
 
-// Implementation file
+
 NppStatus nppiMagnitude_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status =
@@ -60,7 +60,7 @@ NppStatus nppiMagnitude_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f *p
 // Magnitude squared functions
 // ============================================================================
 
-// Implementation file
+
 NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status =
@@ -79,7 +79,7 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f
   return nppiMagnitudeSqr_32fc32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// ==================== 两通道浮点数幅度计算 (未实现) ====================
+// ==================== 两通道浮点数幅度计算 (未implementation) ====================
 
 NppStatus nppiMagnitude_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
   // Parameter validation
@@ -93,7 +93,7 @@ NppStatus nppiMagnitude_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, 
     return NPP_STEP_ERROR;
   }
 
-  // 打印未实现警告
+  // 打印未implementation警告
   fprintf(stderr, "WARNING: nppiMagnitude_32f_C2R is not implemented in this NPP library build\n");
 
   return NPP_NOT_IMPLEMENTED_ERROR;

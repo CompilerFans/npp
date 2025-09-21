@@ -3,24 +3,24 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
 
-// 简单的3x3高斯kernel
+
+// Simple 3x3 Gaussian kernel
 __constant__ float c_gauss3x3[9] = {0.0625f, 0.125f, 0.0625f, 0.125f, 0.25f, 0.125f, 0.0625f, 0.125f, 0.0625f};
 
-// 简单的5x5高斯kernel
+// Simple 5x5 Gaussian kernel
 __constant__ float c_gauss5x5[25] = {0.0039f, 0.0156f, 0.0234f, 0.0156f, 0.0039f, 0.0156f, 0.0625f, 0.0938f, 0.0625f,
                                      0.0156f, 0.0234f, 0.0938f, 0.1406f, 0.0938f, 0.0234f, 0.0156f, 0.0625f, 0.0938f,
                                      0.0625f, 0.0156f, 0.0039f, 0.0156f, 0.0234f, 0.0156f, 0.0039f};
 
-// 7x7高斯kernel
+// 7x7 Gaussian kernel
 __constant__ float c_gauss7x7[49] = {
     0.0009f, 0.0039f, 0.0078f, 0.0098f, 0.0078f, 0.0039f, 0.0009f, 0.0039f, 0.0156f, 0.0313f, 0.0391f, 0.0313f, 0.0156f,
     0.0039f, 0.0078f, 0.0313f, 0.0625f, 0.0781f, 0.0625f, 0.0313f, 0.0078f, 0.0098f, 0.0391f, 0.0781f, 0.0977f, 0.0781f,
     0.0391f, 0.0098f, 0.0078f, 0.0313f, 0.0625f, 0.0781f, 0.0625f, 0.0313f, 0.0078f, 0.0039f, 0.0156f, 0.0313f, 0.0391f,
     0.0313f, 0.0156f, 0.0039f, 0.0009f, 0.0039f, 0.0078f, 0.0098f, 0.0078f, 0.0039f, 0.0009f};
 
-// 8位单通道高斯滤波kernel
+// 8-bit single channel Gaussian filter kernel
 __global__ void nppiFilterGauss_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                               int height, int kernelSize) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -37,11 +37,11 @@ __global__ void nppiFilterGauss_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
       int srcX = x + kx - center;
       int srcY = y + ky - center;
 
-      // 边界处理：镜像
+      // Boundary handling：镜像
       srcX = max(0, min(srcX, width - 1));
       srcY = max(0, min(srcY, height - 1));
 
-      // 正确的内存访问
+      // Correct memory access
       const Npp8u *src_pixel = (const Npp8u *)((const char *)pSrc + srcY * nSrcStep) + srcX;
       float pixelValue = (float)(*src_pixel);
 
@@ -58,12 +58,12 @@ __global__ void nppiFilterGauss_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
     }
   }
 
-  // 输出到正确位置
+  // Output to correct position
   Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x;
   *dst_pixel = (Npp8u)fmaxf(0.0f, fminf(255.0f, result));
 }
 
-// 8位三通道高斯滤波kernel
+// 8-bit three channel Gaussian filter kernel
 __global__ void nppiFilterGauss_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                               int height, int kernelSize) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -74,7 +74,7 @@ __global__ void nppiFilterGauss_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, N
 
   int center = kernelSize / 2;
 
-  // 处理每个通道
+  // Process each channel
   for (int ch = 0; ch < 3; ch++) {
     float result = 0.0f;
 
@@ -83,11 +83,11 @@ __global__ void nppiFilterGauss_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, N
         int srcX = x + kx - center;
         int srcY = y + ky - center;
 
-        // 边界处理：镜像
+        // Boundary handling：镜像
         srcX = max(0, min(srcX, width - 1));
         srcY = max(0, min(srcY, height - 1));
 
-        // 正确的内存访问（3通道）
+        // Correct memory access（3通道）
         const Npp8u *src_pixel = (const Npp8u *)((const char *)pSrc + srcY * nSrcStep) + srcX * 3 + ch;
         float pixelValue = (float)(*src_pixel);
 
@@ -104,13 +104,13 @@ __global__ void nppiFilterGauss_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, N
       }
     }
 
-    // 输出到正确位置（3通道）
+    // Output to correct position（3通道）
     Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x * 3 + ch;
     *dst_pixel = (Npp8u)fmaxf(0.0f, fminf(255.0f, result));
   }
 }
 
-// 32位浮点单通道高斯滤波kernel
+// 32-bit float single channel Gaussian filter kernel
 __global__ void nppiFilterGauss_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                int height, int kernelSize) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -127,11 +127,11 @@ __global__ void nppiFilterGauss_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep,
       int srcX = x + kx - center;
       int srcY = y + ky - center;
 
-      // 边界处理：镜像
+      // Boundary handling：镜像
       srcX = max(0, min(srcX, width - 1));
       srcY = max(0, min(srcY, height - 1));
 
-      // 正确的内存访问（32位浮点）
+      // Correct memory access（32位浮点）
       const Npp32f *src_pixel = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep) + srcX;
       float pixelValue = *src_pixel;
 
@@ -148,14 +148,14 @@ __global__ void nppiFilterGauss_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep,
     }
   }
 
-  // 输出到正确位置
+  // Output to correct position
   Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x;
   *dst_pixel = result;
 }
 
 extern "C" {
 
-// 8位单通道高斯滤波实现
+// 8-bit single channel Gaussian filter implementation
 NppStatus nppiFilterGauss_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                           NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
@@ -190,7 +190,7 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // 同步等待kernel完成
+  // Synchronize and wait for kernel completion
   if (nppStreamCtx.hStream == 0) {
     cudaStatus = cudaDeviceSynchronize();
   } else {
@@ -203,7 +203,7 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
   return NPP_SUCCESS;
 }
 
-// 8位三通道高斯滤波实现
+// 8-bit three channel Gaussian filter implementation
 NppStatus nppiFilterGauss_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                           NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
@@ -238,7 +238,7 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // 同步等待kernel完成
+  // Synchronize and wait for kernel completion
   if (nppStreamCtx.hStream == 0) {
     cudaStatus = cudaDeviceSynchronize();
   } else {
@@ -251,7 +251,7 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
   return NPP_SUCCESS;
 }
 
-// 32位浮点单通道高斯滤波实现
+// 32-bit float single channel Gaussian filter implementation
 NppStatus nppiFilterGauss_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppiMaskSize eMaskSize, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
@@ -286,7 +286,7 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // 同步等待kernel完成
+  // Synchronize and wait for kernel completion
   if (nppStreamCtx.hStream == 0) {
     cudaStatus = cudaDeviceSynchronize();
   } else {

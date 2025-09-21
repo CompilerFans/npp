@@ -2,14 +2,14 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // ITU-R BT.709 standard luminance weights
 #define WEIGHT_R 0.299f
 #define WEIGHT_G 0.587f
 #define WEIGHT_B 0.114f
 
-// Implementation file
+
 __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                               int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -31,7 +31,7 @@ __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
   }
 }
 
-// Implementation file
+
 __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -54,7 +54,7 @@ __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, 
   }
 }
 
-// Implementation file
+
 __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -75,7 +75,7 @@ __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep,
   }
 }
 
-// Implementation file
+
 __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                 int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -99,7 +99,7 @@ __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep
 
 extern "C" {
 
-// Implementation file
+
 NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                           NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -126,7 +126,7 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -153,7 +153,7 @@ NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -180,7 +180,7 @@ NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

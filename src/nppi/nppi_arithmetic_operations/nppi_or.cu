@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// GPUkernel：两图像按位或
+// GPU kernel: bitwise OR of two images
 __global__ void nppiOr_8u_C1R_kernel_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                           Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -17,7 +17,7 @@ __global__ void nppiOr_8u_C1R_kernel_impl(const Npp8u *pSrc1, int nSrc1Step, con
   }
 }
 
-// GPUkernel：图像与常数按位或
+// GPU kernel: bitwise OR of image with constant
 __global__ void nppiOrC_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
                                            int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -32,7 +32,7 @@ __global__ void nppiOrC_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcStep, cons
 }
 
 extern "C" {
-// 两图像按位或
+// Bitwise OR of two images
 cudaError_t nppiOr_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                  int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
@@ -44,7 +44,7 @@ cudaError_t nppiOr_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
   return cudaGetLastError();
 }
 
-// 图像与常数按位或
+// Bitwise OR of image with constant
 cudaError_t nppiOrC_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                                   NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);

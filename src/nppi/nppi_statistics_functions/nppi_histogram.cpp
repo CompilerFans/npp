@@ -4,7 +4,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -14,7 +14,7 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
                                             NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBound, Npp32s nUpperBound) {
   // Validate input parameters
   if (!pLevels) {
@@ -44,7 +44,7 @@ NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBoun
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiEvenLevelsHost_32f(Npp32f *pLevels, int nLevels, Npp32f nLowerBound, Npp32f nUpperBound) {
   // Validate input parameters
   if (!pLevels) {
@@ -80,7 +80,7 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, 
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
                                                     NppStreamContext nppStreamCtx) {
   // Validate input parameters
@@ -88,8 +88,8 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
     return NPP_NULL_POINTER_ERROR;
   }
 
-  // 流上下文Validate - 接受任何有效的设备ID
-  (void)nppStreamCtx; // 避免未使用警告
+  // Stream context validation - accept any valid device ID
+  (void)nppStreamCtx; // Avoid unused warning
 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
@@ -102,7 +102,7 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
 }
 
-// Implementation file
+
 NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                        NppStreamContext nppStreamCtx) {

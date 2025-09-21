@@ -3,7 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Prewitt operator kernels (3x3)
 __constant__ float prewitt_x_3x3[9] = {-1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f};
@@ -249,7 +249,7 @@ NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, i
   return NPP_SUCCESS;
 }
 
-// 原始版本重命名为带_magdir后缀（保持原始实现）
+// Original version renamed with _magdir suffix (keep original implementation)
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_magdir(const Npp8u *pSrc, int nSrcStep,
                                                                     NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                                                     Npp16s *pDstMag, int nDstMagStep, Npp16s *pDstDir,
@@ -275,7 +275,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_magdir(const Npp8u 
 
 } // extern "C"
 
-// 实现新的X/Y分量输出版本
+// Implement new X/Y component output version
 __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, int srcWidth, int srcHeight,
                                                NppiPoint oSrcOffset, Npp16s *pDstX, int nDstXStep, Npp16s *pDstY,
                                                int nDstYStep, Npp16s *pDstMag, int nDstMagStep, Npp32f *pDstAngle,
@@ -288,11 +288,11 @@ __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, 
   if (x >= dstWidth || y >= dstHeight)
     return;
 
-  // 应用源偏移
+  // Apply source offset
   int srcX = x + oSrcOffset.x;
   int srcY = y + oSrcOffset.y;
 
-  // 计算Prewitt梯度
+  // Compute Prewitt gradient
   float gradX = 0.0f;
   float gradY = 0.0f;
 
@@ -301,13 +301,13 @@ __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, 
       int px = srcX + kx;
       int py = srcY + ky;
 
-      // 处理边界
+      // Handle boundaries
       if (eBorderType == NPP_BORDER_REPLICATE) {
         px = max(0, min(px, srcWidth - 1));
         py = max(0, min(py, srcHeight - 1));
       } else if (eBorderType == NPP_BORDER_CONSTANT) {
         if (px < 0 || px >= srcWidth || py < 0 || py >= srcHeight) {
-          continue; // 边界外使用0
+          continue; // Use 0 for out of bounds
         }
       }
 
@@ -320,7 +320,7 @@ __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, 
     }
   }
 
-  // 保存X和Y梯度
+  // Save X and Y gradients
   if (pDstX) {
     Npp16s *dstXRow = (Npp16s *)((char *)pDstX + y * nDstXStep);
     dstXRow[x] = (Npp16s)gradX;
@@ -331,7 +331,7 @@ __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, 
     dstYRow[x] = (Npp16s)gradY;
   }
 
-  // 计算幅度
+  // Compute magnitude
   if (pDstMag) {
     float mag = 0.0f;
     if (eNorm == nppiNormL1) {
@@ -345,7 +345,7 @@ __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, 
     dstMagRow[x] = (Npp16s)mag;
   }
 
-  // 计算角度（弧度）
+  // Compute angle (radians)
   if (pDstAngle) {
     float angle = atan2f(gradY, gradX);
     Npp32f *dstAngleRow = (Npp32f *)((char *)pDstAngle + y * nDstAngleStep);
@@ -362,13 +362,13 @@ extern "C" NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // 目前只支持3x3
+  // Currently only supports 3x3
   if (eMaskSize == NPP_MASK_SIZE_3_X_3) {
     prewittGradientXY_8u16s_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag,
         nDstMagStep, pDstAngle, nDstAngleStep, oSizeROI.width, oSizeROI.height, eNorm, eBorderType);
   } else {
-    // TODO: 实现5x5版本
+    // TODO: Implement 5x5 version
     return NPP_MASK_SIZE_ERROR;
   }
 

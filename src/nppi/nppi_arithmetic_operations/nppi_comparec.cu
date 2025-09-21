@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 // Device function for comparison operations
 __device__ inline bool performComparison(float src, float constant, NppCmpOp op) {

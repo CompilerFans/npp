@@ -5,13 +5,13 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Implementation file
+
 static inline NppStreamContext nppCreateDefaultStreamContext(void) {
   NppStreamContext ctx;
 

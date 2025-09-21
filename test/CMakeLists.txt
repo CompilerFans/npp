@@ -1,7 +1,7 @@
-# NPP单元测试CMake配置
+# NPP unit test CMake configuration
 
-# 设置GoogleTest
+# Setup GoogleTest
 npp_setup_gtest()
 
-# 单元测试（纯功能测试，无外部依赖）
+# Unit tests (pure functional tests, no external dependencies)
 add_subdirectory(unit)

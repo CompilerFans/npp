@@ -2,9 +2,9 @@
 #include <cstdio>
 #include <cuda_runtime.h>
 
-// Implementation file
 
-// Implementation file
+
+
 template <typename T>
 static T *nppiMallocTemplate(int nWidthPixels, int nHeightPixels, int nChannels, int *pStepBytes) {
   if (nWidthPixels <= 0 || nHeightPixels <= 0 || nChannels <= 0 || !pStepBytes) {
@@ -153,7 +153,7 @@ Npp32fc *nppiMalloc_32fc_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes
   return nppiMallocTemplate<Npp32fc>(nWidthPixels, nHeightPixels, 4, pStepBytes);
 }
 
-// Implementation file
+
 void nppiFree(void *pData) {
   if (pData) {
     cudaFree(pData);

@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Box滤波器kernel实现 - 计算邻域平均值
+// Box filter kernel implementation - compute neighborhood average
 __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                  int anchorY) {
@@ -10,19 +10,19 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x < width && y < height) {
-    // 计算滤波器覆盖的区域
+    // Compute filter coverage area
     int startX = x - anchorX;
     int startY = y - anchorY;
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // 边界处理 - 限制在图像bounds内
+    // Boundary handling - limit within image bounds
     startX = max(startX, 0);
     startY = max(startY, 0);
     endX = min(endX, width);
     endY = min(endY, height);
 
-    // 计算区域内所有像素的和
+    // Compute sum of all pixels in region
     int sum = 0;
     int count = 0;
 
@@ -34,9 +34,9 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
       }
     }
 
-    // 计算平均值并写入输出
+    // Compute average and write to output
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-    pDstRow[x] = (count > 0) ? ((sum + count / 2) / count) : 0; // 四舍五入
+    pDstRow[x] = (count > 0) ? ((sum + count / 2) / count) : 0; // Round to nearest
   }
 }
 

@@ -4,13 +4,13 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
-// Implementation file
+
 
 #define WATERSHED_MASK -2
 #define WATERSHED_WSHED -1
 #define WATERSHED_INIT 0
 
-// 像素结构，用于优先队列
+// Pixel structure for priority queue
 struct WatershedPixel {
   int x, y;
   Npp8u intensity;
@@ -18,7 +18,7 @@ struct WatershedPixel {
   __device__ bool operator<(const WatershedPixel &other) const { return intensity < other.intensity; }
 };
 
-// 计算梯度强度
+// Compute gradient magnitude
 __global__ void computeGradient_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pGradient, int nGradStep, int width,
                                        int height, Npp8u eNorm) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -32,31 +32,31 @@ __global__ void computeGradient_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 
   float gx = 0.0f, gy = 0.0f;
 
-  // Sobel算子计算梯度
+  // Compute gradient using Sobel operator
   if (x > 0 && x < width - 1 && y > 0 && y < height - 1) {
     const Npp8u *prev_row = (const Npp8u *)((const char *)pSrc + (y - 1) * nSrcStep);
     const Npp8u *next_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
 
-    // X方向梯度
+    // X direction gradient
     gx = (float)prev_row[x + 1] + 2.0f * src_row[x + 1] + (float)next_row[x + 1] - (float)prev_row[x - 1] -
          2.0f * src_row[x - 1] - (float)next_row[x - 1];
 
-    // Y方向梯度
+    // Y direction gradient
     gy = (float)next_row[x - 1] + 2.0f * next_row[x] + (float)next_row[x + 1] - (float)prev_row[x - 1] -
          2.0f * prev_row[x] - (float)prev_row[x + 1];
   }
 
   float magnitude;
   if (eNorm == 1) {
-    magnitude = fabs(gx) + fabs(gy); // L1范数
+    magnitude = fabs(gx) + fabs(gy); // L1 norm
   } else {
-    magnitude = sqrtf(gx * gx + gy * gy); // L2范数
+    magnitude = sqrtf(gx * gx + gy * gy); // L2 norm
   }
 
   grad_row[x] = (Npp8u)min(magnitude, 255.0f);
 }
 
-// 初始化标记
+// Initialize markers
 __global__ void initializeMarkers_kernel(Npp32s *pMarkers, int nMarkersStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -67,15 +67,15 @@ __global__ void initializeMarkers_kernel(Npp32s *pMarkers, int nMarkersStep, int
   Npp32s *marker_row = (Npp32s *)((char *)pMarkers + y * nMarkersStep);
 
   if (marker_row[x] > 0) {
-    // 已标记的种子点保持不变
+    // Keep marked seed points unchanged
     return;
   } else {
-    // 未标记的点初始化为MASK
+    // Initialize unmarked points as MASK
     marker_row[x] = WATERSHED_MASK;
   }
 }
 
-// 查找边界像素（种子点的邻居）
+// Find boundary pixels (neighbors of seed points)
 __global__ void findBoundaryPixels_kernel(const Npp32s *pMarkers, int nMarkersStep, const Npp8u *pGradient,
                                           int nGradStep, WatershedPixel *pBoundaryPixels, int *pBoundaryCount,
                                           int width, int height, int maxPixels) {
@@ -88,11 +88,11 @@ __global__ void findBoundaryPixels_kernel(const Npp32s *pMarkers, int nMarkersSt
   const Npp32s *marker_row = (const Npp32s *)((const char *)pMarkers + y * nMarkersStep);
   const Npp8u *grad_row = (const Npp8u *)((const char *)pGradient + y * nGradStep);
 
-  // 如果当前像素是MASK，检查是否邻接已标记区域
+  // If current pixel is MASK, check if adjacent to marked region
   if (marker_row[x] == WATERSHED_MASK) {
     bool isBoundary = false;
 
-    // 检查4连通邻域
+    // Check 4-connected neighborhood
     int dx[] = {-1, 1, 0, 0};
     int dy[] = {0, 0, -1, 1};
 
@@ -102,7 +102,7 @@ __global__ void findBoundaryPixels_kernel(const Npp32s *pMarkers, int nMarkersSt
 
       if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
         const Npp32s *neighbor_row = (const Npp32s *)((const char *)pMarkers + ny * nMarkersStep);
-        if (neighbor_row[nx] > 0) { // 邻居是已标记的种子点
+        if (neighbor_row[nx] > 0) { // Neighbor is marked seed point
           isBoundary = true;
           break;
         }
@@ -120,7 +120,7 @@ __global__ void findBoundaryPixels_kernel(const Npp32s *pMarkers, int nMarkersSt
   }
 }
 
-// 处理队列中的像素
+// Process pixels in queue
 __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int pixelCount, Npp32s *pMarkers,
                                               int nMarkersStep, int width, int height, WatershedPixel *pNewPixels,
                                               int *pNewCount, const Npp8u *pGradient, int nGradStep) {
@@ -136,9 +136,9 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
   Npp32s *marker_row = (Npp32s *)((char *)pMarkers + y * nMarkersStep);
 
   if (marker_row[x] != WATERSHED_MASK)
-    return; // 已处理
+    return; // Already processed
 
-  // 检查邻域标签
+  // Check neighborhood labels
   int dx[] = {-1, 1, 0, 0};
   int dy[] = {0, 0, -1, 1};
 
@@ -153,7 +153,7 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
       const Npp32s *neighbor_row = (const Npp32s *)((const char *)pMarkers + ny * nMarkersStep);
       Npp32s label = neighbor_row[nx];
 
-      if (label > 0) { // 有效标签
+      if (label > 0) { // Valid label
         if (neighborLabel == 0) {
           neighborLabel = label;
         } else if (neighborLabel != label) {
@@ -165,11 +165,11 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
   }
 
   if (hasMultipleLabels) {
-    marker_row[x] = WATERSHED_WSHED; // 分水岭线
+    marker_row[x] = WATERSHED_WSHED; // Watershed line
   } else if (neighborLabel > 0) {
-    marker_row[x] = neighborLabel; // 扩展标签
+    marker_row[x] = neighborLabel; // Extend label
 
-    // 将邻居中的MASK像素添加到下一轮处理
+    // Add MASK pixels in neighborhood to next processing round
     for (int i = 0; i < 4; i++) {
       int nx = x + dx[i];
       int ny = y + dy[i];
@@ -178,7 +178,7 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
         const Npp32s *neighbor_row = (const Npp32s *)((const char *)pMarkers + ny * nMarkersStep);
         if (neighbor_row[nx] == WATERSHED_MASK) {
           int newIdx = atomicAdd(pNewCount, 1);
-          if (newIdx < width * height) { // 防止溢出
+          if (newIdx < width * height) { // Prevent overflow
             const Npp8u *neighbor_grad_row = (const Npp8u *)((const char *)pGradient + ny * nGradStep);
             pNewPixels[newIdx].x = nx;
             pNewPixels[newIdx].y = ny;
@@ -192,28 +192,28 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
 
 extern "C" {
 
-// 获取Watershed分割所需缓冲区大小
+// Get required buffer size
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize) {
   size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
 
-  // 需要的缓冲区：
-  // 1. 梯度图像 (Npp8u)
-  // 2. 像素队列1 (WatershedPixel)
-  // 3. 像素队列2 (WatershedPixel)
-  // 4. 计数器 (int)
+  // Required buffers:
+  // 1. Gradient image (Npp8u)
+  // 2. Pixel queue 1 (WatershedPixel)
+  // 3. Pixel queue 2 (WatershedPixel)
+  // 4. Counter (int)
 
   size_t gradientSize = imageSize * sizeof(Npp8u);
   size_t queueSize = imageSize * sizeof(WatershedPixel) * 2;
   size_t counterSize = sizeof(int) * 2;
 
   size_t totalSize = gradientSize + queueSize + counterSize;
-  size_t alignedSize = (totalSize + 511) & ~511; // 512字节对齐
+  size_t alignedSize = (totalSize + 511) & ~511; // 512byte alignment
 
   *hpBufferSize = alignedSize;
   return NPP_SUCCESS;
 }
 
-// Watershed分割主函数
+// WatershedSegmentation main function
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
                                                 Npp32s nMarkerLabelsStep, NppiNorm eNorm, NppiSize oSizeROI,
                                                 Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
@@ -221,7 +221,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
   int height = oSizeROI.height;
   size_t imageSize = width * height;
 
-  // 设置缓冲区
+  // Setup buffers
   Npp8u *pGradient = pDeviceBuffer;
   WatershedPixel *pPixelQueue1 = (WatershedPixel *)(pGradient + imageSize);
   WatershedPixel *pPixelQueue2 = pPixelQueue1 + imageSize;
@@ -233,39 +233,39 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
   dim3 blockSize(16, 16);
   dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-  // 第一步：计算梯度
+  // Step 1: Compute gradient
   computeGradient_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcDst, nSrcDstStep, pGradient, gradStep,
                                                                            width, height, (Npp8u)eNorm);
 
-  // 第二步：初始化标记
+  // 第二步：Initialize markers
   initializeMarkers_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>((Npp32s *)pMarkerLabels, nMarkerLabelsStep,
                                                                              width, height);
 
-  // 第三步：找到初始边界像素
+  // Step 3: Find initial boundary pixels
   cudaMemsetAsync(pQueueCount1, 0, sizeof(int), nppStreamCtx.hStream);
 
   findBoundaryPixels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       (Npp32s *)pMarkerLabels, nMarkerLabelsStep, pGradient, gradStep, pPixelQueue1, pQueueCount1, width, height,
       (int)imageSize);
 
-  // 第四步：迭代处理（简化的优先队列）
+  // Step 4: Iterative processing (simplified priority queue)
   WatershedPixel *currentQueue = pPixelQueue1;
   WatershedPixel *nextQueue = pPixelQueue2;
   int *currentCount = pQueueCount1;
   int *nextCount = pQueueCount2;
 
-  for (int iteration = 0; iteration < 255; iteration++) { // 最多255次迭代
+  for (int iteration = 0; iteration < 255; iteration++) { // Maximum 255 iterations
     int h_count;
     cudaMemcpyAsync(&h_count, currentCount, sizeof(int), cudaMemcpyDeviceToHost, nppStreamCtx.hStream);
     cudaStreamSynchronize(nppStreamCtx.hStream);
 
     if (h_count == 0)
-      break; // 没有更多像素需要处理
+      break; // No more pixels to process
 
-    // 清空下一个队列
+    // Clear next queue
     cudaMemsetAsync(nextCount, 0, sizeof(int), nppStreamCtx.hStream);
 
-    // 处理当前强度级别的所有像素
+    // Process all pixels at current intensity level
     dim3 linearBlockSize(256);
     dim3 linearGridSize((h_count + linearBlockSize.x - 1) / linearBlockSize.x);
 
@@ -273,7 +273,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
         currentQueue, h_count, (Npp32s *)pMarkerLabels, nMarkerLabelsStep, width, height, nextQueue, nextCount,
         pGradient, gradStep);
 
-    // 交换队列
+    // Swap queues
     WatershedPixel *tempQueue = currentQueue;
     currentQueue = nextQueue;
     nextQueue = tempQueue;

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -18,7 +18,7 @@ NppStatus nppiWarpPerspective_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrc
                                                int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static inline NppStatus validateWarpPerspectiveInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep,
                                                       NppiRect oSrcROI, void *pDst, int nDstStep, NppiRect oDstROI,
                                                       const double aCoeffs[3][3], int eInterpolation) {
@@ -63,7 +63,7 @@ static inline NppStatus validateWarpPerspectiveInputs(const void *pSrc, NppiSize
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiWarpPerspective_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -85,7 +85,7 @@ NppStatus nppiWarpPerspective_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int n
                                         eInterpolation, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiWarpPerspective_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -107,7 +107,7 @@ NppStatus nppiWarpPerspective_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int n
                                         eInterpolation, nppStreamCtx);
 }
 
-// Implementation file
+
 NppStatus nppiWarpPerspective_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                           Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                           int eInterpolation, NppStreamContext nppStreamCtx) {

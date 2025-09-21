@@ -3,9 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
 
-// Implementation file
+
+
 template <typename T>
 __device__ T nearestInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   int ix = (int)(fx + 0.5f);
@@ -19,7 +19,7 @@ __device__ T nearestInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize,
   return *src_pixel;
 }
 
-// Implementation file
+
 template <typename T>
 __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   int x0 = (int)floorf(fx);
@@ -58,7 +58,7 @@ __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize
   return result;
 }
 
-// Implementation file
+
 template <typename T>
 __device__ T cubicInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   // Simplified version: fallback to bilinear
@@ -66,7 +66,7 @@ __device__ T cubicInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, f
   return bilinearInterpolation<T>(pSrc, nSrcStep, srcSize, fx, fy);
 }
 
-// Implementation file
+
 __global__ void nppiWarpAffine_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                              double c02, double c10, double c11, double c12, int eInterpolation) {
@@ -109,7 +109,7 @@ __global__ void nppiWarpAffine_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSiz
   }
 }
 
-// Implementation file
+
 __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                              double c02, double c10, double c11, double c12, int eInterpolation) {
@@ -183,7 +183,7 @@ __global__ void nppiWarpAffine_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSiz
   }
 }
 
-// Implementation file
+
 __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                               double c02, double c10, double c11, double c12, int eInterpolation) {
@@ -227,7 +227,7 @@ __global__ void nppiWarpAffine_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcS
 
 extern "C" {
 
-// Implementation file
+
 NppStatus nppiWarpAffine_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -258,7 +258,7 @@ NppStatus nppiWarpAffine_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, i
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiWarpAffine_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -289,7 +289,7 @@ NppStatus nppiWarpAffine_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, i
   return NPP_SUCCESS;
 }
 
-// Implementation file
+
 NppStatus nppiWarpAffine_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                           Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                           int eInterpolation, NppStreamContext nppStreamCtx) {

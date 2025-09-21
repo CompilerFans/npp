@@ -1,55 +1,55 @@
-# NPP 单元测试
+# NPP Unit Tests
 
-这个目录包含MPP库的单元测试，采用GoogleTest框架。
+This directory contains unit tests for the MPP library using GoogleTest framework.
 
-## 目录结构
+## Directory Structure
 
 ```
 test/
-├── unit/                           # 单元测试根目录
-│   ├── nppcore/                   # NPP核心功能测试
-│   │   └── test_nppcore.cpp       # 设备管理、内存、错误处理等
+├── unit/                           # Unit test root directory
+│   ├── nppcore/                   # NPP core functionality tests
+│   │   └── test_nppcore.cpp       # Device management, memory, error handling, etc.
 │   │
-│   └── nppi/                      # NPP图像处理模块测试
-│       ├── arithmetic/            # 算术运算测试
-│       │   ├── test_add.cpp       # Add双源运算测试
-│       │   ├── test_constants.cpp  # 常数运算测试(AddC, SubC, MulC, DivC)
-│       │   └── test_dual_source.cpp # 双源运算测试(Add, Sub, Mul, Div)
+│   └── nppi/                      # NPP image processing module tests
+│       ├── arithmetic/            # Arithmetic operation tests
+│       │   ├── test_add.cpp       # Add dual source operation tests
+│       │   ├── test_constants.cpp  # Constant operation tests (AddC, SubC, MulC, DivC)
+│       │   └── test_dual_source.cpp # Dual source operation tests (Add, Sub, Mul, Div)
 │       │
-│       ├── data_exchange/         # 数据交换操作测试
-│       │   └── test_transpose.cpp # 矩阵转置测试
+│       ├── data_exchange/         # Data exchange operation tests
+│       │   └── test_transpose.cpp # Matrix transpose tests
 │       │
-│       ├── linear_transforms/     # 线性变换测试(预留)
+│       ├── linear_transforms/     # Linear transform tests (reserved)
 │       │
-│       └── support/               # 支持功能和测试框架
-│           └── framework/         # 测试基础框架
-│               └── npp_test_base.h # 测试基类和工具函数
+│       └── support/               # Support functions and test framework
+│           └── framework/         # Test base framework
+│               └── npp_test_base.h # Test base class and utility functions
 │
-├── CMakeLists.txt                 # 测试构建配置
-└── README.md                      # 本文档
+├── CMakeLists.txt                 # Test build configuration
+└── README.md                      # This document
 ```
 
-## 测试原则
+## Testing Principles
 
-### 1. 纯功能测试
-- 所有测试都是**纯功能测试**，不依赖外部库
-- 不进行性能基准测试或与NVIDIA NPP的对比
-- 专注于验证API的正确性和功能完整性
+### 1. Pure Functional Tests
+- All tests are **pure functional tests** without external dependencies
+- No performance benchmarking or comparison with NVIDIA NPP
+- Focus on verifying API correctness and functional completeness
 
-### 2. 模块化组织
-- 按照NPP的官方模块结构组织测试
-- `nppcore`: 核心设备和内存管理功能
-- `nppi`: 图像处理相关功能
-- 未来可扩展：`npps`(信号处理)
+### 2. Modular Organization
+- Organize tests according to NPP official module structure
+- `nppcore`: Core device and memory management functions
+- `nppi`: Image processing related functions
+- Future extensible: `npps` (signal processing)
 
-### 3. 清晰的命名
-- 测试文件命名：`test_<功能名>.cpp`
-- 测试类命名：`<功能名>Test` 
-- 测试用例命名：`<函数名>_<数据类型>_<测试场景>`
+### 3. Clear Naming
+- Test file naming: `test_<function_name>.cpp`
+- Test class naming: `<function_name>Test` 
+- Test case naming: `<function_name>_<data_type>_<test_scenario>`
 
-## 运行测试
+## Running Tests
 
-### 构建和运行所有测试
+### Build and Run All Tests
 ```bash
 mkdir build && cd build
 cmake ..
@@ -57,30 +57,30 @@ make -j4
 ./test/unit/unit_tests
 ```
 
-### 使用CTest运行
+### Run with CTest
 ```bash
 cd build
 ctest --output-on-failure
 ```
 
-### 运行特定测试
+### Run Specific Tests
 ```bash
 ./test/unit/unit_tests --gtest_filter="AddTest.*"
 ./test/unit/unit_tests --gtest_filter="*Constants*"
 ```
 
-## 测试框架
+## Test Framework
 
-### 基础设施
-- **GoogleTest**: 主要测试框架
-- **NppTestBase**: 自定义基类，提供CUDA设备管理
-- **NppImageMemory**: CUDA内存管理模板类
-- **ResultValidator**: 结果验证工具类
+### Infrastructure
+- **GoogleTest**: Main test framework
+- **NppTestBase**: Custom base class providing CUDA device management
+- **NppImageMemory**: CUDA memory management template class
+- **ResultValidator**: Result validation utility class
 
-### 测试模式
-- **基础功能测试**: 验证正常输入的正确输出
-- **边界条件测试**: 测试极限值、空输入等边界情况
-- **错误处理测试**: 验证错误输入的正确错误码返回
+### Test Modes
+- **Basic functionality tests**: Verify correct output for normal input
+- **Boundary condition tests**: Test extreme values, empty input and other boundary cases
+- **Error handling tests**: Verify correct error codes for invalid input
 - **数据类型测试**: 验证不同数据类型的支持
 
 ## 添加新测试

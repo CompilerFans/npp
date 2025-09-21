@@ -2,11 +2,11 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Implementation file
+
 
 #define TILE_SIZE 32 // Tile size for shared memory optimization
 
-// Implementation file
+
 template <typename T>
 __global__ void transpose_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__restrict__ pDst, int nDstStep,
                                  int width, int height) {
@@ -34,7 +34,7 @@ __global__ void transpose_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__
   }
 }
 
-// Implementation file
+
 template <typename T, int channels>
 __global__ void transpose_multichannel_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__restrict__ pDst,
                                               int nDstStep, int width, int height) {

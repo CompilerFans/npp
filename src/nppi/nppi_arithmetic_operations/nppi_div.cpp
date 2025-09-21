@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-// Implementation file
+
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -30,7 +30,7 @@ NppStatus nppiDiv_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
-// Implementation file
+
 static NppStatus validateDualSourceParameters(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                               const void *pDst, int nDstStep, NppiSize oSizeROI, int elementSize) {
   if (!pSrc1 || !pSrc2 || !pDst) {
