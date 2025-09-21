@@ -117,7 +117,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   NppImageMemory<Npp32f> dst(width, height);
 
   src.copyFromHost(srcData);
-  cudaMemset(dst.get(), 0, dst.sizeInBytes()); // 初始化为0
+  // 注意：dst已由NppImageMemory自动初始化为0
 
   // 设置ROI为中心区域
   NppiSize oSizeROI = {16, 16};
@@ -145,7 +145,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int idx = y * width + x;
-      if (x >= xOffset && x < xOffset + 16 && y >= yOffset && y < yOffset + 16) {
+      if (x >= xOffset && x < xOffset + oSizeROI.width && y >= yOffset && y < yOffset + oSizeROI.height) {
         // ROI内应该有转换后的值
         ASSERT_FLOAT_EQ(dstData[idx], static_cast<float>(srcData[idx]));
       } else {

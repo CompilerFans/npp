@@ -213,6 +213,12 @@ public:
     if (!ptr_) {
       throw std::runtime_error("Failed to allocate NPP image memory");
     }
+    
+    // 初始化分配的内存为0，避免测试中的未定义行为
+    cudaError_t err = cudaMemset(ptr_, 0, sizeInBytes());
+    if (err != cudaSuccess) {
+      throw std::runtime_error("Failed to initialize NPP image memory: " + std::string(cudaGetErrorString(err)));
+    }
   }
 
   void free() {
