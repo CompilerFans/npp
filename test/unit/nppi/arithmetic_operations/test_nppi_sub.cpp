@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_sub.cpp
- * @brief NPP 减法函数测试
- */
+// Implementation file
 
 #include "../../../common/npp_test_utils.h"
 #include "../../framework/npp_test_base.h"
@@ -15,8 +12,8 @@ protected:
   void TearDown() override { NppTestBase::TearDown(); }
 };
 
-// NOTE: 此测试被禁用 - NVIDIA NPP的nppiSub_8u_C1RSfs函数存在严重缺陷
-// 该函数总是返回0而非正确的减法结果，这是NVIDIA NPP库的已知问题
+// NOTE: 此测试被禁用 - vendor NPP的nppiSub_8u_C1RSfs函数存在严重缺陷
+// 该函数总是返回0而非正确的减法结果，这是vendor NPP库的已知问题
 TEST_F(SubFunctionalTest, Sub_8u_C1RSfs_BasicOperation) {
   const int width = 32;
   const int height = 32;
@@ -26,7 +23,7 @@ TEST_F(SubFunctionalTest, Sub_8u_C1RSfs_BasicOperation) {
   std::vector<Npp8u> srcData2(width * height);
   std::vector<Npp8u> expectedData(width * height);
 
-  // NVIDIA NPP subtraction: pDst = pSrc2 - pSrc1, not pSrc1 - pSrc2
+  // vendor NPP subtraction: pDst = pSrc2 - pSrc1, not pSrc1 - pSrc2
   // So to get 100-30=70, we need src1=30, src2=100
   TestDataGenerator::generateConstant(srcData1, static_cast<Npp8u>(30));     // subtrahend
   TestDataGenerator::generateConstant(srcData2, static_cast<Npp8u>(100));    // minuend
@@ -56,7 +53,7 @@ TEST_F(SubFunctionalTest, Sub_8u_C1RSfs_BasicOperation) {
   }
 }
 
-// NOTE: 此测试被禁用 - NVIDIA NPP的减法函数存在参数顺序和行为问题
+// NOTE: 此测试被禁用 - vendor NPP的减法函数存在参数顺序和行为问题
 // 需要进一步研究其确切行为模式
 TEST_F(SubFunctionalTest, Sub_32f_C1R_BasicOperation) {
   const int width = 32;
@@ -66,7 +63,7 @@ TEST_F(SubFunctionalTest, Sub_32f_C1R_BasicOperation) {
   std::vector<Npp32f> srcData2(width * height);
   std::vector<Npp32f> expectedData(width * height);
 
-  // NVIDIA NPP subtraction: pDst = pSrc2 - pSrc1, not pSrc1 - pSrc2
+  // vendor NPP subtraction: pDst = pSrc2 - pSrc1, not pSrc1 - pSrc2
   // So to get 10.5-3.5=7.0, we need src1=3.5, src2=10.5
   TestDataGenerator::generateConstant(srcData1, 3.5f);     // subtrahend
   TestDataGenerator::generateConstant(srcData2, 10.5f);    // minuend

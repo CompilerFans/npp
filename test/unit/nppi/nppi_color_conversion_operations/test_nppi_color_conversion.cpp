@@ -83,7 +83,7 @@ TEST_F(ColorConversionTest, RGBToYUV_BasicColors) {
   err = cudaMemcpy2D(h_dst.data(), width * 3, d_dst, step_dst, width * 3, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证转换结果
+  // Validate转换结果
   // 纯红色 RGB(255,0,0) -> YUV(76, 90, 255) (调整容差)
   for (int i = 0; i < width; ++i) {
     int idx = i * 3;
@@ -145,13 +145,13 @@ TEST_F(ColorConversionTest, YUVToRGB_RoundTrip) {
   err = cudaMemcpy2D(h_result.data(), width * 3, d_src, step_src, width * 3, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证往返转换的准确性（允许一定误差）
+  // Validate往返转换的准确性（允许一定误差）
   for (int i = 0; i < width * height * 3; ++i) {
     EXPECT_NEAR(h_result[i], h_src[i], 5); // 允许5个单位的误差
   }
 }
 
-// 参数验证测试
+// Parameter validation测试
 TEST(ColorConversionParameterTest, NullPointerError) {
   NppiSize size = {10, 10};
   int step = 30;

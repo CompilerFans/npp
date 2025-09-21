@@ -2,23 +2,17 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP MulScale Operations Implementation
- * Multiplies two images and scales by maximum value for pixel bit width
- * For 8-bit: scale by 255, for 16-bit: scale by 65535
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiMulScale_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiMulScale_16u_C1R_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
+NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                         Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
-/**
- * Validate common input parameters for MulScale operations
- */
+// Implementation file
 static inline NppStatus validateMulScaleInputs(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                                void *pDst, int nDstStep, NppiSize oSizeROI) {
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
@@ -36,9 +30,7 @@ static inline NppStatus validateMulScaleInputs(const void *pSrc1, int nSrc1Step,
   return NPP_SUCCESS;
 }
 
-/**
- * Validate inputs for in-place MulScale operations
- */
+// Implementation file
 static inline NppStatus validateMulScaleInPlaceInputs(const void *pSrc, int nSrcStep, void *pSrcDst, int nSrcDstStep,
                                                       NppiSize oSizeROI) {
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
@@ -56,9 +48,7 @@ static inline NppStatus validateMulScaleInPlaceInputs(const void *pSrc, int nSrc
   return NPP_SUCCESS;
 }
 
-/**
- * 8-bit unsigned multiplication with scaling
- */
+// Implementation file
 NppStatus nppiMulScale_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status = validateMulScaleInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI);
@@ -66,7 +56,7 @@ NppStatus nppiMulScale_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u
     return status;
   }
 
-  return nppiMulScale_8u_C1R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMulScale_8u_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMulScale_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -76,9 +66,7 @@ NppStatus nppiMulScale_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pS
   return nppiMulScale_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * 8-bit unsigned multiplication with scaling - in place
- */
+// Implementation file
 NppStatus nppiMulScale_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateMulScaleInPlaceInputs(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI);
@@ -86,7 +74,7 @@ NppStatus nppiMulScale_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcD
     return status;
   }
 
-  return nppiMulScale_8u_C1R_Ctx_cuda(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+  return nppiMulScale_8u_C1R_Ctx_impl(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
                                       nppStreamCtx);
 }
 
@@ -96,9 +84,7 @@ NppStatus nppiMulScale_8u_C1IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, 
   return nppiMulScale_8u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * 16-bit unsigned multiplication with scaling
- */
+// Implementation file
 NppStatus nppiMulScale_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status = validateMulScaleInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI);
@@ -106,7 +92,7 @@ NppStatus nppiMulScale_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp
     return status;
   }
 
-  return nppiMulScale_16u_C1R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMulScale_16u_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMulScale_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
@@ -116,9 +102,7 @@ NppStatus nppiMulScale_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u 
   return nppiMulScale_16u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * 16-bit unsigned multiplication with scaling - in place
- */
+// Implementation file
 NppStatus nppiMulScale_16u_C1IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status = validateMulScaleInPlaceInputs(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI);
@@ -126,7 +110,7 @@ NppStatus nppiMulScale_16u_C1IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pS
     return status;
   }
 
-  return nppiMulScale_16u_C1R_Ctx_cuda(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+  return nppiMulScale_16u_C1R_Ctx_impl(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
                                        nppStreamCtx);
 }
 

@@ -4,10 +4,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-/**
- * @file test_nppi_copy_extended.cpp
- * @brief 测试新增的nppiCopy API功能
- */
+// Implementation file
 
 class CopyExtendedFunctionalTest : public ::testing::Test {
 protected:
@@ -61,7 +58,7 @@ TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3R_BasicOperation) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证结果：应该完全一致
+  // Validate结果：应该完全一致
   for (int i = 0; i < width * height * channels; i++) {
     EXPECT_FLOAT_EQ(resultData[i], srcData[i])
         << "复制失败 at index " << i << ": got " << resultData[i] << ", expected " << srcData[i];
@@ -112,7 +109,7 @@ TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3P3R_BasicOperation) {
   NppStatus status = nppiCopy_32f_C3P3R(d_src, srcStep, dstPtrs, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultR(width * height);
   std::vector<Npp32f> resultG(width * height);
   std::vector<Npp32f> resultB(width * height);
@@ -126,7 +123,7 @@ TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3P3R_BasicOperation) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证每个通道的数据
+  // Validate每个通道的数据
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int packedIdx = (y * width + x) * channels;
@@ -169,7 +166,7 @@ TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3R_BoundaryValues) {
   NppStatus status = nppiCopy_32f_C3R(d_src, step, d_dst, step, testRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(3 * 3);
   cudaMemcpy(resultData.data(), d_dst, resultData.size() * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -207,7 +204,7 @@ TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3R_StreamContext) {
   NppStatus status = nppiCopy_32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height * channels);
   for (int y = 0; y < height; y++) {
     cudaMemcpy(resultData.data() + y * width * channels, (char *)d_dst + y * dstStep, width * channels * sizeof(Npp32f),
@@ -289,7 +286,7 @@ TEST_P(CopyParameterizedTest, Copy_32f_C3R_ParameterizedSizes) {
   NppStatus status = nppiCopy_32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height * channels);
   for (int y = 0; y < height; y++) {
     cudaMemcpy(resultData.data() + y * width * channels, (char *)d_dst + y * dstStep, width * channels * sizeof(Npp32f),
@@ -405,7 +402,7 @@ TEST_P(CopyDataPatternTest, Copy_32f_C3R_DataPatterns) {
   NppStatus status = nppiCopy_32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height * channels);
   for (int y = 0; y < height; y++) {
     cudaMemcpy(resultData.data() + y * width * channels, (char *)d_dst + y * dstStep, width * channels * sizeof(Npp32f),
@@ -1168,14 +1165,14 @@ TEST_P(ConvertCopyChainTest, ConvertThenCopy_8u32f_C3R) {
   NppStatus status2 = nppiCopy_32f_C3R(d_tmp, tmpStep, d_dst, dstStep, roi);
   EXPECT_EQ(status2, NPP_SUCCESS);
 
-  // 验证最终结果
+  // Validate最终结果
   std::vector<Npp32f> resultData(width * height * channels);
   for (int y = 0; y < height; y++) {
     cudaMemcpy(resultData.data() + y * width * channels, (char *)d_dst + y * dstStep, width * channels * sizeof(Npp32f),
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证转换正确性
+  // Validate转换正确性
   for (int i = 0; i < width * height * channels; i++) {
     float expected = (float)params.inputPattern[i];
     EXPECT_FLOAT_EQ(resultData[i], expected) << "转换拷贝链测试失败 at index " << i << " for " << params.name;
@@ -1251,14 +1248,14 @@ TEST_P(CopyROITest, Copy_32f_C3R_DifferentROI) {
   NppStatus status = nppiCopy_32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证ROI区域的结果
+  // ValidateROI区域的结果
   std::vector<Npp32f> resultData(roi.width * roi.height * channels);
   for (int y = 0; y < roi.height; y++) {
     cudaMemcpy(resultData.data() + y * roi.width * channels, (char *)d_dst + y * dstStep,
                roi.width * channels * sizeof(Npp32f), cudaMemcpyDeviceToHost);
   }
 
-  // 验证ROI内的数据正确性
+  // ValidateROI内的数据正确性
   for (int y = 0; y < roi.height; y++) {
     for (int x = 0; x < roi.width; x++) {
       int resultIdx = (y * roi.width + x) * channels;

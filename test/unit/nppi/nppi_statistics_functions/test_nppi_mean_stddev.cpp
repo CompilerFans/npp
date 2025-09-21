@@ -1,13 +1,4 @@
-/**
- * @file test_nppi_mean_stddev.cpp
- * @brief Test suite for newly implemented Mean and Standard Deviation APIs
- *
- * Tests cover:
- * - nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx / nppiMeanStdDevGetBufferHostSize_8u_C1R
- * - nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx / nppiMeanStdDevGetBufferHostSize_32f_C1R  
- * - nppiMean_StdDev_8u_C1R_Ctx / nppiMean_StdDev_8u_C1R
- * - nppiMean_StdDev_32f_C1R_Ctx / nppiMean_StdDev_32f_C1R
- */
+// Implementation file
 
 #include "npp.h"
 #include <algorithm>
@@ -30,7 +21,7 @@ protected:
     EXPECT_EQ(err, cudaSuccess);
   }
 
-  // Helper function to calculate reference mean and standard deviation
+  // Function to calculate reference mean and standard deviation
   template<typename T>
   void calculateReferenceMeanStdDev(const std::vector<T>& data, double& mean, double& stddev) {
     double sum = 0.0;

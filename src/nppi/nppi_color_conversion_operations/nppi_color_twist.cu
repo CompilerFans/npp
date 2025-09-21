@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Color Twist Functions
- */
+// Implementation file
 
 // Color twist kernel for 3-channel 8-bit images
 __global__ void nppiColorTwist32f_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
@@ -64,7 +62,7 @@ __global__ void nppiColorTwist32f_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep,
 extern "C" {
 
 // 3-channel 8-bit implementation
-NppStatus nppiColorTwist32f_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+NppStatus nppiColorTwist32f_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, const Npp32f aTwist[3][4],
                                             NppStreamContext nppStreamCtx) {
   // Copy twist matrix to device memory
@@ -108,7 +106,7 @@ NppStatus nppiColorTwist32f_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp
 }
 
 // Single-channel 8-bit implementation
-NppStatus nppiColorTwist32f_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+NppStatus nppiColorTwist32f_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, const Npp32f aTwist[3][4],
                                             NppStreamContext nppStreamCtx) {
   // Copy twist matrix to device memory

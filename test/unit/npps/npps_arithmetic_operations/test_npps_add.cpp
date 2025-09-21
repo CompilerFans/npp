@@ -8,10 +8,7 @@
 
 using namespace npp_functional_test;
 
-/**
- * NPPS Add Functions Test Suite
- * 测试NPPS信号加法运算函数
- */
+// Implementation file
 class NPPSAddFunctionalTest : public ::testing::Test {
 protected:
   void SetUp() override {}
@@ -55,7 +52,7 @@ TEST_F(NPPSAddFunctionalTest, Add_32f_BasicOperation) {
   std::vector<Npp32f> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   for (size_t i = 0; i < nLength; i++) {
     EXPECT_FLOAT_EQ(result[i], expected[i]) << "Mismatch at index " << i;
   }
@@ -99,7 +96,7 @@ TEST_F(NPPSAddFunctionalTest, Add_32f_LargeSignals) {
   NppStatus status = nppsAdd_32f(d_src1, d_src2, d_dst, nLength);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsAdd_32f failed";
 
-  // 验证几个采样点
+  // Validate几个采样点
   std::vector<Npp32f> result(100);
   cudaMemcpy(result.data(), d_dst, 100 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -154,7 +151,7 @@ TEST_F(NPPSAddFunctionalTest, Add_16s_BasicOperation) {
   std::vector<Npp16s> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp16s), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   for (size_t i = 0; i < nLength; i++) {
     EXPECT_EQ(result[i], expected[i]) << "Mismatch at index " << i;
   }
@@ -207,7 +204,7 @@ TEST_F(NPPSAddFunctionalTest, Add_32fc_BasicOperation) {
   std::vector<Npp32fc> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32fc), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   for (size_t i = 0; i < nLength; i++) {
     EXPECT_FLOAT_EQ(result[i].re, expected[i].re) << "Real part mismatch at index " << i;
     EXPECT_FLOAT_EQ(result[i].im, expected[i].im) << "Imaginary part mismatch at index " << i;
@@ -240,14 +237,14 @@ TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   EXPECT_EQ(nppsAdd_32f(d_valid, nullptr, d_valid, nLength), NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, nullptr, nLength), NPP_NULL_POINTER_ERROR);
 
-  // 验证有效参数时函数正常工作
+  // Validate有效参数时函数正常工作
   EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, d_valid, nLength), NPP_NO_ERROR);
 
   // 清理内存
   cudaFree(d_valid);
 }
 
-// 测试错误处理机制 - 大小验证
+// 测试错误处理机制 - 大小Validate
 TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
   // 分配有效的GPU内存
   Npp32f *d_valid = nullptr;
@@ -257,7 +254,7 @@ TEST_F(NPPSAddFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
   // 测试零长度应该返回错误
   EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, d_valid, 0), NPP_SIZE_ERROR);
 
-  // 验证正常长度时函数工作
+  // Validate正常长度时函数工作
   EXPECT_EQ(nppsAdd_32f(d_valid, d_valid, d_valid, 1), NPP_NO_ERROR);
 
   // 清理内存

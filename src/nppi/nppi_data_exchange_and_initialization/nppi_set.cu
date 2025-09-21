@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Set Functions
- */
+// Implementation file
 
 // Set kernel for 8-bit single channel
 __global__ void nppiSet_8u_C1R_kernel(Npp8u nValue, Npp8u *pDst, int nDstStep, int width, int height) {
@@ -52,7 +50,7 @@ __global__ void nppiSet_32f_C1R_kernel(Npp32f nValue, Npp32f *pDst, int nDstStep
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiSet_8u_C1R_Ctx_cuda(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSet_8u_C1R_Ctx_impl(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -69,7 +67,7 @@ NppStatus nppiSet_8u_C1R_Ctx_cuda(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiS
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiSet_8u_C3R_Ctx_cuda(const Npp8u aValue[3], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSet_8u_C3R_Ctx_impl(const Npp8u aValue[3], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
   // Copy value array to device memory
   Npp8u *d_aValue;
@@ -104,7 +102,7 @@ NppStatus nppiSet_8u_C3R_Ctx_cuda(const Npp8u aValue[3], Npp8u *pDst, int nDstSt
 }
 
 // 32-bit float single channel implementation
-NppStatus nppiSet_32f_C1R_Ctx_cuda(Npp32f nValue, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSet_32f_C1R_Ctx_impl(Npp32f nValue, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

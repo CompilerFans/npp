@@ -3,26 +3,23 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Resize Functions Implementation
- * Implements nppiResize functions for scaling images
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiResize_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiResize_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiResize_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiResize_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiResize_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
 }
@@ -43,7 +40,7 @@ static inline NppStatus validateResizeInputs(const void *pSrc, int nSrcStep, Npp
     return NPP_NULL_POINTER_ERROR;
   }
 
-  // 验证插值参数以避免未使用警告
+  // Validate插值参数以避免未使用警告
   if (eInterpolation < 0) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
@@ -72,7 +69,7 @@ NppStatus nppiResize_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSi
     return status;
   }
 
-  return nppiResize_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+  return nppiResize_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                     eInterpolation, nppStreamCtx);
 }
 
@@ -94,7 +91,7 @@ NppStatus nppiResize_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSi
     return status;
   }
 
-  return nppiResize_8u_C3R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+  return nppiResize_8u_C3R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                     eInterpolation, nppStreamCtx);
 }
 
@@ -116,7 +113,7 @@ NppStatus nppiResize_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrc
     return status;
   }
 
-  return nppiResize_16u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+  return nppiResize_16u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                      eInterpolation, nppStreamCtx);
 }
 
@@ -138,7 +135,7 @@ NppStatus nppiResize_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSrc
     return status;
   }
 
-  return nppiResize_32f_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+  return nppiResize_32f_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                      eInterpolation, nppStreamCtx);
 }
 
@@ -160,7 +157,7 @@ NppStatus nppiResize_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSrc
     return status;
   }
 
-  return nppiResize_32f_C3R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+  return nppiResize_32f_C3R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                      eInterpolation, nppStreamCtx);
 }
 

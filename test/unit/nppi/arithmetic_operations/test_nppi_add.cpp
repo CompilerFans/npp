@@ -1,9 +1,4 @@
-/**
- * @file test_add_functional.cpp
- * @brief NPP Add函数纯功能单元测试
- *
- * 专注于API功能验证，不涉及性能对比和NVIDIA NPP依赖
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 
@@ -48,7 +43,7 @@ TEST_F(AddFunctionalTest, Add_8u_C1RSfs_BasicOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_8u_C1RSfs failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -86,7 +81,7 @@ TEST_F(AddFunctionalTest, Add_8u_C1RSfs_WithScaling) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_8u_C1RSfs with scaling failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -125,7 +120,7 @@ TEST_F(AddFunctionalTest, Add_8u_C1RSfs_SaturationHandling) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_8u_C1RSfs saturation test failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -162,7 +157,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1R_BasicOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_32f_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -203,7 +198,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1R_RandomData) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_32f_C1R with random data failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -241,7 +236,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1IR_InPlaceOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_32f_C1IR failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   srcDst.copyToHost(resultData);
 
@@ -280,7 +275,7 @@ TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_InvalidROI) {
   NppiSize roi = {0, height}; // 宽度为0
   NppStatus status = nppiAdd_32f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
 
-  EXPECT_EQ(status, NPP_NO_ERROR) << "NVIDIA NPP returns success for zero-size ROI";
+  EXPECT_EQ(status, NPP_NO_ERROR) << "vendor NPP returns success for zero-size ROI";
 }
 
 // ==================== 边界情况测试 ====================
@@ -334,7 +329,7 @@ TEST_F(AddFunctionalTest, Add_BoundaryConditions_LargeImage) {
 
   EXPECT_EQ(status, NPP_NO_ERROR) << "Large image addition should work";
 
-  // 仅检查一小部分结果以验证正确性
+  // 仅检查一小部分结果以Validate正确性
   std::vector<Npp32f> sample(100);
   cudaMemcpy2D(sample.data(), 10 * sizeof(Npp32f), dst.get(), dst.step(), 10 * sizeof(Npp32f), 10,
                cudaMemcpyDeviceToHost);

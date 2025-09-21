@@ -3,13 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Natural Logarithm Operations
- */
+// Implementation file
 
-/**
- * kernel for 8-bit unsigned natural logarithm with scaling
- */
+// Implementation file
 __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                         int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -25,8 +21,8 @@ __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     if (src_val == 0) {
       *dst_pixel = 0; // Set to 0 for zero input
     } else {
-      // NVIDIA NPP uses a special mapping for 8-bit Ln that differs from mathematical calculation
-      // Based on empirical analysis of NVIDIA NPP behavior
+      // vendor NPP uses a special mapping for 8-bit Ln that differs from mathematical calculation
+      // Based on empirical analysis of vendor NPP behavior
       int result = 0;
 
       switch (nScaleFactor) {
@@ -89,9 +85,7 @@ __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
   }
 }
 
-/**
- * kernel for 16-bit unsigned natural logarithm with scaling
- */
+// Implementation file
 __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -117,9 +111,7 @@ __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16
   }
 }
 
-/**
- * kernel for 16-bit signed natural logarithm with scaling
- */
+// Implementation file
 __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -145,9 +137,7 @@ __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16
   }
 }
 
-/**
- * kernel for 32-bit float natural logarithm (no scaling)
- */
+// Implementation file
 __global__ void nppiLn_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                       int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -160,12 +150,12 @@ __global__ void nppiLn_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *
 
     float src_val = src_row[x];
 
-    // Handle special values to match NVIDIA NPP behavior
+    // Handle special values to match vendor NPP behavior
     if (src_val == 0.0f) {
-      // NVIDIA NPP returns -inf for ln(0)
+      // vendor NPP returns -inf for ln(0)
       dst_row[x] = -INFINITY;
     } else if (src_val < 0.0f) {
-      // NVIDIA NPP returns NaN for ln(negative)
+      // vendor NPP returns NaN for ln(negative)
       dst_row[x] = __fdividef(0.0f, 0.0f); // Generate NaN
     } else {
       dst_row[x] = logf(src_val);
@@ -175,10 +165,8 @@ __global__ void nppiLn_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *
 
 extern "C" {
 
-/**
- * 8-bit unsigned natural logarithm with scaling
- */
-NppStatus nppiLn_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiLn_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -204,10 +192,8 @@ NppStatus nppiLn_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit unsigned natural logarithm with scaling
- */
-NppStatus nppiLn_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiLn_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -233,10 +219,8 @@ NppStatus nppiLn_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *p
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit signed natural logarithm with scaling
- */
-NppStatus nppiLn_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiLn_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -262,10 +246,8 @@ NppStatus nppiLn_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *p
   return NPP_SUCCESS;
 }
 
-/**
- * 32-bit float natural logarithm (no scaling)
- */
-NppStatus nppiLn_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiLn_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

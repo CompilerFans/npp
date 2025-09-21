@@ -2,10 +2,10 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-// 声明CUDA函数
+// 声明GPU函数
 extern "C" {
-NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int *hpBufferSize);
-NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                 NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,
                                                 NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
                                                 Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
@@ -13,7 +13,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep,
                                                 NppStreamContext nppStreamCtx);
 }
 
-// 获取Canny边缘检测所需缓冲区大小 - 简化版本（CUDA Samples使用）
+// 获取Canny边缘检测所需缓冲区大小 - 简化版本（GPU Samples使用）
 NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
@@ -23,7 +23,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSiz
     return NPP_SIZE_ERROR;
   }
 
-  return nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_cuda(oSizeROI, hpBufferSize);
+  return nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, hpBufferSize);
 }
 
 // 获取Canny边缘检测所需缓冲区大小
@@ -36,12 +36,12 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpBu
     return NPP_SIZE_ERROR;
   }
 
-  return nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_cuda(oSizeROI, hpBufferSize);
+  return nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, hpBufferSize);
 }
 
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
                                                         NppStreamContext nppStreamCtx) {
-  // 使用nppStreamCtx参数进行简单验证以避免未使用警告
+  // 使用nppStreamCtx参数进行简单Validate以避免未使用警告
   if (nppStreamCtx.nCudaDeviceId < -1) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
@@ -53,7 +53,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiDifferentialKernel eFilterType,
                                        NppiMaskSize eMaskSize, Npp16s nLowThreshold, Npp16s nHighThreshold,
                                        NppiNorm eNorm, NppiBorderType eBorderType, Npp8u *pDeviceBuffer) {
-  // 参数验证
+  // Parameter validation
   if (pSrc == nullptr || pDst == nullptr || pDeviceBuffer == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -80,7 +80,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize
 
   NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
 
-  return nppiFilterCannyBorder_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,
+  return nppiFilterCannyBorder_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,
                                                eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm,
                                                eBorderType, pDeviceBuffer, nppStreamCtx);
 }
@@ -91,7 +91,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Nppi
                                            Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,
                                            NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
                                            NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (pSrc == nullptr || pDst == nullptr || pDeviceBuffer == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -116,7 +116,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Nppi
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiFilterCannyBorder_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,
+  return nppiFilterCannyBorder_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI,
                                                eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm,
                                                eBorderType, pDeviceBuffer, nppStreamCtx);
 }

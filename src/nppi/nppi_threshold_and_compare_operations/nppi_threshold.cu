@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Threshold Functions
- */
+// Implementation file
 
 // Device function for threshold operation
 template <typename T> __device__ inline T performThreshold(T src, T threshold, NppCmpOp op) {
@@ -61,7 +59,7 @@ __global__ void nppiThreshold_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, N
 extern "C" {
 
 // 8-bit unsigned single channel threshold implementation (non-inplace)
-NppStatus nppiThreshold_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiThreshold_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                         const Npp8u nThreshold, NppCmpOp eComparisonOperation,
                                         NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -79,7 +77,7 @@ NppStatus nppiThreshold_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *
 }
 
 // 8-bit unsigned single channel threshold implementation (inplace)
-NppStatus nppiThreshold_8u_C1IR_Ctx_cuda(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold,
+NppStatus nppiThreshold_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold,
                                          NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -96,7 +94,7 @@ NppStatus nppiThreshold_8u_C1IR_Ctx_cuda(Npp8u *pSrcDst, int nSrcDstStep, NppiSi
 }
 
 // 32-bit float single channel threshold implementation (non-inplace)
-NppStatus nppiThreshold_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiThreshold_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                          NppiSize oSizeROI, const Npp32f nThreshold, NppCmpOp eComparisonOperation,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

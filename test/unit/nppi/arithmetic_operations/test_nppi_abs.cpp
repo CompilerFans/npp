@@ -1,9 +1,4 @@
-/**
- * @file test_nppi_abs.cpp
- * @brief NPP 绝对值函数测试
- *
- * 测试nppiAbs系列函数的功能验证
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 
@@ -48,7 +43,7 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1R_BasicOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_32f_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -85,7 +80,7 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1IR_InPlaceOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_32f_C1IR failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   srcDst.copyToHost(resultData);
 
@@ -125,5 +120,5 @@ TEST_F(AbsFunctionalTest, Abs_ErrorHandling_InvalidROI) {
   NppiSize roi = {0, height}; // 宽度为0
   NppStatus status = nppiAbs_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
 
-  EXPECT_EQ(status, NPP_NO_ERROR) << "NVIDIA NPP returns success for zero-size ROI";
+  EXPECT_EQ(status, NPP_NO_ERROR) << "vendor NPP returns success for zero-size ROI";
 }

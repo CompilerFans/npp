@@ -16,7 +16,7 @@ protected:
   int width, height;
   NppiSize roi;
 
-  // Helper function to calculate expected grayscale value
+  // Function to calculate expected grayscale value
   float calculateGrayValue(float r, float g, float b) { return 0.299f * r + 0.587f * g + 0.114f * b; }
 
   Npp8u calculateGrayValue8u(Npp8u r, Npp8u g, Npp8u b) {

@@ -2,10 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Remap Functions
- * Simplified implementation using nearest neighbor interpolation
- */
+// Implementation file
 
 // Generic remap kernel template for different data types
 template <typename T>
@@ -52,7 +49,7 @@ __global__ void nppiRemap_nearest_kernel(const T *pSrc, NppiSize oSrcSize, int n
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiRemap_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                     const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep, Npp8u *pDst,
                                     int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -73,7 +70,7 @@ NppStatus nppiRemap_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nS
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiRemap_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                     const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep, Npp8u *pDst,
                                     int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -94,7 +91,7 @@ NppStatus nppiRemap_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nS
 }
 
 // 16-bit unsigned implementations (reuse 8u kernel with casting)
-NppStatus nppiRemap_16u_C1R_Ctx_cuda(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp16u *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -110,7 +107,7 @@ NppStatus nppiRemap_16u_C1R_Ctx_cuda(const Npp16u *pSrc, NppiSize oSrcSize, int 
   return (cudaStatus != cudaSuccess) ? NPP_CUDA_KERNEL_EXECUTION_ERROR : NPP_SUCCESS;
 }
 
-NppStatus nppiRemap_16u_C3R_Ctx_cuda(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp16u *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -127,7 +124,7 @@ NppStatus nppiRemap_16u_C3R_Ctx_cuda(const Npp16u *pSrc, NppiSize oSrcSize, int 
 }
 
 // 16-bit signed implementations
-NppStatus nppiRemap_16s_C1R_Ctx_cuda(const Npp16s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_16s_C1R_Ctx_impl(const Npp16s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp16s *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -143,7 +140,7 @@ NppStatus nppiRemap_16s_C1R_Ctx_cuda(const Npp16s *pSrc, NppiSize oSrcSize, int 
   return (cudaStatus != cudaSuccess) ? NPP_CUDA_KERNEL_EXECUTION_ERROR : NPP_SUCCESS;
 }
 
-NppStatus nppiRemap_16s_C3R_Ctx_cuda(const Npp16s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_16s_C3R_Ctx_impl(const Npp16s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp16s *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -160,7 +157,7 @@ NppStatus nppiRemap_16s_C3R_Ctx_cuda(const Npp16s *pSrc, NppiSize oSrcSize, int 
 }
 
 // 32-bit float implementations
-NppStatus nppiRemap_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp32f *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -176,7 +173,7 @@ NppStatus nppiRemap_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int 
   return (cudaStatus != cudaSuccess) ? NPP_CUDA_KERNEL_EXECUTION_ERROR : NPP_SUCCESS;
 }
 
-NppStatus nppiRemap_32f_C3R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp32f *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -193,7 +190,7 @@ NppStatus nppiRemap_32f_C3R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int 
 }
 
 // 64-bit double implementations
-NppStatus nppiRemap_64f_C1R_Ctx_cuda(const Npp64f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_64f_C1R_Ctx_impl(const Npp64f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp64f *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {
@@ -209,7 +206,7 @@ NppStatus nppiRemap_64f_C1R_Ctx_cuda(const Npp64f *pSrc, NppiSize oSrcSize, int 
   return (cudaStatus != cudaSuccess) ? NPP_CUDA_KERNEL_EXECUTION_ERROR : NPP_SUCCESS;
 }
 
-NppStatus nppiRemap_64f_C3R_Ctx_cuda(const Npp64f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRemap_64f_C3R_Ctx_impl(const Npp64f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp64f *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,
                                      NppStreamContext nppStreamCtx) {

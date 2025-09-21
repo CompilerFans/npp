@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_resize_extended.cpp
- * @brief NPP 扩展图像缩放函数测试（16u和32f数据类型）
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -55,7 +52,7 @@ TEST_F(ResizeExtendedTest, Resize_16u_C1R_Ctx_LinearInterpolation) {
   std::vector<Npp16u> dstData(dstWidth * dstHeight);
   dst.copyToHost(dstData);
 
-  // 验证结果不为全零
+  // Validate结果不为全零
   bool hasNonZero = false;
   for (const auto &val : dstData) {
     if (val != 0) {
@@ -105,7 +102,7 @@ TEST_F(ResizeExtendedTest, Resize_32f_C1R_Ctx_CubicInterpolation) {
   std::vector<Npp32f> dstData(dstWidth * dstHeight);
   dst.copyToHost(dstData);
 
-  // 验证结果包含有效数据
+  // Validate结果包含有效数据
   float maxVal = *std::max_element(dstData.begin(), dstData.end());
   float minVal = *std::min_element(dstData.begin(), dstData.end());
   ASSERT_GT(maxVal - minVal, 0.1f); // 确保有数据变化
@@ -153,7 +150,7 @@ TEST_F(ResizeExtendedTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
   std::vector<Npp32f> dstData(dstWidth * dstHeight * 3);
   dst.copyToHost(dstData);
 
-  // 验证RGB通道都有有效数据
+  // ValidateRGB通道都有有效数据
   float rMax = 0, gMax = 0, bMax = 0;
   for (int i = 0; i < dstWidth * dstHeight; i++) {
     rMax = std::max(rMax, dstData[i * 3 + 0]);

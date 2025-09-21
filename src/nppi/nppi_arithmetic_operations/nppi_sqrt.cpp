@@ -2,26 +2,21 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Square Root Operations Implementation
- * Computes square root of input image values: dst = sqrt(src)
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiSqrt_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSqrt_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                       int nScaleFactor, NppStreamContext nppStreamCtx);
-NppStatus nppiSqrt_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSqrt_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                        int nScaleFactor, NppStreamContext nppStreamCtx);
-NppStatus nppiSqrt_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSqrt_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                        int nScaleFactor, NppStreamContext nppStreamCtx);
-NppStatus nppiSqrt_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiSqrt_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx);
 }
 
-/**
- * Validate common input parameters for square root operations
- */
+// Implementation file
 static inline NppStatus validateSqrtInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                            NppiSize oSizeROI) {
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
@@ -39,9 +34,7 @@ static inline NppStatus validateSqrtInputs(const void *pSrc, int nSrcStep, void 
   return NPP_SUCCESS;
 }
 
-/**
- * 8-bit unsigned square root with scaling
- */
+// Implementation file
 NppStatus nppiSqrt_8u_C1RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                  int nScaleFactor, NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -53,7 +46,7 @@ NppStatus nppiSqrt_8u_C1RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, i
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiSqrt_8u_C1RSfs_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return nppiSqrt_8u_C1RSfs_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiSqrt_8u_C1RSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -63,9 +56,7 @@ NppStatus nppiSqrt_8u_C1RSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
   return nppiSqrt_8u_C1RSfs_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * 16-bit unsigned square root with scaling
- */
+// Implementation file
 NppStatus nppiSqrt_16u_C1RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -77,7 +68,7 @@ NppStatus nppiSqrt_16u_C1RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiSqrt_16u_C1RSfs_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return nppiSqrt_16u_C1RSfs_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiSqrt_16u_C1RSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -87,9 +78,7 @@ NppStatus nppiSqrt_16u_C1RSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, in
   return nppiSqrt_16u_C1RSfs_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * 16-bit signed square root with scaling
- */
+// Implementation file
 NppStatus nppiSqrt_16s_C1RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -101,7 +90,7 @@ NppStatus nppiSqrt_16s_C1RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiSqrt_16s_C1RSfs_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return nppiSqrt_16s_C1RSfs_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiSqrt_16s_C1RSfs(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
@@ -111,9 +100,7 @@ NppStatus nppiSqrt_16s_C1RSfs(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, in
   return nppiSqrt_16s_C1RSfs_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * 32-bit float square root (no scaling needed)
- */
+// Implementation file
 NppStatus nppiSqrt_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -121,7 +108,7 @@ NppStatus nppiSqrt_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, i
     return status;
   }
 
-  return nppiSqrt_32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiSqrt_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiSqrt_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {

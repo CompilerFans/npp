@@ -3,10 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Gaussian Filter Functions Implementation
- * Implements nppiFilterGauss functions for Gaussian blur filtering
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -24,12 +21,12 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_cuda_fixed(const Npp32f *pSrc, int nSrcSte
 // Input validation helper
 static inline NppStatus validateFilterGaussInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                                   NppiSize oSizeROI, NppiMaskSize eMaskSize) {
-  // NVIDIA NPP behavior: zero-size ROI returns success (no processing needed)
+  // vendor NPP behavior: zero-size ROI returns success (no processing needed)
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
-  // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+  // Early return for zero-size ROI (vendor NPP compatible behavior)
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
   }

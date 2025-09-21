@@ -1,17 +1,4 @@
-/**
- * @file test_nppiMemoryManagement_comprehensive.cpp
- * @brief Comprehensive test suite for NPP memory management APIs
- *
- * Tests cover:
- * - nppiMalloc_32f_C1
- * - nppiMalloc_32f_C3
- * - nppiFree
- * - Alignment verification
- * - Memory reuse patterns
- * - Stress testing
- * - Error handling
- * - Multi-threaded scenarios
- */
+// Implementation file
 
 #include "npp.h"
 #include <algorithm>

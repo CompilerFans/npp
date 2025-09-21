@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Copy with Constant Border Functions
- */
+// Implementation file
 
 // Kernel for 8-bit unsigned single channel copy with constant border
 __global__ void nppiCopyConstBorder_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
@@ -117,7 +115,7 @@ __global__ void nppiCopyConstBorder_32f_C1R_kernel(const Npp32f *pSrc, int nSrcS
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiCopyConstBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
+NppStatus nppiCopyConstBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
                                               int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                               int nLeftBorderWidth, Npp8u nValue, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -136,7 +134,7 @@ NppStatus nppiCopyConstBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, N
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiCopyConstBorder_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
+NppStatus nppiCopyConstBorder_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
                                               int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                               int nLeftBorderWidth, const Npp8u aValue[3],
                                               NppStreamContext nppStreamCtx) {
@@ -163,7 +161,7 @@ NppStatus nppiCopyConstBorder_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, N
 }
 
 // 16-bit signed single channel implementation
-NppStatus nppiCopyConstBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp16s *pDst,
+NppStatus nppiCopyConstBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp16s *pDst,
                                                int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                                int nLeftBorderWidth, Npp16s nValue, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -182,7 +180,7 @@ NppStatus nppiCopyConstBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep,
 }
 
 // 32-bit float single channel implementation
-NppStatus nppiCopyConstBorder_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp32f *pDst,
+NppStatus nppiCopyConstBorder_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp32f *pDst,
                                                int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                                int nLeftBorderWidth, Npp32f nValue, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

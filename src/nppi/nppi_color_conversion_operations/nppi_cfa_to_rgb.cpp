@@ -3,17 +3,14 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP CFA to RGB Conversion Functions Implementation
- * Implements nppiCFAToRGB functions for Color Filter Array (Bayer pattern) to RGB conversion
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
+NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                          NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
+NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                           Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                           NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx);
 }
@@ -48,10 +45,7 @@ static inline NppStatus validateCFAToRGBInputs(const void *pSrc, int nSrcStep, N
   return NPP_SUCCESS;
 }
 
-/**
- * Convert single channel CFA (Color Filter Array) image to RGB
- * 8-bit unsigned implementation
- */
+// Implementation file
 NppStatus nppiCFAToRGB_8u_C1C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -60,7 +54,7 @@ NppStatus nppiCFAToRGB_8u_C1C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oS
     return status;
   }
 
-  return nppiCFAToRGB_8u_C1C3R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
+  return nppiCFAToRGB_8u_C1C3R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
                                         nppStreamCtx);
 }
 
@@ -72,10 +66,7 @@ NppStatus nppiCFAToRGB_8u_C1C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSi
                                    nppStreamCtx);
 }
 
-/**
- * Convert single channel CFA (Color Filter Array) image to RGB
- * 16-bit unsigned implementation
- */
+// Implementation file
 NppStatus nppiCFAToRGB_16u_C1C3R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                      Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                      NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {
@@ -84,7 +75,7 @@ NppStatus nppiCFAToRGB_16u_C1C3R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize 
     return status;
   }
 
-  return nppiCFAToRGB_16u_C1C3R_Ctx_cuda(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
+  return nppiCFAToRGB_16u_C1C3R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
                                          nppStreamCtx);
 }
 

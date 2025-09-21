@@ -1,15 +1,9 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-/**
- * NV12 to RGB Color Conversion Implementation
- *
- * NV12 format: Planar YUV 4:2:0 format with interleaved U and V components
- * - Y plane: width x height luminance values
- * - UV plane: (width/2) x (height/2) interleaved chroma values
- */
+// Implementation file
 
-// Forward declarations for  kernels
+// Kernel declarations
 extern "C" {
 cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
                                           Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
@@ -22,13 +16,10 @@ cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *pSrcY, int 
                                                         const Npp32f aTwist[3][4], cudaStream_t stream);
 }
 
-/**
- * Convert NV12 format image to RGB.
- * Standard YUV to RGB conversion using ITU-R BT.601 coefficients.
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -46,7 +37,7 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用CUDA内核
+  // Call GPU kernel
   cudaError_t cudaStatus = nppiNV12ToRGB_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                          pSrc[1], rSrcStep, // UV plane (interleaved)
                                                          pDst, nDstStep,    // RGB output
@@ -59,23 +50,18 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
   return NPP_NO_ERROR;
 }
 
-/**
- * Convert NV12 format image to RGB (default stream context).
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
   NppStreamContext ctx;
-  ctx.hStream = 0; // 默认流
+  ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-/**
- * Convert NV12 format image to RGB using ITU-R BT.709 color space conversion.
- * This function is specifically used by torchcodec for HDTV color space.
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -93,7 +79,7 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用BT.709 CUDA内核
+  // CallBT.709 GPUkernel
   cudaError_t cudaStatus = nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                                 pSrc[1], rSrcStep, // UV plane
                                                                 pDst, nDstStep,    // RGB output
@@ -106,44 +92,33 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
   return NPP_NO_ERROR;
 }
 
-/**
- * Convert NV12 format image to RGB using BT.709 (default stream context).
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI) {
   NppStreamContext ctx;
-  ctx.hStream = 0; // 默认流
+  ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-/**
- * Convert NV12 format image to RGB using ITU-R BT.709 HDTV coefficients.
- * This is an alias for the 709CSC function for compatibility.
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * Convert NV12 format image to RGB using BT.709 HDTV (default stream context).
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI) {
   NppStreamContext ctx;
-  ctx.hStream = 0; // 默认流
+  ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-/**
- * Convert NV12 format image to RGB using custom color transformation matrix.
- * This function is specifically used by TorchCodec for custom BT.709 full range conversion.
- * The color twist matrix allows for precise control over the YUV to RGB conversion.
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst,
                                                    int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
                                                    NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -169,7 +144,7 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用ColorTwist CUDA内核
+  // CallColorTwist GPUkernel
   cudaError_t cudaStatus = nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(pSrc[0], aSrcStep[0], // Y plane
                                                                        pSrc[1], aSrcStep[1], // UV plane (interleaved)
                                                                        pDst, nDstStep,       // RGB output
@@ -184,13 +159,11 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
   return NPP_SUCCESS;
 }
 
-/**
- * Convert NV12 format image to RGB using custom color transformation matrix (default stream).
- */
+// Implementation file
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst, int nDstStep,
                                                NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext ctx;
-  ctx.hStream = 0; // 默认流
+  ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(pSrc, aSrcStep, pDst, nDstStep, oSizeROI, aTwist, ctx);
 }
 
@@ -198,12 +171,10 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u *const pSrc[2], int a
 // NV12 to BGR conversion functions
 //=============================================================================
 
-/**
- * Convert NV12 format image to BGR (standard BT.601 conversion).
- */
+// Implementation file
 NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -221,7 +192,7 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用CUDA内核 - 使用RGB内核然后交换通道
+  // Call GPU kernel - 使用RGBkernel然后交换通道
   cudaError_t cudaStatus = nppiNV12ToRGB_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                          pSrc[1], rSrcStep, // UV plane (interleaved)
                                                          pDst, nDstStep,    // BGR output (will swap R and B)
@@ -237,9 +208,7 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
   return NPP_NO_ERROR;
 }
 
-/**
- * Convert NV12 format image to BGR (default stream context).
- */
+// Implementation file
 NppStatus nppiNV12ToBGR_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
   NppStreamContext ctx;
@@ -247,12 +216,10 @@ NppStatus nppiNV12ToBGR_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u
   return nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-/**
- * Convert NV12 format image to BGR using BT.709 color space conversion.
- */
+// Implementation file
 NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -270,7 +237,7 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用BT.709 CUDA内核 (outputs RGB, assume BGR=RGB for now)
+  // CallBT.709 GPUkernel (outputs RGB, assume BGR=RGB for now)
   cudaError_t cudaStatus = nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                                 pSrc[1], rSrcStep, // UV plane
                                                                 pDst, nDstStep,    // BGR output
@@ -283,9 +250,7 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
   return NPP_NO_ERROR;
 }
 
-/**
- * Convert NV12 format image to BGR using BT.709 (default stream context).
- */
+// Implementation file
 NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI) {
   NppStreamContext ctx;
@@ -293,17 +258,13 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep
   return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-/**
- * Convert NV12 format image to BGR using BT.709 HDTV coefficients.
- */
+// Implementation file
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * Convert NV12 format image to BGR using BT.709 HDTV (default stream context).
- */
+// Implementation file
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI) {
   NppStreamContext ctx;

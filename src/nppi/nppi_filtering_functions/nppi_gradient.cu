@@ -3,9 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Gradient Vector Functions
- */
+// Implementation file
 
 // Prewitt operator kernels (3x3)
 __constant__ float prewitt_x_3x3[9] = {-1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f};
@@ -183,7 +181,7 @@ __global__ void nppiGradientVectorPrewittBorder_16s_C1R_kernel(const Npp16s *pSr
 extern "C" {
 
 // 8u to 16s implementation
-NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                              NppiPoint oSrcOffset, Npp16s *pDstMag, int nDstMagStep,
                                                              Npp16s *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                              NppiMaskSize eMaskSize, NppiBorderType eBorderType,
@@ -206,7 +204,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda(const Npp8u *pSrc, 
 }
 
 // 8u to 32f implementation
-NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                              NppiPoint oSrcOffset, Npp32f *pDstMag, int nDstMagStep,
                                                              Npp32f *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                              NppiMaskSize eMaskSize, NppiBorderType eBorderType,
@@ -229,7 +227,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_cuda(const Npp8u *pSrc, 
 }
 
 // 16s implementation
-NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                            NppiPoint oSrcOffset, Npp16s *pDstMag, int nDstMagStep,
                                                            Npp16s *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                            NppiMaskSize eMaskSize, NppiBorderType eBorderType,

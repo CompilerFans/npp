@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_filterGauss.cpp
- * @brief NPP 高斯滤波函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <cmath>
@@ -14,7 +11,7 @@ protected:
 
   void TearDown() override { NppTestBase::TearDown(); }
 
-  // Helper function to calculate expected Gaussian blur value
+  // Function to calculate expected Gaussian blur value
   float calculateGaussianValue(const std::vector<Npp8u> &src, int width, int height, int x, int y, int kernelSize,
                                float sigma) {
     float result = 0.0f;
@@ -67,7 +64,7 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_8u_C1R_3x3) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilterGauss_8u_C1R failed";
 
-  // 验证结果 - 高斯滤波应该模糊锐利边缘
+  // Validate结果 - 高斯滤波应该模糊锐利边缘
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -103,7 +100,7 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_8u_C1R_5x5) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilterGauss_8u_C1R 5x5 failed";
 
-  // 验证结果 - 中心点应该扩散到周围像素
+  // Validate结果 - 中心点应该扩散到周围像素
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -157,7 +154,7 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_8u_C3R_Basic) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilterGauss_8u_C3R failed";
 
-  // 验证结果 - 检查所有通道都被处理
+  // Validate结果 - 检查所有通道都被处理
   std::vector<Npp8u> resultData(width * height * 3);
   cudaMemcpy(resultData.data(), dstPtr, width * height * 3 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
@@ -193,7 +190,7 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_32f_C1R_Float) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilterGauss_32f_C1R failed";
 
-  // 验证结果 - 浮点数据应该被正确处理
+  // Validate结果 - 浮点数据应该被正确处理
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -225,9 +222,9 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_ErrorHandling) {
   // 测试无效ROI
   NppiSize invalidRoi = {0, 0};
   status = nppiFilterGauss_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi, NPP_MASK_SIZE_3_X_3);
-  EXPECT_EQ(status, NPP_NO_ERROR) << "NVIDIA NPP returns success for zero-size ROI";
+  EXPECT_EQ(status, NPP_NO_ERROR) << "vendor NPP returns success for zero-size ROI";
 
-  // 测试不支持的掩码大小
+  // 测试不支持的mask大小
   status =
       nppiFilterGauss_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, NPP_MASK_SIZE_1_X_3); // 不支持的大小
   EXPECT_NE(status, NPP_SUCCESS) << "Should fail with unsupported mask size";
@@ -266,7 +263,7 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_DifferentKernelSizes) {
   ASSERT_EQ(status5x5, NPP_SUCCESS) << "5x5 Gaussian filter failed";
   ASSERT_EQ(status7x7, NPP_SUCCESS) << "7x7 Gaussian filter failed";
 
-  // 验证更大的核产生更强的模糊效果
+  // Validate更大的核产生更强的模糊效果
   std::vector<Npp8u> result3x3(width * height);
   std::vector<Npp8u> result7x7(width * height);
   dst3x3.copyToHost(result3x3);

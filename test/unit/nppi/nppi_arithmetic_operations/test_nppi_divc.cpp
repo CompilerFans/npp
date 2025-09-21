@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_divc.cpp
- * @brief NPP DivC除法函数测试（除以常数）
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -25,7 +22,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_Basic) {
   // prepare test data
   std::vector<Npp8u> srcData(width * height);
   for (int i = 0; i < width * height; i++) {
-    srcData[i] = static_cast<Npp8u>((i % 200) + 50); // 50-249范围
+    srcData[i] = static_cast<Npp8u>((i % 200) + 50); // 50-249bounds
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -51,7 +48,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_Basic) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证除法结果（考虑舍入差异）
+  // Validate除法结果（考虑舍入差异）
   for (int i = 0; i < width * height; i++) {
     Npp8u expected = static_cast<Npp8u>(srcData[i] / divisor);
     // NPP可能使用不同的舍入方式，允许±1的误差
@@ -98,7 +95,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C3RSfs_Ctx_ColorImage) {
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证除法结果
+  // Validate除法结果
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 3 + 0], 200 / 2); // R通道
     ASSERT_EQ(dstData[i * 3 + 1], 160 / 4); // G通道
@@ -140,7 +137,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_FloatingPoint) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证除法结果
+  // Validate除法结果
   for (int i = 0; i < width * height; i++) {
     float expected = srcData[i] / divisor;
     ASSERT_NEAR(dstData[i], expected, 1e-6f);
@@ -186,7 +183,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证缩放因子效果 - NPP中缩放因子是右移
+  // Validate缩放因子效果 - NPP中缩放因子是右移
   ASSERT_EQ(dstData[0], 25); // (100 / 2) >> 1 = 25
   ASSERT_EQ(dstData[1], 50); // (200 / 2) >> 1 = 50
   ASSERT_EQ(dstData[2], 12); // (50 / 2) >> 1 = 12
@@ -223,7 +220,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证结果不是NaN或无穷大
+  // Validate结果不是NaN或无穷大
   for (const auto &val : dstData) {
     ASSERT_FALSE(std::isnan(val));
     ASSERT_TRUE(std::isfinite(val));

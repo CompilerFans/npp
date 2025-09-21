@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_cfa_to_rgb.cpp
- * @brief NPP CFA到RGB转换函数测试（Bayer模式去马赛克）
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -64,7 +61,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证结果 - 检查RGB通道都有数据
+  // Validate结果 - 检查RGB通道都有数据
   int rCount = 0, gCount = 0, bCount = 0;
   for (int i = 0; i < width * height; i++) {
     if (dstData[i * 3 + 0] > 50)
@@ -130,7 +127,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_16u_C1C3R_Ctx_RGGB) {
   std::vector<Npp16u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证结果
+  // Validate结果
   bool hasValidData = false;
   for (int i = 0; i < width * height; i++) {
     Npp16u r = dstData[i * 3 + 0];
@@ -144,7 +141,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_16u_C1C3R_Ctx_RGGB) {
 
   ASSERT_TRUE(hasValidData);
 
-  // 验证第一个像素（应该是红色为主）
+  // Validate第一个像素（应该是红色为主）
   ASSERT_GT(dstData[0], 30000); // R通道应该很高
 }
 
@@ -177,7 +174,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_AllPatterns) {
 
     ASSERT_EQ(status, NPP_SUCCESS);
 
-    // 验证基本功能正常
+    // Validate基本功能正常
     cudaStreamSynchronize(nppStreamCtx.hStream);
     std::vector<Npp8u> dstData(width * height * 3);
     dst.copyToHost(dstData);

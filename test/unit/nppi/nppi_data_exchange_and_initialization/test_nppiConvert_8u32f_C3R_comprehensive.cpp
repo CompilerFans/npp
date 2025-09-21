@@ -1,16 +1,4 @@
-/**
- * @file test_nppiConvert_8u32f_C3R_comprehensive.cpp
- * @brief Comprehensive test suite for nppiConvert_8u32f_C3R
- *
- * Tests cover:
- * - Basic functionality
- * - Boundary conditions
- * - Memory alignment
- * - Large images
- * - ROI operations
- * - Error handling
- * - Performance scenarios
- */
+// Implementation file
 
 #include "npp.h"
 #include <chrono>
@@ -33,7 +21,7 @@ protected:
     EXPECT_EQ(err, cudaSuccess);
   }
 
-  // Helper function to allocate aligned memory
+  // Function to allocate aligned memory
   void allocateAlignedImage(Npp8u **ppSrc, Npp32f **ppDst, int width, int height, int *pSrcStep, int *pDstStep) {
     *ppSrc = nppiMalloc_8u_C3(width, height, pSrcStep);
     ASSERT_NE(*ppSrc, nullptr);

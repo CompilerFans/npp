@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_magnitude.cpp
- * @brief NPP 幅度计算函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <cmath>
@@ -49,7 +46,7 @@ TEST_F(MagnitudeFunctionalTest, Magnitude_32fc_32f_C1R_BasicOperation) {
 
 // nppiMagnitude_32f_C2R 函数在标准NPP API中不存在，测试已删除
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(MagnitudeFunctionalTest, DISABLED_Magnitude_ErrorHandling) {
   const int width = 16;
   const int height = 16;

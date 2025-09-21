@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_remap.cpp
- * @brief NPP 图像重映射函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -68,7 +65,7 @@ TEST_F(RemapFunctionalTest, Remap_8u_C1R_Ctx_Identity) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证恒等映射 - 输出应该与输入相同
+  // Validate恒等映射 - 输出应该与输入相同
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(srcData[i], dstData[i]);
   }
@@ -129,7 +126,7 @@ TEST_F(RemapFunctionalTest, Remap_16u_C3R_Ctx_Mirror) {
   std::vector<Npp16u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证水平镜像 - 第一列应该变成最后一列
+  // Validate水平镜像 - 第一列应该变成最后一列
   int firstIdx = 0;
   int lastIdx = (width - 1) * 3;
   ASSERT_EQ(srcData[firstIdx], dstData[lastIdx]);         // R通道
@@ -198,7 +195,7 @@ TEST_F(RemapFunctionalTest, Remap_32f_C1R_Ctx_Rotation) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证旋转 - 检查是否有非零值
+  // Validate旋转 - 检查是否有非零值
   float sum = 0.0f;
   for (const auto &val : dstData) {
     sum += val;

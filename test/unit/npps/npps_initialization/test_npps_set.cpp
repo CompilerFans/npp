@@ -4,10 +4,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-/**
- * NPPS Set Functions Test Suite
- * 测试NPPS信号初始化函数
- */
+// Implementation file
 class NPPSSetFunctionalTest : public ::testing::Test {
 protected:
   void SetUp() override {}
@@ -30,7 +27,7 @@ TEST_F(NPPSSetFunctionalTest, Set_8u_BasicOperation) {
   NppStatus status = nppsSet_8u(setValue, d_dst, nLength);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_8u failed";
 
-  // 复制结果回主机并验证
+  // 复制结果回主机并Validate
   std::vector<Npp8u> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
@@ -84,7 +81,7 @@ TEST_F(NPPSSetFunctionalTest, Set_32f_BasicOperation) {
   NppStatus status = nppsSet_32f(setValue, d_dst, nLength);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_32f failed";
 
-  // 复制结果回主机并验证
+  // 复制结果回主机并Validate
   std::vector<Npp32f> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -134,7 +131,7 @@ TEST_F(NPPSSetFunctionalTest, Set_32f_LargeSignal) {
   NppStatus status = nppsSet_32f(setValue, d_dst, nLength);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_32f failed";
 
-  // 验证几个采样点
+  // Validate几个采样点
   std::vector<Npp32f> sample(100);
   cudaMemcpy(sample.data(), d_dst, 100 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -142,7 +139,7 @@ TEST_F(NPPSSetFunctionalTest, Set_32f_LargeSignal) {
     EXPECT_FLOAT_EQ(sample[i], setValue) << "Mismatch at index " << i;
   }
 
-  // 验证末尾几个元素
+  // Validate末尾几个元素
   cudaMemcpy(sample.data(), d_dst + nLength - 100, 100 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < 100; i++) {
@@ -170,7 +167,7 @@ TEST_F(NPPSSetFunctionalTest, Set_32fc_BasicOperation) {
   NppStatus status = nppsSet_32fc(setValue, d_dst, nLength);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_32fc failed";
 
-  // 复制结果回主机并验证
+  // 复制结果回主机并Validate
   std::vector<Npp32fc> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32fc), cudaMemcpyDeviceToHost);
 
@@ -203,7 +200,7 @@ TEST_F(NPPSSetFunctionalTest, Zero_32f_BasicOperation) {
   status = nppsZero_32f(d_dst, nLength);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_32f failed";
 
-  // 复制结果回主机并验证
+  // 复制结果回主机并Validate
   std::vector<Npp32f> result(nLength);
   cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -219,7 +216,7 @@ TEST_F(NPPSSetFunctionalTest, Zero_32f_BasicOperation) {
 // Error Handling Tests
 // ==============================================================================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPSSetFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   const size_t nLength = 100;
 
@@ -232,7 +229,7 @@ TEST_F(NPPSSetFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   EXPECT_EQ(nppsSet_32fc(complexValue, nullptr, nLength), NPP_NULL_POINTER_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPSSetFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
   Npp8u *d_dummy8u = nullptr;
   Npp32f *d_dummy32f = nullptr;

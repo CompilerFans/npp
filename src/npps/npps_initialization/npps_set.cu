@@ -1,18 +1,13 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-/**
- * NPPS Initialization Functions CUDA Kernels - Set Functions
- * GPU kernels for 1D signal initialization operations.
- */
+// Implementation file
 
 // ==============================================================================
-// CUDA Kernels for Set Operations
+// GPU Kernels for Set Operations
 // ==============================================================================
 
-/**
- * kernel for 8-bit unsigned char signal set
- */
+// Implementation file
 __global__ void nppsSet_8u_kernel_impl(Npp8u nValue, Npp8u *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < nLength) {
@@ -20,9 +15,7 @@ __global__ void nppsSet_8u_kernel_impl(Npp8u nValue, Npp8u *pDst, size_t nLength
   }
 }
 
-/**
- * kernel for 32-bit float signal set
- */
+// Implementation file
 __global__ void nppsSet_32f_kernel_impl(Npp32f nValue, Npp32f *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < nLength) {
@@ -30,9 +23,7 @@ __global__ void nppsSet_32f_kernel_impl(Npp32f nValue, Npp32f *pDst, size_t nLen
   }
 }
 
-/**
- * kernel for 32-bit float complex signal set
- */
+// Implementation file
 __global__ void nppsSet_32fc_kernel_impl(Npp32fc nValue, Npp32fc *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < nLength) {

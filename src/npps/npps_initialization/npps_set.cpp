@@ -2,25 +2,20 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for  kernels (implemented in .cu file)
+// Kernel declarations (implemented in .cu file)
 extern "C" {
 cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u *pDst, size_t nLength, cudaStream_t stream);
 cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f *pDst, size_t nLength, cudaStream_t stream);
 cudaError_t nppsSet_32fc_kernel(Npp32fc nValue, Npp32fc *pDst, size_t nLength, cudaStream_t stream);
 }
 
-/**
- * NPPS Initialization Functions Implementation - Set Functions
- * Implements nppsSet functions for 1D signal initialization operations.
- */
+// Implementation file
 
 // ==============================================================================
 // Set Operations - Initialize signal elements with constant values
 // ==============================================================================
 
-/**
- * 8-bit unsigned char signal set
- */
+// Implementation file
 NppStatus nppsSet_8u_Ctx(Npp8u nValue, Npp8u *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pDst) {
@@ -50,9 +45,7 @@ NppStatus nppsSet_8u(Npp8u nValue, Npp8u *pDst, size_t nLength) {
   return nppsSet_8u_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
-/**
- * 32-bit float signal set
- */
+// Implementation file
 NppStatus nppsSet_32f_Ctx(Npp32f nValue, Npp32f *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pDst) {
@@ -82,9 +75,7 @@ NppStatus nppsSet_32f(Npp32f nValue, Npp32f *pDst, size_t nLength) {
   return nppsSet_32f_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
-/**
- * 32-bit float complex signal set
- */
+// Implementation file
 NppStatus nppsSet_32fc_Ctx(Npp32fc nValue, Npp32fc *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pDst) {
@@ -114,9 +105,7 @@ NppStatus nppsSet_32fc(Npp32fc nValue, Npp32fc *pDst, size_t nLength) {
   return nppsSet_32fc_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
-/**
- * Zero signal initialization - convenient wrapper for set with zero
- */
+// Implementation file
 NppStatus nppsZero_32f_Ctx(Npp32f *pDst, size_t nLength, NppStreamContext nppStreamCtx) {
   return nppsSet_32f_Ctx(0.0f, pDst, nLength, nppStreamCtx);
 }

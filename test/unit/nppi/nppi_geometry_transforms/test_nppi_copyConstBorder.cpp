@@ -44,7 +44,7 @@ protected:
     }
   }
 
-  // 辅助函数：验证CopyConstBorder结果（单通道）
+  // 辅助函数：ValidateCopyConstBorder结果（单通道）
   template <typename T>
   void verifyCopyConstBorder_C1(const std::vector<T> &srcData, const std::vector<T> &dstData, T borderValue) {
     for (int y = 0; y < dstHeight; y++) {
@@ -68,7 +68,7 @@ protected:
     }
   }
 
-  // 辅助函数：验证CopyConstBorder结果（三通道）
+  // 辅助函数：ValidateCopyConstBorder结果（三通道）
   void verifyCopyConstBorder_C3(const std::vector<Npp8u> &srcData, const std::vector<Npp8u> &dstData,
                                 const Npp8u borderValues[3]) {
     for (int y = 0; y < dstHeight; y++) {
@@ -119,7 +119,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCopyConstBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, d_dst, nDstStep, oDstSizeROI,
                                                 nTopBorderHeight, nLeftBorderWidth, borderValue);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -127,7 +127,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCopyConstBorder_C1(srcData, dstData, borderValue);
 
   // 清理GPU内存
@@ -156,7 +156,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C3R) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCopyConstBorder_8u_C3R(d_src, nSrcStep, oSrcSizeROI, d_dst, nDstStep, oDstSizeROI,
                                                 nTopBorderHeight, nLeftBorderWidth, borderValues);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -164,7 +164,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C3R) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCopyConstBorder_C3(srcData, dstData, borderValues);
 
   // 清理GPU内存
@@ -193,7 +193,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_16s_C1R) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp16s), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCopyConstBorder_16s_C1R(d_src, nSrcStep, oSrcSizeROI, d_dst, nDstStep, oDstSizeROI,
                                                  nTopBorderHeight, nLeftBorderWidth, borderValue);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -201,7 +201,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_16s_C1R) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp16s), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCopyConstBorder_C1(srcData, dstData, borderValue);
 
   // 清理GPU内存
@@ -232,7 +232,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_32f_C1R) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCopyConstBorder_32f_C1R(d_src, nSrcStep, oSrcSizeROI, d_dst, nDstStep, oDstSizeROI,
                                                  nTopBorderHeight, nLeftBorderWidth, borderValue);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -240,7 +240,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_32f_C1R) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
-  // 验证结果（浮点数需要精确匹配）
+  // Validate结果（浮点数需要精确匹配）
   verifyCopyConstBorder_C1(srcData, dstData, borderValue);
 
   // 清理GPU内存
@@ -271,9 +271,9 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R_Ctx) {
 
   // 创建流上下文
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCopyConstBorder_8u_C1R_Ctx(d_src, nSrcStep, oSrcSizeROI, d_dst, nDstStep, oDstSizeROI,
                                                     nTopBorderHeight, nLeftBorderWidth, borderValue, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -281,7 +281,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R_Ctx) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCopyConstBorder_C1(srcData, dstData, borderValue);
 
   // 清理GPU内存
@@ -317,7 +317,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_ZeroBorders) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCopyConstBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, d_dst, nDstStep, oDstSizeROI,
                                                 nTopBorderHeight, nLeftBorderWidth, borderValue);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -325,7 +325,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_ZeroBorders) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果（应该完全相同）
+  // Validate结果（应该完全相同）
   for (size_t i = 0; i < dataSize; i++) {
     EXPECT_EQ(dstData[i], srcData[i]) << "Data mismatch at index " << i;
   }
@@ -336,7 +336,7 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_ZeroBorders) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPICopyConstBorderTest, DISABLED_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiCopyConstBorder_8u_C1R(nullptr, 32, oSrcSizeROI, nullptr, 32, oDstSizeROI, 2, 2, 100);

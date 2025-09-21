@@ -26,18 +26,18 @@ TEST_F(NPPIHistogramTest, EvenLevelsHost_32s) {
   NppStatus status = nppiEvenLevelsHost_32s(pLevels.data(), nLevels, nLowerBound, nUpperBound);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证生成的等级
+  // Validate生成的等级
   EXPECT_EQ(pLevels[0], 0);
   EXPECT_EQ(pLevels[nLevels - 1], 255);
 
-  // 验证等级是递增的
+  // Validate等级是递增的
   for (int i = 1; i < nLevels; i++) {
     EXPECT_GT(pLevels[i], pLevels[i - 1]);
   }
 }
 
 // 测试nppiEvenLevelsHost错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIHistogramTest, DISABLED_EvenLevelsHost_ErrorHandling) {
   std::vector<Npp32s> pLevels(5);
 
@@ -96,14 +96,14 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Basic) {
 
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   status = nppiHistogramEven_8u_C1R(d_src, srcStep, roi, d_hist, nLevels, nLowerLevel, nUpperLevel, d_buffer);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(pHist.data(), d_hist, (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost);
 
-  // 验证结果：bin 0和bin 255应该有计数
+  // Validate结果：bin 0和bin 255应该有计数
   EXPECT_GT(pHist[0], 0);   // bin 0应该有计数
   EXPECT_GT(pHist[255], 0); // bin 255应该有计数
 
@@ -120,7 +120,7 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Basic) {
 }
 
 // 测试直方图错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIHistogramTest, DISABLED_HistogramEven_ErrorHandling) {
   int nLevels = 256;
   Npp32s nLowerLevel = 0;
@@ -186,7 +186,7 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Enhanced) {
   std::vector<Npp32s> hostHist(nLevels - 1);
   cudaMemcpy(hostHist.data(), d_hist, (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost);
 
-  // 验证结果 - 总像素数应该等于图像像素数
+  // Validate结果 - 总像素数应该等于图像像素数
   int totalPixels = 0;
   for (int i = 0; i < nLevels - 1; i++) {
     totalPixels += hostHist[i];

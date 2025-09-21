@@ -3,18 +3,15 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Absolute Difference Functions Implementation
- * Implements nppiAbsDiff functions for computing absolute difference between two images
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiAbsDiff_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAbsDiff_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbsDiff_8u_C3R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAbsDiff_8u_C3R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbsDiff_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+NppStatus nppiAbsDiff_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
                                        Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
@@ -45,7 +42,7 @@ NppStatus nppiAbsDiff_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return status;
   }
 
-  return nppiAbsDiff_8u_C1R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbsDiff_8u_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbsDiff_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -63,7 +60,7 @@ NppStatus nppiAbsDiff_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return status;
   }
 
-  return nppiAbsDiff_8u_C3R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbsDiff_8u_C3R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbsDiff_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -81,7 +78,7 @@ NppStatus nppiAbsDiff_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp3
     return status;
   }
 
-  return nppiAbsDiff_32f_C1R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbsDiff_32f_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbsDiff_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,

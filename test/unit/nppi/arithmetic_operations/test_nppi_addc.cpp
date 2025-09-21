@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_addc.cpp
- * @brief NPP 加常数函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 

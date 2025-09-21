@@ -3,13 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Add Constant operations
- */
+// Implementation file
 
-/**
- * kernel for adding constant to 8-bit unsigned 1-channel image
- */
+// Implementation file
 __global__ void addC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
                                       Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -25,7 +21,7 @@ __global__ void addC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   // Load source pixel
   Npp8u srcValue = *srcPixel;
 
-  // Add constant and scale - NVIDIA NPP uses round-to-nearest-even for 8u
+  // Add constant and scale - vendor NPP uses round-to-nearest-even for 8u
   int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
   if (nScaleFactor > 0) {
     // Standard rounding: add 0.5 equivalent before right shift
@@ -40,9 +36,7 @@ __global__ void addC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   *dstPixel = static_cast<Npp8u>(result);
 }
 
-/**
- * kernel for adding constants to 8-bit unsigned 3-channel image
- */
+// Implementation file
 __global__ void addC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                       Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
                                       int nScaleFactor) {
@@ -84,9 +78,7 @@ __global__ void addC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
 }
 
-/**
- * kernel for adding constants to 8-bit unsigned 4-channel image with alpha
- */
+// Implementation file
 __global__ void addC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                       Npp8u nConstant2, Npp8u nConstant3, Npp8u *__restrict__ pDst, int nDstStep,
                                       int width, int height, int nScaleFactor) {
@@ -133,9 +125,7 @@ __global__ void addC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   dstPixel[3] = static_cast<Npp8u>(max(0, min(255, result)));
 }
 
-/**
- * kernel for adding constants to 8-bit unsigned 4-channel image (AC4 - alpha unchanged)
- */
+// Implementation file
 __global__ void addC_8u_AC4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                        Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -180,9 +170,7 @@ __global__ void addC_8u_AC4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcS
   dstPixel[3] = srcPixel[3];
 }
 
-/**
- * kernel for adding constant to 16-bit unsigned 1-channel image
- */
+// Implementation file
 __global__ void addC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -202,7 +190,7 @@ __global__ void addC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
   // Add constant and scale with rounding
   int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
   if (nScaleFactor > 0) {
-    // Add rounding bias before right shift to match NVIDIA NPP behavior
+    // Add rounding bias before right shift to match vendor NPP behavior
     result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
   }
 
@@ -213,9 +201,7 @@ __global__ void addC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
   *dstPixel = static_cast<Npp16u>(result);
 }
 
-/**
- * kernel for adding constant to 16-bit signed 1-channel image
- */
+// Implementation file
 __global__ void addC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -235,7 +221,7 @@ __global__ void addC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
   // Add constant and scale with rounding
   int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
   if (nScaleFactor > 0) {
-    // Add rounding bias before right shift to match NVIDIA NPP behavior
+    // Add rounding bias before right shift to match vendor NPP behavior
     result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
   }
 
@@ -246,9 +232,7 @@ __global__ void addC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
   *dstPixel = static_cast<Npp16s>(result);
 }
 
-/**
- * kernel for adding constant to 32-bit float 1-channel image
- */
+// Implementation file
 __global__ void addC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -273,10 +257,8 @@ __global__ void addC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcSte
 
 extern "C" {
 
-/**
- * CUDA implementation of nppiAddC_8u_C1RSfs_Ctx
- */
-NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
+// Implementation file
+NppStatus nppiAddC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI to avoid invalid kernel configurations
@@ -284,11 +266,11 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
     return NPP_NO_ERROR;
   }
 
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Ensure CUDA context is active before kernel launch
+  // Ensure GPU context is active before kernel launch
   cudaError_t ctxErr = cudaSetDevice(nppStreamCtx.nCudaDeviceId);
   if (ctxErr != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -302,7 +284,7 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
     return NPP_SIZE_ERROR;
   }
 
-  // Launch kernel - nullptr is valid for default stream in CUDA
+  // Launch kernel - nullptr is valid for default stream in GPU
   addC_8u_C1RSfs_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width,
                                                             oSizeROI.height, nScaleFactor);
 
@@ -321,17 +303,15 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiAddC_8u_C3RSfs_Ctx
- */
-NppStatus nppiAddC_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
+// Implementation file
+NppStatus nppiAddC_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   addC_8u_C3RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height,
       nScaleFactor);
@@ -345,17 +325,15 @@ NppStatus nppiAddC_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiAddC_8u_C4RSfs_Ctx
- */
-NppStatus nppiAddC_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[4], Npp8u *pDst,
+// Implementation file
+NppStatus nppiAddC_8u_C4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[4], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   addC_8u_C4RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, aConstants[0], aConstants[1], aConstants[2], aConstants[3], pDst, nDstStep, oSizeROI.width,
       oSizeROI.height, nScaleFactor);
@@ -369,17 +347,15 @@ NppStatus nppiAddC_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiAddC_8u_AC4RSfs_Ctx
- */
-NppStatus nppiAddC_8u_AC4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
+// Implementation file
+NppStatus nppiAddC_8u_AC4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   addC_8u_AC4RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height,
       nScaleFactor);
@@ -393,17 +369,15 @@ NppStatus nppiAddC_8u_AC4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const 
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiAddC_16u_C1RSfs_Ctx
- */
-NppStatus nppiAddC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
+// Implementation file
+NppStatus nppiAddC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   addC_16u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
 
@@ -416,17 +390,15 @@ NppStatus nppiAddC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiAddC_16s_C1RSfs_Ctx
- */
-NppStatus nppiAddC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
+// Implementation file
+NppStatus nppiAddC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   addC_16s_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
 
@@ -439,16 +411,14 @@ NppStatus nppiAddC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiAddC_32f_C1R_Ctx
- */
-NppStatus nppiAddC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
+// Implementation file
+NppStatus nppiAddC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   addC_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc1, nSrc1Step, nConstant, pDst, nDstStep,
                                                                         oSizeROI.width, oSizeROI.height);
 

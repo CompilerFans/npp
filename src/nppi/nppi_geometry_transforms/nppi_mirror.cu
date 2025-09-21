@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// 镜像翻转内核实现
+// 镜像翻转kernel实现
 __global__ void nppiMirror_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                               int height, NppiAxis flip) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;

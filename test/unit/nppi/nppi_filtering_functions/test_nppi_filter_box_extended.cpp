@@ -1,11 +1,4 @@
-/**
- * @file test_nppi_filter_box_extended.cpp
- * @brief Extended test suite for newly implemented Box filter APIs
- *
- * Tests cover:
- * - nppiFilterBox_8u_C4R_Ctx / nppiFilterBox_8u_C4R
- * - nppiFilterBox_32f_C1R_Ctx / nppiFilterBox_32f_C1R
- */
+// Implementation file
 
 #include "npp.h"
 #include <algorithm>

@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_support_functions.cpp
- * @brief NPP 支持函数测试
- */
+// Implementation file
 
 #include "../framework/npp_test_base.h"
 
@@ -18,7 +15,7 @@ TEST_F(SupportFunctionsTest, GetLibVersion_BasicTest) {
   const NppLibraryVersion *version = nppGetLibVersion();
   ASSERT_NE(version, nullptr) << "nppGetLibVersion should not return null";
 
-  // 验证版本号格式合理
+  // Validate版本号格式合理
   EXPECT_GT(version->major, 0) << "Major version should be greater than 0";
   EXPECT_GE(version->minor, 0) << "Minor version should be non-negative";
   EXPECT_GE(version->build, 0) << "Build version should be non-negative";
@@ -34,7 +31,7 @@ TEST_F(SupportFunctionsTest, GetGpuComputeCapability_BasicTest) {
 
     ASSERT_EQ(status, NPP_NO_ERROR) << "nppGetGpuComputeCapability should succeed";
 
-    // 验证计算能力值合理
+    // Validate计算能力值合理
     EXPECT_GT(major, 0) << "GPU compute capability major version should be > 0";
     EXPECT_GE(minor, 0) << "GPU compute capability minor version should be >= 0";
     EXPECT_LE(major, 9) << "GPU compute capability major version should be reasonable";
@@ -49,7 +46,7 @@ TEST_F(SupportFunctionsTest, GetGpuName_BasicTest) {
   const char *name = nppGetGpuName();
 
   if (name != nullptr) {
-    // 验证名称不为空
+    // Validate名称不为空
     EXPECT_GT(strlen(name), 0) << "GPU name should not be empty";
     std::cout << "GPU Name: " << name << std::endl;
   } else {
@@ -62,7 +59,7 @@ TEST_F(SupportFunctionsTest, GetStreamContext_BasicTest) {
   NppStatus status = nppGetStreamContext(&streamCtx);
 
   if (status == NPP_NO_ERROR) {
-    // 验证默认流上下文
+    // ValidateDefault stream上下文
     EXPECT_EQ(streamCtx.hStream, (cudaStream_t)0) << "Default stream should be 0";
     EXPECT_NE(streamCtx.nCudaDeviceId, -1) << "Device ID should be valid";
     std::cout << "nppGetStreamContext succeeded" << std::endl;
@@ -98,12 +95,12 @@ TEST_F(SupportFunctionsTest, GetGpuDeviceProperties_BasicTest) {
 
   ASSERT_EQ(result, 0) << "nppGetGpuDeviceProperties should succeed (return 0)";
 
-  // 验证返回值合理
+  // Validate返回值合理
   EXPECT_GT(maxThreadsPerSM, 0) << "Max threads per SM should be > 0";
   EXPECT_GT(maxThreadsPerBlock, 0) << "Max threads per block should be > 0";
   EXPECT_GT(numSMs, 0) << "Number of SMs should be > 0";
 
-  // 验证合理范围
+  // Validate合理bounds
   EXPECT_LE(maxThreadsPerSM, 4096) << "Max threads per SM should be reasonable";
   EXPECT_LE(maxThreadsPerBlock, 2048) << "Max threads per block should be reasonable";
   EXPECT_LE(numSMs, 256) << "Number of SMs should be reasonable";
@@ -121,7 +118,7 @@ TEST_F(SupportFunctionsTest, GetGpuNumSMs_BasicTest) {
   std::cout << "GPU has " << numSMs << " SMs" << std::endl;
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(SupportFunctionsTest, DISABLED_ErrorHandling_NullPointer) {
   // nppGetGpuComputeCapability函数在当前API中不存在，相关测试已禁用
   /*

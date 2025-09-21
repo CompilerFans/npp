@@ -1,10 +1,4 @@
-/**
- * @file npp_test_base.h
- * @brief NPP functional test base framework
- *
- * Provides infrastructure for pure functional unit tests, focused on API functionality verification, independent of
- * NVIDIA NPP library
- */
+// Implementation file
 
 #pragma once
 
@@ -18,11 +12,7 @@
 
 namespace npp_functional_test {
 
-/**
- * @brief NPP functional test base class
- *
- * Provides common functionality for device management, memory management, data generation, etc.
- */
+// Implementation file
 class NppTestBase : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -59,9 +49,7 @@ private:
   cudaDeviceProp deviceProp_;
 };
 
-/**
- * @brief Memory management helper class template
- */
+// Implementation file
 template <typename T> class DeviceMemory {
 public:
   DeviceMemory() : ptr_(nullptr), size_(0) {}
@@ -129,9 +117,7 @@ private:
   size_t size_;
 };
 
-/**
- * @brief NPP image memory management helper class
- */
+// Implementation file
 template <typename T> class NppImageMemory {
 public:
   NppImageMemory() : ptr_(nullptr), step_(0), width_(0), height_(0), channels_(1) {}
@@ -267,9 +253,7 @@ private:
   int channels_;
 };
 
-/**
- * @brief Data generation utility class
- */
+// Implementation file
 class TestDataGenerator {
 public:
   // Generate random data
@@ -318,9 +302,7 @@ public:
   }
 };
 
-/**
- * @brief Result validation utility class
- */
+// Implementation file
 class ResultValidator {
 public:
   // Verify array equality (integer types)

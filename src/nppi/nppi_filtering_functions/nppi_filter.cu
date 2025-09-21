@@ -2,10 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Filter Functions
- * Implements general 2D convolution operations
- */
+// Implementation file
 
 // Kernel for 8-bit unsigned single channel 2D convolution
 __global__ void nppiFilter_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
@@ -109,7 +106,7 @@ __global__ void nppiFilter_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp3
 extern "C" {
 
 // 8-bit unsigned single channel 2D convolution implementation
-NppStatus nppiFilter_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiFilter_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32s *pKernel, NppiSize oKernelSize, NppiPoint oAnchor, Npp32s nDivisor,
                                      NppStreamContext nppStreamCtx) {
   // Copy kernel to device memory
@@ -144,7 +141,7 @@ NppStatus nppiFilter_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 }
 
 // 8-bit unsigned three channel 2D convolution implementation
-NppStatus nppiFilter_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiFilter_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32s *pKernel, NppiSize oKernelSize, NppiPoint oAnchor, Npp32s nDivisor,
                                      NppStreamContext nppStreamCtx) {
   // Copy kernel to device memory
@@ -179,7 +176,7 @@ NppStatus nppiFilter_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 }
 
 // 32-bit float single channel 2D convolution implementation
-NppStatus nppiFilter_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiFilter_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                       const Npp32f *pKernel, NppiSize oKernelSize, NppiPoint oAnchor,
                                       NppStreamContext nppStreamCtx) {
   // Copy kernel to device memory

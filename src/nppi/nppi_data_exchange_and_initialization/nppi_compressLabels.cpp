@@ -2,10 +2,10 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-// 声明CUDA函数
+// 声明GPU函数
 extern "C" {
-NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_cuda(int nMarkerLabels, int *hpBufferSize);
-NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_cuda(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
+NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize);
+NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
                                                        NppiSize oMarkerLabelsROI, int nStartingNumber,
                                                        int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer,
                                                        NppStreamContext nppStreamCtx);
@@ -21,7 +21,7 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R(int nMarkerLabels, int *
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_cuda(nMarkerLabels, hpBufferSize);
+  return nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(nMarkerLabels, hpBufferSize);
 }
 
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx(int nMarkerLabels, int *hpBufferSize,
@@ -37,7 +37,7 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx(int nMarkerLabels, i
 // 使用Union-Find算法压缩标记标签
 NppStatus nppiCompressMarkerLabelsUF_32u_C1IR(Npp32u *pMarkerLabels, int nMarkerLabelsStep, NppiSize oMarkerLabelsROI,
                                               int nStartingNumber, int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer) {
-  // 参数验证
+  // Parameter validation
   if (pMarkerLabels == nullptr || pNewMarkerLabelsNumber == nullptr || pDeviceBuffer == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -56,7 +56,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR(Npp32u *pMarkerLabels, int nMarker
 
   NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
 
-  return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_cuda(pMarkerLabels, nMarkerLabelsStep, oMarkerLabelsROI,
+  return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(pMarkerLabels, nMarkerLabelsStep, oMarkerLabelsROI,
                                                       nStartingNumber, pNewMarkerLabelsNumber, pDeviceBuffer,
                                                       nppStreamCtx);
 }
@@ -65,7 +65,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(Npp32u *pMarkerLabels, int nMa
                                                   NppiSize oMarkerLabelsROI, int nStartingNumber,
                                                   int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer,
                                                   NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (pMarkerLabels == nullptr || pNewMarkerLabelsNumber == nullptr || pDeviceBuffer == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -82,7 +82,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(Npp32u *pMarkerLabels, int nMa
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_cuda(pMarkerLabels, nMarkerLabelsStep, oMarkerLabelsROI,
+  return nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(pMarkerLabels, nMarkerLabelsStep, oMarkerLabelsROI,
                                                       nStartingNumber, pNewMarkerLabelsNumber, pDeviceBuffer,
                                                       nppStreamCtx);
 }

@@ -35,7 +35,7 @@ TEST_F(NPPIFilterCannyTest, CannyBorderGetBufferSize_Basic) {
 }
 
 // 测试缓冲区大小获取错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIFilterCannyTest, DISABLED_CannyBorderGetBufferSize_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiFilterCannyBorderGetBufferSize(oSrcSizeROI, nullptr);
@@ -81,7 +81,7 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_8u_C1R_Basic) {
 
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用Canny边缘检测
+  // CallCanny边缘检测
   status = nppiFilterCannyBorder_8u_C1R(d_src, srcStep, oSrcSizeROI, oSrcOffset, d_dst, dstStep, oDstSizeROI,
                                         NPP_FILTER_SOBEL, NPP_MASK_SIZE_3_X_3, 50.0f, 150.0f, nppiNormL2,
                                         NPP_BORDER_REPLICATE, d_buffer);
@@ -90,7 +90,7 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_8u_C1R_Basic) {
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dstDataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 基本验证：应该检测到边缘
+  // 基本Validate：应该检测到边缘
   int edgePixelCount = 0;
   for (size_t i = 0; i < dstDataSize; i++) {
     if (dstData[i] > 0) {
@@ -105,7 +105,7 @@ TEST_F(NPPIFilterCannyTest, FilterCannyBorder_8u_C1R_Basic) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIFilterCannyTest, DISABLED_FilterCannyBorder_ErrorHandling) {
   // 测试空指针
   NppStatus status =
@@ -126,7 +126,7 @@ TEST_F(NPPIFilterCannyTest, DISABLED_FilterCannyBorder_ErrorHandling) {
                                    NPP_BORDER_REPLICATE, nullptr);
   EXPECT_NE(status, NPP_SUCCESS);
 
-  // 测试无效掩码尺寸
+  // 测试无效mask尺寸
   status = nppiFilterCannyBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset, nullptr, 32, oDstSizeROI,
                                         NPP_FILTER_SOBEL, static_cast<NppiMaskSize>(-1), 50.0f, 150.0f, nppiNormL2,
                                         NPP_BORDER_REPLICATE, nullptr);

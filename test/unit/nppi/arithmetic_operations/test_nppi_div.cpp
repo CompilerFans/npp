@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_div.cpp
- * @brief NPP 除法函数测试
- */
+// Implementation file
 
 #include "../../../common/npp_test_utils.h"
 #include "../../framework/npp_test_base.h"
@@ -15,8 +12,8 @@ protected:
   void TearDown() override { NppTestBase::TearDown(); }
 };
 
-// NOTE: 此测试被禁用 - NVIDIA NPP的nppiDiv_8u_C1RSfs函数存在严重缺陷
-// 该函数总是返回0而非正确的除法结果，这是NVIDIA NPP库的已知问题
+// NOTE: 此测试被禁用 - vendor NPP的nppiDiv_8u_C1RSfs函数存在严重缺陷
+// 该函数总是返回0而非正确的除法结果，这是vendor NPP库的已知问题
 TEST_F(DivFunctionalTest, Div_8u_C1RSfs_BasicOperation) {
   const int width = 32;
   const int height = 32;
@@ -26,7 +23,7 @@ TEST_F(DivFunctionalTest, Div_8u_C1RSfs_BasicOperation) {
   std::vector<Npp8u> srcData2(width * height);
   std::vector<Npp8u> expectedData(width * height);
 
-  // NVIDIA NPP division: pDst = pSrc2 / pSrc1, not pSrc1 / pSrc2
+  // vendor NPP division: pDst = pSrc2 / pSrc1, not pSrc1 / pSrc2
   // So to get 100/5=20, we need src1=5, src2=100
   TestDataGenerator::generateConstant(srcData1, static_cast<Npp8u>(5));      // divisor
   TestDataGenerator::generateConstant(srcData2, static_cast<Npp8u>(100));    // dividend
@@ -56,7 +53,7 @@ TEST_F(DivFunctionalTest, Div_8u_C1RSfs_BasicOperation) {
   }
 }
 
-// NOTE: 此测试被禁用 - NVIDIA NPP的除法函数存在复杂的参数顺序和缩放问题
+// NOTE: 此测试被禁用 - vendor NPP的除法函数存在复杂的参数顺序和缩放问题
 // 需要进一步研究其确切行为模式
 TEST_F(DivFunctionalTest, Div_32f_C1R_BasicOperation) {
   const int width = 32;
@@ -66,7 +63,7 @@ TEST_F(DivFunctionalTest, Div_32f_C1R_BasicOperation) {
   std::vector<Npp32f> srcData2(width * height);
   std::vector<Npp32f> expectedData(width * height);
 
-  // NVIDIA NPP division: pDst = pSrc2 / pSrc1, not pSrc1 / pSrc2
+  // vendor NPP division: pDst = pSrc2 / pSrc1, not pSrc1 / pSrc2
   // To get 20/4=5, we need src1=4, src2=20
   TestDataGenerator::generateConstant(srcData1, 4.0f);     // divisor
   TestDataGenerator::generateConstant(srcData2, 20.0f);    // dividend

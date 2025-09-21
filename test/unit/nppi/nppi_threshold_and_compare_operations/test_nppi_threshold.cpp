@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_threshold.cpp
- * @brief NPP 阈值处理函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 
@@ -39,7 +36,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_8u_C1R_Less) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiThreshold_8u_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -73,7 +70,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_8u_C1R_Greater) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiThreshold_8u_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -107,7 +104,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_8u_C1IR_InPlace) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiThreshold_8u_C1IR failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   srcDst.copyToHost(resultData);
 
@@ -140,7 +137,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_32f_C1R_Float) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiThreshold_32f_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -149,7 +146,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_32f_C1R_Float) {
 }
 
 // 错误处理测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(ThresholdFunctionalTest, DISABLED_Threshold_ErrorHandling) {
   const int width = 16, height = 16;
   const Npp8u threshold = 128;
@@ -203,7 +200,7 @@ TEST_F(ThresholdFunctionalTest, Threshold_BinaryImage) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "Binary threshold failed";
 
-  // 验证结果 - 检查二值化效果
+  // Validate结果 - 检查二值化效果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 

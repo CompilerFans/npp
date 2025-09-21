@@ -3,24 +3,21 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Copy with Constant Border Functions Implementation
- * Implements nppiCopyConstBorder functions for copying images with constant border extension
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiCopyConstBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
+NppStatus nppiCopyConstBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
                                               int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                               int nLeftBorderWidth, Npp8u nValue, NppStreamContext nppStreamCtx);
-NppStatus nppiCopyConstBorder_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
+NppStatus nppiCopyConstBorder_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
                                               int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                               int nLeftBorderWidth, const Npp8u aValue[3],
                                               NppStreamContext nppStreamCtx);
-NppStatus nppiCopyConstBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp16s *pDst,
+NppStatus nppiCopyConstBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp16s *pDst,
                                                int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                                int nLeftBorderWidth, Npp16s nValue, NppStreamContext nppStreamCtx);
-NppStatus nppiCopyConstBorder_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp32f *pDst,
+NppStatus nppiCopyConstBorder_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp32f *pDst,
                                                int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,
                                                int nLeftBorderWidth, Npp32f nValue, NppStreamContext nppStreamCtx);
 }
@@ -66,7 +63,7 @@ NppStatus nppiCopyConstBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
     return status;
   }
 
-  return nppiCopyConstBorder_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI, nTopBorderHeight,
+  return nppiCopyConstBorder_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI, nTopBorderHeight,
                                              nLeftBorderWidth, nValue, nppStreamCtx);
 }
 
@@ -92,7 +89,7 @@ NppStatus nppiCopyConstBorder_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
     return NPP_NULL_POINTER_ERROR;
   }
 
-  return nppiCopyConstBorder_8u_C3R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI, nTopBorderHeight,
+  return nppiCopyConstBorder_8u_C3R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI, nTopBorderHeight,
                                              nLeftBorderWidth, aValue, nppStreamCtx);
 }
 
@@ -115,7 +112,7 @@ NppStatus nppiCopyConstBorder_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Nppi
     return status;
   }
 
-  return nppiCopyConstBorder_16s_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI,
+  return nppiCopyConstBorder_16s_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI,
                                               nTopBorderHeight, nLeftBorderWidth, nValue, nppStreamCtx);
 }
 
@@ -138,7 +135,7 @@ NppStatus nppiCopyConstBorder_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Nppi
     return status;
   }
 
-  return nppiCopyConstBorder_32f_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI,
+  return nppiCopyConstBorder_32f_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, pDst, nDstStep, oDstSizeROI,
                                               nTopBorderHeight, nLeftBorderWidth, nValue, nppStreamCtx);
 }
 

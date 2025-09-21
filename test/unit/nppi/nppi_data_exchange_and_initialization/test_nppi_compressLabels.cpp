@@ -27,7 +27,7 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsGetBufferSize_Basic) {
 }
 
 // 测试缓冲区大小获取错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPICompressLabelsTest, DISABLED_CompressMarkerLabelsGetBufferSize_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiCompressMarkerLabelsGetBufferSize_32u_C1R(100, nullptr);
@@ -89,7 +89,7 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
 
   cudaMemcpy(d_markers, markerData.data(), dataSize * sizeof(Npp32u), cudaMemcpyHostToDevice);
 
-  // 调用标签压缩
+  // Call标签压缩
   int newMarkerLabelsNumber = 0;
   status = nppiCompressMarkerLabelsUF_32u_C1IR(d_markers, markersStep, oMarkerLabelsROI, 1, &newMarkerLabelsNumber,
                                                d_buffer);
@@ -100,7 +100,7 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
   std::vector<Npp32u> resultData(dataSize);
   cudaMemcpy(resultData.data(), d_markers, dataSize * sizeof(Npp32u), cudaMemcpyDeviceToHost);
 
-  // 验证结果：检查标签是否连续
+  // Validate结果：检查标签是否连续
   std::set<Npp32u> uniqueLabels;
   for (size_t i = 0; i < dataSize; i++) {
     if (resultData[i] > 0) {
@@ -108,10 +108,10 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
     }
   }
 
-  // 根据NVIDIA NPP的实际行为调整期望
-  // NVIDIA NPP的CompressMarkerLabelsUF算法有特定的语义：
+  // 根据vendor NPP的实际行为调整期望
+  // vendor NPP的CompressMarkerLabelsUF算法有特定的语义：
   // newMarkerLabelsNumber表示压缩算法的内部计数，不一定等于输出中的unique标签数
-  // 这是NVIDIA NPP算法的正常行为
+  // 这是vendor NPP算法的正常行为
   EXPECT_GT(newMarkerLabelsNumber, 0);
   EXPECT_GT((int)uniqueLabels.size(), 0);
 
@@ -119,7 +119,7 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPICompressLabelsTest, DISABLED_CompressMarkerLabelsUF_ErrorHandling) {
   // 测试空指针
   int newCount = 0;

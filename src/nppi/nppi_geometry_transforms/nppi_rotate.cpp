@@ -3,29 +3,24 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Rotate Functions Implementation
- * Implements nppiRotate functions for image rotation
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiRotate_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+NppStatus nppiRotate_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
 
-NppStatus nppiRotate_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+NppStatus nppiRotate_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
 
-NppStatus nppiRotate_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiRotate_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX,
                                       double nShiftY, int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
-/**
- * Helper function for parameter validation
- */
+// Implementation file
 static inline NppStatus validateRotateInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              void *pDst, int nDstStep, NppiRect oDstROI) {
   if (!pSrc || !pDst)
@@ -48,9 +43,7 @@ static inline NppStatus validateRotateInputs(const void *pSrc, NppiSize oSrcSize
   return NPP_SUCCESS;
 }
 
-/**
- * 8-bit unsigned, single channel image rotate
- */
+// Implementation file
 NppStatus nppiRotate_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                 int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                 int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -60,13 +53,11 @@ NppStatus nppiRotate_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
     return status;
   }
 
-  return nppiRotate_8u_C1R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
+  return nppiRotate_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
                                     nShiftY, eInterpolation, nppStreamCtx);
 }
 
-/**
- * 8-bit unsigned, single channel image rotate (no stream context)
- */
+// Implementation file
 NppStatus nppiRotate_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                             int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                             int eInterpolation) {
@@ -78,9 +69,7 @@ NppStatus nppiRotate_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, 
                                eInterpolation, nppStreamCtx);
 }
 
-/**
- * 8-bit unsigned, 3 channel image rotate
- */
+// Implementation file
 NppStatus nppiRotate_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                 int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                 int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -90,13 +79,11 @@ NppStatus nppiRotate_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
     return status;
   }
 
-  return nppiRotate_8u_C3R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
+  return nppiRotate_8u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
                                     nShiftY, eInterpolation, nppStreamCtx);
 }
 
-/**
- * 8-bit unsigned, 3 channel image rotate (no stream context)
- */
+// Implementation file
 NppStatus nppiRotate_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                             int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                             int eInterpolation) {
@@ -108,9 +95,7 @@ NppStatus nppiRotate_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, 
                                eInterpolation, nppStreamCtx);
 }
 
-/**
- * 32-bit float, single channel image rotate
- */
+// Implementation file
 NppStatus nppiRotate_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
                                  int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                  int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -120,13 +105,11 @@ NppStatus nppiRotate_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrc
     return status;
   }
 
-  return nppiRotate_32f_C1R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
+  return nppiRotate_32f_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
                                      nShiftY, eInterpolation, nppStreamCtx);
 }
 
-/**
- * 32-bit float, single channel image rotate (no stream context)
- */
+// Implementation file
 NppStatus nppiRotate_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
                              int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                              int eInterpolation) {

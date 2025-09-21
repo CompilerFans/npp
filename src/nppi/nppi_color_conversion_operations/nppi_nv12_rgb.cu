@@ -2,17 +2,7 @@
 #include <cstdint>
 #include <cuda_runtime.h>
 
-/**
- * CUDA Kernels for NV12 to RGB Conversion
- *
- * NV12 Format:
- * - Y plane: Luminance values (8-bit unsigned)
- * - UV plane: Interleaved U/V chroma values (8-bit unsigned, half resolution)
- *
- * Conversion Matrices:
- * ITU-R BT.601: Standard definition
- * ITU-R BT.709: High definition
- */
+// Implementation file
 
 // ITU-R BT.601 coefficients (standard definition)
 __constant__ float YUV2RGB_BT601[9] = {
@@ -28,9 +18,7 @@ __constant__ float YUV2RGB_BT709[9] = {
     1.164f, 2.112f,  0.000f   // B = 1.164*(Y-16) + 2.112*(U-128)
 };
 
-/**
- * Convert NV12 to RGB using specified coefficients
- */
+// Implementation file
 __device__ inline void nv12_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b,
                                          const float *coeffs) {
   // Convert to floating point and apply offset
@@ -49,9 +37,7 @@ __device__ inline void nv12_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_
   b = (uint8_t)fmaxf(0.0f, fminf(255.0f, fb + 0.5f));
 }
 
-/**
- * NV12 to RGB kernel using BT.601 coefficients
- */
+// Implementation file
 __global__ void nv12_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYStep, const uint8_t *__restrict__ srcUV,
                                    int srcUVStep, uint8_t *__restrict__ dst, int dstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -81,9 +67,7 @@ __global__ void nv12_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYSte
   dst[dst_offset + 2] = B;
 }
 
-/**
- * NV12 to RGB kernel using BT.709 coefficients
- */
+// Implementation file
 __global__ void nv12_to_rgb_709_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                        const uint8_t *__restrict__ srcUV, int srcUVStep, uint8_t *__restrict__ dst,
                                        int dstStep, int width, int height) {
@@ -114,9 +98,7 @@ __global__ void nv12_to_rgb_709_kernel(const uint8_t *__restrict__ srcY, int src
   dst[dst_offset + 2] = B;
 }
 
-/**
- * Host function for NV12 to RGB conversion (BT.601)
- */
+// Implementation file
 extern "C" cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
                                                      int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                      cudaStream_t stream) {
@@ -124,16 +106,14 @@ extern "C" cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSr
   dim3 blockSize(16, 16); // 256 threads per block
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // 启动内核
+  // 启动kernel
   nv12_to_rgb_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
                                                          oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
 
-/**
- * Host function for NV12 to RGB conversion (BT.709)
- */
+// Implementation file
 extern "C" cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
                                                             int nSrcUVStep, Npp8u *pDst, int nDstStep,
                                                             NppiSize oSizeROI, cudaStream_t stream) {
@@ -141,17 +121,14 @@ extern "C" cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // 启动BT.709内核
+  // 启动BT.709kernel
   nv12_to_rgb_709_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
                                                              oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
 
-/**
- * Convert NV12 to RGB using custom color twist matrix
- * Used by TorchCodec for precise BT.709 full range conversion
- */
+// Implementation file
 __device__ inline void nv12_to_rgb_colortwist_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b,
                                                     const float *twist) {
   // Convert to floating point (no offset applied - handled in matrix)
@@ -170,9 +147,7 @@ __device__ inline void nv12_to_rgb_colortwist_pixel(uint8_t y, uint8_t u, uint8_
   b = (uint8_t)fmaxf(0.0f, fminf(255.0f, fb + 0.5f));
 }
 
-/**
- * NV12 to RGB kernel using custom ColorTwist matrix
- */
+// Implementation file
 __global__ void nv12_to_rgb_colortwist_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                               const uint8_t *__restrict__ srcUV, int srcUVStep,
                                               uint8_t *__restrict__ dst, int dstStep, int width, int height,
@@ -204,9 +179,7 @@ __global__ void nv12_to_rgb_colortwist_kernel(const uint8_t *__restrict__ srcY, 
   dst[dst_offset + 2] = B;
 }
 
-/**
- * Host function for NV12 to RGB conversion with ColorTwist matrix
- */
+// Implementation file
 extern "C" cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep,
                                                                    const Npp8u *pSrcUV, int nSrcUVStep, Npp8u *pDst,
                                                                    int nDstStep, NppiSize oSizeROI,
@@ -236,7 +209,7 @@ extern "C" cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // 启动ColorTwist内核
+  // 启动ColorTwistkernel
   nv12_to_rgb_colortwist_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst,
                                                                     nDstStep, oSizeROI.width, oSizeROI.height, d_twist);
 

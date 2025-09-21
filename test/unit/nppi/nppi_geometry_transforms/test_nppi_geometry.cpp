@@ -58,7 +58,7 @@ TEST_F(GeometryTest, Mirror_HorizontalAxis) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 - 第一行应该变成最后一行
+  // Validate结果 - 第一行应该变成最后一行
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       EXPECT_EQ(h_dst[y * width + x], h_src[(height - 1 - y) * width + x]);
@@ -86,7 +86,7 @@ TEST_F(GeometryTest, Mirror_VerticalAxis) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 - 第一列应该变成最后一列
+  // Validate结果 - 第一列应该变成最后一列
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       EXPECT_EQ(h_dst[y * width + x], h_src[y * width + (width - 1 - x)]);
@@ -114,7 +114,7 @@ TEST_F(GeometryTest, Mirror_BothAxis) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 - 应该是180度旋转
+  // Validate结果 - 应该是180度旋转
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       EXPECT_EQ(h_dst[y * width + x], h_src[(height - 1 - y) * width + (width - 1 - x)]);
@@ -140,7 +140,7 @@ TEST_F(GeometryTest, Mirror_InPlace) {
   err = cudaMemcpy2D(h_dst.data(), width, d_src, step_src, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果
+  // Validate结果
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       EXPECT_EQ(h_dst[y * width + x], h_src[(height - 1 - y) * width + x]);
@@ -148,9 +148,9 @@ TEST_F(GeometryTest, Mirror_InPlace) {
   }
 }
 
-// 参数验证测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// Parameter validation测试
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(GeometryParameterTest, DISABLED_NullPointerError) {
   NppiSize size = {10, 10};
   int step = 10;
@@ -160,8 +160,8 @@ TEST(GeometryParameterTest, DISABLED_NullPointerError) {
   EXPECT_EQ(nppiMirror_8u_C1R(&dummy, step, nullptr, step, size, NPP_HORIZONTAL_AXIS), NPP_NULL_POINTER_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(GeometryParameterTest, DISABLED_InvalidSize) {
   Npp8u dummy = 0; // 初始化以避免警告
   int step = 10;
@@ -175,8 +175,8 @@ TEST(GeometryParameterTest, DISABLED_InvalidSize) {
   EXPECT_EQ(nppiMirror_8u_C1R(&dummy, step, &dummy, step, size, NPP_VERTICAL_AXIS), NPP_SIZE_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(GeometryParameterTest, DISABLED_InvalidFlipAxis) {
   Npp8u dummy = 0; // 初始化以避免警告
   int step = 10;

@@ -3,9 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * CUDA kernels for Canny Edge Detection
- */
+// Implementation file
 
 // Sobel X和Y方向的核
 __constant__ float c_sobelX[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
@@ -261,7 +259,7 @@ __global__ void cannyEdgeTracing_kernel(Npp8u *pDst, int nDstStep, int width, in
 extern "C" {
 
 // 获取Canny边缘检测所需缓冲区大小
-NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int *hpBufferSize) {
+NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize) {
   size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
 
   // 需要多个临时缓冲区：
@@ -278,7 +276,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, 
 }
 
 // Canny边缘检测主函数
-NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
+NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
                                                 NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                 NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
                                                 Npp16s nLowThreshold, Npp16s nHighThreshold, NppiNorm eNorm,

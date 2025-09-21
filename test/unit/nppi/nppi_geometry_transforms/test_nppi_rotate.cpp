@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_rotate.cpp
- * @brief NPP 图像旋转函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -65,7 +62,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C1R_Ctx_90Degrees) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证旋转 - 检查是否有非零值
+  // Validate旋转 - 检查是否有非零值
   int nonZeroCount = 0;
   for (const auto &val : dstData) {
     if (val != 0)
@@ -123,7 +120,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C3R_Ctx_45Degrees) {
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证旋转 - 只检查是否有任何非零数据
+  // Validate旋转 - 只检查是否有任何非零数据
   int totalNonZero = 0;
   for (int i = 0; i < width * height * 3; i++) {
     if (dstData[i] > 0)
@@ -173,7 +170,7 @@ TEST_F(RotateFunctionalTest, Rotate_32f_C1R_Ctx_180Degrees) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证180度旋转 - 只检查是否有数据被旋转
+  // Validate180度旋转 - 只检查是否有数据被旋转
   int nonZeroCount = 0;
   for (const auto &val : dstData) {
     if (val > 0.001f)

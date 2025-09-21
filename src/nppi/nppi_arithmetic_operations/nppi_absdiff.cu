@@ -3,9 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Absolute Difference Functions
- */
+// Implementation file
 
 // Kernel for 8-bit unsigned single channel absolute difference
 __global__ void nppiAbsDiff_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
@@ -64,7 +62,7 @@ __global__ void nppiAbsDiff_32f_C1R_kernel(const Npp32f *pSrc1, int nSrc1Step, c
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiAbsDiff_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAbsDiff_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -81,7 +79,7 @@ NppStatus nppiAbsDiff_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiAbsDiff_8u_C3R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAbsDiff_8u_C3R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -98,7 +96,7 @@ NppStatus nppiAbsDiff_8u_C3R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
 }
 
 // 32-bit float single channel implementation
-NppStatus nppiAbsDiff_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+NppStatus nppiAbsDiff_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
                                        Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

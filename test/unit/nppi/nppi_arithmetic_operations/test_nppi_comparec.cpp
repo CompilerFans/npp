@@ -33,7 +33,7 @@ protected:
     }
   }
 
-  // 辅助函数：验证CompareC结果
+  // 辅助函数：ValidateCompareC结果
   template <typename T>
   void verifyCompareC(const std::vector<T> &src, const std::vector<Npp8u> &result, T constant, NppCmpOp operation) {
     for (size_t i = 0; i < result.size(); i++) {
@@ -82,14 +82,14 @@ TEST_F(NPPICompareCTest, CompareC_8u_C1R_Less) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_LESS);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCompareC(srcData, dstData, constant, NPP_CMP_LESS);
 
   // 清理GPU内存
@@ -122,14 +122,14 @@ TEST_F(NPPICompareCTest, CompareC_8u_C1R_Equal) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_EQ);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCompareC(srcData, dstData, constant, NPP_CMP_EQ);
 
   // 清理GPU内存
@@ -157,14 +157,14 @@ TEST_F(NPPICompareCTest, CompareC_8u_C1R_Greater) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_GREATER);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCompareC(srcData, dstData, constant, NPP_CMP_GREATER);
 
   // 清理GPU内存
@@ -194,14 +194,14 @@ TEST_F(NPPICompareCTest, CompareC_16s_C1R) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp16s), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数 - 测试小于等于
+  // CallNPP函数 - 测试小于等于
   NppStatus status = nppiCompareC_16s_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_LESS_EQ);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCompareC(srcData, dstData, constant, NPP_CMP_LESS_EQ);
 
   // 清理GPU内存
@@ -233,14 +233,14 @@ TEST_F(NPPICompareCTest, CompareC_32f_C1R) {
   // 拷贝数据到GPU
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数 - 测试大于等于
+  // CallNPP函数 - 测试大于等于
   NppStatus status = nppiCompareC_32f_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_GREATER_EQ);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCompareC(srcData, dstData, constant, NPP_CMP_GREATER_EQ);
 
   // 清理GPU内存
@@ -270,16 +270,16 @@ TEST_F(NPPICompareCTest, CompareC_8u_C1R_Ctx) {
 
   // 创建流上下文
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiCompareC_8u_C1R_Ctx(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_LESS, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyCompareC(srcData, dstData, constant, NPP_CMP_LESS);
 
   // 清理GPU内存
@@ -317,7 +317,7 @@ TEST_F(NPPICompareCTest, CompareC_AllOperations) {
     // 拷贝结果回主机
     cudaMemcpy(dstData.data(), d_dst, 5 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-    // 验证结果
+    // Validate结果
     verifyCompareC(srcData, dstData, constant, op);
   }
 
@@ -327,7 +327,7 @@ TEST_F(NPPICompareCTest, CompareC_AllOperations) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPICompareCTest, DISABLED_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiCompareC_8u_C1R(nullptr, 32, 100, nullptr, 32, roi, NPP_CMP_LESS);

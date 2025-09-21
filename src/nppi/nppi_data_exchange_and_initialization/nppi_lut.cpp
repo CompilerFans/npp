@@ -3,20 +3,17 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Look-Up Table (LUT) Functions Implementation
- * Implements nppiLUT functions for look-up table transformations
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiLUT_Linear_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiLUT_Linear_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiLUT_Linear_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiLUT_Linear_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
                                           NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
                                           NppStreamContext nppStreamCtx);
 }
@@ -57,7 +54,7 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
     return status;
   }
 
-  return nppiLUT_Linear_8u_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
+  return nppiLUT_Linear_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
                                         nppStreamCtx);
 }
 
@@ -72,7 +69,7 @@ NppStatus nppiLUT_Linear_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
 NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
                                     NppStreamContext nppStreamCtx) {
-  // 验证基本参数
+  // Validate基本参数
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -89,7 +86,7 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
     return NPP_STEP_ERROR;
   }
 
-  // 验证每个通道的参数
+  // Validate每个通道的参数
   for (int c = 0; c < 3; c++) {
     if (!pValues[c] || !pLevels[c]) {
       return NPP_NULL_POINTER_ERROR;
@@ -99,7 +96,7 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
     }
   }
 
-  return nppiLUT_Linear_8u_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
+  return nppiLUT_Linear_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
                                         nppStreamCtx);
 }
 
@@ -119,7 +116,7 @@ NppStatus nppiLUT_Linear_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *p
     return status;
   }
 
-  return nppiLUT_Linear_16u_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
+  return nppiLUT_Linear_16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
                                          nppStreamCtx);
 }
 

@@ -46,7 +46,7 @@ protected:
     }
   }
 
-  // 验证RGB值在合理范围内
+  // ValidateRGB值在合理bounds内
   bool isValidRGB(Npp8u r, Npp8u g, Npp8u b) {
     // Npp8u is unsigned char, so values are always 0-255
     (void)r;
@@ -86,11 +86,11 @@ TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R) {
   NppStatus status = nppiNV12ToRGB_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
   EXPECT_EQ(status, NPP_NO_ERROR);
 
-  // 读取结果验证
+  // 读取结果Validate
   std::vector<Npp8u> hostRGB(rgbStep * height);
   cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
 
-  // 验证几个像素点
+  // Validate几个像素点
   for (int y = 0; y < height; y += 8) {
     for (int x = 0; x < width; x += 8) {
       int rgbIdx = y * rgbStep + x * 3;
@@ -135,17 +135,17 @@ TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R_Ctx) {
 
   // 创建Stream Context
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
   // 执行转换 (Context版本)
   NppStatus status = nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, width, d_rgb, rgbStep, roi, nppStreamCtx);
   EXPECT_EQ(status, NPP_NO_ERROR) << "Basic NV12ToRGB Context conversion failed";
 
-  // 读取结果验证
+  // 读取结果Validate
   std::vector<Npp8u> hostRGB(rgbStep * height);
   cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
 
-  // 验证几个像素点并计算有效像素数量
+  // Validate几个像素点并计算有效像素数量
   bool hasValidPixels = false;
   int validPixelCount = 0;
 
@@ -203,11 +203,11 @@ TEST_F(NV12ToRGBTest, NV12ToRGB_709CSC_8u_P2C3R) {
   NppStatus status = nppiNV12ToRGB_709CSC_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
   EXPECT_EQ(status, NPP_NO_ERROR);
 
-  // 读取结果验证
+  // 读取结果Validate
   std::vector<Npp8u> hostRGB(rgbStep * height);
   cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
 
-  // 验证转换结果
+  // Validate转换结果
   bool hasValidPixels = false;
   for (int y = 0; y < height; y += 4) {
     for (int x = 0; x < width; x += 4) {
@@ -255,17 +255,17 @@ TEST_F(NV12ToRGBTest, NV12ToRGB_709CSC_8u_P2C3R_Ctx) {
 
   // 创建Stream Context
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
   // 执行BT.709转换 (Context版本)
   NppStatus status = nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, width, d_rgb, rgbStep, roi, nppStreamCtx);
   EXPECT_EQ(status, NPP_NO_ERROR) << "BT.709 CSC Context conversion failed";
 
-  // 读取结果验证
+  // 读取结果Validate
   std::vector<Npp8u> hostRGB(rgbStep * height);
   cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
 
-  // 验证转换结果
+  // Validate转换结果
   bool hasValidPixels = false;
   int validPixelCount = 0;
 
@@ -352,17 +352,17 @@ TEST_F(NV12ToRGBTest, NV12ToRGB_709HDTV_8u_P2C3R_Ctx) {
 
   // 创建Stream Context
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
   // 执行HDTV转换 (Context版本)
   NppStatus status = nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, width, d_rgb, rgbStep, roi, nppStreamCtx);
   EXPECT_EQ(status, NPP_NO_ERROR) << "BT.709 HDTV Context conversion failed";
 
-  // 读取结果验证
+  // 读取结果Validate
   std::vector<Npp8u> hostRGB(rgbStep * height);
   cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
 
-  // 验证转换结果 - HDTV转换应该产生有效的RGB值
+  // Validate转换结果 - HDTV转换应该产生有效的RGB值
   bool hasValidPixels = false;
   int validPixelCount = 0;
 
@@ -491,7 +491,7 @@ protected:
   int yLinesize, uvLinesize;
 };
 
-// 测试TorchCodec中使用的BT.709全范围转换（使用自定义ColorTwist矩阵）
+// 测试TorchCodec中使用的BT.709全bounds转换（使用自定义ColorTwist矩阵）
 TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
   std::vector<Npp8u> yData, uvData;
   createTorchCodecNV12Data(yData, uvData);
@@ -559,7 +559,7 @@ TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
 
   EXPECT_EQ(status, NPP_SUCCESS) << "BT.601 conversion failed";
 
-  // 验证输出有效性
+  // Validate输出有效性
   std::vector<Npp8u> hostRGB(rgbStep * height);
   cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
 

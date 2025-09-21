@@ -2,10 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP CFA to RGB Conversion Functions
- * Implements Bayer pattern demosaicing using bilinear interpolation
- */
+// Implementation file
 
 // Simple bilinear demosaicing kernel for CFA data
 template <typename T>
@@ -197,7 +194,7 @@ __global__ void nppiCFAToRGB_bilinear_kernel(const T *pSrc, int nSrcStep, NppiSi
 extern "C" {
 
 // 8-bit unsigned implementation
-NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
+NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                          NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -215,7 +212,7 @@ NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSi
 }
 
 // 16-bit unsigned implementation
-NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
+NppStatus nppiCFAToRGB_16u_C1C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                           Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                           NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

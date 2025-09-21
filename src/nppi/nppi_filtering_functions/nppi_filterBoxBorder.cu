@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Box Filter with Border Functions
- */
+// Implementation file
 
 // Device function to handle border pixel access
 template <typename T>
@@ -223,7 +221,7 @@ __global__ void nppiFilterBoxBorder_32f_C1R_kernel(const Npp32f *pSrc, int nSrcS
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                               NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,
                                               NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                               NppStreamContext nppStreamCtx) {
@@ -243,7 +241,7 @@ NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, N
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiFilterBoxBorder_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                               NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,
                                               NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                               NppStreamContext nppStreamCtx) {
@@ -263,7 +261,7 @@ NppStatus nppiFilterBoxBorder_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, N
 }
 
 // 16-bit signed single channel implementation
-NppStatus nppiFilterBoxBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                NppiPoint oSrcOffset, Npp16s *pDst, int nDstStep, NppiSize oDstSizeROI,
                                                NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                                NppStreamContext nppStreamCtx) {
@@ -283,7 +281,7 @@ NppStatus nppiFilterBoxBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep,
 }
 
 // 32-bit float single channel implementation
-NppStatus nppiFilterBoxBorder_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                NppiPoint oSrcOffset, Npp32f *pDst, int nDstStep, NppiSize oDstSizeROI,
                                                NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                                NppStreamContext nppStreamCtx) {

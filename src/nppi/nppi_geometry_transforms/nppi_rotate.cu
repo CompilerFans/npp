@@ -3,15 +3,11 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Rotate operations
- */
+// Implementation file
 
 #define M_PI 3.14159265358979323846
 
-/**
- * kernel for rotating 8-bit unsigned single channel image
- */
+// Implementation file
 __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp8u *__restrict__ pDst, int nDstStep, NppiRect oDstROI, double nAngle,
                                      double nShiftX, double nShiftY) {
@@ -52,9 +48,7 @@ __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oS
   }
 }
 
-/**
- * kernel for rotating 8-bit unsigned 3 channel image
- */
+// Implementation file
 __global__ void rotate_8u_C3R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp8u *__restrict__ pDst, int nDstStep, NppiRect oDstROI, double nAngle,
                                      double nShiftX, double nShiftY) {
@@ -100,9 +94,7 @@ __global__ void rotate_8u_C3R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oS
   }
 }
 
-/**
- * kernel for rotating 32-bit float single channel image
- */
+// Implementation file
 __global__ void rotate_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep,
                                       NppiRect oSrcROI, Npp32f *__restrict__ pDst, int nDstStep, NppiRect oDstROI,
                                       double nAngle, double nShiftX, double nShiftY) {
@@ -145,10 +137,8 @@ __global__ void rotate_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, NppiSize 
 
 extern "C" {
 
-/**
- * CUDA implementation for nppiRotate_8u_C1R_Ctx
- */
-NppStatus nppiRotate_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+// Implementation file
+NppStatus nppiRotate_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
 
@@ -156,7 +146,7 @@ NppStatus nppiRotate_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int n
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   rotate_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst,
                                                                          nDstStep, oDstROI, nAngle, nShiftX, nShiftY);
 
@@ -169,10 +159,8 @@ NppStatus nppiRotate_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int n
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation for nppiRotate_8u_C3R_Ctx
- */
-NppStatus nppiRotate_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+// Implementation file
+NppStatus nppiRotate_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
 
@@ -180,7 +168,7 @@ NppStatus nppiRotate_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int n
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   rotate_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst,
                                                                          nDstStep, oDstROI, nAngle, nShiftX, nShiftY);
 
@@ -193,10 +181,8 @@ NppStatus nppiRotate_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int n
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation for nppiRotate_32f_C1R_Ctx
- */
-NppStatus nppiRotate_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+// Implementation file
+NppStatus nppiRotate_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX,
                                       double nShiftY, int eInterpolation, NppStreamContext nppStreamCtx) {
 
@@ -204,7 +190,7 @@ NppStatus nppiRotate_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   rotate_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst,
                                                                           nDstStep, oDstROI, nAngle, nShiftX, nShiftY);
 

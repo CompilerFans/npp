@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// RGB到YUV转换的内核实现
+// RGB到YUV转换的kernel实现
 // 使用ITU-R BT.601标准转换公式
 __global__ void nppiRGBToYUV_8u_C3R_kernel_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                 int height) {
@@ -35,7 +35,7 @@ __global__ void nppiRGBToYUV_8u_C3R_kernel_impl(const Npp8u *pSrc, int nSrcStep,
   }
 }
 
-// YUV到RGB转换的内核实现
+// YUV到RGB转换的kernel实现
 __global__ void nppiYUVToRGB_8u_C3R_kernel_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                 int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;

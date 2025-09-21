@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_mul.cpp
- * @brief NPP 乘法函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 

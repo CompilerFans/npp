@@ -3,28 +3,22 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Affine Warp Operations Implementation
- * Applies affine transformation to images
- * 支持仿射变换，包括旋转、缩放、平移和剪切
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiWarpAffine_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiWarpAffine_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiWarpAffine_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiWarpAffine_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiWarpAffine_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiWarpAffine_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                           Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                           int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
-/**
- * Validate common input parameters for warp affine operations
- */
+// Implementation file
 static inline NppStatus validateWarpAffineInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                  void *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                                  int eInterpolation) {
@@ -62,9 +56,7 @@ static inline NppStatus validateWarpAffineInputs(const void *pSrc, NppiSize oSrc
   return NPP_SUCCESS;
 }
 
-/**
- * 8-bit unsigned single channel affine warp
- */
+// Implementation file
 NppStatus nppiWarpAffine_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -74,7 +66,7 @@ NppStatus nppiWarpAffine_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nS
     return status;
   }
 
-  return nppiWarpAffine_8u_C1R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+  return nppiWarpAffine_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                         eInterpolation, nppStreamCtx);
 }
 
@@ -86,9 +78,7 @@ NppStatus nppiWarpAffine_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
                                    nppStreamCtx);
 }
 
-/**
- * 8-bit unsigned three channel affine warp
- */
+// Implementation file
 NppStatus nppiWarpAffine_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -98,7 +88,7 @@ NppStatus nppiWarpAffine_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nS
     return status;
   }
 
-  return nppiWarpAffine_8u_C3R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+  return nppiWarpAffine_8u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                         eInterpolation, nppStreamCtx);
 }
 
@@ -110,9 +100,7 @@ NppStatus nppiWarpAffine_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
                                    nppStreamCtx);
 }
 
-/**
- * 32-bit float single channel affine warp
- */
+// Implementation file
 NppStatus nppiWarpAffine_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -122,7 +110,7 @@ NppStatus nppiWarpAffine_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int 
     return status;
   }
 
-  return nppiWarpAffine_32f_C1R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+  return nppiWarpAffine_32f_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                          eInterpolation, nppStreamCtx);
 }
 

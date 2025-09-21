@@ -7,7 +7,7 @@
 #include <vector>
 
 // NOTE: nppiLn 函数的测试已被禁用
-// 原因：NVIDIA NPP 的 nppiLn 实现与标准数学计算存在显著差异
+// 原因：vendor NPP 的 nppiLn 实现与标准数学计算存在显著差异
 // 特别是32位浮点数版本返回全零值，与预期的对数计算结果不符
 // 8位整数版本的输出也与数学期望值相差较大
 // 为避免数值计算行为差异导致的测试失败，暂时禁用相关测试
@@ -86,8 +86,8 @@ TEST_F(LnFunctionalTest, Ln_8u_C1RSfs_WithScaling) {
     Npp8u src_val = (Npp8u)std::min((int)std::exp(i % 5 + 1), 255);
     srcData[i] = src_val;
 
-    // NVIDIA NPP behavior for scaling: Based on actual output analysis, mostly returns 0-2
-    // Direct empirical mapping based on NVIDIA NPP output patterns
+    // vendor NPP behavior for scaling: Based on actual output analysis, mostly returns 0-2
+    // Direct empirical mapping based on vendor NPP output patterns
     if (src_val <= 7) {
       expectedData[i] = 0;
     } else if (src_val <= 54) {
@@ -242,7 +242,7 @@ TEST_F(LnFunctionalTest, Ln_32f_C1R_SpecialValues) {
   expectedData[1] = 1.0f;                                    // ln(e) = 1
   expectedData[2] = 2.0f;                                    // ln(e^2) = 2
   expectedData[3] = std::log(0.01f);                         // ln(0.01) ≈ -4.6
-  expectedData[4] = -std::numeric_limits<float>::infinity(); // ln(0) = -inf (NVIDIA NPP behavior)
+  expectedData[4] = -std::numeric_limits<float>::infinity(); // ln(0) = -inf (vendor NPP behavior)
   expectedData[5] = std::numeric_limits<float>::quiet_NaN(); // ln(-1) = NaN
 
   // Allocate GPU memory
@@ -269,7 +269,7 @@ TEST_F(LnFunctionalTest, Ln_32f_C1R_SpecialValues) {
         << "Special value test failed at index " << i << ", src=" << srcData[i];
   }
 
-  // Check special values according to NVIDIA NPP behavior
+  // Check special values according to vendor NPP behavior
   EXPECT_TRUE(std::isinf(resultData[4]) && resultData[4] < 0) << "Expected -inf for ln(0), got " << resultData[4];
   EXPECT_TRUE(std::isnan(resultData[5])) << "Expected NaN for ln(-1), got " << resultData[5];
 

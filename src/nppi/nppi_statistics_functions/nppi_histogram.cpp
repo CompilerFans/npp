@@ -4,23 +4,17 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Histogram Functions Implementation
- * Implements histogram-related functions including nppiEvenLevelsHost
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize);
-NppStatus nppiHistogramEven_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize);
+NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
                                             int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                             NppStreamContext nppStreamCtx);
 }
 
-/**
- * Generate even levels for histogram computation on host
- * This function generates evenly spaced levels for histogram computation
- */
+// Implementation file
 NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBound, Npp32s nUpperBound) {
   // Validate input parameters
   if (!pLevels) {
@@ -50,9 +44,7 @@ NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBoun
   return NPP_SUCCESS;
 }
 
-/**
- * Generate even levels for histogram computation on host (32f version)
- */
+// Implementation file
 NppStatus nppiEvenLevelsHost_32f(Npp32f *pLevels, int nLevels, Npp32f nLowerBound, Npp32f nUpperBound) {
   // Validate input parameters
   if (!pLevels) {
@@ -88,9 +80,7 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, 
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
-/**
- * Get buffer size for histogram computation (with size_t output for large buffers)
- */
+// Implementation file
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
                                                     NppStreamContext nppStreamCtx) {
   // Validate input parameters
@@ -98,7 +88,7 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
     return NPP_NULL_POINTER_ERROR;
   }
 
-  // 流上下文验证 - 接受任何有效的设备ID
+  // 流上下文Validate - 接受任何有效的设备ID
   (void)nppStreamCtx; // 避免未使用警告
 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
@@ -109,12 +99,10 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
     return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
   }
 
-  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(oSizeROI, nLevels, hpBufferSize);
+  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
 }
 
-/**
- * Compute histogram with even levels
- */
+// Implementation file
 NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                        NppStreamContext nppStreamCtx) {
@@ -139,7 +127,7 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  return nppiHistogramEven_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel,
+  return nppiHistogramEven_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel,
                                            pDeviceBuffer, nppStreamCtx);
 }
 

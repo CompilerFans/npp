@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Compare with Constant Functions
- */
+// Implementation file
 
 // Device function for comparison operations
 __device__ inline bool performComparison(float src, float constant, NppCmpOp op) {
@@ -75,7 +73,7 @@ __global__ void nppiCompareC_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, co
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiCompareC_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
+NppStatus nppiCompareC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation,
                                        NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -93,7 +91,7 @@ NppStatus nppiCompareC_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, const Np
 }
 
 // 16-bit signed single channel implementation
-NppStatus nppiCompareC_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, const Npp16s nConstant, Npp8u *pDst,
+NppStatus nppiCompareC_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, const Npp16s nConstant, Npp8u *pDst,
                                         int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation,
                                         NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -111,7 +109,7 @@ NppStatus nppiCompareC_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, const 
 }
 
 // 32-bit float single channel implementation
-NppStatus nppiCompareC_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, const Npp32f nConstant, Npp8u *pDst,
+NppStatus nppiCompareC_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, const Npp32f nConstant, Npp8u *pDst,
                                         int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation,
                                         NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

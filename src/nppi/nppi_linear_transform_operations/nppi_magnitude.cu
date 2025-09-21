@@ -3,15 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Magnitude operations
- * Implements magnitude and magnitude squared for complex numbers
- */
+// Implementation file
 
-/**
- * kernel for computing magnitude from complex numbers
- * magnitude = sqrt(real^2 + imag^2)
- */
+// Implementation file
 __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -30,10 +24,7 @@ __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int n
   }
 }
 
-/**
- * kernel for computing squared magnitude from complex numbers
- * magnitude_sqr = real^2 + imag^2
- */
+// Implementation file
 __global__ void magnitude_sqr_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                              int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -58,7 +49,7 @@ extern "C" {
 // Magnitude function implementations
 // ============================================================================
 
-NppStatus nppiMagnitude_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitude_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -74,7 +65,7 @@ NppStatus nppiMagnitude_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, 
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

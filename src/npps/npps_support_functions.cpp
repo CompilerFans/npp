@@ -2,13 +2,9 @@
 #include <cstdio>
 #include <cuda_runtime.h>
 
-/**
- * NPP Signal Memory Management Functions Implementation
- */
+// Implementation file
 
-/**
- * Template function for generic signal memory allocation
- */
+// Implementation file
 template <typename T> static T *nppsMallocTemplate(size_t nSize) {
   if (nSize == 0) {
     return nullptr;
@@ -58,9 +54,7 @@ Npp64f *nppsMalloc_64f(size_t nSize) { return nppsMallocTemplate<Npp64f>(nSize);
 
 Npp64fc *nppsMalloc_64fc(size_t nSize) { return nppsMallocTemplate<Npp64fc>(nSize); }
 
-/**
- * Free method for any signal memory.
- */
+// Implementation file
 void nppsFree(void *pValues) {
   if (pValues) {
     cudaFree(pValues);

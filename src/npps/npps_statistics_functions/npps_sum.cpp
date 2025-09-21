@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for  kernels (implemented in .cu file)
+// Kernel declarations (implemented in .cu file)
 extern "C" {
 cudaError_t nppsSum_32f_kernel(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
                                cudaStream_t stream);
@@ -11,18 +11,13 @@ cudaError_t nppsSum_32fc_kernel(const Npp32fc *pSrc, size_t nLength, Npp32fc *pS
                                 cudaStream_t stream);
 }
 
-/**
- * NPPS Statistics Functions Implementation - Sum Functions
- * Implements nppsSum functions for 1D signal summation operations.
- */
+// Implementation file
 
 // ==============================================================================
 // Buffer Size Functions - Required for reduction operations
 // ==============================================================================
 
-/**
- * Get buffer size required for 32-bit float sum operation
- */
+// Implementation file
 NppStatus nppsSumGetBufferSize_32f_Ctx(size_t nLength, size_t *hpBufferSize, NppStreamContext nppStreamCtx) {
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
@@ -49,9 +44,7 @@ NppStatus nppsSumGetBufferSize_32f(size_t nLength, size_t *hpBufferSize) {
   return nppsSumGetBufferSize_32f_Ctx(nLength, hpBufferSize, {});
 }
 
-/**
- * Get buffer size required for 32-bit float complex sum operation
- */
+// Implementation file
 NppStatus nppsSumGetBufferSize_32fc_Ctx(size_t nLength, size_t *hpBufferSize, NppStreamContext nppStreamCtx) {
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
@@ -81,9 +74,7 @@ NppStatus nppsSumGetBufferSize_32fc(size_t nLength, size_t *hpBufferSize) {
 // Sum Operations - Element-wise summation of signal values
 // ==============================================================================
 
-/**
- * 32-bit float signal sum
- */
+// Implementation file
 NppStatus nppsSum_32f_Ctx(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
                           NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -114,9 +105,7 @@ NppStatus nppsSum_32f(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *p
   return nppsSum_32f_Ctx(pSrc, nLength, pSum, pDeviceBuffer, defaultContext);
 }
 
-/**
- * 32-bit float complex signal sum
- */
+// Implementation file
 NppStatus nppsSum_32fc_Ctx(const Npp32fc *pSrc, size_t nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer,
                            NppStreamContext nppStreamCtx) {
   // Parameter validation

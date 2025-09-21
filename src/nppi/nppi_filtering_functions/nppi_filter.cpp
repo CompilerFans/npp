@@ -3,20 +3,17 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Filter Functions Implementation
- * Implements general 2D convolution nppiFilter functions
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiFilter_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiFilter_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32s *pKernel, NppiSize oKernelSize, NppiPoint oAnchor, Npp32s nDivisor,
                                      NppStreamContext nppStreamCtx);
-NppStatus nppiFilter_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiFilter_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32s *pKernel, NppiSize oKernelSize, NppiPoint oAnchor, Npp32s nDivisor,
                                      NppStreamContext nppStreamCtx);
-NppStatus nppiFilter_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiFilter_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                       const Npp32f *pKernel, NppiSize oKernelSize, NppiPoint oAnchor,
                                       NppStreamContext nppStreamCtx);
 }
@@ -64,7 +61,7 @@ NppStatus nppiFilter_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst,
     return NPP_DIVISOR_ERROR;
   }
 
-  return nppiFilter_8u_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nDivisor,
+  return nppiFilter_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nDivisor,
                                     nppStreamCtx);
 }
 
@@ -89,7 +86,7 @@ NppStatus nppiFilter_8u_C3R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst,
     return NPP_DIVISOR_ERROR;
   }
 
-  return nppiFilter_8u_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nDivisor,
+  return nppiFilter_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nDivisor,
                                     nppStreamCtx);
 }
 
@@ -110,7 +107,7 @@ NppStatus nppiFilter_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pD
     return status;
   }
 
-  return nppiFilter_32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor,
+  return nppiFilter_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor,
                                      nppStreamCtx);
 }
 

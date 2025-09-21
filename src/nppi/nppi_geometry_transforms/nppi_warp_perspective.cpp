@@ -3,28 +3,22 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Perspective Warp Operations Implementation
- * Applies perspective transformation to images
- * 支持透视变换，包括旋转、缩放、平移、剪切和透视效果
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiWarpPerspective_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiWarpPerspective_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiWarpPerspective_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiWarpPerspective_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiWarpPerspective_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+NppStatus nppiWarpPerspective_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                                int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
-/**
- * Validate common input parameters for warp perspective operations
- */
+// Implementation file
 static inline NppStatus validateWarpPerspectiveInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep,
                                                       NppiRect oSrcROI, void *pDst, int nDstStep, NppiRect oDstROI,
                                                       const double aCoeffs[3][3], int eInterpolation) {
@@ -69,9 +63,7 @@ static inline NppStatus validateWarpPerspectiveInputs(const void *pSrc, NppiSize
   return NPP_SUCCESS;
 }
 
-/**
- * 8-bit unsigned single channel perspective warp
- */
+// Implementation file
 NppStatus nppiWarpPerspective_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -81,7 +73,7 @@ NppStatus nppiWarpPerspective_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, i
     return status;
   }
 
-  return nppiWarpPerspective_8u_C1R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+  return nppiWarpPerspective_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                              eInterpolation, nppStreamCtx);
 }
 
@@ -93,9 +85,7 @@ NppStatus nppiWarpPerspective_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int n
                                         eInterpolation, nppStreamCtx);
 }
 
-/**
- * 8-bit unsigned three channel perspective warp
- */
+// Implementation file
 NppStatus nppiWarpPerspective_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -105,7 +95,7 @@ NppStatus nppiWarpPerspective_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, i
     return status;
   }
 
-  return nppiWarpPerspective_8u_C3R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+  return nppiWarpPerspective_8u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                              eInterpolation, nppStreamCtx);
 }
 
@@ -117,9 +107,7 @@ NppStatus nppiWarpPerspective_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int n
                                         eInterpolation, nppStreamCtx);
 }
 
-/**
- * 32-bit float single channel perspective warp
- */
+// Implementation file
 NppStatus nppiWarpPerspective_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                           Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                           int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -129,7 +117,7 @@ NppStatus nppiWarpPerspective_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize,
     return status;
   }
 
-  return nppiWarpPerspective_32f_C1R_Ctx_cuda(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+  return nppiWarpPerspective_32f_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                               eInterpolation, nppStreamCtx);
 }
 

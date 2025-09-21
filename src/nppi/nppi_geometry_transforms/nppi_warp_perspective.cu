@@ -3,14 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Perspective Warp Operations
- * 实现透视变换的GPU加速计算
- */
+// Implementation file
 
-/**
- * 最近邻插值
- */
+// Implementation file
 template <typename T>
 __device__ T nearestInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   int ix = (int)(fx + 0.5f);
@@ -24,9 +19,7 @@ __device__ T nearestInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize,
   return *src_pixel;
 }
 
-/**
- * 双线性插值
- */
+// Implementation file
 template <typename T>
 __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   int x0 = (int)floorf(fx);
@@ -65,9 +58,7 @@ __device__ T bilinearInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize
   return result;
 }
 
-/**
- * 三次插值（简化的双三次插值）
- */
+// Implementation file
 template <typename T>
 __device__ T cubicInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
   // 简化版本：降级为双线性插值
@@ -75,9 +66,7 @@ __device__ T cubicInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, f
   return bilinearInterpolation<T>(pSrc, nSrcStep, srcSize, fx, fy);
 }
 
-/**
- * 8位单通道透视变换内核
- */
+// Implementation file
 __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                                   double c02, double c10, double c11, double c12, double c20,
@@ -131,9 +120,7 @@ __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oS
   }
 }
 
-/**
- * 8位三通道透视变换内核
- */
+// Implementation file
 __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
                                                   double c02, double c10, double c11, double c12, double c20,
@@ -217,9 +204,7 @@ __global__ void nppiWarpPerspective_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oS
   }
 }
 
-/**
- * 32位浮点单通道透视变换内核
- */
+// Implementation file
 __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
                                                    NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
                                                    double c00, double c01, double c02, double c10, double c11,
@@ -273,10 +258,8 @@ __global__ void nppiWarpPerspective_32f_C1R_kernel(const Npp32f *pSrc, NppiSize 
 
 extern "C" {
 
-/**
- * 8位单通道透视变换CUDA实现
- */
-NppStatus nppiWarpPerspective_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+// Implementation file
+NppStatus nppiWarpPerspective_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
   // 将二维数组转换为单独的参数
@@ -304,10 +287,8 @@ NppStatus nppiWarpPerspective_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSi
   return NPP_SUCCESS;
 }
 
-/**
- * 8位三通道透视变换CUDA实现
- */
-NppStatus nppiWarpPerspective_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+// Implementation file
+NppStatus nppiWarpPerspective_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -334,10 +315,8 @@ NppStatus nppiWarpPerspective_8u_C3R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSi
   return NPP_SUCCESS;
 }
 
-/**
- * 32位浮点单通道透视变换CUDA实现
- */
-NppStatus nppiWarpPerspective_32f_C1R_Ctx_cuda(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+// Implementation file
+NppStatus nppiWarpPerspective_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                                int eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

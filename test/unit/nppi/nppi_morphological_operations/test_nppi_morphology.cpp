@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_morphology.cpp
- * @brief NPP 形态学操作函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <cmath>
@@ -14,7 +11,7 @@ protected:
 
   void TearDown() override { NppTestBase::TearDown(); }
 
-  // Helper function to create test pattern for morphology operations
+  // Function to create test pattern for morphology operations
   void createMorphologyTestImage(std::vector<Npp8u> &data, int width, int height) {
     data.resize(width * height);
 
@@ -56,7 +53,7 @@ TEST_F(MorphologyFunctionalTest, Erode3x3_8u_C1R_Basic) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiErode3x3_8u_C1R failed";
 
-  // 验证结果 - 腐蚀应该缩小白色区域
+  // Validate结果 - 腐蚀应该缩小白色区域
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -104,7 +101,7 @@ TEST_F(MorphologyFunctionalTest, Dilate3x3_8u_C1R_Basic) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiDilate3x3_8u_C1R failed";
 
-  // 验证结果 - 膨胀应该扩大白色区域
+  // Validate结果 - 膨胀应该扩大白色区域
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -149,7 +146,7 @@ TEST_F(MorphologyFunctionalTest, Erode3x3_32f_C1R_Float) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiErode3x3_32f_C1R failed";
 
-  // 验证结果 - 检查浮点数据的正确性
+  // Validate结果 - 检查浮点数据的正确性
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -183,7 +180,7 @@ TEST_F(MorphologyFunctionalTest, Dilate3x3_32f_C1R_Float) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiDilate3x3_32f_C1R failed";
 
-  // 验证结果 - 膨胀应该传播高值
+  // Validate结果 - 膨胀应该传播高值
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -198,7 +195,7 @@ TEST_F(MorphologyFunctionalTest, Dilate3x3_32f_C1R_Float) {
 }
 
 // 错误处理测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(MorphologyFunctionalTest, DISABLED_Morphology_ErrorHandling) {
   const int width = 16, height = 16;
 
@@ -254,16 +251,16 @@ TEST_F(MorphologyFunctionalTest, Morphology_OpenClose_Operations) {
   ASSERT_EQ(status1, NPP_SUCCESS) << "Dilation for closing failed";
   ASSERT_EQ(status2, NPP_SUCCESS) << "Erosion for closing failed";
 
-  // 验证开运算和闭运算产生了不同的结果
+  // Validate开运算和闭运算产生了不同的结果
   std::vector<Npp8u> openingData(width * height);
   std::vector<Npp8u> closingData(width * height);
 
   opening.copyToHost(openingData);
   closing.copyToHost(closingData);
 
-  // 验证开运算和闭运算都成功执行
+  // Validate开运算和闭运算都成功执行
   // 对于某些图像，开运算和闭运算可能产生相同结果，这是正常的
-  // 我们只验证操作成功执行并产生了合理的结果
+  // 我们只Validate操作成功执行并产生了合理的结果
 
   // 统计开运算的非零像素
   int openingNonZero = 0;
@@ -283,5 +280,5 @@ TEST_F(MorphologyFunctionalTest, Morphology_OpenClose_Operations) {
   EXPECT_GT(openingNonZero, 0) << "Opening operation should produce some foreground pixels";
   EXPECT_GT(closingNonZero, 0) << "Closing operation should produce some foreground pixels";
 
-  std::cout << "Morphology OpenClose test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "Morphology OpenClose test passed - vendor NPP behavior verified" << std::endl;
 }

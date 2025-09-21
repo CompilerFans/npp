@@ -3,22 +3,17 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Magnitude Functions Implementation
- * Implements nppiMagnitude and nppiMagnitudeSqr functions for complex to real transformations
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiMagnitude_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitude_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
-/**
- * Helper function for parameter validation
- */
+// Implementation file
 static NppStatus validateMagnitudeParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                              NppiSize oSizeROI, int srcElementSize, int dstElementSize) {
   if (!pSrc || !pDst) {
@@ -43,9 +38,7 @@ static NppStatus validateMagnitudeParameters(const void *pSrc, int nSrcStep, con
 // Magnitude functions
 // ============================================================================
 
-/**
- * 32-bit floating point complex to 32-bit floating point magnitude
- */
+// Implementation file
 NppStatus nppiMagnitude_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status =
@@ -54,7 +47,7 @@ NppStatus nppiMagnitude_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32
     return status;
   }
 
-  return nppiMagnitude_32fc32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMagnitude_32fc32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMagnitude_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -67,9 +60,7 @@ NppStatus nppiMagnitude_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f *p
 // Magnitude squared functions
 // ============================================================================
 
-/**
- * 32-bit floating point complex to 32-bit floating point squared magnitude
- */
+// Implementation file
 NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   NppStatus status =
@@ -78,7 +69,7 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Np
     return status;
   }
 
-  return nppiMagnitudeSqr_32fc32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMagnitudeSqr_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
@@ -91,7 +82,7 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f
 // ==================== 两通道浮点数幅度计算 (未实现) ====================
 
 NppStatus nppiMagnitude_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
-  // 参数验证
+  // Parameter validation
   if (pSrc == nullptr || pDst == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }

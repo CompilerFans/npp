@@ -56,7 +56,7 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_8u16s_C1R_Basic) {
 
   cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数（提供所有必需的输出参数）
+  // CallNPP函数（提供所有必需的输出参数）
   NppStatus status = nppiGradientVectorPrewittBorder_8u16s_C1R(d_src, srcStep, oSrcSizeROI, oSrcOffset, d_x, xStep, d_y,
                                                                yStep, d_mag, magStep, nullptr, 0, oDstSizeROI,
                                                                NPP_MASK_SIZE_3_X_3, nppiNormL2, NPP_BORDER_REPLICATE);
@@ -66,7 +66,7 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_8u16s_C1R_Basic) {
   cudaMemcpy(magData.data(), d_mag, dstDataSize * sizeof(Npp16s), cudaMemcpyDeviceToHost);
   cudaMemcpy(dirData.data(), d_dir, dstDataSize * sizeof(Npp16s), cudaMemcpyDeviceToHost);
 
-  // 基本验证：边缘区域应该有较大的梯度值
+  // 基本Validate：边缘区域应该有较大的梯度值
   bool hasValidGradient = false;
   for (size_t i = 0; i < dstDataSize; i++) {
     if (magData[i] > 100) { // 梯度幅值应该大于100
@@ -98,7 +98,7 @@ TEST_F(NPPIGradientTest, GradientVectorPrewittBorder_ErrorHandling) {
                                                      nppiNormL2, NPP_BORDER_REPLICATE);
   EXPECT_NE(status, NPP_SUCCESS);
 
-  // 测试无效掩码尺寸
+  // 测试无效mask尺寸
   status = nppiGradientVectorPrewittBorder_8u16s_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset, nullptr, 0, nullptr, 0,
                                                      nullptr, 32, nullptr, 0, oDstSizeROI,
                                                      static_cast<NppiMaskSize>(-1), nppiNormL2, NPP_BORDER_REPLICATE);

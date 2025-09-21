@@ -4,9 +4,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
-/**
- * CUDA kernels for Watershed Image Segmentation
- */
+// Implementation file
 
 #define WATERSHED_MASK -2
 #define WATERSHED_WSHED -1
@@ -195,7 +193,7 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
 extern "C" {
 
 // 获取Watershed分割所需缓冲区大小
-NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, size_t *hpBufferSize) {
+NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize) {
   size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
 
   // 需要的缓冲区：
@@ -216,7 +214,7 @@ NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, s
 }
 
 // Watershed分割主函数
-NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_cuda(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
+NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
                                                 Npp32s nMarkerLabelsStep, NppiNorm eNorm, NppiSize oSizeROI,
                                                 Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
   int width = oSizeROI.width;

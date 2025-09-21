@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Linear LUT Functions
- */
+// Implementation file
 
 // Device function for linear interpolation between two points
 __device__ inline int linearInterpolate(int input, int level0, int level1, int value0, int value1) {
@@ -125,7 +123,7 @@ __global__ void nppiLUT_Linear_16u_C1R_kernel(const Npp16u *pSrc, int nSrcStep, 
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiLUT_Linear_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
                                          NppStreamContext nppStreamCtx) {
   // Copy LUT data to device memory
@@ -158,7 +156,7 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u 
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiLUT_Linear_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiLUT_Linear_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
                                          NppStreamContext nppStreamCtx) {
   // Copy LUT data to device memory for each channel
@@ -214,7 +212,7 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u 
 }
 
 // 16-bit unsigned single channel implementation
-NppStatus nppiLUT_Linear_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
                                           NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
                                           NppStreamContext nppStreamCtx) {
   // Copy LUT data to device memory

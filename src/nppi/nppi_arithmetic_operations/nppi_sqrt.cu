@@ -3,13 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Square Root Operations
- */
+// Implementation file
 
-/**
- * kernel for 8-bit unsigned square root with scaling
- */
+// Implementation file
 __global__ void nppiSqrt_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                           int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,12 +17,12 @@ __global__ void nppiSqrt_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u
 
     int src_val = *src_pixel;
 
-    // NVIDIA NPP uses a special mapping for 8-bit Sqrt that differs from mathematical calculation
-    // Based on empirical analysis of NVIDIA NPP behavior
+    // vendor NPP uses a special mapping for 8-bit Sqrt that differs from mathematical calculation
+    // Based on empirical analysis of vendor NPP behavior
     int result = 0;
 
     switch (nScaleFactor) {
-    case 0: // No scaling - matches NVIDIA NPP behavior closely
+    case 0: // No scaling - matches vendor NPP behavior closely
       if (src_val == 0)
         result = 0;
       else if (src_val == 1)
@@ -124,9 +120,7 @@ __global__ void nppiSqrt_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u
   }
 }
 
-/**
- * kernel for 16-bit unsigned square root with scaling
- */
+// Implementation file
 __global__ void nppiSqrt_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
                                            int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -146,9 +140,7 @@ __global__ void nppiSqrt_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp
   }
 }
 
-/**
- * kernel for 16-bit signed square root with scaling
- */
+// Implementation file
 __global__ void nppiSqrt_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
                                            int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -174,9 +166,7 @@ __global__ void nppiSqrt_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp
   }
 }
 
-/**
- * kernel for 32-bit float square root (no scaling)
- */
+// Implementation file
 __global__ void nppiSqrt_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                         int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -188,7 +178,7 @@ __global__ void nppiSqrt_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f
 
     float src_val = *src_pixel;
 
-    // Handle negative values - return NaN to match NVIDIA NPP behavior
+    // Handle negative values - return NaN to match vendor NPP behavior
     if (src_val < 0.0f) {
       *dst_pixel = __fdividef(0.0f, 0.0f); // Generate NaN for negative inputs
     } else {
@@ -199,10 +189,8 @@ __global__ void nppiSqrt_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f
 
 extern "C" {
 
-/**
- * 8-bit unsigned square root with scaling
- */
-NppStatus nppiSqrt_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiSqrt_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                       int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -228,10 +216,8 @@ NppStatus nppiSqrt_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit unsigned square root with scaling
- */
-NppStatus nppiSqrt_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiSqrt_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -257,10 +243,8 @@ NppStatus nppiSqrt_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u 
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit signed square root with scaling
- */
-NppStatus nppiSqrt_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiSqrt_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -286,10 +270,8 @@ NppStatus nppiSqrt_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s 
   return NPP_SUCCESS;
 }
 
-/**
- * 32-bit float square root (no scaling)
- */
-NppStatus nppiSqrt_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiSqrt_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

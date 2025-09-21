@@ -3,19 +3,16 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Threshold Functions Implementation
- * Implements nppiThreshold functions for thresholding images
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiThreshold_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiThreshold_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                         const Npp8u nThreshold, NppCmpOp eComparisonOperation,
                                         NppStreamContext nppStreamCtx);
-NppStatus nppiThreshold_8u_C1IR_Ctx_cuda(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold,
+NppStatus nppiThreshold_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold,
                                          NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx);
-NppStatus nppiThreshold_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiThreshold_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                          NppiSize oSizeROI, const Npp32f nThreshold, NppCmpOp eComparisonOperation,
                                          NppStreamContext nppStreamCtx);
 }
@@ -61,7 +58,7 @@ NppStatus nppiThreshold_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
     return status;
   }
 
-  return nppiThreshold_8u_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
+  return nppiThreshold_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
                                        nppStreamCtx);
 }
 
@@ -81,7 +78,7 @@ NppStatus nppiThreshold_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oS
     return status;
   }
 
-  return nppiThreshold_8u_C1IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
+  return nppiThreshold_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
 NppStatus nppiThreshold_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold,
@@ -100,7 +97,7 @@ NppStatus nppiThreshold_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
     return status;
   }
 
-  return nppiThreshold_32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
+  return nppiThreshold_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
                                         nppStreamCtx);
 }
 

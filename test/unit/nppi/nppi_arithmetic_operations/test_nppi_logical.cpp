@@ -64,7 +64,7 @@ TEST_F(LogicalFunctionalTest, And_8u_C1R) {
   cudaError_t err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 (0xAA & 0x55 = 0x00)
+  // Validate结果 (0xAA & 0x55 = 0x00)
   for (int i = 0; i < width * height; ++i) {
     EXPECT_EQ(h_dst[i], 0x00);
   }
@@ -81,7 +81,7 @@ TEST_F(LogicalFunctionalTest, AndC_8u_C1R) {
   cudaError_t err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 (0xAA & 0x0F = 0x0A)
+  // Validate结果 (0xAA & 0x0F = 0x0A)
   for (int i = 0; i < width * height; ++i) {
     EXPECT_EQ(h_dst[i], 0x0A);
   }
@@ -96,7 +96,7 @@ TEST_F(LogicalFunctionalTest, Or_8u_C1R) {
   cudaError_t err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 (0xAA | 0x55 = 0xFF)
+  // Validate结果 (0xAA | 0x55 = 0xFF)
   for (int i = 0; i < width * height; ++i) {
     EXPECT_EQ(h_dst[i], 0xFF);
   }
@@ -113,14 +113,14 @@ TEST_F(LogicalFunctionalTest, OrC_8u_C1R) {
   cudaError_t err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 (0xAA | 0x0F = 0xAF)
+  // Validate结果 (0xAA | 0x0F = 0xAF)
   for (int i = 0; i < width * height; ++i) {
     EXPECT_EQ(h_dst[i], 0xAF);
   }
 }
 
-// 参数验证测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
+// Parameter validation测试
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
 TEST(LogicalParameterTest, DISABLED_NullPointerError) {
   NppiSize size = {10, 10};
   int step = 10;
@@ -137,7 +137,7 @@ TEST(LogicalParameterTest, DISABLED_NullPointerError) {
   EXPECT_EQ(nppiOr_8u_C1R(&dummy, step, &dummy, step, nullptr, step, size), NPP_NULL_POINTER_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
 TEST(LogicalParameterTest, DISABLED_InvalidSize) {
   Npp8u dummy = 0;
   int step = 10;
@@ -151,7 +151,7 @@ TEST(LogicalParameterTest, DISABLED_InvalidSize) {
   EXPECT_EQ(nppiOr_8u_C1R(&dummy, step, &dummy, step, &dummy, step, size), NPP_SIZE_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
 TEST(LogicalParameterTest, DISABLED_InvalidStep) {
   Npp8u dummy = 0;
   NppiSize size = {10, 10};

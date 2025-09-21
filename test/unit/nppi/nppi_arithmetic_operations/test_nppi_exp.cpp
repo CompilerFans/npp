@@ -24,17 +24,17 @@ TEST_F(ExpFunctionalTest, Exp_8u_C1RSfs_BasicOperation) {
   std::vector<Npp8u> srcData(width * height);
   std::vector<Npp8u> expectedData(width * height);
 
-  // Create test data: values from 0 to 5 (based on NVIDIA NPP testing)
+  // Create test data: values from 0 to 5 (based on vendor NPP testing)
   for (int i = 0; i < width * height; i++) {
     Npp8u src_val = (Npp8u)(i % 6); // Values 0-5
     srcData[i] = src_val;
 
-    // Expected values based on NVIDIA NPP actual behavior (scale factor 0)
+    // Expected values based on vendor NPP actual behavior (scale factor 0)
     // From our testing: Input [0,1,2,3,4,5] -> Output [1,3,7,20,55,148]
     if (src_val == 0)
       expectedData[i] = 1;
     else if (src_val == 1)
-      expectedData[i] = 3; // NVIDIA NPP gives 3, not 2
+      expectedData[i] = 3; // vendor NPP gives 3, not 2
     else if (src_val == 2)
       expectedData[i] = 7;
     else if (src_val == 3)
@@ -129,7 +129,7 @@ TEST_F(ExpFunctionalTest, Exp_32f_C1R_BasicOperation) {
 }
 
 // Test 16-bit signed exponential with scaling
-// 修复：NVIDIA NPP直接计算exp(输入值)，不进行输入缩放
+// 修复：vendor NPP直接计算exp(输入值)，不进行输入缩放
 TEST_F(ExpFunctionalTest, Exp_16s_C1RSfs_BasicOperation) {
   std::vector<Npp16s> srcData(width * height);
   std::vector<Npp16s> expectedData(width * height);
@@ -139,7 +139,7 @@ TEST_F(ExpFunctionalTest, Exp_16s_C1RSfs_BasicOperation) {
     Npp16s src_val = (Npp16s)((i % 21) - 10); // Values from -10 to 10
     srcData[i] = src_val;
 
-    // Expected: NVIDIA NPP computes exp(src_val) directly
+    // Expected: vendor NPP computes exp(src_val) directly
     // This matches observed behavior: input 2 -> output 7 (e^2 ≈ 7.39)
     float exp_val = std::exp((float)src_val);
     int result = (int)(exp_val + 0.5f);

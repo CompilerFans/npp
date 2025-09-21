@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Histogram Functions
- */
+// Implementation file
 
 // Shared memory histogram kernel (more efficient for small histograms)
 __global__ void nppiHistogramEven_8u_C1R_kernel_shared(const Npp8u *pSrc, int nSrcStep, int width, int height,
@@ -73,7 +71,7 @@ __global__ void nppiHistogramEven_8u_C1R_kernel_global(const Npp8u *pSrc, int nS
 extern "C" {
 
 // Get buffer size for histogram computation
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
   // Calculate required buffer size
   // For histogram computation, we need space for temporary data
   size_t histogramSize = (size_t)(nLevels - 1) * sizeof(Npp32s);
@@ -85,7 +83,7 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int 
 }
 
 // Histogram computation with even levels
-NppStatus nppiHistogramEven_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
                                             int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                             NppStreamContext nppStreamCtx) {
   // Initialize histogram to zero

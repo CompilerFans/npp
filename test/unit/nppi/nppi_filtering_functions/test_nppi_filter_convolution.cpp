@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_filter_convolution.cpp
- * @brief NPP 通用2D卷积函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <cmath>
@@ -14,7 +11,7 @@ protected:
 
   void TearDown() override { NppTestBase::TearDown(); }
 
-  // Helper function to create common kernels
+  // Function to create common kernels
   std::vector<Npp32s> createEdgeDetectionKernel() {
     // 3x3 Sobel X edge detection kernel
     return {-1, 0, 1, -2, 0, 2, -1, 0, 1};
@@ -31,7 +28,7 @@ protected:
   }
 };
 
-// 尝试修复CUDA上下文损坏问题后重新启用
+// 尝试修复GPU上下文损坏问题后重新启用
 TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_EdgeDetection) {
   const int width = 16, height = 16;
 
@@ -51,14 +48,14 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_EdgeDetection) {
   // 创建边缘检测卷积核
   std::vector<Npp32s> kernel = createEdgeDetectionKernel();
   NppiSize kernelSize = {3, 3};
-  NppiPoint anchor = {1, 1}; // 中心锚点
+  NppiPoint anchor = {1, 1}; // 中心anchor
   Npp32s divisor = 1;
 
   NppiSize roi = {width, height};
 
-// 根据构建配置选择不同的调用方式
-#ifdef USE_NVIDIA_NPP
-  // NVIDIA NPP使用主机内存中的kernel
+// 根据构建配置选择不同的Call方式
+#ifdef USE_vendor_NPP
+  // vendor NPP使用主机内存中的kernel
   NppStatus status =
       nppiFilter_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, anchor, divisor);
 #else
@@ -76,7 +73,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_EdgeDetection) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilter_8u_C1R edge detection failed";
 
-  // 验证结果 - 边缘区域应该有非零响应
+  // Validate结果 - 边缘区域应该有非零响应
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -114,9 +111,9 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_Sharpen) {
 
   NppiSize roi = {width, height};
 
-// 根据构建配置选择不同的调用方式
-#ifdef USE_NVIDIA_NPP
-  // NVIDIA NPP使用主机内存中的kernel
+// 根据构建配置选择不同的Call方式
+#ifdef USE_vendor_NPP
+  // vendor NPP使用主机内存中的kernel
   NppStatus status =
       nppiFilter_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, anchor, divisor);
 #else
@@ -134,7 +131,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_Sharpen) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilter_8u_C1R sharpen failed";
 
-  // 验证结果 - 中心点应该更亮，周围有对比增强
+  // Validate结果 - 中心点应该更亮，周围有对比增强
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -145,7 +142,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_8u_C1R_Sharpen) {
   EXPECT_GT(resultData[centerIdx], srcData[centerIdx]) << "Sharpening should enhance the center bright point";
 }
 
-// NOTE: 重新启用测试 - 检查CUDA上下文损坏问题是否已解决
+// NOTE: 重新启用测试 - 检查GPU上下文损坏问题是否已解决
 TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C3R_Basic) {
   const int width = 8, height = 8;
 
@@ -183,7 +180,7 @@ TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_8u_C3R_Basic) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilter_8u_C3R failed";
 
-  // 验证结果 - 检查所有通道都被处理，考虑步长对齐
+  // Validate结果 - 检查所有通道都被处理，考虑步长对齐
   std::vector<Npp8u> resultData(width * height * 3);
   for (int y = 0; y < height; y++) {
     cudaMemcpy(resultData.data() + y * width * 3, (char *)dstPtr + y * dstStep, width * 3 * sizeof(Npp8u),
@@ -224,9 +221,9 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_32f_C1R_Gaussian) {
 
   NppiSize roi = {width, height};
 
-// 根据构建配置选择不同的调用方式
-#ifdef USE_NVIDIA_NPP
-  // NVIDIA NPP使用主机内存中的kernel
+// 根据构建配置选择不同的Call方式
+#ifdef USE_vendor_NPP
+  // vendor NPP使用主机内存中的kernel
   NppStatus status =
       nppiFilter_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, anchor);
 #else
@@ -244,7 +241,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_32f_C1R_Gaussian) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiFilter_32f_C1R Gaussian failed";
 
-  // 验证结果 - 脉冲应该被高斯核扩散
+  // Validate结果 - 脉冲应该被高斯核扩散
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -258,7 +255,7 @@ TEST_F(FilterConvolutionFunctionalTest, Filter_32f_C1R_Gaussian) {
 }
 
 // 错误处理测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_ErrorHandling) {
   const int width = 16, height = 16;
 
@@ -287,7 +284,7 @@ TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_ErrorHandling) {
       nppiFilter_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), evenKernelSize, anchor, 1);
   EXPECT_NE(status, NPP_SUCCESS) << "Should fail with even kernel size";
 
-  // 测试无效锚点
+  // 测试无效anchor
   NppiPoint invalidAnchor = {-1, -1};
   status =
       nppiFilter_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, kernel.data(), kernelSize, invalidAnchor, 1);
@@ -298,7 +295,7 @@ TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_ErrorHandling) {
   EXPECT_NE(status, NPP_SUCCESS) << "Should fail with zero divisor";
 }
 
-// NOTE: 测试已被禁用 - 该测试导致CUDA上下文损坏，影响后续所有测试
+// NOTE: 测试已被禁用 - 该测试导致GPU上下文损坏，影响后续所有测试
 TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_DifferentKernelSizes) {
   const int width = 32, height = 32;
 
@@ -335,7 +332,7 @@ TEST_F(FilterConvolutionFunctionalTest, DISABLED_Filter_DifferentKernelSizes) {
   ASSERT_EQ(status3x3, NPP_SUCCESS) << "3x3 filter failed";
   ASSERT_EQ(status5x5, NPP_SUCCESS) << "5x5 filter failed";
 
-  // 验证两种核都产生了有效的结果
+  // Validate两种核都产生了有效的结果
   std::vector<Npp8u> result3x3(width * height);
   std::vector<Npp8u> result5x5(width * height);
   dst3x3.copyToHost(result3x3);

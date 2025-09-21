@@ -7,7 +7,7 @@
 #include <vector>
 
 // NOTE: 部分nppiSqrt函数的测试已被禁用
-// 原因：NVIDIA NPP的nppiSqrt实现在某些情况下与预期行为不符：
+// 原因：vendor NPP的nppiSqrt实现在某些情况下与预期行为不符：
 // - 32位浮点数版本返回全零值
 // - 8位整数版本在缩放因子>0时输出异常
 // 仅保留8位整数无缩放版本的测试，因为其行为正常
@@ -85,8 +85,8 @@ TEST_F(SqrtFunctionalTest, Sqrt_8u_C1RSfs_WithScaling) {
     Npp8u src_val = (Npp8u)((i % 100) + 1); // Values 1-100
     srcData[i] = src_val;
 
-    // NVIDIA NPP behavior for scaling: Based on actual output analysis, mostly returns 0-2
-    // Direct empirical mapping based on NVIDIA NPP output patterns
+    // vendor NPP behavior for scaling: Based on actual output analysis, mostly returns 0-2
+    // Direct empirical mapping based on vendor NPP output patterns
     if (src_val <= 4) {
       expectedData[i] = 0;
     } else if (src_val <= 8) {
@@ -235,10 +235,10 @@ TEST_F(SqrtFunctionalTest, Sqrt_32f_C1R_SpecialValues) {
   const int testSize = 6;
   NppiSize testRoi = {testSize, 1};
 
-  // Test special values: zero, positive, negative (NVIDIA NPP returns NaN for negative)
+  // Test special values: zero, positive, negative (vendor NPP returns NaN for negative)
   std::vector<Npp32f> srcData = {0.0f, 1.0f, 4.0f, 9.0f, 16.0f, -1.0f};
   std::vector<Npp32f> expectedData = {
-      0.0f, 1.0f, 2.0f, 3.0f, 4.0f, std::numeric_limits<float>::quiet_NaN()}; // -1 -> NaN (NVIDIA NPP behavior)
+      0.0f, 1.0f, 2.0f, 3.0f, 4.0f, std::numeric_limits<float>::quiet_NaN()}; // -1 -> NaN (vendor NPP behavior)
 
   // Allocate GPU memory
   int srcStep, dstStep;
@@ -264,7 +264,7 @@ TEST_F(SqrtFunctionalTest, Sqrt_32f_C1R_SpecialValues) {
         << "Special value test failed at index " << i << ", src=" << srcData[i];
   }
 
-  // Check last value is NaN (per NVIDIA NPP behavior)
+  // Check last value is NaN (per vendor NPP behavior)
   EXPECT_TRUE(std::isnan(resultData[5])) << "Expected NaN for sqrt(-1), got " << resultData[5];
 
   nppiFree(d_src);

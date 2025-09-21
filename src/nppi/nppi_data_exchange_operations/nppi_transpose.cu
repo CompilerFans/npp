@@ -2,17 +2,11 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Transpose operations
- * Optimized implementation using shared memory tiling
- */
+// Implementation file
 
 #define TILE_SIZE 32 // Tile size for shared memory optimization
 
-/**
- * Template kernel for transposing single-channel images
- * Uses shared memory tiling for optimal memory access patterns
- */
+// Implementation file
 template <typename T>
 __global__ void transpose_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__restrict__ pDst, int nDstStep,
                                  int width, int height) {
@@ -40,9 +34,7 @@ __global__ void transpose_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__
   }
 }
 
-/**
- * Template kernel for transposing multi-channel images
- */
+// Implementation file
 template <typename T, int channels>
 __global__ void transpose_multichannel_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__restrict__ pDst,
                                               int nDstStep, int width, int height) {
@@ -80,7 +72,7 @@ extern "C" {
 // 8-bit unsigned implementations
 // ============================================================================
 
-NppStatus nppiTranspose_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -96,7 +88,7 @@ NppStatus nppiTranspose_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -112,7 +104,7 @@ NppStatus nppiTranspose_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_8u_C4R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -132,7 +124,7 @@ NppStatus nppiTranspose_8u_C4R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *
 // 16-bit unsigned implementations
 // ============================================================================
 
-NppStatus nppiTranspose_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -148,7 +140,7 @@ NppStatus nppiTranspose_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_16u_C3R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16u_C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -164,7 +156,7 @@ NppStatus nppiTranspose_16u_C3R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_16u_C4R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -184,7 +176,7 @@ NppStatus nppiTranspose_16u_C4R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16
 // 16-bit signed implementations
 // ============================================================================
 
-NppStatus nppiTranspose_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -200,7 +192,7 @@ NppStatus nppiTranspose_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_16s_C3R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16s_C3R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -216,7 +208,7 @@ NppStatus nppiTranspose_16s_C3R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_16s_C4R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -236,7 +228,7 @@ NppStatus nppiTranspose_16s_C4R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16
 // 32-bit signed implementations
 // ============================================================================
 
-NppStatus nppiTranspose_32s_C1R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32s_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -252,7 +244,7 @@ NppStatus nppiTranspose_32s_C1R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_32s_C3R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32s_C3R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -268,7 +260,7 @@ NppStatus nppiTranspose_32s_C3R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_32s_C4R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32s_C4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -288,7 +280,7 @@ NppStatus nppiTranspose_32s_C4R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32
 // 32-bit float implementations
 // ============================================================================
 
-NppStatus nppiTranspose_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -304,7 +296,7 @@ NppStatus nppiTranspose_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);
@@ -320,7 +312,7 @@ NppStatus nppiTranspose_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiTranspose_32f_C4R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx) {
   dim3 blockSize(TILE_SIZE, TILE_SIZE);
   dim3 gridSize((oSrcROI.width + TILE_SIZE - 1) / TILE_SIZE, (oSrcROI.height + TILE_SIZE - 1) / TILE_SIZE);

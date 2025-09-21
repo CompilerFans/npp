@@ -4,10 +4,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-/**
- * @file test_nppi_convert_extended.cpp
- * @brief 测试新增的nppiConvert API功能
- */
+// Implementation file
 
 class ConvertExtendedFunctionalTest : public ::testing::Test {
 protected:
@@ -67,7 +64,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_BasicOperation) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证结果
+  // Validate结果
   for (int i = 0; i < width * height * 3; i++) {
     EXPECT_FLOAT_EQ(resultData[i], expectedData[i])
         << "转换失败 at index " << i << ": got " << resultData[i] << ", expected " << expectedData[i];
@@ -105,7 +102,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_BoundaryValues) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, testRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(3 * 3);
   cudaMemcpy(resultData.data(), d_dst, resultData.size() * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -143,7 +140,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_StreamContext) {
   NppStatus status = nppiConvert_8u32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height * 3);
   for (int y = 0; y < height; y++) {
     cudaMemcpy(resultData.data() + y * width * 3, (char *)d_dst + y * dstStep, width * 3 * sizeof(Npp32f),
@@ -215,7 +212,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_LargeImage) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, largeRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证部分结果（检查第一行）
+  // Validate部分结果（检查第一行）
   std::vector<Npp32f> resultData(largeWidth * 3);
   cudaMemcpy(resultData.data(), d_dst, largeWidth * 3 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -269,7 +266,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_MemoryAlignment) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, oddRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(oddWidth * oddHeight * 3);
   for (int y = 0; y < oddHeight; y++) {
     cudaMemcpy(resultData.data() + y * oddWidth * 3, (char *)d_dst + y * dstStep, oddWidth * 3 * sizeof(Npp32f),
@@ -305,7 +302,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_SinglePixel) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, singlePixelRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(3);
   cudaMemcpy(resultData.data(), d_dst, 3 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
@@ -364,7 +361,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_ColorGradient) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, gradRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(gradWidth * gradHeight * 3);
   for (int y = 0; y < gradHeight; y++) {
     cudaMemcpy(resultData.data() + y * gradWidth * 3, (char *)d_dst + y * dstStep, gradWidth * 3 * sizeof(Npp32f),
@@ -426,7 +423,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_CheckerboardPattern) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, boardRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(boardWidth * boardHeight * 3);
   for (int y = 0; y < boardHeight; y++) {
     cudaMemcpy(resultData.data() + y * boardWidth * 3, (char *)d_dst + y * dstStep, boardWidth * 3 * sizeof(Npp32f),
@@ -474,7 +471,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_RandomData) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, randRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(randWidth * randHeight * 3);
   for (int y = 0; y < randHeight; y++) {
     cudaMemcpy(resultData.data() + y * randWidth * 3, (char *)d_dst + y * dstStep, randWidth * 3 * sizeof(Npp32f),
@@ -530,7 +527,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_RectangularROI) {
   NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, rectRoi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(rectWidth * rectHeight * 3);
   for (int y = 0; y < rectHeight; y++) {
     cudaMemcpy(resultData.data() + y * rectWidth * 3, (char *)d_dst + y * dstStep, rectWidth * 3 * sizeof(Npp32f),
@@ -557,7 +554,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_PerformanceTest) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  // 创建简单的测试数据（不验证结果，主要测试性能）
+  // 创建简单的测试数据（不Validate结果，主要测试性能）
   std::vector<Npp8u> srcData(perfWidth * perfHeight * 3, 128);
 
   // 复制数据到GPU
@@ -572,7 +569,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_PerformanceTest) {
     EXPECT_EQ(status, NPP_SUCCESS) << "性能测试第 " << i << " 次失败";
   }
 
-  // 验证第一个和最后一个像素
+  // Validate第一个和最后一个像素
   std::vector<Npp32f> firstPixel(3), lastPixel(3);
   cudaMemcpy(firstPixel.data(), d_dst, 3 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 

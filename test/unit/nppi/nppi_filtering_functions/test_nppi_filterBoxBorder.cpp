@@ -28,7 +28,7 @@ protected:
     oMaskSize.width = 3;
     oMaskSize.height = 3;
 
-    // 锚点（核心中心）
+    // anchor（核心中心）
     oAnchor.x = 1;
     oAnchor.y = 1;
 
@@ -88,7 +88,7 @@ protected:
     }
   }
 
-  // 辅助函数：验证滤波结果（允许一定误差）
+  // 辅助函数：Validate滤波结果（允许一定误差）
   template <typename T>
   void verifyFilterResult(const std::vector<T> &result, const std::vector<T> &reference, T tolerance = T(1)) {
     ASSERT_EQ(result.size(), reference.size());
@@ -156,7 +156,7 @@ protected:
                      cudaMemcpyDeviceToHost);
         }
 
-        // 验证结果不为全零
+        // Validate结果不为全零
         bool hasNonZero = false;
         for (size_t i = 0; i < dstDataSize; i++) {
           if (dstData[i] != 0) {
@@ -169,7 +169,7 @@ protected:
         std::cout << modeName << " border mode: 支持 ✓" << std::endl;
       }
     } else {
-      EXPECT_NE(status, NPP_SUCCESS) << modeName << " border mode should not be supported in NVIDIA NPP";
+      EXPECT_NE(status, NPP_SUCCESS) << modeName << " border mode should not be supported in vendor NPP";
       std::cout << modeName << " border mode: 不支持 ✗ (错误码: " << status << ")" << std::endl;
     }
   }
@@ -181,7 +181,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R) {
   size_t dstDataSize = dstWidth * dstHeight;
   std::vector<Npp8u> srcData(srcDataSize), dstData(dstDataSize), refResult;
 
-  // 使用固定数据而不是随机数据，便于调试和验证
+  // 使用固定数据而不是随机数据，便于调试和Validate
   // 创建简单的测试图像
   for (size_t i = 0; i < srcDataSize; i++) {
     srcData[i] = static_cast<Npp8u>((i % 256));
@@ -213,7 +213,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R) {
                cudaMemcpyHostToDevice);
   }
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                 oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -224,7 +224,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R) {
                cudaMemcpyDeviceToHost);
   }
 
-  std::cout << "Filter test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "Filter test passed - vendor NPP behavior verified" << std::endl;
 
   // 资源将由ResourceGuard自动清理
 }
@@ -264,7 +264,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C3R) {
                cudaMemcpyHostToDevice);
   }
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiFilterBoxBorder_8u_C3R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                 oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -275,7 +275,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C3R) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证结果存在性（基本检查）
+  // Validate结果存在性（基本检查）
   bool hasNonZero = false;
   for (size_t i = 0; i < dstDataSize; i++) {
     if (dstData[i] != 0) {
@@ -294,9 +294,9 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_16s_C1R) {
   size_t dstDataSize = dstWidth * dstHeight;
   std::vector<Npp16s> srcData(srcDataSize), dstData(dstDataSize);
 
-  // 使用固定数据而不是随机数据，便于调试和验证
+  // 使用固定数据而不是随机数据，便于调试和Validate
   for (size_t i = 0; i < srcDataSize; i++) {
-    srcData[i] = static_cast<Npp16s>((i % 2000) - 1000); // 范围-1000到999
+    srcData[i] = static_cast<Npp16s>((i % 2000) - 1000); // bounds-1000到999
   }
 
   // 使用NPP内存分配获得正确对齐的步长
@@ -325,7 +325,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_16s_C1R) {
                cudaMemcpyHostToDevice);
   }
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiFilterBoxBorder_16s_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                  oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -336,7 +336,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_16s_C1R) {
                cudaMemcpyDeviceToHost);
   }
 
-  std::cout << "FilterBoxBorder_16s_C1R test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "FilterBoxBorder_16s_C1R test passed - vendor NPP behavior verified" << std::endl;
 
   // 资源将由ResourceGuard自动清理
 }
@@ -378,7 +378,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
                cudaMemcpyHostToDevice);
   }
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiFilterBoxBorder_32f_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                  oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -389,7 +389,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证结果存在性和合理性
+  // Validate结果存在性和合理性
   float sum = 0.0f;
   float minVal = dstData[0], maxVal = dstData[0];
   for (size_t i = 0; i < dstDataSize; i++) {
@@ -398,7 +398,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
     maxVal = std::max(maxVal, dstData[i]);
   }
 
-  // 滤波后的值应该在合理范围内
+  // 滤波后的值应该在合理bounds内
   EXPECT_GE(minVal, -2.0f);
   EXPECT_LE(maxVal, 2.0f);
 
@@ -513,9 +513,9 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
 
   // 创建流上下文
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status =
       nppiFilterBoxBorder_8u_C1R_Ctx(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI, oMaskSize,
                                      oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
@@ -527,7 +527,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证结果存在性
+  // Validate结果存在性
   bool hasNonZero = false;
   for (size_t i = 0; i < dstDataSize; i++) {
     if (dstData[i] != 0) {
@@ -541,7 +541,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIFilterBoxBorderTest, DISABLED_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiFilterBoxBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset, nullptr, 32, oDstSizeROI,
@@ -571,7 +571,7 @@ TEST_F(NPPIFilterBoxBorderTest, DISABLED_ErrorHandling) {
                                       oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_NE(status, NPP_SUCCESS);
 
-  // 测试无效锚点
+  // 测试无效anchor
   NppiPoint invalidAnchor = {-1, -1};
   status = nppiFilterBoxBorder_8u_C1R(nullptr, 32, oSrcSizeROI, oSrcOffset, nullptr, 32, oDstSizeROI, oMaskSize,
                                       invalidAnchor, NPP_BORDER_REPLICATE);

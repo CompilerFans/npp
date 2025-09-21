@@ -290,7 +290,7 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1IR_InPlace) {
 }
 
 // Test error handling
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(MulScaleFunctionalTest, DISABLED_MulScale_ErrorHandling) {
   // Test null pointer
   NppStatus status = nppiMulScale_8u_C1R(nullptr, 32, nullptr, 32, nullptr, 16, roi);

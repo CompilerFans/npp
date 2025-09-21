@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_resize.cpp
- * @brief NPP 图像缩放函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 
@@ -45,7 +42,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C1R failed";
 
-  // 验证结果 - 简单检查非零像素存在
+  // Validate结果 - 简单检查非零像素存在
   std::vector<Npp8u> resultData(dstWidth * dstHeight);
   dst.copyToHost(resultData);
 
@@ -90,7 +87,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_Bilinear) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C1R bilinear failed";
 
-  // 验证结果 - 检查梯度连续性
+  // Validate结果 - 检查梯度连续性
   std::vector<Npp8u> resultData(dstWidth * dstHeight);
   dst.copyToHost(resultData);
 
@@ -139,7 +136,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C3R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
@@ -156,7 +153,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
   }
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(ResizeFunctionalTest, DISABLED_Resize_ErrorHandling) {
   const int width = 16, height = 16;
 

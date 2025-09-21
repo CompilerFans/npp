@@ -1,16 +1,4 @@
-/**
- * @file test_nppiCopy_32f_C1R_comprehensive.cpp
- * @brief Comprehensive test suite for nppiCopy_32f_C1R
- *
- * Tests cover:
- * - Basic copy operations
- * - ROI variations
- * - Memory overlap scenarios
- * - Stride handling
- * - Large data transfers
- * - Concurrent operations
- * - Error conditions
- */
+// Implementation file
 
 #include "npp.h"
 #include <algorithm>

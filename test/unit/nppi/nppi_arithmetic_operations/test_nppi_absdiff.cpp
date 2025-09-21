@@ -34,7 +34,7 @@ protected:
     }
   }
 
-  // 辅助函数：验证AbsDiff结果
+  // 辅助函数：ValidateAbsDiff结果
   template <typename T>
   void verifyAbsDiff(const std::vector<T> &src1, const std::vector<T> &src2, const std::vector<T> &result,
                      int channels = 1) {
@@ -73,14 +73,14 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C1R) {
   cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
   cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiAbsDiff_8u_C1R(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyAbsDiff(src1Data, src2Data, dstData);
 
   // 清理GPU内存
@@ -111,14 +111,14 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C3R) {
   cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
   cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiAbsDiff_8u_C3R(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyAbsDiff(src1Data, src2Data, dstData, 3);
 
   // 清理GPU内存
@@ -151,14 +151,14 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_32f_C1R) {
   cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
   cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiAbsDiff_32f_C1R(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
-  // 验证结果（浮点数需要容差）
+  // Validate结果（浮点数需要容差）
   for (size_t i = 0; i < dstData.size(); i++) {
     float expected = fabs(src1Data[i] - src2Data[i]);
     EXPECT_NEAR(dstData[i], expected, 1e-6f) << "Mismatch at index " << i;
@@ -194,16 +194,16 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C1R_Ctx) {
 
   // 创建流上下文
   NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用默认流
+  nppStreamCtx.hStream = 0; // 使用Default stream
 
-  // 调用NPP函数
+  // CallNPP函数
   NppStatus status = nppiAbsDiff_8u_C1R_Ctx(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 拷贝结果回主机
   cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
-  // 验证结果
+  // Validate结果
   verifyAbsDiff(src1Data, src2Data, dstData);
 
   // 清理GPU内存
@@ -213,7 +213,7 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C1R_Ctx) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIAbsDiffTest, DISABLED_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiAbsDiff_8u_C1R(nullptr, 32, nullptr, 32, nullptr, 32, roi);

@@ -1,53 +1,47 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Add Functions Implementation
- * Implements nppiAdd functions for various data types
- * (Two source images addition)
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiAdd_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAdd_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAdd_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAdd_8u_C4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
+NppStatus nppiAdd_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                       Npp16u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
+NppStatus nppiAdd_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
                                       Npp16s *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+NppStatus nppiAdd_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
-NppStatus nppiAdd_32f_C3R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+NppStatus nppiAdd_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
-/**
- * Helper function for parameter validation
- */
+// Implementation file
 static NppStatus validateDualSourceParameters(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                               const void *pDst, int nDstStep, NppiSize oSizeROI, int elementSize) {
   if (!pSrc1 || !pSrc2 || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
 
-  // NVIDIA NPP behavior: zero-size ROI returns success (no processing needed)
+  // vendor NPP behavior: zero-size ROI returns success (no processing needed)
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
-  // Early return for zero-size ROI (NVIDIA NPP compatible behavior)
+  // Early return for zero-size ROI (vendor NPP compatible behavior)
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
   }
@@ -77,8 +71,8 @@ NppStatus nppiAdd_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  // Call CUDA implementation
-  return nppiAdd_8u_C1RSfs_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  // Call GPU implementation
+  return nppiAdd_8u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                     nppStreamCtx);
 }
 
@@ -122,8 +116,8 @@ NppStatus nppiAdd_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  // Call CUDA implementation
-  return nppiAdd_16u_C1RSfs_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  // Call GPU implementation
+  return nppiAdd_16u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                      nppStreamCtx);
 }
 
@@ -148,8 +142,8 @@ NppStatus nppiAdd_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *
     return status;
   }
 
-  // Call CUDA implementation
-  return nppiAdd_32f_C1R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  // Call GPU implementation
+  return nppiAdd_32f_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
@@ -189,8 +183,8 @@ NppStatus nppiAdd_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  // Call CUDA implementation
-  return nppiAdd_8u_C3RSfs_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  // Call GPU implementation
+  return nppiAdd_8u_C3RSfs_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                     nppStreamCtx);
 }
 
@@ -212,8 +206,8 @@ NppStatus nppiAdd_32f_C3R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *
     return status;
   }
 
-  // Call CUDA implementation
-  return nppiAdd_32f_C3R_Ctx_cuda(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  // Call GPU implementation
+  return nppiAdd_32f_C3R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32f_C3R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,

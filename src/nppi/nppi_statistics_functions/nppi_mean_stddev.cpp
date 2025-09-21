@@ -83,7 +83,7 @@ NppStatus nppiMean_StdDev_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize o
     return NPP_STEP_ERROR;
   }
 
-  // Call CUDA kernel
+  // Call GPU kernel
   cudaError_t cudaStatus = nppiMean_StdDev_8u_C1R_kernel(pSrc, nSrcStep, oSizeROI, 
                                                          pDeviceBuffer, pMean, pStdDev, 
                                                          nppStreamCtx.hStream);
@@ -113,7 +113,7 @@ NppStatus nppiMean_StdDev_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize
     return NPP_STEP_ERROR;
   }
 
-  // Call CUDA kernel
+  // Call GPU kernel
   cudaError_t cudaStatus = nppiMean_StdDev_32f_C1R_kernel(pSrc, nSrcStep, oSizeROI, 
                                                           pDeviceBuffer, pMean, pStdDev, 
                                                           nppStreamCtx.hStream);

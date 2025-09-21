@@ -1,17 +1,4 @@
-/**
- * @file test_nppiCopy_32f_C3R_comprehensive.cpp
- * @brief Comprehensive test suite for nppiCopy_32f_C3R (3-channel copy)
- *
- * Tests cover:
- * - Basic 3-channel copy operations
- * - ROI variations
- * - Memory overlap scenarios
- * - Stride handling
- * - Large data transfers
- * - Concurrent operations
- * - Error conditions
- * - Alignment edge cases
- */
+// Implementation file
 
 #include "npp.h"
 #include <algorithm>

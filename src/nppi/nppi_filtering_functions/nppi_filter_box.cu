@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Box滤波器内核实现 - 计算邻域平均值
+// Box滤波器kernel实现 - 计算邻域平均值
 __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                  int anchorY) {
@@ -16,7 +16,7 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // 边界处理 - 限制在图像范围内
+    // 边界处理 - 限制在图像bounds内
     startX = max(startX, 0);
     startY = max(startY, 0);
     endX = min(endX, width);

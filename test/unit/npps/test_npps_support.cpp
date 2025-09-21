@@ -168,7 +168,7 @@ TEST(NppsSupportParameterTest, FreeSafety) {
 
 // Memory alignment test
 TEST_F(NppsSupportTest, MemoryAlignment) {
-  // Test memory alignment (CUDA memory is typically 256-byte aligned)
+  // Test memory alignment (GPU memory is typically 256-byte aligned)
   Npp32f *signal1 = nppsMalloc_32f(signal_size);
   Npp32f *signal2 = nppsMalloc_32f(signal_size);
 

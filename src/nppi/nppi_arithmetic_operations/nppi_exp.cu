@@ -3,13 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Exponential Operations
- */
+// Implementation file
 
-/**
- * kernel for 8-bit unsigned exponential with scaling
- */
+// Implementation file
 __global__ void nppiExp_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,12 +17,12 @@ __global__ void nppiExp_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
     int src_val = *src_pixel;
 
-    // Match NVIDIA NPP behavior based on empirical observation
-    // NVIDIA NPP appears to use a lookup table or specific scaling algorithm
+    // Match vendor NPP behavior based on empirical observation
+    // vendor NPP appears to use a lookup table or specific scaling algorithm
     // Input [0,1,2,3,4,5] -> Output [1,3,7,20,55,148]
     int result;
     if (nScaleFactor == 0) {
-      // Direct mapping based on NVIDIA NPP behavior
+      // Direct mapping based on vendor NPP behavior
       switch (src_val) {
       case 0:
         result = 1;
@@ -65,9 +61,7 @@ __global__ void nppiExp_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u 
   }
 }
 
-/**
- * kernel for 16-bit unsigned exponential with scaling
- */
+// Implementation file
 __global__ void nppiExp_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
                                           int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -91,9 +85,7 @@ __global__ void nppiExp_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp1
   }
 }
 
-/**
- * kernel for 16-bit signed exponential with scaling
- */
+// Implementation file
 __global__ void nppiExp_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
                                           int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -105,7 +97,7 @@ __global__ void nppiExp_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp1
 
     int src_val = *src_pixel;
 
-    // NVIDIA NPP computes exp(src_val) directly, no input scaling
+    // vendor NPP computes exp(src_val) directly, no input scaling
     // This matches the observed behavior: input 2 -> output 7 (e^2 ≈ 7.39)
     float exp_val = expf((float)src_val);
     int result = (int)(exp_val * (1 << nScaleFactor) + 0.5f);
@@ -115,9 +107,7 @@ __global__ void nppiExp_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp1
   }
 }
 
-/**
- * kernel for 32-bit float exponential (no scaling)
- */
+// Implementation file
 __global__ void nppiExp_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                        int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -136,10 +126,8 @@ __global__ void nppiExp_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f 
 
 extern "C" {
 
-/**
- * 8-bit unsigned exponential with scaling
- */
-NppStatus nppiExp_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiExp_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -165,10 +153,8 @@ NppStatus nppiExp_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit unsigned exponential with scaling
- */
-NppStatus nppiExp_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiExp_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                       int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -194,10 +180,8 @@ NppStatus nppiExp_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit signed exponential with scaling
- */
-NppStatus nppiExp_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiExp_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                       int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -223,10 +207,8 @@ NppStatus nppiExp_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *
   return NPP_SUCCESS;
 }
 
-/**
- * 32-bit float exponential (no scaling)
- */
-NppStatus nppiExp_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+// Implementation file
+NppStatus nppiExp_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

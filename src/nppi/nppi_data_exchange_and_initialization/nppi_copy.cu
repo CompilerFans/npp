@@ -3,10 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Copy Functions
- * Implements efficient GPU-based image copying operations
- */
+// Implementation file
 
 // Kernel for 8-bit unsigned single channel copy
 __global__ void nppiCopy_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
@@ -131,7 +128,7 @@ __global__ void nppiCopy_8u_C4R_vectorized_kernel(const Npp8u *pSrc, int nSrcSte
 extern "C" {
 
 // 8-bit unsigned single channel copy implementation
-NppStatus nppiCopy_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiCopy_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -148,7 +145,7 @@ NppStatus nppiCopy_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
 }
 
 // 8-bit unsigned three channel copy implementation
-NppStatus nppiCopy_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiCopy_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -165,7 +162,7 @@ NppStatus nppiCopy_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
 }
 
 // 8-bit unsigned four channel copy implementation
-NppStatus nppiCopy_8u_C4R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiCopy_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   // Use vectorized version if width is aligned to 4-byte boundaries
   if (oSizeROI.width % 4 == 0 && nSrcStep % 4 == 0 && nDstStep % 4 == 0) {
@@ -192,7 +189,7 @@ NppStatus nppiCopy_8u_C4R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
 }
 
 // 32-bit float single channel copy implementation
-NppStatus nppiCopy_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiCopy_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -209,7 +206,7 @@ NppStatus nppiCopy_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
 }
 
 // 32-bit float three channel copy implementation
-NppStatus nppiCopy_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiCopy_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -226,7 +223,7 @@ NppStatus nppiCopy_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
 }
 
 // 32-bit float packed to planar copy implementation
-NppStatus nppiCopy_32f_C3P3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *const pDst[3], int nDstStep,
+NppStatus nppiCopy_32f_C3P3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *const pDst[3], int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Copy destination pointers to device memory for kernel access
   Npp32f **d_pDst;

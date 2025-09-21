@@ -3,15 +3,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP MulScale Operations
- * Multiplies two images and scales by maximum value for pixel bit width
- */
+// Implementation file
 
-/**
- * kernel for 8-bit unsigned multiplication with scaling
- * Formula: dst = (src1 * src2) / 255
- */
+// Implementation file
 __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                            Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -33,10 +27,7 @@ __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, co
   }
 }
 
-/**
- * kernel for 16-bit unsigned multiplication with scaling
- * Formula: dst = (src1 * src2) / 65535
- */
+// Implementation file
 __global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                             Npp16u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -61,10 +52,8 @@ __global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, 
 
 extern "C" {
 
-/**
- * 8-bit unsigned multiplication with scaling
- */
-NppStatus nppiMulScale_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+// Implementation file
+NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -90,10 +79,8 @@ NppStatus nppiMulScale_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const 
   return NPP_SUCCESS;
 }
 
-/**
- * 16-bit unsigned multiplication with scaling
- */
-NppStatus nppiMulScale_16u_C1R_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
+// Implementation file
+NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                         Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

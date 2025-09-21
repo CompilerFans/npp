@@ -6,9 +6,7 @@
 #include <thrust/sort.h>
 #include <thrust/unique.h>
 
-/**
- * CUDA kernels for Label Compression using Union-Find
- */
+// Implementation file
 
 // Union-Find数据结构
 struct UnionFind {
@@ -22,7 +20,7 @@ struct UnionFind {
     if (x >= size)
       return x;
 
-    // 迭代版本的路径压缩，避免递归调用
+    // 迭代版本的路径压缩，避免递归Call
     Npp32u root = x;
     while (parent[root] != root) {
       root = parent[root];
@@ -164,7 +162,7 @@ __global__ void relabelImage_kernel(Npp32u *pMarkerLabels, int nMarkerLabelsStep
 extern "C" {
 
 // 获取标签压缩所需缓冲区大小
-NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_cuda(int nMarkerLabels, int *hpBufferSize) {
+NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize) {
   // Union-Find需要的空间：
   // 1. parent数组 (Npp32u * maxLabels)
   // 2. rank数组 (int * maxLabels)
@@ -185,7 +183,7 @@ NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_cuda(int nMarkerLabe
 }
 
 // Union-Find标签压缩实现
-NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_cuda(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
+NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
                                                        NppiSize oMarkerLabelsROI, int nStartingNumber,
                                                        int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer,
                                                        NppStreamContext nppStreamCtx) {

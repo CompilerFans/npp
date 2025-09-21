@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_set.cpp
- * @brief NPP Set函数测试（设置图像像素值）
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -40,7 +37,7 @@ TEST_F(SetFunctionalTest, Set_8u_C1R_Ctx_Basic) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证所有像素都被设置为指定值
+  // Validate所有像素都被设置为指定值
   for (const auto &val : dstData) {
     ASSERT_EQ(val, setValue);
   }
@@ -71,7 +68,7 @@ TEST_F(SetFunctionalTest, Set_8u_C3R_Ctx_ColorValues) {
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证所有像素的RGB值
+  // Validate所有像素的RGB值
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 3 + 0], aValue[0]); // R
     ASSERT_EQ(dstData[i * 3 + 1], aValue[1]); // G
@@ -104,7 +101,7 @@ TEST_F(SetFunctionalTest, Set_32f_C1R_Ctx_FloatValue) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证所有像素都被设置为指定值
+  // Validate所有像素都被设置为指定值
   for (const auto &val : dstData) {
     ASSERT_FLOAT_EQ(val, setValue);
   }
@@ -140,7 +137,7 @@ TEST_F(SetFunctionalTest, Set_8u_C1R_Ctx_PartialROI) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证ROI内外的值
+  // ValidateROI内外的值
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int idx = y * width + x;

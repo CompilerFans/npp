@@ -49,7 +49,7 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
   // 同步确保内存操作完成
   cudaDeviceSynchronize();
 
-  // 设置3x3 box滤波器，锚点在中心
+  // 设置3x3 box滤波器，anchor在中心
   NppiSize maskSize = {3, 3};
   NppiPoint anchor = {1, 1};
 
@@ -58,14 +58,14 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
   if (status != NPP_SUCCESS) {
     // 获取更多错误信息
     cudaError_t lastError = cudaGetLastError();
-    ASSERT_EQ(status, NPP_SUCCESS) << "NPP Status: " << status << ", CUDA Error: " << cudaGetErrorString(lastError);
+    ASSERT_EQ(status, NPP_SUCCESS) << "NPP Status: " << status << ", GPU Error: " << cudaGetErrorString(lastError);
   }
 
   // 下载结果
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证结果 - 内部区域应该保持100（均匀图像的box滤波结果）
+  // Validate结果 - 内部区域应该保持100（均匀图像的box滤波结果）
   for (int y = 1; y < height - 1; y++) {
     for (int x = 1; x < width - 1; x++) {
       EXPECT_EQ(h_dst[y * width + x], 100) << "At position (" << x << ", " << y << ")";
@@ -93,22 +93,22 @@ TEST_F(FilterTest, FilterBox_5x5_EdgeHandling) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 验证内部区域 - 应该保持原值
+  // Validate内部区域 - 应该保持原值
   for (int y = 2; y < height - 2; y++) {
     for (int x = 2; x < width - 2; x++) {
       EXPECT_EQ(h_dst[y * width + x], 100);
     }
   }
 
-  // 验证边缘处理 - 由于边界效应，边缘的值可能略有不同
+  // Validate边缘处理 - 由于边界效应，边缘的值可能略有不同
   // 角落像素只能访问部分邻域
   EXPECT_GT(h_dst[0], 0);   // 应该有一定的值
   EXPECT_LE(h_dst[0], 100); // 但不应超过原始值
 }
 
-// 参数验证测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// Parameter validation测试
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(FilterParameterTest, DISABLED_NullPointerError) {
   NppiSize size = {10, 10};
   NppiSize maskSize = {3, 3};
@@ -120,8 +120,8 @@ TEST(FilterParameterTest, DISABLED_NullPointerError) {
   EXPECT_EQ(nppiFilterBox_8u_C1R(&dummy, step, nullptr, step, size, maskSize, anchor), NPP_NULL_POINTER_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(FilterParameterTest, DISABLED_InvalidSize) {
   Npp8u dummy = 0;
   int step = 10;
@@ -136,35 +136,35 @@ TEST(FilterParameterTest, DISABLED_InvalidSize) {
   EXPECT_EQ(nppiFilterBox_8u_C1R(&dummy, step, &dummy, step, size, maskSize, anchor), NPP_SIZE_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(FilterParameterTest, DISABLED_InvalidMaskSize) {
   Npp8u dummy = 0;
   int step = 10;
   NppiSize size = {10, 10};
   NppiPoint anchor = {1, 1};
 
-  // 测试无效掩码大小
+  // 测试无效mask大小
   NppiSize maskSize = {0, 3};
   EXPECT_EQ(nppiFilterBox_8u_C1R(&dummy, step, &dummy, step, size, maskSize, anchor), NPP_MASK_SIZE_ERROR);
 
-  // 掩码大于图像
+  // mask大于图像
   maskSize = {20, 20};
   EXPECT_EQ(nppiFilterBox_8u_C1R(&dummy, step, &dummy, step, size, maskSize, anchor), NPP_MASK_SIZE_ERROR);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的处理会污染CUDA上下文
-// 传递栈上变量地址(&dummy)作为GPU内存指针会导致CUDA上下文错误
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的处理会污染GPU上下文
+// 传递栈上变量地址(&dummy)作为GPU内存指针会导致GPU上下文错误
 TEST(FilterParameterTest, DISABLED_InvalidAnchor) {
   Npp8u dummy = 0;
   int step = 10;
   NppiSize size = {10, 10};
   NppiSize maskSize = {3, 3};
 
-  // 测试无效锚点
+  // 测试无效anchor
   NppiPoint anchor = {-1, 1};
   EXPECT_EQ(nppiFilterBox_8u_C1R(&dummy, step, &dummy, step, size, maskSize, anchor), NPP_ANCHOR_ERROR);
 
-  anchor = {3, 1}; // 超出掩码范围
+  anchor = {3, 1}; // 超出maskbounds
   EXPECT_EQ(nppiFilterBox_8u_C1R(&dummy, step, &dummy, step, size, maskSize, anchor), NPP_ANCHOR_ERROR);
 }

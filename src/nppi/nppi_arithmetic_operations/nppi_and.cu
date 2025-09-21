@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// CUDA内核：两图像按位与
+// GPUkernel：两图像按位与
 __global__ void nppiAnd_8u_C1R_kernel_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                            Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -17,7 +17,7 @@ __global__ void nppiAnd_8u_C1R_kernel_impl(const Npp8u *pSrc1, int nSrc1Step, co
   }
 }
 
-// CUDA内核：图像与常数按位与
+// GPUkernel：图像与常数按位与
 __global__ void nppiAndC_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
                                             int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;

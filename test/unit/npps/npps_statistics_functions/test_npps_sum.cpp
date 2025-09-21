@@ -5,10 +5,7 @@
 #include <random>
 #include <vector>
 
-/**
- * NPPS Sum Functions Test Suite
- * 测试NPPS信号求和函数
- */
+// Implementation file
 class NPPSSumFunctionalTest : public ::testing::Test {
 protected:
   void SetUp() override {}
@@ -56,7 +53,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_BasicOperation) {
   float result;
   cudaMemcpy(&result, d_sum, sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
-  // 验证结果（允许浮点精度误差）
+  // Validate结果（允许浮点精度误差）
   EXPECT_NEAR(result, expectedSum, expectedSum * 1e-6f) << "Sum result mismatch";
 
   // 清理GPU内存
@@ -95,7 +92,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_SequentialPattern) {
   status = nppsSum_32f(d_src, nLength, d_sum, d_buffer);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
-  // 验证结果
+  // Validate结果
   float result;
   cudaMemcpy(&result, d_sum, sizeof(Npp32f), cudaMemcpyDeviceToHost);
   EXPECT_FLOAT_EQ(result, expectedSum);
@@ -109,7 +106,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_SequentialPattern) {
 TEST_F(NPPSSumFunctionalTest, Sum_32f_LargeSignal) {
   const size_t nLength = 1024 * 1024; // 1M elements
 
-  // 使用常数值以便验证结果
+  // 使用常数值以便Validate结果
   std::vector<Npp32f> src(nLength, 2.5f);
   float expectedSum = static_cast<float>(nLength) * 2.5f;
 
@@ -133,7 +130,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_LargeSignal) {
   status = nppsSum_32f(d_src, nLength, d_sum, d_buffer);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
-  // 验证结果
+  // Validate结果
   float result;
   cudaMemcpy(&result, d_sum, sizeof(Npp32f), cudaMemcpyDeviceToHost);
   EXPECT_NEAR(result, expectedSum, expectedSum * 1e-6f);
@@ -181,7 +178,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32fc_BasicOperation) {
   status = nppsSum_32fc(d_src, nLength, d_sum, d_buffer);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
-  // 验证结果
+  // Validate结果
   Npp32fc result;
   cudaMemcpy(&result, d_sum, sizeof(Npp32fc), cudaMemcpyDeviceToHost);
 
@@ -213,7 +210,7 @@ TEST_F(NPPSSumFunctionalTest, GetBufferSize_32f) {
 // Error Handling Tests
 // ==============================================================================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPSSumFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   const size_t nLength = 100;
   size_t bufferSize;
@@ -239,7 +236,7 @@ TEST_F(NPPSSumFunctionalTest, DISABLED_ErrorHandling_NullPointers) {
   cudaFree(d_buffer);
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPSSumFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
   size_t bufferSize;
 

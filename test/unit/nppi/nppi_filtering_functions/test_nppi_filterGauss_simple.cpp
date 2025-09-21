@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_filterGauss_simple.cpp
- * @brief NPP 高斯滤波函数简单测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 
@@ -36,7 +33,7 @@ TEST_F(SimpleGaussianFilterTest, BasicFunctionality) {
     std::vector<Npp8u> resultData(width * height);
     dst.copyToHost(resultData);
 
-    // 简单验证：结果数据应该不全是原值
+    // 简单Validate：结果数据应该不全是原值
     bool hasChanged = false;
     for (int i = 0; i < width * height; i++) {
       if (resultData[i] != srcData[i]) {

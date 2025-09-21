@@ -1,16 +1,4 @@
-/**
- * @file test_nppiCopy_32f_C3P3R_comprehensive.cpp
- * @brief Comprehensive test suite for nppiCopy_32f_C3P3R (interleaved to planar)
- *
- * Tests cover:
- * - Basic interleaved to planar conversion
- * - ROI operations
- * - Various image dimensions
- * - Memory alignment
- * - Performance scenarios
- * - Error handling
- * - Concurrent operations
- */
+// Implementation file
 
 #include "npp.h"
 #include <algorithm>

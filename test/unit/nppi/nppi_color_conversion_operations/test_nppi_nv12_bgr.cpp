@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_nv12_bgr.cpp
- * @brief NPP NV12到BGR转换函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -62,7 +59,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
   std::vector<Npp8u> bgrData(width * height * 3);
   bgrImage.copyToHost(bgrData);
 
-  // 验证结果 - 应该产生灰色图像（因为UV是中性的）
+  // Validate结果 - 应该产生灰色图像（因为UV是中性的）
   bool hasValidData = false;
   for (int i = 0; i < width * height; i++) {
     Npp8u b = bgrData[i * 3 + 0];

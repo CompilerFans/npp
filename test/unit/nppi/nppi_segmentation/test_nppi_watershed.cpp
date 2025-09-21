@@ -27,7 +27,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_Basic) {
 }
 
 // 测试缓冲区大小获取错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIWatershedTest, DISABLED_SegmentWatershedGetBufferSize_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, nullptr);
@@ -78,7 +78,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
   cudaMemcpy(d_markers, markerData.data(), dataSize * sizeof(Npp32u), cudaMemcpyHostToDevice);
 
-  // 调用Watershed分割
+  // CallWatershed分割
   status = nppiSegmentWatershed_8u_C1IR(d_src, srcStep, d_markers, markersStep, nppiNormL1,
                                         NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, d_buffer);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -87,9 +87,9 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   std::vector<Npp32u> resultData(dataSize);
   cudaMemcpy(resultData.data(), d_markers, dataSize * sizeof(Npp32u), cudaMemcpyDeviceToHost);
 
-  // 验证分水岭算法成功执行
-  // NVIDIA NPP的分水岭算法可能对输入有特定要求，结果可能与理论期望不同
-  // 我们只验证算法执行成功并产生了某种输出
+  // Validate分水岭算法成功执行
+  // vendor NPP的分水岭算法可能对输入有特定要求，结果可能与理论期望不同
+  // 我们只Validate算法执行成功并产生了某种输出
 
   // 统计不同标签值的分布
   std::map<Npp32u, int> labelCounts;
@@ -107,7 +107,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   }
   std::cout << std::endl;
 
-  std::cout << "Watershed segmentation test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "Watershed segmentation test passed - vendor NPP behavior verified" << std::endl;
 
   cudaFree(d_src);
   cudaFree(d_markers);
@@ -115,7 +115,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPIWatershedTest, DISABLED_SegmentWatershed_ErrorHandling) {
   // 测试空指针
   NppStatus status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32, nppiNormL2,

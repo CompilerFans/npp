@@ -61,7 +61,7 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Identity) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证恒等变换结果应该与原图相同
+  // Validate恒等变换结果应该与原图相同
   for (int i = 0; i < srcWidth * srcHeight; i++) {
     EXPECT_EQ(resultData[i], srcData[i]) << "Identity transform failed at pixel " << i;
   }
@@ -117,8 +117,8 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Translation) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证平移结果：检查输出图像中是否存在变换后的白色像素
-  // 由于不同的仿射变换矩阵约定，我们只验证变换成功执行并产生了结果
+  // Validate平移结果：检查输出图像中是否存在变换后的白色像素
+  // 由于不同的仿射变换矩阵约定，我们只Validate变换成功执行并产生了结果
   int whitePixelCount = 0;
   for (size_t i = 0; i < resultData.size(); i++) {
     if (resultData[i] == 255) {
@@ -130,7 +130,7 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Translation) {
   EXPECT_GT(whitePixelCount, 0) << "Translation should produce some white pixels";
   EXPECT_LT(whitePixelCount, resultData.size() / 2) << "Not all pixels should be white";
 
-  std::cout << "WarpAffine Translation test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "WarpAffine Translation test passed - vendor NPP behavior verified" << std::endl;
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -176,8 +176,8 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_32f_C1R_Scaling) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证缩放效果：检查变换是否成功执行
-  // 由于仿射变换矩阵约定可能不同，我们只验证变换产生了合理的结果
+  // Validate缩放效果：检查变换是否成功执行
+  // 由于仿射变换矩阵约定可能不同，我们只Validate变换产生了合理的结果
 
   // 统计非零像素数量
   int nonZeroCount = 0;
@@ -189,12 +189,12 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_32f_C1R_Scaling) {
     maxVal = std::max(maxVal, resultData[i]);
   }
 
-  // 应该有一些插值结果，且值在合理范围内
+  // 应该有一些插值结果，且值在合理bounds内
   EXPECT_GT(nonZeroCount, 0) << "Scaling should produce some non-zero values";
   EXPECT_GE(minVal, 0.0f) << "Values should not be negative";
   EXPECT_LE(maxVal, 10.0f) << "Values should be in reasonable range"; // 源数据最大约6.2
 
-  std::cout << "WarpAffine Scaling test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "WarpAffine Scaling test passed - vendor NPP behavior verified" << std::endl;
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -242,7 +242,7 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C3R_Identity) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证三通道恒等变换
+  // Validate三通道恒等变换
   for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
     EXPECT_EQ(resultData[i], srcData[i]) << "C3 identity transform failed at channel " << (i % 3) << ", pixel "
                                          << (i / 3);
@@ -299,7 +299,7 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_32f_C1R_Rotation) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证旋转效果：检查是否有非零像素（十字变为X）
+  // Validate旋转效果：检查是否有非零像素（十字变为X）
   bool hasNonZeroPixels = false;
   for (int i = 0; i < size * size; i++) {
     if (resultData[i] > 0.1f) {
@@ -356,7 +356,7 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_InterpolationMethods) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(WarpAffineFunctionalTest, DISABLED_WarpAffine_ErrorHandling) {
   double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
 

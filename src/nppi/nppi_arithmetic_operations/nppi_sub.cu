@@ -3,9 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Sub Functions
- */
+// Implementation file
 
 // ============================================================================
 // Device kernels
@@ -156,7 +154,7 @@ __global__ void nppiSub_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
 
     int idx = x * 3;
 
-    // Process 3 channels (pSrc2 - pSrc1, to match NVIDIA NPP behavior)
+    // Process 3 channels (pSrc2 - pSrc1, to match vendor NPP behavior)
     dstRow[idx] = src2Row[idx] - src1Row[idx];             // R
     dstRow[idx + 1] = src2Row[idx + 1] - src1Row[idx + 1]; // G
     dstRow[idx + 2] = src2Row[idx + 2] - src1Row[idx + 2]; // B
@@ -170,7 +168,7 @@ __global__ void nppiSub_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
 extern "C" {
 
 // 8-bit unsigned
-NppStatus nppiSub_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiSub_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 block(16, 16);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -181,7 +179,7 @@ NppStatus nppiSub_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Np
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiSub_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiSub_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 block(16, 16);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -193,7 +191,7 @@ NppStatus nppiSub_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Np
 }
 
 // 16-bit unsigned
-NppStatus nppiSub_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
+NppStatus nppiSub_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                       Npp16u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   dim3 block(16, 16);
@@ -206,7 +204,7 @@ NppStatus nppiSub_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const 
 }
 
 // 16-bit signed
-NppStatus nppiSub_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
+NppStatus nppiSub_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
                                       Npp16s *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   dim3 block(16, 16);
@@ -219,7 +217,7 @@ NppStatus nppiSub_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const 
 }
 
 // 32-bit float
-NppStatus nppiSub_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+NppStatus nppiSub_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 block(16, 16);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -230,7 +228,7 @@ NppStatus nppiSub_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiSub_32f_C3R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+NppStatus nppiSub_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 block(16, 16);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);

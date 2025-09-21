@@ -17,7 +17,7 @@ protected:
 };
 
 // 测试8位无符号单通道线性LUT
-// NOTE: 测试已被禁用 - nppiLUT_Linear_8u_C1R函数在NVIDIA NPP中不存在
+// NOTE: 测试已被禁用 - nppiLUT_Linear_8u_C1R函数在vendor NPP中不存在
 TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
   size_t dataSize = width * height;
   std::vector<Npp8u> srcData(dataSize), dstData(dataSize);
@@ -67,7 +67,7 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
   cudaMemcpy(d_pValues, pValues.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice);
   cudaMemcpy(d_pLevels, pLevels.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice);
 
-  // 调用NPP函数（使用设备内存指针）
+  // CallNPP函数（使用设备内存指针）
   NppStatus status = nppiLUT_Linear_8u_C1R(d_src, srcStep, d_dst, dstStep, roi, d_pValues, d_pLevels, nLevels);
   std::cout << "NPP status: " << status << std::endl;
 
@@ -81,7 +81,7 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
     cudaMemcpy(dstData.data() + y * width, (char *)d_dst + y * dstStep, width * sizeof(Npp8u), cudaMemcpyDeviceToHost);
   }
 
-  // 验证结果：检查几个关键点
+  // Validate结果：检查几个关键点
   EXPECT_EQ(dstData[0], 255);   // 输入0应该映射到255
   EXPECT_EQ(dstData[128], 127); // 输入128应该映射到127
   if (dataSize > 255) {
@@ -94,7 +94,7 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(NPPILUTTest, DISABLED_LUT_Linear_ErrorHandling) {
   std::vector<Npp32s> pLevels = {0, 255};
   std::vector<Npp32s> pValues = {0, 255};

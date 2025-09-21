@@ -3,26 +3,23 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Box Filter with Border Functions Implementation
- * Implements nppiFilterBoxBorder functions for box filtering with border handling
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
-NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                               NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,
                                               NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                               NppStreamContext nppStreamCtx);
-NppStatus nppiFilterBoxBorder_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                               NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,
                                               NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                               NppStreamContext nppStreamCtx);
-NppStatus nppiFilterBoxBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                NppiPoint oSrcOffset, Npp16s *pDst, int nDstStep, NppiSize oDstSizeROI,
                                                NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                                NppStreamContext nppStreamCtx);
-NppStatus nppiFilterBoxBorder_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiFilterBoxBorder_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                NppiPoint oSrcOffset, Npp32f *pDst, int nDstStep, NppiSize oDstSizeROI,
                                                NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
                                                NppStreamContext nppStreamCtx);
@@ -72,7 +69,7 @@ NppStatus nppiFilterBoxBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
     return status;
   }
 
-  return nppiFilterBoxBorder_8u_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
+  return nppiFilterBoxBorder_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
                                              oMaskSize, oAnchor, eBorderType, nppStreamCtx);
 }
 
@@ -95,7 +92,7 @@ NppStatus nppiFilterBoxBorder_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
     return status;
   }
 
-  return nppiFilterBoxBorder_8u_C3R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
+  return nppiFilterBoxBorder_8u_C3R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
                                              oMaskSize, oAnchor, eBorderType, nppStreamCtx);
 }
 
@@ -119,7 +116,7 @@ NppStatus nppiFilterBoxBorder_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Nppi
     return status;
   }
 
-  return nppiFilterBoxBorder_16s_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
+  return nppiFilterBoxBorder_16s_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
                                               oMaskSize, oAnchor, eBorderType, nppStreamCtx);
 }
 
@@ -143,7 +140,7 @@ NppStatus nppiFilterBoxBorder_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Nppi
     return status;
   }
 
-  return nppiFilterBoxBorder_32f_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
+  return nppiFilterBoxBorder_32f_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
                                               oMaskSize, oAnchor, eBorderType, nppStreamCtx);
 }
 

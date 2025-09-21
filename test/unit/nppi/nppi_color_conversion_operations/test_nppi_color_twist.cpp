@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_color_twist.cpp
- * @brief NPP ColorTwist颜色变换函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
@@ -61,7 +58,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_Identity) {
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证恒等变换 - 输出应该与输入相同
+  // Validate恒等变换 - 输出应该与输入相同
   for (int i = 0; i < width * height * 3; i++) {
     ASSERT_EQ(srcData[i], dstData[i]);
   }
@@ -109,7 +106,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_SwapChannels) {
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 验证通道交换 - 红色应该变成蓝色
+  // Validate通道交换 - 红色应该变成蓝色
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 3 + 0], 0);   // R' = 0
     ASSERT_EQ(dstData[i * 3 + 1], 0);   // G' = 0
@@ -157,7 +154,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C1R_Ctx_Brightness) {
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证亮度调整
+  // Validate亮度调整
   for (int i = 0; i < width * height; i++) {
     int expected = std::min(255, static_cast<int>(srcData[i]) + 50);
     ASSERT_NEAR(dstData[i], expected, 1); // 允许舍入误差

@@ -2,9 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Resize Functions
- */
+// Implementation file
 
 // Bilinear interpolation helper
 __device__ inline float lerp(float a, float b, float t) { return a + t * (b - a); }
@@ -174,7 +172,7 @@ __global__ void nppiResize_32f_C3R_linear_kernel(const Npp32f *pSrc, int nSrcSte
 extern "C" {
 
 // 8-bit unsigned single channel implementation
-NppStatus nppiResize_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -199,7 +197,7 @@ NppStatus nppiResize_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize o
 }
 
 // 8-bit unsigned three channel implementation
-NppStatus nppiResize_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -219,28 +217,28 @@ NppStatus nppiResize_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize o
 }
 
 // 16-bit unsigned single channel implementation
-NppStatus nppiResize_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx) {
   // For 16u, we use the same algorithm but cast pointers appropriately
   // Since the kernel logic is the same, we can reuse the 8u kernels
   // by treating the data as pairs of bytes
-  return nppiResize_8u_C1R_Ctx_cuda((const Npp8u *)pSrc, nSrcStep, oSrcSize, oSrcRectROI, (Npp8u *)pDst, nDstStep,
+  return nppiResize_8u_C1R_Ctx_impl((const Npp8u *)pSrc, nSrcStep, oSrcSize, oSrcRectROI, (Npp8u *)pDst, nDstStep,
                                     oDstSize, oDstRectROI, eInterpolation, nppStreamCtx);
 }
 
 // 32-bit float single channel implementation
-NppStatus nppiResize_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx) {
   // For 32f, we use the same algorithm but treat data as 4-byte units
   // This is a simplified implementation - for production use, dedicated float kernels would be better
-  return nppiResize_8u_C1R_Ctx_cuda((const Npp8u *)pSrc, nSrcStep, oSrcSize, oSrcRectROI, (Npp8u *)pDst, nDstStep,
+  return nppiResize_8u_C1R_Ctx_impl((const Npp8u *)pSrc, nSrcStep, oSrcSize, oSrcRectROI, (Npp8u *)pDst, nDstStep,
                                     oDstSize, oDstRectROI, eInterpolation, nppStreamCtx);
 }
 
 // 32-bit float three channel implementation
-NppStatus nppiResize_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

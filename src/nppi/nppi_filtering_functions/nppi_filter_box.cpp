@@ -30,12 +30,12 @@ NppStatus nppiFilterBox_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
   if (nSrcStep < oSizeROI.width || nDstStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
-  // 验证锚点在掩码范围内
+  // Validate anchor within mask bounds
   if (oAnchor.x < 0 || oAnchor.x >= oMaskSize.width || oAnchor.y < 0 || oAnchor.y >= oMaskSize.height) {
     return NPP_ANCHOR_ERROR;
   }
 
-  // 调用CUDA内核
+  // Call GPU kernel
   cudaError_t cudaStatus =
       nppiFilterBox_8u_C1R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nppStreamCtx.hStream);
 
@@ -45,7 +45,7 @@ NppStatus nppiFilterBox_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 NppStatus nppiFilterBox_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
   NppStreamContext ctx;
-  ctx.hStream = 0; // 默认流
+  ctx.hStream = 0; // Default stream
   return nppiFilterBox_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -72,7 +72,7 @@ NppStatus nppiFilterBox_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
     return NPP_ANCHOR_ERROR;
   }
 
-  // Call CUDA kernel
+  // Call GPU kernel
   cudaError_t cudaStatus =
       nppiFilterBox_8u_C4R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nppStreamCtx.hStream);
 
@@ -109,7 +109,7 @@ NppStatus nppiFilterBox_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
     return NPP_ANCHOR_ERROR;
   }
 
-  // Call CUDA kernel
+  // Call GPU kernel
   cudaError_t cudaStatus =
       nppiFilterBox_32f_C1R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nppStreamCtx.hStream);
 

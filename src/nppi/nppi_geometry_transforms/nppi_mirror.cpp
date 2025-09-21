@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for  kernels
+// Kernel declarations
 extern "C" {
 cudaError_t nppiMirror_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oROI,
                                      NppiAxis flip, cudaStream_t stream);
@@ -10,7 +10,7 @@ cudaError_t nppiMirror_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 
 NppStatus nppiMirror_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oROI,
                                 NppiAxis flip, NppStreamContext nppStreamCtx) {
-  // 参数验证
+  // Parameter validation
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -20,12 +20,12 @@ NppStatus nppiMirror_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
   if (nSrcStep < oROI.width || nDstStep < oROI.width) {
     return NPP_STEP_ERROR;
   }
-  // 验证flip参数
+  // Validateflip参数
   if (flip != NPP_HORIZONTAL_AXIS && flip != NPP_VERTICAL_AXIS && flip != NPP_BOTH_AXIS) {
     return NPP_MIRROR_FLIP_ERROR;
   }
 
-  // 调用CUDA内核
+  // Call GPU kernel
   cudaError_t cudaStatus = nppiMirror_8u_C1R_kernel(pSrc, nSrcStep, pDst, nDstStep, oROI, flip, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -33,6 +33,6 @@ NppStatus nppiMirror_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
 
 NppStatus nppiMirror_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oROI, NppiAxis flip) {
   NppStreamContext ctx;
-  ctx.hStream = 0; // 默认流
+  ctx.hStream = 0; // Default stream
   return nppiMirror_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oROI, flip, ctx);
 }

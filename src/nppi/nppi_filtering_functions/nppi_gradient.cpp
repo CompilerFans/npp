@@ -4,10 +4,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Image Gradient Functions Implementation
- * Implements nppiGradientVector functions for gradient computation
- */
+// Implementation file
 
 // Forward declarations for mpp host func implementations
 extern "C" {
@@ -27,12 +24,12 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_magdir(const Npp8u 
                                                                     int nDstDirStep, NppiSize oDstSizeROI,
                                                                     NppiMaskSize eMaskSize, NppiBorderType eBorderType,
                                                                     NppStreamContext nppStreamCtx);
-NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                              NppiPoint oSrcOffset, Npp32f *pDstMag, int nDstMagStep,
                                                              Npp32f *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                              NppiMaskSize eMaskSize, NppiBorderType eBorderType,
                                                              NppStreamContext nppStreamCtx);
-NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
+NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                                            NppiPoint oSrcOffset, Npp16s *pDstMag, int nDstMagStep,
                                                            Npp16s *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                            NppiMaskSize eMaskSize, NppiBorderType eBorderType,
@@ -78,7 +75,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(const Npp8u *pSrc, int n
                                                         NppiMaskSize eMaskSize, NppiNorm eNorm,
                                                         NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
 
-  // 参数验证
+  // Parameter validation
   if (pSrc == nullptr || pDstX == nullptr || pDstY == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -103,7 +100,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(const Npp8u *pSrc, int n
     return NPP_MASK_SIZE_ERROR;
   }
 
-  // 调用CUDA实现
+  // CallGPU实现
   return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_xy(
       pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag, nDstMagStep, pDstAngle,
       nDstAngleStep, oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx);
@@ -164,7 +161,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx(const Npp8u *pSrc, int n
     return status;
   }
 
-  return nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag,
+  return nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag,
                                                             nDstMagStep, pDstDir, nDstDirStep, oDstSizeROI, eMaskSize,
                                                             eBorderType, nppStreamCtx);
 }
@@ -192,7 +189,7 @@ NppStatus nppiGradientVectorPrewittBorder_16s_C1R_Ctx(const Npp16s *pSrc, int nS
     return status;
   }
 
-  return nppiGradientVectorPrewittBorder_16s_C1R_Ctx_cuda(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag, nDstMagStep,
+  return nppiGradientVectorPrewittBorder_16s_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag, nDstMagStep,
                                                           pDstDir, nDstDirStep, oDstSizeROI, eMaskSize, eBorderType,
                                                           nppStreamCtx);
 }

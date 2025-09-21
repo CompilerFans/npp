@@ -1,7 +1,4 @@
-/**
- * @file test_nppi_copy.cpp
- * @brief NPP 图像拷贝函数测试
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 
@@ -13,7 +10,7 @@ protected:
 
   void TearDown() override { NppTestBase::TearDown(); }
 
-  // Helper function to verify copy results
+  // Function to verify copy results
   template <typename T> bool verifyCopyResult(const std::vector<T> &src, const std::vector<T> &dst) {
     if (src.size() != dst.size())
       return false;
@@ -45,7 +42,7 @@ TEST_F(CopyFunctionalTest, Copy_8u_C1R_Basic) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -82,7 +79,7 @@ TEST_F(CopyFunctionalTest, Copy_8u_C3R_RGB) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C3R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height * 3);
   cudaMemcpy(resultData.data(), dstPtr, width * height * 3 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
@@ -124,7 +121,7 @@ TEST_F(CopyFunctionalTest, Copy_8u_C4R_RGBA) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C4R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height * 4);
   cudaMemcpy(resultData.data(), dstPtr, width * height * 4 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
 
@@ -155,7 +152,7 @@ TEST_F(CopyFunctionalTest, Copy_32f_C1R_Float) {
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_32f_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -194,7 +191,7 @@ TEST_F(CopyFunctionalTest, Copy_8u_C1R_DifferentROI) {
 
     ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C1R failed for ROI " << roi.width << "x" << roi.height;
 
-    // 验证拷贝区域
+    // Validate拷贝区域
     std::vector<Npp8u> resultData(width * height);
     dst.copyToHost(resultData);
 
@@ -216,7 +213,7 @@ TEST_F(CopyFunctionalTest, Copy_8u_C1R_DifferentROI) {
 }
 
 // 错误处理测试
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(CopyFunctionalTest, DISABLED_Copy_ErrorHandling) {
   const int width = 16, height = 16;
 
@@ -285,7 +282,7 @@ TEST_F(CopyFunctionalTest, Copy_Performance_Benchmark) {
   std::cout << "Copy Performance: " << avgTime << " μs per operation, " << throughput << " GB/s throughput"
             << std::endl;
 
-  // 验证结果仍然正确
+  // Validate结果仍然正确
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
   EXPECT_TRUE(verifyCopyResult(srcData, resultData)) << "Performance test result verification failed";

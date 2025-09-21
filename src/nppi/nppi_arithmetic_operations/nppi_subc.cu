@@ -2,14 +2,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * kernels for MPP Image Subtract Constant operations
- * Supports multiple data types, channels, and in-place operations
- */
+// Implementation file
 
-/**
- * kernel for subtracting constant from 8-bit unsigned 1-channel image
- */
+// Implementation file
 __global__ void subC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
                                       Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -36,9 +31,7 @@ __global__ void subC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   *dstPixel = static_cast<Npp8u>(result);
 }
 
-/**
- * kernel for subtracting constant from 16-bit unsigned 1-channel image
- */
+// Implementation file
 __global__ void subC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -66,9 +59,7 @@ __global__ void subC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
   *dstPixel = static_cast<Npp16u>(result);
 }
 
-/**
- * kernel for subtracting constant from 16-bit signed 1-channel image
- */
+// Implementation file
 __global__ void subC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -96,9 +87,7 @@ __global__ void subC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
   *dstPixel = static_cast<Npp16s>(result);
 }
 
-/**
- * kernel for subtracting constant from 32-bit float 1-channel image
- */
+// Implementation file
 __global__ void subC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -123,17 +112,15 @@ __global__ void subC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcSte
 
 extern "C" {
 
-/**
- * CUDA implementation of nppiSubC_8u_C1RSfs_Ctx
- */
-NppStatus nppiSubC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
+// Implementation file
+NppStatus nppiSubC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   subC_8u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
 
@@ -146,17 +133,15 @@ NppStatus nppiSubC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiSubC_16u_C1RSfs_Ctx
- */
-NppStatus nppiSubC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
+// Implementation file
+NppStatus nppiSubC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   subC_16u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
 
@@ -169,17 +154,15 @@ NppStatus nppiSubC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiSubC_16s_C1RSfs_Ctx
- */
-NppStatus nppiSubC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
+// Implementation file
+NppStatus nppiSubC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   subC_16s_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
 
@@ -192,16 +175,14 @@ NppStatus nppiSubC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation of nppiSubC_32f_C1R_Ctx
- */
-NppStatus nppiSubC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
+// Implementation file
+NppStatus nppiSubC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
+  // Set up GPU grid and block dimensions
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   subC_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc1, nSrc1Step, nConstant, pDst, nDstStep,
                                                                         oSizeROI.width, oSizeROI.height);
 
@@ -214,9 +195,7 @@ NppStatus nppiSubC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Np
   return NPP_NO_ERROR;
 }
 
-/**
- * kernel for 32-bit signed integer subtract constant
- */
+// Implementation file
 __global__ void subC_32s_C1RSfs_kernel(const Npp32s *__restrict__ pSrc, int nSrcStep, Npp32s nConstant,
                                        Npp32s *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -242,9 +221,7 @@ __global__ void subC_32s_C1RSfs_kernel(const Npp32s *__restrict__ pSrc, int nSrc
   *dstPixel = static_cast<Npp32s>(result);
 }
 
-/**
- * kernel for 8-bit unsigned 3-channel subtract constants
- */
+// Implementation file
 __global__ void subC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep,
                                       const Npp8u *__restrict__ aConstants, Npp8u *__restrict__ pDst, int nDstStep,
                                       int width, int height, int nScaleFactor) {
@@ -267,9 +244,7 @@ __global__ void subC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   }
 }
 
-/**
- * kernel for 16-bit unsigned 3-channel subtract constants
- */
+// Implementation file
 __global__ void subC_16u_C3RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep,
                                        const Npp16u *__restrict__ aConstants, Npp16u *__restrict__ pDst, int nDstStep,
                                        int width, int height, int nScaleFactor) {
@@ -292,9 +267,7 @@ __global__ void subC_16u_C3RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
   }
 }
 
-/**
- * kernel for 32-bit float 3-channel subtract constants
- */
+// Implementation file
 __global__ void subC_32f_C3R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep,
                                     const Npp32f *__restrict__ aConstants, Npp32f *__restrict__ pDst, int nDstStep,
                                     int width, int height) {
@@ -314,9 +287,7 @@ __global__ void subC_32f_C3R_kernel(const Npp32f *__restrict__ pSrc, int nSrcSte
   }
 }
 
-/**
- * kernel for 8-bit unsigned 4-channel subtract constants
- */
+// Implementation file
 __global__ void subC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep,
                                       const Npp8u *__restrict__ aConstants, Npp8u *__restrict__ pDst, int nDstStep,
                                       int width, int height, int nScaleFactor) {
@@ -338,9 +309,7 @@ __global__ void subC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   }
 }
 
-/**
- * kernel for 8-bit unsigned 1-channel in-place subtract constant
- */
+// Implementation file
 __global__ void subC_8u_C1IRSfs_kernel(Npp8u nConstant, Npp8u *__restrict__ pSrcDst, int nSrcDstStep, int width,
                                        int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -358,8 +327,8 @@ __global__ void subC_8u_C1IRSfs_kernel(Npp8u nConstant, Npp8u *__restrict__ pSrc
   *pixel = static_cast<Npp8u>(result);
 }
 
-// CUDA function implementations
-NppStatus nppiSubC_32s_C1RSfs_Ctx_cuda(const Npp32s *pSrc1, int nSrc1Step, const Npp32s nConstant, Npp32s *pDst,
+// GPU function implementations
+NppStatus nppiSubC_32s_C1RSfs_Ctx_impl(const Npp32s *pSrc1, int nSrc1Step, const Npp32s nConstant, Npp32s *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -376,7 +345,7 @@ NppStatus nppiSubC_32s_C1RSfs_Ctx_cuda(const Npp32s *pSrc1, int nSrc1Step, const
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiSubC_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
+NppStatus nppiSubC_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   // Copy constants to device
@@ -400,7 +369,7 @@ NppStatus nppiSubC_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiSubC_16u_C3RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[3], Npp16u *pDst,
+NppStatus nppiSubC_16u_C3RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[3], Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
   Npp16u *d_constants;
@@ -423,7 +392,7 @@ NppStatus nppiSubC_16u_C3RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiSubC_32f_C3R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f aConstants[3], Npp32f *pDst,
+NppStatus nppiSubC_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f aConstants[3], Npp32f *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   Npp32f *d_constants;
   cudaMalloc(&d_constants, 3 * sizeof(Npp32f));
@@ -445,7 +414,7 @@ NppStatus nppiSubC_32f_C3R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Np
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiSubC_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[4], Npp8u *pDst,
+NppStatus nppiSubC_8u_C4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[4], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   Npp8u *d_constants;
@@ -468,7 +437,7 @@ NppStatus nppiSubC_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiSubC_8u_C1IRSfs_Ctx_cuda(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+NppStatus nppiSubC_8u_C1IRSfs_Ctx_impl(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

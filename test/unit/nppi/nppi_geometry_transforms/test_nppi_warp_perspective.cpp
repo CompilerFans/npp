@@ -61,7 +61,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C1R_Identity) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证恒等变换结果应该与原图相同
+  // Validate恒等变换结果应该与原图相同
   for (int i = 0; i < srcWidth * srcHeight; i++) {
     EXPECT_EQ(resultData[i], srcData[i]) << "Identity transform failed at pixel " << i;
   }
@@ -109,8 +109,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C1R_Translation) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证透视变换结果：检查输出图像中是否存在变换后的白色像素
-  // 由于不同的透视变换矩阵约定，我们只验证变换成功执行并产生了结果
+  // Validate透视变换结果：检查输出图像中是否存在变换后的白色像素
+  // 由于不同的透视变换矩阵约定，我们只Validate变换成功执行并产生了结果
   int whitePixelCount = 0;
   for (size_t i = 0; i < resultData.size(); i++) {
     if (resultData[i] > 128) {
@@ -122,7 +122,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C1R_Translation) {
   EXPECT_GT(whitePixelCount, 0) << "Translation should produce some bright pixels";
   EXPECT_LT(whitePixelCount, resultData.size() / 2) << "Not all pixels should be bright";
 
-  std::cout << "WarpPerspective Translation test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "WarpPerspective Translation test passed - vendor NPP behavior verified" << std::endl;
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -167,8 +167,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C1R_Scaling) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证缩放效果：检查变换是否成功执行
-  // 由于透视变换矩阵约定可能不同，我们只验证变换产生了合理的结果
+  // Validate缩放效果：检查变换是否成功执行
+  // 由于透视变换矩阵约定可能不同，我们只Validate变换产生了合理的结果
 
   // 统计非零像素数量
   int nonZeroCount = 0;
@@ -180,12 +180,12 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C1R_Scaling) {
     maxVal = std::max(maxVal, resultData[i]);
   }
 
-  // 应该有一些插值结果，且值在合理范围内
+  // 应该有一些插值结果，且值在合理bounds内
   EXPECT_GT(nonZeroCount, 0) << "Scaling should produce some non-zero values";
   EXPECT_GE(minVal, 0.0f) << "Values should not be negative";
   EXPECT_LE(maxVal, 10.0f) << "Values should be in reasonable range"; // 源数据最大约6.2
 
-  std::cout << "WarpPerspective Scaling test passed - NVIDIA NPP behavior verified" << std::endl;
+  std::cout << "WarpPerspective Scaling test passed - vendor NPP behavior verified" << std::endl;
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -233,7 +233,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C3R_Identity) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证恒等变换结果应该与原图相同
+  // Validate恒等变换结果应该与原图相同
   for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
     EXPECT_EQ(resultData[i], srcData[i]) << "Identity transform failed at pixel " << i;
   }
@@ -282,7 +282,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C1R_Perspective) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证透视变换有效果（结果不应该与原图完全相同）
+  // Validate透视变换有效果（结果不应该与原图完全相同）
   bool hasChange = false;
   for (int i = 0; i < srcWidth * srcHeight; i++) {
     if (fabs(resultData[i] - srcData[i]) > 0.01f) {
@@ -347,7 +347,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_InterpolationMethods) {
                cudaMemcpyDeviceToHost);
   }
 
-  // 验证不同插值方法产生不同结果
+  // Validate不同插值方法产生不同结果
   bool interpolationDifference = false;
   for (int i = 0; i < dstWidth * dstHeight; i++) {
     if (fabs(nnResult[i] - linearResult[i]) > 0.01f) {
@@ -362,7 +362,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_InterpolationMethods) {
 }
 
 // 测试错误处理
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(WarpPerspectiveFunctionalTest, DISABLED_WarpPerspective_ErrorHandling) {
   // 测试空指针
   double coeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
@@ -397,7 +397,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_StreamContext) {
   // 复制数据到GPU
   cudaMemcpy2D(d_src, srcStep, srcData.data(), 4, 4, 4, cudaMemcpyHostToDevice);
 
-  // 使用默认流上下文
+  // 使用Default stream上下文
   NppStreamContext nppStreamCtx = {};
   nppStreamCtx.hStream = 0;
   NppStatus status = nppiWarpPerspective_8u_C1R_Ctx(d_src, smallSize, srcStep, smallROI, d_dst, dstStep, smallROI,

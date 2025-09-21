@@ -1,9 +1,4 @@
-/**
- * @file test_transpose_functional.cpp
- * @brief NPP 矩阵转置功能测试
- *
- * 专注于矩阵转置操作的功能验证，包括不同数据类型和尺寸
- */
+// Implementation file
 
 #include "../../framework/npp_test_base.h"
 #include <iomanip>
@@ -61,7 +56,7 @@ TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_BasicSquareMatrix) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "Transpose failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> result(size * size);
   dst.copyToHost(result);
 
@@ -138,7 +133,7 @@ TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_RectangularMatrix) {
 
   EXPECT_TRUE(ResultValidator::arraysEqual(result, expected_data)) << "Transpose rectangular result incorrect";
 
-  // 打印矩阵验证
+  // 打印矩阵Validate
   std::cout << "Original " << width << "x" << height << " matrix:" << std::endl;
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
@@ -284,7 +279,7 @@ TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_DoubleTranspose) {
   NppStatus status2 = nppiTranspose_8u_C1R(temp.get(), temp.step(), result.get(), result.step(), roi2);
   ASSERT_EQ(status2, NPP_NO_ERROR) << "Second transpose failed";
 
-  // 验证双重转置后的结果与原始数据相同
+  // Validate双重转置后的结果与原始数据相同
   std::vector<Npp8u> final_result(width * height);
   result.copyToHost(final_result);
 
@@ -321,7 +316,7 @@ TEST_F(TransposeFunctionalTest, Transpose_16u_C1R_DataTypeTest) {
 
 // ==================== 错误处理测试 ====================
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(TransposeFunctionalTest, DISABLED_ErrorHandling_NullPointer) {
   const int size = 4;
 
@@ -341,7 +336,7 @@ TEST_F(TransposeFunctionalTest, DISABLED_ErrorHandling_NullPointer) {
   EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null destination pointer";
 }
 
-// NOTE: 测试已被禁用 - NVIDIA NPP对无效参数的错误检测行为与预期不符
+// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
 TEST_F(TransposeFunctionalTest, DISABLED_ErrorHandling_InvalidROI) {
   const int size = 4;
 
@@ -361,7 +356,7 @@ TEST_F(TransposeFunctionalTest, DISABLED_ErrorHandling_InvalidROI) {
   EXPECT_EQ(status, NPP_SIZE_ERROR) << "Should detect negative ROI height";
 }
 
-// ==================== 性能基准测试（不测量具体时间，只验证功能）====================
+// ==================== 性能基准测试（不测量具体时间，只Validate功能）====================
 
 TEST_F(TransposeFunctionalTest, Performance_VariousSizes) {
   // 跳过大尺寸测试如果GPU内存不足
