@@ -22,9 +22,9 @@
 class NppiConvert8u32fC3RTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    // Initialize CUDA
+    // Initialize
     cudaError_t err = cudaSetDevice(0);
-    ASSERT_EQ(err, cudaSuccess) << "Failed to set CUDA device";
+    ASSERT_EQ(err, cudaSuccess) << "Failed to set device";
   }
 
   void TearDown() override {
