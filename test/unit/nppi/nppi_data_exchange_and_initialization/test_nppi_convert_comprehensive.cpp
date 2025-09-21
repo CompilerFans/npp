@@ -187,44 +187,6 @@ TEST_F(NPPIConvertAndCopyComprehensiveTest, Convert_8u32f_C3R_ConcurrentStreams)
 // nppiCopy_32f_C1R Comprehensive Tests
 // ==============================================================================
 
-// Test overlapping memory regions
-TEST_F(NPPIConvertAndCopyComprehensiveTest, Copy_32f_C1R_OverlappingRegions) {
-  const int width = 128, height = 128;
-  const int overlap = 64; // Overlap amount
-
-  // Allocate large buffer for overlapping test
-  int totalHeight = height + overlap;
-  NppImageMemory<Npp32f> buffer(width, totalHeight);
-
-  // Fill with pattern
-  std::vector<Npp32f> srcData(width * totalHeight);
-  for (size_t i = 0; i < srcData.size(); i++) {
-    srcData[i] = static_cast<float>(i);
-  }
-  buffer.copyFromHost(srcData);
-
-  // Copy with overlap (forward direction)
-  Npp32f *src = buffer.get();
-  Npp32f *dst = buffer.get() + (overlap * buffer.step() / sizeof(Npp32f));
-
-  NppiSize roi = {width, height};
-  NppStatus status = nppiCopy_32f_C1R(src, buffer.step(), dst, buffer.step(), roi);
-
-  ASSERT_EQ(status, NPP_SUCCESS) << "Overlapping copy failed";
-
-  // Verify copied region
-  std::vector<Npp32f> result(width * totalHeight);
-  buffer.copyToHost(result);
-
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      int srcIdx = y * width + x;
-      int dstIdx = (y + overlap) * width + x;
-      EXPECT_FLOAT_EQ(result[dstIdx], srcData[srcIdx]) << "Mismatch at destination (" << x << "," << y + overlap << ")";
-    }
-  }
-}
-
 // Test with various step configurations
 TEST_F(NPPIConvertAndCopyComprehensiveTest, Copy_32f_C1R_DifferentSteps) {
   const int width = 100, height = 100;

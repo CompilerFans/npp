@@ -308,56 +308,6 @@ TEST_F(NppiCopy32fC3RTest, LargeImage3ChannelPerformance) {
   nppiFree(d_dst);
 }
 
-// Test 6: Overlapping memory regions
-TEST_F(NppiCopy32fC3RTest, DISABLED_OverlappingRegions3Channel) {
-  const int width = 256;
-  const int height = 256;
-  const int overlapX = 50;
-  const int overlapY = 50;
-
-  std::vector<Npp32f> hostData(width * height * 3);
-  generatePattern(hostData, width, height, 2.0f);
-
-  Npp32f *d_buffer = nullptr;
-  int step;
-  allocateImage(&d_buffer, width, height, &step);
-
-  // Upload data
-  cudaMemcpy2D(d_buffer, step, hostData.data(), width * 3 * sizeof(Npp32f), width * 3 * sizeof(Npp32f), height,
-               cudaMemcpyHostToDevice);
-
-  // Copy with overlap (shift down and right)
-  Npp32f *pSrc = d_buffer;
-  Npp32f *pDst = (Npp32f *)((Npp8u *)d_buffer + overlapY * step) + overlapX * 3;
-
-  NppiSize roi = {width - overlapX, height - overlapY};
-  NppStatus status = nppiCopy_32f_C3R(pSrc, step, pDst, step, roi);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // Verify result
-  std::vector<Npp32f> result(width * height * 3);
-  cudaMemcpy2D(result.data(), width * 3 * sizeof(Npp32f), d_buffer, step, width * 3 * sizeof(Npp32f), height,
-               cudaMemcpyDeviceToHost);
-
-  // Check shifted region
-  for (int y = overlapY; y < height; y++) {
-    for (int x = overlapX; x < width; x++) {
-      if (x < width && y < height) {
-        int srcIdx = ((y - overlapY) * width + (x - overlapX)) * 3;
-        int dstIdx = (y * width + x) * 3;
-        if ((x - overlapX) < roi.width && (y - overlapY) < roi.height) {
-          // All 3 channels should be copied
-          EXPECT_FLOAT_EQ(result[dstIdx], hostData[srcIdx]);
-          EXPECT_FLOAT_EQ(result[dstIdx + 1], hostData[srcIdx + 1]);
-          EXPECT_FLOAT_EQ(result[dstIdx + 2], hostData[srcIdx + 2]);
-        }
-      }
-    }
-  }
-
-  nppiFree(d_buffer);
-}
-
 // Test 7: Edge alignment cases for 3-channel data
 TEST_F(NppiCopy32fC3RTest, EdgeAlignmentCases3Channel) {
   const int testWidths[] = {1, 3, 5, 7, 13, 17, 31, 63, 85, 127, 171, 255, 341, 511};

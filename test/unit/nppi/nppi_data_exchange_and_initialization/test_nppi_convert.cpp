@@ -117,7 +117,6 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   NppImageMemory<Npp32f> dst(width, height);
 
   src.copyFromHost(srcData);
-  // 注意：dst已由NppImageMemory自动初始化为0
 
   // 设置ROI为中心区域
   NppiSize oSizeROI = {16, 16};

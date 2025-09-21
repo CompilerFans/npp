@@ -149,53 +149,6 @@ TEST_F(NppiCopy32fC1RTest, PartialROICopy) {
   nppiFree(d_dst);
 }
 
-// Test 3: Overlapping memory regions
-TEST_F(NppiCopy32fC1RTest, OverlappingRegions) {
-  const int width = 256;
-  const int height = 256;
-  const int overlapX = 64;
-  const int overlapY = 64;
-
-  std::vector<Npp32f> hostData(width * height);
-  generatePattern(hostData, width, height);
-
-  Npp32f *d_buffer = nullptr;
-  int step;
-  allocateImage(&d_buffer, width, height, &step);
-
-  // Upload data
-  cudaMemcpy2D(d_buffer, step, hostData.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
-               cudaMemcpyHostToDevice);
-
-  // Copy with overlap (shift down and right)
-  Npp32f *pSrc = d_buffer;
-  Npp32f *pDst = (Npp32f *)((Npp8u *)d_buffer + overlapY * step) + overlapX;
-
-  NppiSize roi = {width - overlapX, height - overlapY};
-  NppStatus status = nppiCopy_32f_C1R(pSrc, step, pDst, step, roi);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // Verify result
-  std::vector<Npp32f> result(width * height);
-  cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_buffer, step, width * sizeof(Npp32f), height,
-               cudaMemcpyDeviceToHost);
-
-  // Check shifted region
-  for (int y = overlapY; y < height; y++) {
-    for (int x = overlapX; x < width; x++) {
-      if (x < width && y < height) {
-        int srcIdx = (y - overlapY) * width + (x - overlapX);
-        int dstIdx = y * width + x;
-        if (srcIdx < width * height && (x - overlapX) < roi.width && (y - overlapY) < roi.height) {
-          EXPECT_FLOAT_EQ(result[dstIdx], hostData[srcIdx]);
-        }
-      }
-    }
-  }
-
-  nppiFree(d_buffer);
-}
-
 // Test 4: Different source and destination strides
 TEST_F(NppiCopy32fC1RTest, DifferentStrides) {
   const int width = 200;

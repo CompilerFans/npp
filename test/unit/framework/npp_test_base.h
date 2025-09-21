@@ -213,8 +213,7 @@ public:
     if (!ptr_) {
       throw std::runtime_error("Failed to allocate NPP image memory");
     }
-    
-    // 初始化分配的内存为0，避免测试中的未定义行为
+
     cudaError_t err = cudaMemset(ptr_, 0, sizeInBytes());
     if (err != cudaSuccess) {
       throw std::runtime_error("Failed to initialize NPP image memory: " + std::string(cudaGetErrorString(err)));
@@ -238,7 +237,7 @@ public:
   int height() const { return height_; }
   int channels() const { return channels_; }
   NppiSize size() const { return {width_, height_}; }
-  size_t sizeInBytes() const { return width_ * height_ * channels_ * sizeof(T); }
+  size_t sizeInBytes() const { return step_ * height_; }
 
   // Data transfer
   void copyFromHost(const std::vector<T> &hostData) {
