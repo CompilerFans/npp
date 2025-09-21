@@ -58,7 +58,7 @@ TEST_F(GeometryTest, Mirror_HorizontalAxis) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 
+  //
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       EXPECT_EQ(h_dst[y * width + x], h_src[(height - 1 - y) * width + x]);
@@ -86,7 +86,7 @@ TEST_F(GeometryTest, Mirror_VerticalAxis) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // 
+  //
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       EXPECT_EQ(h_dst[y * width + x], h_src[y * width + (width - 1 - x)]);

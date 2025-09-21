@@ -4,8 +4,6 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
-
-
 #define WATERSHED_MASK -2
 #define WATERSHED_WSHED -1
 #define WATERSHED_INIT 0
@@ -237,7 +235,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
   computeGradient_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcDst, nSrcDstStep, pGradient, gradStep,
                                                                            width, height, (Npp8u)eNorm);
 
-  // 第二步：Initialize markers
+  // Step 2: Initialize markers
   initializeMarkers_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>((Npp32s *)pMarkerLabels, nMarkerLabelsStep,
                                                                              width, height);
 
@@ -290,5 +288,4 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

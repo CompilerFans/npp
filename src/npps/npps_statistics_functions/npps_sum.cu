@@ -1,13 +1,9 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-
-
 // ==============================================================================
 // GPU Kernels for Sum Operations
 // ==============================================================================
-
-
 __global__ void nppsSum_32f_kernel_impl(const Npp32f *pSrc, size_t nLength, Npp32f *pPartialSums) {
   __shared__ Npp32f sdata[256];
 
@@ -31,8 +27,6 @@ __global__ void nppsSum_32f_kernel_impl(const Npp32f *pSrc, size_t nLength, Npp3
     pPartialSums[blockIdx.x] = sdata[0];
   }
 }
-
-
 __global__ void nppsSum_32f_final_kernel(const Npp32f *pPartialSums, size_t numBlocks, Npp32f *pSum) {
   __shared__ Npp32f sdata[256];
 
@@ -62,8 +56,6 @@ __global__ void nppsSum_32f_final_kernel(const Npp32f *pPartialSums, size_t numB
     *pSum = sdata[0];
   }
 }
-
-
 __global__ void nppsSum_32fc_kernel_impl(const Npp32fc *pSrc, size_t nLength, Npp32fc *pPartialSums) {
   __shared__ Npp32fc sdata[256];
 
@@ -93,8 +85,6 @@ __global__ void nppsSum_32fc_kernel_impl(const Npp32fc *pSrc, size_t nLength, Np
     pPartialSums[blockIdx.x] = sdata[0];
   }
 }
-
-
 __global__ void nppsSum_32fc_final_kernel(const Npp32fc *pPartialSums, size_t numBlocks, Npp32fc *pSum) {
   __shared__ Npp32fc sdata[256];
 
@@ -177,5 +167,4 @@ cudaError_t nppsSum_32fc_kernel(const Npp32fc *pSrc, size_t nLength, Npp32fc *pS
 
   return cudaGetLastError();
 }
-
-} // extern "C"
+}

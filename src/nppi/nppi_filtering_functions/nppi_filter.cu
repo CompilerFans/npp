@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Kernel for 8-bit unsigned single channel 2D convolution
 __global__ void nppiFilter_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                          int height, const Npp32s *pKernel, int kernelWidth, int kernelHeight,

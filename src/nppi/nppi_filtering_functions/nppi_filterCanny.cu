@@ -3,8 +3,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Sobel X and Y direction kernels
 __constant__ float c_sobelX[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
 __constant__ float c_sobelY[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
@@ -263,7 +261,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, 
   size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
 
   // 需要多个临时缓冲区：
-  // 1. 高斯滤波结果 (float)
+  // 1. Gaussian filtering结果 (float)
   // 2. 梯度强度 (float)
   // 3. 梯度方向 (float)
   // 4. Non-maximum suppression结果 (float)
@@ -275,7 +273,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, 
   return NPP_SUCCESS;
 }
 
-// Canny边缘检测主函数
+// CannyEdge detection主函数
 NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
                                                 NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                 NppiDifferentialKernel eFilterType, NppiMaskSize eMaskSize,
@@ -300,7 +298,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
   dim3 blockSize(16, 16);
   dim3 gridSize((srcWidth + blockSize.x - 1) / blockSize.x, (srcHeight + blockSize.y - 1) / blockSize.y);
 
-  // 第一步：高斯滤波
+  // 第一步：Gaussian filtering
   cannyGaussianBlur_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pBlurred, floatStep, srcWidth, srcHeight, eMaskSize, eBorderType);
 
@@ -315,11 +313,11 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
   // 调整网格大小用于输出
   dim3 dstGridSize((dstWidth + blockSize.x - 1) / blockSize.x, (dstHeight + blockSize.y - 1) / blockSize.y);
 
-  // 第四步：双阈值检测
+  // 第四步：双threshold检测
   cannyDoubleThreshold_kernel<<<dstGridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSuppressed, floatStep, pDst, nDstStep, dstWidth, dstHeight, nLowThreshold, nHighThreshold);
 
-  // 第五步：边缘连接（多次迭代）
+  // 第五步：边缘connection（多次迭代）
   for (int i = 0; i < 3; i++) {
     cannyEdgeTracing_kernel<<<dstGridSize, blockSize, 0, nppStreamCtx.hStream>>>(pDst, nDstStep, dstWidth, dstHeight);
   }
@@ -331,5 +329,4 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

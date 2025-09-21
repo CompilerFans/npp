@@ -41,7 +41,7 @@ protected:
     // 使用channels参数以避免警告
     (void)channels;
     for (size_t i = 0; i < result.size(); i++) {
-      // 
+      //
       long long diff = static_cast<long long>(src1[i]) - static_cast<long long>(src2[i]);
       if (diff < 0)
         diff = -diff;

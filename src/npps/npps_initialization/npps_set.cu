@@ -1,29 +1,21 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-
-
 // ==============================================================================
 // GPU Kernels for Set Operations
 // ==============================================================================
-
-
 __global__ void nppsSet_8u_kernel_impl(Npp8u nValue, Npp8u *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < nLength) {
     pDst[idx] = nValue;
   }
 }
-
-
 __global__ void nppsSet_32f_kernel_impl(Npp32f nValue, Npp32f *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < nLength) {
     pDst[idx] = nValue;
   }
 }
-
-
 __global__ void nppsSet_32fc_kernel_impl(Npp32fc nValue, Npp32fc *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < nLength) {
@@ -64,5 +56,4 @@ cudaError_t nppsSet_32fc_kernel(Npp32fc nValue, Npp32fc *pDst, size_t nLength, c
 
   return cudaGetLastError();
 }
-
-} // extern "C"
+}

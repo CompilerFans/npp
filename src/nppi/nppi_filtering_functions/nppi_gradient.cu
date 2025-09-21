@@ -3,8 +3,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Prewitt operator kernels (3x3)
 __constant__ float prewitt_x_3x3[9] = {-1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f};
 
@@ -272,8 +270,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_magdir(const Npp8u 
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}
 
 // Implement new X/Y component output version
 __global__ void prewittGradientXY_8u16s_kernel(const Npp8u *pSrc, int nSrcStep, int srcWidth, int srcHeight,

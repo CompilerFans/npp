@@ -3,8 +3,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
@@ -40,7 +38,7 @@ static inline NppStatus validateResizeInputs(const void *pSrc, int nSrcStep, Npp
     return NPP_NULL_POINTER_ERROR;
   }
 
-  // Validate插值参数以Avoid unused warning
+  // Validate interpolation parameters to avoid unused warning
   if (eInterpolation < 0) {
     return NPP_BAD_ARGUMENT_ERROR;
   }

@@ -239,8 +239,7 @@ NppStatus nppiDilate3x3_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32
 
   return NPP_SUCCESS;
 }
-
-} // end extern "C"
+}
 
 //=============================================================================
 // General Morphology Kernels with Arbitrary Structure Elements

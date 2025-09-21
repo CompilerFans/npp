@@ -11,13 +11,9 @@ cudaError_t nppsSum_32fc_kernel(const Npp32fc *pSrc, size_t nLength, Npp32fc *pS
                                 cudaStream_t stream);
 }
 
-
-
 // ==============================================================================
 // Buffer Size Functions - Required for reduction operations
 // ==============================================================================
-
-
 NppStatus nppsSumGetBufferSize_32f_Ctx(size_t nLength, size_t *hpBufferSize, NppStreamContext nppStreamCtx) {
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
@@ -43,8 +39,6 @@ NppStatus nppsSumGetBufferSize_32f_Ctx(size_t nLength, size_t *hpBufferSize, Npp
 NppStatus nppsSumGetBufferSize_32f(size_t nLength, size_t *hpBufferSize) {
   return nppsSumGetBufferSize_32f_Ctx(nLength, hpBufferSize, {});
 }
-
-
 NppStatus nppsSumGetBufferSize_32fc_Ctx(size_t nLength, size_t *hpBufferSize, NppStreamContext nppStreamCtx) {
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
@@ -73,8 +67,6 @@ NppStatus nppsSumGetBufferSize_32fc(size_t nLength, size_t *hpBufferSize) {
 // ==============================================================================
 // Sum Operations - Element-wise summation of signal values
 // ==============================================================================
-
-
 NppStatus nppsSum_32f_Ctx(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
                           NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -104,8 +96,6 @@ NppStatus nppsSum_32f(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *p
 
   return nppsSum_32f_Ctx(pSrc, nLength, pSum, pDeviceBuffer, defaultContext);
 }
-
-
 NppStatus nppsSum_32fc_Ctx(const Npp32fc *pSrc, size_t nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer,
                            NppStreamContext nppStreamCtx) {
   // Parameter validation

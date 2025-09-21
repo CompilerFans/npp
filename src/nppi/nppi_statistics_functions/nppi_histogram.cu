@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Shared memory histogram kernel (more efficient for small histograms)
 __global__ void nppiHistogramEven_8u_C1R_kernel_shared(const Npp8u *pSrc, int nSrcStep, int width, int height,
                                                        Npp32s *pHist, int nLevels, Npp32s nLowerLevel,
@@ -115,5 +113,4 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

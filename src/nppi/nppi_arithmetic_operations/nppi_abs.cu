@@ -4,12 +4,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
-// ============================================================================
-// Functions and kernels
-// ============================================================================
-
 // Define block size
 #define BLOCK_SIZE_X 16
 #define BLOCK_SIZE_Y 16
@@ -20,10 +14,6 @@ __device__ __forceinline__ Npp16s abs_op(Npp16s val) { return (val < 0) ? -val :
 __device__ __forceinline__ half abs_op(half val) { return __habs(val); }
 
 __device__ __forceinline__ Npp32f abs_op(Npp32f val) { return fabsf(val); }
-
-// ============================================================================
-// Generic kernels
-// ============================================================================
 
 // Generic absolute value kernel (not in-place)
 template <typename T, int nChannels>
@@ -100,10 +90,6 @@ __global__ void abs_ac4_inplace_kernel(T *__restrict__ pSrcDst, int nSrcDstStep,
     // Alpha channel unchanged
   }
 }
-
-// ============================================================================
-// Kernel launch functions
-// ============================================================================
 
 template <typename T, int nChannels>
 static NppStatus launchAbsKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
@@ -194,10 +180,6 @@ static NppStatus launchAbsAC4InplaceKernel(T *pSrcDst, int nSrcDstStep, NppiSize
 
 extern "C" {
 
-// ============================================================================
-// 16-bit signed integer implementations
-// ============================================================================
-
 NppStatus nppiAbs_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   return launchAbsKernel<Npp16s, 1>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
@@ -238,10 +220,6 @@ NppStatus nppiAbs_16s_C4IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize o
   return launchAbsInplaceKernel<Npp16s, 4>(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-// ============================================================================
-// 16-bit float implementations
-// ============================================================================
-
 NppStatus nppiAbs_16f_C1R_Ctx_impl(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
   return launchAbsKernel<half, 1>((const half *)pSrc, nSrcStep, (half *)pDst, nDstStep, oSizeROI, nppStreamCtx);
@@ -271,10 +249,6 @@ NppStatus nppiAbs_16f_C4IR_Ctx_impl(Npp16f *pSrcDst, int nSrcDstStep, NppiSize o
                                     NppStreamContext nppStreamCtx) {
   return launchAbsInplaceKernel<half, 4>((half *)pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
-
-// ============================================================================
-// 32-bit float implementations
-// ============================================================================
 
 NppStatus nppiAbs_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
@@ -315,5 +289,4 @@ NppStatus nppiAbs_32f_C4IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize o
                                     NppStreamContext nppStreamCtx) {
   return launchAbsInplaceKernel<Npp32f, 4>(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
-
-} // extern "C"
+}

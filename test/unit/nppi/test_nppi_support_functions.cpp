@@ -67,7 +67,7 @@ TEST_F(SupportFunctionsTest, GetStreamContext_BasicTest) {
 }
 
 TEST_F(SupportFunctionsTest, SetGetStreamContext_BasicTest) {
-  // 
+  //
   NppStreamContext currentCtx;
   NppStatus status = nppGetStreamContext(&currentCtx);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppGetStreamContext should succeed";

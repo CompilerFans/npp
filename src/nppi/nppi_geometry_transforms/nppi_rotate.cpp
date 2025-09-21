@@ -3,8 +3,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiRotate_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
@@ -19,8 +17,6 @@ NppStatus nppiRotate_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int
                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX,
                                       double nShiftY, int eInterpolation, NppStreamContext nppStreamCtx);
 }
-
-
 static inline NppStatus validateRotateInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              void *pDst, int nDstStep, NppiRect oDstROI) {
   if (!pSrc || !pDst)
@@ -42,8 +38,6 @@ static inline NppStatus validateRotateInputs(const void *pSrc, NppiSize oSrcSize
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiRotate_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                 int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                 int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -56,8 +50,6 @@ NppStatus nppiRotate_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
   return nppiRotate_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
                                     nShiftY, eInterpolation, nppStreamCtx);
 }
-
-
 NppStatus nppiRotate_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                             int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                             int eInterpolation) {
@@ -68,8 +60,6 @@ NppStatus nppiRotate_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, 
   return nppiRotate_8u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX, nShiftY,
                                eInterpolation, nppStreamCtx);
 }
-
-
 NppStatus nppiRotate_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                 int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                 int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -82,8 +72,6 @@ NppStatus nppiRotate_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcSt
   return nppiRotate_8u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
                                     nShiftY, eInterpolation, nppStreamCtx);
 }
-
-
 NppStatus nppiRotate_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                             int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                             int eInterpolation) {
@@ -94,8 +82,6 @@ NppStatus nppiRotate_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, 
   return nppiRotate_8u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX, nShiftY,
                                eInterpolation, nppStreamCtx);
 }
-
-
 NppStatus nppiRotate_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
                                  int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                                  int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -108,8 +94,6 @@ NppStatus nppiRotate_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrc
   return nppiRotate_32f_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX,
                                      nShiftY, eInterpolation, nppStreamCtx);
 }
-
-
 NppStatus nppiRotate_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
                              int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
                              int eInterpolation) {

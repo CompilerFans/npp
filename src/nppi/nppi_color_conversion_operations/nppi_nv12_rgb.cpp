@@ -1,8 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-
-
 // Kernel declarations
 extern "C" {
 cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
@@ -15,8 +13,6 @@ cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *pSrcY, int 
                                                         int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                         const Npp32f aTwist[3][4], cudaStream_t stream);
 }
-
-
 NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -49,16 +45,12 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
 
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppiNV12ToRGB_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
-
-
 NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -91,30 +83,22 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
 
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
-
-
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
-
-
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0; // Default stream
   return nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
-
-
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst,
                                                    int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
                                                    NppStreamContext nppStreamCtx) {
@@ -158,8 +142,6 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst, int nDstStep,
                                                NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext ctx;
@@ -170,8 +152,6 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u *const pSrc[2], int a
 //=============================================================================
 // NV12 to BGR conversion functions
 //=============================================================================
-
-
 NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -192,7 +172,7 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 
+  //
   cudaError_t cudaStatus = nppiNV12ToRGB_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                          pSrc[1], rSrcStep, // UV plane (interleaved)
                                                          pDst, nDstStep,    // BGR output (will swap R and B)
@@ -207,16 +187,12 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
 
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppiNV12ToBGR_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
-
-
 NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Parameter validation
@@ -249,22 +225,16 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
 
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
-
-
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
-
-
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI) {
   NppStreamContext ctx;

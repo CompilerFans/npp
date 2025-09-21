@@ -124,7 +124,7 @@ TEST_F(RemapFunctionalTest, Remap_16u_C3R_Ctx_Mirror) {
   std::vector<Npp16u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
-  // 
+  //
   int firstIdx = 0;
   int lastIdx = (width - 1) * 3;
   ASSERT_EQ(srcData[firstIdx], dstData[lastIdx]);         // R通道

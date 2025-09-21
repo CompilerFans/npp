@@ -2,14 +2,8 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 static NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
-
-
 const NppLibraryVersion *nppGetLibVersion(void) { return &g_nppLibVersion; }
-
-
 int nppGetGpuNumSMs(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -22,8 +16,6 @@ int nppGetGpuNumSMs(void) {
   }
   return prop.multiProcessorCount;
 }
-
-
 int nppGetMaxThreadsPerBlock(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -36,8 +28,6 @@ int nppGetMaxThreadsPerBlock(void) {
   }
   return prop.maxThreadsPerBlock;
 }
-
-
 int nppGetMaxThreadsPerSM(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -50,8 +40,6 @@ int nppGetMaxThreadsPerSM(void) {
   }
   return prop.maxThreadsPerMultiProcessor;
 }
-
-
 int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, int *pNumberOfSMs) {
   if (!pMaxThreadsPerSM || !pMaxThreadsPerBlock || !pNumberOfSMs) {
     return -1;
@@ -73,8 +61,6 @@ int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, i
 
   return 0; // cudaSuccess
 }
-
-
 const char *nppGetGpuName(void) {
   static char deviceName[256] = {0};
   static bool initialized = false;
@@ -101,15 +87,11 @@ const char *nppGetGpuName(void) {
 
   return deviceName;
 }
-
-
 cudaStream_t nppGetStream(void) {
   // Return the default stream (0)
   // In a real application, the user should manage their own streams
   return cudaStreamLegacy; // Use legacy default stream for compatibility
 }
-
-
 NppStatus nppSetStream(cudaStream_t hStream) {
   // This function exists for API compatibility
   // Users should use Runtime API directly to manage streams
@@ -123,8 +105,6 @@ NppStatus nppSetStream(cudaStream_t hStream) {
   // Just accept them - the actual GPU calls will fail if invalid
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
   if (!pNppStreamContext) {
     return NPP_NULL_POINTER_ERROR;
@@ -167,8 +147,6 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
 
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
   // Validate device ID
   int deviceCount;
@@ -208,8 +186,6 @@ NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
 
   return NPP_NO_ERROR;
 }
-
-
 unsigned int nppGetStreamNumSMs(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -223,8 +199,6 @@ unsigned int nppGetStreamNumSMs(void) {
 
   return static_cast<unsigned int>(prop.multiProcessorCount);
 }
-
-
 unsigned int nppGetStreamMaxThreadsPerSM(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -238,8 +212,6 @@ unsigned int nppGetStreamMaxThreadsPerSM(void) {
 
   return static_cast<unsigned int>(prop.maxThreadsPerMultiProcessor);
 }
-
-
 NppStatus nppGetGpuComputeCapability(int *pMajor, int *pMinor) {
   if (!pMajor || !pMinor) {
     return NPP_NULL_POINTER_ERROR;
@@ -406,8 +378,6 @@ __attribute__((unused)) static const char *nppGetStatusStringInternal(NppStatus 
     return "Unknown error code";
   }
 }
-
-
 NppStreamContext nppCreateDefaultStreamContext(void) {
   NppStreamContext ctx;
 

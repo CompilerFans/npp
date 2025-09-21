@@ -4,8 +4,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 // Version with X/Y component output (used by FilterBorderControlNPP)

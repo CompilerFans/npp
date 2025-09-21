@@ -3,8 +3,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,

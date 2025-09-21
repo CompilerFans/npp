@@ -2,10 +2,6 @@
 #include <cmath>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-
-
-
-
 __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                            Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -26,8 +22,6 @@ __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, co
     *dst_pixel = (Npp8u)min(result, 255);
   }
 }
-
-
 __global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                             Npp16u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -51,8 +45,6 @@ __global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, 
 }
 
 extern "C" {
-
-
 NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -78,8 +70,6 @@ NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const 
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                         Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -105,5 +95,4 @@ NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, cons
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

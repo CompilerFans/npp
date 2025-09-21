@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Simple bilinear demosaicing kernel for CFA data
 template <typename T>
 __global__ void nppiCFAToRGB_bilinear_kernel(const T *pSrc, int nSrcStep, NppiSize srcSize, NppiRect oSrcROI, T *pDst,

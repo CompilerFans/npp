@@ -3,8 +3,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Simple 3x3 Gaussian kernel
 __constant__ float c_gauss3x3[9] = {0.0625f, 0.125f, 0.0625f, 0.125f, 0.25f, 0.125f, 0.0625f, 0.125f, 0.0625f};
 
@@ -298,5 +296,4 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

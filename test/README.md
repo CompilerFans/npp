@@ -81,17 +81,17 @@ ctest --output-on-failure
 - **Basic functionality tests**: Verify correct output for normal input
 - **Boundary condition tests**: Test extreme values, empty input and other boundary cases
 - **Error handling tests**: Verify correct error codes for invalid input
-- **数据类型测试**: 验证不同数据类型的支持
+- **Data type tests**: Verify support for different data types
 
-## 添加新测试
+## Adding New Tests
 
-### 1. 选择正确的模块目录
-- 核心功能 → `nppcore/`
-- 图像算术 → `nppi/arithmetic/`
-- 数据交换 → `nppi/data_exchange/`
-- 线性变换 → `nppi/linear_transforms/`
+### 1. Choose the Correct Module Directory
+- Core functionality → `nppcore/`
+- Image arithmetic → `nppi/arithmetic/`
+- Data exchange → `nppi/data_exchange/`
+- Linear transforms → `nppi/linear_transforms/`
 
-### 2. 创建测试文件
+### 2. Create Test File
 ```cpp
 #include "gtest/gtest.h"
 #include "../support/framework/npp_test_base.h"
@@ -100,31 +100,31 @@ class MyFunctionTest : public NppTestBase {
 protected:
     void SetUp() override {
         NppTestBase::SetUp();
-        // 初始化测试数据
+        // Initialize test data
     }
 };
 
 TEST_F(MyFunctionTest, BasicOperation) {
-    // 测试基本功能
+    // Test basic functionality
 }
 
 TEST_F(MyFunctionTest, DISABLED_ErrorHandling) {
-    // 测试错误处理
+    // Test error handling
 }
 ```
 
-### 3. 更新CMakeLists.txt
-将新的测试文件添加到`UNIT_TEST_SOURCES`列表中。
+### 3. Update CMakeLists.txt
+Add the new test file to the `UNIT_TEST_SOURCES` list.
 
-## 测试覆盖率
+## Test Coverage
 
-目前已实现的测试模块：
-- ✅ **nppcore**: 设备管理、内存分配、错误处理
-- ✅ **nppi/arithmetic**: Add, Sub, Mul, Div及其常数版本
-- ✅ **nppi/data_exchange**: 矩阵转置操作
+Currently implemented test modules:
+- ✅ **nppcore**: Device management, memory allocation, error handling
+- ✅ **nppi/arithmetic**: Add, Sub, Mul, Divand their constant versions
+- ✅ **nppi/data_exchange**: Matrix transpose operations
 
-待扩展的模块：
-- ⏳ **nppi/linear_transforms**: 线性变换操作
+Modules to be extended:
+- ⏳ **nppi/linear_transforms**: Linear transforms操作
 - ⏳ **nppi/filtering**: 滤波操作  
 - ⏳ **nppi/color_conversion**: 颜色空间转换
 - ⏳ **npps**: 信号处理模块

@@ -1,21 +1,21 @@
-# NPP核心库CMake配置
+# NPP core library CMake configuration
 
-# 查找源文件
+# Find source files
 npp_find_all_sources(CPU_SOURCES CUDA_SOURCES ${CMAKE_CURRENT_SOURCE_DIR})
 
-# 创建MPP库(根据BUILD_SHARED_LIBS选项决定是静态还是动态)
+# Create MPP library (static or dynamic based on BUILD_SHARED_LIBS)
 add_library(npp
     ${CPU_SOURCES}
     ${CUDA_SOURCES}
 )
 
-# 设置NPP目标配置
+# Set NPP target configuration
 npp_setup_target(npp)
 
-# 添加NPP特有包含目录
+# Add NPP specific include directories
 npp_add_common_includes(npp)
 
-# 设置库的导出名称和版本信息
+# Set library export name and version info
 set_target_properties(npp PROPERTIES
     OUTPUT_NAME "mpp"
     EXPORT_NAME "npp"
@@ -23,13 +23,13 @@ set_target_properties(npp PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-# 如果是动态库，添加动态库特有的配置
+# Add dynamic library specific configuration if shared
 if(BUILD_SHARED_LIBS)
-    # Windows DLL导出符号
+    # Windows DLL export symbols
     target_compile_definitions(npp PRIVATE MPP_EXPORTS)
     target_compile_definitions(npp INTERFACE MPP_IMPORTS)
     
-    # 设置动态库的运行时路径
+    # Set runtime path for dynamic library
     if(NOT WIN32)
         set_target_properties(npp PROPERTIES
             INSTALL_RPATH "$ORIGIN"
@@ -38,5 +38,5 @@ if(BUILD_SHARED_LIBS)
     endif()
 endif()
 
-# 安装库文件
+# Install library files
 npp_install_library(npp)

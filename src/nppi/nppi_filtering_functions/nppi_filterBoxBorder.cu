@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Device function to handle border pixel access
 template <typename T>
 __device__ T getBorderPixel(const T *pSrc, int nSrcStep, NppiSize oSrcSizeROI, int x, int y, NppiBorderType eBorderType,
@@ -299,5 +297,4 @@ NppStatus nppiFilterBoxBorder_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep,
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

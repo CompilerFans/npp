@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Device function for comparison operations
 __device__ inline bool performComparison(float src, float constant, NppCmpOp op) {
   switch (op) {
@@ -125,5 +123,4 @@ NppStatus nppiCompareC_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, const 
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

@@ -2,10 +2,6 @@
 #include <cmath>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-
-
-
-
 __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                         int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -84,8 +80,6 @@ __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     }
   }
 }
-
-
 __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -110,8 +104,6 @@ __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16
     }
   }
 }
-
-
 __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -136,8 +128,6 @@ __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16
     }
   }
 }
-
-
 __global__ void nppiLn_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                       int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -164,8 +154,6 @@ __global__ void nppiLn_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *
 }
 
 extern "C" {
-
-
 NppStatus nppiLn_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -191,8 +179,6 @@ NppStatus nppiLn_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiLn_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -218,8 +204,6 @@ NppStatus nppiLn_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *p
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiLn_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -245,8 +229,6 @@ NppStatus nppiLn_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *p
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiLn_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -272,5 +254,4 @@ NppStatus nppiLn_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

@@ -2,10 +2,6 @@
 #include <cmath>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-
-
-
-
 __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -23,8 +19,6 @@ __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int n
     dstPtr[x] = sqrtf(real * real + imag * imag);
   }
 }
-
-
 __global__ void magnitude_sqr_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                              int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -45,10 +39,7 @@ __global__ void magnitude_sqr_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, i
 
 extern "C" {
 
-// ============================================================================
 // Magnitude function implementations
-// ============================================================================
-
 NppStatus nppiMagnitude_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -80,5 +71,4 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcSte
 
   return NPP_NO_ERROR;
 }
-
-} // extern "C"
+}

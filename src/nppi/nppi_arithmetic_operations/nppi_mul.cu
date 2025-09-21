@@ -3,12 +3,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
-// ============================================================================
 // Device kernels
-// ============================================================================
-
 // 8-bit unsigned mul with scaling, single channel
 __global__ void nppiMul_8u_C1RSfs_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                          Npp8u *pDst, int nDstStep, int width, int height, int nScaleFactor) {
@@ -145,10 +140,7 @@ __global__ void nppiMul_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
   }
 }
 
-// ============================================================================
 // Host functions
-// ============================================================================
-
 extern "C" {
 
 // 8-bit unsigned

@@ -190,7 +190,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
 // 测试除零保护
 TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
   const int width = 8, height = 8;
-  const Npp32f divisor = 1e-6f; 
+  const Npp32f divisor = 1e-6f;
 
   // prepare test data
   std::vector<Npp32f> srcData(width * height, 1.0f);

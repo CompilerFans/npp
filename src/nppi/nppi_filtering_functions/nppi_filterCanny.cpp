@@ -48,7 +48,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int *
   return nppiFilterCannyBorderGetBufferSize_8u_C1R(oSizeROI, hpBufferSize);
 }
 
-// Canny边缘检测implementation
+// CannyEdge detectionimplementation
 NppStatus nppiFilterCannyBorder_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiDifferentialKernel eFilterType,
                                        NppiMaskSize eMaskSize, Npp16s nLowThreshold, Npp16s nHighThreshold,

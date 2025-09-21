@@ -2,8 +2,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiTranspose_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
@@ -41,8 +39,6 @@ NppStatus nppiTranspose_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32
 NppStatus nppiTranspose_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
 }
-
-
 static NppStatus validateTransposeParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                              NppiSize oSrcROI, int elementSize, int channels) {
   if (!pSrc || !pDst) {
@@ -63,10 +59,7 @@ static NppStatus validateTransposeParameters(const void *pSrc, int nSrcStep, con
   return NPP_NO_ERROR;
 }
 
-// ============================================================================
 // 8-bit unsigned implementations
-// ============================================================================
-
 
 NppStatus nppiTranspose_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
@@ -83,8 +76,6 @@ NppStatus nppiTranspose_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   nppGetStreamContext(&nppStreamCtx);
   return nppiTranspose_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
-
-
 NppStatus nppiTranspose_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 3);
@@ -100,8 +91,6 @@ NppStatus nppiTranspose_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   nppGetStreamContext(&nppStreamCtx);
   return nppiTranspose_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
-
-
 NppStatus nppiTranspose_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 4);
@@ -118,10 +107,7 @@ NppStatus nppiTranspose_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   return nppiTranspose_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
-// ============================================================================
 // 16-bit unsigned implementations
-// ============================================================================
-
 NppStatus nppiTranspose_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                     NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp16u), 1);
@@ -170,10 +156,7 @@ NppStatus nppiTranspose_16u_C4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, 
   return nppiTranspose_16u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
-// ============================================================================
 // 16-bit signed implementations
-// ============================================================================
-
 NppStatus nppiTranspose_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                     NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp16s), 1);
@@ -222,10 +205,7 @@ NppStatus nppiTranspose_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, 
   return nppiTranspose_16s_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
-// ============================================================================
 // 32-bit signed implementations
-// ============================================================================
-
 NppStatus nppiTranspose_32s_C1R_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
                                     NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp32s), 1);
@@ -273,10 +253,6 @@ NppStatus nppiTranspose_32s_C4R(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, 
   nppGetStreamContext(&nppStreamCtx);
   return nppiTranspose_32s_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
-
-// ============================================================================
-// 32-bit float implementations
-// ============================================================================
 
 NppStatus nppiTranspose_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                     NppStreamContext nppStreamCtx) {

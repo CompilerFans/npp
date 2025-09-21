@@ -3,8 +3,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 // 16s implementations
@@ -48,8 +46,6 @@ NppStatus nppiAbs_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDs
                                    NppStreamContext nppStreamCtx);
 NppStatus nppiAbs_32f_C4IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
-
-
 static NppStatus validateAbsParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                        NppiSize oSizeROI, int nChannels, int nElementSize) {
   // For in-place operations, pDst will be nullptr
@@ -82,10 +78,6 @@ static NppStatus validateAbsParameters(const void *pSrc, int nSrcStep, const voi
 
   return NPP_NO_ERROR;
 }
-
-// ============================================================================
-// 16-bit signed integer implementations
-// ============================================================================
 
 NppStatus nppiAbs_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
@@ -211,10 +203,6 @@ NppStatus nppiAbs_16s_C4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) 
   return nppiAbs_16s_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-// ============================================================================
-// 16-bit float implementations
-// ============================================================================
-
 NppStatus nppiAbs_16f_C1R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
   NppStatus status = validateAbsParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 1, sizeof(Npp16f));
@@ -307,10 +295,6 @@ NppStatus nppiAbs_16f_C4IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) 
   nppGetStreamContext(&nppStreamCtx);
   return nppiAbs_16f_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
-
-// ============================================================================
-// 32-bit float implementations
-// ============================================================================
 
 NppStatus nppiAbs_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
@@ -436,8 +420,6 @@ NppStatus nppiAbs_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) 
   return nppiAbs_32f_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-// ==================== 8位有符号绝对值 (未implementation) ====================
-
 NppStatus nppiAbs_8s_C1R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI) {
   // Parameter validation
   if (pSrc == nullptr || pDst == nullptr) {
@@ -451,7 +433,7 @@ NppStatus nppiAbs_8s_C1R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstS
     return NPP_STEP_ERROR;
   }
 
-  // 打印未implementation警告
+  // 打印not implemented警告
   fprintf(stderr, "WARNING: nppiAbs_8s_C1R is not implemented in this NPP library build\n");
 
   return NPP_NOT_IMPLEMENTED_ERROR;

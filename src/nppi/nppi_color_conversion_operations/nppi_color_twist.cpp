@@ -3,8 +3,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiColorTwist32f_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
@@ -36,8 +34,6 @@ static inline NppStatus validateColorTwistInputs(const void *pSrc, int nSrcStep,
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiColorTwist32f_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
@@ -54,8 +50,6 @@ NppStatus nppiColorTwist32f_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
-
-
 NppStatus nppiColorTwist32f_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);

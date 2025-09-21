@@ -1,17 +1,11 @@
 #ifndef NPP_INTERNAL_H
 #define NPP_INTERNAL_H
-
 #include "npp.h"
 #include <cstring>
 #include <cuda_runtime.h>
-
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 static inline NppStreamContext nppCreateDefaultStreamContext(void) {
   NppStreamContext ctx;
 

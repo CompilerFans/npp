@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Generic remap kernel template for different data types
 template <typename T>
 __global__ void nppiRemap_nearest_kernel(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
@@ -156,7 +154,6 @@ NppStatus nppiRemap_16s_C3R_Ctx_impl(const Npp16s *pSrc, NppiSize oSrcSize, int 
   return (cudaStatus != cudaSuccess) ? NPP_CUDA_KERNEL_EXECUTION_ERROR : NPP_SUCCESS;
 }
 
-// 32-bit float implementations
 NppStatus nppiRemap_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      const Npp32f *pXMap, int nXMapStep, const Npp32f *pYMap, int nYMapStep,
                                      Npp32f *pDst, int nDstStep, NppiSize oDstSizeROI, int eInterpolation,

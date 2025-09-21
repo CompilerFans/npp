@@ -2,8 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-
-
 // Device function for linear interpolation between two points
 __device__ inline int linearInterpolate(int input, int level0, int level1, int value0, int value1) {
   if (input <= level0)
@@ -243,5 +241,4 @@ NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp1
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

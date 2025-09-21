@@ -1,8 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiAdd_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -28,8 +26,6 @@ NppStatus nppiAdd_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp
 NppStatus nppiAdd_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
-
-
 static NppStatus validateDualSourceParameters(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                               const void *pDst, int nDstStep, NppiSize oSizeROI, int elementSize) {
   if (!pSrc1 || !pSrc2 || !pDst) {
@@ -54,10 +50,7 @@ static NppStatus validateDualSourceParameters(const void *pSrc1, int nSrc1Step, 
   return NPP_NO_ERROR;
 }
 
-// ============================================================================
 // 8-bit unsigned implementations
-// ============================================================================
-
 NppStatus nppiAdd_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                 int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   // Validate parameters
@@ -99,10 +92,7 @@ NppStatus nppiAdd_8u_C1IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, in
   return nppiAdd_8u_C1IRSfs_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-// ============================================================================
 // 16-bit unsigned implementations
-// ============================================================================
-
 NppStatus nppiAdd_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   // Validate parameters
@@ -129,10 +119,7 @@ NppStatus nppiAdd_16u_C1RSfs(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *p
                                 nppStreamCtx);
 }
 
-// ============================================================================
 // 32-bit float implementations (no scaling)
-// ============================================================================
-
 NppStatus nppiAdd_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                               int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Validate parameters (no scale factor for float)
@@ -165,10 +152,7 @@ NppStatus nppiAdd_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, in
   return nppiAdd_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-// ============================================================================
 // Multi-channel implementations
-// ============================================================================
-
 // 8-bit unsigned, 3 channels
 NppStatus nppiAdd_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                 int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {

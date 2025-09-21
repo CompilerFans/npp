@@ -4,8 +4,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize);
@@ -13,8 +11,6 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
                                             int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                             NppStreamContext nppStreamCtx);
 }
-
-
 NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBound, Npp32s nUpperBound) {
   // Validate input parameters
   if (!pLevels) {
@@ -43,8 +39,6 @@ NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBoun
 
   return NPP_SUCCESS;
 }
-
-
 NppStatus nppiEvenLevelsHost_32f(Npp32f *pLevels, int nLevels, Npp32f nLowerBound, Npp32f nUpperBound) {
   // Validate input parameters
   if (!pLevels) {
@@ -79,8 +73,6 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, 
   nppGetStreamContext(&nppStreamCtx);
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
-
-
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
                                                     NppStreamContext nppStreamCtx) {
   // Validate input parameters
@@ -101,8 +93,6 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
 
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
 }
-
-
 NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                        NppStreamContext nppStreamCtx) {

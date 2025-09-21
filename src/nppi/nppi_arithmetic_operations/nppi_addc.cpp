@@ -2,8 +2,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
-
 // Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiAddC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
@@ -23,8 +21,6 @@ NppStatus nppiAddC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Np
 NppStatus nppiAddC_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx);
 }
-
-
 static NppStatus validateParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep, NppiSize oSizeROI,
                                     int nScaleFactor) {
   if (!pSrc || !pDst) {
@@ -49,8 +45,6 @@ static NppStatus validateParameters(const void *pSrc, int nSrcStep, const void *
 
   return NPP_NO_ERROR;
 }
-
-
 NppStatus nppiAddC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   // Validate parameters
@@ -67,8 +61,6 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
   // Call GPU implementation
   return nppiAddC_8u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C1RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI, int nScaleFactor) {
   // Get default stream context
@@ -77,16 +69,12 @@ NppStatus nppiAddC_8u_C1RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nCon
 
   return nppiAddC_8u_C1RSfs_Ctx(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C1IRSfs_Ctx(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
   // For in-place operation, source and destination are the same
   return nppiAddC_8u_C1RSfs_Ctx(pSrcDst, nSrcDstStep, nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor,
                                 nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C1IRSfs(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                               int nScaleFactor) {
   // Get default stream context
@@ -95,8 +83,6 @@ NppStatus nppiAddC_8u_C1IRSfs(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDst
 
   return nppiAddC_8u_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   // Validate parameters - for 3-channel, each pixel is 3 bytes
@@ -131,8 +117,6 @@ NppStatus nppiAddC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
   return nppiAddC_8u_C3RSfs_Ctx_impl(pSrc1, nSrc1Step, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
                                      nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C3RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI, int nScaleFactor) {
   // Get default stream context
@@ -141,15 +125,11 @@ NppStatus nppiAddC_8u_C3RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aCon
 
   return nppiAddC_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C3IRSfs_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
   return nppiAddC_8u_C3RSfs_Ctx(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor,
                                 nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_8u_C3IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                               int nScaleFactor) {
   // Get default stream context
@@ -158,8 +138,6 @@ NppStatus nppiAddC_8u_C3IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSr
 
   return nppiAddC_8u_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   // Validate parameters
@@ -172,8 +150,6 @@ NppStatus nppiAddC_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
   return nppiAddC_16u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
                                       nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16u_C1RSfs(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst, int nDstStep,
                               NppiSize oSizeROI, int nScaleFactor) {
   // Get default stream context
@@ -182,15 +158,11 @@ NppStatus nppiAddC_16u_C1RSfs(const Npp16u *pSrc1, int nSrc1Step, const Npp16u n
 
   return nppiAddC_16u_C1RSfs_Ctx(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16u_C1IRSfs_Ctx(const Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
   return nppiAddC_16u_C1RSfs_Ctx(pSrcDst, nSrcDstStep, nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor,
                                  nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16u_C1IRSfs(const Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
   // Get default stream context
@@ -199,8 +171,6 @@ NppStatus nppiAddC_16u_C1IRSfs(const Npp16u nConstant, Npp16u *pSrcDst, int nSrc
 
   return nppiAddC_16u_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16s_C1RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   // Validate parameters
@@ -213,8 +183,6 @@ NppStatus nppiAddC_16s_C1RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp1
   return nppiAddC_16s_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
                                       nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16s_C1RSfs(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst, int nDstStep,
                               NppiSize oSizeROI, int nScaleFactor) {
   // Get default stream context
@@ -223,15 +191,11 @@ NppStatus nppiAddC_16s_C1RSfs(const Npp16s *pSrc1, int nSrc1Step, const Npp16s n
 
   return nppiAddC_16s_C1RSfs_Ctx(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16s_C1IRSfs_Ctx(const Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
   return nppiAddC_16s_C1RSfs_Ctx(pSrcDst, nSrcDstStep, nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor,
                                  nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_16s_C1IRSfs(const Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
   // Get default stream context
@@ -240,8 +204,6 @@ NppStatus nppiAddC_16s_C1IRSfs(const Npp16s nConstant, Npp16s *pSrcDst, int nSrc
 
   return nppiAddC_16s_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst, int nDstStep,
                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Validate parameters (no scale factor for float)
@@ -268,8 +230,6 @@ NppStatus nppiAddC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
   // Call GPU implementation
   return nppiAddC_32f_C1R_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst, int nDstStep,
                            NppiSize oSizeROI) {
   // Get default stream context
@@ -278,14 +238,10 @@ NppStatus nppiAddC_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nCon
 
   return nppiAddC_32f_C1R_Ctx(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_32f_C1IR_Ctx(const Npp32f nConstant, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                 NppStreamContext nppStreamCtx) {
   return nppiAddC_32f_C1R_Ctx(pSrcDst, nSrcDstStep, nConstant, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
-
-
 NppStatus nppiAddC_32f_C1IR(const Npp32f nConstant, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
   // Get default stream context
   NppStreamContext nppStreamCtx;

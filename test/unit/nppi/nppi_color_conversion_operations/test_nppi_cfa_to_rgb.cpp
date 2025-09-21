@@ -140,7 +140,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_16u_C1C3R_Ctx_RGGB) {
   ASSERT_TRUE(hasValidData);
 
   // Validate第一个像素（应该是红色为主）
-  ASSERT_GT(dstData[0], 30000); 
+  ASSERT_GT(dstData[0], 30000);
 }
 
 // 测试不同Bayer模式的基本功能

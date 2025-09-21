@@ -6,9 +6,7 @@
 #include <thrust/sort.h>
 #include <thrust/unique.h>
 
-
-
-// Union-Find数据结构
+// Union-Find data structure
 struct UnionFind {
   Npp32u *parent;
   int *rank;
@@ -20,13 +18,13 @@ struct UnionFind {
     if (x >= size)
       return x;
 
-    // 迭代版本的路径压缩，避免递归Call
+    // Iterative path compression to avoid recursive calls
     Npp32u root = x;
     while (parent[root] != root) {
       root = parent[root];
     }
 
-    // 路径压缩：将路径上的所有节点直接指向根
+    // Path compression: point all nodes on path directly to root
     while (parent[x] != x) {
       Npp32u next = parent[x];
       parent[x] = root;
@@ -44,7 +42,7 @@ struct UnionFind {
     Npp32u rootY = find(y);
 
     if (rootX != rootY) {
-      // 按秩合并
+      // Union by rank
       if (rank[rootX] < rank[rootY]) {
         parent[rootX] = rootY;
       } else if (rank[rootX] > rank[rootY]) {
@@ -57,7 +55,7 @@ struct UnionFind {
   }
 };
 
-// 初始化Union-Find结构
+// Initialize Union-Find structure
 __global__ void initUnionFind_kernel(Npp32u *parent, int *rank, int maxLabels) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -67,7 +65,7 @@ __global__ void initUnionFind_kernel(Npp32u *parent, int *rank, int maxLabels) {
   }
 }
 
-// 第一遍：建立连通性
+// First pass: establish connectivity
 __global__ void buildConnectivity_kernel(const Npp32u *pMarkerLabels, int nMarkerLabelsStep, int width, int height,
                                          Npp32u *parent, int *rank) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -80,9 +78,9 @@ __global__ void buildConnectivity_kernel(const Npp32u *pMarkerLabels, int nMarke
   Npp32u currentLabel = current_row[x];
 
   if (currentLabel == 0)
-    return; // 跳过背景
+    return; // Skip background
 
-  UnionFind uf(parent, rank, 65536); // 假设最大标签数为65536
+  UnionFind uf(parent, rank, 65536); // Assume max label count is 65536
 
   // Check 4-connected neighborhood
   int dx[] = {-1, 1, 0, 0};
@@ -103,7 +101,7 @@ __global__ void buildConnectivity_kernel(const Npp32u *pMarkerLabels, int nMarke
   }
 }
 
-// 路径压缩优化
+// Path compression optimization
 __global__ void pathCompression_kernel(Npp32u *parent, int maxLabels) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -113,7 +111,7 @@ __global__ void pathCompression_kernel(Npp32u *parent, int maxLabels) {
   }
 }
 
-// 收集唯一根标签
+// Collect unique root labels
 __global__ void collectUniqueRoots_kernel(const Npp32u *pMarkerLabels, int nMarkerLabelsStep, int width, int height,
                                           const Npp32u *parent, Npp32u *uniqueLabels, bool *labelUsed) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -133,7 +131,7 @@ __global__ void collectUniqueRoots_kernel(const Npp32u *pMarkerLabels, int nMark
   }
 }
 
-// 重新标记
+// Relabel
 __global__ void relabelImage_kernel(Npp32u *pMarkerLabels, int nMarkerLabelsStep, int width, int height,
                                     const Npp32u *parent, const Npp32u *labelMapping, int startingNumber) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -148,7 +146,7 @@ __global__ void relabelImage_kernel(Npp32u *pMarkerLabels, int nMarkerLabelsStep
   if (label != 0) {
     Npp32u root = parent[label];
     if (root < 65536) {
-      // 通过labelMapping找到新标签
+      // Find new label through labelMapping
       for (int i = 0; i < 65536; i++) {
         if (labelMapping[i] == root) {
           current_row[x] = startingNumber + i;
@@ -163,13 +161,13 @@ extern "C" {
 
 // Get required buffer size
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize) {
-  // Union-Find需要的空间：
-  // 1. parent数组 (Npp32u * maxLabels)
-  // 2. rank数组 (int * maxLabels)
-  // 3. 临时标签数组 (Npp32u * maxLabels)
-  // 4. 标签使用标记 (bool * maxLabels)
+  // Space required for Union-Find:
+  // 1. parent array (Npp32u * maxLabels)
+  // 2. rank array (int * maxLabels)
+  // 3. temporary label array (Npp32u * maxLabels)
+  // 4. label usage markers (bool * maxLabels)
 
-  int maxLabels = 65536; // 假设最大标签数
+  int maxLabels = 65536; // Assume max label count
   size_t parentSize = maxLabels * sizeof(Npp32u);
   size_t rankSize = maxLabels * sizeof(int);
   size_t tempLabelSize = maxLabels * sizeof(Npp32u);
@@ -215,10 +213,10 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
     pathCompression_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(parent, maxLabels);
   }
 
-  // 第四步：初始化标签使用标记
+  // 第四步：初始化label usage markers
   cudaMemsetAsync(labelUsed, 0, maxLabels * sizeof(bool), nppStreamCtx.hStream);
 
-  // 第五步：收集唯一根标签
+  // 第五步：Collect unique root labels
   collectUniqueRoots_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pMarkerLabels, nMarkerLabelsStep, width,
                                                                               height, parent, labelMapping, labelUsed);
 
@@ -250,7 +248,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
   cudaMemcpyAsync(labelMapping, h_labelMapping.data(), maxLabels * sizeof(Npp32u), cudaMemcpyHostToDevice,
                   nppStreamCtx.hStream);
 
-  // 第八步：重新标记图像
+  // 第八步：Relabel图像
   relabelImage_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pMarkerLabels, nMarkerLabelsStep, width, height,
                                                                         parent, labelMapping, nStartingNumber);
 
@@ -261,5 +259,4 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

@@ -569,7 +569,7 @@ TEST_F(ConvertExtendedFunctionalTest, Convert_8u32f_C3R_PerformanceTest) {
     EXPECT_EQ(status, NPP_SUCCESS) << "性能测试第 " << i << " 次失败";
   }
 
-  // 
+  //
   std::vector<Npp32f> firstPixel(3), lastPixel(3);
   cudaMemcpy(firstPixel.data(), d_dst, 3 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
 
