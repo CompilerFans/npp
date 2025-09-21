@@ -5,8 +5,7 @@
 
 /**
  * NPP Image Magnitude Functions Implementation
- * Implements nppiMagnitude and nppiMagnitudeSqr functions for complex to real
- * transformations
+ * Implements nppiMagnitude and nppiMagnitudeSqr functions for complex to real transformations
  */
 
 // Forward declarations for CUDA implementations
@@ -26,7 +25,7 @@ static NppStatus validateMagnitudeParameters(const void *pSrc, int nSrcStep, con
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -96,7 +95,7 @@ NppStatus nppiMagnitude_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, 
   if (pSrc == nullptr || pDst == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * 2 * (int)sizeof(Npp32f) || nDstStep < oSizeROI.width * (int)sizeof(Npp32f)) {
@@ -104,8 +103,7 @@ NppStatus nppiMagnitude_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, 
   }
 
   // 打印未实现警告
-  fprintf(stderr, "WARNING: nppiMagnitude_32f_C2R is not implemented in this "
-                  "NPP library build\n");
+  fprintf(stderr, "WARNING: nppiMagnitude_32f_C2R is not implemented in this NPP library build\n");
 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }

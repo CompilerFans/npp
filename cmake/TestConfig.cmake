@@ -32,25 +32,29 @@ function(npp_create_test_target target_name sources library_target)
     
     # 根据选项决定链接哪个NPP库
     if(USE_NVIDIA_NPP)
-        # 查找NVIDIA NPP库
-        find_library(NVIDIA_NPP_LIBS
-            NAMES nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppcore
-            PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib
+        # 查找NVIDIA NPP库 - 只需要检查一个核心库的存在
+        find_library(NVIDIA_NPPC_LIB
+            NAMES nppc
+            PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib /usr/local/cuda/lib64
         )
         
-        if(NOT NVIDIA_NPP_LIBS)
+        if(NOT NVIDIA_NPPC_LIB)
             message(FATAL_ERROR "NVIDIA NPP libraries not found. Please check your CUDA installation.")
         endif()
         
         # 链接NVIDIA NPP库
         target_link_libraries(${target_name}
             PRIVATE
-            -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc -lnpps -lnppcore
             ${CUDA_LIBRARIES}
             ${CUDA_cudart_LIBRARY}
             gtest
             gtest_main
         )
+        
+        # 添加库搜索路径和链接NPP库
+        target_link_directories(${target_name} PRIVATE /usr/local/cuda/lib64)
+        target_link_libraries(${target_name} PRIVATE 
+            nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
         
         # 使用NVIDIA NPP头文件
         target_include_directories(${target_name} 
@@ -58,6 +62,8 @@ function(npp_create_test_target target_name sources library_target)
             ${CUDA_TOOLKIT_ROOT_DIR}/include
         )
         
+        # 定义宏标识使用NVIDIA NPP
+        target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
     else()
         # 链接OpenNPP库
@@ -68,17 +74,27 @@ function(npp_create_test_target target_name sources library_target)
             gtest_main
         )
         
-        message(STATUS "Test ${target_name} will use OpenNPP library")
+        message(STATUS "Test ${target_name} will use MPP library")
     endif()
     
     # 设置通用配置
     npp_setup_target(${target_name})
     
+    # 配置精度测试选项
+    if(NPP_STRICT_TESTING)
+        target_compile_definitions(${target_name} PRIVATE NPP_STRICT_TESTING)
+        message(STATUS "Test ${target_name} will use strict precision testing")
+    else()
+        message(STATUS "Test ${target_name} will use tolerant precision testing")
+    endif()
+    
     # 添加包含目录
-    target_include_directories(${target_name} 
-        PRIVATE
-        ${CMAKE_SOURCE_DIR}     # 项目根目录
-    )
+    if(NOT USE_NVIDIA_NPP)
+        target_include_directories(${target_name} 
+            PRIVATE
+            ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于OpenNPP
+        )
+    endif()
     
     # 设置输出目录到build根目录
     set_target_properties(${target_name} PROPERTIES

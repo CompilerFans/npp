@@ -32,18 +32,15 @@ TEST_F(SupportFunctionsTest, GetGpuComputeCapability_BasicTest) {
     int major, minor;
     NppStatus status = nppGetGpuComputeCapability(&major, &minor);
 
-    ASSERT_EQ(status, NPP_NO_ERROR) << "nppGetGpuComputeCapability should
-succeed";
+    ASSERT_EQ(status, NPP_NO_ERROR) << "nppGetGpuComputeCapability should succeed";
 
     // 验证计算能力值合理
     EXPECT_GT(major, 0) << "GPU compute capability major version should be > 0";
-    EXPECT_GE(minor, 0) << "GPU compute capability minor version should be >=
-0"; EXPECT_LE(major, 9) << "GPU compute capability major version should be
-reasonable"; EXPECT_LE(minor, 9) << "GPU compute capability minor version should
-be reasonable";
+    EXPECT_GE(minor, 0) << "GPU compute capability minor version should be >= 0";
+    EXPECT_LE(major, 9) << "GPU compute capability major version should be reasonable";
+    EXPECT_LE(minor, 9) << "GPU compute capability minor version should be reasonable";
 
-    std::cout << "GPU Compute Capability: " << major << "." << minor <<
-std::endl;
+    std::cout << "GPU Compute Capability: " << major << "." << minor << std::endl;
 }
 */
 
@@ -83,15 +80,13 @@ TEST_F(SupportFunctionsTest, SetGetStreamContext_BasicTest) {
   // nppSetStreamContext函数在当前API中不存在，相关测试已禁用
   /*
   status = nppSetStreamContext(currentCtx);
-  ASSERT_EQ(status, NPP_NO_ERROR) << "nppSetStreamContext should succeed with
-  valid context";
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppSetStreamContext should succeed with valid context";
 
   // 测试无效设备ID
   NppStreamContext invalidCtx = currentCtx;
   invalidCtx.nCudaDeviceId = 999;  // 无效的设备ID
   status = nppSetStreamContext(invalidCtx);
-  EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR) << "nppSetStreamContext should
-  reject invalid device ID";
+  EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR) << "nppSetStreamContext should reject invalid device ID";
   */
 
   std::cout << "nppSetStreamContext validation tests passed" << std::endl;
@@ -135,13 +130,11 @@ TEST_F(SupportFunctionsTest, DISABLED_ErrorHandling_NullPointer) {
 
   int major;
   status = nppGetGpuComputeCapability(&major, nullptr);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null minor
-  pointer";
+  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null minor pointer";
 
   int minor;
   status = nppGetGpuComputeCapability(nullptr, &minor);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null major
-  pointer";
+  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null major pointer";
   */
 
   // 测试nppGetStreamContext的空指针处理

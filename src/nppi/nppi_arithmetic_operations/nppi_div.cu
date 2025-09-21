@@ -154,8 +154,7 @@ __global__ void nppiDiv_32f_C1R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
     const Npp32f *src2Row = (const Npp32f *)((const char *)pSrc2 + y * nSrc2Step);
     Npp32f *dstRow = (Npp32f *)((char *)pDst + y * nDstStep);
 
-    // Float division (pSrc2 / pSrc1) - handles IEEE 754 division by zero
-    // automatically
+    // Float division (pSrc2 / pSrc1) - handles IEEE 754 division by zero automatically
     dstRow[x] = src2Row[x] / src1Row[x];
   }
 }

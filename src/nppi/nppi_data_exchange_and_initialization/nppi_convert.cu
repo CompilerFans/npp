@@ -38,8 +38,7 @@ __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   const Npp8u *srcRow = (const Npp8u *)(((const char *)pSrc) + y * nSrcStep);
   Npp32f *dstRow = (Npp32f *)(((char *)pDst) + y * nDstStep);
 
-  // Convert all three channels: 8-bit unsigned to 32-bit float (0-255 ->
-  // 0.0-255.0)
+  // Convert all three channels: 8-bit unsigned to 32-bit float (0-255 -> 0.0-255.0)
   dstRow[x * 3 + 0] = (Npp32f)srcRow[x * 3 + 0]; // Channel 0 (R/B)
   dstRow[x * 3 + 1] = (Npp32f)srcRow[x * 3 + 1]; // Channel 1 (G)
   dstRow[x * 3 + 2] = (Npp32f)srcRow[x * 3 + 2]; // Channel 2 (B/R)

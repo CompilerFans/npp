@@ -24,7 +24,7 @@ NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Np
  */
 static inline NppStatus validateRGBToGrayInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                                 NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -60,8 +60,7 @@ NppStatus nppiRGBToGray_8u_C3C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, i
 }
 
 /**
- * Convert 4-channel RGBA to single-channel grayscale (8-bit), ignoring alpha
- * channel
+ * Convert 4-channel RGBA to single-channel grayscale (8-bit), ignoring alpha channel
  */
 NppStatus nppiRGBToGray_8u_AC4C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                       NppStreamContext nppStreamCtx) {
@@ -99,8 +98,7 @@ NppStatus nppiRGBToGray_32f_C3C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst
 }
 
 /**
- * Convert 4-channel RGBA to single-channel grayscale (32-bit float), ignoring
- * alpha channel
+ * Convert 4-channel RGBA to single-channel grayscale (32-bit float), ignoring alpha channel
  */
 NppStatus nppiRGBToGray_32f_AC4C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                        NppStreamContext nppStreamCtx) {

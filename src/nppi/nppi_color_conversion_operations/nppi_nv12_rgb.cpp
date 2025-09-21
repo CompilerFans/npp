@@ -33,7 +33,7 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -80,7 +80,7 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -137,9 +137,8 @@ NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcSte
 
 /**
  * Convert NV12 format image to RGB using custom color transformation matrix.
- * This function is specifically used by TorchCodec for custom BT.709 full range
- * conversion. The color twist matrix allows for precise control over the YUV to
- * RGB conversion.
+ * This function is specifically used by TorchCodec for custom BT.709 full range conversion.
+ * The color twist matrix allows for precise control over the YUV to RGB conversion.
  */
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst,
                                                    int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
@@ -161,7 +160,7 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
     return NPP_STEP_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -186,8 +185,7 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
 }
 
 /**
- * Convert NV12 format image to RGB using custom color transformation matrix
- * (default stream).
+ * Convert NV12 format image to RGB using custom color transformation matrix (default stream).
  */
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst, int nDstStep,
                                                NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
@@ -210,7 +208,7 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
@@ -259,7 +257,7 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 

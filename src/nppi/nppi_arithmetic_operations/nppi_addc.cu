@@ -134,8 +134,7 @@ __global__ void addC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for adding constants to 8-bit unsigned 4-channel image (AC4 -
- * alpha unchanged)
+ * CUDA kernel for adding constants to 8-bit unsigned 4-channel image (AC4 - alpha unchanged)
  */
 __global__ void addC_8u_AC4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                        Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -281,7 +280,7 @@ NppStatus nppiAddC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI to avoid invalid kernel configurations
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_NO_ERROR;
   }
 

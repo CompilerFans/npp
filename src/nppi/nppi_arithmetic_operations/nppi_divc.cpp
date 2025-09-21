@@ -36,7 +36,7 @@ static NppStatus validateParameters(const void *pSrc, int nSrcStep, const void *
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -72,8 +72,7 @@ NppStatus nppiDivC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
 }
 
 /**
- * 8-bit unsigned, 1 channel image divide constant with scale (no stream
- * context)
+ * 8-bit unsigned, 1 channel image divide constant with scale (no stream context)
  */
 NppStatus nppiDivC_8u_C1RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI, int nScaleFactor) {
@@ -95,8 +94,7 @@ NppStatus nppiDivC_8u_C1IRSfs_Ctx(const Npp8u nConstant, Npp8u *pSrcDst, int nSr
 }
 
 /**
- * 8-bit unsigned, 1 channel in-place image divide constant with scale (no
- * stream context)
+ * 8-bit unsigned, 1 channel in-place image divide constant with scale (no stream context)
  */
 NppStatus nppiDivC_8u_C1IRSfs(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                               int nScaleFactor) {
@@ -129,8 +127,7 @@ NppStatus nppiDivC_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
 }
 
 /**
- * 16-bit unsigned, 1 channel image divide constant with scale (no stream
- * context)
+ * 16-bit unsigned, 1 channel image divide constant with scale (no stream context)
  */
 NppStatus nppiDivC_16u_C1RSfs(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst, int nDstStep,
                               NppiSize oSizeROI, int nScaleFactor) {
@@ -151,8 +148,7 @@ NppStatus nppiDivC_16u_C1IRSfs_Ctx(const Npp16u nConstant, Npp16u *pSrcDst, int 
 }
 
 /**
- * 16-bit unsigned, 1 channel in-place image divide constant with scale (no
- * stream context)
+ * 16-bit unsigned, 1 channel in-place image divide constant with scale (no stream context)
  */
 NppStatus nppiDivC_16u_C1IRSfs(const Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
@@ -206,8 +202,7 @@ NppStatus nppiDivC_16s_C1IRSfs_Ctx(const Npp16s nConstant, Npp16s *pSrcDst, int 
 }
 
 /**
- * 16-bit signed, 1 channel in-place image divide constant with scale (no stream
- * context)
+ * 16-bit signed, 1 channel in-place image divide constant with scale (no stream context)
  */
 NppStatus nppiDivC_16s_C1IRSfs(const Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
@@ -228,7 +223,7 @@ NppStatus nppiDivC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -237,8 +232,7 @@ NppStatus nppiDivC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_STRIDE_ERROR;
   }
 
-  // For float division, allow division by zero (produces inf/nan as
-  // appropriate)
+  // For float division, allow division by zero (produces inf/nan as appropriate)
 
   // Call CUDA implementation
   return nppiDivC_32f_C1R_Ctx_cuda(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
@@ -285,7 +279,7 @@ NppStatus nppiDivC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return NPP_NULL_POINTER_ERROR;
   if (nSrc1Step <= 0 || nDstStep <= 0)
     return NPP_STEP_ERROR;
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+  if (oSizeROI.width < 0 || oSizeROI.height < 0)
     return NPP_SIZE_ERROR;
   if (aConstants[0] == 0 || aConstants[1] == 0 || aConstants[2] == 0)
     return NPP_DIVISOR_ERROR;
@@ -295,8 +289,7 @@ NppStatus nppiDivC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
 }
 
 /**
- * 8-bit unsigned, 3 channel image divide constant with scale (no stream
- * context)
+ * 8-bit unsigned, 3 channel image divide constant with scale (no stream context)
  */
 NppStatus nppiDivC_8u_C3RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI, int nScaleFactor) {

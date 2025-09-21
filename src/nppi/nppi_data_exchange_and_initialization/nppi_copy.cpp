@@ -27,7 +27,7 @@ NppStatus nppiCopy_32f_C3P3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *
 // Input validation helper
 static inline NppStatus validateCopyInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                            NppiSize oSizeROI) {
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -146,7 +146,7 @@ NppStatus nppiCopy_32f_C3P3R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *co
     return NPP_STEP_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 

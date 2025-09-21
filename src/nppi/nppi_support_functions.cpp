@@ -3,8 +3,7 @@
 #include <cuda_runtime.h>
 
 /**
- * NPP Image Memory Management Functions Implementation - Template-based
- * approach
+ * NPP Image Memory Management Functions Implementation - Template-based approach
  */
 
 /**

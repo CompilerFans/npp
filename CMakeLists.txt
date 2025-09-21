@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(OpenNPP VERSION 1.0.0 LANGUAGES CXX CUDA)
+project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
 
 # 包含模块化cmake配置
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -21,11 +21,18 @@ add_subdirectory(src)
 # 构建选项
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
-option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of OpenNPP" OFF)
+option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
 option(NPP_STRICT_TESTING "Use strict precision testing (exact match)" OFF)
 
 # 显示配置选项
+if(BUILD_SHARED_LIBS)
+    message(STATUS "Building shared libraries (.so/.dll)")
+else()
+    message(STATUS "Building static libraries (.a/.lib)")
+endif()
+
 if(NPP_WARNINGS_AS_ERRORS)
     message(STATUS "Warnings will be treated as errors")
 else()

@@ -5,17 +5,17 @@
 /**
  * NPP Core Functions Implementation - Simplified Version
  *
- * This implementation directly uses CUDA Runtime API without internal stream
- * management. Stream and context are managed by the user through CUDA Runtime
- * API.
+ * This implementation directly uses CUDA Runtime API without internal stream management.
+ * Stream and context are managed by the user through CUDA Runtime API.
  */
-
-static NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
 
 /**
  * Get the NPP library version.
  */
-const NppLibraryVersion *nppGetLibVersion(void) { return &g_nppLibVersion; }
+const NppLibraryVersion *nppGetLibVersion(void) {
+  static const NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
+  return &g_nppLibVersion;
+}
 
 /**
  * Get the number of Streaming Multiprocessors (SM) on the active CUDA device.
@@ -66,8 +66,7 @@ int nppGetMaxThreadsPerSM(void) {
 }
 
 /**
- * Get the maximum number of threads per SM, maximum threads per block, and
- * number of SMs for the active GPU
+ * Get the maximum number of threads per SM, maximum threads per block, and number of SMs for the active GPU
  */
 int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, int *pNumberOfSMs) {
   if (!pMaxThreadsPerSM || !pMaxThreadsPerBlock || !pNumberOfSMs) {
@@ -123,8 +122,7 @@ const char *nppGetGpuName(void) {
 
 /**
  * Get the NPP CUDA stream.
- * Since we don't manage streams internally, this returns the current CUDA
- * stream.
+ * Since we don't manage streams internally, this returns the current CUDA stream.
  */
 cudaStream_t nppGetStream(void) {
   // Return the default stream (0)
@@ -242,8 +240,7 @@ NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
 }
 
 /**
- * Get the number of SMs on the device associated with the current NPP CUDA
- * stream.
+ * Get the number of SMs on the device associated with the current NPP CUDA stream.
  */
 unsigned int nppGetStreamNumSMs(void) {
   int deviceId;
@@ -260,8 +257,7 @@ unsigned int nppGetStreamNumSMs(void) {
 }
 
 /**
- * Get the maximum number of threads per SM on the device associated with the
- * current NPP CUDA stream.
+ * Get the maximum number of threads per SM on the device associated with the current NPP CUDA stream.
  */
 unsigned int nppGetStreamMaxThreadsPerSM(void) {
   int deviceId;

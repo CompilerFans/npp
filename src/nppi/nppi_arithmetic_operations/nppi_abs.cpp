@@ -448,7 +448,7 @@ NppStatus nppiAbs_8s_C1R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstS
   if (pSrc == nullptr || pDst == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp8s)) ||

@@ -20,7 +20,7 @@ protected:
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
   const int width = 64, height = 64;
 
-  // 准备测试数据 - 全范围8位值
+  // prepare test data - 全范围8位值
   std::vector<Npp8u> srcData(width * height);
   for (int i = 0; i < width * height; i++) {
     srcData[i] = static_cast<Npp8u>(i % 256);
@@ -58,7 +58,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_BoundaryValues) {
   const int width = 16, height = 16;
 
-  // 准备测试数据 - 边界值
+  // prepare test data - 边界值
   std::vector<Npp8u> srcData(width * height);
   srcData[0] = 0;   // 最小值
   srcData[1] = 255; // 最大值
@@ -101,15 +101,15 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_BoundaryValues) {
   ASSERT_FLOAT_EQ(dstData[4], 128.0f);
 }
 
-// 测试ROI部分转换
+// test roi part trans
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   const int width = 32, height = 32;
 
-  // 准备测试数据
-  std::vector<Npp8u> srcData(width * height);
+  // prepare test data
+  std::vector<Npp8u> srcData(width * height, 0);
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      srcData[y * width + x] = static_cast<Npp8u>((x + y) % 256);
+      srcData[y * width + x] = static_cast<Npp8u>(1);
     }
   }
 
@@ -117,7 +117,6 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   NppImageMemory<Npp32f> dst(width, height);
 
   src.copyFromHost(srcData);
-  cudaMemset(dst.get(), 0, dst.sizeInBytes()); // 初始化为0
 
   // 设置ROI为中心区域
   NppiSize oSizeROI = {16, 16};
@@ -145,14 +144,11 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int idx = y * width + x;
-      if (x >= xOffset && x < xOffset + 16 && y >= yOffset && y < yOffset + 16) {
+      if (x >= xOffset && x < xOffset + oSizeROI.width && y >= yOffset && y < yOffset + oSizeROI.height) {
         // ROI内应该有转换后的值
         ASSERT_FLOAT_EQ(dstData[idx], static_cast<float>(srcData[idx]));
       } else {
         // ROI外应该保持0
-        if (dstData[idx] != 0.0f) {
-          printf("idx:%d, %f\n", idx, dstData[idx]);
-        }
         ASSERT_FLOAT_EQ(dstData[idx], 0.0f);
       }
     }

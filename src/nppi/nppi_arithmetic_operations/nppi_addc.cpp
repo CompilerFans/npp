@@ -98,8 +98,7 @@ NppStatus nppiAddC_8u_C1IRSfs_Ctx(const Npp8u nConstant, Npp8u *pSrcDst, int nSr
 }
 
 /**
- * 8-bit unsigned, 1 channel in-place image add constant with scale (no stream
- * context)
+ * 8-bit unsigned, 1 channel in-place image add constant with scale (no stream context)
  */
 NppStatus nppiAddC_8u_C1IRSfs(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                               int nScaleFactor) {
@@ -170,8 +169,7 @@ NppStatus nppiAddC_8u_C3IRSfs_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int
 }
 
 /**
- * 8-bit unsigned, 3 channel in-place image add constant with scale (no stream
- * context)
+ * 8-bit unsigned, 3 channel in-place image add constant with scale (no stream context)
  */
 NppStatus nppiAddC_8u_C3IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                               int nScaleFactor) {
@@ -220,8 +218,7 @@ NppStatus nppiAddC_16u_C1IRSfs_Ctx(const Npp16u nConstant, Npp16u *pSrcDst, int 
 }
 
 /**
- * 16-bit unsigned, 1 channel in-place image add constant with scale (no stream
- * context)
+ * 16-bit unsigned, 1 channel in-place image add constant with scale (no stream context)
  */
 NppStatus nppiAddC_16u_C1IRSfs(const Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
@@ -270,8 +267,7 @@ NppStatus nppiAddC_16s_C1IRSfs_Ctx(const Npp16s nConstant, Npp16s *pSrcDst, int 
 }
 
 /**
- * 16-bit signed, 1 channel in-place image add constant with scale (no stream
- * context)
+ * 16-bit signed, 1 channel in-place image add constant with scale (no stream context)
  */
 NppStatus nppiAddC_16s_C1IRSfs(const Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {

@@ -24,7 +24,7 @@ static inline NppStatus validateConvertInputs(const void *pSrc, int nSrcStep, vo
     return NPP_NULL_POINTER_ERROR;
   if (nSrcStep <= 0 || nDstStep <= 0)
     return NPP_STEP_ERROR;
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+  if (oSizeROI.width < 0 || oSizeROI.height < 0)
     return NPP_SIZE_ERROR;
   return NPP_SUCCESS;
 }

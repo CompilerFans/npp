@@ -15,8 +15,11 @@ IndentWidth: 2
 ColumnLimit: 120
 EOF
 
+echo "Formatting C/C++/CUDA files in src/ and test/ directories..."
+
 # Format all C/C++/CUDA files in src directory
 if [ -d "src" ]; then
+    echo "Formatting src/ directory..."
     find src -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.cu" -o -name "*.cuh" | \
     while read file; do
         echo "  Formatting: $file"
@@ -24,15 +27,15 @@ if [ -d "src" ]; then
     done
 fi
 
-# Format all C/C++/CUDA files in test directory
+# Format all C/C++/CUDA files in test directory  
 if [ -d "test" ]; then
+    echo "Formatting test/ directory..."
     find test -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.cu" -o -name "*.cuh" | \
     while read file; do
         echo "  Formatting: $file"
         clang-format -i --style=file "$file"
     done
 fi
-
 
 # Format all C/C++/CUDA files in examples directory
 if [ -d "examples" ]; then

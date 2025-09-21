@@ -36,8 +36,7 @@ __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
 }
 
 /**
- * CUDA kernel for converting RGBA (4-channel) to grayscale (8-bit), ignoring
- * alpha
+ * CUDA kernel for converting RGBA (4-channel) to grayscale (8-bit), ignoring alpha
  */
 __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                int height) {
@@ -85,8 +84,7 @@ __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep,
 }
 
 /**
- * CUDA kernel for converting RGBA (4-channel) to grayscale (32-bit float),
- * ignoring alpha
+ * CUDA kernel for converting RGBA (4-channel) to grayscale (32-bit float), ignoring alpha
  */
 __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                 int height) {
@@ -141,8 +139,7 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u
 }
 
 /**
- * Convert 4-channel RGBA to single-channel grayscale (8-bit), ignoring alpha
- * channel
+ * Convert 4-channel RGBA to single-channel grayscale (8-bit), ignoring alpha channel
  */
 NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
@@ -200,8 +197,7 @@ NppStatus nppiRGBToGray_32f_C3C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp
 }
 
 /**
- * Convert 4-channel RGBA to single-channel grayscale (32-bit float), ignoring
- * alpha channel
+ * Convert 4-channel RGBA to single-channel grayscale (32-bit float), ignoring alpha channel
  */
 NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {

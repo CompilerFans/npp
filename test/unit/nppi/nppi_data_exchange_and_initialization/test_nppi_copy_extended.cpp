@@ -184,8 +184,7 @@ TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3R_BoundaryValues) {
 // 测试流上下文版本
 TEST_F(CopyExtendedFunctionalTest, Copy_32f_C3R_StreamContext) {
   const int channels = 3;
-  std::vector<Npp32f> srcData(width * height * channels,
-                              1.5f); // 所有像素值为1.5f
+  std::vector<Npp32f> srcData(width * height * channels, 1.5f); // 所有像素值为1.5f
 
   // 分配GPU内存
   int srcStep, dstStep;
@@ -563,8 +562,7 @@ INSTANTIATE_TEST_SUITE_P(
                                         }},
                       DataPatternParams{"RGBNoise",
                                         [](int x, int y, int w, int h, int c) -> float {
-                                          // Deterministic pseudo-random based on position and
-                                          // channel
+                                          // Deterministic pseudo-random based on position and channel
                                           unsigned int seed = (unsigned int)(x * 1000 + y * 100 + c * 10 + w + h);
                                           seed = seed * 1103515245 + 12345;
                                           return (float)(seed % 256);

@@ -95,8 +95,7 @@ NppStatus nppiSubC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
 }
 
 /**
- * 8-bit unsigned, 1 channel image subtract constant with scale (no stream
- * context)
+ * 8-bit unsigned, 1 channel image subtract constant with scale (no stream context)
  */
 NppStatus nppiSubC_8u_C1RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI, int nScaleFactor) {
@@ -141,8 +140,7 @@ NppStatus nppiSubC_8u_C1IRSfs_Ctx(const Npp8u nConstant, Npp8u *pSrcDst, int nSr
 }
 
 /**
- * 8-bit unsigned, 1 channel in-place image subtract constant with scale (no
- * stream context)
+ * 8-bit unsigned, 1 channel in-place image subtract constant with scale (no stream context)
  */
 NppStatus nppiSubC_8u_C1IRSfs(const Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                               int nScaleFactor) {
@@ -170,8 +168,7 @@ NppStatus nppiSubC_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
 }
 
 /**
- * 16-bit unsigned, 1 channel image subtract constant with scale (no stream
- * context)
+ * 16-bit unsigned, 1 channel image subtract constant with scale (no stream context)
  */
 NppStatus nppiSubC_16u_C1RSfs(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst, int nDstStep,
                               NppiSize oSizeROI, int nScaleFactor) {
@@ -192,8 +189,7 @@ NppStatus nppiSubC_16u_C1IRSfs_Ctx(const Npp16u nConstant, Npp16u *pSrcDst, int 
 }
 
 /**
- * 16-bit unsigned, 1 channel in-place image subtract constant with scale (no
- * stream context)
+ * 16-bit unsigned, 1 channel in-place image subtract constant with scale (no stream context)
  */
 NppStatus nppiSubC_16u_C1IRSfs(const Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
@@ -221,8 +217,7 @@ NppStatus nppiSubC_16s_C1RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp1
 }
 
 /**
- * 16-bit signed, 1 channel image subtract constant with scale (no stream
- * context)
+ * 16-bit signed, 1 channel image subtract constant with scale (no stream context)
  */
 NppStatus nppiSubC_16s_C1RSfs(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst, int nDstStep,
                               NppiSize oSizeROI, int nScaleFactor) {
@@ -243,8 +238,7 @@ NppStatus nppiSubC_16s_C1IRSfs_Ctx(const Npp16s nConstant, Npp16s *pSrcDst, int 
 }
 
 /**
- * 16-bit signed, 1 channel in-place image subtract constant with scale (no
- * stream context)
+ * 16-bit signed, 1 channel in-place image subtract constant with scale (no stream context)
  */
 NppStatus nppiSubC_16s_C1IRSfs(const Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                int nScaleFactor) {
@@ -265,7 +259,7 @@ NppStatus nppiSubC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -343,7 +337,7 @@ NppStatus nppiSubC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -376,7 +370,7 @@ NppStatus nppiSubC_16u_C3RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -409,7 +403,7 @@ NppStatus nppiSubC_32f_C3R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -437,7 +431,7 @@ NppStatus nppiSubC_8u_C4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
     return NPP_NULL_POINTER_ERROR;
   }
 
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
