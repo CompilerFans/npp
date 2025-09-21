@@ -42,7 +42,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_Basic) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -89,7 +89,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C3RSfs_Ctx_ColorImage) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -131,7 +131,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_FloatingPoint) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -177,7 +177,7 @@ TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -214,7 +214,7 @@ TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 

@@ -385,7 +385,7 @@ TEST_F(NppiCopy32fC3RTest, DISABLED_ConcurrentStreams3Channel) {
 
   // Create streams and allocate buffers
   for (int i = 0; i < numStreams; i++) {
-    gpuStreamCreate(&streams[i]);
+    cudaStreamCreate(&streams[i]);
     srcBuffers[i] = nppiMalloc_32f_C3(width, height, &srcSteps[i]);
     dstBuffers[i] = nppiMalloc_32f_C3(width, height, &dstSteps[i]);
     ASSERT_NE(srcBuffers[i], nullptr);
@@ -411,7 +411,7 @@ TEST_F(NppiCopy32fC3RTest, DISABLED_ConcurrentStreams3Channel) {
 
   // Verify results
   for (int i = 0; i < numStreams; i++) {
-    gpuStreamSynchronize(streams[i]);
+    cudaStreamSynchronize(streams[i]);
 
     std::vector<Npp32f> result(width * height * 3);
     cudaMemcpy2D(result.data(), width * 3 * sizeof(Npp32f), dstBuffers[i], dstSteps[i], width * 3 * sizeof(Npp32f),
@@ -431,7 +431,7 @@ TEST_F(NppiCopy32fC3RTest, DISABLED_ConcurrentStreams3Channel) {
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    gpuStreamDestroy(streams[i]);
+    cudaStreamDestroy(streams[i]);
     nppiFree(srcBuffers[i]);
     nppiFree(dstBuffers[i]);
   }

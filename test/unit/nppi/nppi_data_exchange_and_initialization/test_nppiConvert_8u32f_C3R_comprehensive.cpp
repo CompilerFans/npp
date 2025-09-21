@@ -259,7 +259,7 @@ TEST_F(NppiConvert8u32fC3RTest, StreamContextPerformance) {
 
   // Create stream
   cudaStream_t stream;
-  gpuStreamCreate(&stream);
+  cudaStreamCreate(&stream);
 
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
@@ -269,14 +269,14 @@ TEST_F(NppiConvert8u32fC3RTest, StreamContextPerformance) {
 
   // Warm up
   nppiConvert_8u32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
-  gpuStreamSynchronize(stream);
+  cudaStreamSynchronize(stream);
 
   // Measure performance
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < iterations; i++) {
     nppiConvert_8u32f_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, nppStreamCtx);
   }
-  gpuStreamSynchronize(stream);
+  cudaStreamSynchronize(stream);
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -289,7 +289,7 @@ TEST_F(NppiConvert8u32fC3RTest, StreamContextPerformance) {
   std::cout << "Average time per conversion: " << avgTime << " us" << std::endl;
   std::cout << "Throughput: " << throughput << " MB/s" << std::endl;
 
-  gpuStreamDestroy(stream);
+  cudaStreamDestroy(stream);
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -375,7 +375,7 @@ TEST_F(NppiConvert8u32fC3RTest, ConcurrentExecution) {
 
   // Create streams and allocate buffers
   for (int i = 0; i < numStreams; i++) {
-    gpuStreamCreate(&streams[i]);
+    cudaStreamCreate(&streams[i]);
     srcBuffers[i] = nppiMalloc_8u_C3(width, height, &srcSteps[i]);
     dstBuffers[i] = nppiMalloc_32f_C3(width, height, &dstSteps[i]);
     ASSERT_NE(srcBuffers[i], nullptr);
@@ -398,7 +398,7 @@ TEST_F(NppiConvert8u32fC3RTest, ConcurrentExecution) {
 
   // Wait for all to complete
   for (int i = 0; i < numStreams; i++) {
-    gpuStreamSynchronize(streams[i]);
+    cudaStreamSynchronize(streams[i]);
   }
 
   // Verify results
@@ -413,7 +413,7 @@ TEST_F(NppiConvert8u32fC3RTest, ConcurrentExecution) {
 
   // Cleanup
   for (int i = 0; i < numStreams; i++) {
-    gpuStreamDestroy(streams[i]);
+    cudaStreamDestroy(streams[i]);
     nppiFree(srcBuffers[i]);
     nppiFree(dstBuffers[i]);
   }

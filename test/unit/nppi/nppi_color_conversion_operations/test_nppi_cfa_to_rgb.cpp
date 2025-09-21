@@ -55,7 +55,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -121,7 +121,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_16u_C1C3R_Ctx_RGGB) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp16u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -173,7 +173,7 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_AllPatterns) {
     ASSERT_EQ(status, NPP_SUCCESS);
 
     // Validate基本功能正常
-    gpuStreamSynchronize(nppStreamCtx.hStream);
+    cudaStreamSynchronize(nppStreamCtx.hStream);
     std::vector<Npp8u> dstData(width * height * 3);
     dst.copyToHost(dstData);
 

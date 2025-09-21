@@ -56,7 +56,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C1R_Ctx_90Degrees) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -114,7 +114,7 @@ TEST_F(RotateFunctionalTest, Rotate_8u_C3R_Ctx_45Degrees) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -164,7 +164,7 @@ TEST_F(RotateFunctionalTest, Rotate_32f_C1R_Ctx_180Degrees) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 

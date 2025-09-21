@@ -53,7 +53,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> bgrData(width * height * 3);
   bgrImage.copyToHost(bgrData);
 

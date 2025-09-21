@@ -39,7 +39,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -84,7 +84,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_BoundaryValues) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
@@ -131,7 +131,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 

@@ -176,16 +176,16 @@ TEST_F(NppsSupportTest, MemoryAlignment) {
   ASSERT_NE(signal2, nullptr);
 
   // Check if pointers are valid device pointers
-  gpuPointerAttributes attr1, attr2;
-  cudaError_t err1 = gpuPointerGetAttributes(&attr1, signal1);
-  cudaError_t err2 = gpuPointerGetAttributes(&attr2, signal2);
+  cudaPointerAttributes attr1, attr2;
+  cudaError_t err1 = cudaPointerGetAttributes(&attr1, signal1);
+  cudaError_t err2 = cudaPointerGetAttributes(&attr2, signal2);
 
   EXPECT_EQ(err1, cudaSuccess);
   EXPECT_EQ(err2, cudaSuccess);
 
   if (err1 == cudaSuccess && err2 == cudaSuccess) {
-    EXPECT_EQ(attr1.type, gpuMemoryTypeDevice);
-    EXPECT_EQ(attr2.type, gpuMemoryTypeDevice);
+    EXPECT_EQ(attr1.type, cudaMemoryTypeDevice);
+    EXPECT_EQ(attr2.type, cudaMemoryTypeDevice);
   }
 
   nppsFree(signal1);

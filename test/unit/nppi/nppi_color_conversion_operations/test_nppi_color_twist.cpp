@@ -52,7 +52,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_Identity) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -100,7 +100,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3R_Ctx_SwapChannels) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
 
@@ -148,7 +148,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C1R_Ctx_Brightness) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 同步并获取结果
-  gpuStreamSynchronize(nppStreamCtx.hStream);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
   std::vector<Npp8u> dstData(width * height);
   dst.copyToHost(dstData);
 

@@ -57,7 +57,7 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
   NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, size, maskSize, anchor);
   if (status != NPP_SUCCESS) {
     // 获取更多错误信息
-    cudaError_t lastError = gpuGetLastError();
+    cudaError_t lastError = cudaGetLastError();
     ASSERT_EQ(status, NPP_SUCCESS) << "NPP Status: " << status << ", GPU Error: " << cudaGetErrorString(lastError);
   }
 
