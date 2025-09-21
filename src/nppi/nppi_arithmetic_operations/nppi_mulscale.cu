@@ -4,12 +4,12 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP MulScale Operations
+ * kernels for MPP MulScale Operations
  * Multiplies two images and scales by maximum value for pixel bit width
  */
 
 /**
- * CUDA kernel for 8-bit unsigned multiplication with scaling
+ * kernel for 8-bit unsigned multiplication with scaling
  * Formula: dst = (src1 * src2) / 255
  */
 __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
@@ -34,7 +34,7 @@ __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, co
 }
 
 /**
- * CUDA kernel for 16-bit unsigned multiplication with scaling
+ * kernel for 16-bit unsigned multiplication with scaling
  * Formula: dst = (src1 * src2) / 65535
  */
 __global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,

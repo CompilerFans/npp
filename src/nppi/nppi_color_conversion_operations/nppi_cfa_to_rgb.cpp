@@ -8,7 +8,7 @@
  * Implements nppiCFAToRGB functions for Color Filter Array (Bayer pattern) to RGB conversion
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiBayerGridPosition eGrid,

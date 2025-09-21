@@ -7,7 +7,7 @@
  * Implements nppiSubC functions for various data types
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 // Single channel
 NppStatus nppiSubC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,

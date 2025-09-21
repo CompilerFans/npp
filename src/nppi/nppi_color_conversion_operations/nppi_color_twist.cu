@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Color Twist Functions
+ * kernels for MPP Color Twist Functions
  */
 
 // Color twist kernel for 3-channel 8-bit images

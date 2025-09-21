@@ -9,7 +9,7 @@
  * 支持仿射变换，包括旋转、缩放、平移和剪切
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiWarpAffine_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],

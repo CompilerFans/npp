@@ -4,12 +4,12 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Magnitude operations
+ * kernels for MPP Image Magnitude operations
  * Implements magnitude and magnitude squared for complex numbers
  */
 
 /**
- * CUDA kernel for computing magnitude from complex numbers
+ * kernel for computing magnitude from complex numbers
  * magnitude = sqrt(real^2 + imag^2)
  */
 __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
@@ -31,7 +31,7 @@ __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int n
 }
 
 /**
- * CUDA kernel for computing squared magnitude from complex numbers
+ * kernel for computing squared magnitude from complex numbers
  * magnitude_sqr = real^2 + imag^2
  */
 __global__ void magnitude_sqr_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,

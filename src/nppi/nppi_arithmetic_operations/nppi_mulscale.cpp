@@ -8,7 +8,7 @@
  * For 8-bit: scale by 255, for 16-bit: scale by 65535
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiMulScale_8u_C1R_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);

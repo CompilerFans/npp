@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Set Functions
+ * kernels for MPP Image Set Functions
  */
 
 // Set kernel for 8-bit single channel

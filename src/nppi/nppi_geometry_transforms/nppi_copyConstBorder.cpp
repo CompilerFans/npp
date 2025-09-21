@@ -8,7 +8,7 @@
  * Implements nppiCopyConstBorder functions for copying images with constant border extension
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiCopyConstBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, Npp8u *pDst,
                                               int nDstStep, NppiSize oDstSizeROI, int nTopBorderHeight,

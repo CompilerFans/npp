@@ -8,7 +8,7 @@
  * Implements basic nppiCopy functions for image data copying
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiCopy_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);

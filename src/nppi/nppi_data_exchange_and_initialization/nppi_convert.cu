@@ -3,11 +3,11 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Convert operations
+ * kernels for MPP Image Convert operations
  */
 
 /**
- * CUDA kernel for converting 8-bit unsigned to 32-bit float, single channel
+ * kernel for converting 8-bit unsigned to 32-bit float, single channel
  */
 __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
@@ -25,7 +25,7 @@ __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
 }
 
 /**
- * CUDA kernel for converting 8-bit unsigned to 32-bit float, three channel
+ * kernel for converting 8-bit unsigned to 32-bit float, three channel
  */
 __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {

@@ -9,7 +9,7 @@
  * Implements histogram-related functions including nppiEvenLevelsHost
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_cuda(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize);
 NppStatus nppiHistogramEven_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,

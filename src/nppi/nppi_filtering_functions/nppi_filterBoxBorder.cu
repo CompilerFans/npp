@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Box Filter with Border Functions
+ * kernels for MPP Box Filter with Border Functions
  */
 
 // Device function to handle border pixel access

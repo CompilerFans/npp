@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Histogram Functions
+ * kernels for MPP Histogram Functions
  */
 
 // Shared memory histogram kernel (more efficient for small histograms)

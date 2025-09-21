@@ -8,7 +8,7 @@
  * Implements nppiSet functions for image data initialization
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiSet_8u_C1R_Ctx_cuda(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx);

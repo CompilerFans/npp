@@ -3,11 +3,11 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Square Operations
+ * kernels for MPP Square Operations
  */
 
 /**
- * CUDA kernel for 8-bit unsigned square with scaling
+ * kernel for 8-bit unsigned square with scaling
  */
 __global__ void nppiSqr_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
@@ -27,7 +27,7 @@ __global__ void nppiSqr_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u 
 }
 
 /**
- * CUDA kernel for 16-bit unsigned square with scaling
+ * kernel for 16-bit unsigned square with scaling
  */
 __global__ void nppiSqr_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
                                           int height, int nScaleFactor) {
@@ -47,7 +47,7 @@ __global__ void nppiSqr_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp1
 }
 
 /**
- * CUDA kernel for 16-bit signed square with scaling
+ * kernel for 16-bit signed square with scaling
  */
 __global__ void nppiSqr_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
                                           int height, int nScaleFactor) {
@@ -67,7 +67,7 @@ __global__ void nppiSqr_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp1
 }
 
 /**
- * CUDA kernel for 32-bit float square (no scaling)
+ * kernel for 32-bit float square (no scaling)
  */
 __global__ void nppiSqr_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                        int height) {

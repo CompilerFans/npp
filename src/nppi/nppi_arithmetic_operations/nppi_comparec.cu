@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Compare with Constant Functions
+ * kernels for MPP Compare with Constant Functions
  */
 
 // Device function for comparison operations

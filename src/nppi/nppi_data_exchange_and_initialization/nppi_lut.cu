@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Linear LUT Functions
+ * kernels for MPP Linear LUT Functions
  */
 
 // Device function for linear interpolation between two points

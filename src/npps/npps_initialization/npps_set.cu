@@ -11,7 +11,7 @@
 // ==============================================================================
 
 /**
- * CUDA kernel for 8-bit unsigned char signal set
+ * kernel for 8-bit unsigned char signal set
  */
 __global__ void nppsSet_8u_kernel_impl(Npp8u nValue, Npp8u *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,7 +21,7 @@ __global__ void nppsSet_8u_kernel_impl(Npp8u nValue, Npp8u *pDst, size_t nLength
 }
 
 /**
- * CUDA kernel for 32-bit float signal set
+ * kernel for 32-bit float signal set
  */
 __global__ void nppsSet_32f_kernel_impl(Npp32f nValue, Npp32f *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -31,7 +31,7 @@ __global__ void nppsSet_32f_kernel_impl(Npp32f nValue, Npp32f *pDst, size_t nLen
 }
 
 /**
- * CUDA kernel for 32-bit float complex signal set
+ * kernel for 32-bit float complex signal set
  */
 __global__ void nppsSet_32fc_kernel_impl(Npp32fc nValue, Npp32fc *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;

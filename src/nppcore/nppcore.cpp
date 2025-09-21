@@ -5,8 +5,8 @@
 /**
  * NPP Core Functions Implementation - Simplified Version
  *
- * This implementation directly uses CUDA Runtime API without internal stream management.
- * Stream and context are managed by the user through CUDA Runtime API.
+ * This implementation directly uses Runtime API without internal stream management.
+ * Stream and context are managed by the user through Runtime API.
  */
 
 static NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
@@ -135,7 +135,7 @@ cudaStream_t nppGetStream(void) {
  */
 NppStatus nppSetStream(cudaStream_t hStream) {
   // This function exists for API compatibility
-  // Users should use CUDA Runtime API directly to manage streams
+  // Users should use Runtime API directly to manage streams
 
   // Special handling for known stream values
   if (hStream == nullptr || hStream == cudaStreamLegacy || hStream == cudaStreamPerThread) {

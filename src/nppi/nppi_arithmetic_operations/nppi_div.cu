@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA Kernels for NPP Image Div Functions
+ * kernels for MPP Image Div Functions
  */
 
 // ============================================================================

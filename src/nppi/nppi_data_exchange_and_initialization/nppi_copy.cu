@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Copy Functions
+ * kernels for MPP Image Copy Functions
  * Implements efficient GPU-based image copying operations
  */
 

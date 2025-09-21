@@ -9,7 +9,7 @@
  * - UV plane: (width/2) x (height/2) interleaved chroma values
  */
 
-// Forward declarations for CUDA kernels
+// Forward declarations for  kernels
 extern "C" {
 cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
                                           Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);

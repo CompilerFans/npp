@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for CUDA kernels
+// Forward declarations for  kernels
 extern "C" {
 cudaError_t nppiFilterBox_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream);

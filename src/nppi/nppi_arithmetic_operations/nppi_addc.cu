@@ -4,11 +4,11 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Add Constant operations
+ * kernels for MPP Image Add Constant operations
  */
 
 /**
- * CUDA kernel for adding constant to 8-bit unsigned 1-channel image
+ * kernel for adding constant to 8-bit unsigned 1-channel image
  */
 __global__ void addC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
                                       Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
@@ -41,7 +41,7 @@ __global__ void addC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for adding constants to 8-bit unsigned 3-channel image
+ * kernel for adding constants to 8-bit unsigned 3-channel image
  */
 __global__ void addC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                       Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -85,7 +85,7 @@ __global__ void addC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for adding constants to 8-bit unsigned 4-channel image with alpha
+ * kernel for adding constants to 8-bit unsigned 4-channel image with alpha
  */
 __global__ void addC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                       Npp8u nConstant2, Npp8u nConstant3, Npp8u *__restrict__ pDst, int nDstStep,
@@ -134,7 +134,7 @@ __global__ void addC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for adding constants to 8-bit unsigned 4-channel image (AC4 - alpha unchanged)
+ * kernel for adding constants to 8-bit unsigned 4-channel image (AC4 - alpha unchanged)
  */
 __global__ void addC_8u_AC4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
                                        Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -181,7 +181,7 @@ __global__ void addC_8u_AC4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcS
 }
 
 /**
- * CUDA kernel for adding constant to 16-bit unsigned 1-channel image
+ * kernel for adding constant to 16-bit unsigned 1-channel image
  */
 __global__ void addC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -214,7 +214,7 @@ __global__ void addC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for adding constant to 16-bit signed 1-channel image
+ * kernel for adding constant to 16-bit signed 1-channel image
  */
 __global__ void addC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
@@ -247,7 +247,7 @@ __global__ void addC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for adding constant to 32-bit float 1-channel image
+ * kernel for adding constant to 32-bit float 1-channel image
  */
 __global__ void addC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {

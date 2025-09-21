@@ -4,13 +4,13 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Rotate operations
+ * kernels for MPP Image Rotate operations
  */
 
 #define M_PI 3.14159265358979323846
 
 /**
- * CUDA kernel for rotating 8-bit unsigned single channel image
+ * kernel for rotating 8-bit unsigned single channel image
  */
 __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp8u *__restrict__ pDst, int nDstStep, NppiRect oDstROI, double nAngle,
@@ -53,7 +53,7 @@ __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oS
 }
 
 /**
- * CUDA kernel for rotating 8-bit unsigned 3 channel image
+ * kernel for rotating 8-bit unsigned 3 channel image
  */
 __global__ void rotate_8u_C3R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                      Npp8u *__restrict__ pDst, int nDstStep, NppiRect oDstROI, double nAngle,
@@ -101,7 +101,7 @@ __global__ void rotate_8u_C3R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oS
 }
 
 /**
- * CUDA kernel for rotating 32-bit float single channel image
+ * kernel for rotating 32-bit float single channel image
  */
 __global__ void rotate_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep,
                                       NppiRect oSrcROI, Npp32f *__restrict__ pDst, int nDstStep, NppiRect oDstROI,

@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for CUDA kernels (implemented in .cu file)
+// Forward declarations for  kernels (implemented in .cu file)
 extern "C" {
 cudaError_t nppsAdd_32f_kernel(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst, size_t nLength,
                                cudaStream_t stream);
@@ -34,7 +34,7 @@ NppStatus nppsAdd_32f_Ctx(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for element-wise addition
+  // Launch kernel for element-wise addition
   cudaError_t cudaStatus = nppsAdd_32f_kernel(pSrc1, pSrc2, pDst, nLength, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
@@ -67,7 +67,7 @@ NppStatus nppsAdd_16s_Ctx(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s *pDst
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for element-wise addition
+  // Launch kernel for element-wise addition
   cudaError_t cudaStatus = nppsAdd_16s_kernel(pSrc1, pSrc2, pDst, nLength, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
@@ -100,7 +100,7 @@ NppStatus nppsAdd_32fc_Ctx(const Npp32fc *pSrc1, const Npp32fc *pSrc2, Npp32fc *
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for element-wise complex addition
+  // Launch kernel for element-wise complex addition
   cudaError_t cudaStatus = nppsAdd_32fc_kernel(pSrc1, pSrc2, pDst, nLength, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {

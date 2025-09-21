@@ -8,7 +8,7 @@
  * Implements nppiFilterBoxBorder functions for box filtering with border handling
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiFilterBoxBorder_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
                                               NppiPoint oSrcOffset, Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI,

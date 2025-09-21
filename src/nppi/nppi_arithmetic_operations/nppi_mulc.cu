@@ -3,11 +3,11 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Multiply Constant operations
+ * kernels for MPP Image Multiply Constant operations
  */
 
 /**
- * CUDA kernel for multiplying 8-bit unsigned 1-channel image by constant
+ * kernel for multiplying 8-bit unsigned 1-channel image by constant
  */
 __global__ void mulC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
                                       Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
@@ -36,7 +36,7 @@ __global__ void mulC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for multiplying 16-bit unsigned 1-channel image by constant
+ * kernel for multiplying 16-bit unsigned 1-channel image by constant
  */
 __global__ void mulC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -66,7 +66,7 @@ __global__ void mulC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for multiplying 16-bit signed 1-channel image by constant
+ * kernel for multiplying 16-bit signed 1-channel image by constant
  */
 __global__ void mulC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
@@ -96,7 +96,7 @@ __global__ void mulC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for multiplying 32-bit float 1-channel image by constant
+ * kernel for multiplying 32-bit float 1-channel image by constant
  */
 __global__ void mulC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {

@@ -3,12 +3,12 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Subtract Constant operations
+ * kernels for MPP Image Subtract Constant operations
  * Supports multiple data types, channels, and in-place operations
  */
 
 /**
- * CUDA kernel for subtracting constant from 8-bit unsigned 1-channel image
+ * kernel for subtracting constant from 8-bit unsigned 1-channel image
  */
 __global__ void subC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
                                       Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
@@ -37,7 +37,7 @@ __global__ void subC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for subtracting constant from 16-bit unsigned 1-channel image
+ * kernel for subtracting constant from 16-bit unsigned 1-channel image
  */
 __global__ void subC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -67,7 +67,7 @@ __global__ void subC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for subtracting constant from 16-bit signed 1-channel image
+ * kernel for subtracting constant from 16-bit signed 1-channel image
  */
 __global__ void subC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
@@ -97,7 +97,7 @@ __global__ void subC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for subtracting constant from 32-bit float 1-channel image
+ * kernel for subtracting constant from 32-bit float 1-channel image
  */
 __global__ void subC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {
@@ -215,7 +215,7 @@ NppStatus nppiSubC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Np
 }
 
 /**
- * CUDA kernel for 32-bit signed integer subtract constant
+ * kernel for 32-bit signed integer subtract constant
  */
 __global__ void subC_32s_C1RSfs_kernel(const Npp32s *__restrict__ pSrc, int nSrcStep, Npp32s nConstant,
                                        Npp32s *__restrict__ pDst, int nDstStep, int width, int height,
@@ -243,7 +243,7 @@ __global__ void subC_32s_C1RSfs_kernel(const Npp32s *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for 8-bit unsigned 3-channel subtract constants
+ * kernel for 8-bit unsigned 3-channel subtract constants
  */
 __global__ void subC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep,
                                       const Npp8u *__restrict__ aConstants, Npp8u *__restrict__ pDst, int nDstStep,
@@ -268,7 +268,7 @@ __global__ void subC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for 16-bit unsigned 3-channel subtract constants
+ * kernel for 16-bit unsigned 3-channel subtract constants
  */
 __global__ void subC_16u_C3RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep,
                                        const Npp16u *__restrict__ aConstants, Npp16u *__restrict__ pDst, int nDstStep,
@@ -293,7 +293,7 @@ __global__ void subC_16u_C3RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for 32-bit float 3-channel subtract constants
+ * kernel for 32-bit float 3-channel subtract constants
  */
 __global__ void subC_32f_C3R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep,
                                     const Npp32f *__restrict__ aConstants, Npp32f *__restrict__ pDst, int nDstStep,
@@ -315,7 +315,7 @@ __global__ void subC_32f_C3R_kernel(const Npp32f *__restrict__ pSrc, int nSrcSte
 }
 
 /**
- * CUDA kernel for 8-bit unsigned 4-channel subtract constants
+ * kernel for 8-bit unsigned 4-channel subtract constants
  */
 __global__ void subC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep,
                                       const Npp8u *__restrict__ aConstants, Npp8u *__restrict__ pDst, int nDstStep,
@@ -339,7 +339,7 @@ __global__ void subC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for 8-bit unsigned 1-channel in-place subtract constant
+ * kernel for 8-bit unsigned 1-channel in-place subtract constant
  */
 __global__ void subC_8u_C1IRSfs_kernel(Npp8u nConstant, Npp8u *__restrict__ pSrcDst, int nSrcDstStep, int width,
                                        int height, int nScaleFactor) {

@@ -11,7 +11,7 @@
 // ==============================================================================
 
 /**
- * CUDA kernel for 32-bit float signal sum using block-level reduction
+ * kernel for 32-bit float signal sum using block-level reduction
  */
 __global__ void nppsSum_32f_kernel_impl(const Npp32f *pSrc, size_t nLength, Npp32f *pPartialSums) {
   __shared__ Npp32f sdata[256];
@@ -38,7 +38,7 @@ __global__ void nppsSum_32f_kernel_impl(const Npp32f *pSrc, size_t nLength, Npp3
 }
 
 /**
- * CUDA kernel for final reduction of partial sums
+ * kernel for final reduction of partial sums
  */
 __global__ void nppsSum_32f_final_kernel(const Npp32f *pPartialSums, size_t numBlocks, Npp32f *pSum) {
   __shared__ Npp32f sdata[256];
@@ -71,7 +71,7 @@ __global__ void nppsSum_32f_final_kernel(const Npp32f *pPartialSums, size_t numB
 }
 
 /**
- * CUDA kernel for 32-bit float complex signal sum using block-level reduction
+ * kernel for 32-bit float complex signal sum using block-level reduction
  */
 __global__ void nppsSum_32fc_kernel_impl(const Npp32fc *pSrc, size_t nLength, Npp32fc *pPartialSums) {
   __shared__ Npp32fc sdata[256];
@@ -104,7 +104,7 @@ __global__ void nppsSum_32fc_kernel_impl(const Npp32fc *pSrc, size_t nLength, Np
 }
 
 /**
- * CUDA kernel for final reduction of complex partial sums
+ * kernel for final reduction of complex partial sums
  */
 __global__ void nppsSum_32fc_final_kernel(const Npp32fc *pPartialSums, size_t numBlocks, Npp32fc *pSum) {
   __shared__ Npp32fc sdata[256];

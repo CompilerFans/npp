@@ -8,7 +8,7 @@
  * Implements nppiCompareC functions for comparing images with constant values
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiCompareC_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation,

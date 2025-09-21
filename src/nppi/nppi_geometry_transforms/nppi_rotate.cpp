@@ -8,7 +8,7 @@
  * Implements nppiRotate functions for image rotation
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiRotate_8u_C1R_Ctx_cuda(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
                                      int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,

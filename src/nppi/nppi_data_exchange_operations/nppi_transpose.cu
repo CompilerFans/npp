@@ -3,14 +3,14 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Transpose operations
+ * kernels for MPP Image Transpose operations
  * Optimized implementation using shared memory tiling
  */
 
 #define TILE_SIZE 32 // Tile size for shared memory optimization
 
 /**
- * Template CUDA kernel for transposing single-channel images
+ * Template kernel for transposing single-channel images
  * Uses shared memory tiling for optimal memory access patterns
  */
 template <typename T>
@@ -41,7 +41,7 @@ __global__ void transpose_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__
 }
 
 /**
- * Template CUDA kernel for transposing multi-channel images
+ * Template kernel for transposing multi-channel images
  */
 template <typename T, int channels>
 __global__ void transpose_multichannel_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__restrict__ pDst,

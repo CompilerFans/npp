@@ -8,7 +8,7 @@
  * Implements nppiLUT functions for look-up table transformations
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiLUT_Linear_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          const Npp32s *pValues, const Npp32s *pLevels, int nLevels,

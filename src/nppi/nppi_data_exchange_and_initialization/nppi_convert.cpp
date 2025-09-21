@@ -7,7 +7,7 @@
  * Implements nppiConvert functions for data type conversion
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 NppStatus nppiConvert_8u32f_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx);

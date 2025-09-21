@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Filter Functions
+ * kernels for MPP Image Filter Functions
  * Implements general 2D convolution operations
  */
 

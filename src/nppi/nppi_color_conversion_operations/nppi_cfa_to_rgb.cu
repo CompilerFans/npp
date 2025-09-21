@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP CFA to RGB Conversion Functions
+ * kernels for MPP CFA to RGB Conversion Functions
  * Implements Bayer pattern demosaicing using bilinear interpolation
  */
 

@@ -4,11 +4,11 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Natural Logarithm Operations
+ * kernels for MPP Natural Logarithm Operations
  */
 
 /**
- * CUDA kernel for 8-bit unsigned natural logarithm with scaling
+ * kernel for 8-bit unsigned natural logarithm with scaling
  */
 __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                         int height, int nScaleFactor) {
@@ -90,7 +90,7 @@ __global__ void nppiLn_8u_C1RSfs_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
 }
 
 /**
- * CUDA kernel for 16-bit unsigned natural logarithm with scaling
+ * kernel for 16-bit unsigned natural logarithm with scaling
  */
 __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
@@ -118,7 +118,7 @@ __global__ void nppiLn_16u_C1RSfs_kernel(const Npp16u *pSrc, int nSrcStep, Npp16
 }
 
 /**
- * CUDA kernel for 16-bit signed natural logarithm with scaling
+ * kernel for 16-bit signed natural logarithm with scaling
  */
 __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
                                          int height, int nScaleFactor) {
@@ -146,7 +146,7 @@ __global__ void nppiLn_16s_C1RSfs_kernel(const Npp16s *pSrc, int nSrcStep, Npp16
 }
 
 /**
- * CUDA kernel for 32-bit float natural logarithm (no scaling)
+ * kernel for 32-bit float natural logarithm (no scaling)
  */
 __global__ void nppiLn_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                       int height) {

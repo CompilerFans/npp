@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for CUDA kernels (implemented in .cu file)
+// Forward declarations for  kernels (implemented in .cu file)
 extern "C" {
 cudaError_t nppsSum_32f_kernel(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
                                cudaStream_t stream);
@@ -94,7 +94,7 @@ NppStatus nppsSum_32f_Ctx(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for sum reduction
+  // Launch kernel for sum reduction
   cudaError_t cudaStatus = nppsSum_32f_kernel(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
@@ -127,7 +127,7 @@ NppStatus nppsSum_32fc_Ctx(const Npp32fc *pSrc, size_t nLength, Npp32fc *pSum, N
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for complex sum reduction
+  // Launch kernel for complex sum reduction
   cudaError_t cudaStatus = nppsSum_32fc_kernel(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {

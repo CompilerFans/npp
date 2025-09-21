@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Copy with Constant Border Functions
+ * kernels for MPP Copy with Constant Border Functions
  */
 
 // Kernel for 8-bit unsigned single channel copy with constant border

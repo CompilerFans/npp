@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Remap Functions
+ * kernels for MPP Image Remap Functions
  * Simplified implementation using nearest neighbor interpolation
  */
 

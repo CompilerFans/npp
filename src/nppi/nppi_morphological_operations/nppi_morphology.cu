@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Morphological Operations
+ * kernels for MPP Image Morphological Operations
  */
 
 // Device function for 3x3 erosion (minimum value in neighborhood)

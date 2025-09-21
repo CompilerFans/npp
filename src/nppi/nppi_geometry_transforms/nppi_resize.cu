@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Resize Functions
+ * kernels for MPP Image Resize Functions
  */
 
 // Bilinear interpolation helper

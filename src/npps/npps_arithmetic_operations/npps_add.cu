@@ -11,7 +11,7 @@
 // ==============================================================================
 
 /**
- * CUDA kernel for 32-bit float signal addition
+ * kernel for 32-bit float signal addition
  */
 __global__ void nppsAdd_32f_kernel_impl(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,7 +21,7 @@ __global__ void nppsAdd_32f_kernel_impl(const Npp32f *pSrc1, const Npp32f *pSrc2
 }
 
 /**
- * CUDA kernel for 16-bit signed integer signal addition with saturation
+ * kernel for 16-bit signed integer signal addition with saturation
  */
 __global__ void nppsAdd_16s_kernel_impl(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -37,7 +37,7 @@ __global__ void nppsAdd_16s_kernel_impl(const Npp16s *pSrc1, const Npp16s *pSrc2
 }
 
 /**
- * CUDA kernel for 32-bit float complex signal addition
+ * kernel for 32-bit float complex signal addition
  */
 __global__ void nppsAdd_32fc_kernel_impl(const Npp32fc *pSrc1, const Npp32fc *pSrc2, Npp32fc *pDst, size_t nLength) {
   size_t idx = blockIdx.x * blockDim.x + threadIdx.x;

@@ -5,7 +5,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Absolute Value operations
+ * kernels for MPP Image Absolute Value operations
  */
 
 // ============================================================================

@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Threshold Functions
+ * kernels for MPP Image Threshold Functions
  */
 
 // Device function for threshold operation

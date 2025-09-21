@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * 简化的CUDA kernels for NPP Image Gaussian Filter Functions
+ * kernels for MPP Image Gaussian Filter Functions
  * 修复内存访问问题
  */
 

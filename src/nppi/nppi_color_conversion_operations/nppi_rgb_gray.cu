@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP RGB to Grayscale Conversion Functions
+ * kernels for MPP RGB to Grayscale Conversion Functions
  */
 
 // ITU-R BT.709 standard luminance weights
@@ -12,7 +12,7 @@
 #define WEIGHT_B 0.114f
 
 /**
- * CUDA kernel for converting RGB (3-channel) to grayscale (8-bit)
+ * kernel for converting RGB (3-channel) to grayscale (8-bit)
  */
 __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                               int height) {
@@ -36,7 +36,7 @@ __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
 }
 
 /**
- * CUDA kernel for converting RGBA (4-channel) to grayscale (8-bit), ignoring alpha
+ * kernel for converting RGBA (4-channel) to grayscale (8-bit), ignoring alpha
  */
 __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                int height) {
@@ -61,7 +61,7 @@ __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, 
 }
 
 /**
- * CUDA kernel for converting RGB (3-channel) to grayscale (32-bit float)
+ * kernel for converting RGB (3-channel) to grayscale (32-bit float)
  */
 __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                int height) {
@@ -84,7 +84,7 @@ __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep,
 }
 
 /**
- * CUDA kernel for converting RGBA (4-channel) to grayscale (32-bit float), ignoring alpha
+ * kernel for converting RGBA (4-channel) to grayscale (32-bit float), ignoring alpha
  */
 __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                 int height) {

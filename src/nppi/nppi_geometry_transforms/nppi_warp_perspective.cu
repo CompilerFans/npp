@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Perspective Warp Operations
+ * kernels for MPP Perspective Warp Operations
  * 实现透视变换的GPU加速计算
  */
 

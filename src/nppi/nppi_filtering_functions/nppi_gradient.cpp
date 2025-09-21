@@ -9,7 +9,7 @@
  * Implements nppiGradientVector functions for gradient computation
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 // 带X/Y分量输出的版本（FilterBorderControlNPP使用）
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_cuda_xy(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,

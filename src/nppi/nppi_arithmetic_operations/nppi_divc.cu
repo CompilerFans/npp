@@ -3,11 +3,11 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Image Divide Constant operations
+ * kernels for MPP Image Divide Constant operations
  */
 
 /**
- * CUDA kernel for dividing 8-bit unsigned 1-channel image by constant
+ * kernel for dividing 8-bit unsigned 1-channel image by constant
  */
 __global__ void divC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
                                       Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
@@ -40,7 +40,7 @@ __global__ void divC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
 }
 
 /**
- * CUDA kernel for dividing 16-bit unsigned 1-channel image by constant
+ * kernel for dividing 16-bit unsigned 1-channel image by constant
  */
 __global__ void divC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
@@ -74,7 +74,7 @@ __global__ void divC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for dividing 16-bit signed 1-channel image by constant
+ * kernel for dividing 16-bit signed 1-channel image by constant
  */
 __global__ void divC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
@@ -108,7 +108,7 @@ __global__ void divC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
 }
 
 /**
- * CUDA kernel for dividing 32-bit float 1-channel image by constant
+ * kernel for dividing 32-bit float 1-channel image by constant
  */
 __global__ void divC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {
@@ -238,7 +238,7 @@ NppStatus nppiDivC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Np
 }
 
 /**
- * CUDA kernel for dividing 8-bit unsigned 3-channel image by constants
+ * kernel for dividing 8-bit unsigned 3-channel image by constants
  */
 __global__ void divC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep,
                                       const Npp8u *__restrict__ aConstants, Npp8u *__restrict__ pDst, int nDstStep,

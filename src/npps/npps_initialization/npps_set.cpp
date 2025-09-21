@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-// Forward declarations for CUDA kernels (implemented in .cu file)
+// Forward declarations for  kernels (implemented in .cu file)
 extern "C" {
 cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u *pDst, size_t nLength, cudaStream_t stream);
 cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f *pDst, size_t nLength, cudaStream_t stream);
@@ -30,7 +30,7 @@ NppStatus nppsSet_8u_Ctx(Npp8u nValue, Npp8u *pDst, size_t nLength, NppStreamCon
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for setting values
+  // Launch kernel for setting values
   cudaError_t cudaStatus = nppsSet_8u_kernel(nValue, pDst, nLength, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
@@ -62,7 +62,7 @@ NppStatus nppsSet_32f_Ctx(Npp32f nValue, Npp32f *pDst, size_t nLength, NppStream
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for setting values
+  // Launch kernel for setting values
   cudaError_t cudaStatus = nppsSet_32f_kernel(nValue, pDst, nLength, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
@@ -94,7 +94,7 @@ NppStatus nppsSet_32fc_Ctx(Npp32fc nValue, Npp32fc *pDst, size_t nLength, NppStr
     return NPP_SIZE_ERROR;
   }
 
-  // Launch CUDA kernel for setting complex values
+  // Launch kernel for setting complex values
   cudaError_t cudaStatus = nppsSet_32fc_kernel(nValue, pDst, nLength, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {

@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Gradient Vector Functions
+ * kernels for MPP Gradient Vector Functions
  */
 
 // Prewitt operator kernels (3x3)

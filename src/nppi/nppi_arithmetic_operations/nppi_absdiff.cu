@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Absolute Difference Functions
+ * kernels for MPP Absolute Difference Functions
  */
 
 // Kernel for 8-bit unsigned single channel absolute difference

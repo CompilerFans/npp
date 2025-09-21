@@ -8,7 +8,7 @@
  * Implements nppiAbs functions for computing absolute values
  */
 
-// Forward declarations for CUDA implementations
+// Forward declarations for mpp host func implementations
 extern "C" {
 // 16s implementations
 NppStatus nppiAbs_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,

@@ -4,7 +4,7 @@
 #include <device_launch_parameters.h>
 
 /**
- * CUDA kernels for NPP Affine Warp Operations
+ * kernels for MPP Affine Warp Operations
  * GPU-accelerated affine transformation implementation
  */
 
