@@ -468,3 +468,102 @@ TEST_F(NppiCopy32fC1RTest, DeviceToDeviceCopy) {
   nppiFree(d_buf2);
   nppiFree(d_buf3);
 }
+
+// Test 11: Special Float Values Handling
+TEST_F(NppiCopy32fC1RTest, SpecialFloatValuesHandling) {
+  const int width = 64, height = 64;
+  
+  Npp32f *d_src = nullptr;
+  Npp32f *d_dst = nullptr;
+  int srcStep, dstStep;
+  allocateImage(&d_src, width, height, &srcStep);
+  allocateImage(&d_dst, width, height, &dstStep);
+  
+  std::vector<Npp32f> srcData(width * height);
+  
+  // Fill with special float values including infinity and extreme values
+  for (int i = 0; i < width * height; i++) {
+    switch (i % 8) {
+      case 0: srcData[i] = 0.0f; break;
+      case 1: srcData[i] = -0.0f; break;
+      case 2: srcData[i] = std::numeric_limits<float>::max(); break;
+      case 3: srcData[i] = std::numeric_limits<float>::lowest(); break;
+      case 4: srcData[i] = std::numeric_limits<float>::infinity(); break;
+      case 5: srcData[i] = -std::numeric_limits<float>::infinity(); break;
+      case 6: srcData[i] = std::numeric_limits<float>::epsilon(); break;
+      case 7: srcData[i] = std::numeric_limits<float>::denorm_min(); break;
+    }
+  }
+  
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp32f), 
+                width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  
+  NppiSize roi = {width, height};
+  NppStatus status = nppiCopy_32f_C1R(d_src, srcStep, d_dst, dstStep, roi);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  
+  std::vector<Npp32f> dstData(width * height);
+  cudaMemcpy2D(dstData.data(), width * sizeof(Npp32f), d_dst, dstStep,
+               width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+  
+  // Verify special values are preserved
+  for (int i = 0; i < width * height; i++) {
+    if (std::isfinite(srcData[i])) {
+      EXPECT_FLOAT_EQ(dstData[i], srcData[i]) << "Finite value mismatch at index " << i;
+    } else {
+      EXPECT_EQ(std::signbit(dstData[i]), std::signbit(srcData[i])) << "Sign mismatch at index " << i;
+      EXPECT_EQ(std::isinf(dstData[i]), std::isinf(srcData[i])) << "Infinity state mismatch at index " << i;
+    }
+  }
+  
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// Test 12: Stream Context Performance
+TEST_F(NppiCopy32fC1RTest, StreamContextPerformance) {
+  const int width = 1024, height = 1024;
+  const int iterations = 10;
+  
+  Npp32f *d_src = nullptr;
+  Npp32f *d_dst = nullptr;
+  int srcStep, dstStep;
+  allocateImage(&d_src, width, height, &srcStep);
+  allocateImage(&d_dst, width, height, &dstStep);
+  
+  std::vector<Npp32f> srcData(width * height);
+  generatePattern(srcData, width, height, 1.5f);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp32f),
+               width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+  
+  // Measure performance with stream context
+  auto start = std::chrono::high_resolution_clock::now();
+  for (int i = 0; i < iterations; i++) {
+    NppStatus status = nppiCopy_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, ctx);
+    ASSERT_EQ(status, NPP_SUCCESS);
+  }
+  cudaStreamSynchronize(ctx.hStream);
+  auto end = std::chrono::high_resolution_clock::now();
+  
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  double avgTime = duration / (double)iterations;
+  double dataSize = width * height * sizeof(Npp32f) * 2 / 1024.0 / 1024.0; // MB (read + write)
+  double bandwidth = dataSize * 1000000.0 / avgTime; // MB/s
+  
+  std::cout << "Stream context copy performance:" << std::endl;
+  std::cout << "  Average time: " << avgTime << " μs" << std::endl;
+  std::cout << "  Bandwidth: " << bandwidth << " MB/s" << std::endl;
+  
+  // Verify correctness
+  std::vector<Npp32f> dstData(width * height);
+  cudaMemcpy2D(dstData.data(), width * sizeof(Npp32f), d_dst, dstStep,
+               width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+  EXPECT_TRUE(verifyData(srcData, dstData));
+  
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
