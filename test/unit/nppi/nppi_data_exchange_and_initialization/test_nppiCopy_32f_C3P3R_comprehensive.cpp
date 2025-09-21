@@ -694,3 +694,138 @@ TEST_F(NppiCopy32fC3P3RTest, SpecialPatterns) {
     }
   }
 }
+
+// Test 11: Non-Contiguous Memory Layout Verification
+TEST_F(NppiCopy32fC3P3RTest, NonContiguousMemoryLayoutVerification) {
+  const int width = 128, height = 128;
+  
+  Npp32f *d_src = nullptr;
+  int srcStep;
+  d_src = nppiMalloc_32f_C3(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  
+  // Allocate destination planes with different strides to simulate non-contiguous layout
+  Npp32f *d_dstPlanes[3];
+  int dstSteps[3];
+  
+  for (int i = 0; i < 3; i++) {
+    d_dstPlanes[i] = nppiMalloc_32f_C1(width, height, &dstSteps[i]);
+    ASSERT_NE(d_dstPlanes[i], nullptr);
+  }
+  
+  // Create test data with distinct channel values
+  std::vector<Npp32f> hostSrc(width * height * 3);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int idx = (y * width + x) * 3;
+      hostSrc[idx] = 100.0f + x;     // R channel: base 100 + x coordinate
+      hostSrc[idx + 1] = 200.0f + y; // G channel: base 200 + y coordinate
+      hostSrc[idx + 2] = 300.0f + (x + y); // B channel: base 300 + diagonal
+    }
+  }
+  
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3 * sizeof(Npp32f),
+               width * 3 * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  
+  NppiSize roi = {width, height};
+  NppStatus status = nppiCopy_32f_C3P3R(d_src, srcStep, d_dstPlanes, dstSteps[0], roi);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  
+  // Verify each plane separately with different memory layouts
+  for (int plane = 0; plane < 3; plane++) {
+    std::vector<Npp32f> hostPlane(width * height);
+    cudaMemcpy2D(hostPlane.data(), width * sizeof(Npp32f), d_dstPlanes[plane], dstSteps[plane],
+                 width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+    
+    // Verify several sample points across the image
+    int samplePoints[][2] = {{0, 0}, {width-1, 0}, {0, height-1}, {width-1, height-1}, 
+                             {width/4, height/4}, {3*width/4, 3*height/4}};
+    
+    for (auto &pt : samplePoints) {
+      int x = pt[0], y = pt[1];
+      int srcIdx = (y * width + x) * 3 + plane;
+      int dstIdx = y * width + x;
+      
+      EXPECT_FLOAT_EQ(hostPlane[dstIdx], hostSrc[srcIdx]) 
+        << "Plane " << plane << " mismatch at (" << x << "," << y << ")";
+    }
+  }
+  
+  nppiFree(d_src);
+  for (int i = 0; i < 3; i++) {
+    nppiFree(d_dstPlanes[i]);
+  }
+}
+
+// Test 12: Stream Context Synchronization
+TEST_F(NppiCopy32fC3P3RTest, StreamContextSynchronization) {
+  const int width = 512, height = 512;
+  const int numStreams = 4;
+  
+  std::vector<cudaStream_t> streams(numStreams);
+  std::vector<Npp32f*> srcBuffers(numStreams);
+  std::vector<std::vector<Npp32f*>> dstBuffers(numStreams, std::vector<Npp32f*>(3));
+  std::vector<int> srcSteps(numStreams);
+  std::vector<int> dstSteps(numStreams);
+  
+  // Create streams and allocate memory
+  for (int i = 0; i < numStreams; i++) {
+    cudaStreamCreate(&streams[i]);
+    srcBuffers[i] = nppiMalloc_32f_C3(width, height, &srcSteps[i]);
+    ASSERT_NE(srcBuffers[i], nullptr);
+    
+    for (int j = 0; j < 3; j++) {
+      dstBuffers[i][j] = nppiMalloc_32f_C1(width, height, &dstSteps[i]);
+      ASSERT_NE(dstBuffers[i][j], nullptr);
+    }
+    
+    // Initialize with stream-specific pattern
+    std::vector<Npp32f> pattern(width * height * 3);
+    for (int p = 0; p < width * height; p++) {
+      pattern[p * 3] = (float)(i * 1000 + p % 256);       // R
+      pattern[p * 3 + 1] = (float)(i * 1000 + (p + 100) % 256); // G  
+      pattern[p * 3 + 2] = (float)(i * 1000 + (p + 200) % 256); // B
+    }
+    
+    cudaMemcpy2DAsync(srcBuffers[i], srcSteps[i], pattern.data(), 
+                     width * 3 * sizeof(Npp32f), width * 3 * sizeof(Npp32f), 
+                     height, cudaMemcpyHostToDevice, streams[i]);
+  }
+  
+  // Launch operations on different streams
+  NppiSize roi = {width, height};
+  for (int i = 0; i < numStreams; i++) {
+    NppStreamContext ctx;
+    nppGetStreamContext(&ctx);
+    ctx.hStream = streams[i];
+    
+    Npp32f *planes[3] = {dstBuffers[i][0], dstBuffers[i][1], dstBuffers[i][2]};
+    NppStatus status = nppiCopy_32f_C3P3R_Ctx(srcBuffers[i], srcSteps[i], 
+                                              planes, dstSteps[i], roi, ctx);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Stream " << i << " failed";
+  }
+  
+  // Wait for all streams and verify cross-stream independence
+  for (int i = 0; i < numStreams; i++) {
+    cudaStreamSynchronize(streams[i]);
+    
+    // Verify each plane has correct stream-specific data
+    for (int plane = 0; plane < 3; plane++) {
+      Npp32f sampleValue;
+      cudaMemcpy(&sampleValue, dstBuffers[i][plane], sizeof(Npp32f), cudaMemcpyDeviceToHost);
+      
+      float expected = (float)(i * 1000 + (plane * 100) % 256);
+      EXPECT_FLOAT_EQ(sampleValue, expected) 
+        << "Stream " << i << " plane " << plane << " incorrect value";
+    }
+  }
+  
+  // Cleanup
+  for (int i = 0; i < numStreams; i++) {
+    cudaStreamDestroy(streams[i]);
+    nppiFree(srcBuffers[i]);
+    for (int j = 0; j < 3; j++) {
+      nppiFree(dstBuffers[i][j]);
+    }
+  }
+}
