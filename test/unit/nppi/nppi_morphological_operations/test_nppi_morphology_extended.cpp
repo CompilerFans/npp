@@ -1,17 +1,4 @@
-/**
- * @file test_nppi_morphology_extended.cpp
- * @brief Test suite for newly implemented Morphology APIs
- *
- * Tests cover general morphology operations with arbitrary structure elements:
- * - nppiErode_8u_C1R_Ctx / nppiErode_8u_C1R
- * - nppiErode_8u_C4R_Ctx / nppiErode_8u_C4R  
- * - nppiErode_32f_C1R_Ctx / nppiErode_32f_C1R
- * - nppiErode_32f_C4R_Ctx / nppiErode_32f_C4R
- * - nppiDilate_8u_C1R_Ctx / nppiDilate_8u_C1R
- * - nppiDilate_8u_C4R_Ctx / nppiDilate_8u_C4R
- * - nppiDilate_32f_C1R_Ctx / nppiDilate_32f_C1R
- * - nppiDilate_32f_C4R_Ctx / nppiDilate_32f_C4R
- */
+// Test suite for morphology operations
 
 #include "npp.h"
 #include <algorithm>
@@ -33,7 +20,7 @@ protected:
     EXPECT_EQ(err, cudaSuccess);
   }
 
-  // Helper function to create a simple 3x3 cross structure element
+  // Create 3x3 cross structure element
   std::vector<Npp8u> createCrossKernel() {
     return {
       0, 1, 0,
@@ -42,7 +29,7 @@ protected:
     };
   }
 
-  // Helper function to create a 3x3 box structure element
+  // Create 3x3 box structure element
   std::vector<Npp8u> createBoxKernel() {
     return {
       1, 1, 1,
@@ -51,7 +38,7 @@ protected:
     };
   }
 
-  // Helper function to create a 5x5 circle-like structure element
+  // Create 5x5 circle structure element
   std::vector<Npp8u> createCircleKernel() {
     return {
       0, 0, 1, 0, 0,

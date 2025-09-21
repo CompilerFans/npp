@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cuda_runtime.h>
 
-// Forward declarations for CUDA kernels
+// Kernel declarations
 extern "C" {
 cudaError_t nppiMean_StdDev_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, 
                                           Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, 
@@ -13,7 +13,7 @@ cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp
                                            cudaStream_t stream);
 }
 
-// Buffer size calculation for 8-bit unsigned single channel
+// Buffer size calculation for 8u single channel
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize, 
                                                      NppStreamContext /*nppStreamCtx*/) {
   // Parameter validation

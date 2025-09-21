@@ -130,3 +130,7 @@ ctest -R "npps_"    # Signal processing tests
 - Modify comments to be brief and concise in English
 - Strictly prohibit using Chinese in comments
 - Aim for clarity and simplicity in comment language
+
+## Code Naming and Commenting Guidelines
+- 在代码的命名和注释中，简单扼要，不要使用emoji，不要像ai写的
+- 在代码符号和注释中，不要使用cuda、nvidia等字眼，使用generic的命名
