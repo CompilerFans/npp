@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for GPU functions
+
 extern "C" {
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize);
 NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
@@ -11,6 +12,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
 }
 
 // Get buffer size required for Watershed segmentation
+
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t *hpDeviceMemoryBufferSize) {
   if (hpDeviceMemoryBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;

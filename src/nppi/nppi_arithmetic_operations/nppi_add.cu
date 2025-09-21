@@ -179,6 +179,7 @@ __global__ void nppiAdd_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
 }
 
 // Host functions
+
 extern "C" {
 
 NppStatus nppiAdd_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,

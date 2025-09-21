@@ -217,6 +217,7 @@ __global__ void cannyDoubleThreshold_kernel(const float *pSuppressed, int nSuppr
 }
 
 // Edge linking (simplified version)
+
 __global__ void cannyEdgeTracing_kernel(Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -257,6 +258,7 @@ __global__ void cannyEdgeTracing_kernel(Npp8u *pDst, int nDstStep, int width, in
 extern "C" {
 
 // Get required buffer size
+
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize) {
   size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
 

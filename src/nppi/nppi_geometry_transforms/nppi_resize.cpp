@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,

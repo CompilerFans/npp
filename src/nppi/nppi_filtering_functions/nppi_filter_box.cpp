@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Kernel declarations
+
 extern "C" {
 cudaError_t nppiFilterBox_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream);

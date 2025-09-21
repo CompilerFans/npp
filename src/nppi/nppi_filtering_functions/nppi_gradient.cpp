@@ -5,6 +5,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 // Version with X/Y component output (used by FilterBorderControlNPP)
 NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,

@@ -3,6 +3,7 @@
 #include <device_launch_parameters.h>
 
 // Set kernel for 8-bit single channel
+
 __global__ void nppiSet_8u_C1R_kernel(Npp8u nValue, Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -16,6 +17,7 @@ __global__ void nppiSet_8u_C1R_kernel(Npp8u nValue, Npp8u *pDst, int nDstStep, i
 }
 
 // Set kernel for 8-bit three channel
+
 __global__ void nppiSet_8u_C3R_kernel(const Npp8u *aValue, Npp8u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -33,6 +35,7 @@ __global__ void nppiSet_8u_C3R_kernel(const Npp8u *aValue, Npp8u *pDst, int nDst
 }
 
 // Set kernel for 32-bit float single channel
+
 __global__ void nppiSet_32f_C1R_kernel(Npp32f nValue, Npp32f *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;

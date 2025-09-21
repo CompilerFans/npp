@@ -22,6 +22,7 @@ __global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, co
     *dst_pixel = (Npp8u)min(result, 255);
   }
 }
+
 __global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                             Npp16u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -70,6 +71,7 @@ NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const 
 
   return NPP_SUCCESS;
 }
+
 NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                         Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

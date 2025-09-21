@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Declare GPU functions
+
 extern "C" {
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize);
 NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
@@ -12,6 +13,7 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
 }
 
 // Get required buffer size
+
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R(int nMarkerLabels, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;

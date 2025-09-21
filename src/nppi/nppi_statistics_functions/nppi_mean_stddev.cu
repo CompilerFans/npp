@@ -6,6 +6,7 @@
 using namespace cooperative_groups;
 
 // Utility function for warp-level reduction
+
 __device__ __forceinline__ double warpReduceSum(double val) {
   for (int offset = warpSize / 2; offset > 0; offset /= 2) {
     val += __shfl_down_sync(0xFFFFFFFF, val, offset);
@@ -14,6 +15,7 @@ __device__ __forceinline__ double warpReduceSum(double val) {
 }
 
 // Block-level reduction for double precision
+
 __device__ __forceinline__ double blockReduceSum(double val) {
   static __shared__ double shared[32]; // 32 warps max
   int lane = threadIdx.x % warpSize;

@@ -19,6 +19,7 @@ __global__ void magnitude_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int n
     dstPtr[x] = sqrtf(real * real + imag * imag);
   }
 }
+
 __global__ void magnitude_sqr_32fc32f_kernel(const Npp32fc *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                              int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;

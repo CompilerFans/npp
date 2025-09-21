@@ -141,6 +141,7 @@ __global__ void nppiMul_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
 }
 
 // Host functions
+
 extern "C" {
 
 // 8-bit unsigned

@@ -3,6 +3,7 @@
 #include <device_launch_parameters.h>
 
 // Device function for linear interpolation between two points
+
 __device__ inline int linearInterpolate(int input, int level0, int level1, int value0, int value1) {
   if (input <= level0)
     return value0;
@@ -15,6 +16,7 @@ __device__ inline int linearInterpolate(int input, int level0, int level1, int v
 }
 
 // Device function to find the appropriate LUT segment for interpolation
+
 __device__ inline int findLUTSegment(int input, const Npp32s *pLevels, int nLevels) {
   // Binary search to find the segment
   int left = 0, right = nLevels - 1;

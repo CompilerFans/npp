@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cuda_runtime.h>
 template <typename T>
+
 static T *nppiMallocTemplate(int nWidthPixels, int nHeightPixels, int nChannels, int *pStepBytes) {
   if (nWidthPixels <= 0 || nHeightPixels <= 0 || nChannels <= 0 || !pStepBytes) {
     return nullptr;
@@ -22,6 +23,7 @@ static T *nppiMallocTemplate(int nWidthPixels, int nHeightPixels, int nChannels,
 }
 
 // 8-bit unsigned image memory allocators
+
 Npp8u *nppiMalloc_8u_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp8u>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -39,6 +41,7 @@ Npp8u *nppiMalloc_8u_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
 }
 
 // 16-bit unsigned image memory allocators
+
 Npp16u *nppiMalloc_16u_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp16u>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -56,6 +59,7 @@ Npp16u *nppiMalloc_16u_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes) 
 }
 
 // 16-bit signed image memory allocators
+
 Npp16s *nppiMalloc_16s_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp16s>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -69,6 +73,7 @@ Npp16s *nppiMalloc_16s_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes) 
 }
 
 // 16-bit signed complex image memory allocators
+
 Npp16sc *nppiMalloc_16sc_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp16sc>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -86,6 +91,7 @@ Npp16sc *nppiMalloc_16sc_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes
 }
 
 // 32-bit signed image memory allocators
+
 Npp32s *nppiMalloc_32s_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp32s>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -99,6 +105,7 @@ Npp32s *nppiMalloc_32s_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes) 
 }
 
 // 32-bit signed complex image memory allocators
+
 Npp32sc *nppiMalloc_32sc_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp32sc>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -116,6 +123,7 @@ Npp32sc *nppiMalloc_32sc_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes
 }
 
 // 32-bit float image memory allocators
+
 Npp32f *nppiMalloc_32f_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp32f>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -133,6 +141,7 @@ Npp32f *nppiMalloc_32f_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes) 
 }
 
 // 32-bit float complex image memory allocators
+
 Npp32fc *nppiMalloc_32fc_C1(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp32fc>(nWidthPixels, nHeightPixels, 1, pStepBytes);
 }
@@ -148,6 +157,7 @@ Npp32fc *nppiMalloc_32fc_C3(int nWidthPixels, int nHeightPixels, int *pStepBytes
 Npp32fc *nppiMalloc_32fc_C4(int nWidthPixels, int nHeightPixels, int *pStepBytes) {
   return nppiMallocTemplate<Npp32fc>(nWidthPixels, nHeightPixels, 4, pStepBytes);
 }
+
 void nppiFree(void *pData) {
   if (pData) {
     cudaFree(pData);

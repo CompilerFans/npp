@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 NppStatus nppiTranspose_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx);
@@ -39,6 +40,7 @@ NppStatus nppiTranspose_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32
 NppStatus nppiTranspose_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
 }
+
 static NppStatus validateTransposeParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                              NppiSize oSrcROI, int elementSize, int channels) {
   if (!pSrc || !pDst) {
@@ -76,6 +78,7 @@ NppStatus nppiTranspose_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   nppGetStreamContext(&nppStreamCtx);
   return nppiTranspose_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
+
 NppStatus nppiTranspose_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 3);
@@ -91,6 +94,7 @@ NppStatus nppiTranspose_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   nppGetStreamContext(&nppStreamCtx);
   return nppiTranspose_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
+
 NppStatus nppiTranspose_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                    NppStreamContext nppStreamCtx) {
   NppStatus status = validateTransposeParameters(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, sizeof(Npp8u), 4);

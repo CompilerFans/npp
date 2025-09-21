@@ -15,6 +15,7 @@ __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   // Convert 8-bit unsigned to 32-bit float (0-255 -> 0.0-255.0)
   dstRow[x] = (Npp32f)srcRow[x];
 }
+
 __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -52,6 +53,7 @@ NppStatus nppiConvert_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
 
   return NPP_NO_ERROR;
 }
+
 NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
 

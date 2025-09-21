@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Kernel declarations
+
 extern "C" {
 cudaError_t nppiAnd_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, cudaStream_t stream);

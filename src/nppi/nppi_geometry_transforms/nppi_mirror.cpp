@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Kernel declarations
+
 extern "C" {
 cudaError_t nppiMirror_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oROI,
                                      NppiAxis flip, cudaStream_t stream);

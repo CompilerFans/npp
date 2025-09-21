@@ -55,6 +55,7 @@ __global__ void computeGradient_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 }
 
 // Initialize markers
+
 __global__ void initializeMarkers_kernel(Npp32s *pMarkers, int nMarkersStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -191,6 +192,7 @@ __global__ void processWatershedPixels_kernel(const WatershedPixel *pPixels, int
 extern "C" {
 
 // Get required buffer size
+
 NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, size_t *hpBufferSize) {
   size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
 

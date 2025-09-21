@@ -3,6 +3,7 @@
 #include <device_launch_parameters.h>
 
 // Device function for threshold operation
+
 template <typename T> __device__ inline T performThreshold(T src, T threshold, NppCmpOp op) {
   switch (op) {
   case NPP_CMP_LESS:

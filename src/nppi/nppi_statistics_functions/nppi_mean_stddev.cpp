@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 // Kernel declarations
+
 extern "C" {
 cudaError_t nppiMean_StdDev_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
                                           Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream);

@@ -56,6 +56,7 @@ struct UnionFind {
 };
 
 // Initialize Union-Find structure
+
 __global__ void initUnionFind_kernel(Npp32u *parent, int *rank, int maxLabels) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -102,6 +103,7 @@ __global__ void buildConnectivity_kernel(const Npp32u *pMarkerLabels, int nMarke
 }
 
 // Path compression optimization
+
 __global__ void pathCompression_kernel(Npp32u *parent, int maxLabels) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -160,6 +162,7 @@ __global__ void relabelImage_kernel(Npp32u *pMarkerLabels, int nMarkerLabelsStep
 extern "C" {
 
 // Get required buffer size
+
 NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize) {
   // Space required for Union-Find:
   // 1. parent array (Npp32u * maxLabels)

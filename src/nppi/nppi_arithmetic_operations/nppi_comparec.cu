@@ -3,6 +3,7 @@
 #include <device_launch_parameters.h>
 
 // Device function for comparison operations
+
 __device__ inline bool performComparison(float src, float constant, NppCmpOp op) {
   switch (op) {
   case NPP_CMP_LESS:

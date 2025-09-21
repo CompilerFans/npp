@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 NppStatus nppiCFAToRGB_8u_C1C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                          Npp8u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
@@ -42,6 +43,7 @@ static inline NppStatus validateCFAToRGBInputs(const void *pSrc, int nSrcStep, N
 
   return NPP_SUCCESS;
 }
+
 NppStatus nppiCFAToRGB_8u_C1C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u *pDst,
                                     int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation,
                                     NppStreamContext nppStreamCtx) {
@@ -61,6 +63,7 @@ NppStatus nppiCFAToRGB_8u_C1C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSi
   return nppiCFAToRGB_8u_C1C3R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
                                    nppStreamCtx);
 }
+
 NppStatus nppiCFAToRGB_16u_C1C3R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
                                      Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
                                      NppiInterpolationMode eInterpolation, NppStreamContext nppStreamCtx) {

@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 NppStatus nppiCompareC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation,

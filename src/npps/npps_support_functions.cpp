@@ -1,6 +1,7 @@
 #include "npp.h"
 #include <cstdio>
 #include <cuda_runtime.h>
+
 template <typename T> static T *nppsMallocTemplate(size_t nSize) {
   if (nSize == 0) {
     return nullptr;
@@ -49,6 +50,7 @@ Npp64sc *nppsMalloc_64sc(size_t nSize) { return nppsMallocTemplate<Npp64sc>(nSiz
 Npp64f *nppsMalloc_64f(size_t nSize) { return nppsMallocTemplate<Npp64f>(nSize); }
 
 Npp64fc *nppsMalloc_64fc(size_t nSize) { return nppsMallocTemplate<Npp64fc>(nSize); }
+
 void nppsFree(void *pValues) {
   if (pValues) {
     cudaFree(pValues);

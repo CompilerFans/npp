@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 NppStatus nppiSqrt_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                       int nScaleFactor, NppStreamContext nppStreamCtx);
@@ -13,6 +14,7 @@ NppStatus nppiSqrt_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s 
 NppStatus nppiSqrt_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx);
 }
+
 static inline NppStatus validateSqrtInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
                                            NppiSize oSizeROI) {
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
@@ -29,6 +31,7 @@ static inline NppStatus validateSqrtInputs(const void *pSrc, int nSrcStep, void 
 
   return NPP_SUCCESS;
 }
+
 NppStatus nppiSqrt_8u_C1RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                  int nScaleFactor, NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -49,6 +52,7 @@ NppStatus nppiSqrt_8u_C1RSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
   nppStreamCtx.hStream = 0;
   return nppiSqrt_8u_C1RSfs_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
+
 NppStatus nppiSqrt_16u_C1RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -69,6 +73,7 @@ NppStatus nppiSqrt_16u_C1RSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, in
   nppStreamCtx.hStream = 0;
   return nppiSqrt_16u_C1RSfs_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
+
 NppStatus nppiSqrt_16s_C1RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
@@ -89,6 +94,7 @@ NppStatus nppiSqrt_16s_C1RSfs(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, in
   nppStreamCtx.hStream = 0;
   return nppiSqrt_16s_C1RSfs_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
+
 NppStatus nppiSqrt_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                NppStreamContext nppStreamCtx) {
   NppStatus status = validateSqrtInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);

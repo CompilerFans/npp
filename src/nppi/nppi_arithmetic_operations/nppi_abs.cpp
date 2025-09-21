@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 // 16s implementations
 NppStatus nppiAbs_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
@@ -46,6 +47,7 @@ NppStatus nppiAbs_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDs
                                    NppStreamContext nppStreamCtx);
 NppStatus nppiAbs_32f_C4IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
+
 static NppStatus validateAbsParameters(const void *pSrc, int nSrcStep, const void *pDst, int nDstStep,
                                        NppiSize oSizeROI, int nChannels, int nElementSize) {
   // For in-place operations, pDst will be nullptr

@@ -30,6 +30,7 @@ __global__ void divC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
   // Store result
   *dstPixel = static_cast<Npp8u>(result);
 }
+
 __global__ void divC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
                                        Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -60,6 +61,7 @@ __global__ void divC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrc
   // Store result
   *dstPixel = static_cast<Npp16u>(result);
 }
+
 __global__ void divC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
                                        Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
                                        int nScaleFactor) {
@@ -90,6 +92,7 @@ __global__ void divC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrc
   // Store result
   *dstPixel = static_cast<Npp16s>(result);
 }
+
 __global__ void divC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
                                     Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -144,6 +147,7 @@ NppStatus nppiDivC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const N
 
   return NPP_NO_ERROR;
 }
+
 NppStatus nppiDivC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
@@ -163,6 +167,7 @@ NppStatus nppiDivC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const
 
   return NPP_NO_ERROR;
 }
+
 NppStatus nppiDivC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
@@ -182,6 +187,7 @@ NppStatus nppiDivC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const
 
   return NPP_NO_ERROR;
 }
+
 NppStatus nppiDivC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Set up GPU grid and block dimensions
@@ -200,6 +206,7 @@ NppStatus nppiDivC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Np
 
   return NPP_NO_ERROR;
 }
+
 __global__ void divC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep,
                                       const Npp8u *__restrict__ aConstants, Npp8u *__restrict__ pDst, int nDstStep,
                                       int width, int height, int nScaleFactor) {
@@ -221,6 +228,7 @@ __global__ void divC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcSt
     dstRow[dstIdx + c] = (Npp8u)min(255, max(0, result));
   }
 }
+
 NppStatus nppiDivC_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {

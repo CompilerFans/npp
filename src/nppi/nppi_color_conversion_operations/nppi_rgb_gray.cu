@@ -26,6 +26,7 @@ __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
     *dst_pixel = (Npp8u)(gray + 0.5f); // Round to nearest
   }
 }
+
 __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -47,6 +48,7 @@ __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, 
     *dst_pixel = (Npp8u)(gray + 0.5f); // Round to nearest
   }
 }
+
 __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -66,6 +68,7 @@ __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep,
     *dst_pixel = WEIGHT_R * r + WEIGHT_G * g + WEIGHT_B * b;
   }
 }
+
 __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                 int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -113,6 +116,7 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
 
   return NPP_SUCCESS;
 }
+
 NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -138,6 +142,7 @@ NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8
 
   return NPP_SUCCESS;
 }
+
 NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -163,6 +168,7 @@ NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp
 
   return NPP_SUCCESS;
 }
+
 NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);

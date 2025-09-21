@@ -69,6 +69,7 @@ __global__ void nppiHistogramEven_8u_C1R_kernel_global(const Npp8u *pSrc, int nS
 extern "C" {
 
 // Get buffer size for histogram computation
+
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
   // Calculate required buffer size
   // For histogram computation, we need space for temporary data

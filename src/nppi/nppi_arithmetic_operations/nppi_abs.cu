@@ -37,6 +37,7 @@ __global__ void abs_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__restri
 
 // Generic absolute value kernel (in-place)
 template <typename T, int nChannels>
+
 __global__ void abs_inplace_kernel(T *__restrict__ pSrcDst, int nSrcDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -75,6 +76,7 @@ __global__ void abs_ac4_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__re
 
 // Special kernel for AC4 in-place
 template <typename T>
+
 __global__ void abs_ac4_inplace_kernel(T *__restrict__ pSrcDst, int nSrcDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -114,6 +116,7 @@ static NppStatus launchAbsKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstS
 }
 
 template <typename T, int nChannels>
+
 static NppStatus launchAbsInplaceKernel(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI (vendor NPP compatible behavior)
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {

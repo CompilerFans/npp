@@ -2,6 +2,7 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
+
 extern "C" {
 // 8-bit unsigned
 NppStatus nppiDiv_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -27,6 +28,7 @@ NppStatus nppiDiv_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp
 NppStatus nppiDiv_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
+
 static NppStatus validateDualSourceParameters(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                               const void *pDst, int nDstStep, NppiSize oSizeROI, int elementSize) {
   if (!pSrc1 || !pSrc2 || !pDst) {

@@ -5,6 +5,7 @@
 // Morphological operations kernels
 
 // Device function for 3x3 erosion (minimum value in neighborhood)
+
 template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, int x, int y, int width, int height) {
   T minVal = T(255); // Default maximum value for 8u
 
@@ -32,6 +33,7 @@ template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, 
 
 // Template specialization for Npp32f (float)
 template <>
+
 __device__ inline Npp32f erode3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
   Npp32f minVal = 1e10f; // Large value for float
 
@@ -58,6 +60,7 @@ __device__ inline Npp32f erode3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int 
 }
 
 // Device function for 3x3 dilation (maximum value in neighborhood)
+
 template <typename T> __device__ inline T dilate3x3(const T *pSrc, int nSrcStep, int x, int y, int width, int height) {
   T maxVal = (T)0; // Start with minimum value
 
@@ -85,6 +88,7 @@ template <typename T> __device__ inline T dilate3x3(const T *pSrc, int nSrcStep,
 
 // Template specialization for Npp32f (float) dilation
 template <>
+
 __device__ inline Npp32f dilate3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
   Npp32f maxVal = -1e10f; // Very small value for float
 

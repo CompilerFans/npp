@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 // Declare GPU functions
+
 extern "C" {
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI,
@@ -14,6 +15,7 @@ NppStatus nppiFilterCannyBorder_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
 }
 
 // Get required buffer size - simplified version (used by GPU Samples)
+
 NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
@@ -27,6 +29,7 @@ NppStatus nppiFilterCannyBorderGetBufferSize(NppiSize oSizeROI, int *hpBufferSiz
 }
 
 // Get required buffer size
+
 NppStatus nppiFilterCannyBorderGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
   if (hpBufferSize == nullptr) {
     return NPP_NULL_POINTER_ERROR;
