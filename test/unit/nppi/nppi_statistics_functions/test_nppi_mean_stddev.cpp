@@ -199,7 +199,111 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_32f_C1R_GradientData) {
   cudaFree(pStdDev);
 }
 
-// Test 5: Stream context test for 8u_C1R
+// Test 5: Buffer size calculation for 32f_C1R_Ctx
+TEST_F(NppiMeanStdDevTest, MeanStdDevGetBufferHostSize_32f_C1R_Ctx) {
+  // Create stream context
+  cudaStream_t stream;
+  cudaStreamCreate(&stream);
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = stream;
+
+  NppiSize oSizeROI = {512, 512};
+  size_t bufferSize = 0;
+
+  NppStatus status = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, &bufferSize, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0);
+  EXPECT_LT(bufferSize, size_t(10 * 1024 * 1024)); // Less than 10MB should be reasonable
+
+  // Test with different sizes
+  NppiSize smallROI = {128, 128};
+  size_t smallBufferSize = 0;
+  status = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(smallROI, &smallBufferSize, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(smallBufferSize, 0);
+  EXPECT_LT(smallBufferSize, size_t(10 * 1024 * 1024)); // Less than 10MB should be reasonable
+
+  // Cleanup
+  cudaStreamDestroy(stream);
+}
+
+// Test 6: Mean and StdDev calculation for 32f_C1R with stream context
+TEST_F(NppiMeanStdDevTest, Mean_StdDev_32f_C1R_StreamContext) {
+  const int width = 128;
+  const int height = 128;
+
+  // Create gradient data
+  std::vector<Npp32f> hostSrc(width * height);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      hostSrc[y * width + x] = static_cast<float>(x * 2 + y * 3); // Different gradient pattern
+    }
+  }
+
+  // Calculate reference values
+  double refMean, refStdDev;
+  calculateReferenceMeanStdDev(hostSrc, refMean, refStdDev);
+
+  // Allocate GPU memory
+  Npp32f *d_src = nullptr;
+  int srcStep;
+  d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+
+  // Create stream
+  cudaStream_t stream;
+  cudaStreamCreate(&stream);
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = stream;
+
+  // Upload data asynchronously
+  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), 
+                   width * sizeof(Npp32f), height, cudaMemcpyHostToDevice, stream);
+
+  // Get buffer size and allocate buffer
+  NppiSize oSizeROI = {width, height};
+  size_t bufferSize = 0;
+  NppStatus status = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, &bufferSize, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  Npp8u *pDeviceBuffer = nullptr;
+  cudaMalloc(&pDeviceBuffer, bufferSize);
+  ASSERT_NE(pDeviceBuffer, nullptr);
+
+  // Allocate device memory for results
+  Npp64f *pMean = nullptr;
+  Npp64f *pStdDev = nullptr;
+  cudaMalloc(&pMean, sizeof(Npp64f));
+  cudaMalloc(&pStdDev, sizeof(Npp64f));
+  ASSERT_NE(pMean, nullptr);
+  ASSERT_NE(pStdDev, nullptr);
+
+  // Calculate mean and standard deviation with stream context
+  status = nppiMean_StdDev_32f_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  // Synchronize stream and get results
+  cudaStreamSynchronize(stream);
+
+  Npp64f hostMean, hostStdDev;
+  cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+
+  // Compare with reference values
+  EXPECT_NEAR(hostMean, refMean, 0.01);
+  EXPECT_NEAR(hostStdDev, refStdDev, 0.01);
+
+  // Cleanup
+  cudaStreamDestroy(stream);
+  nppiFree(d_src);
+  cudaFree(pDeviceBuffer);
+  cudaFree(pMean);
+  cudaFree(pStdDev);
+}
+
+// Test 7: Stream context test for 8u_C1R
 TEST_F(NppiMeanStdDevTest, Mean_StdDev_8u_C1R_StreamContext) {
   const int width = 256;
   const int height = 256;
