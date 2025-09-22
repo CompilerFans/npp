@@ -3,7 +3,9 @@
 
 # 递归查找所有测试文件
 file(GLOB_RECURSE UNIT_TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/*/test_*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_*.cpp
+    # disable all npps temp
+    #${CMAKE_CURRENT_SOURCE_DIR}/npps/test_*.cpp
 )
 
 # 显示找到的测试文件 (按模块分组)

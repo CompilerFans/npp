@@ -127,3 +127,27 @@ NppStatus nppiHistogramEven_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSi
   return nppiHistogramEven_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel, pDeviceBuffer,
                                       nppStreamCtx);
 }
+
+// Host function to generate evenly spaced histogram levels
+NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBound, Npp32s nUpperBound) {
+  // Validate input parameters
+  if (pLevels == nullptr) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+
+  if (nLevels < 2) {
+    return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
+  }
+
+  if (nLowerBound >= nUpperBound) {
+    return NPP_RANGE_ERROR;
+  }
+
+  // Generate evenly spaced levels
+  for (int i = 0; i < nLevels; i++) {
+    double ratio = static_cast<double>(i) / static_cast<double>(nLevels - 1);
+    pLevels[i] = static_cast<Npp32s>(nLowerBound + ratio * (nUpperBound - nLowerBound));
+  }
+
+  return NPP_SUCCESS;
+}
