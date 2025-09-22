@@ -59,6 +59,12 @@ protected:
   void TearDown() override {
     cudaError_t err = cudaDeviceSynchronize();
     EXPECT_EQ(err, cudaSuccess);
+    
+    // Clear any potential memory issues  
+    cudaError_t clearErr = cudaGetLastError();
+    if (clearErr != cudaSuccess) {
+      std::cerr << "Warning: CUDA error detected in teardown: " << cudaGetErrorString(clearErr) << std::endl;
+    }
   }
 };
 
@@ -73,6 +79,12 @@ protected:
   void TearDown() override {
     cudaError_t err = cudaDeviceSynchronize();
     EXPECT_EQ(err, cudaSuccess);
+    
+    // Clear any potential memory issues
+    cudaError_t clearErr = cudaGetLastError();
+    if (clearErr != cudaSuccess) {
+      std::cerr << "Warning: CUDA error detected in teardown: " << cudaGetErrorString(clearErr) << std::endl;
+    }
   }
 
   // Function to calculate reference mean and standard deviation
@@ -590,10 +602,11 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_8u_C1R_ConstantPatterns) {
     
   // Test regular version
   {
-    Npp8u *d_src = nppiMalloc_8u_C1(width, height, nullptr);
+    int srcStep;
+    Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
     ASSERT_NE(d_src, nullptr);
     
-    cudaMemcpy2D(d_src, width * sizeof(Npp8u), constantData.data(), 
+    cudaMemcpy2D(d_src, srcStep, constantData.data(), 
                  width * sizeof(Npp8u), width * sizeof(Npp8u), height, cudaMemcpyHostToDevice);
     
     NppiSize oSizeROI = {width, height};
@@ -607,7 +620,7 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_8u_C1R_ConstantPatterns) {
     cudaMalloc(&pMean, sizeof(Npp64f));
     cudaMalloc(&pStdDev, sizeof(Npp64f));
     
-    NppStatus status = nppiMean_StdDev_8u_C1R(d_src, width * sizeof(Npp8u), oSizeROI, 
+    NppStatus status = nppiMean_StdDev_8u_C1R(d_src, srcStep, oSizeROI, 
                                              pDeviceBuffer, pMean, pStdDev);
     ASSERT_EQ(status, NPP_SUCCESS);
     
@@ -628,7 +641,8 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_8u_C1R_ConstantPatterns) {
   
   // Test context version
   {
-    Npp8u *d_src = nppiMalloc_8u_C1(width, height, nullptr);
+    int srcStep;
+    Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
     ASSERT_NE(d_src, nullptr);
     
     cudaStream_t stream;
@@ -637,7 +651,7 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_8u_C1R_ConstantPatterns) {
     nppGetStreamContext(&nppStreamCtx);
     nppStreamCtx.hStream = stream;
     
-    cudaMemcpy2DAsync(d_src, width * sizeof(Npp8u), constantData.data(), 
+    cudaMemcpy2DAsync(d_src, srcStep, constantData.data(), 
                      width * sizeof(Npp8u), width * sizeof(Npp8u), height, 
                      cudaMemcpyHostToDevice, stream);
     
@@ -652,7 +666,7 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_8u_C1R_ConstantPatterns) {
     cudaMalloc(&pMean, sizeof(Npp64f));
     cudaMalloc(&pStdDev, sizeof(Npp64f));
     
-    NppStatus status = nppiMean_StdDev_8u_C1R_Ctx(d_src, width * sizeof(Npp8u), oSizeROI, 
+    NppStatus status = nppiMean_StdDev_8u_C1R_Ctx(d_src, srcStep, oSizeROI, 
                                                  pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
     
@@ -703,10 +717,11 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_32f_C1R_ConstantPatterns) {
     
     // Test regular version
     {
-      Npp32f *d_src = nppiMalloc_32f_C1(width, height, nullptr);
+      int srcStep;
+      Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
       ASSERT_NE(d_src, nullptr);
       
-      cudaMemcpy2D(d_src, width * sizeof(Npp32f), pattern.data.data(), 
+      cudaMemcpy2D(d_src, srcStep, pattern.data.data(), 
                    width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
       
       NppiSize oSizeROI = {width, height};
@@ -720,7 +735,7 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_32f_C1R_ConstantPatterns) {
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
       
-      NppStatus status = nppiMean_StdDev_32f_C1R(d_src, width * sizeof(Npp32f), oSizeROI, 
+      NppStatus status = nppiMean_StdDev_32f_C1R(d_src, srcStep, oSizeROI, 
                                                pDeviceBuffer, pMean, pStdDev);
       ASSERT_EQ(status, NPP_SUCCESS);
       
@@ -741,7 +756,8 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_32f_C1R_ConstantPatterns) {
     
     // Test context version
     {
-      Npp32f *d_src = nppiMalloc_32f_C1(width, height, nullptr);
+      int srcStep;
+      Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
       ASSERT_NE(d_src, nullptr);
       
       cudaStream_t stream;
@@ -750,7 +766,7 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_32f_C1R_ConstantPatterns) {
       nppGetStreamContext(&nppStreamCtx);
       nppStreamCtx.hStream = stream;
       
-      cudaMemcpy2DAsync(d_src, width * sizeof(Npp32f), pattern.data.data(), 
+      cudaMemcpy2DAsync(d_src, srcStep, pattern.data.data(), 
                        width * sizeof(Npp32f), width * sizeof(Npp32f), height, 
                        cudaMemcpyHostToDevice, stream);
       
@@ -765,7 +781,7 @@ TEST_P(NppiMeanStdDevComputationTest, Computation_32f_C1R_ConstantPatterns) {
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
       
-      NppStatus status = nppiMean_StdDev_32f_C1R_Ctx(d_src, width * sizeof(Npp32f), oSizeROI, 
+      NppStatus status = nppiMean_StdDev_32f_C1R_Ctx(d_src, srcStep, oSizeROI, 
                                                    pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
       ASSERT_EQ(status, NPP_SUCCESS);
       
