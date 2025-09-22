@@ -1,4 +1,8 @@
+#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+
+// only enable at CUDA 12.8
+#if CUDA_SDK_AT_LEAST(12, 8)
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <map>
@@ -138,3 +142,4 @@ TEST_F(NPPIWatershedTest, DISABLED_SegmentWatershed_ErrorHandling) {
                                         NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, nullptr); // 无效的norm值
   EXPECT_NE(status, NPP_SUCCESS);
 }
+#endif // CUDA_SDK_AT_LEAST(12, 8)

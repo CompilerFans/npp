@@ -1,4 +1,8 @@
+#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+
+// only enable at CUDA 12.8
+#if CUDA_SDK_AT_LEAST(12, 8)
 #include <algorithm>
 #include <cmath>
 #include <gtest/gtest.h>
@@ -250,3 +254,4 @@ TEST_F(NPPSSumFunctionalTest, DISABLED_ErrorHandling_ZeroLength) {
 
   cudaFree(d_dummy);
 }
+#endif // CUDA_SDK_AT_LEAST(12, 8)

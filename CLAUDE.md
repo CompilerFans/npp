@@ -147,3 +147,6 @@ Note: Rebuild project after switching versions.
 
 ## Version Management
 - 项目代码中增加了不同cuda-sdk版本的头文件，如API-11.4、API-12.2、API-12.8，基于需求，软链接到API。需要增加一个不同版本的软链接切换脚本
+
+## API Version Compatibility
+- 12.8和12.2、11.4版本的api接口定义和参数差异，会导致不同版本的测试应用程序出错。我们mpp库可对所有版本的api实现都支持

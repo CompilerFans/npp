@@ -1,3 +1,4 @@
+#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -57,9 +58,13 @@ TEST_F(NPPIHistogramTest, DISABLED_EvenLevelsHost_ErrorHandling) {
 // 测试直方图缓冲区大小获取
 TEST_F(NPPIHistogramTest, HistogramEvenGetBufferSize_8u_C1R) {
   int nLevels = 256;
+#if CUDA_SDK_AT_LEAST(12, 8)
   size_t bufferSize = 0;
-
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+#else
+  int bufferSize = 0;
+  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+#endif
   EXPECT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
@@ -81,8 +86,13 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Basic) {
   std::vector<Npp32s> pHist(nLevels - 1);
 
   // 获取缓冲区大小
+#if CUDA_SDK_AT_LEAST(12, 8)
   size_t bufferSize = 0;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+#else
+  int bufferSize = 0;
+  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+#endif
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 分配GPU内存
@@ -170,9 +180,14 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Enhanced) {
   ASSERT_NE(d_hist, nullptr);
 
   // 获取缓冲区大小并分配
-  size_t bufferSize;
   NppiSize roi = {width, height};
+#if CUDA_SDK_AT_LEAST(12, 8)
+  size_t bufferSize;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+#else
+  int bufferSize;
+  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
+#endif
   ASSERT_EQ(status, NPP_SUCCESS);
 
   Npp8u *d_buffer = nppsMalloc_8u(bufferSize);

@@ -51,6 +51,38 @@ Npp64f *nppsMalloc_64f(size_t nSize) { return nppsMallocTemplate<Npp64f>(nSize);
 
 Npp64fc *nppsMalloc_64fc(size_t nSize) { return nppsMallocTemplate<Npp64fc>(nSize); }
 
+// 8-bit signal memory allocators
+Npp8u *nppsMalloc_8u(int nSize) { return nppsMallocTemplate<Npp8u>(nSize); }
+
+Npp8s *nppsMalloc_8s(int nSize) { return nppsMallocTemplate<Npp8s>(nSize); }
+
+// 16-bit signal memory allocators
+Npp16u *nppsMalloc_16u(int nSize) { return nppsMallocTemplate<Npp16u>(nSize); }
+
+Npp16s *nppsMalloc_16s(int nSize) { return nppsMallocTemplate<Npp16s>(nSize); }
+
+Npp16sc *nppsMalloc_16sc(int nSize) { return nppsMallocTemplate<Npp16sc>(nSize); }
+
+// 32-bit signal memory allocators
+Npp32u *nppsMalloc_32u(int nSize) { return nppsMallocTemplate<Npp32u>(nSize); }
+
+Npp32s *nppsMalloc_32s(int nSize) { return nppsMallocTemplate<Npp32s>(nSize); }
+
+Npp32sc *nppsMalloc_32sc(int nSize) { return nppsMallocTemplate<Npp32sc>(nSize); }
+
+Npp32f *nppsMalloc_32f(int nSize) { return nppsMallocTemplate<Npp32f>(nSize); }
+
+Npp32fc *nppsMalloc_32fc(int nSize) { return nppsMallocTemplate<Npp32fc>(nSize); }
+
+// 64-bit signal memory allocators
+Npp64s *nppsMalloc_64s(int nSize) { return nppsMallocTemplate<Npp64s>(nSize); }
+
+Npp64sc *nppsMalloc_64sc(int nSize) { return nppsMallocTemplate<Npp64sc>(nSize); }
+
+Npp64f *nppsMalloc_64f(int nSize) { return nppsMallocTemplate<Npp64f>(nSize); }
+
+Npp64fc *nppsMalloc_64fc(int nSize) { return nppsMallocTemplate<Npp64fc>(nSize); }
+
 void nppsFree(void *pValues) {
   if (pValues) {
     cudaFree(pValues);

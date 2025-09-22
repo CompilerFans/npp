@@ -1,4 +1,8 @@
+#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+
+// only enable at CUDA 12.8
+#if CUDA_SDK_AT_LEAST(12, 8)
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -382,3 +386,4 @@ TEST_F(NppiMeanStdDevTest, Mean_StdDev_ErrorHandling) {
   cudaFree(pMean);
   cudaFree(pStdDev);
 }
+#endif // CUDA_SDK_AT_LEAST(12, 8)

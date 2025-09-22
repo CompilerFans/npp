@@ -1,4 +1,8 @@
+#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+
+// only enable at CUDA 12.8
+#if CUDA_SDK_AT_LEAST(12, 8)
 #include <algorithm>
 #include <cmath>
 #include <cuda_runtime.h>
@@ -587,3 +591,4 @@ TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
 
   std::cout << "TorchCodec compatibility test passed. Valid pixels: " << validPixelCount << std::endl;
 }
+#endif // CUDA_SDK_AT_LEAST(12, 8)

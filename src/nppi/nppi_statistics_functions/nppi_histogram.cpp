@@ -1,3 +1,4 @@
+#include "../../npp_version_compat.h"
 #include "npp.h"
 #include <cmath>
 #include <cstdio>
@@ -5,7 +6,6 @@
 #include <cuda_runtime.h>
 
 // Forward declarations for mpp host func implementations
-
 extern "C" {
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize);
 NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
@@ -13,72 +13,10 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
                                             NppStreamContext nppStreamCtx);
 }
 
-NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBound, Npp32s nUpperBound) {
-  // Validate input parameters
-  if (!pLevels) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
-  if (nLevels < 2) {
-    return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
-  }
-
-  if (nLowerBound >= nUpperBound) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
-  // Calculate the step size for even distribution
-  double range = (double)(nUpperBound - nLowerBound);
-  double step = range / (double)(nLevels - 1);
-
-  // Generate even levels
-  for (int i = 0; i < nLevels; i++) {
-    pLevels[i] = nLowerBound + (Npp32s)(i * step);
-  }
-
-  // Ensure the last level is exactly the upper bound
-  pLevels[nLevels - 1] = nUpperBound;
-
-  return NPP_SUCCESS;
-}
-
-NppStatus nppiEvenLevelsHost_32f(Npp32f *pLevels, int nLevels, Npp32f nLowerBound, Npp32f nUpperBound) {
-  // Validate input parameters
-  if (!pLevels) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
-  if (nLevels < 2) {
-    return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
-  }
-
-  if (nLowerBound >= nUpperBound) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
-  // Calculate the step size for even distribution
-  float range = nUpperBound - nLowerBound;
-  float step = range / (float)(nLevels - 1);
-
-  // Generate even levels
-  for (int i = 0; i < nLevels; i++) {
-    pLevels[i] = nLowerBound + i * step;
-  }
-
-  // Ensure the last level is exactly the upper bound
-  pLevels[nLevels - 1] = nUpperBound;
-
-  return NPP_SUCCESS;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
-                                                    NppStreamContext nppStreamCtx) {
+// Internal implementation (always uses size_t internally)
+static NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(NppiSize oSizeROI, int nLevels,
+                                                                    size_t *hpBufferSize,
+                                                                    NppStreamContext nppStreamCtx) {
   // Validate input parameters
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
@@ -98,6 +36,61 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
 }
 
+// Note: nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl is implemented in nppi_histogram.cu
+
+// CUDA SDK 12.8+ API (uses size_t)
+#if CUDA_SDK_AT_LEAST(12, 8)
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
+  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
+#endif
+
+// CUDA SDK 12.2 and earlier API (uses int) - always provide these for backward compatibility
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_int(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                        NppStreamContext nppStreamCtx) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+
+  size_t temp_size;
+  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(oSizeROI, nLevels, &temp_size, nppStreamCtx);
+
+  if (status == NPP_SUCCESS) {
+    // Convert size_t to int (with overflow check)
+    if (temp_size > static_cast<size_t>(INT_MAX)) {
+      return NPP_MEMORY_ALLOCATION_ERR;
+    }
+    *hpBufferSize = static_cast<int>(temp_size);
+  }
+
+  return status;
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_int(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_int(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
+
+// For CUDA SDK 12.2 and earlier, also provide the standard API names
+#if !CUDA_SDK_AT_LEAST(12, 8)
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C1R_int(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
+  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_int(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
+#endif
+
 NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                        NppStreamContext nppStreamCtx) {
@@ -110,18 +103,19 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize
     return NPP_SIZE_ERROR;
   }
 
-  if (nSrcStep <= 0) {
-    return NPP_STEP_ERROR;
-  }
-
   if (nLevels < 2) {
     return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
   }
 
-  if (nLowerLevel >= nUpperLevel) {
-    return NPP_BAD_ARGUMENT_ERROR;
+  if (nSrcStep < oSizeROI.width) {
+    return NPP_STEP_ERROR;
   }
 
+  if (nLowerLevel >= nUpperLevel) {
+    return NPP_RANGE_ERROR;
+  }
+
+  // Call GPU kernel implementation
   return nppiHistogramEven_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel,
                                            pDeviceBuffer, nppStreamCtx);
 }
