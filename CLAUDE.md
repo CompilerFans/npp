@@ -122,6 +122,16 @@ ctest -R "npps_"    # Signal processing tests
 - 问题修正后需要同时修正build和build-nvidia
 - 问题修正后需要同时验证build和build-nvidia
 
+## CUDA SDK Version Management
+Use `./switch_cuda_version.sh` to switch between different CUDA SDK versions:
+- `./switch_cuda_version.sh 11.4` - Switch to CUDA 11.4 headers
+- `./switch_cuda_version.sh 12.2` - Switch to CUDA 12.2 headers  
+- `./switch_cuda_version.sh 12.8` - Switch to CUDA 12.8 headers
+- `./switch_cuda_version.sh current` - Show current version
+- `./switch_cuda_version.sh list` - List available versions
+
+Note: Rebuild project after switching versions.
+
 ## Testing Restrictions
 - GTEST_SKIP禁止使用
 
@@ -134,3 +144,6 @@ ctest -R "npps_"    # Signal processing tests
 ## Code Naming and Commenting Guidelines
 - 在代码的命名和注释中，简单扼要，不要使用emoji，不要像ai写的
 - 在代码符号和注释中，不要使用cuda、nvidia等字眼，使用generic的命名
+
+## Version Management
+- 项目代码中增加了不同cuda-sdk版本的头文件，如API-11.4、API-12.2、API-12.8，基于需求，软链接到API。需要增加一个不同版本的软链接切换脚本
