@@ -192,33 +192,6 @@ TEST_F(MorphologyFunctionalTest, Dilate3x3_32f_C1R_Float) {
   EXPECT_GT(highValuePixels, 2) << "Float dilation should spread high values to neighboring pixels";
 }
 
-// 错误处理测试
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(MorphologyFunctionalTest, DISABLED_Morphology_ErrorHandling) {
-  const int width = 16, height = 16;
-
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试空指针 - 腐蚀
-  NppStatus status = nppiErode3x3_8u_C1R(nullptr, src.step(), dst.get(), dst.step(), roi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with null source pointer";
-
-  // 测试空指针 - 膨胀
-  status = nppiDilate3x3_8u_C1R(src.get(), src.step(), nullptr, dst.step(), roi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with null destination pointer";
-
-  // 测试无效ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiErode3x3_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with invalid ROI";
-
-  status = nppiDilate3x3_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with invalid ROI";
-}
-
 // 形态学操作组合测试（开运算和闭运算）
 TEST_F(MorphologyFunctionalTest, Morphology_OpenClose_Operations) {
   const int width = 32, height = 32;
