@@ -2,7 +2,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-
 /**
  * Get the NPP library version.
  */

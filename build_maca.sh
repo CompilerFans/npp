@@ -2,8 +2,6 @@
 
 # Simple build script for NPP Library
 
-set -e
-
 echo "=== NPP Library Build Script ==="
 
 # Default values

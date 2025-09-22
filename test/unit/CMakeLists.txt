@@ -3,7 +3,14 @@
 
 # 递归查找所有测试文件
 file(GLOB_RECURSE UNIT_TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/*/test_*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_*.cpp
+
+    # npps diff by version. comment temp
+    # cuda 12.8
+    #           Npp32fc * nppsMalloc_32fc(size_t nSize);
+    # cuda 12.2/11.4
+    #           Npp32fc * nppsMalloc_32fc(int nSize);
+    #${CMAKE_CURRENT_SOURCE_DIR}/npps/test_*.cpp
 )
 
 # 显示找到的测试文件 (按模块分组)
@@ -20,7 +27,7 @@ endforeach()
 npp_create_test_suite("unit" "${UNIT_TEST_SOURCES}" npp)
 
 # 为单元测试添加特定的包含路径
-target_include_directories(unit_tests 
+target_include_directories(unit_tests
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../framework  # 测试框架
     ${CMAKE_CURRENT_SOURCE_DIR}               # 单元测试根目录
