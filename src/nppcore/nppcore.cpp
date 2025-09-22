@@ -2,12 +2,6 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * NPP Core Functions Implementation - Simplified Version
- *
- * This implementation directly uses CUDA Runtime API without internal stream management.
- * Stream and context are managed by the user through CUDA Runtime API.
- */
 
 /**
  * Get the NPP library version.
@@ -335,7 +329,7 @@ __attribute__((unused)) static const char *nppGetStatusStringInternal(NppStatus 
   case NPP_ALIGNMENT_ERROR:
     return "Alignment error";
   case NPP_CUDA_KERNEL_EXECUTION_ERROR:
-    return "CUDA kernel execution error";
+    return "GPU kernel execution error";
   case NPP_ROUND_MODE_NOT_SUPPORTED_ERROR:
     return "Round mode not supported error";
   case NPP_QUALITY_INDEX_ERROR:
