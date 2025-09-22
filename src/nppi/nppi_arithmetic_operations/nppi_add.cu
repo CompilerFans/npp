@@ -191,7 +191,7 @@ __global__ void nppiAdd_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const
 
 extern "C" {
 
-NppStatus nppiAdd_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAdd_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -202,7 +202,7 @@ NppStatus nppiAdd_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Np
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAdd_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -213,7 +213,7 @@ NppStatus nppiAdd_8u_C3RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Np
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+NppStatus nppiAdd_8u_C4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -224,7 +224,7 @@ NppStatus nppiAdd_8u_C4RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Np
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
+NppStatus nppiAdd_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                       Npp16u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
@@ -236,7 +236,7 @@ NppStatus nppiAdd_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const 
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
+NppStatus nppiAdd_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
                                       Npp16s *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
@@ -248,7 +248,7 @@ NppStatus nppiAdd_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const 
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+NppStatus nppiAdd_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Early return for zero-size ROI to avoid invalid kernel configurations
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
@@ -264,7 +264,7 @@ NppStatus nppiAdd_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_32f_C3R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+NppStatus nppiAdd_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

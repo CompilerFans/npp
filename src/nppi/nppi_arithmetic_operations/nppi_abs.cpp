@@ -11,45 +11,45 @@
 // Forward declarations for CUDA implementations
 extern "C" {
 // 16s implementations
-NppStatus nppiAbs_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_C1IR_Ctx_cuda(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_C3R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16s_C1IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_16s_C3R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_C3IR_Ctx_cuda(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_AC4R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16s_C3IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_16s_AC4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_AC4IR_Ctx_cuda(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16s_AC4IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                      NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_C4R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16s_C4IR_Ctx_cuda(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_16s_C4IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
 // 16f implementations
-NppStatus nppiAbs_16f_C1R_Ctx_cuda(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16f_C1R_Ctx_impl(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16f_C1IR_Ctx_cuda(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16f_C3R_Ctx_cuda(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16f_C1IR_Ctx_impl(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_16f_C3R_Ctx_impl(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16f_C3IR_Ctx_cuda(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16f_C4R_Ctx_cuda(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_16f_C3IR_Ctx_impl(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_16f_C4R_Ctx_impl(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_16f_C4IR_Ctx_cuda(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_16f_C4IR_Ctx_impl(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
 // 32f implementations
-NppStatus nppiAbs_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_C1IR_Ctx_cuda(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_32f_C1IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_C3IR_Ctx_cuda(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_AC4R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_32f_C3IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_32f_AC4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_AC4IR_Ctx_cuda(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_32f_AC4IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                      NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_C4R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiAbs_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx);
-NppStatus nppiAbs_32f_C4IR_Ctx_cuda(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiAbs_32f_C4IR_Ctx_impl(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
 /**
@@ -99,7 +99,7 @@ NppStatus nppiAbs_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, in
     return status;
   }
 
-  return nppiAbs_16s_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -114,7 +114,7 @@ NppStatus nppiAbs_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_16s_C1IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -130,7 +130,7 @@ NppStatus nppiAbs_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, in
     return status;
   }
 
-  return nppiAbs_16s_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -145,7 +145,7 @@ NppStatus nppiAbs_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_16s_C3IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -161,7 +161,7 @@ NppStatus nppiAbs_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, i
     return status;
   }
 
-  return nppiAbs_16s_AC4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -176,7 +176,7 @@ NppStatus nppiAbs_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSize
     return status;
   }
 
-  return nppiAbs_16s_AC4IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_AC4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -192,7 +192,7 @@ NppStatus nppiAbs_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, in
     return status;
   }
 
-  return nppiAbs_16s_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -207,7 +207,7 @@ NppStatus nppiAbs_16s_C4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_16s_C4IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16s_C4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_C4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -227,7 +227,7 @@ NppStatus nppiAbs_16f_C1R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, in
     return status;
   }
 
-  return nppiAbs_16f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16f_C1R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -242,7 +242,7 @@ NppStatus nppiAbs_16f_C1IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_16f_C1IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16f_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16f_C1IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -258,7 +258,7 @@ NppStatus nppiAbs_16f_C3R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, in
     return status;
   }
 
-  return nppiAbs_16f_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16f_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16f_C3R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -273,7 +273,7 @@ NppStatus nppiAbs_16f_C3IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_16f_C3IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16f_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16f_C3IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -289,7 +289,7 @@ NppStatus nppiAbs_16f_C4R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, in
     return status;
   }
 
-  return nppiAbs_16f_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16f_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16f_C4R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -304,7 +304,7 @@ NppStatus nppiAbs_16f_C4IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_16f_C4IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_16f_C4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16f_C4IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -324,7 +324,7 @@ NppStatus nppiAbs_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, in
     return status;
   }
 
-  return nppiAbs_32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -339,7 +339,7 @@ NppStatus nppiAbs_32f_C1IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_32f_C1IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_C1IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -355,7 +355,7 @@ NppStatus nppiAbs_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, in
     return status;
   }
 
-  return nppiAbs_32f_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_C3R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -370,7 +370,7 @@ NppStatus nppiAbs_32f_C3IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_32f_C3IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_C3IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -386,7 +386,7 @@ NppStatus nppiAbs_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, i
     return status;
   }
 
-  return nppiAbs_32f_AC4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -401,7 +401,7 @@ NppStatus nppiAbs_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSize
     return status;
   }
 
-  return nppiAbs_32f_AC4IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_AC4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -417,7 +417,7 @@ NppStatus nppiAbs_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, in
     return status;
   }
 
-  return nppiAbs_32f_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -432,7 +432,7 @@ NppStatus nppiAbs_32f_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeR
     return status;
   }
 
-  return nppiAbs_32f_C4IR_Ctx_cuda(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return nppiAbs_32f_C4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

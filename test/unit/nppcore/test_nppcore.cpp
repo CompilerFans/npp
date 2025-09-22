@@ -86,10 +86,10 @@ TEST_F(NppCoreFunctionalTest, StreamContext_DefaultContext) {
 }
 
 TEST_F(NppCoreFunctionalTest, StreamContext_CustomStream) {
-  // 创建自定义CUDA stream
+  // 创建自定义GPU stream
   cudaStream_t custom_stream;
   cudaError_t err = cudaStreamCreate(&custom_stream);
-  ASSERT_EQ(err, cudaSuccess) << "Failed to create CUDA stream";
+  ASSERT_EQ(err, cudaSuccess) << "Failed to create GPU stream";
 
   // 设置自定义stream
   NppStatus status = nppSetStream(custom_stream);

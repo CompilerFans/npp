@@ -10,9 +10,9 @@
 
 // Forward declarations for CUDA implementations
 extern "C" {
-NppStatus nppiMagnitude_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitude_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx);
-NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
@@ -54,7 +54,7 @@ NppStatus nppiMagnitude_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32
     return status;
   }
 
-  return nppiMagnitude_32fc32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMagnitude_32fc32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMagnitude_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -78,7 +78,7 @@ NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Np
     return status;
   }
 
-  return nppiMagnitudeSqr_32fc32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMagnitudeSqr_32fc32f_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,

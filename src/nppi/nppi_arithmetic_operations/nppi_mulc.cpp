@@ -9,18 +9,18 @@
 
 // Forward declarations for CUDA implementations
 extern "C" {
-NppStatus nppiMulC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
+NppStatus nppiMulC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx);
 
-NppStatus nppiMulC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
+NppStatus nppiMulC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx);
 
-NppStatus nppiMulC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
+NppStatus nppiMulC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx);
 
-NppStatus nppiMulC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
+NppStatus nppiMulC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
@@ -60,7 +60,7 @@ NppStatus nppiMulC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
   }
 
   // Call CUDA implementation
-  return nppiMulC_8u_C1RSfs_Ctx_cuda(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return nppiMulC_8u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 /**
@@ -109,7 +109,7 @@ NppStatus nppiMulC_16u_C1RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
   }
 
   // Call CUDA implementation
-  return nppiMulC_16u_C1RSfs_Ctx_cuda(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return nppiMulC_16u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
                                       nppStreamCtx);
 }
 
@@ -158,7 +158,7 @@ NppStatus nppiMulC_16s_C1RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp1
   }
 
   // Call CUDA implementation
-  return nppiMulC_16s_C1RSfs_Ctx_cuda(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return nppiMulC_16s_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
                                       nppStreamCtx);
 }
 
@@ -215,7 +215,7 @@ NppStatus nppiMulC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f 
   }
 
   // Call CUDA implementation
-  return nppiMulC_32f_C1R_Ctx_cuda(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiMulC_32f_C1R_Ctx_impl(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 /**

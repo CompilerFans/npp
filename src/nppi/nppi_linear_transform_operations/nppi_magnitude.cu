@@ -58,7 +58,7 @@ extern "C" {
 // Magnitude function implementations
 // ============================================================================
 
-NppStatus nppiMagnitude_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitude_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -74,7 +74,7 @@ NppStatus nppiMagnitude_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, 
   return NPP_NO_ERROR;
 }
 
-NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_cuda(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiMagnitudeSqr_32fc32f_C1R_Ctx_impl(const Npp32fc *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

@@ -125,7 +125,7 @@ extern "C" {
 /**
  * CUDA implementation of nppiMulC_8u_C1RSfs_Ctx
  */
-NppStatus nppiMulC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
+NppStatus nppiMulC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
   // Set up CUDA grid and block dimensions
@@ -148,7 +148,7 @@ NppStatus nppiMulC_8u_C1RSfs_Ctx_cuda(const Npp8u *pSrc1, int nSrc1Step, const N
 /**
  * CUDA implementation of nppiMulC_16u_C1RSfs_Ctx
  */
-NppStatus nppiMulC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
+NppStatus nppiMulC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
   // Set up CUDA grid and block dimensions
@@ -171,7 +171,7 @@ NppStatus nppiMulC_16u_C1RSfs_Ctx_cuda(const Npp16u *pSrc1, int nSrc1Step, const
 /**
  * CUDA implementation of nppiMulC_16s_C1RSfs_Ctx
  */
-NppStatus nppiMulC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
+NppStatus nppiMulC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                        NppStreamContext nppStreamCtx) {
   // Set up CUDA grid and block dimensions
@@ -194,7 +194,7 @@ NppStatus nppiMulC_16s_C1RSfs_Ctx_cuda(const Npp16s *pSrc1, int nSrc1Step, const
 /**
  * CUDA implementation of nppiMulC_32f_C1R_Ctx
  */
-NppStatus nppiMulC_32f_C1R_Ctx_cuda(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
+NppStatus nppiMulC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // Set up CUDA grid and block dimensions
   dim3 blockSize(16, 16);

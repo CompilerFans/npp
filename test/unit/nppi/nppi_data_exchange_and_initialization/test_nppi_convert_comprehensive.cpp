@@ -1,8 +1,3 @@
-/**
- * Comprehensive test suite for NPP data exchange and initialization APIs
- * Tests nppiConvert, nppiCopy and memory management functions
- */
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 #include <chrono>

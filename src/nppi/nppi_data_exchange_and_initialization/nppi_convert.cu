@@ -2,13 +2,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-/**
- * CUDA kernels for NPP Image Convert operations
- */
-
-/**
- * CUDA kernel for converting 8-bit unsigned to 32-bit float, single channel
- */
 __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -24,9 +17,6 @@ __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   dstRow[x] = (Npp32f)srcRow[x];
 }
 
-/**
- * CUDA kernel for converting 8-bit unsigned to 32-bit float, three channel
- */
 __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -46,17 +36,14 @@ __global__ void convert_8u32f_C3R_kernel(const Npp8u *__restrict__ pSrc, int nSr
 
 extern "C" {
 
-/**
- * CUDA implementation for nppiConvert_8u32f_C1R_Ctx
- */
-NppStatus nppiConvert_8u32f_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiConvert_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
 
   // Setup kernel launch parameters
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   convert_8u32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
                                                                              oSizeROI.width, oSizeROI.height);
 
@@ -69,10 +56,7 @@ NppStatus nppiConvert_8u32f_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp32f
   return NPP_NO_ERROR;
 }
 
-/**
- * CUDA implementation for nppiConvert_8u32f_C3R_Ctx
- */
-NppStatus nppiConvert_8u32f_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx) {
 
   // Parameter validation
@@ -91,7 +75,7 @@ NppStatus nppiConvert_8u32f_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp32f
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Launch kernel with the specified CUDA stream
+  // Launch kernel with the specified GPU stream
   convert_8u32f_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
                                                                              oSizeROI.width, oSizeROI.height);
 

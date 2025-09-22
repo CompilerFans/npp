@@ -26,15 +26,15 @@ namespace npp_functional_test {
 class NppTestBase : public ::testing::Test {
 protected:
   void SetUp() override {
-    // Initialize CUDA device
+    // Initialize device
     cudaError_t err = cudaSetDevice(0);
-    ASSERT_EQ(err, cudaSuccess) << "Failed to set CUDA device";
+    ASSERT_EQ(err, cudaSuccess) << "Failed to set device";
 
     // Check device availability
     int deviceCount;
     err = cudaGetDeviceCount(&deviceCount);
     ASSERT_EQ(err, cudaSuccess) << "Failed to get device count";
-    ASSERT_GT(deviceCount, 0) << "No CUDA devices available";
+    ASSERT_GT(deviceCount, 0) << "No devices available";
 
     // Get device properties
     err = cudaGetDeviceProperties(&deviceProp_, 0);
@@ -241,7 +241,7 @@ public:
   int height() const { return height_; }
   int channels() const { return channels_; }
   NppiSize size() const { return {width_, height_}; }
-  size_t sizeInBytes() const { return height_ * step_; }
+  size_t sizeInBytes() const { return step_ * height_; }
 
   // Data transfer
   void copyFromHost(const std::vector<T> &hostData) {

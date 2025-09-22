@@ -9,39 +9,39 @@
 
 // Forward declarations for CUDA implementations
 extern "C" {
-NppStatus nppiTranspose_8u_C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_8u_C3R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_8u_C4R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI,
                                         NppStreamContext nppStreamCtx);
 
-NppStatus nppiTranspose_16u_C1R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_16u_C3R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16u_C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_16u_C4R_Ctx_cuda(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
-                                         NppStreamContext nppStreamCtx);
-
-NppStatus nppiTranspose_16s_C1R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
-                                         NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_16s_C3R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
-                                         NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_16s_C4R_Ctx_cuda(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
 
-NppStatus nppiTranspose_32s_C1R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_32s_C3R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16s_C3R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_32s_C4R_Ctx_cuda(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
 
-NppStatus nppiTranspose_32f_C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32s_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_32f_C3R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32s_C3R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiTranspose_32f_C4R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+NppStatus nppiTranspose_32s_C4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI,
+                                         NppStreamContext nppStreamCtx);
+
+NppStatus nppiTranspose_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+                                         NppStreamContext nppStreamCtx);
+NppStatus nppiTranspose_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
+                                         NppStreamContext nppStreamCtx);
+NppStatus nppiTranspose_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI,
                                          NppStreamContext nppStreamCtx);
 }
 
@@ -82,7 +82,7 @@ NppStatus nppiTranspose_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
     return status;
   }
 
-  return nppiTranspose_8u_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -101,7 +101,7 @@ NppStatus nppiTranspose_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
     return status;
   }
 
-  return nppiTranspose_8u_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -120,7 +120,7 @@ NppStatus nppiTranspose_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
     return status;
   }
 
-  return nppiTranspose_8u_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -140,7 +140,7 @@ NppStatus nppiTranspose_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pD
     return status;
   }
 
-  return nppiTranspose_16u_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -156,7 +156,7 @@ NppStatus nppiTranspose_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pD
     return status;
   }
 
-  return nppiTranspose_16u_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_16u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_16u_C3R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -172,7 +172,7 @@ NppStatus nppiTranspose_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pD
     return status;
   }
 
-  return nppiTranspose_16u_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_16u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_16u_C4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -192,7 +192,7 @@ NppStatus nppiTranspose_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pD
     return status;
   }
 
-  return nppiTranspose_16s_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_16s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -208,7 +208,7 @@ NppStatus nppiTranspose_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pD
     return status;
   }
 
-  return nppiTranspose_16s_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_16s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -224,7 +224,7 @@ NppStatus nppiTranspose_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pD
     return status;
   }
 
-  return nppiTranspose_16s_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_16s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -244,7 +244,7 @@ NppStatus nppiTranspose_32s_C1R_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pD
     return status;
   }
 
-  return nppiTranspose_32s_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_32s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_32s_C1R(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -260,7 +260,7 @@ NppStatus nppiTranspose_32s_C3R_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pD
     return status;
   }
 
-  return nppiTranspose_32s_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_32s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_32s_C3R(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -276,7 +276,7 @@ NppStatus nppiTranspose_32s_C4R_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pD
     return status;
   }
 
-  return nppiTranspose_32s_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_32s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_32s_C4R(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -296,7 +296,7 @@ NppStatus nppiTranspose_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
     return status;
   }
 
-  return nppiTranspose_32f_C1R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -312,7 +312,7 @@ NppStatus nppiTranspose_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
     return status;
   }
 
-  return nppiTranspose_32f_C3R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_32f_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_32f_C3R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI) {
@@ -328,7 +328,7 @@ NppStatus nppiTranspose_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
     return status;
   }
 
-  return nppiTranspose_32f_C4R_Ctx_cuda(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
+  return nppiTranspose_32f_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSrcROI, nppStreamCtx);
 }
 
 NppStatus nppiTranspose_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSrcROI) {

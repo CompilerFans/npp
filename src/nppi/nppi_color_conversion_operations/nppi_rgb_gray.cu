@@ -112,7 +112,7 @@ extern "C" {
 /**
  * Convert 3-channel RGB to single-channel grayscale (8-bit)
  */
-NppStatus nppiRGBToGray_8u_C3C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                           NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -141,7 +141,7 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u
 /**
  * Convert 4-channel RGBA to single-channel grayscale (8-bit), ignoring alpha channel
  */
-NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -170,7 +170,7 @@ NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_cuda(const Npp8u *pSrc, int nSrcStep, Npp8
 /**
  * Convert 3-channel RGB to single-channel grayscale (32-bit float)
  */
-NppStatus nppiRGBToGray_32f_C3C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -199,7 +199,7 @@ NppStatus nppiRGBToGray_32f_C3C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp
 /**
  * Convert 4-channel RGBA to single-channel grayscale (32-bit float), ignoring alpha channel
  */
-NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_cuda(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

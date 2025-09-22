@@ -1,17 +1,3 @@
-/**
- * @file test_nppiConvert_8u32f_C3R_comprehensive.cpp
- * @brief Comprehensive test suite for nppiConvert_8u32f_C3R
- *
- * Tests cover:
- * - Basic functionality
- * - Boundary conditions
- * - Memory alignment
- * - Large images
- * - ROI operations
- * - Error handling
- * - Performance scenarios
- */
-
 #include "npp.h"
 #include <chrono>
 #include <cuda_runtime.h>
@@ -22,9 +8,9 @@
 class NppiConvert8u32fC3RTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    // Initialize CUDA
+    // Initialize
     cudaError_t err = cudaSetDevice(0);
-    ASSERT_EQ(err, cudaSuccess) << "Failed to set CUDA device";
+    ASSERT_EQ(err, cudaSuccess) << "Failed to set device";
   }
 
   void TearDown() override {
@@ -33,7 +19,7 @@ protected:
     EXPECT_EQ(err, cudaSuccess);
   }
 
-  // Helper function to allocate aligned memory
+  // Function to allocate aligned memory
   void allocateAlignedImage(Npp8u **ppSrc, Npp32f **ppDst, int width, int height, int *pSrcStep, int *pDstStep) {
     *ppSrc = nppiMalloc_8u_C3(width, height, pSrcStep);
     ASSERT_NE(*ppSrc, nullptr);
@@ -478,4 +464,79 @@ TEST_F(NppiConvert8u32fC3RTest, ExtremeDimensions) {
       nppiFree(d_dst);
     }
   }
+}
+
+// Test 11: Gradient Pattern Conversion
+TEST_F(NppiConvert8u32fC3RTest, GradientPatternConversion) {
+  const int width = 64, height = 64;
+
+  Npp8u *d_src = nullptr;
+  Npp32f *d_dst = nullptr;
+  int srcStep, dstStep;
+  allocateAlignedImage(&d_src, &d_dst, width, height, &srcStep, &dstStep);
+
+  // Create gradient pattern
+  std::vector<Npp8u> hostSrc(width * height * 3);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int idx = (y * width + x) * 3;
+      hostSrc[idx] = static_cast<Npp8u>((x + y) % 256);     // R channel
+      hostSrc[idx + 1] = static_cast<Npp8u>((x * 2) % 256); // G channel
+      hostSrc[idx + 2] = static_cast<Npp8u>((y * 2) % 256); // B channel
+    }
+  }
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostDst(width * height * 3);
+  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
+  // Verify gradient conversion
+  EXPECT_TRUE(verifyConversion(hostSrc, hostDst, width, height));
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// Test 12: Channel Independence Verification
+TEST_F(NppiConvert8u32fC3RTest, ChannelIndependenceVerification) {
+  const int width = 32, height = 32;
+
+  Npp8u *d_src = nullptr;
+  Npp32f *d_dst = nullptr;
+  int srcStep, dstStep;
+  allocateAlignedImage(&d_src, &d_dst, width, height, &srcStep, &dstStep);
+
+  // Create data where each channel has distinct values
+  std::vector<Npp8u> hostSrc(width * height * 3);
+  for (int i = 0; i < width * height; i++) {
+    hostSrc[i * 3] = 100;     // R channel constant
+    hostSrc[i * 3 + 1] = 150; // G channel constant
+    hostSrc[i * 3 + 2] = 200; // B channel constant
+  }
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiConvert_8u32f_C3R(d_src, srcStep, d_dst, dstStep, roi);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostDst(width * height * 3);
+  cudaMemcpy2D(hostDst.data(), width * 3 * sizeof(Npp32f), d_dst, dstStep, width * 3 * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
+  // Verify each channel maintains its distinct value
+  for (int i = 0; i < width * height; i++) {
+    EXPECT_FLOAT_EQ(hostDst[i * 3], 100.0f) << "R channel mismatch at pixel " << i;
+    EXPECT_FLOAT_EQ(hostDst[i * 3 + 1], 150.0f) << "G channel mismatch at pixel " << i;
+    EXPECT_FLOAT_EQ(hostDst[i * 3 + 2], 200.0f) << "B channel mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
 }

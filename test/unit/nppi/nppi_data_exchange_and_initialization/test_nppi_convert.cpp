@@ -1,8 +1,3 @@
-/**
- * @file test_nppi_convert.cpp
- * @brief NPP Convert函数测试（数据类型转换）
- */
-
 #include "../../framework/npp_test_base.h"
 #include <algorithm>
 #include <cmath>
@@ -20,7 +15,7 @@ protected:
 TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
   const int width = 64, height = 64;
 
-  // prepare test data - 全范围8位值
+  // prepare test data - 全bounds8位值
   std::vector<Npp8u> srcData(width * height);
   for (int i = 0; i < width * height; i++) {
     srcData[i] = static_cast<Npp8u>(i % 256);
@@ -48,7 +43,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_Basic) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证转换结果
+  // Validate转换结果
   for (int i = 0; i < width * height; i++) {
     ASSERT_FLOAT_EQ(dstData[i], static_cast<float>(srcData[i]));
   }
@@ -93,7 +88,7 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_BoundaryValues) {
   std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证边界值
+  // Validate边界值
   ASSERT_FLOAT_EQ(dstData[0], 0.0f);
   ASSERT_FLOAT_EQ(dstData[1], 255.0f);
   ASSERT_FLOAT_EQ(dstData[2], 1.0f);
@@ -106,10 +101,10 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
   const int width = 32, height = 32;
 
   // prepare test data
-  std::vector<Npp8u> srcData(width * height, 0);
+  std::vector<Npp8u> srcData(width * height);
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      srcData[y * width + x] = static_cast<Npp8u>(1);
+      srcData[y * width + x] = static_cast<Npp8u>((x + y) % 256);
     }
   }
 
@@ -137,10 +132,10 @@ TEST_F(ConvertFunctionalTest, Convert_8u32f_C1R_Ctx_PartialROI) {
 
   // 同步并获取结果
   cudaStreamSynchronize(nppStreamCtx.hStream);
-  std::vector<Npp32f> dstData(width * height, 0.0f);
+  std::vector<Npp32f> dstData(width * height);
   dst.copyToHost(dstData);
 
-  // 验证ROI内外的值
+  // ValidateROI内外的值
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int idx = y * width + x;
