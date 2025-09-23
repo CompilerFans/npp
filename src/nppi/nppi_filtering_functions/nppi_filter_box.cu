@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Box filter kernel implementation - compute neighborhood average
+// Box filter kernel implementation with zero padding - compute neighborhood average
 __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                  int anchorY) {
@@ -16,31 +16,28 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // Boundary handling - limit within image bounds
-    startX = max(startX, 0);
-    startY = max(startY, 0);
-    endX = min(endX, width);
-    endY = min(endY, height);
-
-    // Compute sum of all pixels in region
+    // Zero padding algorithm: sum all mask positions, treat out-of-bounds as 0
     int sum = 0;
-    int count = 0;
+    int totalMaskPixels = maskWidth * maskHeight;
 
     for (int j = startY; j < endY; j++) {
-      const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
       for (int i = startX; i < endX; i++) {
-        sum += pSrcRow[i];
-        count++;
+        // Check if coordinates are within image bounds
+        if (i >= 0 && i < width && j >= 0 && j < height) {
+          const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
+          sum += pSrcRow[i];
+        }
+        // Out-of-bounds pixels contribute 0 to sum (zero padding)
       }
     }
 
-    // Compute average and write to output
+    // Compute average using total mask size (including zero-padded pixels)
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-    pDstRow[x] = (count > 0) ? ((sum + count / 2) / count) : 0; // Round to nearest
+    pDstRow[x] = (sum + totalMaskPixels / 2) / totalMaskPixels; // Round to nearest
   }
 }
 
-// Box filter kernel for 4-channel 8-bit unsigned
+// Box filter kernel for 4-channel 8-bit unsigned with zero padding
 __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                  int anchorY) {
@@ -54,41 +51,32 @@ __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // Boundary handling - clamp to image bounds
-    startX = max(startX, 0);
-    startY = max(startY, 0);
-    endX = min(endX, width);
-    endY = min(endY, height);
-
-    // Calculate sum for each channel
+    // Zero padding algorithm: sum all mask positions, treat out-of-bounds as 0
     int sum[4] = {0, 0, 0, 0};
-    int count = 0;
+    int totalMaskPixels = maskWidth * maskHeight;
 
     for (int j = startY; j < endY; j++) {
-      const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
       for (int i = startX; i < endX; i++) {
-        for (int c = 0; c < 4; c++) {
-          sum[c] += pSrcRow[i * 4 + c];
+        // Check if coordinates are within image bounds
+        if (i >= 0 && i < width && j >= 0 && j < height) {
+          const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
+          for (int c = 0; c < 4; c++) {
+            sum[c] += pSrcRow[i * 4 + c];
+          }
         }
-        count++;
+        // Out-of-bounds pixels contribute 0 to sum for all channels (zero padding)
       }
     }
 
-    // Calculate average and write output
+    // Calculate average using total mask size (including zero-padded pixels)
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-    if (count > 0) {
-      for (int c = 0; c < 4; c++) {
-        pDstRow[x * 4 + c] = (sum[c] + count / 2) / count; // Round to nearest
-      }
-    } else {
-      for (int c = 0; c < 4; c++) {
-        pDstRow[x * 4 + c] = 0;
-      }
+    for (int c = 0; c < 4; c++) {
+      pDstRow[x * 4 + c] = (sum[c] + totalMaskPixels / 2) / totalMaskPixels; // Round to nearest
     }
   }
 }
 
-// Box filter kernel for single-channel 32-bit float
+// Box filter kernel for single-channel 32-bit float with zero padding
 __global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
                                                   int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                   int anchorY) {
@@ -102,27 +90,24 @@ __global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // Boundary handling - clamp to image bounds
-    startX = max(startX, 0);
-    startY = max(startY, 0);
-    endX = min(endX, width);
-    endY = min(endY, height);
-
-    // Calculate sum of all pixels in the region
+    // Zero padding algorithm: sum all mask positions, treat out-of-bounds as 0.0
     float sum = 0.0f;
-    int count = 0;
+    int totalMaskPixels = maskWidth * maskHeight;
 
     for (int j = startY; j < endY; j++) {
-      const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + j * nSrcStep);
       for (int i = startX; i < endX; i++) {
-        sum += pSrcRow[i];
-        count++;
+        // Check if coordinates are within image bounds
+        if (i >= 0 && i < width && j >= 0 && j < height) {
+          const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + j * nSrcStep);
+          sum += pSrcRow[i];
+        }
+        // Out-of-bounds pixels contribute 0.0 to sum (zero padding)
       }
     }
 
-    // Calculate average and write output
+    // Calculate average using total mask size (including zero-padded pixels)
     Npp32f *pDstRow = (Npp32f *)((char *)pDst + y * nDstStep);
-    pDstRow[x] = (count > 0) ? (sum / count) : 0.0f;
+    pDstRow[x] = sum / totalMaskPixels;
   }
 }
 
