@@ -9,6 +9,16 @@ cudaError_t nppiAnd_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u
                                   int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiAndC_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                                    NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                                   NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_16u_C3R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                                    NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_16u_C4R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
+                                    NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_32s_C3R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                                    NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_32s_C4R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
+                                    NppiSize oSizeROI, cudaStream_t stream);
 }
 
 NppStatus nppiAnd_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -63,4 +73,148 @@ NppStatus nppiAndC_8u_C1R(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant
   NppStreamContext ctx;
   ctx.hStream = 0; // Default stream
   return nppiAndC_8u_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, ctx);
+}
+
+// ===== nppiAndC_8u_C3R Implementation =====
+NppStatus nppiAndC_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  // Parameter validation
+  if (!pSrc || !pDst || !aConstants) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < oSizeROI.width * 3 || nDstStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
+  }
+
+  // Call GPU kernel
+  cudaError_t cudaStatus =
+      nppiAndC_8u_C3R_kernel(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAndC_8u_C3R(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                          NppiSize oSizeROI) {
+  NppStreamContext ctx;
+  ctx.hStream = 0; // Default stream
+  return nppiAndC_8u_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, ctx);
+}
+
+// ===== nppiAndC_16u_C3R Implementation =====
+NppStatus nppiAndC_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  // Parameter validation
+  if (!pSrc || !pDst || !aConstants) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp16u)) || 
+      nDstStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp16u))) {
+    return NPP_STEP_ERROR;
+  }
+
+  // Call GPU kernel
+  cudaError_t cudaStatus =
+      nppiAndC_16u_C3R_kernel(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAndC_16u_C3R(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  NppStreamContext ctx;
+  ctx.hStream = 0; // Default stream
+  return nppiAndC_16u_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, ctx);
+}
+
+// ===== nppiAndC_16u_C4R Implementation =====
+NppStatus nppiAndC_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  // Parameter validation
+  if (!pSrc || !pDst || !aConstants) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp16u)) || 
+      nDstStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp16u))) {
+    return NPP_STEP_ERROR;
+  }
+
+  // Call GPU kernel
+  cudaError_t cudaStatus =
+      nppiAndC_16u_C4R_kernel(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAndC_16u_C4R(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  NppStreamContext ctx;
+  ctx.hStream = 0; // Default stream
+  return nppiAndC_16u_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, ctx);
+}
+
+// ===== nppiAndC_32s_C3R Implementation =====
+NppStatus nppiAndC_32s_C3R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  // Parameter validation
+  if (!pSrc || !pDst || !aConstants) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp32s)) || 
+      nDstStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp32s))) {
+    return NPP_STEP_ERROR;
+  }
+
+  // Call GPU kernel
+  cudaError_t cudaStatus =
+      nppiAndC_32s_C3R_kernel(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAndC_32s_C3R(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  NppStreamContext ctx;
+  ctx.hStream = 0; // Default stream
+  return nppiAndC_32s_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, ctx);
+}
+
+// ===== nppiAndC_32s_C4R Implementation =====
+NppStatus nppiAndC_32s_C4R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  // Parameter validation
+  if (!pSrc || !pDst || !aConstants) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp32s)) || 
+      nDstStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp32s))) {
+    return NPP_STEP_ERROR;
+  }
+
+  // Call GPU kernel
+  cudaError_t cudaStatus =
+      nppiAndC_32s_C4R_kernel(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+
+  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAndC_32s_C4R(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  NppStreamContext ctx;
+  ctx.hStream = 0; // Default stream
+  return nppiAndC_32s_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, ctx);
 }
