@@ -44,7 +44,7 @@ protected:
   void TearDown() override {
     // Synchronize device and check for errors
     cudaError_t err = cudaDeviceSynchronize();
-    EXPECT_EQ(err, cudaSuccess) << "CUDA error after test: " << cudaGetErrorString(err);
+    EXPECT_EQ(err, cudaSuccess) << "error after test: " << cudaGetErrorString(err);
   }
 
   // Device properties access

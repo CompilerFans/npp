@@ -2,17 +2,10 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * Get the NPP library version.
- */
-const NppLibraryVersion *nppGetLibVersion(void) {
-  static const NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
-  return &g_nppLibVersion;
-}
+static NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
 
-/**
- * Get the number of Streaming Multiprocessors (SM) on the active CUDA device.
- */
+const NppLibraryVersion *nppGetLibVersion(void) { return &g_nppLibVersion; }
+
 int nppGetGpuNumSMs(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -129,7 +122,7 @@ cudaStream_t nppGetStream(void) {
  */
 NppStatus nppSetStream(cudaStream_t hStream) {
   // This function exists for API compatibility
-  // Users should use CUDA Runtime API directly to manage streams
+  // Users should use Runtime API directly to manage streams
 
   // Special handling for known stream values
   if (hStream == nullptr || hStream == cudaStreamLegacy || hStream == cudaStreamPerThread) {
@@ -137,7 +130,7 @@ NppStatus nppSetStream(cudaStream_t hStream) {
   }
 
   // For other streams, we can't safely validate without potential segfault
-  // Just accept them - the actual CUDA calls will fail if invalid
+  // Just accept them - the actual GPU calls will fail if invalid
   return NPP_NO_ERROR;
 }
 

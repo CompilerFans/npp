@@ -1,287 +1,654 @@
 #include "../../framework/npp_test_base.h"
+#include "npp.h"
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cuda_runtime.h>
+#include <gtest/gtest.h>
+#include <numeric>
+#include <random>
+#include <vector>
 
 using namespace npp_functional_test;
 
-class CopyFunctionalTest : public NppTestBase {
-protected:
-  void SetUp() override { NppTestBase::SetUp(); }
+// ============================================================================
+// Common Test Utilities and Data Generators
+// ============================================================================
 
-  void TearDown() override { NppTestBase::TearDown(); }
+template <typename T> class CopyTestHelper {
+public:
+  struct TestData {
+    std::vector<T> src;
+    std::vector<T> expected;
+    int width, height, channels;
 
-  // Function to verify copy results
-  template <typename T> bool verifyCopyResult(const std::vector<T> &src, const std::vector<T> &dst) {
-    if (src.size() != dst.size())
+    TestData(int w, int h, int c) : width(w), height(h), channels(c) {
+      int size = w * h * c;
+      src.resize(size);
+      expected.resize(size);
+    }
+  };
+
+  enum class DataPattern {
+    SEQUENTIAL,     // 0, 1, 2, 3, ...
+    GRADIENT,       // Gradient across image
+    RANDOM,         // Random values
+    BOUNDARY,       // Min/max boundary values
+    CHECKERBOARD,   // Alternating pattern
+    COLOR_GRADIENT, // RGB gradient for color images
+    COORDINATE,     // Position-encoded values
+    CONSTANT,       // Constant value
+    SINE_WAVE       // Sine wave pattern
+  };
+
+  static TestData generateTestData(int width, int height, int channels, DataPattern pattern, int seed = 42) {
+    TestData data(width, height, channels);
+    std::mt19937 gen(seed);
+
+    switch (pattern) {
+    case DataPattern::SEQUENTIAL:
+      generateSequential(data);
+      break;
+    case DataPattern::GRADIENT:
+      generateGradient(data);
+      break;
+    case DataPattern::RANDOM:
+      generateRandom(data, gen);
+      break;
+    case DataPattern::BOUNDARY:
+      generateBoundary(data);
+      break;
+    case DataPattern::CHECKERBOARD:
+      generateCheckerboard(data);
+      break;
+    case DataPattern::COLOR_GRADIENT:
+      generateColorGradient(data);
+      break;
+    case DataPattern::COORDINATE:
+      generateCoordinate(data);
+      break;
+    case DataPattern::CONSTANT:
+      generateConstant(data, static_cast<T>(42));
+      break;
+    case DataPattern::SINE_WAVE:
+      generateSineWave(data);
+      break;
+    }
+
+    // For copy operations, expected result is the same as source
+    data.expected = data.src;
+
+    return data;
+  }
+
+  static void validateResults(const std::vector<T> &actual, const std::vector<T> &expected) {
+    ASSERT_EQ(actual.size(), expected.size());
+
+    for (size_t i = 0; i < actual.size(); i++) {
+      if constexpr (std::is_floating_point_v<T>) {
+        EXPECT_NEAR(actual[i], expected[i], 1e-6f) << "Mismatch at index " << i;
+      } else {
+        EXPECT_EQ(actual[i], expected[i]) << "Mismatch at index " << i;
+      }
+    }
+  }
+
+  static void validateROIResults(const std::vector<T> &actual, const std::vector<T> &expected, int srcWidth,
+                                 int /* srcHeight */, int roiX, int roiY, int roiWidth, int roiHeight,
+                                 int channels = 1) {
+    for (int y = 0; y < roiHeight; y++) {
+      for (int x = 0; x < roiWidth; x++) {
+        for (int c = 0; c < channels; c++) {
+          int srcIdx = ((roiY + y) * srcWidth + (roiX + x)) * channels + c;
+          int dstIdx = (y * roiWidth + x) * channels + c;
+
+          if constexpr (std::is_floating_point_v<T>) {
+            EXPECT_NEAR(actual[dstIdx], expected[srcIdx], 1e-6f)
+                << "ROI mismatch at (" << x << "," << y << ") channel " << c;
+          } else {
+            EXPECT_EQ(actual[dstIdx], expected[srcIdx]) << "ROI mismatch at (" << x << "," << y << ") channel " << c;
+          }
+        }
+      }
+    }
+  }
+
+private:
+  static void generateSequential(TestData &data) {
+    for (size_t i = 0; i < data.src.size(); i++) {
+      if constexpr (std::is_floating_point_v<T>) {
+        data.src[i] = static_cast<T>(i % 256);
+      } else {
+        data.src[i] = static_cast<T>(i % 256);
+      }
+    }
+  }
+
+  static void generateGradient(TestData &data) {
+    int totalPixels = data.width * data.height;
+    for (int i = 0; i < totalPixels; i++) {
+      for (int c = 0; c < data.channels; c++) {
+        int idx = i * data.channels + c;
+        if constexpr (std::is_floating_point_v<T>) {
+          data.src[idx] = static_cast<T>((i * 255.0f) / (totalPixels - 1));
+        } else {
+          data.src[idx] = static_cast<T>((i * 255) / std::max(1, totalPixels - 1));
+        }
+      }
+    }
+  }
+
+  static void generateRandom(TestData &data, std::mt19937 &gen) {
+    if constexpr (std::is_floating_point_v<T>) {
+      std::uniform_real_distribution<float> dis(0.0f, 255.0f);
+      for (auto &val : data.src) {
+        val = static_cast<T>(dis(gen));
+      }
+    } else {
+      std::uniform_int_distribution<int> dis(0, 255);
+      for (auto &val : data.src) {
+        val = static_cast<T>(dis(gen));
+      }
+    }
+  }
+
+  static void generateBoundary(TestData &data) {
+    std::vector<T> boundaryVals;
+    if constexpr (std::is_floating_point_v<T>) {
+      boundaryVals = {T(0), T(1), T(127.5), T(128), T(254), T(255)};
+    } else {
+      boundaryVals = {T(0), T(1), T(127), T(128), T(254), T(255)};
+    }
+
+    for (size_t i = 0; i < data.src.size(); i++) {
+      data.src[i] = boundaryVals[i % boundaryVals.size()];
+    }
+  }
+
+  static void generateCheckerboard(TestData &data) {
+    for (int y = 0; y < data.height; y++) {
+      for (int x = 0; x < data.width; x++) {
+        T val = ((x + y) % 2) ? T(255) : T(0);
+        for (int c = 0; c < data.channels; c++) {
+          int idx = (y * data.width + x) * data.channels + c;
+          data.src[idx] = val;
+        }
+      }
+    }
+  }
+
+  static void generateColorGradient(TestData &data) {
+    if (data.channels < 3) {
+      generateGradient(data);
+      return;
+    }
+
+    for (int y = 0; y < data.height; y++) {
+      for (int x = 0; x < data.width; x++) {
+        int idx = (y * data.width + x) * data.channels;
+
+        // RGB gradient
+        if constexpr (std::is_floating_point_v<T>) {
+          data.src[idx + 0] = static_cast<T>((x * 255.0f) / std::max(1.0f, float(data.width - 1)));
+          data.src[idx + 1] = static_cast<T>((y * 255.0f) / std::max(1.0f, float(data.height - 1)));
+          data.src[idx + 2] = static_cast<T>(128.0f);
+        } else {
+          data.src[idx + 0] = static_cast<T>((x * 255) / std::max(1, data.width - 1));
+          data.src[idx + 1] = static_cast<T>((y * 255) / std::max(1, data.height - 1));
+          data.src[idx + 2] = static_cast<T>(128);
+        }
+
+        // Additional channels
+        for (int c = 3; c < data.channels; c++) {
+          data.src[idx + c] = static_cast<T>((x + y + c) % 256);
+        }
+      }
+    }
+  }
+
+  static void generateCoordinate(TestData &data) {
+    for (int y = 0; y < data.height; y++) {
+      for (int x = 0; x < data.width; x++) {
+        int idx = (y * data.width + x) * data.channels;
+
+        if (data.channels >= 3) {
+          if constexpr (std::is_floating_point_v<T>) {
+            data.src[idx + 0] = static_cast<T>(x + y * 100);  // Position encoding
+            data.src[idx + 1] = static_cast<T>(x * y + 1000); // Product encoding
+            data.src[idx + 2] = static_cast<T>(x - y + 2000); // Difference encoding
+          } else {
+            data.src[idx + 0] = static_cast<T>((x + y * 100) % 256);
+            data.src[idx + 1] = static_cast<T>((x * y + 1000) % 256);
+            data.src[idx + 2] = static_cast<T>((x - y + 2000) % 256);
+          }
+
+          for (int c = 3; c < data.channels; c++) {
+            data.src[idx + c] = static_cast<T>((x + y * c) % 256);
+          }
+        } else {
+          for (int c = 0; c < data.channels; c++) {
+            data.src[idx + c] = static_cast<T>((x + y * 100 + c) % 256);
+          }
+        }
+      }
+    }
+  }
+
+  static void generateConstant(TestData &data, T value) { std::fill(data.src.begin(), data.src.end(), value); }
+
+  static void generateSineWave(TestData &data) {
+    for (int y = 0; y < data.height; y++) {
+      for (int x = 0; x < data.width; x++) {
+        int idx = (y * data.width + x) * data.channels;
+        float t = static_cast<float>(x + y) / (data.width + data.height);
+
+        for (int c = 0; c < data.channels; c++) {
+          float val = 127.5f * (1.0f + std::sin(2.0f * M_PI * (2 + c) * t));
+          data.src[idx + c] = static_cast<T>(val);
+        }
+      }
+    }
+  }
+};
+
+// ============================================================================
+// Memory Management Helper (reuse from convert test)
+// ============================================================================
+
+template <typename T> class GPUMemoryManager {
+private:
+  T *ptr_;
+  int step_;
+  bool allocated_;
+
+public:
+  GPUMemoryManager() : ptr_(nullptr), step_(0), allocated_(false) {}
+
+  GPUMemoryManager(int width, int height, int channels = 1) : allocated_(false) { allocate(width, height, channels); }
+
+  ~GPUMemoryManager() { free(); }
+
+  // Non-copyable but movable
+  GPUMemoryManager(const GPUMemoryManager &) = delete;
+  GPUMemoryManager &operator=(const GPUMemoryManager &) = delete;
+
+  GPUMemoryManager(GPUMemoryManager &&other) noexcept
+      : ptr_(other.ptr_), step_(other.step_), allocated_(other.allocated_) {
+    other.ptr_ = nullptr;
+    other.allocated_ = false;
+  }
+
+  GPUMemoryManager &operator=(GPUMemoryManager &&other) noexcept {
+    if (this != &other) {
+      free();
+      ptr_ = other.ptr_;
+      step_ = other.step_;
+      allocated_ = other.allocated_;
+      other.ptr_ = nullptr;
+      other.allocated_ = false;
+    }
+    return *this;
+  }
+
+  bool allocate(int width, int height, int channels = 1) {
+    free();
+
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if (channels == 1)
+        ptr_ = nppiMalloc_8u_C1(width, height, &step_);
+      else if (channels == 3)
+        ptr_ = nppiMalloc_8u_C3(width, height, &step_);
+      else if (channels == 4)
+        ptr_ = nppiMalloc_8u_C4(width, height, &step_);
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if (channels == 1)
+        ptr_ = nppiMalloc_32f_C1(width, height, &step_);
+      else if (channels == 3)
+        ptr_ = nppiMalloc_32f_C3(width, height, &step_);
+      else if (channels == 4)
+        ptr_ = nppiMalloc_32f_C4(width, height, &step_);
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if (channels == 1)
+        ptr_ = nppiMalloc_16u_C1(width, height, &step_);
+      else if (channels == 3)
+        ptr_ = nppiMalloc_16u_C3(width, height, &step_);
+      else if (channels == 4)
+        ptr_ = nppiMalloc_16u_C4(width, height, &step_);
+    }
+
+    allocated_ = (ptr_ != nullptr);
+    return allocated_;
+  }
+
+  void free() {
+    if (allocated_ && ptr_) {
+      nppiFree(ptr_);
+      ptr_ = nullptr;
+      allocated_ = false;
+    }
+  }
+
+  T *get() const { return ptr_; }
+  int step() const { return step_; }
+  bool isValid() const { return allocated_ && ptr_ != nullptr; }
+
+  bool copyFromHost(const std::vector<T> &data, int width, int height, int channels = 1) {
+    if (!isValid())
       return false;
-    for (size_t i = 0; i < src.size(); i++) {
-      if (src[i] != dst[i])
+
+    for (int y = 0; y < height; y++) {
+      const T *srcRow = data.data() + y * width * channels;
+      T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(ptr_) + y * step_);
+      cudaError_t err = cudaMemcpy(dstRow, srcRow, width * channels * sizeof(T), cudaMemcpyHostToDevice);
+      if (err != cudaSuccess)
+        return false;
+    }
+    return true;
+  }
+
+  bool copyToHost(std::vector<T> &data, int width, int height, int channels = 1) const {
+    if (!isValid())
+      return false;
+
+    data.resize(width * height * channels);
+    for (int y = 0; y < height; y++) {
+      const T *srcRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(ptr_) + y * step_);
+      T *dstRow = data.data() + y * width * channels;
+      cudaError_t err = cudaMemcpy(dstRow, srcRow, width * channels * sizeof(T), cudaMemcpyDeviceToHost);
+      if (err != cudaSuccess)
+        return false;
+    }
+    return true;
+  }
+
+  bool copyROIToHost(std::vector<T> &data, int srcWidth, int srcHeight, int roiX, int roiY, int roiWidth, int roiHeight,
+                     int channels = 1) const {
+    if (!isValid())
+      return false;
+
+    data.resize(roiWidth * roiHeight * channels);
+    for (int y = 0; y < roiHeight; y++) {
+      const T *srcRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(ptr_) + (roiY + y) * step_);
+      T *dstRow = data.data() + y * roiWidth * channels;
+      cudaError_t err =
+          cudaMemcpy(dstRow, srcRow + roiX * channels, roiWidth * channels * sizeof(T), cudaMemcpyDeviceToHost);
+      if (err != cudaSuccess)
         return false;
     }
     return true;
   }
 };
 
-// 测试8位单通道拷贝
-TEST_F(CopyFunctionalTest, Copy_8u_C1R_Basic) {
-  const int width = 32, height = 32;
+// ============================================================================
+// Unified Copy Test Class
+// ============================================================================
 
-  // 创建测试数据
-  std::vector<Npp8u> srcData(width * height);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i] = (Npp8u)(i % 256);
-  }
+class CopyTest : public NppTestBase {
+protected:
+  void SetUp() override { NppTestBase::SetUp(); }
 
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
+  void TearDown() override { NppTestBase::TearDown(); }
 
-  src.copyFromHost(srcData);
+  // Generic copy test template
+  template <typename T, int Channels>
+  void testCopy(int width, int height, typename CopyTestHelper<T>::DataPattern pattern, bool useContext = false) {
+    using Helper = CopyTestHelper<T>;
 
-  NppiSize roi = {width, height};
-  NppStatus status = nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
+    // Generate test data
+    auto testData = Helper::generateTestData(width, height, Channels, pattern);
 
-  ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C1R failed";
+    // Allocate GPU memory
+    GPUMemoryManager<T> srcGPU(width, height, Channels);
+    GPUMemoryManager<T> dstGPU(width, height, Channels);
 
-  // Validate结果
-  std::vector<Npp8u> resultData(width * height);
-  dst.copyToHost(resultData);
+    ASSERT_TRUE(srcGPU.isValid()) << "Failed to allocate source GPU memory";
+    ASSERT_TRUE(dstGPU.isValid()) << "Failed to allocate destination GPU memory";
 
-  EXPECT_TRUE(verifyCopyResult(srcData, resultData)) << "Copy result does not match source data";
-}
+    // Copy test data to GPU
+    ASSERT_TRUE(srcGPU.copyFromHost(testData.src, width, height, Channels));
 
-// 测试8位三通道拷贝
-TEST_F(CopyFunctionalTest, Copy_8u_C3R_RGB) {
-  const int width = 16, height = 16;
+    // Perform copy
+    NppiSize roi = {width, height};
+    NppStatus status;
 
-  // 创建RGB测试数据
-  std::vector<Npp8u> srcData(width * height * 3);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i * 3 + 0] = (Npp8u)(i % 256);       // Red
-    srcData[i * 3 + 1] = (Npp8u)((i * 2) % 256); // Green
-    srcData[i * 3 + 2] = (Npp8u)((i * 3) % 256); // Blue
-  }
-
-  // 使用手动内存分配
-  int srcStep = width * 3 * sizeof(Npp8u);
-  int dstStep = width * 3 * sizeof(Npp8u);
-
-  Npp8u *srcPtr = nppsMalloc_8u(width * height * 3);
-  Npp8u *dstPtr = nppsMalloc_8u(width * height * 3);
-
-  ASSERT_NE(srcPtr, nullptr);
-  ASSERT_NE(dstPtr, nullptr);
-
-  // 复制数据到GPU
-  cudaMemcpy(srcPtr, srcData.data(), width * height * 3 * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  NppiSize roi = {width, height};
-  NppStatus status = nppiCopy_8u_C3R(srcPtr, srcStep, dstPtr, dstStep, roi);
-
-  ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C3R failed";
-
-  // Validate结果
-  std::vector<Npp8u> resultData(width * height * 3);
-  cudaMemcpy(resultData.data(), dstPtr, width * height * 3 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  EXPECT_TRUE(verifyCopyResult(srcData, resultData)) << "RGB copy result does not match source data";
-
-  // 清理内存
-  nppsFree(srcPtr);
-  nppsFree(dstPtr);
-}
-
-// 测试8位四通道拷贝
-TEST_F(CopyFunctionalTest, Copy_8u_C4R_RGBA) {
-  const int width = 8, height = 8;
-
-  // 创建RGBA测试数据
-  std::vector<Npp8u> srcData(width * height * 4);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i * 4 + 0] = (Npp8u)(i % 256);       // Red
-    srcData[i * 4 + 1] = (Npp8u)((i * 2) % 256); // Green
-    srcData[i * 4 + 2] = (Npp8u)((i * 3) % 256); // Blue
-    srcData[i * 4 + 3] = (Npp8u)((i * 4) % 256); // Alpha
-  }
-
-  // 使用手动内存分配
-  int srcStep = width * 4 * sizeof(Npp8u);
-  int dstStep = width * 4 * sizeof(Npp8u);
-
-  Npp8u *srcPtr = nppsMalloc_8u(width * height * 4);
-  Npp8u *dstPtr = nppsMalloc_8u(width * height * 4);
-
-  ASSERT_NE(srcPtr, nullptr);
-  ASSERT_NE(dstPtr, nullptr);
-
-  // 复制数据到GPU
-  cudaMemcpy(srcPtr, srcData.data(), width * height * 4 * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  NppiSize roi = {width, height};
-  NppStatus status = nppiCopy_8u_C4R(srcPtr, srcStep, dstPtr, dstStep, roi);
-
-  ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C4R failed";
-
-  // Validate结果
-  std::vector<Npp8u> resultData(width * height * 4);
-  cudaMemcpy(resultData.data(), dstPtr, width * height * 4 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  EXPECT_TRUE(verifyCopyResult(srcData, resultData)) << "RGBA copy result does not match source data";
-
-  // 清理内存
-  nppsFree(srcPtr);
-  nppsFree(dstPtr);
-}
-
-// 测试32位浮点拷贝
-TEST_F(CopyFunctionalTest, Copy_32f_C1R_Float) {
-  const int width = 16, height = 16;
-
-  // 创建浮点测试数据
-  std::vector<Npp32f> srcData(width * height);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i] = sinf(i * 0.1f) * cosf(i * 0.05f); // 复杂浮点模式
-  }
-
-  NppImageMemory<Npp32f> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  src.copyFromHost(srcData);
-
-  NppiSize roi = {width, height};
-  NppStatus status = nppiCopy_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
-
-  ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_32f_C1R failed";
-
-  // Validate结果
-  std::vector<Npp32f> resultData(width * height);
-  dst.copyToHost(resultData);
-
-  // 检查浮点精度
-  bool isEqual = true;
-  for (size_t i = 0; i < srcData.size(); i++) {
-    if (fabsf(srcData[i] - resultData[i]) > 1e-6f) {
-      isEqual = false;
-      break;
+    if (useContext) {
+      NppStreamContext ctx;
+      nppGetStreamContext(&ctx);
+      status = performCopyWithContext<T, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi, ctx);
+      cudaStreamSynchronize(ctx.hStream);
+    } else {
+      status = performCopy<T, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi);
     }
+
+    ASSERT_EQ(status, NPP_SUCCESS) << "Copy failed";
+
+    // Copy result back and validate
+    std::vector<T> result;
+    ASSERT_TRUE(dstGPU.copyToHost(result, width, height, Channels));
+
+    Helper::validateResults(result, testData.expected);
   }
 
-  EXPECT_TRUE(isEqual) << "Float copy result does not match source data";
-}
+  // ROI copy test template
+  template <typename T, int Channels>
+  void testCopyROI(int srcWidth, int srcHeight, int roiX, int roiY, int roiWidth, int roiHeight,
+                   typename CopyTestHelper<T>::DataPattern pattern) {
+    using Helper = CopyTestHelper<T>;
 
-// 测试不同ROI大小
-TEST_F(CopyFunctionalTest, Copy_8u_C1R_DifferentROI) {
-  const int width = 64, height = 64;
+    // Generate source data
+    auto testData = Helper::generateTestData(srcWidth, srcHeight, Channels, pattern);
 
-  // 创建大图像
-  std::vector<Npp8u> srcData(width * height);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i] = (Npp8u)(i % 256);
+    // Allocate GPU memory
+    GPUMemoryManager<T> srcGPU(srcWidth, srcHeight, Channels);
+    GPUMemoryManager<T> dstGPU(roiWidth, roiHeight, Channels);
+
+    ASSERT_TRUE(srcGPU.isValid()) << "Failed to allocate source GPU memory";
+    ASSERT_TRUE(dstGPU.isValid()) << "Failed to allocate destination GPU memory";
+
+    // Copy test data to GPU
+    ASSERT_TRUE(srcGPU.copyFromHost(testData.src, srcWidth, srcHeight, Channels));
+
+    // Perform ROI copy
+    NppiSize roiSize = {roiWidth, roiHeight};
+    T *srcPtr = reinterpret_cast<T *>(reinterpret_cast<char *>(srcGPU.get()) + roiY * srcGPU.step()) + roiX * Channels;
+
+    NppStatus status = performCopy<T, Channels>(srcPtr, srcGPU.step(), dstGPU.get(), dstGPU.step(), roiSize);
+
+    ASSERT_EQ(status, NPP_SUCCESS) << "ROI copy failed";
+
+    // Copy result back and validate
+    std::vector<T> result;
+    ASSERT_TRUE(dstGPU.copyToHost(result, roiWidth, roiHeight, Channels));
+
+    Helper::validateROIResults(result, testData.src, srcWidth, srcHeight, roiX, roiY, roiWidth, roiHeight, Channels);
   }
 
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
-  src.copyFromHost(srcData);
-
-  // 测试不同的ROI大小
-  std::vector<NppiSize> roiSizes = {{16, 16}, {32, 32}, {48, 48}, {64, 64}};
-
-  for (const auto &roi : roiSizes) {
-    NppStatus status = nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
-
-    ASSERT_EQ(status, NPP_SUCCESS) << "nppiCopy_8u_C1R failed for ROI " << roi.width << "x" << roi.height;
-
-    // Validate拷贝区域
-    std::vector<Npp8u> resultData(width * height);
-    dst.copyToHost(resultData);
-
-    bool roiCorrect = true;
-    for (int y = 0; y < roi.height; y++) {
-      for (int x = 0; x < roi.width; x++) {
-        int idx = y * width + x;
-        if (srcData[idx] != resultData[idx]) {
-          roiCorrect = false;
-          break;
-        }
+private:
+  // Specialized copy function dispatch
+  template <typename T, int Channels>
+  NppStatus performCopy(const T *src, int srcStep, T *dst, int dstStep, NppiSize roi) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_8u_C1R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_8u_C3R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_8u_C4R(src, srcStep, dst, dstStep, roi);
       }
-      if (!roiCorrect)
-        break;
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_32f_C1R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_32f_C3R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_32f_C4R(src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_16u_C1R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_16u_C3R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_16u_C4R(src, srcStep, dst, dstStep, roi);
+      }
     }
+    return NPP_NOT_IMPLEMENTED_ERROR;
+  }
 
-    EXPECT_TRUE(roiCorrect) << "ROI copy incorrect for size " << roi.width << "x" << roi.height;
+  template <typename T, int Channels>
+  NppStatus performCopyWithContext(const T *src, int srcStep, T *dst, int dstStep, NppiSize roi, NppStreamContext ctx) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_8u_C1R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_8u_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_8u_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_32f_C1R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_32f_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_32f_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_16u_C1R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_16u_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_16u_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    }
+    return NPP_NOT_IMPLEMENTED_ERROR;
+  }
+};
+
+// ============================================================================
+// Simplified Test Cases
+// ============================================================================
+
+// Basic functionality tests
+TEST_F(CopyTest, Copy_8u_C1R_Sequential) { testCopy<Npp8u, 1>(32, 32, CopyTestHelper<Npp8u>::DataPattern::SEQUENTIAL); }
+
+TEST_F(CopyTest, Copy_8u_C1R_Boundary) { testCopy<Npp8u, 1>(16, 16, CopyTestHelper<Npp8u>::DataPattern::BOUNDARY); }
+
+TEST_F(CopyTest, Copy_8u_C3R_ColorGradient) {
+  testCopy<Npp8u, 3>(16, 16, CopyTestHelper<Npp8u>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_8u_C4R_Random) { testCopy<Npp8u, 4>(24, 24, CopyTestHelper<Npp8u>::DataPattern::RANDOM); }
+
+TEST_F(CopyTest, Copy_32f_C1R_Gradient) { testCopy<Npp32f, 1>(64, 48, CopyTestHelper<Npp32f>::DataPattern::GRADIENT); }
+
+TEST_F(CopyTest, Copy_32f_C3R_Coordinate) {
+  testCopy<Npp32f, 3>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, Copy_32f_C1R_WithContext) {
+  testCopy<Npp32f, 1>(48, 32, CopyTestHelper<Npp32f>::DataPattern::SINE_WAVE, true);
+}
+
+// Size variation tests
+class CopySizeTest : public CopyTest, public ::testing::WithParamInterface<std::tuple<int, int, int, int>> {};
+
+TEST_P(CopySizeTest, Copy_VariousSizes) {
+  auto [width, height, channels, dataType] = GetParam();
+
+  if (dataType == 0) { // 8u
+    if (channels == 1) {
+      testCopy<Npp8u, 1>(width, height, CopyTestHelper<Npp8u>::DataPattern::GRADIENT);
+    } else if (channels == 3) {
+      testCopy<Npp8u, 3>(width, height, CopyTestHelper<Npp8u>::DataPattern::COLOR_GRADIENT);
+    } else if (channels == 4) {
+      testCopy<Npp8u, 4>(width, height, CopyTestHelper<Npp8u>::DataPattern::CHECKERBOARD);
+    }
+  } else if (dataType == 1) { // 32f
+    if (channels == 1) {
+      testCopy<Npp32f, 1>(width, height, CopyTestHelper<Npp32f>::DataPattern::GRADIENT);
+    } else if (channels == 3) {
+      testCopy<Npp32f, 3>(width, height, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
+    }
   }
 }
 
-// 错误处理测试
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(CopyFunctionalTest, DISABLED_Copy_ErrorHandling) {
-  const int width = 16, height = 16;
+INSTANTIATE_TEST_SUITE_P(SizeVariations, CopySizeTest,
+                         ::testing::Values(std::make_tuple(1, 1, 1, 0),      // Minimum 8u C1
+                                           std::make_tuple(7, 5, 1, 0),      // Odd size 8u C1
+                                           std::make_tuple(16, 16, 3, 0),    // Square 8u C3
+                                           std::make_tuple(32, 24, 4, 0),    // Rect 8u C4
+                                           std::make_tuple(64, 48, 1, 1),    // Medium 32f C1
+                                           std::make_tuple(128, 96, 3, 1),   // Large 32f C3
+                                           std::make_tuple(1920, 1080, 3, 0) // HD 8u C3
+                                           ));
 
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试空指针
-  NppStatus status = nppiCopy_8u_C1R(nullptr, src.step(), dst.get(), dst.step(), roi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with null source pointer";
-
-  status = nppiCopy_8u_C1R(src.get(), src.step(), nullptr, dst.step(), roi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with null destination pointer";
-
-  // 测试无效ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with invalid ROI";
-
-  // 测试负步长
-  status = nppiCopy_8u_C1R(src.get(), -1, dst.get(), dst.step(), roi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with negative source step";
-
-  status = nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), -1, roi);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with negative destination step";
+// ROI copy tests
+TEST_F(CopyTest, Copy_8u_C1R_ROI) {
+  testCopyROI<Npp8u, 1>(64, 48, 16, 12, 32, 24, CopyTestHelper<Npp8u>::DataPattern::SEQUENTIAL);
 }
 
-// 性能基准测试
-TEST_F(CopyFunctionalTest, Copy_Performance_Benchmark) {
-  const int width = 1024, height = 1024;
+TEST_F(CopyTest, Copy_32f_C3R_ROI) {
+  testCopyROI<Npp32f, 3>(128, 96, 32, 24, 64, 48, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
+}
 
-  std::vector<Npp8u> srcData(width * height, 128);
+// Error handling tests
+TEST_F(CopyTest, Copy_ErrorHandling) {
+  GPUMemoryManager<Npp8u> src(16, 16, 1);
+  GPUMemoryManager<Npp8u> dst(16, 16, 1);
+  NppiSize roi = {16, 16};
 
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
+  // Test null pointer
+  EXPECT_EQ(nppiCopy_8u_C1R(nullptr, src.step(), dst.get(), dst.step(), roi), NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiCopy_8u_C1R(src.get(), src.step(), nullptr, dst.step(), roi), NPP_NULL_POINTER_ERROR);
 
-  src.copyFromHost(srcData);
+  // Test invalid size
+  NppiSize invalidROI = {-1, -1};
+  EXPECT_EQ(nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidROI), NPP_SIZE_ERROR);
+}
+
+// Performance comparison test
+TEST_F(CopyTest, Copy_Performance) {
+  const int width = 1920, height = 1080;
+  const int iterations = 50;
+
+  using Helper = CopyTestHelper<Npp8u>;
+  auto testData = Helper::generateTestData(width, height, 3, Helper::DataPattern::RANDOM);
+
+  GPUMemoryManager<Npp8u> srcGPU(width, height, 3);
+  GPUMemoryManager<Npp8u> dstGPU(width, height, 3);
+
+  ASSERT_TRUE(srcGPU.copyFromHost(testData.src, width, height, 3));
 
   NppiSize roi = {width, height};
 
-  // 预热
-  for (int i = 0; i < 5; i++) {
-    nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
-  }
-
-  // 同步GPU确保准确计时
-  cudaDeviceSynchronize();
-
+  // Time regular version
   auto start = std::chrono::high_resolution_clock::now();
-
-  // 执行多次拷贝以获得稳定的测量结果
-  const int iterations = 100;
   for (int i = 0; i < iterations; i++) {
-    NppStatus status = nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
-    ASSERT_EQ(status, NPP_SUCCESS) << "Copy failed in performance test";
+    nppiCopy_8u_C3R(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi);
   }
-
   cudaDeviceSynchronize();
-  auto end = std::chrono::high_resolution_clock::now();
+  auto regularTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
 
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-  double avgTime = duration.count() / (double)iterations;
-  double throughput = (width * height * sizeof(Npp8u) * 2) / (avgTime * 1e-6) / (1024 * 1024 * 1024); // GB/s
+  // Time context version
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+  start = std::chrono::high_resolution_clock::now();
+  for (int i = 0; i < iterations; i++) {
+    nppiCopy_8u_C3R_Ctx(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi, ctx);
+  }
+  cudaStreamSynchronize(ctx.hStream);
+  auto contextTime =
+      std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
 
-  std::cout << "Copy Performance: " << avgTime << " μs per operation, " << throughput << " GB/s throughput"
-            << std::endl;
+  std::cout << "\nCopy Performance Results (" << iterations << " iterations, " << width << "x" << height << "):\n";
+  std::cout << "  Regular version: " << regularTime << " μs (avg: " << regularTime / iterations << " μs)\n";
+  std::cout << "  Context version: " << contextTime << " μs (avg: " << contextTime / iterations << " μs)\n";
 
-  // Validate结果仍然正确
-  std::vector<Npp8u> resultData(width * height);
-  dst.copyToHost(resultData);
-  EXPECT_TRUE(verifyCopyResult(srcData, resultData)) << "Performance test result verification failed";
+  // Verify final result
+  std::vector<Npp8u> result;
+  ASSERT_TRUE(dstGPU.copyToHost(result, width, height, 3));
+  Helper::validateResults(result, testData.expected);
 }
