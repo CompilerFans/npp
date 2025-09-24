@@ -31,9 +31,9 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
       }
     }
 
-    // Compute average using total mask size (including zero-padded pixels)
+    // Compute average using total mask size with truncation (toward zero)
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-    pDstRow[x] = (sum + totalMaskPixels / 2) / totalMaskPixels; // Round to nearest
+    pDstRow[x] = sum / totalMaskPixels; // Integer division (truncation)
   }
 }
 
@@ -68,10 +68,10 @@ __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
       }
     }
 
-    // Calculate average using total mask size (including zero-padded pixels)
+    // Calculate average using total mask size with truncation (toward zero)
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
     for (int c = 0; c < 4; c++) {
-      pDstRow[x * 4 + c] = (sum[c] + totalMaskPixels / 2) / totalMaskPixels; // Round to nearest
+      pDstRow[x * 4 + c] = sum[c] / totalMaskPixels; // Integer division (truncation)
     }
   }
 }

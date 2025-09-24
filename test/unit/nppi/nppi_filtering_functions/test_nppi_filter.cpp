@@ -65,7 +65,7 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // Validate结果 - 内部区域应该保持100（均匀图像的box滤波结果）
+  // Validate结果 - 内部区域应该保持100（均匀图像的box滤波结果使用truncation）
   for (int y = 1; y < height - 1; y++) {
     for (int x = 1; x < width - 1; x++) {
       EXPECT_EQ(h_dst[y * width + x], 100) << "At position (" << x << ", " << y << ")";
@@ -93,17 +93,56 @@ TEST_F(FilterTest, FilterBox_5x5_EdgeHandling) {
   err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
-  // Validate内部区域 - 应该保持原值
+  // Validate内部区域 - 应该保持原值（使用truncation）
   for (int y = 2; y < height - 2; y++) {
     for (int x = 2; x < width - 2; x++) {
       EXPECT_EQ(h_dst[y * width + x], 100);
     }
   }
 
-  // Validate边缘处理 - 由于边界效应，边缘的值可能略有不同
-  // 角落像素只能访问部分邻域
+  // Validate边缘处理 - 由于边界效应和truncation，边缘的值可能略有不同
+  // 角落像素只能访问部分邻域，使用truncation计算
   EXPECT_GT(h_dst[0], 0);   // 应该有一定的值
   EXPECT_LE(h_dst[0], 100); // 但不应超过原始值
+}
+
+// Test to verify truncation behavior explicitly
+TEST_F(FilterTest, FilterBox_TruncationBehavior) {
+  // Create test image where box filter produces non-integer averages
+  std::fill(h_src.begin(), h_src.end(), 0);
+  
+  // Set specific pattern that will test truncation vs rounding
+  // For a 3x3 filter, set center 5 pixels to 127 and others to 0
+  // This creates sum = 5 * 127 = 635, average = 635/9 = 70.555... 
+  // Truncation should give 70, rounding would give 71
+  h_src[7 * width + 7] = 127;  // center
+  h_src[7 * width + 8] = 127;  // right  
+  h_src[8 * width + 7] = 127;  // down
+  h_src[6 * width + 7] = 127;  // up
+  h_src[7 * width + 6] = 127;  // left
+  
+  // Upload data
+  cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width, width, height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  cudaDeviceSynchronize();
+  
+  // Set 3x3 box filter
+  NppiSize maskSize = {3, 3};
+  NppiPoint anchor = {1, 1};
+  
+  // Execute filter
+  NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, size, maskSize, anchor);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  
+  // Download result
+  err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  // Check center pixel: sum = 5*127 = 635, 635/9 = 70.555... 
+  // With truncation: should be 70
+  // With rounding: would be 71
+  EXPECT_EQ(h_dst[7 * width + 7], 70) << "Expected truncation result 70, not rounding result 71";
 }
 
 // Parameter validation测试
