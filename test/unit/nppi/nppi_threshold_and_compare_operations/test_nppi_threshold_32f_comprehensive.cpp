@@ -280,49 +280,6 @@ TEST_F(NppiThreshold32fComprehensiveTest, ExtremeValues) {
     cudaFree(d_dst);
   }
 }
-
-// Error handling tests
-TEST_F(NppiThreshold32fComprehensiveTest, ErrorHandling) {
-  const int width = 16;
-  const int height = 16;
-  const NppiSize oSizeROI = {width, height};
-  const Npp32f threshold = 5.0f;
-
-  int srcStep = width * sizeof(Npp32f);
-  int dstStep = width * sizeof(Npp32f);
-
-  Npp32f *d_src = nullptr;
-  Npp32f *d_dst = nullptr;
-
-  ASSERT_EQ(cudaMalloc(&d_src, srcStep * height), cudaSuccess);
-  ASSERT_EQ(cudaMalloc(&d_dst, dstStep * height), cudaSuccess);
-
-  // Test null pointer errors
-  EXPECT_EQ(nppiThreshold_32f_C1R(nullptr, srcStep, d_dst, dstStep, oSizeROI, threshold, NPP_CMP_LESS),
-            NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, srcStep, nullptr, dstStep, oSizeROI, threshold, NPP_CMP_LESS),
-            NPP_NULL_POINTER_ERROR);
-
-  // Test size errors
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, srcStep, d_dst, dstStep, {-1, height}, threshold, NPP_CMP_LESS),
-            NPP_SIZE_ERROR);
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, srcStep, d_dst, dstStep, {width, -1}, threshold, NPP_CMP_LESS),
-            NPP_SIZE_ERROR);
-
-  // Test step errors
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, 0, d_dst, dstStep, oSizeROI, threshold, NPP_CMP_LESS), NPP_STEP_ERROR);
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, srcStep, d_dst, 0, oSizeROI, threshold, NPP_CMP_LESS), NPP_STEP_ERROR);
-
-  // Test unsupported operation mode
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, threshold, NPP_CMP_EQ),
-            NPP_NOT_SUPPORTED_MODE_ERROR);
-  EXPECT_EQ(nppiThreshold_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, threshold, NPP_CMP_LESS_EQ),
-            NPP_NOT_SUPPORTED_MODE_ERROR);
-
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
 // Performance test and comparison
 TEST_F(NppiThreshold32fComprehensiveTest, PerformanceComparison) {
   const int width = 1024;

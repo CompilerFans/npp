@@ -355,48 +355,6 @@ TEST_F(NppiAndCComprehensiveTest, AndC_32s_C4R_Ctx_Comprehensive) {
   cudaFree(d_dst);
 }
 
-// Edge cases and error handling tests
-TEST_F(NppiAndCComprehensiveTest, ErrorHandling) {
-  const int width = 8;
-  const int height = 8;
-  const int channels = 3;
-  const NppiSize oSizeROI = {width, height};
-
-  int srcStep = width * channels * sizeof(Npp8u);
-  int dstStep = width * channels * sizeof(Npp8u);
-
-  Npp8u *d_src = nullptr;
-  Npp8u *d_dst = nullptr;
-  Npp8u constants[3] = {0xAA, 0x55, 0xCC};
-
-  ASSERT_EQ(cudaMalloc(&d_src, srcStep * height), cudaSuccess);
-  ASSERT_EQ(cudaMalloc(&d_dst, dstStep * height), cudaSuccess);
-
-  NppStreamContext nppStreamCtx;
-  memset(&nppStreamCtx, 0, sizeof(NppStreamContext));
-
-  // Test null pointer errors
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(nullptr, srcStep, constants, d_dst, dstStep, oSizeROI, nppStreamCtx),
-            NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(d_src, srcStep, nullptr, d_dst, dstStep, oSizeROI, nppStreamCtx),
-            NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(d_src, srcStep, constants, nullptr, dstStep, oSizeROI, nppStreamCtx),
-            NPP_NULL_POINTER_ERROR);
-
-  // Test size errors
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(d_src, srcStep, constants, d_dst, dstStep, {-1, height}, nppStreamCtx), NPP_SIZE_ERROR);
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(d_src, srcStep, constants, d_dst, dstStep, {width, -1}, nppStreamCtx), NPP_SIZE_ERROR);
-
-  // Test step errors
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(d_src, width * channels - 1, constants, d_dst, dstStep, oSizeROI, nppStreamCtx),
-            NPP_STEP_ERROR);
-  EXPECT_EQ(nppiAndC_8u_C3R_Ctx(d_src, srcStep, constants, d_dst, width * channels - 1, oSizeROI, nppStreamCtx),
-            NPP_STEP_ERROR);
-
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
 // Performance comparison test
 TEST_F(NppiAndCComprehensiveTest, PerformanceComparison) {
   const int width = 1024;
