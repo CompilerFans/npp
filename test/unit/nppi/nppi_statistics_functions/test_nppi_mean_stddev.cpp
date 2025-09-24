@@ -816,7 +816,7 @@ protected:
   void TearDown() override {
     cudaError_t err = cudaDeviceSynchronize();
     EXPECT_EQ(err, cudaSuccess);
-    
+
     // Clear any potential memory issues
     cudaError_t clearErr = cudaGetLastError();
     if (clearErr != cudaSuccess) {
@@ -825,8 +825,7 @@ protected:
   }
 
   // Reference calculation for validation
-  template <typename T>
-  void calculateReferenceMeanStdDev(const std::vector<T> &data, double &mean, double &stddev) {
+  template <typename T> void calculateReferenceMeanStdDev(const std::vector<T> &data, double &mean, double &stddev) {
     double sum = 0.0;
     for (const auto &val : data) {
       sum += static_cast<double>(val);
@@ -842,8 +841,7 @@ protected:
   }
 
   // Comprehensive data pattern generators
-  template <typename T>
-  std::vector<T> generateBimodalData(int width, int height, T val1, T val2) {
+  template <typename T> std::vector<T> generateBimodalData(int width, int height, T val1, T val2) {
     std::vector<T> data(width * height);
     for (int i = 0; i < width * height; i++) {
       data[i] = (i % 2 == 0) ? val1 : val2;
@@ -851,18 +849,17 @@ protected:
     return data;
   }
 
-  template <typename T>
-  std::vector<T> generateGaussianLikeData(int width, int height, T centerVal, T range) {
+  template <typename T> std::vector<T> generateGaussianLikeData(int width, int height, T centerVal, T range) {
     std::vector<T> data(width * height);
     int centerX = width / 2;
     int centerY = height / 2;
-    
+
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         double distFromCenter = std::sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
         double maxDist = std::sqrt(centerX * centerX + centerY * centerY);
         double normalizedDist = distFromCenter / maxDist;
-        
+
         // Gaussian-like distribution
         double factor = std::exp(-normalizedDist * normalizedDist * 2);
         data[y * width + x] = static_cast<T>(centerVal + (factor - 0.5) * range);
@@ -871,8 +868,7 @@ protected:
     return data;
   }
 
-  template <typename T>
-  std::vector<T> generateExtremeValuesData(int width, int height, T minVal, T maxVal) {
+  template <typename T> std::vector<T> generateExtremeValuesData(int width, int height, T minVal, T maxVal) {
     std::vector<T> data(width * height);
     for (int i = 0; i < width * height; i++) {
       data[i] = (i < width * height / 2) ? minVal : maxVal;
@@ -883,23 +879,12 @@ protected:
 
 // Comprehensive test for all buffer size APIs
 TEST_F(NppiMeanStdDevComprehensiveTest, AllBufferSizeAPIs_Comprehensive) {
-  std::vector<NppiSize> testSizes = {
-    {1, 1},
-    {16, 16}, 
-    {32, 32},
-    {64, 64},
-    {128, 128},
-    {256, 256},
-    {512, 512},
-    {1024, 1},
-    {1, 1024},
-    {640, 480},
-    {1920, 1080}
-  };
+  std::vector<NppiSize> testSizes = {{1, 1},     {16, 16},  {32, 32},  {64, 64},   {128, 128},  {256, 256},
+                                     {512, 512}, {1024, 1}, {1, 1024}, {640, 480}, {1920, 1080}};
 
-  for (const auto& size : testSizes) {
+  for (const auto &size : testSizes) {
     SCOPED_TRACE("Testing size: " + std::to_string(size.width) + "x" + std::to_string(size.height));
-    
+
     // Test 8u APIs
     {
       size_t bufferSize8u = 0;
@@ -907,23 +892,23 @@ TEST_F(NppiMeanStdDevComprehensiveTest, AllBufferSizeAPIs_Comprehensive) {
       ASSERT_EQ(status, NPP_SUCCESS);
       EXPECT_GT(bufferSize8u, 0);
       EXPECT_LT(bufferSize8u, size_t(100 * 1024 * 1024));
-      
+
       // Test 8u context version
       cudaStream_t stream;
       cudaStreamCreate(&stream);
       NppStreamContext nppStreamCtx;
       nppGetStreamContext(&nppStreamCtx);
       nppStreamCtx.hStream = stream;
-      
+
       size_t bufferSize8uCtx = 0;
       status = nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(size, &bufferSize8uCtx, nppStreamCtx);
       ASSERT_EQ(status, NPP_SUCCESS);
       EXPECT_GT(bufferSize8uCtx, 0);
       EXPECT_EQ(bufferSize8u, bufferSize8uCtx); // Should be same
-      
+
       cudaStreamDestroy(stream);
     }
-    
+
     // Test 32f APIs
     {
       size_t bufferSize32f = 0;
@@ -931,20 +916,20 @@ TEST_F(NppiMeanStdDevComprehensiveTest, AllBufferSizeAPIs_Comprehensive) {
       ASSERT_EQ(status, NPP_SUCCESS);
       EXPECT_GT(bufferSize32f, 0);
       EXPECT_LT(bufferSize32f, size_t(100 * 1024 * 1024));
-      
+
       // Test 32f context version
       cudaStream_t stream;
       cudaStreamCreate(&stream);
       NppStreamContext nppStreamCtx;
       nppGetStreamContext(&nppStreamCtx);
       nppStreamCtx.hStream = stream;
-      
+
       size_t bufferSize32fCtx = 0;
       status = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(size, &bufferSize32fCtx, nppStreamCtx);
       ASSERT_EQ(status, NPP_SUCCESS);
       EXPECT_GT(bufferSize32fCtx, 0);
       EXPECT_EQ(bufferSize32f, bufferSize32fCtx); // Should be same
-      
+
       cudaStreamDestroy(stream);
     }
   }
@@ -955,7 +940,7 @@ TEST_F(NppiMeanStdDevComprehensiveTest, Mean_StdDev_8u_C1R_ComprehensivePatterns
   const int width = 64;
   const int height = 64;
   const NppiSize oSizeROI = {width, height};
-  
+
   struct TestCase {
     std::string name;
     std::vector<Npp8u> data;
@@ -963,109 +948,110 @@ TEST_F(NppiMeanStdDevComprehensiveTest, Mean_StdDev_8u_C1R_ComprehensivePatterns
     double expectedStdDev;
     double tolerance;
   };
-  
+
   std::vector<TestCase> testCases;
-  
+
   // Constant patterns
   testCases.push_back({"Constant_0", std::vector<Npp8u>(width * height, 0), 0.0, 0.0, 0.001});
   testCases.push_back({"Constant_128", std::vector<Npp8u>(width * height, 128), 128.0, 0.0, 0.001});
   testCases.push_back({"Constant_255", std::vector<Npp8u>(width * height, 255), 255.0, 0.0, 0.001});
-  
+
   // Bimodal patterns
   auto bimodal = generateBimodalData<Npp8u>(width, height, 0, 255);
   testCases.push_back({"Bimodal_0_255", bimodal, 127.5, 127.5, 1.0});
-  
+
   // Extreme values
   auto extreme = generateExtremeValuesData<Npp8u>(width, height, 0, 255);
   testCases.push_back({"Extreme_0_255", extreme, 127.5, 127.5, 1.0});
-  
+
   // Gaussian-like distribution
   auto gaussian = generateGaussianLikeData<Npp8u>(width, height, 128, 100);
   double gaussMean, gaussStd;
   calculateReferenceMeanStdDev(gaussian, gaussMean, gaussStd);
   testCases.push_back({"Gaussian_128_100", gaussian, gaussMean, gaussStd, 2.0});
-  
-  for (const auto& testCase : testCases) {
+
+  for (const auto &testCase : testCases) {
     SCOPED_TRACE("Testing pattern: " + testCase.name);
-    
+
     // Test regular version
     {
       int srcStep;
       Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
       ASSERT_NE(d_src, nullptr);
-      
-      cudaMemcpy2D(d_src, srcStep, testCase.data.data(), width * sizeof(Npp8u), 
-                   width * sizeof(Npp8u), height, cudaMemcpyHostToDevice);
-      
+
+      cudaMemcpy2D(d_src, srcStep, testCase.data.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+                   cudaMemcpyHostToDevice);
+
       size_t bufferSize = 0;
       ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &bufferSize), NPP_SUCCESS);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize);
       ASSERT_NE(pDeviceBuffer, nullptr);
-      
+
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
       ASSERT_NE(pMean, nullptr);
       ASSERT_NE(pStdDev, nullptr);
-      
+
       NppStatus status = nppiMean_StdDev_8u_C1R(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev);
       ASSERT_EQ(status, NPP_SUCCESS);
-      
+
       Npp64f hostMean, hostStdDev;
       cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
       cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
-      
+
       EXPECT_NEAR(hostMean, testCase.expectedMean, testCase.tolerance) << "Regular API Mean mismatch";
       EXPECT_NEAR(hostStdDev, testCase.expectedStdDev, testCase.tolerance) << "Regular API StdDev mismatch";
-      
+
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
       cudaFree(pMean);
       cudaFree(pStdDev);
     }
-    
+
     // Test context version
     {
       int srcStep;
       Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
       ASSERT_NE(d_src, nullptr);
-      
+
       cudaStream_t stream;
       cudaStreamCreate(&stream);
       NppStreamContext nppStreamCtx;
       nppGetStreamContext(&nppStreamCtx);
       nppStreamCtx.hStream = stream;
-      
-      cudaMemcpy2DAsync(d_src, srcStep, testCase.data.data(), width * sizeof(Npp8u), 
-                        width * sizeof(Npp8u), height, cudaMemcpyHostToDevice, stream);
-      
+
+      cudaMemcpy2DAsync(d_src, srcStep, testCase.data.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+                        cudaMemcpyHostToDevice, stream);
+
       size_t bufferSize = 0;
       ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &bufferSize, nppStreamCtx), NPP_SUCCESS);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize);
       ASSERT_NE(pDeviceBuffer, nullptr);
-      
+
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
       ASSERT_NE(pMean, nullptr);
       ASSERT_NE(pStdDev, nullptr);
-      
-      NppStatus status = nppiMean_StdDev_8u_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
+
+      NppStatus status =
+          nppiMean_StdDev_8u_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
       ASSERT_EQ(status, NPP_SUCCESS);
-      
+
       cudaStreamSynchronize(stream);
-      
+
       Npp64f hostMean, hostStdDev;
       cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
       cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
-      
+
       EXPECT_NEAR(hostMean, testCase.expectedMean, testCase.tolerance) << "Context API Mean mismatch";
       EXPECT_NEAR(hostStdDev, testCase.expectedStdDev, testCase.tolerance) << "Context API StdDev mismatch";
-      
+
       cudaStreamDestroy(stream);
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
@@ -1080,7 +1066,7 @@ TEST_F(NppiMeanStdDevComprehensiveTest, Mean_StdDev_32f_C1R_ComprehensivePattern
   const int width = 64;
   const int height = 64;
   const NppiSize oSizeROI = {width, height};
-  
+
   struct TestCase {
     std::string name;
     std::vector<Npp32f> data;
@@ -1088,29 +1074,29 @@ TEST_F(NppiMeanStdDevComprehensiveTest, Mean_StdDev_32f_C1R_ComprehensivePattern
     double expectedStdDev;
     double tolerance;
   };
-  
+
   std::vector<TestCase> testCases;
-  
+
   // Constant patterns
   testCases.push_back({"Constant_0.0", std::vector<Npp32f>(width * height, 0.0f), 0.0, 0.0, 0.001});
   testCases.push_back({"Constant_1.0", std::vector<Npp32f>(width * height, 1.0f), 1.0, 0.0, 0.001});
   testCases.push_back({"Constant_-1.0", std::vector<Npp32f>(width * height, -1.0f), -1.0, 0.0, 0.001});
   testCases.push_back({"Constant_100.5", std::vector<Npp32f>(width * height, 100.5f), 100.5, 0.0, 0.001});
-  
+
   // Bimodal patterns
   auto bimodal = generateBimodalData<Npp32f>(width, height, -1.0f, 1.0f);
   testCases.push_back({"Bimodal_-1_1", bimodal, 0.0, 1.0, 0.01});
-  
+
   // Extreme values
   auto extreme = generateExtremeValuesData<Npp32f>(width, height, -100.0f, 100.0f);
   testCases.push_back({"Extreme_-100_100", extreme, 0.0, 100.0, 0.1});
-  
+
   // Gaussian-like distribution
   auto gaussian = generateGaussianLikeData<Npp32f>(width, height, 0.0f, 2.0f);
   double gaussMean, gaussStd;
   calculateReferenceMeanStdDev(gaussian, gaussMean, gaussStd);
   testCases.push_back({"Gaussian_0_2", gaussian, gaussMean, gaussStd, 0.01});
-  
+
   // Linear gradient
   std::vector<Npp32f> linearGrad(width * height);
   for (int y = 0; y < height; y++) {
@@ -1121,88 +1107,89 @@ TEST_F(NppiMeanStdDevComprehensiveTest, Mean_StdDev_32f_C1R_ComprehensivePattern
   double linearMean, linearStd;
   calculateReferenceMeanStdDev(linearGrad, linearMean, linearStd);
   testCases.push_back({"Linear_Gradient", linearGrad, linearMean, linearStd, 0.01});
-  
-  for (const auto& testCase : testCases) {
+
+  for (const auto &testCase : testCases) {
     SCOPED_TRACE("Testing pattern: " + testCase.name);
-    
+
     // Test regular version
     {
       int srcStep;
       Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
       ASSERT_NE(d_src, nullptr);
-      
-      cudaMemcpy2D(d_src, srcStep, testCase.data.data(), width * sizeof(Npp32f), 
-                   width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
-      
+
+      cudaMemcpy2D(d_src, srcStep, testCase.data.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+                   cudaMemcpyHostToDevice);
+
       size_t bufferSize = 0;
       ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_32f_C1R(oSizeROI, &bufferSize), NPP_SUCCESS);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize);
       ASSERT_NE(pDeviceBuffer, nullptr);
-      
+
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
       ASSERT_NE(pMean, nullptr);
       ASSERT_NE(pStdDev, nullptr);
-      
+
       NppStatus status = nppiMean_StdDev_32f_C1R(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev);
       ASSERT_EQ(status, NPP_SUCCESS);
-      
+
       Npp64f hostMean, hostStdDev;
       cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
       cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
-      
+
       EXPECT_NEAR(hostMean, testCase.expectedMean, testCase.tolerance) << "Regular API Mean mismatch";
       EXPECT_NEAR(hostStdDev, testCase.expectedStdDev, testCase.tolerance) << "Regular API StdDev mismatch";
-      
+
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
       cudaFree(pMean);
       cudaFree(pStdDev);
     }
-    
+
     // Test context version
     {
       int srcStep;
       Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
       ASSERT_NE(d_src, nullptr);
-      
+
       cudaStream_t stream;
       cudaStreamCreate(&stream);
       NppStreamContext nppStreamCtx;
       nppGetStreamContext(&nppStreamCtx);
       nppStreamCtx.hStream = stream;
-      
-      cudaMemcpy2DAsync(d_src, srcStep, testCase.data.data(), width * sizeof(Npp32f), 
-                        width * sizeof(Npp32f), height, cudaMemcpyHostToDevice, stream);
-      
+
+      cudaMemcpy2DAsync(d_src, srcStep, testCase.data.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+                        cudaMemcpyHostToDevice, stream);
+
       size_t bufferSize = 0;
       ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, &bufferSize, nppStreamCtx), NPP_SUCCESS);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize);
       ASSERT_NE(pDeviceBuffer, nullptr);
-      
+
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
       ASSERT_NE(pMean, nullptr);
       ASSERT_NE(pStdDev, nullptr);
-      
-      NppStatus status = nppiMean_StdDev_32f_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
+
+      NppStatus status =
+          nppiMean_StdDev_32f_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
       ASSERT_EQ(status, NPP_SUCCESS);
-      
+
       cudaStreamSynchronize(stream);
-      
+
       Npp64f hostMean, hostStdDev;
       cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
       cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
-      
+
       EXPECT_NEAR(hostMean, testCase.expectedMean, testCase.tolerance) << "Context API Mean mismatch";
       EXPECT_NEAR(hostStdDev, testCase.expectedStdDev, testCase.tolerance) << "Context API StdDev mismatch";
-      
+
       cudaStreamDestroy(stream);
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
@@ -1217,85 +1204,85 @@ TEST_F(NppiMeanStdDevComprehensiveTest, EdgeCases_AllAPIs) {
   // Test minimum size (1x1)
   {
     const NppiSize minSize = {1, 1};
-    
+
     // Test buffer size APIs
     size_t bufferSize8u = 0, bufferSize32f = 0;
     EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R(minSize, &bufferSize8u), NPP_SUCCESS);
     EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_32f_C1R(minSize, &bufferSize32f), NPP_SUCCESS);
     EXPECT_GT(bufferSize8u, 0);
     EXPECT_GT(bufferSize32f, 0);
-    
+
     // Test computation with 1x1 image
     std::vector<Npp8u> data8u = {100};
     std::vector<Npp32f> data32f = {42.5f};
-    
+
     // 8u test
     {
       int srcStep;
       Npp8u *d_src = nppiMalloc_8u_C1(1, 1, &srcStep);
       cudaMemcpy2D(d_src, srcStep, data8u.data(), sizeof(Npp8u), sizeof(Npp8u), 1, cudaMemcpyHostToDevice);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize8u);
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
-      
+
       ASSERT_EQ(nppiMean_StdDev_8u_C1R(d_src, srcStep, minSize, pDeviceBuffer, pMean, pStdDev), NPP_SUCCESS);
-      
+
       Npp64f hostMean, hostStdDev;
       cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
       cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
-      
+
       EXPECT_NEAR(hostMean, 100.0, 0.001);
       EXPECT_NEAR(hostStdDev, 0.0, 0.001);
-      
+
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
       cudaFree(pMean);
       cudaFree(pStdDev);
     }
-    
+
     // 32f test
     {
       int srcStep;
       Npp32f *d_src = nppiMalloc_32f_C1(1, 1, &srcStep);
       cudaMemcpy2D(d_src, srcStep, data32f.data(), sizeof(Npp32f), sizeof(Npp32f), 1, cudaMemcpyHostToDevice);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize32f);
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
-      
+
       ASSERT_EQ(nppiMean_StdDev_32f_C1R(d_src, srcStep, minSize, pDeviceBuffer, pMean, pStdDev), NPP_SUCCESS);
-      
+
       Npp64f hostMean, hostStdDev;
       cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
       cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
-      
+
       EXPECT_NEAR(hostMean, 42.5, 0.001);
       EXPECT_NEAR(hostStdDev, 0.0, 0.001);
-      
+
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
       cudaFree(pMean);
       cudaFree(pStdDev);
     }
   }
-  
+
   // Test very large image (if memory allows)
   {
     const NppiSize largeSize = {2048, 2048};
-    
+
     size_t bufferSize8u = 0, bufferSize32f = 0;
     NppStatus status8u = nppiMeanStdDevGetBufferHostSize_8u_C1R(largeSize, &bufferSize8u);
     NppStatus status32f = nppiMeanStdDevGetBufferHostSize_32f_C1R(largeSize, &bufferSize32f);
-    
+
     if (status8u == NPP_SUCCESS && status32f == NPP_SUCCESS) {
       EXPECT_GT(bufferSize8u, 0);
       EXPECT_GT(bufferSize32f, 0);
-      EXPECT_LT(bufferSize8u, size_t(1024 * 1024 * 1024)); // Less than 1GB
+      EXPECT_LT(bufferSize8u, size_t(1024 * 1024 * 1024));  // Less than 1GB
       EXPECT_LT(bufferSize32f, size_t(1024 * 1024 * 1024)); // Less than 1GB
     }
   }
@@ -1306,88 +1293,90 @@ TEST_F(NppiMeanStdDevComprehensiveTest, PerformanceComparison_RegularVsContext) 
   const int width = 512;
   const int height = 512;
   const NppiSize oSizeROI = {width, height};
-  
+
   // Generate test data
   auto testData8u = generateGaussianLikeData<Npp8u>(width, height, 128, 64);
   auto testData32f = generateGaussianLikeData<Npp32f>(width, height, 0.0f, 1.0f);
-  
+
   const int numIterations = 10;
-  
+
   std::cout << "\nPerformance Comparison Results:" << std::endl;
-  
+
   // 8u performance test
   {
     // Regular version timing
     auto start = std::chrono::high_resolution_clock::now();
-    
+
     for (int i = 0; i < numIterations; i++) {
       int srcStep;
       Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
-      cudaMemcpy2D(d_src, srcStep, testData8u.data(), width * sizeof(Npp8u), 
-                   width * sizeof(Npp8u), height, cudaMemcpyHostToDevice);
-      
+      cudaMemcpy2D(d_src, srcStep, testData8u.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+                   cudaMemcpyHostToDevice);
+
       size_t bufferSize = 0;
       nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &bufferSize);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize);
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
-      
+
       nppiMean_StdDev_8u_C1R(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev);
       cudaDeviceSynchronize();
-      
+
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
       cudaFree(pMean);
       cudaFree(pStdDev);
     }
-    
+
     auto end = std::chrono::high_resolution_clock::now();
     auto regularTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    
+
     // Context version timing
     start = std::chrono::high_resolution_clock::now();
-    
+
     for (int i = 0; i < numIterations; i++) {
       int srcStep;
       Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
-      
+
       cudaStream_t stream;
       cudaStreamCreate(&stream);
       NppStreamContext nppStreamCtx;
       nppGetStreamContext(&nppStreamCtx);
       nppStreamCtx.hStream = stream;
-      
-      cudaMemcpy2DAsync(d_src, srcStep, testData8u.data(), width * sizeof(Npp8u), 
-                        width * sizeof(Npp8u), height, cudaMemcpyHostToDevice, stream);
-      
+
+      cudaMemcpy2DAsync(d_src, srcStep, testData8u.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+                        cudaMemcpyHostToDevice, stream);
+
       size_t bufferSize = 0;
       nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &bufferSize, nppStreamCtx);
-      
+
       Npp8u *pDeviceBuffer = nullptr;
       cudaMalloc(&pDeviceBuffer, bufferSize);
       Npp64f *pMean = nullptr, *pStdDev = nullptr;
       cudaMalloc(&pMean, sizeof(Npp64f));
       cudaMalloc(&pStdDev, sizeof(Npp64f));
-      
+
       nppiMean_StdDev_8u_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
       cudaStreamSynchronize(stream);
-      
+
       cudaStreamDestroy(stream);
       nppiFree(d_src);
       cudaFree(pDeviceBuffer);
       cudaFree(pMean);
       cudaFree(pStdDev);
     }
-    
+
     end = std::chrono::high_resolution_clock::now();
     auto contextTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    
+
     std::cout << "8u API (" << numIterations << " iterations, " << width << "x" << height << "):" << std::endl;
-    std::cout << "  Regular version: " << regularTime << " μs (avg: " << regularTime/numIterations << " μs)" << std::endl;
-    std::cout << "  Context version: " << contextTime << " μs (avg: " << contextTime/numIterations << " μs)" << std::endl;
+    std::cout << "  Regular version: " << regularTime << " μs (avg: " << regularTime / numIterations << " μs)"
+              << std::endl;
+    std::cout << "  Context version: " << contextTime << " μs (avg: " << contextTime / numIterations << " μs)"
+              << std::endl;
   }
 }
 

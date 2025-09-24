@@ -9,16 +9,16 @@ cudaError_t nppiAnd_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u
                                   int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiAndC_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
                                    NppiSize oSizeROI, cudaStream_t stream);
-cudaError_t nppiAndC_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
-                                   NppiSize oSizeROI, cudaStream_t stream);
-cudaError_t nppiAndC_16u_C3R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream);
-cudaError_t nppiAndC_16u_C4R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream);
-cudaError_t nppiAndC_32s_C3R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream);
-cudaError_t nppiAndC_32s_C4R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst,
+                                   int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_16u_C3R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_16u_C4R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_32s_C3R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiAndC_32s_C4R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 }
 
 NppStatus nppiAnd_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -113,7 +113,7 @@ NppStatus nppiAndC_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aC
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  if (nSrcStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp16u)) || 
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp16u)) ||
       nDstStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp16u))) {
     return NPP_STEP_ERROR;
   }
@@ -142,7 +142,7 @@ NppStatus nppiAndC_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aC
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  if (nSrcStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp16u)) || 
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp16u)) ||
       nDstStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp16u))) {
     return NPP_STEP_ERROR;
   }
@@ -171,7 +171,7 @@ NppStatus nppiAndC_32s_C3R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aC
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  if (nSrcStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp32s)) || 
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp32s)) ||
       nDstStep < static_cast<int>(oSizeROI.width * 3 * sizeof(Npp32s))) {
     return NPP_STEP_ERROR;
   }
@@ -200,7 +200,7 @@ NppStatus nppiAndC_32s_C4R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aC
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  if (nSrcStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp32s)) || 
+  if (nSrcStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp32s)) ||
       nDstStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp32s))) {
     return NPP_STEP_ERROR;
   }

@@ -49,8 +49,8 @@ __global__ void nppiAndC_8u_C3R_kernel_impl(const Npp8u *pSrc, int nSrcStep, Npp
 }
 
 // GPU kernel: bitwise AND of 3-channel 16u image with constants
-__global__ void nppiAndC_16u_C3R_kernel_impl(const Npp16u *pSrc, int nSrcStep, Npp16u c0, Npp16u c1, Npp16u c2, Npp16u *pDst,
-                                             int nDstStep, int width, int height) {
+__global__ void nppiAndC_16u_C3R_kernel_impl(const Npp16u *pSrc, int nSrcStep, Npp16u c0, Npp16u c1, Npp16u c2,
+                                             Npp16u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -66,8 +66,8 @@ __global__ void nppiAndC_16u_C3R_kernel_impl(const Npp16u *pSrc, int nSrcStep, N
 }
 
 // GPU kernel: bitwise AND of 4-channel 16u image with constants
-__global__ void nppiAndC_16u_C4R_kernel_impl(const Npp16u *pSrc, int nSrcStep, Npp16u c0, Npp16u c1, Npp16u c2, Npp16u c3, Npp16u *pDst,
-                                             int nDstStep, int width, int height) {
+__global__ void nppiAndC_16u_C4R_kernel_impl(const Npp16u *pSrc, int nSrcStep, Npp16u c0, Npp16u c1, Npp16u c2,
+                                             Npp16u c3, Npp16u *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -84,8 +84,8 @@ __global__ void nppiAndC_16u_C4R_kernel_impl(const Npp16u *pSrc, int nSrcStep, N
 }
 
 // GPU kernel: bitwise AND of 3-channel 32s image with constants
-__global__ void nppiAndC_32s_C3R_kernel_impl(const Npp32s *pSrc, int nSrcStep, Npp32s c0, Npp32s c1, Npp32s c2, Npp32s *pDst,
-                                             int nDstStep, int width, int height) {
+__global__ void nppiAndC_32s_C3R_kernel_impl(const Npp32s *pSrc, int nSrcStep, Npp32s c0, Npp32s c1, Npp32s c2,
+                                             Npp32s *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -101,8 +101,8 @@ __global__ void nppiAndC_32s_C3R_kernel_impl(const Npp32s *pSrc, int nSrcStep, N
 }
 
 // GPU kernel: bitwise AND of 4-channel 32s image with constants
-__global__ void nppiAndC_32s_C4R_kernel_impl(const Npp32s *pSrc, int nSrcStep, Npp32s c0, Npp32s c1, Npp32s c2, Npp32s c3, Npp32s *pDst,
-                                             int nDstStep, int width, int height) {
+__global__ void nppiAndC_32s_C4R_kernel_impl(const Npp32s *pSrc, int nSrcStep, Npp32s c0, Npp32s c1, Npp32s c2,
+                                             Npp32s c3, Npp32s *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -144,60 +144,62 @@ cudaError_t nppiAndC_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u 
 }
 
 // Bitwise AND of 3-channel 8u image with constants
-cudaError_t nppiAndC_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
-                                   NppiSize oSizeROI, cudaStream_t stream) {
+cudaError_t nppiAndC_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst,
+                                   int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiAndC_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep,
-                                                                  oSizeROI.width, oSizeROI.height);
+  nppiAndC_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
+      pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
 
 // Bitwise AND of 3-channel 16u image with constants
-cudaError_t nppiAndC_16u_C3R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream) {
+cudaError_t nppiAndC_16u_C3R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiAndC_16u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep,
-                                                                   oSizeROI.width, oSizeROI.height);
+  nppiAndC_16u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
+      pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
 
 // Bitwise AND of 4-channel 16u image with constants
-cudaError_t nppiAndC_16u_C4R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream) {
+cudaError_t nppiAndC_16u_C4R_kernel(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiAndC_16u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], aConstants[3], pDst, nDstStep,
+  nppiAndC_16u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1],
+                                                                   aConstants[2], aConstants[3], pDst, nDstStep,
                                                                    oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
 
 // Bitwise AND of 3-channel 32s image with constants
-cudaError_t nppiAndC_32s_C3R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream) {
+cudaError_t nppiAndC_32s_C3R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiAndC_32s_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep,
-                                                                   oSizeROI.width, oSizeROI.height);
+  nppiAndC_32s_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
+      pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
 
 // Bitwise AND of 4-channel 32s image with constants
-cudaError_t nppiAndC_32s_C4R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
-                                    NppiSize oSizeROI, cudaStream_t stream) {
+cudaError_t nppiAndC_32s_C4R_kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst,
+                                    int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiAndC_32s_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1], aConstants[2], aConstants[3], pDst, nDstStep,
+  nppiAndC_32s_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, aConstants[0], aConstants[1],
+                                                                   aConstants[2], aConstants[3], pDst, nDstStep,
                                                                    oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();

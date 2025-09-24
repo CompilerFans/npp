@@ -152,7 +152,7 @@ private:
     std::vector<T> data(width * height);
     std::random_device rd;
     std::mt19937 gen(rd());
-    
+
     if constexpr (std::is_integral_v<T>) {
       std::uniform_int_distribution<int> dis(static_cast<int>(minVal), static_cast<int>(maxVal));
       for (size_t i = 0; i < data.size(); i++) {
@@ -194,10 +194,10 @@ private:
     std::vector<T> data(width * height, bgValue);
     // Add corners
     if (width > 0 && height > 0) {
-      data[0] = fgValue;                                     // Top-left
-      data[width - 1] = fgValue;                             // Top-right
-      data[(height - 1) * width] = fgValue;                  // Bottom-left
-      data[(height - 1) * width + width - 1] = fgValue;      // Bottom-right
+      data[0] = fgValue;                                // Top-left
+      data[width - 1] = fgValue;                        // Top-right
+      data[(height - 1) * width] = fgValue;             // Bottom-left
+      data[(height - 1) * width + width - 1] = fgValue; // Bottom-right
     }
     return data;
   }
@@ -248,9 +248,7 @@ public:
   }
 
   // Custom rectangular kernel
-  static std::vector<Npp8u> createRectangle(int width, int height) {
-    return std::vector<Npp8u>(width * height, 1);
-  }
+  static std::vector<Npp8u> createRectangle(int width, int height) { return std::vector<Npp8u>(width * height, 1); }
 
   // Diamond shaped kernel
   static std::vector<Npp8u> createDiamond(int size) {
@@ -278,14 +276,14 @@ public:
     // For most non-boundary pixels, erosion should not increase values
     int violations = 0;
     int totalPixels = 0;
-    
+
     for (size_t i = 0; i < original.size(); i++) {
       totalPixels++;
       if (eroded[i] > original[i]) {
         violations++;
       }
     }
-    
+
     // Allow some violations due to boundary effects (up to 20%)
     return violations <= totalPixels * 0.2;
   }
@@ -294,14 +292,14 @@ public:
     // For most non-boundary pixels, dilation should not decrease values
     int violations = 0;
     int totalPixels = 0;
-    
+
     for (size_t i = 0; i < original.size(); i++) {
       totalPixels++;
       if (dilated[i] < original[i]) {
         violations++;
       }
     }
-    
+
     // Allow some violations due to boundary effects (up to 20%)
     return violations <= totalPixels * 0.2;
   }
@@ -339,36 +337,37 @@ public:
 
   static MorphologyStats calculateStats(const std::vector<T> &original, const std::vector<T> &processed, T threshold) {
     MorphologyStats stats = {};
-    
-    if (original.empty()) return stats;
-    
+
+    if (original.empty())
+      return stats;
+
     stats.minOriginal = stats.maxOriginal = static_cast<double>(original[0]);
     stats.minProcessed = stats.maxProcessed = static_cast<double>(processed[0]);
-    
+
     double sumOriginal = 0, sumProcessed = 0;
     stats.changedPixels = 0;
-    
+
     for (size_t i = 0; i < original.size(); i++) {
       double orig = static_cast<double>(original[i]);
       double proc = static_cast<double>(processed[i]);
-      
+
       sumOriginal += orig;
       sumProcessed += proc;
-      
+
       stats.minOriginal = std::min(stats.minOriginal, orig);
       stats.maxOriginal = std::max(stats.maxOriginal, orig);
       stats.minProcessed = std::min(stats.minProcessed, proc);
       stats.maxProcessed = std::max(stats.maxProcessed, proc);
-      
+
       if (abs(orig - proc) > threshold) {
         stats.changedPixels++;
       }
     }
-    
+
     stats.meanOriginal = sumOriginal / original.size();
     stats.meanProcessed = sumProcessed / processed.size();
     stats.changePercentage = 100.0 * stats.changedPixels / original.size();
-    
+
     return stats;
   }
 };
@@ -384,36 +383,36 @@ static const std::vector<MorphologyTestConfig> MORPHOLOGY_COMPREHENSIVE_CONFIGS 
     {32, 32, 3, 3, 1, 1, "32x32_3x3_standard", "basic", true, true, false},
     {64, 64, 5, 5, 2, 2, "64x64_5x5_medium", "basic", true, true, false},
     {128, 128, 7, 7, 3, 3, "128x128_7x7_large", "basic", true, true, false},
-    
+
     // Different aspect ratios
     {64, 32, 3, 3, 1, 1, "64x32_3x3_wide", "aspect_ratio", true, true, false},
     {32, 64, 3, 3, 1, 1, "32x64_3x3_tall", "aspect_ratio", true, true, false},
     {128, 32, 5, 5, 2, 2, "128x32_5x5_very_wide", "aspect_ratio", true, true, false},
     {32, 128, 5, 5, 2, 2, "32x128_5x5_very_tall", "aspect_ratio", true, true, false},
-    
+
     // Asymmetric kernels
     {64, 64, 1, 7, 0, 3, "64x64_1x7_vertical_line", "asymmetric", false, true, false},
     {64, 64, 7, 1, 3, 0, "64x64_7x1_horizontal_line", "asymmetric", false, true, false},
     {32, 32, 3, 7, 1, 3, "32x32_3x7_vertical_rect", "asymmetric", false, false, false},
     {32, 32, 7, 3, 3, 1, "32x32_7x3_horizontal_rect", "asymmetric", false, false, false},
-    
+
     // Large kernels
     {128, 128, 11, 11, 5, 5, "128x128_11x11_large", "large_kernel", true, true, true},
     {64, 64, 15, 15, 7, 7, "64x64_15x15_very_large", "large_kernel", true, true, true},
     {256, 256, 9, 9, 4, 4, "256x256_9x9_high_res", "large_kernel", true, true, true},
-    
+
     // Edge cases - small images
     {5, 5, 3, 3, 1, 1, "5x5_3x3_tiny", "edge_case", true, true, false},
     {3, 3, 3, 3, 1, 1, "3x3_3x3_exact", "edge_case", true, true, false},
     {7, 3, 3, 3, 1, 1, "7x3_3x3_narrow", "edge_case", true, true, false},
     {3, 7, 3, 3, 1, 1, "3x7_3x3_thin", "edge_case", true, true, false},
-    
+
     // Different anchor positions
     {32, 32, 5, 5, 0, 0, "32x32_5x5_anchor_topleft", "anchor_test", true, true, false},
     {32, 32, 5, 5, 4, 4, "32x32_5x5_anchor_bottomright", "anchor_test", true, true, false},
     {32, 32, 5, 5, 2, 0, "32x32_5x5_anchor_top_center", "anchor_test", true, true, false},
     {32, 32, 5, 5, 2, 4, "32x32_5x5_anchor_bottom_center", "anchor_test", true, true, false},
-    
+
     // Stress test configurations
     {512, 512, 3, 3, 1, 1, "512x512_3x3_stress", "stress_test", true, true, false},
     {1024, 256, 5, 5, 2, 2, "1024x256_5x5_stress_wide", "stress_test", true, true, false},
@@ -421,11 +420,11 @@ static const std::vector<MorphologyTestConfig> MORPHOLOGY_COMPREHENSIVE_CONFIGS 
 };
 
 // Pattern test combinations
-static const std::vector<TestPattern> TEST_PATTERNS = {
-    TestPattern::UNIFORM,           TestPattern::BINARY_SQUARE,     TestPattern::CHECKERBOARD,
-    TestPattern::GRADIENT_HORIZONTAL, TestPattern::GRADIENT_VERTICAL, TestPattern::RANDOM_NOISE,
-    TestPattern::SPARSE_DOTS,       TestPattern::EDGE_PATTERN,      TestPattern::CORNER_PATTERN,
-    TestPattern::DIAGONAL_LINES};
+static const std::vector<TestPattern> TEST_PATTERNS = {TestPattern::UNIFORM,           TestPattern::BINARY_SQUARE,
+                                                       TestPattern::CHECKERBOARD,      TestPattern::GRADIENT_HORIZONTAL,
+                                                       TestPattern::GRADIENT_VERTICAL, TestPattern::RANDOM_NOISE,
+                                                       TestPattern::SPARSE_DOTS,       TestPattern::EDGE_PATTERN,
+                                                       TestPattern::CORNER_PATTERN,    TestPattern::DIAGONAL_LINES};
 
 // =====================================================================================
 // BASE TEST CLASS
@@ -441,7 +440,7 @@ protected:
   void TearDown() override {
     cudaError_t err = cudaDeviceSynchronize();
     EXPECT_EQ(err, cudaSuccess);
-    
+
     // Clear any potential memory issues
     cudaError_t clearErr = cudaGetLastError();
     if (clearErr != cudaSuccess) {
@@ -600,7 +599,8 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C1R_Ctx_Comprehensive) {
   auto config = GetParam();
   SCOPED_TRACE("Erode 8u C1R Ctx test: " + config.description);
 
-  auto testData = MorphologyPatternGenerator<Npp8u>::generatePattern(TestPattern::BINARY_SQUARE, config.width, config.height, 0, 255);
+  auto testData = MorphologyPatternGenerator<Npp8u>::generatePattern(TestPattern::BINARY_SQUARE, config.width,
+                                                                     config.height, 0, 255);
 
   // Allocate device memory
   int srcStep, dstStep;
@@ -631,14 +631,15 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C1R_Ctx_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test context version
-  NppStatus status = nppiErode_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+  NppStatus status =
+      nppiErode_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion Ctx failed for config: " << config.description;
 
   // Synchronize and download results
   cudaStreamSynchronize(stream);
   std::vector<Npp8u> result(config.width * config.height);
-  cudaMemcpy2D(result.data(), config.width * sizeof(Npp8u), d_dst, dstStep, config.width * sizeof(Npp8u),
-               config.height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(result.data(), config.width * sizeof(Npp8u), d_dst, dstStep, config.width * sizeof(Npp8u), config.height,
+               cudaMemcpyDeviceToHost);
 
   // Verify results are reasonable
   EXPECT_TRUE(std::all_of(result.begin(), result.end(), [](Npp8u val) { return val <= 255; }));
@@ -660,8 +661,9 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C4R_Comprehensive) {
 
   // Create 4-channel test data
   std::vector<Npp8u> testData(config.width * config.height * 4);
-  auto singleChannelData = MorphologyPatternGenerator<Npp8u>::generatePattern(TestPattern::BINARY_SQUARE, config.width, config.height, 0, 255);
-  
+  auto singleChannelData = MorphologyPatternGenerator<Npp8u>::generatePattern(TestPattern::BINARY_SQUARE, config.width,
+                                                                              config.height, 0, 255);
+
   for (int i = 0; i < config.width * config.height; i++) {
     for (int c = 0; c < 4; c++) {
       testData[i * 4 + c] = singleChannelData[i];
@@ -705,7 +707,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C4R_Comprehensive) {
       originalChannel.push_back(testData[i]);
       resultChannel.push_back(result[i]);
     }
-    
+
     EXPECT_TRUE(MorphologyAnalyzer<Npp8u>::verifyErosionProperty(originalChannel, resultChannel))
         << "Erosion property violated for channel " << c << " in " << config.description;
   }
@@ -726,10 +728,10 @@ TEST_P(MorphologyComprehensiveTest, Dilate_8u_C4R_Comprehensive) {
     for (int x = 0; x < config.width; x++) {
       int idx = (y * config.width + x) * 4;
       // Different patterns for each channel to test independence
-      testData[idx + 0] = ((x + y) % 4 == 0) ? 255 : 0;  // Sparse pattern
+      testData[idx + 0] = ((x + y) % 4 == 0) ? 255 : 0;      // Sparse pattern
       testData[idx + 1] = (x < config.width / 2) ? 255 : 0;  // Half split
       testData[idx + 2] = (y < config.height / 2) ? 255 : 0; // Half split
-      testData[idx + 3] = ((x + y) % 2 == 0) ? 255 : 0;  // Checkerboard
+      testData[idx + 3] = ((x + y) % 2 == 0) ? 255 : 0;      // Checkerboard
     }
   }
 
@@ -770,7 +772,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_8u_C4R_Comprehensive) {
       originalChannel.push_back(testData[i]);
       resultChannel.push_back(result[i]);
     }
-    
+
     EXPECT_TRUE(MorphologyAnalyzer<Npp8u>::verifyDilationProperty(originalChannel, resultChannel))
         << "Dilation property violated for channel " << c << " in " << config.description;
   }
@@ -791,7 +793,8 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Comprehensive) {
 
   // Test multiple patterns with float values
   for (auto pattern : {TestPattern::BINARY_SQUARE, TestPattern::GRADIENT_HORIZONTAL, TestPattern::SPARSE_DOTS}) {
-    auto testData = MorphologyPatternGenerator<Npp32f>::generatePattern(pattern, config.width, config.height, 0.0f, 1.0f);
+    auto testData =
+        MorphologyPatternGenerator<Npp32f>::generatePattern(pattern, config.width, config.height, 0.0f, 1.0f);
 
     // Allocate device memory
     int srcStep, dstStep;
@@ -855,7 +858,8 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C1R_Comprehensive) {
 
   // Test multiple patterns with float values
   for (auto pattern : {TestPattern::SPARSE_DOTS, TestPattern::GRADIENT_VERTICAL, TestPattern::CORNER_PATTERN}) {
-    auto testData = MorphologyPatternGenerator<Npp32f>::generatePattern(pattern, config.width, config.height, 0.0f, 1.0f);
+    auto testData =
+        MorphologyPatternGenerator<Npp32f>::generatePattern(pattern, config.width, config.height, 0.0f, 1.0f);
 
     // Allocate device memory
     int srcStep, dstStep;
@@ -910,7 +914,8 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Ctx_Comprehensive) {
   auto config = GetParam();
   SCOPED_TRACE("Erode 32f C1R Ctx test: " + config.description);
 
-  auto testData = MorphologyPatternGenerator<Npp32f>::generatePattern(TestPattern::BINARY_SQUARE, config.width, config.height, 0.0f, 1.0f);
+  auto testData = MorphologyPatternGenerator<Npp32f>::generatePattern(TestPattern::BINARY_SQUARE, config.width,
+                                                                      config.height, 0.0f, 1.0f);
 
   // Allocate device memory
   int srcStep, dstStep;
@@ -941,7 +946,8 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Ctx_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test context version
-  NppStatus status = nppiErode_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+  NppStatus status =
+      nppiErode_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion 32f Ctx failed for config: " << config.description;
 
   // Synchronize and download results
@@ -973,12 +979,12 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C4R_Comprehensive) {
   for (int y = 0; y < config.height; y++) {
     for (int x = 0; x < config.width; x++) {
       int idx = (y * config.width + x) * 4;
-      bool inCenter = (x >= config.width / 4 && x < 3 * config.width / 4 && 
-                      y >= config.height / 4 && y < 3 * config.height / 4);
-      
-      testData[idx + 0] = inCenter ? 1.0f : 0.0f;      // Binary pattern
-      testData[idx + 1] = x / float(config.width);     // Horizontal gradient
-      testData[idx + 2] = y / float(config.height);    // Vertical gradient
+      bool inCenter =
+          (x >= config.width / 4 && x < 3 * config.width / 4 && y >= config.height / 4 && y < 3 * config.height / 4);
+
+      testData[idx + 0] = inCenter ? 1.0f : 0.0f;                        // Binary pattern
+      testData[idx + 1] = x / float(config.width);                       // Horizontal gradient
+      testData[idx + 2] = y / float(config.height);                      // Vertical gradient
       testData[idx + 3] = (x + y) / float(config.width + config.height); // Diagonal gradient
     }
   }
@@ -1020,7 +1026,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C4R_Comprehensive) {
       originalChannel.push_back(testData[i]);
       resultChannel.push_back(result[i]);
     }
-    
+
     EXPECT_TRUE(MorphologyAnalyzer<Npp32f>::verifyErosionProperty(originalChannel, resultChannel))
         << "Erosion property violated for channel " << c << " in " << config.description;
   }
@@ -1047,12 +1053,12 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Comprehensive) {
   for (int y = 0; y < config.height; y++) {
     for (int x = 0; x < config.width; x++) {
       int idx = (y * config.width + x) * 4;
-      
+
       // Create different sparse patterns for each channel
-      testData[idx + 0] = ((x + y) % 4 == 0) ? 1.0f : 0.1f;  // Sparse high values
-      testData[idx + 1] = (x % 3 == 0) ? 0.8f : 0.2f;         // Vertical stripes
-      testData[idx + 2] = (y % 3 == 0) ? 0.9f : 0.1f;         // Horizontal stripes
-      testData[idx + 3] = ((x * y) % 5 == 0) ? 1.0f : 0.0f;   // Complex pattern
+      testData[idx + 0] = ((x + y) % 4 == 0) ? 1.0f : 0.1f; // Sparse high values
+      testData[idx + 1] = (x % 3 == 0) ? 0.8f : 0.2f;       // Vertical stripes
+      testData[idx + 2] = (y % 3 == 0) ? 0.9f : 0.1f;       // Horizontal stripes
+      testData[idx + 3] = ((x * y) % 5 == 0) ? 1.0f : 0.0f; // Complex pattern
     }
   }
 
@@ -1093,7 +1099,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Comprehensive) {
       originalChannel.push_back(testData[i]);
       resultChannel.push_back(result[i]);
     }
-    
+
     EXPECT_TRUE(MorphologyAnalyzer<Npp32f>::verifyDilationProperty(originalChannel, resultChannel))
         << "Dilation property violated for channel " << c << " in " << config.description;
   }
@@ -1142,8 +1148,8 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Ctx_Comprehensive) {
   nppStreamCtx.hStream = stream;
 
   // Upload test data asynchronously
-  cudaMemcpy2DAsync(d_src, srcStep, testData.data(), config.width * 4 * sizeof(Npp32f), config.width * 4 * sizeof(Npp32f),
-                    config.height, cudaMemcpyHostToDevice, stream);
+  cudaMemcpy2DAsync(d_src, srcStep, testData.data(), config.width * 4 * sizeof(Npp32f),
+                    config.width * 4 * sizeof(Npp32f), config.height, cudaMemcpyHostToDevice, stream);
 
   // Create structural element
   auto kernel = createStructuralElement(config);
@@ -1156,7 +1162,8 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Ctx_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test context version
-  NppStatus status = nppiDilate_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+  NppStatus status =
+      nppiDilate_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS) << "Dilation 32f C4R Ctx failed for config: " << config.description;
 
   // Synchronize and download results
@@ -1183,7 +1190,8 @@ TEST_P(MorphologyComprehensiveTest, MorphologyDuality_8u_C1R) {
   auto config = GetParam();
   SCOPED_TRACE("Morphology duality test: " + config.description);
 
-  auto testData = MorphologyPatternGenerator<Npp8u>::generatePattern(TestPattern::BINARY_SQUARE, config.width, config.height, 0, 255);
+  auto testData = MorphologyPatternGenerator<Npp8u>::generatePattern(TestPattern::BINARY_SQUARE, config.width,
+                                                                     config.height, 0, 255);
 
   // Allocate device memory for source, eroded, and dilated
   int srcStep, erodedStep, dilatedStep;
@@ -1210,7 +1218,8 @@ TEST_P(MorphologyComprehensiveTest, MorphologyDuality_8u_C1R) {
 
   // Perform both erosion and dilation
   NppStatus statusErode = nppiErode_8u_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
-  NppStatus statusDilate = nppiDilate_8u_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus statusDilate =
+      nppiDilate_8u_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
   ASSERT_EQ(statusErode, NPP_SUCCESS);
   ASSERT_EQ(statusDilate, NPP_SUCCESS);
 
@@ -1238,7 +1247,8 @@ TEST_P(MorphologyComprehensiveTest, MorphologyDuality_32f_C1R) {
   auto config = GetParam();
   SCOPED_TRACE("Morphology duality 32f test: " + config.description);
 
-  auto testData = MorphologyPatternGenerator<Npp32f>::generatePattern(TestPattern::GRADIENT_HORIZONTAL, config.width, config.height, 0.0f, 1.0f);
+  auto testData = MorphologyPatternGenerator<Npp32f>::generatePattern(TestPattern::GRADIENT_HORIZONTAL, config.width,
+                                                                      config.height, 0.0f, 1.0f);
 
   // Allocate device memory for source, eroded, and dilated
   int srcStep, erodedStep, dilatedStep;
@@ -1265,7 +1275,8 @@ TEST_P(MorphologyComprehensiveTest, MorphologyDuality_32f_C1R) {
 
   // Perform both erosion and dilation
   NppStatus statusErode = nppiErode_32f_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
-  NppStatus statusDilate = nppiDilate_32f_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus statusDilate =
+      nppiDilate_32f_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
   ASSERT_EQ(statusErode, NPP_SUCCESS);
   ASSERT_EQ(statusDilate, NPP_SUCCESS);
 
@@ -1317,8 +1328,8 @@ TEST_F(MorphologyEdgeCaseTest, MinimumSize_1x1_Image) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u),
-               height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+               cudaMemcpyHostToDevice);
 
   auto kernel = StructuralElementGenerator::createBox3x3();
   Npp8u *d_mask = nullptr;
@@ -1348,17 +1359,17 @@ TEST_F(MorphologyEdgeCaseTest, MinimumSize_1x1_Image) {
 // Test extreme values
 TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
   const int width = 8, height = 8;
-  
+
   // Test all zeros
   {
     std::vector<Npp8u> testData(width * height, 0);
-    
+
     int srcStep, dstStep;
     Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
     Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
-    
-    cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u),
-                 height, cudaMemcpyHostToDevice);
+
+    cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+                 cudaMemcpyHostToDevice);
 
     auto kernel = StructuralElementGenerator::createBox3x3();
     Npp8u *d_mask = nullptr;
@@ -1373,8 +1384,8 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
     EXPECT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height);
-    cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u),
-                 height, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToHost);
 
     // All zeros should remain zeros after erosion
     EXPECT_TRUE(std::all_of(result.begin(), result.end(), [](Npp8u val) { return val == 0; }));
@@ -1387,13 +1398,13 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
   // Test all max values
   {
     std::vector<Npp8u> testData(width * height, 255);
-    
+
     int srcStep, dstStep;
     Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
     Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
-    
-    cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u),
-                 height, cudaMemcpyHostToDevice);
+
+    cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+                 cudaMemcpyHostToDevice);
 
     auto kernel = StructuralElementGenerator::createBox3x3();
     Npp8u *d_mask = nullptr;
@@ -1408,8 +1419,8 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
     EXPECT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height);
-    cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u),
-                 height, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToHost);
 
     // Most values should remain 255 after dilation
     int count255 = std::count(result.begin(), result.end(), 255);
@@ -1424,17 +1435,17 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
 // Test extreme values for 32f
 TEST_F(MorphologyEdgeCaseTest, ExtremeValues_32f) {
   const int width = 8, height = 8;
-  
+
   // Test very small values
   {
     std::vector<Npp32f> testData(width * height, 1e-6f);
-    
+
     int srcStep, dstStep;
     Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
     Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
-    
-    cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp32f), width * sizeof(Npp32f),
-                 height, cudaMemcpyHostToDevice);
+
+    cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+                 cudaMemcpyHostToDevice);
 
     auto kernel = StructuralElementGenerator::createBox3x3();
     Npp8u *d_mask = nullptr;
@@ -1449,8 +1460,8 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_32f) {
     EXPECT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height);
-    cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f),
-                 height, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
+                 cudaMemcpyDeviceToHost);
 
     // All values should be finite and small
     for (auto val : result) {
@@ -1476,8 +1487,8 @@ TEST_F(MorphologyEdgeCaseTest, SingleElementKernel) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u),
-               height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+               cudaMemcpyHostToDevice);
 
   // Create 1x1 kernel
   std::vector<Npp8u> kernel = {1};
@@ -1494,8 +1505,8 @@ TEST_F(MorphologyEdgeCaseTest, SingleElementKernel) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(width * height);
-  cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u),
-               height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u), height,
+               cudaMemcpyDeviceToHost);
 
   // 1x1 erosion should be close to identity operation
   int differences = 0;
@@ -1504,7 +1515,7 @@ TEST_F(MorphologyEdgeCaseTest, SingleElementKernel) {
       differences++;
     }
   }
-  
+
   // Allow some differences due to border handling, but most should be identical
   EXPECT_LT(differences, static_cast<int>(testData.size() * 0.1));
 
@@ -1524,8 +1535,8 @@ TEST_F(MorphologyEdgeCaseTest, ExtemeAnchorPositions) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u),
-               height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+               cudaMemcpyHostToDevice);
 
   auto kernel = StructuralElementGenerator::createBox5x5();
   Npp8u *d_mask = nullptr;
@@ -1543,8 +1554,8 @@ TEST_F(MorphologyEdgeCaseTest, ExtemeAnchorPositions) {
     EXPECT_EQ(status, NPP_SUCCESS) << "Failed with anchor (" << anchor.x << "," << anchor.y << ")";
 
     std::vector<Npp8u> result(width * height);
-    cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u),
-                 height, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToHost);
 
     // Results should be valid regardless of anchor position
     EXPECT_TRUE(std::all_of(result.begin(), result.end(), [](Npp8u val) { return val <= 255; }));
@@ -1566,8 +1577,8 @@ TEST_F(MorphologyEdgeCaseTest, VeryLargeKernel) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u),
-               height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, testData.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
+               cudaMemcpyHostToDevice);
 
   // Create large 21x21 kernel
   const int kernelSize = 21;
@@ -1584,13 +1595,13 @@ TEST_F(MorphologyEdgeCaseTest, VeryLargeKernel) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(width * height);
-  cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u),
-               height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp8u), d_dst, dstStep, width * sizeof(Npp8u), height,
+               cudaMemcpyDeviceToHost);
 
   // Large erosion should significantly reduce foreground
   int originalForeground = std::count(testData.begin(), testData.end(), 255);
   int resultForeground = std::count(result.begin(), result.end(), 255);
-  
+
   EXPECT_LE(resultForeground, originalForeground);
 
   nppiFree(d_src);
@@ -1607,10 +1618,10 @@ TEST_F(MorphologyEdgeCaseTest, ChannelIndependence_C4R) {
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int idx = (y * width + x) * 4;
-      testData[idx + 0] = (x % 2 == 0) ? 255 : 0;          // Vertical stripes
-      testData[idx + 1] = (y % 2 == 0) ? 255 : 0;          // Horizontal stripes
-      testData[idx + 2] = ((x + y) % 2 == 0) ? 255 : 0;    // Checkerboard
-      testData[idx + 3] = 128;                              // Uniform gray
+      testData[idx + 0] = (x % 2 == 0) ? 255 : 0;       // Vertical stripes
+      testData[idx + 1] = (y % 2 == 0) ? 255 : 0;       // Horizontal stripes
+      testData[idx + 2] = ((x + y) % 2 == 0) ? 255 : 0; // Checkerboard
+      testData[idx + 3] = 128;                          // Uniform gray
     }
   }
 
@@ -1620,8 +1631,8 @@ TEST_F(MorphologyEdgeCaseTest, ChannelIndependence_C4R) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, testData.data(), width * 4 * sizeof(Npp8u), width * 4 * sizeof(Npp8u),
-               height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, testData.data(), width * 4 * sizeof(Npp8u), width * 4 * sizeof(Npp8u), height,
+               cudaMemcpyHostToDevice);
 
   auto kernel = StructuralElementGenerator::createBox3x3();
   Npp8u *d_mask = nullptr;
@@ -1636,8 +1647,8 @@ TEST_F(MorphologyEdgeCaseTest, ChannelIndependence_C4R) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(width * height * 4);
-  cudaMemcpy2D(result.data(), width * 4 * sizeof(Npp8u), d_dst, dstStep, width * 4 * sizeof(Npp8u),
-               height, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(result.data(), width * 4 * sizeof(Npp8u), d_dst, dstStep, width * 4 * sizeof(Npp8u), height,
+               cudaMemcpyDeviceToHost);
 
   // Verify channels were processed independently
   for (int c = 0; c < 4; c++) {
@@ -1660,6 +1671,6 @@ TEST_F(MorphologyEdgeCaseTest, ChannelIndependence_C4R) {
 // Test instantiation
 INSTANTIATE_TEST_SUITE_P(MorphologyComprehensive, MorphologyComprehensiveTest,
                          ::testing::ValuesIn(MORPHOLOGY_COMPREHENSIVE_CONFIGS),
-                         [](const testing::TestParamInfo<MorphologyTestConfig> &info) { 
-                           return info.param.description; 
+                         [](const testing::TestParamInfo<MorphologyTestConfig> &info) {
+                           return info.param.description;
                          });
