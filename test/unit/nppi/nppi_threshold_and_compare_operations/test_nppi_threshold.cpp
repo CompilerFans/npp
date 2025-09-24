@@ -152,32 +152,6 @@ TEST_F(ThresholdFunctionalTest, Threshold_32f_C1R_Float) {
       << "Float threshold operation produced incorrect results";
 }
 
-// 错误处理测试
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(ThresholdFunctionalTest, DISABLED_Threshold_ErrorHandling) {
-  const int width = 16, height = 16;
-  const Npp8u threshold = 128;
-
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试空指针
-  NppStatus status = nppiThreshold_8u_C1R(nullptr, src.step(), dst.get(), dst.step(), roi, threshold, NPP_CMP_LESS);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiThreshold_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi, threshold, NPP_CMP_LESS);
-  EXPECT_EQ(status, NPP_SIZE_ERROR);
-
-  // 测试无效比较操作
-  status = nppiThreshold_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, threshold,
-                                NPP_CMP_EQ); // EQ not supported for threshold
-  EXPECT_EQ(status, NPP_NOT_SUPPORTED_MODE_ERROR);
-}
-
 // 二值化测试（特殊应用场景）
 TEST_F(ThresholdFunctionalTest, Threshold_BinaryImage) {
   const int width = 32, height = 32;

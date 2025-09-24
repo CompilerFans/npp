@@ -211,20 +211,3 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C1R_Ctx) {
   cudaFree(d_src2);
   cudaFree(d_dst);
 }
-
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPIAbsDiffTest, DISABLED_ErrorHandling) {
-  // 测试空指针
-  NppStatus status = nppiAbsDiff_8u_C1R(nullptr, 32, nullptr, 32, nullptr, 32, roi);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidRoi = {0, 0};
-  status = nppiAbsDiff_8u_C1R(nullptr, 32, nullptr, 32, nullptr, 32, invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效步长
-  status = nppiAbsDiff_8u_C1R(nullptr, 0, nullptr, 0, nullptr, 0, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
