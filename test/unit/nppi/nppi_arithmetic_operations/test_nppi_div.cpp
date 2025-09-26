@@ -1,5 +1,5 @@
 #include "../../../common/npp_test_utils.h"
-#include "../../framework/npp_test_base.h"
+#include "npp_test_base.h"
 
 using namespace npp_functional_test;
 

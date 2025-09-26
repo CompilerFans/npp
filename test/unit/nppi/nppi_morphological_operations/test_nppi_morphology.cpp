@@ -1,7 +1,6 @@
-#include "../../framework/npp_test_base.h"
 #include "npp.h"
+#include "npp_test_base.h"
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>

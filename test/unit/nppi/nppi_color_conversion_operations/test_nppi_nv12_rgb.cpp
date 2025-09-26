@@ -1,8 +1,6 @@
-#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+#include "npp_test_base.h"
 
-// only enable at CUDA 12.8
-#if CUDA_SDK_AT_LEAST(12, 8)
 #include <algorithm>
 #include <cmath>
 #include <cuda_runtime.h>
@@ -495,6 +493,7 @@ protected:
   int yLinesize, uvLinesize;
 };
 
+#if CUDA_SDK_AT_LEAST(12, 8)
 // 测试TorchCodec中使用的BT.709全bounds转换（使用自定义ColorTwist矩阵）
 TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
   std::vector<Npp8u> yData, uvData;
@@ -591,4 +590,4 @@ TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
 
   std::cout << "TorchCodec compatibility test passed. Valid pixels: " << validPixelCount << std::endl;
 }
-#endif // CUDA_SDK_AT_LEAST(12, 8)
+#endif

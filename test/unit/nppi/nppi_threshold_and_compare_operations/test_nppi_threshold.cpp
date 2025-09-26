@@ -1,4 +1,4 @@
-#include "../../framework/npp_test_base.h"
+#include "npp_test_base.h"
 
 #include <algorithm>
 #include <cmath>
@@ -469,64 +469,6 @@ TEST_F(NppiThreshold32fComprehensiveTest, ExtremeValues) {
     cudaFree(d_src);
     cudaFree(d_dst);
   }
-}
-// Performance test and comparison
-TEST_F(NppiThreshold32fComprehensiveTest, PerformanceComparison) {
-  const int width = 1024;
-  const int height = 1024;
-  const NppiSize oSizeROI = {width, height};
-  const int iterations = 10;
-
-  auto srcData = generateRandomData(width, height, -100.0f, 100.0f, 456);
-  const Npp32f threshold = 0.0f;
-  const NppCmpOp operation = NPP_CMP_GREATER;
-
-  int srcStep = width * sizeof(Npp32f);
-  int dstStep = width * sizeof(Npp32f);
-
-  Npp32f *d_src = nullptr;
-  Npp32f *d_dst = nullptr;
-
-  ASSERT_EQ(cudaMalloc(&d_src, srcStep * height), cudaSuccess);
-  ASSERT_EQ(cudaMalloc(&d_dst, dstStep * height), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy(d_src, srcData.data(), srcStep * height, cudaMemcpyHostToDevice), cudaSuccess);
-
-  // Time context version
-  cudaStream_t stream;
-  ASSERT_EQ(cudaStreamCreate(&stream), cudaSuccess);
-
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-  nppStreamCtx.hStream = stream;
-
-  auto start = std::chrono::high_resolution_clock::now();
-  for (int i = 0; i < iterations; i++) {
-    NppStatus status =
-        nppiThreshold_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, threshold, operation, nppStreamCtx);
-    ASSERT_EQ(status, NPP_SUCCESS);
-  }
-  cudaStreamSynchronize(stream);
-  auto end = std::chrono::high_resolution_clock::now();
-  auto contextTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-  // Time non-context version
-  start = std::chrono::high_resolution_clock::now();
-  for (int i = 0; i < iterations; i++) {
-    NppStatus status = nppiThreshold_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, threshold, operation);
-    ASSERT_EQ(status, NPP_SUCCESS);
-  }
-  cudaDeviceSynchronize();
-  end = std::chrono::high_resolution_clock::now();
-  auto regularTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-  std::cout << "\\nThreshold Performance Results (" << iterations << " iterations, " << width << "x" << height
-            << "):\\n";
-  std::cout << "  Context version: " << contextTime << " μs (avg: " << contextTime / iterations << " μs)\\n";
-  std::cout << "  Regular version: " << regularTime << " μs (avg: " << regularTime / iterations << " μs)\\n";
-
-  cudaStreamDestroy(stream);
-  cudaFree(d_src);
-  cudaFree(d_dst);
 }
 
 // Test minimum size images

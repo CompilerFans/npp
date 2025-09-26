@@ -1,5 +1,5 @@
-#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+#include "npp_test_base.h"
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <vector>
@@ -37,34 +37,13 @@ TEST_F(NPPIHistogramTest, EvenLevelsHost_32s) {
   }
 }
 
-// 测试nppiEvenLevelsHost错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPIHistogramTest, DISABLED_EvenLevelsHost_ErrorHandling) {
-  std::vector<Npp32s> pLevels(5);
-
-  // 测试空指针
-  NppStatus status = nppiEvenLevelsHost_32s(nullptr, 5, 0, 255);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效等级数
-  status = nppiEvenLevelsHost_32s(pLevels.data(), 1, 0, 255);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效边界
-  status = nppiEvenLevelsHost_32s(pLevels.data(), 5, 255, 0);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // 测试直方图缓冲区大小获取
 TEST_F(NPPIHistogramTest, HistogramEvenGetBufferSize_8u_C1R) {
   int nLevels = 256;
-#if CUDA_SDK_AT_LEAST(12, 8)
-  size_t bufferSize = 0;
+
+  SIZE_TYPE bufferSize = 0;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
-#else
-  int bufferSize = 0;
-  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
-#endif
+
   EXPECT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
@@ -86,13 +65,9 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Basic) {
   std::vector<Npp32s> pHist(nLevels - 1);
 
   // 获取缓冲区大小
-#if CUDA_SDK_AT_LEAST(12, 8)
-  size_t bufferSize = 0;
+  SIZE_TYPE bufferSize = 0;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
-#else
-  int bufferSize = 0;
-  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
-#endif
+
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 分配GPU内存
@@ -181,13 +156,9 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Enhanced) {
 
   // 获取缓冲区大小并分配
   NppiSize roi = {width, height};
-#if CUDA_SDK_AT_LEAST(12, 8)
-  size_t bufferSize;
+  SIZE_TYPE bufferSize = 0;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
-#else
-  int bufferSize;
-  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(roi, nLevels, &bufferSize);
-#endif
+
   ASSERT_EQ(status, NPP_SUCCESS);
 
   Npp8u *d_buffer = nppsMalloc_8u(bufferSize);

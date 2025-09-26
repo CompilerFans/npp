@@ -3,7 +3,6 @@
 #include "npp.h"
 #include <algorithm>
 #include <atomic>
-#include <chrono>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <mutex>

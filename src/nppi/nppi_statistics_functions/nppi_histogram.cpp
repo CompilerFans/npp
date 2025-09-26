@@ -36,29 +36,20 @@ static NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(NppiSize oSi
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
 }
 
-// Note: nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl is implemented in nppi_histogram.cu
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
+  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
 
-// CUDA SDK 12.8+ API (uses size_t)
-#if CUDA_SDK_AT_LEAST(12, 8)
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
-                                                    NppStreamContext nppStreamCtx) {
-  return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
-}
-#endif
-
 // CUDA SDK 12.2 and earlier API (uses int) - always provide these for backward compatibility
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_int(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
                                                         NppStreamContext nppStreamCtx) {
-  if (!hpBufferSize) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
   size_t temp_size;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_internal(oSizeROI, nLevels, &temp_size, nppStreamCtx);
 
@@ -79,8 +70,6 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_int(NppiSize oSizeROI, int nLeve
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_int(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
-// For CUDA SDK 12.2 and earlier, also provide the standard API names
-#if !CUDA_SDK_AT_LEAST(12, 8)
 NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
   return nppiHistogramEvenGetBufferSize_8u_C1R_int(oSizeROI, nLevels, hpBufferSize);
 }
@@ -89,7 +78,6 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
                                                     NppStreamContext nppStreamCtx) {
   return nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_int(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
-#endif
 
 NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,

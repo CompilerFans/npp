@@ -1,12 +1,19 @@
 #pragma once
 
 #include "npp.h"
+#include "npp_version_compat.h"
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <random>
 #include <type_traits>
 #include <vector>
+
+#if CUDA_SDK_AT_LEAST(12, 8)
+#define SIZE_TYPE size_t
+#else
+#define SIZE_TYPE int
+#endif
 
 namespace npp_functional_test {
 

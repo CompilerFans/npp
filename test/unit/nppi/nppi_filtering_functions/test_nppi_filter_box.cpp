@@ -3,7 +3,6 @@
 
 #include "npp.h"
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -1403,34 +1402,6 @@ TEST_F(FilterBoxAlgorithmTest, EdgeCaseSizeVerification) {
   BoundaryAnalysisUtils::printComparisonMatrix(actual, predicted, width, height);
   EXPECT_TRUE(AlgorithmVerification::verifyPredictionRegional(predicted, actual, width, height, maskW, maskH, anchorX,
                                                               anchorY));
-}
-
-// Performance test
-TEST_F(FilterBoxAlgorithmTest, PerformanceTest) {
-  std::cout << "\n=== Performance Test ===\n";
-
-  const int width = 1920, height = 1080;
-  const int maskW = 5, maskH = 5;
-  const int anchorX = 2, anchorY = 2;
-
-  auto input = TestPatternGenerator<uint8_t>::createCheckerboard(width, height, 0, 255);
-
-  auto start = std::chrono::high_resolution_clock::now();
-  const int iterations = 10;
-
-  for (int i = 0; i < iterations; i++) {
-    auto output = runNPPFilterBox8u(input, width, height, maskW, maskH, anchorX, anchorY);
-    (void)output; // Suppress unused variable warning
-  }
-
-  auto end = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-  double avgTimeMs = duration.count() / 1000.0 / iterations;
-  double pixelsPerSec = (width * height * iterations) / (duration.count() / 1e6);
-
-  std::cout << std::fixed << std::setprecision(3) << "Performance [1920x1080 5x5]: " << avgTimeMs << " ms/iter, "
-            << pixelsPerSec / 1e6 << " Mpixels/sec" << std::endl;
 }
 
 // ==============================================================================

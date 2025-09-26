@@ -1,7 +1,6 @@
-#include "../../framework/npp_test_base.h"
 #include "npp.h"
+#include "npp_test_base.h"
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -396,45 +395,4 @@ TEST_F(ConvertTest, Convert_ErrorHandling) {
   // Test invalid size
   NppiSize invalidROI = {-1, -1};
   EXPECT_EQ(nppiConvert_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidROI), NPP_SIZE_ERROR);
-}
-
-// Performance comparison test
-TEST_F(ConvertTest, Convert_Performance) {
-  const int width = 1920, height = 1080;
-  const int iterations = 10;
-
-  using Helper = ConvertTestHelper<Npp8u, Npp32f>;
-  auto testData = Helper::generateTestData(width, height, 3, Helper::DataPattern::RANDOM);
-
-  GPUMemoryManager<Npp8u> srcGPU(width, height, 3);
-  GPUMemoryManager<Npp32f> dstGPU(width, height, 3);
-
-  ASSERT_TRUE(srcGPU.copyFromHost(testData.src, width, height, 3));
-
-  NppiSize roi = {width, height};
-
-  // Time regular version
-  auto start = std::chrono::high_resolution_clock::now();
-  for (int i = 0; i < iterations; i++) {
-    nppiConvert_8u32f_C3R(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi);
-  }
-  cudaDeviceSynchronize();
-  auto regularTime =
-      std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
-
-  // Time context version
-  NppStreamContext ctx;
-  nppGetStreamContext(&ctx);
-  start = std::chrono::high_resolution_clock::now();
-  for (int i = 0; i < iterations; i++) {
-    nppiConvert_8u32f_C3R_Ctx(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi, ctx);
-  }
-  cudaStreamSynchronize(ctx.hStream);
-  auto contextTime =
-      std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count();
-
-  std::cout << "\nConversion Performance Results (" << iterations << " iterations, " << width << "x" << height
-            << "):\n";
-  std::cout << "  Regular version: " << regularTime << " μs (avg: " << regularTime / iterations << " μs)\n";
-  std::cout << "  Context version: " << contextTime << " μs (avg: " << contextTime / iterations << " μs)\n";
 }

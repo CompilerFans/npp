@@ -1,8 +1,6 @@
-#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
+#include "npp_test_base.h"
 
-// only enable at CUDA 12.8
-#if CUDA_SDK_AT_LEAST(12, 8)
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <map>
@@ -23,25 +21,11 @@ protected:
 
 // 测试缓冲区大小获取
 TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_Basic) {
-  size_t bufferSize = 0;
+  SIZE_TYPE bufferSize = 0;
 
   NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-}
-
-// 测试缓冲区大小获取错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPIWatershedTest, DISABLED_SegmentWatershedGetBufferSize_ErrorHandling) {
-  // 测试空指针
-  NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, nullptr);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidROI = {0, 0};
-  size_t bufferSize = 0;
-  status = nppiSegmentWatershedGetBufferSize_8u_C1R(invalidROI, &bufferSize);
-  EXPECT_NE(status, NPP_SUCCESS);
 }
 
 // 测试Watershed分割基础功能
@@ -65,7 +49,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   markerData[(height - 2) * width + (width - 2)] = 2; // 右下角种子点
 
   // 获取缓冲区大小
-  size_t bufferSize = 0;
+  SIZE_TYPE bufferSize = 0;
   NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -117,29 +101,3 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   cudaFree(d_markers);
   cudaFree(d_buffer);
 }
-
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPIWatershedTest, DISABLED_SegmentWatershed_ErrorHandling) {
-  // 测试空指针
-  NppStatus status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32, nppiNormL2,
-                                                  NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, nullptr);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidROI = {0, 0};
-  status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32, nppiNormL2, NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY,
-                                        invalidROI, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效步长
-  status = nppiSegmentWatershed_8u_C1IR(nullptr, -1, nullptr, -1, nppiNormL2, NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY,
-                                        oSizeROI, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效范数
-  status = nppiSegmentWatershed_8u_C1IR(nullptr, 32, nullptr, 32, static_cast<NppiNorm>(99),
-                                        NPP_WATERSHED_SEGMENT_BOUNDARIES_ONLY, oSizeROI, nullptr); // 无效的norm值
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-#endif // CUDA_SDK_AT_LEAST(12, 8)

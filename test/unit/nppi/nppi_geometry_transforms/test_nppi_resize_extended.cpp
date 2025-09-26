@@ -1,4 +1,4 @@
-#include "../../framework/npp_test_base.h"
+#include "npp_test_base.h"
 #include <algorithm>
 #include <cmath>
 

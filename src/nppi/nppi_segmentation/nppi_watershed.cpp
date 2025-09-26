@@ -25,6 +25,13 @@ NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, size_t *hp
   return nppiSegmentWatershedGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, hpDeviceMemoryBufferSize);
 }
 
+NppStatus nppiSegmentWatershedGetBufferSize_8u_C1R(NppiSize oSizeROI, int *hpDeviceMemoryBufferSize) {
+  size_t size = 0;
+  auto ret = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &size);
+  *hpDeviceMemoryBufferSize = size;
+  return ret;
+}
+
 // Watershed image segmentation
 NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32u *pMarkerLabels,
                                        Npp32s nMarkerLabelsStep, NppiNorm eNorm,

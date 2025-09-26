@@ -1,15 +1,7 @@
-#include "../../../../src/npp_version_compat.h"
 #include "npp.h"
-
-// only enable at CUDA 12.8
-#if CUDA_SDK_AT_LEAST(12, 8)
-#define SIZE_TYPE size_t
-#else
-#define SIZE_TYPE int
-#endif
+#include "npp_test_base.h"
 
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -1290,97 +1282,5 @@ TEST_F(NppiMeanStdDevComprehensiveTest, EdgeCases_AllAPIs) {
       EXPECT_LT(bufferSize8u, size_t(1024 * 1024 * 1024));  // Less than 1GB
       EXPECT_LT(bufferSize32f, size_t(1024 * 1024 * 1024)); // Less than 1GB
     }
-  }
-}
-
-// Performance comparison between regular and context versions
-TEST_F(NppiMeanStdDevComprehensiveTest, PerformanceComparison_RegularVsContext) {
-  const int width = 512;
-  const int height = 512;
-  const NppiSize oSizeROI = {width, height};
-
-  // Generate test data
-  auto testData8u = generateGaussianLikeData<Npp8u>(width, height, 128, 64);
-  auto testData32f = generateGaussianLikeData<Npp32f>(width, height, 0.0f, 1.0f);
-
-  const int numIterations = 10;
-
-  std::cout << "\nPerformance Comparison Results:" << std::endl;
-
-  // 8u performance test
-  {
-    // Regular version timing
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < numIterations; i++) {
-      int srcStep;
-      Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
-      cudaMemcpy2D(d_src, srcStep, testData8u.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
-                   cudaMemcpyHostToDevice);
-
-      SIZE_TYPE bufferSize = 0;
-      nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &bufferSize);
-
-      Npp8u *pDeviceBuffer = nullptr;
-      cudaMalloc(&pDeviceBuffer, bufferSize);
-      Npp64f *pMean = nullptr, *pStdDev = nullptr;
-      cudaMalloc(&pMean, sizeof(Npp64f));
-      cudaMalloc(&pStdDev, sizeof(Npp64f));
-
-      nppiMean_StdDev_8u_C1R(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev);
-      cudaDeviceSynchronize();
-
-      nppiFree(d_src);
-      cudaFree(pDeviceBuffer);
-      cudaFree(pMean);
-      cudaFree(pStdDev);
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    auto regularTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    // Context version timing
-    start = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < numIterations; i++) {
-      int srcStep;
-      Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
-
-      cudaStream_t stream;
-      cudaStreamCreate(&stream);
-      NppStreamContext nppStreamCtx;
-      nppGetStreamContext(&nppStreamCtx);
-      nppStreamCtx.hStream = stream;
-
-      cudaMemcpy2DAsync(d_src, srcStep, testData8u.data(), width * sizeof(Npp8u), width * sizeof(Npp8u), height,
-                        cudaMemcpyHostToDevice, stream);
-
-      SIZE_TYPE bufferSize = 0;
-      nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &bufferSize, nppStreamCtx);
-
-      Npp8u *pDeviceBuffer = nullptr;
-      cudaMalloc(&pDeviceBuffer, bufferSize);
-      Npp64f *pMean = nullptr, *pStdDev = nullptr;
-      cudaMalloc(&pMean, sizeof(Npp64f));
-      cudaMalloc(&pStdDev, sizeof(Npp64f));
-
-      nppiMean_StdDev_8u_C1R_Ctx(d_src, srcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
-      cudaStreamSynchronize(stream);
-
-      cudaStreamDestroy(stream);
-      nppiFree(d_src);
-      cudaFree(pDeviceBuffer);
-      cudaFree(pMean);
-      cudaFree(pStdDev);
-    }
-
-    end = std::chrono::high_resolution_clock::now();
-    auto contextTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    std::cout << "8u API (" << numIterations << " iterations, " << width << "x" << height << "):" << std::endl;
-    std::cout << "  Regular version: " << regularTime << " μs (avg: " << regularTime / numIterations << " μs)"
-              << std::endl;
-    std::cout << "  Context version: " << contextTime << " μs (avg: " << contextTime / numIterations << " μs)"
-              << std::endl;
   }
 }
