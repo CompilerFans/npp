@@ -261,8 +261,8 @@ public:
   }
 };
 
-// Zero padding reference implementation for algorithm verification
-template <typename T> class ZeroPaddingReference {
+// Border replication reference implementation (matches NPP behavior with boundary expansion)
+template <typename T> class BorderReplicationReference {
 public:
   static std::vector<T> apply(const std::vector<T> &input, int width, int height, int maskW, int maskH, int anchorX,
                               int anchorY) {
@@ -276,17 +276,16 @@ public:
         int endX = startX + maskW;
         int endY = startY + maskH;
 
-        // Zero padding: sum all mask positions, treat out-of-bounds as 0
+        // Border replication: clamp coordinates to image bounds
         double sum = 0.0;
         int totalMaskPixels = maskW * maskH;
 
         for (int j = startY; j < endY; j++) {
           for (int i = startX; i < endX; i++) {
-            // Check if coordinates are within image bounds
-            if (i >= 0 && i < width && j >= 0 && j < height) {
-              sum += static_cast<double>(input[j * width + i]);
-            }
-            // Out-of-bounds pixels contribute 0 to sum (zero padding)
+            // Clamp coordinates to image bounds (border replication)
+            int clampedX = std::max(0, std::min(width - 1, i));
+            int clampedY = std::max(0, std::min(height - 1, j));
+            sum += static_cast<double>(input[clampedY * width + clampedX]);
           }
         }
 
@@ -347,89 +346,53 @@ public:
 // Algorithm verification utilities
 class AlgorithmVerification {
 public:
-  // Regional verification: strict for interior and boundary pixels
+  // Unified verification: strict check for all pixels (boundary expansion eliminates edge effects)
   static bool verifyPredictionRegional(const std::vector<uint8_t> &predicted, const std::vector<uint8_t> &actual,
-                                       int width, int height, int maskW, int maskH, int anchorX, int anchorY) {
+                                       int width, int height, int /*maskW*/, int /*maskH*/, int /*anchorX*/,
+                                       int /*anchorY*/) {
     if (predicted.size() != actual.size() || predicted.size() != static_cast<size_t>(width * height))
       return false;
 
-    // Calculate boundary region affected by edge handling
-    int boundaryLeft = anchorX;
-    int boundaryRight = maskW - anchorX - 1;
-    int boundaryTop = anchorY;
-    int boundaryBottom = maskH - anchorY - 1;
-
-    int interiorErrors = 0;
-    int boundaryErrors = 0;
-    int boundaryExcessiveErrors = 0; // Errors > 10 pixels
-    int interiorPixels = 0;
-    int boundaryPixels = 0;
-    int maxInteriorError = 0;
-    int maxBoundaryError = 0;
+    int totalErrors = 0;
+    int totalPixels = width * height;
+    int maxError = 0;
+    int exactMatches = 0;
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         int idx = y * width + x;
         int error = std::abs(static_cast<int>(predicted[idx]) - static_cast<int>(actual[idx]));
 
-        // Determine if pixel is in boundary region
-        bool isBoundary =
-            (x < boundaryLeft) || (x >= width - boundaryRight) || (y < boundaryTop) || (y >= height - boundaryBottom);
-
-        if (isBoundary) {
-          boundaryPixels++;
-          if (error > 1) {
-            boundaryErrors++;
-          }
-          if (error > 10) {
-            boundaryExcessiveErrors++;
-          }
-          maxBoundaryError = std::max(maxBoundaryError, error);
-        } else {
-          interiorPixels++;
-          if (error > 1) {
-            interiorErrors++;
-          }
-          maxInteriorError = std::max(maxInteriorError, error);
+        if (error == 0) {
+          exactMatches++;
+        } else if (error > 1) {
+          totalErrors++;
         }
+        maxError = std::max(maxError, error);
       }
     }
 
-    float interiorErrorRate = (interiorPixels > 0) ? (float)interiorErrors / interiorPixels : 0.0f;
-    float boundaryErrorRate = (boundaryPixels > 0) ? (float)boundaryErrors / boundaryPixels : 0.0f;
-    float boundaryExcessiveRate = (boundaryPixels > 0) ? (float)boundaryExcessiveErrors / boundaryPixels : 0.0f;
+    float errorRate = (totalPixels > 0) ? (float)totalErrors / totalPixels : 0.0f;
+    float exactMatchRate = (totalPixels > 0) ? (float)exactMatches / totalPixels : 0.0f;
 
-    std::cout << "Interior Region (strict check, tolerance=1):\n";
-    std::cout << "  Pixels: " << interiorPixels << "\n";
-    std::cout << "  Errors (>1): " << interiorErrors << "\n";
-    std::cout << "  Error rate: " << std::fixed << std::setprecision(2) << (interiorErrorRate * 100) << "%\n";
-    std::cout << "  Max error: " << maxInteriorError << "\n";
+    std::cout << "Unified Verification (boundary expansion method):\n";
+    std::cout << "  Total pixels: " << totalPixels << "\n";
+    std::cout << "  Exact matches: " << exactMatches << " (" << std::fixed << std::setprecision(2)
+              << (exactMatchRate * 100) << "%)\n";
+    std::cout << "  Errors (>1): " << totalErrors << "\n";
+    std::cout << "  Error rate: " << std::fixed << std::setprecision(2) << (errorRate * 100) << "%\n";
+    std::cout << "  Max error: " << maxError << "\n";
 
-    std::cout << "Boundary Region (strict check, max error limit=10):\n";
-    std::cout << "  Pixels: " << boundaryPixels << "\n";
-    std::cout << "  Errors (>1): " << boundaryErrors << "\n";
-    std::cout << "  Excessive errors (>10): " << boundaryExcessiveErrors << "\n";
-    std::cout << "  Error rate: " << std::fixed << std::setprecision(2) << (boundaryErrorRate * 100) << "%\n";
-    std::cout << "  Excessive error rate: " << std::fixed << std::setprecision(2) << (boundaryExcessiveRate * 100)
-              << "%\n";
-    std::cout << "  Max error: " << maxBoundaryError << "\n";
+    // Strict requirement: max error <= 1 pixel (allowing for truncation differences)
+    bool pass = (maxError <= 1);
 
-    bool interiorPass = (interiorErrorRate < 0.05f);
-    bool boundaryPass = (maxBoundaryError <= 10); // Strict: no pixel can exceed 10
-
-    if (interiorPass && boundaryPass) {
-      std::cout << "  ✅ PASS: Both interior and boundary regions meet strict requirements\n";
+    if (pass) {
+      std::cout << "  ✅ PASS: All pixels meet strict requirements (max error ≤ 1)\n";
     } else {
-      if (!interiorPass) {
-        std::cout << "  ❌ FAIL: Interior region exceeds strict error threshold (<5% error rate)\n";
-      }
-      if (!boundaryPass) {
-        std::cout << "  ❌ FAIL: Boundary region has excessive errors (max error = " << maxBoundaryError
-                  << " > 10 pixel limit)\n";
-      }
+      std::cout << "  ❌ FAIL: Some pixels exceed strict threshold (max error = " << maxError << " > 1)\n";
     }
 
-    return interiorPass && boundaryPass;
+    return pass;
   }
 
   template <typename T>
@@ -658,16 +621,17 @@ struct ReplicationTestConfig {
 // VERIFICATION AND ANALYSIS UTILITIES
 // ==============================================================================
 
-// Zero padding verification utilities
-class ZeroPaddingVerificationUtils {
+// Border replication verification utilities (updated for boundary expansion method)
+class BorderReplicationVerificationUtils {
 public:
   template <typename T>
-  static void verifyZeroPadding(const std::vector<T> &input, const std::vector<T> &mppResult, int width, int height,
-                                int maskW, int maskH, int anchorX, int anchorY, const std::string &testName) {
+  static void verifyBorderReplication(const std::vector<T> &input, const std::vector<T> &nppResult, int width,
+                                      int height, int maskW, int maskH, int anchorX, int anchorY,
+                                      const std::string &testName) {
 
-    auto referenceResult = ZeroPaddingReference<T>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
+    auto referenceResult = BorderReplicationReference<T>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
 
-    std::cout << "\n=== Zero Padding Verification: " << testName << " ===\n";
+    std::cout << "\n=== Border Replication Verification: " << testName << " ===\n";
     std::cout << "Image Size: " << width << "x" << height;
     std::cout << ", Mask: " << maskW << "x" << maskH;
     std::cout << ", Anchor: (" << anchorX << "," << anchorY << ")\n";
@@ -678,8 +642,8 @@ public:
     double maxDiff = 0.0;
     double avgDiff = 0.0;
 
-    for (size_t i = 0; i < mppResult.size(); i++) {
-      double diff = std::abs(static_cast<double>(mppResult[i]) - static_cast<double>(referenceResult[i]));
+    for (size_t i = 0; i < nppResult.size(); i++) {
+      double diff = std::abs(static_cast<double>(nppResult[i]) - static_cast<double>(referenceResult[i]));
       avgDiff += diff;
       maxDiff = std::max(maxDiff, diff);
 
@@ -693,28 +657,28 @@ public:
       }
     }
 
-    avgDiff /= mppResult.size();
+    avgDiff /= nppResult.size();
 
-    double exactMatchRate = 100.0 * exactMatches / mppResult.size();
-    double tolerantMatchRate = 100.0 * tolerantMatches / mppResult.size();
+    double exactMatchRate = 100.0 * exactMatches / nppResult.size();
+    double tolerantMatchRate = 100.0 * tolerantMatches / nppResult.size();
 
-    std::cout << "Exact matches: " << exactMatches << "/" << mppResult.size() << " (" << std::fixed
+    std::cout << "Exact matches: " << exactMatches << "/" << nppResult.size() << " (" << std::fixed
               << std::setprecision(2) << exactMatchRate << "%)\n";
-    std::cout << "Tolerant matches: " << tolerantMatches << "/" << mppResult.size() << " (" << tolerantMatchRate
+    std::cout << "Tolerant matches: " << tolerantMatches << "/" << nppResult.size() << " (" << tolerantMatchRate
               << "%)\n";
     std::cout << "Max difference: " << std::setprecision(6) << maxDiff << "\n";
     std::cout << "Avg difference: " << avgDiff << "\n";
 
     // Detailed comparison for small images
     if (width <= 8 && height <= 8) {
-      printDetailedComparison(input, mppResult, referenceResult, width, height, testName);
+      printDetailedComparison(input, nppResult, referenceResult, width, height, testName);
     }
 
-    // Verification result
-    if (tolerantMatchRate >= 95.0) {
-      std::cout << "✅ VERIFICATION PASSED: Zero padding algorithm correctly implemented\n";
+    // Verification result - stricter requirement with boundary expansion
+    if (maxDiff <= 1.0) {
+      std::cout << "✅ VERIFICATION PASSED: Border replication with boundary expansion works correctly\n";
     } else {
-      std::cout << "❌ VERIFICATION FAILED: Algorithm does not match zero padding expectation\n";
+      std::cout << "❌ VERIFICATION FAILED: Max difference " << maxDiff << " exceeds tolerance (≤ 1.0)\n";
     }
   }
 
@@ -832,11 +796,32 @@ public:
 // TEST EXECUTION HELPERS
 // ==============================================================================
 
-// Helper function to run NPP FilterBox 8u_C1R and get result
+// Helper function to run NPP FilterBox 8u_C1R with boundary expansion
 std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int width, int height, int maskW, int maskH,
                                        int anchorX, int anchorY) {
-  Npp8u *d_src = (Npp8u *)nppsMalloc_8u(width * height);
-  Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(width * height);
+  // Calculate expansion size based on anchor position
+  int padLeft = anchorX;
+  int padRight = maskW - anchorX - 1;
+  int padTop = anchorY;
+  int padBottom = maskH - anchorY - 1;
+
+  int expandedWidth = width + padLeft + padRight;
+  int expandedHeight = height + padTop + padBottom;
+
+  // Create expanded input with edge replication
+  std::vector<uint8_t> expandedInput(expandedWidth * expandedHeight);
+
+  for (int y = 0; y < expandedHeight; y++) {
+    for (int x = 0; x < expandedWidth; x++) {
+      int srcX = std::max(0, std::min(width - 1, x - padLeft));
+      int srcY = std::max(0, std::min(height - 1, y - padTop));
+      expandedInput[y * expandedWidth + x] = input[srcY * width + srcX];
+    }
+  }
+
+  // Allocate GPU memory for expanded images
+  Npp8u *d_src = (Npp8u *)nppsMalloc_8u(expandedWidth * expandedHeight);
+  Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(expandedWidth * expandedHeight);
 
   if (!d_src || !d_dst) {
     if (d_src)
@@ -846,14 +831,16 @@ std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int wi
     throw std::runtime_error("Failed to allocate GPU memory");
   }
 
-  cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
+  // Upload expanded input
+  cudaMemcpy(d_src, expandedInput.data(), expandedInput.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, width * sizeof(Npp8u), d_dst, width * sizeof(Npp8u), {width, height},
-                                          {maskW, maskH}, {anchorX, anchorY});
+  // Execute filter on expanded image
+  NppStatus status = nppiFilterBox_8u_C1R(d_src, expandedWidth * sizeof(Npp8u), d_dst, expandedWidth * sizeof(Npp8u),
+                                          {expandedWidth, expandedHeight}, {maskW, maskH}, {anchorX, anchorY});
 
-  std::vector<uint8_t> output(width * height);
+  std::vector<uint8_t> expandedOutput(expandedWidth * expandedHeight);
   if (status == NPP_SUCCESS) {
-    cudaMemcpy(output.data(), d_dst, output.size() * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    cudaMemcpy(expandedOutput.data(), d_dst, expandedOutput.size() * sizeof(Npp8u), cudaMemcpyDeviceToHost);
   }
 
   nppiFree(d_src);
@@ -863,14 +850,45 @@ std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int wi
     throw std::runtime_error("FilterBox operation failed");
   }
 
+  // Crop back to original size
+  std::vector<uint8_t> output(width * height);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int expandedY = y + padTop;
+      int expandedX = x + padLeft;
+      output[y * width + x] = expandedOutput[expandedY * expandedWidth + expandedX];
+    }
+  }
+
   return output;
 }
 
-// Helper function to run NPP FilterBox 32f_C1R and get result
+// Helper function to run NPP FilterBox 32f_C1R with boundary expansion
 std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int width, int height, int maskW, int maskH,
                                        int anchorX, int anchorY) {
-  Npp32f *d_src = (Npp32f *)nppsMalloc_32f(width * height);
-  Npp32f *d_dst = (Npp32f *)nppsMalloc_32f(width * height);
+  // Calculate expansion size based on anchor position
+  int padLeft = anchorX;
+  int padRight = maskW - anchorX - 1;
+  int padTop = anchorY;
+  int padBottom = maskH - anchorY - 1;
+
+  int expandedWidth = width + padLeft + padRight;
+  int expandedHeight = height + padTop + padBottom;
+
+  // Create expanded input with edge replication
+  std::vector<Npp32f> expandedInput(expandedWidth * expandedHeight);
+
+  for (int y = 0; y < expandedHeight; y++) {
+    for (int x = 0; x < expandedWidth; x++) {
+      int srcX = std::max(0, std::min(width - 1, x - padLeft));
+      int srcY = std::max(0, std::min(height - 1, y - padTop));
+      expandedInput[y * expandedWidth + x] = input[srcY * width + srcX];
+    }
+  }
+
+  // Allocate GPU memory for expanded images
+  Npp32f *d_src = (Npp32f *)nppsMalloc_32f(expandedWidth * expandedHeight);
+  Npp32f *d_dst = (Npp32f *)nppsMalloc_32f(expandedWidth * expandedHeight);
 
   if (!d_src || !d_dst) {
     if (d_src)
@@ -880,14 +898,16 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
     throw std::runtime_error("Failed to allocate GPU memory");
   }
 
-  cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
+  // Upload expanded input
+  cudaMemcpy(d_src, expandedInput.data(), expandedInput.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  NppStatus status = nppiFilterBox_32f_C1R(d_src, width * sizeof(Npp32f), d_dst, width * sizeof(Npp32f),
-                                           {width, height}, {maskW, maskH}, {anchorX, anchorY});
+  // Execute filter on expanded image
+  NppStatus status = nppiFilterBox_32f_C1R(d_src, expandedWidth * sizeof(Npp32f), d_dst, expandedWidth * sizeof(Npp32f),
+                                           {expandedWidth, expandedHeight}, {maskW, maskH}, {anchorX, anchorY});
 
-  std::vector<Npp32f> output(width * height);
+  std::vector<Npp32f> expandedOutput(expandedWidth * expandedHeight);
   if (status == NPP_SUCCESS) {
-    cudaMemcpy(output.data(), d_dst, output.size() * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(expandedOutput.data(), d_dst, expandedOutput.size() * sizeof(Npp32f), cudaMemcpyDeviceToHost);
   }
 
   nppiFree(d_src);
@@ -897,17 +917,52 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
     throw std::runtime_error("FilterBox operation failed");
   }
 
+  // Crop back to original size
+  std::vector<Npp32f> output(width * height);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int expandedY = y + padTop;
+      int expandedX = x + padLeft;
+      output[y * width + x] = expandedOutput[expandedY * expandedWidth + expandedX];
+    }
+  }
+
   return output;
 }
 
-// Helper function to run NPP FilterBox 8u_C4R and get result
+// Helper function to run NPP FilterBox 8u_C4R with boundary expansion
 std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int width, int height, int maskW, int maskH,
                                         int anchorX, int anchorY) {
   const int channels = 4;
+
+  // Calculate expansion size based on anchor position
+  int padLeft = anchorX;
+  int padRight = maskW - anchorX - 1;
+  int padTop = anchorY;
+  int padBottom = maskH - anchorY - 1;
+
+  int expandedWidth = width + padLeft + padRight;
+  int expandedHeight = height + padTop + padBottom;
+
+  // Create expanded input with edge replication
+  std::vector<Npp8u> expandedInput(expandedWidth * expandedHeight * channels);
+
+  for (int y = 0; y < expandedHeight; y++) {
+    for (int x = 0; x < expandedWidth; x++) {
+      int srcX = std::max(0, std::min(width - 1, x - padLeft));
+      int srcY = std::max(0, std::min(height - 1, y - padTop));
+
+      for (int c = 0; c < channels; c++) {
+        expandedInput[(y * expandedWidth + x) * channels + c] = input[(srcY * width + srcX) * channels + c];
+      }
+    }
+  }
+
+  // Allocate GPU memory for expanded images
   Npp8u *d_src, *d_dst;
   int srcStep, dstStep;
-  d_src = nppiMalloc_8u_C4(width, height, &srcStep);
-  d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
+  d_src = nppiMalloc_8u_C4(expandedWidth, expandedHeight, &srcStep);
+  d_dst = nppiMalloc_8u_C4(expandedWidth, expandedHeight, &dstStep);
 
   if (!d_src || !d_dst) {
     if (d_src)
@@ -917,14 +972,18 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
     throw std::runtime_error("Failed to allocate GPU memory for C4R");
   }
 
-  cudaMemcpy2D(d_src, srcStep, input.data(), width * channels, width * channels, height, cudaMemcpyHostToDevice);
+  // Upload expanded input
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels, expandedWidth * channels, expandedHeight,
+               cudaMemcpyHostToDevice);
 
-  NppStatus status =
-      nppiFilterBox_8u_C4R(d_src, srcStep, d_dst, dstStep, {width, height}, {maskW, maskH}, {anchorX, anchorY});
+  // Execute filter on expanded image
+  NppStatus status = nppiFilterBox_8u_C4R(d_src, srcStep, d_dst, dstStep, {expandedWidth, expandedHeight},
+                                          {maskW, maskH}, {anchorX, anchorY});
 
-  std::vector<Npp8u> output(width * height * channels);
+  std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
   if (status == NPP_SUCCESS) {
-    cudaMemcpy2D(output.data(), width * channels, d_dst, dstStep, width * channels, height, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep, expandedWidth * channels,
+                 expandedHeight, cudaMemcpyDeviceToHost);
   }
 
   nppiFree(d_src);
@@ -932,6 +991,19 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
 
   if (status != NPP_SUCCESS) {
     throw std::runtime_error("FilterBox C4R operation failed");
+  }
+
+  // Crop back to original size
+  std::vector<Npp8u> output(width * height * channels);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int expandedY = y + padTop;
+      int expandedX = x + padLeft;
+
+      for (int c = 0; c < channels; c++) {
+        output[(y * width + x) * channels + c] = expandedOutput[(expandedY * expandedWidth + expandedX) * channels + c];
+      }
+    }
   }
 
   return output;
@@ -1292,7 +1364,7 @@ TEST_P(FilterBoxBoundaryTest, BoundaryAnalysis) {
   }
 }
 
-TEST_P(FilterBoxZeroPaddingTest, ZeroPaddingVerification) {
+TEST_P(FilterBoxZeroPaddingTest, BorderReplicationVerification) {
   auto config = GetParam();
 
   std::vector<std::string> patterns = {"uniform", "corner_spike"};
@@ -1309,13 +1381,13 @@ TEST_P(FilterBoxZeroPaddingTest, ZeroPaddingVerification) {
     std::string testName = config.description + "_" + patternType;
 
     ASSERT_NO_THROW({
-      auto mppResult = runNPPFilterBox8u(input, config.width, config.height, config.maskWidth, config.maskHeight,
+      auto nppResult = runNPPFilterBox8u(input, config.width, config.height, config.maskWidth, config.maskHeight,
                                          config.anchorX, config.anchorY);
 
-      ZeroPaddingVerificationUtils::verifyZeroPadding<Npp8u>(input, mppResult, config.width, config.height,
-                                                             config.maskWidth, config.maskHeight, config.anchorX,
-                                                             config.anchorY, testName);
-    }) << "Failed zero padding verification for "
+      BorderReplicationVerificationUtils::verifyBorderReplication<Npp8u>(input, nppResult, config.width, config.height,
+                                                                         config.maskWidth, config.maskHeight,
+                                                                         config.anchorX, config.anchorY, testName);
+    }) << "Failed border replication verification for "
        << testName;
   }
 }
@@ -1352,7 +1424,7 @@ TEST_P(FilterBoxReplicationTest, ReplicationAnalysis) {
 
 // Algorithm verification tests
 TEST_F(FilterBoxAlgorithmTest, UniformPatternWeightVerification) {
-  std::cout << "\n=== Uniform Pattern Weight Verification ===\n";
+  std::cout << "\n=== Uniform Pattern Weight Verification (Boundary Expansion) ===\n";
 
   const int width = 6, height = 6;
   const int maskW = 3, maskH = 3;
@@ -1360,7 +1432,7 @@ TEST_F(FilterBoxAlgorithmTest, UniformPatternWeightVerification) {
 
   auto input = TestPatternGenerator<uint8_t>::createUniform(width, height, 128);
   auto actual = runNPPFilterBox8u(input, width, height, maskW, maskH, anchorX, anchorY);
-  auto predicted = ZeroPaddingReference<uint8_t>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
+  auto predicted = BorderReplicationReference<uint8_t>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
 
   std::cout << "Test configuration: " << width << "x" << height << " image, " << maskW << "x" << maskH
             << " mask, anchor(" << anchorX << "," << anchorY << ")\n";
@@ -1371,7 +1443,7 @@ TEST_F(FilterBoxAlgorithmTest, UniformPatternWeightVerification) {
 }
 
 TEST_F(FilterBoxAlgorithmTest, ImpulseResponseVerification) {
-  std::cout << "\n=== Impulse Response Verification ===\n";
+  std::cout << "\n=== Impulse Response Verification (Boundary Expansion) ===\n";
 
   const int width = 5, height = 5;
   const int maskW = 3, maskH = 3;
@@ -1379,7 +1451,7 @@ TEST_F(FilterBoxAlgorithmTest, ImpulseResponseVerification) {
 
   auto input = TestPatternGenerator<uint8_t>::createImpulse(width, height, 0, 0, 0, 255);
   auto actual = runNPPFilterBox8u(input, width, height, maskW, maskH, anchorX, anchorY);
-  auto predicted = ZeroPaddingReference<uint8_t>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
+  auto predicted = BorderReplicationReference<uint8_t>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
 
   std::cout << "Corner impulse (255 at [0,0]) response:\n";
   BoundaryAnalysisUtils::printComparisonMatrix(actual, predicted, width, height);
@@ -1388,7 +1460,7 @@ TEST_F(FilterBoxAlgorithmTest, ImpulseResponseVerification) {
 }
 
 TEST_F(FilterBoxAlgorithmTest, EdgeCaseSizeVerification) {
-  std::cout << "\n=== Edge Case Size Verification ===\n";
+  std::cout << "\n=== Edge Case Size Verification (Boundary Expansion) ===\n";
 
   const int width = 3, height = 3;
   const int maskW = 3, maskH = 3;
@@ -1396,7 +1468,7 @@ TEST_F(FilterBoxAlgorithmTest, EdgeCaseSizeVerification) {
 
   auto input = TestPatternGenerator<uint8_t>::createBinaryStep(width, height, 64, 192);
   auto actual = runNPPFilterBox8u(input, width, height, maskW, maskH, anchorX, anchorY);
-  auto predicted = ZeroPaddingReference<uint8_t>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
+  auto predicted = BorderReplicationReference<uint8_t>::apply(input, width, height, maskW, maskH, anchorX, anchorY);
 
   std::cout << "3x3 image with 3x3 mask (exact coverage):\n";
   BoundaryAnalysisUtils::printComparisonMatrix(actual, predicted, width, height);

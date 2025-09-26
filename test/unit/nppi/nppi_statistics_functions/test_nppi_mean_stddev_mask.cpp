@@ -22,25 +22,24 @@ protected:
 
   // Calculate reference mean and standard deviation with mask
   template <typename T>
-  void calculateReferenceMeanStdDevWithMask(const std::vector<T> &data, 
-                                           const std::vector<Npp8u> &mask,
-                                           double &mean, double &stddev) {
+  void calculateReferenceMeanStdDevWithMask(const std::vector<T> &data, const std::vector<Npp8u> &mask, double &mean,
+                                            double &stddev) {
     double sum = 0.0;
     int validCount = 0;
-    
+
     for (size_t i = 0; i < data.size(); ++i) {
       if (mask[i] > 0) {
         sum += static_cast<double>(data[i]);
         validCount++;
       }
     }
-    
+
     if (validCount == 0) {
       mean = 0.0;
       stddev = 0.0;
       return;
     }
-    
+
     mean = sum / validCount;
 
     double sumSquaredDiff = 0.0;
@@ -54,9 +53,7 @@ protected:
   }
 
   // Generate various mask patterns
-  std::vector<Npp8u> generateFullMask(int width, int height) {
-    return std::vector<Npp8u>(width * height, 255);
-  }
+  std::vector<Npp8u> generateFullMask(int width, int height) { return std::vector<Npp8u>(width * height, 255); }
 
   std::vector<Npp8u> generateCheckerboardMask(int width, int height, int blockSize = 1) {
     std::vector<Npp8u> mask(width * height);
@@ -74,7 +71,7 @@ protected:
     int centerX = width / 2;
     int centerY = height / 2;
     int radius = std::min(width, height) / 3;
-    
+
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         int dx = x - centerX;
@@ -155,7 +152,7 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_FullMask) {
   Npp8u *d_src = nullptr;
   Npp8u *d_mask = nullptr;
   int srcStep, maskStep;
-  
+
   d_src = nppiMalloc_8u_C1(width, height, &srcStep);
   d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
   ASSERT_NE(d_src, nullptr);
@@ -227,7 +224,7 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_CheckerboardMask) {
   Npp8u *d_src = nullptr;
   Npp8u *d_mask = nullptr;
   int srcStep, maskStep;
-  
+
   d_src = nppiMalloc_8u_C1(width, height, &srcStep);
   d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
   ASSERT_NE(d_src, nullptr);
@@ -264,7 +261,7 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_CheckerboardMask) {
   cudaMemcpy(&hostMean, pMean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
   cudaMemcpy(&hostStdDev, pStdDev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
 
-  EXPECT_NEAR(hostMean, refMean, 1.0);  // Allow some tolerance for complex patterns
+  EXPECT_NEAR(hostMean, refMean, 1.0); // Allow some tolerance for complex patterns
   EXPECT_NEAR(hostStdDev, refStdDev, 1.0);
 
   // Cleanup
@@ -299,14 +296,15 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_32f_C1MR_CircularMask) {
   Npp32f *d_src = nullptr;
   Npp8u *d_mask = nullptr;
   int srcStep, maskStep;
-  
+
   d_src = nppiMalloc_32f_C1(width, height, &srcStep);
   d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_mask, nullptr);
 
   // Upload data
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
   cudaMemcpy2D(d_mask, maskStep, hostMask.data(), width, width, height, cudaMemcpyHostToDevice);
 
   // Get buffer size and allocate buffer
@@ -371,7 +369,7 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_Ctx) {
   Npp8u *d_src = nullptr;
   Npp8u *d_mask = nullptr;
   int srcStep, maskStep;
-  
+
   d_src = nppiMalloc_8u_C1(width, height, &srcStep);
   d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
   ASSERT_NE(d_src, nullptr);
@@ -400,7 +398,8 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_Ctx) {
   ASSERT_NE(pStdDev, nullptr);
 
   // Calculate mean and standard deviation with stream context
-  status = nppiMean_StdDev_8u_C1MR_Ctx(d_src, srcStep, d_mask, maskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
+  status = nppiMean_StdDev_8u_C1MR_Ctx(d_src, srcStep, d_mask, maskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev,
+                                       nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream and get results
@@ -432,7 +431,7 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_32f_C1MR_Ctx) {
   for (int i = 0; i < width * height; i++) {
     hostSrc[i] = static_cast<float>(i % 100) / 10.0f;
   }
-  
+
   std::vector<Npp8u> hostMask = generateCircularMask(width, height);
 
   // Calculate reference values
@@ -450,14 +449,15 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_32f_C1MR_Ctx) {
   Npp32f *d_src = nullptr;
   Npp8u *d_mask = nullptr;
   int srcStep, maskStep;
-  
+
   d_src = nppiMalloc_32f_C1(width, height, &srcStep);
   d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_mask, nullptr);
 
   // Upload data asynchronously
-  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height, cudaMemcpyHostToDevice, stream);
+  cudaMemcpy2DAsync(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+                    cudaMemcpyHostToDevice, stream);
   cudaMemcpy2DAsync(d_mask, maskStep, hostMask.data(), width, width, height, cudaMemcpyHostToDevice, stream);
 
   // Get buffer size and allocate buffer
@@ -479,7 +479,8 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_32f_C1MR_Ctx) {
   ASSERT_NE(pStdDev, nullptr);
 
   // Calculate mean and standard deviation with stream context
-  status = nppiMean_StdDev_32f_C1MR_Ctx(d_src, srcStep, d_mask, maskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx);
+  status = nppiMean_StdDev_32f_C1MR_Ctx(d_src, srcStep, d_mask, maskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev,
+                                        nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream and get results
@@ -508,13 +509,13 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_EmptyMask) {
 
   // Create test data and empty mask
   std::vector<Npp8u> hostSrc(width * height, 100);
-  std::vector<Npp8u> hostMask(width * height, 0);  // All mask pixels are zero
+  std::vector<Npp8u> hostMask(width * height, 0); // All mask pixels are zero
 
   // Allocate GPU memory
   Npp8u *d_src = nullptr;
   Npp8u *d_mask = nullptr;
   int srcStep, maskStep;
-  
+
   d_src = nppiMalloc_8u_C1(width, height, &srcStep);
   d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
   ASSERT_NE(d_src, nullptr);
@@ -544,7 +545,7 @@ TEST_F(NppiMeanStdDevMaskTest, Mean_StdDev_8u_C1MR_EmptyMask) {
 
   // Calculate mean and standard deviation - should handle empty mask gracefully
   status = nppiMean_StdDev_8u_C1MR(d_src, srcStep, d_mask, maskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev);
-  
+
   // NPP behavior with empty mask varies - some implementations return error, others return 0
   // We'll accept both behaviors
   if (status == NPP_SUCCESS) {

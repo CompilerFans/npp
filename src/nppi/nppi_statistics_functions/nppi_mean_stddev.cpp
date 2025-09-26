@@ -13,10 +13,10 @@ cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp
 
 // Masked versions
 cudaError_t nppiMean_StdDev_8u_C1MR_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
-                                           NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, 
+                                           NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev,
                                            cudaStream_t stream);
 cudaError_t nppiMean_StdDev_32f_C1MR_kernel(const Npp32f *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
-                                            NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, 
+                                            NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev,
                                             cudaStream_t stream);
 }
 
@@ -272,14 +272,14 @@ NppStatus nppiMean_StdDev_8u_C1MR_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp
   }
 
   // Call GPU kernel
-  cudaError_t cudaStatus = nppiMean_StdDev_8u_C1MR_kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, 
-                                                          pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiMean_StdDev_8u_C1MR_kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer,
+                                                          pMean, pStdDev, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiMean_StdDev_8u_C1MR(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
-                                  NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
+NppStatus nppiMean_StdDev_8u_C1MR(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
+                                  Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiMean_StdDev_8u_C1MR_Ctx(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
@@ -301,8 +301,8 @@ NppStatus nppiMean_StdDev_32f_C1MR_Ctx(const Npp32f *pSrc, int nSrcStep, const N
   }
 
   // Call GPU kernel
-  cudaError_t cudaStatus = nppiMean_StdDev_32f_C1MR_kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, 
-                                                           pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiMean_StdDev_32f_C1MR_kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer,
+                                                           pMean, pStdDev, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }

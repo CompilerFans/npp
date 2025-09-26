@@ -1,18 +1,17 @@
 #!/bin/bash
 
-echo "MPP完整测试..."
+echo "MPP测试..."
 
-# 创建MPP输出目录（如果不存在）
 mkdir -p mpp_results
 
 # 检查是否有构建输出
 if [ ! -d "build" ]; then
-    echo "❌ 未找到build目录，请先运行 ./build.sh"
+    echo " 未找到build目录，请先运行 ./build.sh"
     exit 1
 fi
 
 echo ""
-echo "=== 运行MPP样本程序 ==="
+echo "=== 运行MPP程序 ==="
 
 cd build/bin
 

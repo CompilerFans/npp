@@ -1,11 +1,9 @@
 #!/bin/bash
 
-set -e
+echo "开始构建MPP和样本程序..."
 
-echo "开始构建OpenNPP和样本程序..."
-
-# 首先构建OpenNPP库（不编译测试）
-echo "1. 构建OpenNPP库..."
+# 首先构建MPP库（不编译测试）
+echo "1. 构建MPP库..."
 cd ../../
 mkdir -p build
 cd build

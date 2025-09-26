@@ -66,7 +66,7 @@ function(npp_create_test_target target_name sources library_target)
         target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
     else()
-        # 链接OpenNPP库
+        # 链接MPP库
         target_link_libraries(${target_name}
             PRIVATE
             ${library_target}
@@ -92,7 +92,7 @@ function(npp_create_test_target target_name sources library_target)
     if(NOT USE_NVIDIA_NPP)
         target_include_directories(${target_name} 
             PRIVATE
-            ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于OpenNPP
+            ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于MPP
         )
     endif()
     
