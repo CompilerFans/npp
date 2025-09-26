@@ -1,58 +1,67 @@
-#include "nppdefs.h"
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+#include "nppi_arithmetic_common.h"
 
-// GPU kernel: bitwise OR of two images
-__global__ void nppiOr_8u_C1R_kernel_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                          Npp8u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+using namespace nppi::arithmetic;
 
-  if (x < width && y < height) {
-    const Npp8u *pSrc1Row = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp8u *pSrc2Row = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
+// Template instantiations for Or operation
+IMPLEMENT_BINARY_OP_IMPL(Or, OrOp, 8u, 1, Sfs)
+IMPLEMENT_BINARY_OP_IMPL(Or, OrOp, 8u, 3, Sfs)
 
-    pDstRow[x] = pSrc1Row[x] | pSrc2Row[x];
-  }
+// Public API functions using unified framework
+IMPLEMENT_BINARY_OP_API(Or, 8u, 1, Sfs, false)
+IMPLEMENT_BINARY_OP_API(Or, 8u, 3, Sfs, false)
+
+// Non-context versions
+NppStatus nppiOr_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiOr_8u_C1RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                oSizeROI, 0, nppStreamCtx);
 }
 
-// GPU kernel: bitwise OR of image with constant
-__global__ void nppiOrC_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst,
-                                           int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-    Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-
-    pDstRow[x] = pSrcRow[x] | nConstant;
-  }
+NppStatus nppiOr_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiOr_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                oSizeROI, 0, nppStreamCtx);
 }
 
-extern "C" {
-// Bitwise OR of two images
-cudaError_t nppiOr_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                 int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiOr_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
-                                                                oSizeROI.width, oSizeROI.height);
-
-  return cudaGetLastError();
+NppStatus nppiOr_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                            Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiOr_8u_C1RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                oSizeROI, 0, nppStreamCtx);
 }
 
-// Bitwise OR of image with constant
-cudaError_t nppiOrC_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u nConstant, Npp8u *pDst, int nDstStep,
-                                  NppiSize oSizeROI, cudaStream_t stream) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiOrC_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, nConstant, pDst, nDstStep,
-                                                                 oSizeROI.width, oSizeROI.height);
-
-  return cudaGetLastError();
+NppStatus nppiOr_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                            Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiOr_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                oSizeROI, 0, nppStreamCtx);
 }
+
+// In-place versions  
+NppStatus nppiOr_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiOr_8u_C1R_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                             oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiOr_8u_C1IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                         NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiOr_8u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiOr_8u_C3IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiOr_8u_C3R_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                             oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiOr_8u_C3IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                         NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiOr_8u_C3IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }

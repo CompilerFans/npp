@@ -63,8 +63,15 @@ struct MulOp {
 template<typename T>
 struct DivOp {
     __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-        if (b == T(0)) return T(0); // Zero protection
-        double result = static_cast<double>(a) / static_cast<double>(b);
+        if (a == T(0)) {
+            // Division by zero - saturate to maximum value for integers
+            if constexpr (std::is_same_v<T, Npp8u>) return T(255);
+            else if constexpr (std::is_same_v<T, Npp16u>) return T(65535);
+            else if constexpr (std::is_same_v<T, Npp16s>) return T(32767);
+            else return T(0);
+        }
+        // NPP Div convention: pSrc2 / pSrc1, so b / a
+        double result = static_cast<double>(b) / static_cast<double>(a);
         if (scaleFactor > 0 && std::is_integral_v<T>) {
             result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
         }
