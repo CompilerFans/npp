@@ -1,0 +1,57 @@
+#!/bin/bash
+
+show_current() {
+    if [ -L "API" ]; then
+        echo "当前版本: $(readlink API)"
+    else
+        echo "API软链接不存在"
+    fi
+}
+
+list_versions() {
+    echo "可用版本:"
+    for dir in API-*; do
+        if [ -d "$dir" ]; then
+            echo "  ${dir#API-}"
+        fi
+    done
+}
+
+switch_version() {
+    local version="$1"
+    local target="API-$version"
+
+    if [ ! -d "$target" ]; then
+        echo "err: $version 不存在"
+        echo
+        show_help
+        exit 1
+    fi
+    rm -f API
+    ln -sf "$target" API
+    echo "已切换到版本: $version"
+}
+
+show_help() {
+    echo "用法: $0 <版本号|current|list>"
+    echo "示例: $0 12.8"
+    echo
+    show_current
+    echo
+    list_versions
+}
+
+case "${1:-}" in
+    "")
+        show_help
+        ;;
+    "current")
+        show_current
+        ;;
+    "list")
+        list_versions
+        ;;
+    *)
+        switch_version "$1"
+        ;;
+esac
