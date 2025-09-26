@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# CUDA SDK版本切换脚本
-
-set -e
-
-# 显示当前版本
 show_current() {
     if [ -L "API" ]; then
         echo "当前版本: $(readlink API)"
@@ -13,7 +8,6 @@ show_current() {
     fi
 }
 
-# 列出可用版本
 list_versions() {
     echo "可用版本:"
     for dir in API-*; do
@@ -23,7 +17,6 @@ list_versions() {
     done
 }
 
-# 切换版本
 switch_version() {
     local version="$1"
     local target="API-$version"
@@ -40,7 +33,6 @@ switch_version() {
     echo "已切换到版本: $version"
 }
 
-# 显示帮助信息
 show_help() {
     echo "用法: $0 <版本号|current|list>"
     echo "示例: $0 12.8"
@@ -50,7 +42,6 @@ show_help() {
     list_versions
 }
 
-# 主逻辑
 case "${1:-}" in
     "")
         show_help

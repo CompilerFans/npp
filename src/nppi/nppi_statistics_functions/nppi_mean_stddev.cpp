@@ -12,6 +12,7 @@ cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp
                                            Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream);
 }
 
+// ============ cuda 12.8 ===================
 // Buffer size calculation for 8u single channel
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                      NppStreamContext /*nppStreamCtx*/) {
@@ -66,6 +67,40 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, size_t *hpB
   ctx.hStream = 0; // Default stream
   return nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
 }
+
+// ================== below 12.8 ============================
+// Buffer size calculation for 8u single channel
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
+  size_t size = 0;
+  auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
+  *hpBufferSize = size;
+  return ret;
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+  size_t size = 0;
+  auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &size);
+  *hpBufferSize = size;
+  return ret;
+}
+
+// Buffer size calculation for 32-bit float single channel
+NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  size_t size = 0;
+  auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
+  *hpBufferSize = size;
+  return ret;
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+  size_t size = 0;
+  auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &size);
+  *hpBufferSize = size;
+  return ret;
+}
+// ==========================
 
 // Mean and standard deviation calculation for 8-bit unsigned single channel
 NppStatus nppiMean_StdDev_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,

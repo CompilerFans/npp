@@ -1,17 +1,4 @@
 #include "../../framework/npp_test_base.h"
-#include <cmath>
-
-// Comprehensive parameterized tests for NPP morphological operations
-
-#include "npp.h"
-#include <cuda_runtime.h>
-#include <gtest/gtest.h>
-#include <iostream>
-#include <random>
-#include <type_traits>
-#include <vector>
-
-#include "../../framework/npp_test_base.h"
 #include "npp.h"
 #include <algorithm>
 #include <chrono>
