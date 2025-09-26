@@ -24,7 +24,6 @@ option(BUILD_EXAMPLES "Build examples" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
-option(NPP_STRICT_TESTING "Use strict precision testing (exact match)" OFF)
 
 # 显示配置选项
 if(BUILD_SHARED_LIBS)
@@ -37,12 +36,6 @@ if(NPP_WARNINGS_AS_ERRORS)
     message(STATUS "Warnings will be treated as errors")
 else()
     message(STATUS "Warnings will not be treated as errors")
-endif()
-
-if(NPP_STRICT_TESTING)
-    message(STATUS "Using strict precision testing (exact match)")
-else()
-    message(STATUS "Using tolerant precision testing (with allowance for minor differences)")
 endif()
 
 if(BUILD_TESTS)

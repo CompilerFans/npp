@@ -10,15 +10,15 @@ function(npp_setup_gtest)
         set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
         set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
         set(BUILD_GTEST ON CACHE BOOL "" FORCE)
-        
+
         # 添加GoogleTest源码子目录
         add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/googletest googletest EXCLUDE_FROM_ALL)
         return()
     endif()
-    
+
     # 尝试查找系统安装的GoogleTest
     find_package(GTest QUIET)
-    
+
     if(NOT GTest_FOUND)
         message(STATUS "System GoogleTest not found. Using in-tree GoogleTest.")
     else()
@@ -29,7 +29,7 @@ endfunction()
 # 创建NPP测试目标
 function(npp_create_test_target target_name sources library_target)
     add_executable(${target_name} ${sources})
-    
+
     # 根据选项决定链接哪个NPP库
     if(USE_NVIDIA_NPP)
         # 查找NVIDIA NPP库 - 只需要检查一个核心库的存在
@@ -37,11 +37,11 @@ function(npp_create_test_target target_name sources library_target)
             NAMES nppc
             PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib /usr/local/cuda/lib64
         )
-        
+
         if(NOT NVIDIA_NPPC_LIB)
             message(FATAL_ERROR "NVIDIA NPP libraries not found. Please check your CUDA installation.")
         endif()
-        
+
         # 链接NVIDIA NPP库
         target_link_libraries(${target_name}
             PRIVATE
@@ -50,18 +50,18 @@ function(npp_create_test_target target_name sources library_target)
             gtest
             gtest_main
         )
-        
+
         # 添加库搜索路径和链接NPP库
         target_link_directories(${target_name} PRIVATE /usr/local/cuda/lib64)
-        target_link_libraries(${target_name} PRIVATE 
+        target_link_libraries(${target_name} PRIVATE
             nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
-        
+
         # 使用NVIDIA NPP头文件
-        target_include_directories(${target_name} 
+        target_include_directories(${target_name}
             PRIVATE
             ${CUDA_TOOLKIT_ROOT_DIR}/include
         )
-        
+
         # 定义宏标识使用NVIDIA NPP
         target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
@@ -73,29 +73,21 @@ function(npp_create_test_target target_name sources library_target)
             gtest
             gtest_main
         )
-        
+
         message(STATUS "Test ${target_name} will use MPP library")
     endif()
-    
+
     # 设置通用配置
     npp_setup_target(${target_name})
-    
-    # 配置精度测试选项
-    if(NPP_STRICT_TESTING)
-        target_compile_definitions(${target_name} PRIVATE NPP_STRICT_TESTING)
-        message(STATUS "Test ${target_name} will use strict precision testing")
-    else()
-        message(STATUS "Test ${target_name} will use tolerant precision testing")
-    endif()
-    
+
     # 添加包含目录
     if(NOT USE_NVIDIA_NPP)
-        target_include_directories(${target_name} 
+        target_include_directories(${target_name}
             PRIVATE
             ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于OpenNPP
         )
     endif()
-    
+
     # 设置输出目录到build根目录
     set_target_properties(${target_name} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -110,9 +102,9 @@ endfunction()
 # 创建完整的测试套件
 function(npp_create_test_suite suite_name test_sources library_target)
     set(target_name "${suite_name}_tests")
-    
+
     npp_create_test_target(${target_name} "${test_sources}" ${library_target})
     npp_register_test(${suite_name} ${target_name})
-    
+
     message(STATUS "Created test suite: ${suite_name}")
 endfunction()
