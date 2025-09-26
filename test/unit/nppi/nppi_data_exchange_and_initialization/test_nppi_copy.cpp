@@ -83,6 +83,7 @@ public:
 
   static void validateResults(const std::vector<T> &actual, const std::vector<T> &expected, float tolerance = 1e-6f) {
     ASSERT_EQ(actual.size(), expected.size());
+    (void)tolerance;
 
     for (size_t i = 0; i < actual.size(); i++) {
       if constexpr (std::is_floating_point_v<T>) {

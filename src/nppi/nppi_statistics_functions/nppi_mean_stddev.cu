@@ -1,15 +1,17 @@
 #include "nppdefs.h"
-#include <cooperative_groups.h>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
 
-using namespace cooperative_groups;
-
-// Utility function for warp-level reduction
+#if 1
+#define WARP_SIZE 32
+#define SHFL_MASK 0xFFFFFFFF
+#else
+#define WARP_SIZE 64
+#define SHFL_MASK 0xFFFFFFFFFFFFFFFFULL
+#endif
 
 __device__ __forceinline__ double warpReduceSum(double val) {
-  for (int offset = warpSize / 2; offset > 0; offset /= 2) {
-    val += __shfl_down_sync(0xFFFFFFFF, val, offset);
+  for (int offset = WARP_SIZE / 2; offset > 0; offset /= 2) {
+    val += __shfl_down_sync(SHFL_MASK, val, offset);
   }
   return val;
 }
@@ -18,8 +20,8 @@ __device__ __forceinline__ double warpReduceSum(double val) {
 
 __device__ __forceinline__ double blockReduceSum(double val) {
   static __shared__ double shared[32]; // 32 warps max
-  int lane = threadIdx.x % warpSize;
-  int wid = threadIdx.x / warpSize;
+  int lane = threadIdx.x % WARP_SIZE;
+  int wid = threadIdx.x / WARP_SIZE;
 
   val = warpReduceSum(val);
 
@@ -28,7 +30,7 @@ __device__ __forceinline__ double blockReduceSum(double val) {
   __syncthreads();
 
   // Read from shared memory only if that warp existed
-  val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  val = (threadIdx.x < blockDim.x / WARP_SIZE) ? shared[lane] : 0;
 
   if (wid == 0)
     val = warpReduceSum(val);

@@ -78,6 +78,7 @@ public:
 
     for (size_t i = 0; i < actual.size(); i++) {
       if constexpr (std::is_floating_point_v<DstType>) {
+        (void)tolerance;
         EXPECT_NEAR(actual[i], expected[i], tolerance) << "Mismatch at index " << i;
       } else {
         EXPECT_EQ(actual[i], expected[i]) << "Mismatch at index " << i;

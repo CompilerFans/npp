@@ -411,7 +411,8 @@ public:
     std::cout << "  Errors (>1): " << boundaryErrors << "\n";
     std::cout << "  Excessive errors (>10): " << boundaryExcessiveErrors << "\n";
     std::cout << "  Error rate: " << std::fixed << std::setprecision(2) << (boundaryErrorRate * 100) << "%\n";
-    std::cout << "  Excessive error rate: " << std::fixed << std::setprecision(2) << (boundaryExcessiveRate * 100) << "%\n";
+    std::cout << "  Excessive error rate: " << std::fixed << std::setprecision(2) << (boundaryExcessiveRate * 100)
+              << "%\n";
     std::cout << "  Max error: " << maxBoundaryError << "\n";
 
     bool interiorPass = (interiorErrorRate < 0.05f);
@@ -424,7 +425,7 @@ public:
         std::cout << "  ❌ FAIL: Interior region exceeds strict error threshold (<5% error rate)\n";
       }
       if (!boundaryPass) {
-        std::cout << "  ❌ FAIL: Boundary region has excessive errors (max error = " << maxBoundaryError 
+        std::cout << "  ❌ FAIL: Boundary region has excessive errors (max error = " << maxBoundaryError
                   << " > 10 pixel limit)\n";
       }
     }
