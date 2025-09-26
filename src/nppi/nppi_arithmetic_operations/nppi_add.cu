@@ -1,268 +1,255 @@
 #include "npp.h"
-#include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+#include <functional>
+#include <type_traits>
 
-// Device kernels
-// 8-bit unsigned add with scaling, single channel
-__global__ void nppiAdd_8u_C1RSfs_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                         Npp8u *pDst, int nDstStep, int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+namespace nppi {
+namespace functors {
 
-  if (x < width && y < height) {
-    const Npp8u *src1Row = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp8u *src2Row = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp8u *dstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-
-    // Add with scaling
-    int result = (int)src1Row[x] + (int)src2Row[x];
-
-    // Apply scale factor (right shift)
-    if (nScaleFactor > 0) {
-      result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
+// Simple type-specific saturating cast
+template<typename T>
+__device__ __host__ inline T saturate_cast(double value) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+        return static_cast<T>(value < 0.0 ? 0.0 : (value > 255.0 ? 255.0 : value));
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+        return static_cast<T>(value < 0.0 ? 0.0 : (value > 65535.0 ? 65535.0 : value));
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+        return static_cast<T>(value);
     }
-
-    // Saturate to 8-bit range
-    dstRow[x] = (Npp8u)(result < 0 ? 0 : (result > 255 ? 255 : result));
-  }
+    return static_cast<T>(value);
 }
 
-// 8-bit unsigned add with scaling, 3 channels
-__global__ void nppiAdd_8u_C3RSfs_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                         Npp8u *pDst, int nDstStep, int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp8u *src1Row = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp8u *src2Row = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp8u *dstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-
-    int idx = x * 3;
-
-    // Process 3 channels
-    for (int c = 0; c < 3; c++) {
-      int result = (int)src1Row[idx + c] + (int)src2Row[idx + c];
-
-      // Apply scale factor
-      if (nScaleFactor > 0) {
-        result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
-      }
-
-      // Saturate to 8-bit range
-      dstRow[idx + c] = (Npp8u)(result < 0 ? 0 : (result > 255 ? 255 : result));
+// Simple add functor
+template<typename T>
+struct AddFunctor {
+    __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
+        double result = static_cast<double>(a) + static_cast<double>(b);
+        if (scaleFactor > 0 && std::is_integral_v<T>) {
+            result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+        }
+        return saturate_cast<T>(result);
     }
-  }
-}
+};
 
-// 8-bit unsigned add with scaling, 4 channels
-__global__ void nppiAdd_8u_C4RSfs_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                         Npp8u *pDst, int nDstStep, int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+} // namespace functors
+} // namespace nppi
 
-  if (x < width && y < height) {
-    const Npp8u *src1Row = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp8u *src2Row = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp8u *dstRow = (Npp8u *)((char *)pDst + y * nDstStep);
+// Kernel implementations
+template<typename T>
+__global__ void add_kernel_C1(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                               T *pDst, int nDstStep, int width, int height, int scaleFactor) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    int idx = x * 4;
+    if (x < width && y < height) {
+        const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+        const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+        T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-    // Process 4 channels
-    for (int c = 0; c < 4; c++) {
-      int result = (int)src1Row[idx + c] + (int)src2Row[idx + c];
-
-      // Apply scale factor
-      if (nScaleFactor > 0) {
-        result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
-      }
-
-      // Saturate to 8-bit range
-      dstRow[idx + c] = (Npp8u)(result < 0 ? 0 : (result > 255 ? 255 : result));
+        nppi::functors::AddFunctor<T> op;
+        dstRow[x] = op(src1Row[x], src2Row[x], scaleFactor);
     }
-  }
 }
 
-// 16-bit unsigned add with scaling
-__global__ void nppiAdd_16u_C1RSfs_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
-                                          Npp16u *pDst, int nDstStep, int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+template<typename T>
+__global__ void add_kernel_C3(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                               T *pDst, int nDstStep, int width, int height, int scaleFactor) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (x < width && y < height) {
-    const Npp16u *src1Row = (const Npp16u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp16u *src2Row = (const Npp16u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp16u *dstRow = (Npp16u *)((char *)pDst + y * nDstStep);
+    if (x < width && y < height) {
+        const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+        const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+        T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-    // Add with scaling
-    unsigned int result = (unsigned int)src1Row[x] + (unsigned int)src2Row[x];
-
-    // Apply scale factor
-    if (nScaleFactor > 0) {
-      result = (result + (1U << (nScaleFactor - 1))) >> nScaleFactor;
+        nppi::functors::AddFunctor<T> op;
+        int idx = x * 3;
+        for (int c = 0; c < 3; c++) {
+            dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], scaleFactor);
+        }
     }
-
-    // Saturate to 16-bit unsigned range
-    dstRow[x] = (Npp16u)(result > 65535 ? 65535 : result);
-  }
 }
 
-// 16-bit signed add with scaling
-__global__ void nppiAdd_16s_C1RSfs_kernel(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
-                                          Npp16s *pDst, int nDstStep, int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp16s *src1Row = (const Npp16s *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp16s *src2Row = (const Npp16s *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp16s *dstRow = (Npp16s *)((char *)pDst + y * nDstStep);
-
-    // Add with scaling
-    int result = (int)src1Row[x] + (int)src2Row[x];
-
-    // Apply scale factor with rounding
-    if (nScaleFactor > 0) {
-      int round = 1 << (nScaleFactor - 1);
-      if (result >= 0) {
-        result = (result + round) >> nScaleFactor;
-      } else {
-        result = (result - round + 1) >> nScaleFactor;
-      }
+// Parameter validation
+static NppStatus validateParameters(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
+                                    const void *pDst, int nDstStep, NppiSize oSizeROI, int elementSize) {
+    if (!pSrc1 || !pSrc2 || !pDst) {
+        return NPP_NULL_POINTER_ERROR;
     }
-
-    // Saturate to 16-bit signed range
-    if (result < -32768)
-      result = -32768;
-    else if (result > 32767)
-      result = 32767;
-
-    dstRow[x] = (Npp16s)result;
-  }
-}
-
-// 32-bit float add (no scaling), single channel
-__global__ void nppiAdd_32f_C1R_kernel(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
-                                       Npp32f *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp32f *src1Row = (const Npp32f *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp32f *src2Row = (const Npp32f *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp32f *dstRow = (Npp32f *)((char *)pDst + y * nDstStep);
-
-    // Simple float addition
-    dstRow[x] = src1Row[x] + src2Row[x];
-  }
-}
-
-// 32-bit float add (no scaling), 3 channels
-__global__ void nppiAdd_32f_C3R_kernel(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
-                                       Npp32f *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp32f *src1Row = (const Npp32f *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp32f *src2Row = (const Npp32f *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp32f *dstRow = (Npp32f *)((char *)pDst + y * nDstStep);
-
-    int idx = x * 3;
-
-    // Process 3 channels
-    dstRow[idx] = src1Row[idx] + src2Row[idx];
-    dstRow[idx + 1] = src1Row[idx + 1] + src2Row[idx + 1];
-    dstRow[idx + 2] = src1Row[idx + 2] + src2Row[idx + 2];
-  }
-}
-
-// Host functions
-
-extern "C" {
-
-NppStatus nppiAdd_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                     int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAdd_8u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppiAdd_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                     int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAdd_8u_C3RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppiAdd_8u_C4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                     int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAdd_8u_C4RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppiAdd_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
-                                      Npp16u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                      NppStreamContext nppStreamCtx) {
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAdd_16u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppiAdd_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
-                                      Npp16s *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                      NppStreamContext nppStreamCtx) {
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAdd_16s_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppiAdd_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
-                                   int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // Early return for zero-size ROI to avoid invalid kernel configurations
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+        return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+        return NPP_NO_ERROR;
+    }
+    int minStep = oSizeROI.width * elementSize;
+    if (nSrc1Step < minStep || nSrc2Step < minStep || nDstStep < minStep) {
+        return NPP_STRIDE_ERROR;
+    }
     return NPP_NO_ERROR;
-  }
-
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAdd_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst,
-                                                                           nDstStep, oSizeROI.width, oSizeROI.height);
-
-  return NPP_NO_ERROR;
 }
 
-NppStatus nppiAdd_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
-                                   int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(32, 8);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+// Launch helper
+template<typename T>
+static NppStatus launchKernel_C1(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                                  T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor, 
+                                  cudaStream_t stream) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiAdd_32f_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst,
-                                                                           nDstStep, oSizeROI.width, oSizeROI.height);
+    add_kernel_C1<T><<<gridSize, blockSize, 0, stream>>>(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
+        oSizeROI.width, oSizeROI.height, scaleFactor);
 
-  return NPP_NO_ERROR;
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
+
+template<typename T>
+static NppStatus launchKernel_C3(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                                  T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor, 
+                                  cudaStream_t stream) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    add_kernel_C3<T><<<gridSize, blockSize, 0, stream>>>(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
+        oSizeROI.width, oSizeROI.height, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+// API implementations for 8u C1 with scaling
+extern "C" {
+NppStatus nppiAdd_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                      Npp8u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx) {
+    NppStatus status = validateParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, sizeof(Npp8u));
+    if (status != NPP_NO_ERROR) return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+    if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
+    
+    return launchKernel_C1<Npp8u>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                   oSizeROI, nScaleFactor, nppStreamCtx.hStream);
+}
+
+NppStatus nppiAdd_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                      Npp8u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                      NppStreamContext nppStreamCtx) {
+    NppStatus status = validateParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 3 * sizeof(Npp8u));
+    if (status != NPP_NO_ERROR) return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+    if (nScaleFactor < 0 || nScaleFactor > 31) return NPP_BAD_ARGUMENT_ERROR;
+    
+    return launchKernel_C3<Npp8u>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                   oSizeROI, nScaleFactor, nppStreamCtx.hStream);
+}
+
+// API implementations for 32f (no scaling)
+NppStatus nppiAdd_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                                    Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    NppStatus status = validateParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, sizeof(Npp32f));
+    if (status != NPP_NO_ERROR) return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+    
+    return launchKernel_C1<Npp32f>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                    oSizeROI, 0, nppStreamCtx.hStream);
+}
+
+NppStatus nppiAdd_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                                    Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    NppStatus status = validateParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 3 * sizeof(Npp32f));
+    if (status != NPP_NO_ERROR) return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+    
+    return launchKernel_C3<Npp32f>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                    oSizeROI, 0, nppStreamCtx.hStream);
+}
+}
+
+// Public API functions
+NppStatus nppiAdd_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                 Npp8u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                 NppStreamContext nppStreamCtx) {
+    return nppiAdd_8u_C1RSfs_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                       oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAdd_8u_C1RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                             Npp8u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAdd_8u_C1RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                  oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAdd_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                 Npp8u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                 NppStreamContext nppStreamCtx) {
+    return nppiAdd_8u_C3RSfs_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                       oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAdd_8u_C3RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                             Npp8u *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAdd_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                  oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAdd_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                               Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiAdd_32f_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                     oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAdd_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                           Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAdd_32f_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAdd_32f_C3R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                               Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiAdd_32f_C3R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                     oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAdd_32f_C3R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                           Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAdd_32f_C3R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                oSizeROI, nppStreamCtx);
+}
+
+// In-place versions
+NppStatus nppiAdd_8u_C1IRSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return nppiAdd_8u_C1RSfs_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                                  oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAdd_8u_C1IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAdd_8u_C1IRSfs_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAdd_32f_C1IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiAdd_32f_C1R_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                                oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAdd_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                            NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAdd_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
