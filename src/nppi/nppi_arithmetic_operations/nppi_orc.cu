@@ -1,4 +1,5 @@
-#include "nppi_arithmetic_unified.h"
+#include "nppi_arithmetic_ops.h"
+#include "nppi_arithmetic_executor.h"
 
 using namespace nppi::arithmetic;
 
@@ -6,8 +7,8 @@ using namespace nppi::arithmetic;
 extern "C" {
 
 NppStatus nppiOrC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, 
-                                   Npp8u *pDst, int nDstStep,
-                                   NppiSize oSizeROI, Npp8u nConstant, 
+                                   Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                                   NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
     OrConstOp<Npp8u> op(nConstant);
     return ConstOperationExecutor<Npp8u, 1, OrConstOp<Npp8u>>::execute(
@@ -63,20 +64,19 @@ NppStatus nppiOrC_32s_C4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep,
 
 // Public API functions
 NppStatus nppiOrC_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, 
-                              Npp8u *pDst, int nDstStep,
-                              NppiSize oSizeROI, Npp8u nConstant, 
-                              NppStreamContext nppStreamCtx) {
-    return nppiOrC_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, 
-                                    oSizeROI, nConstant, nppStreamCtx);
+                              Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiOrC_8u_C1R_Ctx_impl(pSrc, nSrcStep, nConstant, pDst, nDstStep, 
+                                    oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiOrC_8u_C1R(const Npp8u *pSrc, int nSrcStep, 
-                         Npp8u *pDst, int nDstStep,
-                         NppiSize oSizeROI, Npp8u nConstant) {
+                         Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                         NppiSize oSizeROI) {
     NppStreamContext nppStreamCtx;
     nppGetStreamContext(&nppStreamCtx);
-    return nppiOrC_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, 
-                              oSizeROI, nConstant, nppStreamCtx);
+    return nppiOrC_8u_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, 
+                              oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiOrC_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, 

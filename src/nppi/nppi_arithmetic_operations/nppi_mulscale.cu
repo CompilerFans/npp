@@ -1,100 +1,102 @@
-#include "npp.h"
-#include <cmath>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-__global__ void nppiMulScale_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                           Npp8u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+#include "nppi_arithmetic_ops.h"
+#include "nppi_arithmetic_executor.h"
 
-  if (x < width && y < height) {
-    const Npp8u *src1_pixel = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step) + x;
-    const Npp8u *src2_pixel = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step) + x;
-    Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x;
+using namespace nppi::arithmetic;
 
-    int src1_val = *src1_pixel;
-    int src2_val = *src2_pixel;
-
-    // Multiply and scale by maximum value (255 for 8-bit)
-    int result = (src1_val * src2_val) / 255;
-
-    // Saturate to 8-bit range
-    *dst_pixel = (Npp8u)min(result, 255);
-  }
-}
-
-__global__ void nppiMulScale_16u_C1R_kernel(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
-                                            Npp16u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp16u *src1_pixel = (const Npp16u *)((const char *)pSrc1 + y * nSrc1Step) + x;
-    const Npp16u *src2_pixel = (const Npp16u *)((const char *)pSrc2 + y * nSrc2Step) + x;
-    Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x;
-
-    int src1_val = *src1_pixel;
-    int src2_val = *src2_pixel;
-
-    // Multiply and scale by maximum value (65535 for 16-bit)
-    // Use 64-bit intermediate to avoid overflow
-    long long result = ((long long)src1_val * src2_val) / 65535;
-
-    // Saturate to 16-bit unsigned range
-    *dst_pixel = (Npp16u)min(result, 65535LL);
-  }
-}
-
+// Implementation functions using the unified executor
 extern "C" {
-NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                       Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiMulScale_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  // Synchronize to ensure kernel completion
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+NppStatus nppiMulScale_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, 
+                                        const Npp8u *pSrc2, int nSrc2Step,
+                                        Npp8u *pDst, int nDstStep, 
+                                        NppiSize oSizeROI, 
+                                        NppStreamContext nppStreamCtx) {
+    return BinaryOperationExecutor<Npp8u, 1, MulScaleOp<Npp8u>>::execute(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+        oSizeROI, 0, nppStreamCtx.hStream);
 }
 
-NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
-                                        Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiMulScale_16u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  // Synchronize to ensure kernel completion
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+NppStatus nppiMulScale_16u_C1R_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, 
+                                         const Npp16u *pSrc2, int nSrc2Step,
+                                         Npp16u *pDst, int nDstStep, 
+                                         NppiSize oSizeROI, 
+                                         NppStreamContext nppStreamCtx) {
+    return BinaryOperationExecutor<Npp16u, 1, MulScaleOp<Npp16u>>::execute(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+        oSizeROI, 0, nppStreamCtx.hStream);
 }
+
+} // extern "C"
+
+// Public API functions
+NppStatus nppiMulScale_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, 
+                                   const Npp8u *pSrc2, int nSrc2Step,
+                                   Npp8u *pDst, int nDstStep, 
+                                   NppiSize oSizeROI, 
+                                   NppStreamContext nppStreamCtx) {
+    return nppiMulScale_8u_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, 
+                                         pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, 
+                              const Npp8u *pSrc2, int nSrc2Step,
+                              Npp8u *pDst, int nDstStep, 
+                              NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiMulScale_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, 
+                                    pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, 
+                                    Npp8u *pSrcDst, int nSrcDstStep, 
+                                    NppiSize oSizeROI, 
+                                    NppStreamContext nppStreamCtx) {
+    return nppiMulScale_8u_C1R_Ctx_impl(pSrc, nSrcStep, pSrcDst, nSrcDstStep, 
+                                         pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_8u_C1IR(const Npp8u *pSrc, int nSrcStep, 
+                               Npp8u *pSrcDst, int nSrcDstStep, 
+                               NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiMulScale_8u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, 
+                                     oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, 
+                                    const Npp16u *pSrc2, int nSrc2Step,
+                                    Npp16u *pDst, int nDstStep, 
+                                    NppiSize oSizeROI, 
+                                    NppStreamContext nppStreamCtx) {
+    return nppiMulScale_16u_C1R_Ctx_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, 
+                                          pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, 
+                               const Npp16u *pSrc2, int nSrc2Step,
+                               Npp16u *pDst, int nDstStep, 
+                               NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiMulScale_16u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, 
+                                     pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_16u_C1IR_Ctx(const Npp16u *pSrc, int nSrcStep, 
+                                     Npp16u *pSrcDst, int nSrcDstStep, 
+                                     NppiSize oSizeROI, 
+                                     NppStreamContext nppStreamCtx) {
+    return nppiMulScale_16u_C1R_Ctx_impl(pSrc, nSrcStep, pSrcDst, nSrcDstStep, 
+                                          pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMulScale_16u_C1IR(const Npp16u *pSrc, int nSrcStep, 
+                                Npp16u *pSrcDst, int nSrcDstStep, 
+                                NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiMulScale_16u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, 
+                                      oSizeROI, nppStreamCtx);
 }

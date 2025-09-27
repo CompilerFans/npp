@@ -1,4 +1,5 @@
-#include "nppi_arithmetic_unified.h"
+#include "nppi_arithmetic_ops.h"
+#include "nppi_arithmetic_executor.h"
 
 using namespace nppi::arithmetic;
 

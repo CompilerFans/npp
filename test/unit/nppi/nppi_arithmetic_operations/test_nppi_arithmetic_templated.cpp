@@ -120,7 +120,7 @@ protected:
             if (operation == "add") {
                 res = val1 + val2;
             } else if (operation == "sub") {
-                res = val1 - val2;
+                res = val2 - val1;  // NPP Sub convention: pSrc2 - pSrc1
             } else if (operation == "mul") {
                 res = val1 * val2;
             } else if (operation == "div") {
@@ -262,12 +262,17 @@ protected:
 };
 
 TEST_F(NppiArithmeticEdgeCaseTest, ZeroSizeROI) {
-    Npp8u *d_src1 = nppiMalloc_8u_C1(64, 64, nullptr);
-    Npp8u *d_src2 = nppiMalloc_8u_C1(64, 64, nullptr);
-    Npp8u *d_dst = nppiMalloc_8u_C1(64, 64, nullptr);
+    int step = 0;
+    Npp8u *d_src1 = nppiMalloc_8u_C1(64, 64, &step);
+    Npp8u *d_src2 = nppiMalloc_8u_C1(64, 64, &step);
+    Npp8u *d_dst = nppiMalloc_8u_C1(64, 64, &step);
+    
+    ASSERT_NE(d_src1, nullptr);
+    ASSERT_NE(d_src2, nullptr);
+    ASSERT_NE(d_dst, nullptr);
     
     NppiSize zeroSize = {0, 0};
-    NppStatus status = nppiAdd_8u_C1RSfs(d_src1, 64, d_src2, 64, d_dst, 64, zeroSize, 0);
+    NppStatus status = nppiAdd_8u_C1RSfs(d_src1, step, d_src2, step, d_dst, step, zeroSize, 0);
     EXPECT_EQ(status, NPP_SUCCESS); // Should handle gracefully
     
     nppiFree(d_src1);
