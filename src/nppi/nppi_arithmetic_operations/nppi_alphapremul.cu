@@ -18,7 +18,7 @@ public:
     __device__ __host__ AlphaPremulConstOp(T a) : alpha(a) {}
 
     __device__ __host__ T operator()(T src, int = 0) const {
-        // Simple alpha premultiplication: src * alpha / max_value
+        // NVIDIA NPP AlphaPremulC uses division by 255 (not right shift)
         if constexpr (std::is_same_v<T, Npp8u>) {
             return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) / 255);
         } else if constexpr (std::is_same_v<T, Npp16u>) {
@@ -33,11 +33,11 @@ template <typename T>
 class AlphaPremulPixelOp {
 public:
     __device__ __host__ T operator()(T src, T alpha, int = 0) const {
-        // Simple alpha premultiplication: src * alpha / max_value
+        // NVIDIA NPP AlphaPremul (pixel alpha) uses right shift for optimization
         if constexpr (std::is_same_v<T, Npp8u>) {
-            return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) / 255);
+            return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) >> 8);
         } else if constexpr (std::is_same_v<T, Npp16u>) {
-            return static_cast<T>((static_cast<int64_t>(src) * static_cast<int64_t>(alpha)) / 65535);
+            return static_cast<T>((static_cast<int64_t>(src) * static_cast<int64_t>(alpha)) >> 16);
         } else {
             return static_cast<T>(src * alpha);
         }

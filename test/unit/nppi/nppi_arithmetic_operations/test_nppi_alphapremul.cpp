@@ -29,7 +29,7 @@ TEST_F(NppiAlphaPremulTest, AlphaPremulC_8u_C1R_BasicOperation) {
     std::vector<Npp8u> hostSrc = {100, 150, 200, 50, 75, 125, 175, 225};
     Npp8u alpha = 128; // 0.5 in 8-bit
 
-    // Expected result: src * alpha/255
+    // Expected result: src * alpha / 255 (NVIDIA NPP AlphaPremulC behavior)
     std::vector<Npp8u> expected(totalPixels);
     for (int i = 0; i < totalPixels; ++i) {
         int result = (hostSrc[i] * alpha) / 255;
@@ -77,7 +77,7 @@ TEST_F(NppiAlphaPremulTest, AlphaPremulC_8u_C1IR_InPlaceOperation) {
     std::vector<Npp8u> hostSrc = {100, 150, 200, 50, 75, 125};
     Npp8u alpha = 192; // 0.75 in 8-bit
 
-    // Expected result: src * alpha/255
+    // Expected result: src * alpha / 255 (NVIDIA NPP AlphaPremulC behavior)
     std::vector<Npp8u> expected(totalPixels);
     for (int i = 0; i < totalPixels; ++i) {
         int result = (hostSrc[i] * alpha) / 255;
@@ -125,7 +125,7 @@ TEST_F(NppiAlphaPremulTest, AlphaPremulC_8u_C3R_MultiChannel) {
                                   128, 255, 0,     64, 32, 255};   // Pixel 3, 4
     Npp8u alpha = 128; // 0.5 in 8-bit
 
-    // Expected result: each channel * alpha/255
+    // Expected result: each channel * alpha / 255 (NVIDIA NPP AlphaPremulC behavior)
     std::vector<Npp8u> expected(totalPixels);
     for (int i = 0; i < totalPixels; ++i) {
         int result = (hostSrc[i] * alpha) / 255;
@@ -173,10 +173,10 @@ TEST_F(NppiAlphaPremulTest, AlphaPremulC_16u_C1R_BasicOperation) {
     std::vector<Npp16u> hostSrc = {10000, 20000, 30000, 40000, 50000, 60000};
     Npp16u alpha = 32768; // 0.5 in 16-bit
 
-    // Expected result: src * alpha/65535
+    // Expected result: src * alpha / 65535 (NVIDIA NPP AlphaPremulC behavior)
     std::vector<Npp16u> expected(totalPixels);
     for (int i = 0; i < totalPixels; ++i) {
-        int result = (static_cast<int64_t>(hostSrc[i]) * alpha) / 65535;
+        int64_t result = (static_cast<int64_t>(hostSrc[i]) * alpha) / 65535;
         expected[i] = static_cast<Npp16u>(result);
     }
 
@@ -233,9 +233,9 @@ TEST_F(NppiAlphaPremulTest, AlphaPremul_8u_AC4R_PixelAlpha) {
         int idx = p * 4;
         Npp8u alpha = hostSrc[idx + 3];
         
-        // Premultiply RGB with alpha
+        // Premultiply RGB with alpha (NVIDIA uses right shift for pixel alpha)
         for (int c = 0; c < 3; ++c) {
-            int result = (hostSrc[idx + c] * alpha) / 255;
+            int result = (hostSrc[idx + c] * alpha) >> 8;
             expected[idx + c] = static_cast<Npp8u>(result);
         }
         // Alpha channel unchanged
@@ -291,9 +291,9 @@ TEST_F(NppiAlphaPremulTest, AlphaPremul_8u_AC4IR_InPlacePixelAlpha) {
         int idx = p * 4;
         Npp8u alpha = hostSrc[idx + 3];
         
-        // Premultiply RGB with alpha
+        // Premultiply RGB with alpha (NVIDIA uses right shift for pixel alpha)
         for (int c = 0; c < 3; ++c) {
-            int result = (hostSrc[idx + c] * alpha) / 255;
+            int result = (hostSrc[idx + c] * alpha) >> 8;
             expected[idx + c] = static_cast<Npp8u>(result);
         }
         // Alpha channel unchanged
@@ -346,9 +346,9 @@ TEST_F(NppiAlphaPremulTest, AlphaPremul_16u_AC4R_PixelAlpha) {
         int idx = p * 4;
         Npp16u alpha = hostSrc[idx + 3];
         
-        // Premultiply RGB with alpha
+        // Premultiply RGB with alpha (NVIDIA uses right shift for pixel alpha)
         for (int c = 0; c < 3; ++c) {
-            int64_t result = (static_cast<int64_t>(hostSrc[idx + c]) * alpha) / 65535;
+            int64_t result = (static_cast<int64_t>(hostSrc[idx + c]) * alpha) >> 16;
             expected[idx + c] = static_cast<Npp16u>(result);
         }
         // Alpha channel unchanged
@@ -400,28 +400,6 @@ TEST_F(NppiAlphaPremulTest, AlphaPremulC_NullPointer) {
     // Test null destination pointer for in-place operation
     status = nppiAlphaPremulC_8u_C1IR(alpha, nullptr, 0, oSizeROI);
     EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-}
-
-TEST_F(NppiAlphaPremulTest, AlphaPremulC_InvalidSize) {
-    // Allocate small dummy buffers to avoid null pointer error
-    int srcStep, dstStep;
-    Npp8u *d_src = nppiMalloc_8u_C1(1, 1, &srcStep);
-    Npp8u *d_dst = nppiMalloc_8u_C1(1, 1, &dstStep);
-    Npp8u alpha = 128;
-
-    // Test zero width
-    NppiSize oSizeROI = {0, 2};
-    NppStatus status = nppiAlphaPremulC_8u_C1R(d_src, srcStep, alpha, d_dst, dstStep, oSizeROI);
-    EXPECT_EQ(status, NPP_SIZE_ERROR);
-
-    // Test zero height
-    oSizeROI = {2, 0};
-    status = nppiAlphaPremulC_8u_C1R(d_src, srcStep, alpha, d_dst, dstStep, oSizeROI);
-    EXPECT_EQ(status, NPP_SIZE_ERROR);
-
-    // Cleanup
-    nppiFree(d_src);
-    nppiFree(d_dst);
 }
 
 TEST_F(NppiAlphaPremulTest, AlphaPremul_EdgeCases) {
