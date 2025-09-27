@@ -308,23 +308,6 @@ public:
   }
 };
 
-template <typename T> class DivConstOp {
-private:
-  T constant;
-
-public:
-  __device__ __host__ DivConstOp(T c) : constant(c) {}
-
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    if (constant == T(0))
-      return T(0);
-    double result = static_cast<double>(a) / static_cast<double>(constant);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = result / (1 << scaleFactor);
-    }
-    return saturate_cast<T>(result);
-  }
-};
 
 template <typename T> class AndConstOp {
 private:
@@ -546,6 +529,38 @@ public:
       return static_cast<T>(result);
     }
     return src; // Fallback
+  }
+};
+
+// DivConstOp: division by constant with proper zero handling
+template <typename T> class DivConstOp {
+private:
+  T constant;
+
+public:
+  __device__ __host__ DivConstOp(T c) : constant(c) {}
+
+  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
+    if (constant == T(0)) {
+      // Division by zero: return maximum value for the type
+      if constexpr (std::is_integral_v<T>) {
+        if constexpr (std::is_signed_v<T>) {
+          return (a >= T(0)) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min();
+        } else {
+          return std::numeric_limits<T>::max();
+        }
+      } else {
+        return (a >= T(0)) ? std::numeric_limits<T>::infinity() : -std::numeric_limits<T>::infinity();
+      }
+    }
+
+    double result = static_cast<double>(a) / static_cast<double>(constant);
+    
+    if (scaleFactor > 0 && std::is_integral_v<T>) {
+      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    }
+    
+    return saturate_cast<T>(result);
   }
 };
 
