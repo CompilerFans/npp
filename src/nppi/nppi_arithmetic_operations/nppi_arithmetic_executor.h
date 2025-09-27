@@ -448,5 +448,70 @@ public:
   }
 };
 
+// ============================================================================
+// Quaternary Operation Kernels and Executors (for AlphaComp)
+// ============================================================================
+
+template <typename T, int Channels, typename QuaternaryOp>
+__global__ void quaternaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, 
+                                 const T *pSrc3, int nSrc3Step, const T *pSrc4, int nSrc4Step,
+                                 T *pDst, int nDstStep, int width, int height, QuaternaryOp op, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+    const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+    const T *src3Row = (const T *)((const char *)pSrc3 + y * nSrc3Step);
+    const T *src4Row = (const T *)((const char *)pSrc4 + y * nSrc4Step);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(src1Row[x], src2Row[x], src3Row[x], src4Row[x], scaleFactor);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], src3Row[idx + c], src4Row[idx + c], scaleFactor);
+      }
+    }
+  }
+}
+
+template <typename T, int Channels, typename OpType> 
+class QuaternaryOperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, 
+                           const T *pSrc3, int nSrc3Step, const T *pSrc4, int nSrc4Step,
+                           T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+    // Validate parameters
+    if (!pSrc1 || !pSrc2 || !pSrc3 || !pSrc4 || !pDst) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    int minStep = oSizeROI.width * Channels * sizeof(T);
+    if (nSrc1Step < minStep || nSrc2Step < minStep || nSrc3Step < minStep || 
+        nSrc4Step < minStep || nDstStep < minStep) {
+      return NPP_STRIDE_ERROR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    quaternaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, pSrc4, nSrc4Step,
+        pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
 } // namespace arithmetic
 } // namespace nppi
