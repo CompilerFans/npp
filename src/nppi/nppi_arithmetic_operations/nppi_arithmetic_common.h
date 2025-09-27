@@ -192,6 +192,45 @@ struct DivConstOp {
     }
 };
 
+template<typename T>
+struct AndConstOp {
+    T constant;
+    __device__ __host__ AndConstOp(T c) : constant(c) {}
+    
+    __device__ __host__ T operator()(T a, T, int = 0) const {
+        if constexpr (std::is_integral_v<T>) {
+            return a & constant;
+        }
+        return T(0); // Bitwise operations not defined for floating point
+    }
+};
+
+template<typename T>
+struct OrConstOp {
+    T constant;
+    __device__ __host__ OrConstOp(T c) : constant(c) {}
+    
+    __device__ __host__ T operator()(T a, T, int = 0) const {
+        if constexpr (std::is_integral_v<T>) {
+            return a | constant;
+        }
+        return T(0); // Bitwise operations not defined for floating point
+    }
+};
+
+template<typename T>
+struct XorConstOp {
+    T constant;
+    __device__ __host__ XorConstOp(T c) : constant(c) {}
+    
+    __device__ __host__ T operator()(T a, T, int = 0) const {
+        if constexpr (std::is_integral_v<T>) {
+            return a ^ constant;
+        }
+        return T(0); // Bitwise operations not defined for floating point
+    }
+};
+
 // Unary operations
 template<typename T>
 struct SqrOp {
@@ -297,6 +336,47 @@ static NppStatus launchBinaryOpKernel(const T *pSrc1, int nSrc1Step,
 
     binaryOpKernel_C<T, Channels, BinaryOp><<<gridSize, blockSize, 0, stream>>>(
         pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
+        oSizeROI.width, oSizeROI.height, op, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+// Unified constant operation CUDA kernel
+template<typename T, int Channels, typename ConstOp>
+__global__ void constOpKernel_C(const T *pSrc, int nSrcStep, 
+                                T *pDst, int nDstStep, 
+                                int width, int height, 
+                                ConstOp op, int scaleFactor) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+        T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+        if constexpr (Channels == 1) {
+            dstRow[x] = op(srcRow[x], T(0), scaleFactor);
+        } else {
+            int idx = x * Channels;
+            for (int c = 0; c < Channels; c++) {
+                dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
+            }
+        }
+    }
+}
+
+// Unified constant kernel launcher template
+template<typename T, int Channels, typename ConstOp>
+static NppStatus launchConstOpKernel(const T *pSrc, int nSrcStep, 
+                                     T *pDst, int nDstStep, 
+                                     NppiSize oSizeROI, int scaleFactor, 
+                                     cudaStream_t stream, ConstOp op) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    constOpKernel_C<T, Channels, ConstOp><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep,
         oSizeROI.width, oSizeROI.height, op, scaleFactor);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;

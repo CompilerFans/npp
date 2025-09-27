@@ -1,112 +1,78 @@
-#include "npp.h"
-#include <cmath>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+#include "nppi_arithmetic_common.h"
 
-// Kernel for 8-bit unsigned single channel absolute difference
-__global__ void nppiAbsDiff_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                          Npp8u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+using namespace nppi::arithmetic;
 
-  if (x < width && y < height) {
-    const Npp8u *src1_row = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp8u *src2_row = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
+// Template instantiations for AbsDiff operations
+IMPLEMENT_BINARY_OP_IMPL_NO_SCALE(AbsDiff, AbsDiffOp, 8u, 1)
+IMPLEMENT_BINARY_OP_IMPL_NO_SCALE(AbsDiff, AbsDiffOp, 8u, 3) 
+IMPLEMENT_BINARY_OP_IMPL_NO_SCALE(AbsDiff, AbsDiffOp, 32f, 1)
 
-    int val1 = src1_row[x];
-    int val2 = src2_row[x];
-    dst_row[x] = abs(val1 - val2);
-  }
+// Public API functions using unified framework
+IMPLEMENT_BINARY_OP_API_NO_SCALE(AbsDiff, 8u, 1)
+IMPLEMENT_BINARY_OP_API_NO_SCALE(AbsDiff, 8u, 3)
+IMPLEMENT_BINARY_OP_API_NO_SCALE(AbsDiff, 32f, 1)
+
+// Non-context versions
+NppStatus nppiAbsDiff_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                             Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAbsDiff_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                  oSizeROI, nppStreamCtx);
 }
 
-// Kernel for 8-bit unsigned three channel absolute difference
-__global__ void nppiAbsDiff_8u_C3R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                          Npp8u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp8u *src1_row = (const Npp8u *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp8u *src2_row = (const Npp8u *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
-
-    int idx = x * 3;
-    for (int c = 0; c < 3; c++) {
-      int val1 = src1_row[idx + c];
-      int val2 = src2_row[idx + c];
-      dst_row[idx + c] = abs(val1 - val2);
-    }
-  }
+NppStatus nppiAbsDiff_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                             Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAbsDiff_8u_C3R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                  oSizeROI, nppStreamCtx);
 }
 
-// Kernel for 32-bit float single channel absolute difference
-__global__ void nppiAbsDiff_32f_C1R_kernel(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
-                                           Npp32f *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    const Npp32f *src1_row = (const Npp32f *)((const char *)pSrc1 + y * nSrc1Step);
-    const Npp32f *src2_row = (const Npp32f *)((const char *)pSrc2 + y * nSrc2Step);
-    Npp32f *dst_row = (Npp32f *)((char *)pDst + y * nDstStep);
-
-    float val1 = src1_row[x];
-    float val2 = src2_row[x];
-    dst_row[x] = fabsf(val1 - val2);
-  }
+NppStatus nppiAbsDiff_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
+                              Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAbsDiff_32f_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, 
+                                   oSizeROI, nppStreamCtx);
 }
 
-extern "C" {
-
-// 8-bit unsigned single channel implementation
-NppStatus nppiAbsDiff_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                      int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAbsDiff_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+// In-place versions
+NppStatus nppiAbsDiff_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiAbsDiff_8u_C1R_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                                  oSizeROI, nppStreamCtx);
 }
 
-// 8-bit unsigned three channel implementation
-NppStatus nppiAbsDiff_8u_C3R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                      int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAbsDiff_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+NppStatus nppiAbsDiff_8u_C1IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                              NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAbsDiff_8u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-// 32-bit float single channel implementation
-NppStatus nppiAbsDiff_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
-                                       Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiAbsDiff_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+NppStatus nppiAbsDiff_8u_C3IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiAbsDiff_8u_C3R_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                                  oSizeROI, nppStreamCtx);
 }
+
+NppStatus nppiAbsDiff_8u_C3IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
+                              NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAbsDiff_8u_C3IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAbsDiff_32f_C1IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                                   NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return nppiAbsDiff_32f_C1R_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep,
+                                   oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAbsDiff_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                               NppiSize oSizeROI) {
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    return nppiAbsDiff_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
