@@ -10,304 +10,331 @@ namespace arithmetic {
 // Parameter Validation Utilities
 // ============================================================================
 
-template<typename T>
-inline NppStatus validateBinaryParameters(const T *pSrc1, int nSrc1Step, 
-                                           const T *pSrc2, int nSrc2Step,
-                                           T *pDst, int nDstStep, 
-                                           NppiSize oSizeROI, int channels) {
-    if (!pSrc1 || !pSrc2 || !pDst) {
-        return NPP_NULL_POINTER_ERROR;
-    }
-    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-        return NPP_SIZE_ERROR;
-    }
-    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-        return NPP_NO_ERROR;
-    }
-    int minStep = oSizeROI.width * channels * sizeof(T);
-    if (nSrc1Step < minStep || nSrc2Step < minStep || nDstStep < minStep) {
-        return NPP_STRIDE_ERROR;
-    }
+template <typename T>
+inline NppStatus validateBinaryParameters(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst,
+                                          int nDstStep, NppiSize oSizeROI, int channels) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
+  }
+  int minStep = oSizeROI.width * channels * sizeof(T);
+  if (nSrc1Step < minStep || nSrc2Step < minStep || nDstStep < minStep) {
+    return NPP_STRIDE_ERROR;
+  }
+  return NPP_NO_ERROR;
 }
 
-template<typename T>
-inline NppStatus validateUnaryParameters(const T *pSrc, int nSrcStep,
-                                          T *pDst, int nDstStep, 
-                                          NppiSize oSizeROI, int channels) {
-    if (!pSrc || !pDst) {
-        return NPP_NULL_POINTER_ERROR;
-    }
-    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-        return NPP_SIZE_ERROR;
-    }
-    if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-        return NPP_NO_ERROR;
-    }
-    int minStep = oSizeROI.width * channels * sizeof(T);
-    if (nSrcStep < minStep || nDstStep < minStep) {
-        return NPP_STRIDE_ERROR;
-    }
+template <typename T>
+inline NppStatus validateUnaryParameters(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
+                                         int channels) {
+  if (!pSrc || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
+  }
+  int minStep = oSizeROI.width * channels * sizeof(T);
+  if (nSrcStep < minStep || nDstStep < minStep) {
+    return NPP_STRIDE_ERROR;
+  }
+  return NPP_NO_ERROR;
 }
 
 // ============================================================================
 // CUDA Kernel Templates
 // ============================================================================
 
-template<typename T, int Channels, typename BinaryOp>
-__global__ void binaryKernel(const T *pSrc1, int nSrc1Step, 
-                             const T *pSrc2, int nSrc2Step,
-                             T *pDst, int nDstStep, 
-                             int width, int height, 
-                             BinaryOp op, int scaleFactor) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+template <typename T, int Channels, typename BinaryOp>
+__global__ void binaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                             int width, int height, BinaryOp op, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x < width && y < height) {
-        const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
-        const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
-        T *dstRow = (T *)((char *)pDst + y * nDstStep);
+  if (x < width && y < height) {
+    const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+    const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-        if constexpr (Channels == 1) {
-            dstRow[x] = op(src1Row[x], src2Row[x], scaleFactor);
-        } else {
-            int idx = x * Channels;
-            for (int c = 0; c < Channels; c++) {
-                dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], scaleFactor);
-            }
-        }
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(src1Row[x], src2Row[x], scaleFactor);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], scaleFactor);
+      }
     }
+  }
 }
 
-template<typename T, int Channels, typename UnaryOp>
-__global__ void unaryKernel(const T *pSrc, int nSrcStep,
-                            T *pDst, int nDstStep,
-                            int width, int height,
-                            UnaryOp op, int scaleFactor) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+template <typename T, int Channels, typename UnaryOp>
+__global__ void unaryKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height, UnaryOp op,
+                            int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x < width && y < height) {
-        const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
-        T *dstRow = (T *)((char *)pDst + y * nDstStep);
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-        if constexpr (Channels == 1) {
-            dstRow[x] = op(srcRow[x], T(0), scaleFactor);
-        } else {
-            int idx = x * Channels;
-            for (int c = 0; c < Channels; c++) {
-                dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
-            }
-        }
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(srcRow[x], T(0), scaleFactor);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
+      }
     }
+  }
 }
 
-template<typename T, int Channels, typename CompareOp>
-__global__ void compareKernel(const T *pSrc, int nSrcStep,
-                              Npp8u *pDst, int nDstStep,
-                              int width, int height,
+template <typename T, int Channels, typename CompareOp>
+__global__ void compareKernel(const T *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width, int height,
                               CompareOp op) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x < width && y < height) {
-        const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
-        Npp8u *dstRow = (Npp8u *)((char *)pDst + y * nDstStep);
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    Npp8u *dstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
-        if constexpr (Channels == 1) {
-            dstRow[x] = op(srcRow[x]);
-        } else {
-            int idx = x * Channels;
-            for (int c = 0; c < Channels; c++) {
-                dstRow[idx + c] = op(srcRow[idx + c]);
-            }
-        }
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(srcRow[x]);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(srcRow[idx + c]);
+      }
     }
+  }
 }
 
-template<typename T, int Channels, typename TernaryOp>
-__global__ void ternaryKernel(const T *pSrc1, int nSrc1Step,
-                              const T *pSrc2, int nSrc2Step,
-                              const T *pSrc3, int nSrc3Step,
-                              T *pDst, int nDstStep,
-                              int width, int height,
-                              TernaryOp op, int scaleFactor) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+template <typename T, int Channels, typename TernaryOp>
+__global__ void ternaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, const T *pSrc3,
+                              int nSrc3Step, T *pDst, int nDstStep, int width, int height, TernaryOp op,
+                              int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x < width && y < height) {
-        const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
-        const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
-        const T *src3Row = (const T *)((const char *)pSrc3 + y * nSrc3Step);
-        T *dstRow = (T *)((char *)pDst + y * nDstStep);
+  if (x < width && y < height) {
+    const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+    const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+    const T *src3Row = (const T *)((const char *)pSrc3 + y * nSrc3Step);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-        if constexpr (Channels == 1) {
-            dstRow[x] = op(src1Row[x], src2Row[x], src3Row[x], scaleFactor);
-        } else {
-            int idx = x * Channels;
-            for (int c = 0; c < Channels; c++) {
-                dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], src3Row[idx + c], scaleFactor);
-            }
-        }
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(src1Row[x], src2Row[x], src3Row[x], scaleFactor);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], src3Row[idx + c], scaleFactor);
+      }
     }
+  }
 }
 
 // ============================================================================
 // Executor Classes
 // ============================================================================
 
-template<typename T, int Channels, typename OpType>
-class BinaryOperationExecutor {
+template <typename T, int Channels, typename OpType> class BinaryOperationExecutor {
 public:
-    static NppStatus execute(const T *pSrc1, int nSrc1Step, 
-                             const T *pSrc2, int nSrc2Step,
-                             T *pDst, int nDstStep, 
-                             NppiSize oSizeROI, int scaleFactor, 
-                             cudaStream_t stream) {
-        // Validate parameters
-        NppStatus status = validateBinaryParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, 
-                                                    pDst, nDstStep, oSizeROI, Channels);
-        if (status != NPP_NO_ERROR) return status;
-        if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+    // Validate parameters
+    NppStatus status = validateBinaryParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, Channels);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
 
-        // Launch kernel
-        dim3 blockSize(16, 16);
-        dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-        OpType op;
-        binaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
-            pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
-            oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    OpType op;
+    binaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
 
-        return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-    }
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 };
 
-template<typename T, int Channels, typename OpType>
-class UnaryOperationExecutor {
+template <typename T, int Channels, typename OpType> class UnaryOperationExecutor {
 public:
-    static NppStatus execute(const T *pSrc, int nSrcStep,
-                             T *pDst, int nDstStep,
-                             NppiSize oSizeROI, int scaleFactor,
-                             cudaStream_t stream) {
-        // Validate parameters
-        NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, 
-                                                   oSizeROI, Channels);
-        if (status != NPP_NO_ERROR) return status;
-        if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
+                           cudaStream_t stream) {
+    // Validate parameters
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, Channels);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
 
-        // Launch kernel
-        dim3 blockSize(16, 16);
-        dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-        OpType op;
-        unaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
-            pSrc, nSrcStep, pDst, nDstStep,
-            oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    OpType op;
+    unaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                         oSizeROI.height, op, scaleFactor);
 
-        return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-    }
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 };
 
-template<typename T, int Channels, typename ConstOpType>
-class ConstOperationExecutor {
+template <typename T, int Channels, typename ConstOpType> class ConstOperationExecutor {
 public:
-    static NppStatus execute(const T *pSrc, int nSrcStep,
-                             T *pDst, int nDstStep,
-                             NppiSize oSizeROI, int scaleFactor,
-                             cudaStream_t stream, ConstOpType op) {
-        // Validate parameters
-        NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, 
-                                                   oSizeROI, Channels);
-        if (status != NPP_NO_ERROR) return status;
-        if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
+                           cudaStream_t stream, ConstOpType op) {
+    // Validate parameters
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, Channels);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
 
-        // Launch kernel
-        dim3 blockSize(16, 16);
-        dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-        unaryKernel<T, Channels, ConstOpType><<<gridSize, blockSize, 0, stream>>>(
-            pSrc, nSrcStep, pDst, nDstStep,
-            oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    unaryKernel<T, Channels, ConstOpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
 
-        return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-    }
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 };
 
-template<typename T, int Channels, typename CompareOpType>
-class CompareOperationExecutor {
-public:
-    static NppStatus execute(const T *pSrc, int nSrcStep,
-                             Npp8u *pDst, int nDstStep,
-                             NppiSize oSizeROI,
-                             cudaStream_t stream, CompareOpType op) {
-        // Validate input parameters
-        if (!pSrc || !pDst) {
-            return NPP_NULL_POINTER_ERROR;
-        }
-        if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-            return NPP_SIZE_ERROR;
-        }
-        if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-        
-        int minSrcStep = oSizeROI.width * Channels * sizeof(T);
-        int minDstStep = oSizeROI.width * Channels * sizeof(Npp8u);
-        if (nSrcStep < minSrcStep || nDstStep < minDstStep) {
-            return NPP_STRIDE_ERROR;
-        }
+// Multi-channel constant kernel
+template <typename T, int Channels, typename ConstOpType>
+__global__ void multiConstKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                 const T *constants, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-        // Launch kernel
-        dim3 blockSize(16, 16);
-        dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-        compareKernel<T, Channels, CompareOpType><<<gridSize, blockSize, 0, stream>>>(
-            pSrc, nSrcStep, pDst, nDstStep,
-            oSizeROI.width, oSizeROI.height, op);
-
-        return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    if constexpr (Channels == 1) {
+      ConstOpType op(constants[0]);
+      dstRow[x] = op(srcRow[x], T(0), scaleFactor);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        ConstOpType op(constants[c]);
+        dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
+      }
     }
+  }
+}
+
+// Multi-channel constant operation executor
+template <typename T, int Channels, typename ConstOpType> class MultiConstOperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
+                           cudaStream_t stream, const T *constants) {
+    // Validate parameters
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, Channels);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Copy constants to device
+    T *d_constants;
+    cudaError_t err = cudaMalloc(&d_constants, Channels * sizeof(T));
+    if (err != cudaSuccess)
+      return NPP_MEMORY_ALLOCATION_ERR;
+
+    err = cudaMemcpy(d_constants, constants, Channels * sizeof(T), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+      cudaFree(d_constants);
+      return NPP_MEMORY_ALLOCATION_ERR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    multiConstKernel<T, Channels, ConstOpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants, scaleFactor);
+
+    cudaError_t kernelResult = cudaGetLastError();
+    cudaFree(d_constants);
+
+    return (kernelResult == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 };
 
-template<typename T, int Channels, typename OpType>
-class TernaryOperationExecutor {
+template <typename T, int Channels, typename CompareOpType> class CompareOperationExecutor {
 public:
-    static NppStatus execute(const T *pSrc1, int nSrc1Step,
-                             const T *pSrc2, int nSrc2Step,
-                             const T *pSrc3, int nSrc3Step,
-                             T *pDst, int nDstStep,
-                             NppiSize oSizeROI, int scaleFactor,
-                             cudaStream_t stream) {
-        // Validate parameters
-        if (!pSrc1 || !pSrc2 || !pSrc3 || !pDst) {
-            return NPP_NULL_POINTER_ERROR;
-        }
-        if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-            return NPP_SIZE_ERROR;
-        }
-        if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-
-        int minStep = oSizeROI.width * Channels * sizeof(T);
-        if (nSrc1Step < minStep || nSrc2Step < minStep || nSrc3Step < minStep || nDstStep < minStep) {
-            return NPP_STRIDE_ERROR;
-        }
-
-        // Launch kernel
-        dim3 blockSize(16, 16);
-        dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-        OpType op;
-        ternaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
-            pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, pDst, nDstStep,
-            oSizeROI.width, oSizeROI.height, op, scaleFactor);
-
-        return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  static NppStatus execute(const T *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                           cudaStream_t stream, CompareOpType op) {
+    // Validate input parameters
+    if (!pSrc || !pDst) {
+      return NPP_NULL_POINTER_ERROR;
     }
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    int minSrcStep = oSizeROI.width * Channels * sizeof(T);
+    int minDstStep = oSizeROI.width * Channels * sizeof(Npp8u);
+    if (nSrcStep < minSrcStep || nDstStep < minDstStep) {
+      return NPP_STRIDE_ERROR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    compareKernel<T, Channels, CompareOpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+template <typename T, int Channels, typename OpType> class TernaryOperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, const T *pSrc3, int nSrc3Step,
+                           T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+    // Validate parameters
+    if (!pSrc1 || !pSrc2 || !pSrc3 || !pDst) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    int minStep = oSizeROI.width * Channels * sizeof(T);
+    if (nSrc1Step < minStep || nSrc2Step < minStep || nSrc3Step < minStep || nDstStep < minStep) {
+      return NPP_STRIDE_ERROR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    ternaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3,
+                                                                           nSrc3Step, pDst, nDstStep, oSizeROI.width,
+                                                                           oSizeROI.height, op, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 };
 
 } // namespace arithmetic
