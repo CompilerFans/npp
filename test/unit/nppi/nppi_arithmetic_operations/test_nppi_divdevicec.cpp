@@ -3,16 +3,20 @@
 #include <gtest/gtest.h>
 #include <vector>
 
+#ifndef USE_NVIDIA_NPP_TESTS
 extern "C" {
-    // DivDeviceC function declarations
-    NppStatus nppiDivDeviceC_8u_C1RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstant, 
+    // DivDeviceC function declarations (MPP implementation only)
+    NppStatus nppiDivDeviceC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pConstant, 
                                            Npp8u *pDst, int nDstStep, NppiSize oSizeROI, 
                                            int nScaleFactor, NppStreamContext nppStreamCtx);
     
-    NppStatus nppiDivDeviceC_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, const Npp32f *pConstant, 
+    NppStatus nppiDivDeviceC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pConstant, 
                                          Npp32f *pDst, int nDstStep, NppiSize oSizeROI, 
                                          NppStreamContext nppStreamCtx);
 }
+#endif
+
+#ifndef USE_NVIDIA_NPP_TESTS
 
 class NppiDivDeviceCTest : public ::testing::Test {
 protected:
@@ -203,3 +207,5 @@ TEST_F(NppiDivDeviceCTest, DivDeviceC_ErrorHandling) {
     status = nppiDivDeviceC_8u_C1RSfs_Ctx((Npp8u*)0x1000, 16, (Npp8u*)0x2000, (Npp8u*)0x3000, 16, oSizeROI, 32, nppStreamCtx);
     EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }
+
+#endif // USE_NVIDIA_NPP_TESTS

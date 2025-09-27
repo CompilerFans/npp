@@ -3,13 +3,14 @@
 #include <gtest/gtest.h>
 #include <vector>
 
+#ifndef USE_NVIDIA_NPP_TESTS
 extern "C" {
-    // AbsDiffDeviceC function declarations
-    NppStatus nppiAbsDiffDeviceC_8u_C1RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstant, 
+    // AbsDiffDeviceC function declarations (MPP implementation only)
+    NppStatus nppiAbsDiffDeviceC_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pConstant, 
                                                Npp8u *pDst, int nDstStep, NppiSize oSizeROI, 
                                                int nScaleFactor, NppStreamContext nppStreamCtx);
     
-    NppStatus nppiAbsDiffDeviceC_8u_C3RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstants, 
+    NppStatus nppiAbsDiffDeviceC_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pConstants, 
                                                Npp8u *pDst, int nDstStep, NppiSize oSizeROI, 
                                                int nScaleFactor, NppStreamContext nppStreamCtx);
     
@@ -17,6 +18,9 @@ extern "C" {
                                              int nDstStep, NppiSize oSizeROI, Npp32f *pConstant,
                                              NppStreamContext nppStreamCtx);
 }
+#endif
+
+#ifndef USE_NVIDIA_NPP_TESTS
 
 class NppiAbsDiffDeviceCTest : public ::testing::Test {
 protected:
@@ -271,3 +275,5 @@ TEST_F(NppiAbsDiffDeviceCTest, AbsDiffDeviceC_ErrorHandling) {
     status = nppiAbsDiffDeviceC_8u_C1RSfs_Ctx((Npp8u*)0x1000, 16, (Npp8u*)0x2000, (Npp8u*)0x3000, 16, oSizeROI, 32, nppStreamCtx);
     EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
 }
+
+#endif // USE_NVIDIA_NPP_TESTS
