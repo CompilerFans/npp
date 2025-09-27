@@ -10,8 +10,8 @@ using namespace nppi::arithmetic;
 
 // Mixed type kernel for AddSquare operation
 template <typename SrcType, typename DstType>
-__global__ void addSquareMixedKernel(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep,
-                                     int width, int height) {
+__global__ void addSquareMixedKernel(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, int width,
+                                     int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -40,8 +40,7 @@ NppStatus nppiAddSquare_8u32f_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32f *
 
   // Launch kernel
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   addSquareMixedKernel<Npp8u, Npp32f><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height);
@@ -49,7 +48,8 @@ NppStatus nppiAddSquare_8u32f_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32f *
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAddSquare_8u32f_C1IR(const Npp8u *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+NppStatus nppiAddSquare_8u32f_C1IR(const Npp8u *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                                   NppiSize oSizeROI) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAddSquare_8u32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
@@ -68,8 +68,7 @@ NppStatus nppiAddSquare_16u32f_C1IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp32f
 
   // Launch kernel
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   addSquareMixedKernel<Npp16u, Npp32f><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height);
@@ -77,7 +76,8 @@ NppStatus nppiAddSquare_16u32f_C1IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp32f
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAddSquare_16u32f_C1IR(const Npp16u *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+NppStatus nppiAddSquare_16u32f_C1IR(const Npp16u *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                                    NppiSize oSizeROI) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAddSquare_16u32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
@@ -90,7 +90,8 @@ NppStatus nppiAddSquare_32f_C1IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *p
       pSrcDst, nSrcDstStep, pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
 }
 
-NppStatus nppiAddSquare_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+NppStatus nppiAddSquare_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
+                                 NppiSize oSizeROI) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAddSquare_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
@@ -103,8 +104,8 @@ NppStatus nppiAddSquare_8u_C1IRSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
       pSrcDst, nSrcDstStep, pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx.hStream);
 }
 
-NppStatus nppiAddSquare_8u_C1IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, 
-                                   NppiSize oSizeROI, int nScaleFactor) {
+NppStatus nppiAddSquare_8u_C1IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAddSquare_8u_C1IRSfs_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, defaultCtx);
@@ -117,7 +118,7 @@ NppStatus nppiAddSquare_16u_C1IRSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u
       pSrcDst, nSrcDstStep, pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx.hStream);
 }
 
-NppStatus nppiAddSquare_16u_C1IRSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep, 
+NppStatus nppiAddSquare_16u_C1IRSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, int nScaleFactor) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream

@@ -10,75 +10,75 @@ NppStatus nppiXorC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u nConst
                                    NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   XorConstOp<Npp8u> op(nConstant);
   return ConstOperationExecutor<Npp8u, 1, XorConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                       nppStreamCtx.hStream, op);
+                                                                      nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiXorC_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp8u, 3, XorConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                            nppStreamCtx.hStream, aConstants);
+                                                                           nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_8u_AC4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp8u, 4, XorConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                            nppStreamCtx.hStream, aConstants);
+                                                                           nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[4], Npp8u *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp8u, 4, XorConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                            nppStreamCtx.hStream, aConstants);
+                                                                           nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u nConstant, Npp16u *pDst, int nDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   XorConstOp<Npp16u> op(nConstant);
   return ConstOperationExecutor<Npp16u, 1, XorConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                         nppStreamCtx.hStream, op);
+                                                                        nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiXorC_16u_C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp16u, 3, XorConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                              0, nppStreamCtx.hStream, aConstants);
+                                                                             0, nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_16u_AC4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
                                      int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp16u, 4, XorConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                              0, nppStreamCtx.hStream, aConstants);
+                                                                             0, nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp16u, 4, XorConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                              0, nppStreamCtx.hStream, aConstants);
+                                                                             0, nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_32s_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s nConstant, Npp32s *pDst, int nDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   XorConstOp<Npp32s> op(nConstant);
   return ConstOperationExecutor<Npp32s, 1, XorConstOp<Npp32s>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                         nppStreamCtx.hStream, op);
+                                                                        nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiXorC_32s_C3R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp32s, 3, XorConstOp<Npp32s>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                              0, nppStreamCtx.hStream, aConstants);
+                                                                             0, nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_32s_AC4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
                                      int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp32s, 4, XorConstOp<Npp32s>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                              0, nppStreamCtx.hStream, aConstants);
+                                                                             0, nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiXorC_32s_C4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[4], Npp32s *pDst,
                                     int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConstOperationExecutor<Npp32s, 4, XorConstOp<Npp32s>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                              0, nppStreamCtx.hStream, aConstants);
+                                                                             0, nppStreamCtx.hStream, aConstants);
 }
 
 } // extern "C"

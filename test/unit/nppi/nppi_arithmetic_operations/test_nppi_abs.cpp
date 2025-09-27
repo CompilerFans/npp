@@ -85,4 +85,3 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1IR_InPlaceOperation) {
   EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-5f))
       << "In-place Abs operation produced incorrect results";
 }
-

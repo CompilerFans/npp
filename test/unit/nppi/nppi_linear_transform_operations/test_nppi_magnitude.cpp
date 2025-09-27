@@ -41,4 +41,3 @@ TEST_F(MagnitudeFunctionalTest, Magnitude_32fc_32f_C1R_BasicOperation) {
   EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-5f))
       << "Magnitude operation produced incorrect results";
 }
-

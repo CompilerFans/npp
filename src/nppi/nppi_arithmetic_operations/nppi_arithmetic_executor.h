@@ -343,7 +343,7 @@ public:
 
 template <typename SrcType1, typename SrcType2, typename DstType, typename OpType, bool InPlace>
 NppStatus executeThreeOperandOperation(const SrcType1 *pSrc1, int nSrc1Step, const SrcType2 *pSrc2, int nSrc2Step,
-                                       const DstType *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, 
+                                       const DstType *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep,
                                        NppiSize oSizeROI, int scaleFactor, NppStreamContext nppStreamCtx) {
   // For AddProduct, the third operand is the destination that gets accumulated
   // This handles the IR (in-place result) operations where result = dst + (src1 * src2)
@@ -368,19 +368,18 @@ NppStatus executeThreeOperandOperation(const SrcType1 *pSrc1, int nSrc1Step, con
   // For three operand operations, we need special handling
   // AddProduct: result = src3 + (src1 * src2)
   return TernaryOperationExecutor<DstType, 1, OpType>::execute(
-      (const DstType*)pSrc3, nSrc3Step, (const DstType*)pSrc1, nSrc1Step, (const DstType*)pSrc2, nSrc2Step,
-      pDst, nDstStep, oSizeROI, scaleFactor, 
-      nppStreamCtx.hStream);
+      (const DstType *)pSrc3, nSrc3Step, (const DstType *)pSrc1, nSrc1Step, (const DstType *)pSrc2, nSrc2Step, pDst,
+      nDstStep, oSizeROI, scaleFactor, nppStreamCtx.hStream);
 }
 
 // ============================================================================
-// Mixed Type Ternary Operation Kernels and Executors  
+// Mixed Type Ternary Operation Kernels and Executors
 // ============================================================================
 
 template <typename SrcType1, typename SrcType2, typename DstType, int Channels, typename TernaryOp>
-__global__ void mixedTernaryKernel(const DstType *pSrc1, int nSrc1Step, const SrcType1 *pSrc2, int nSrc2Step, 
-                                   const SrcType2 *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, 
-                                   int width, int height, TernaryOp op, int scaleFactor) {
+__global__ void mixedTernaryKernel(const DstType *pSrc1, int nSrc1Step, const SrcType1 *pSrc2, int nSrc2Step,
+                                   const SrcType2 *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, int width,
+                                   int height, TernaryOp op, int scaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -408,12 +407,12 @@ __global__ void mixedTernaryKernel(const DstType *pSrc1, int nSrc1Step, const Sr
   }
 }
 
-template <typename SrcType1, typename SrcType2, typename DstType, int Channels, typename OpType> 
+template <typename SrcType1, typename SrcType2, typename DstType, int Channels, typename OpType>
 class MixedTernaryOperationExecutor {
 public:
-  static NppStatus execute(const DstType *pSrc1, int nSrc1Step, const SrcType1 *pSrc2, int nSrc2Step, 
-                           const SrcType2 *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, 
-                           NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+  static NppStatus execute(const DstType *pSrc1, int nSrc1Step, const SrcType1 *pSrc2, int nSrc2Step,
+                           const SrcType2 *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, NppiSize oSizeROI,
+                           int scaleFactor, cudaStream_t stream) {
     // Validate parameters
     if (!pSrc1 || !pSrc2 || !pSrc3 || !pDst) {
       return NPP_NULL_POINTER_ERROR;
@@ -428,21 +427,19 @@ public:
     int minSrc2Step = oSizeROI.width * Channels * sizeof(SrcType1);
     int minSrc3Step = oSizeROI.width * Channels * sizeof(SrcType2);
     int minDstStep = oSizeROI.width * Channels * sizeof(DstType);
-    
+
     if (nSrc1Step < minSrc1Step || nSrc2Step < minSrc2Step || nSrc3Step < minSrc3Step || nDstStep < minDstStep) {
       return NPP_STRIDE_ERROR;
     }
 
     // Launch kernel
     dim3 blockSize(16, 16);
-    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
     OpType op;
     mixedTernaryKernel<SrcType1, SrcType2, DstType, Channels, OpType>
-        <<<gridSize, blockSize, 0, stream>>>(
-            pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, 
-            pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+        <<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, pDst, nDstStep,
+                                             oSizeROI.width, oSizeROI.height, op, scaleFactor);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -453,9 +450,9 @@ public:
 // ============================================================================
 
 template <typename T, int Channels, typename QuaternaryOp>
-__global__ void quaternaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, 
-                                 const T *pSrc3, int nSrc3Step, const T *pSrc4, int nSrc4Step,
-                                 T *pDst, int nDstStep, int width, int height, QuaternaryOp op, int scaleFactor) {
+__global__ void quaternaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, const T *pSrc3,
+                                 int nSrc3Step, const T *pSrc4, int nSrc4Step, T *pDst, int nDstStep, int width,
+                                 int height, QuaternaryOp op, int scaleFactor) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -477,12 +474,11 @@ __global__ void quaternaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, 
   }
 }
 
-template <typename T, int Channels, typename OpType> 
-class QuaternaryOperationExecutor {
+template <typename T, int Channels, typename OpType> class QuaternaryOperationExecutor {
 public:
-  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, 
-                           const T *pSrc3, int nSrc3Step, const T *pSrc4, int nSrc4Step,
-                           T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, const T *pSrc3, int nSrc3Step,
+                           const T *pSrc4, int nSrc4Step, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
+                           cudaStream_t stream) {
     // Validate parameters
     if (!pSrc1 || !pSrc2 || !pSrc3 || !pSrc4 || !pDst) {
       return NPP_NULL_POINTER_ERROR;
@@ -494,20 +490,19 @@ public:
       return NPP_NO_ERROR;
 
     int minStep = oSizeROI.width * Channels * sizeof(T);
-    if (nSrc1Step < minStep || nSrc2Step < minStep || nSrc3Step < minStep || 
-        nSrc4Step < minStep || nDstStep < minStep) {
+    if (nSrc1Step < minStep || nSrc2Step < minStep || nSrc3Step < minStep || nSrc4Step < minStep ||
+        nDstStep < minStep) {
       return NPP_STRIDE_ERROR;
     }
 
     // Launch kernel
     dim3 blockSize(16, 16);
-    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
     OpType op;
-    quaternaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
-        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, pSrc4, nSrc4Step,
-        pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    quaternaryKernel<T, Channels, OpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, pSrc4, nSrc4Step,
+                                             pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

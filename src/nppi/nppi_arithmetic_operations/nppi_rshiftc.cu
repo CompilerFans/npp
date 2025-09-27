@@ -10,28 +10,28 @@ NppStatus nppiRShiftC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32u nC
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   RShiftConstOp<Npp8u> op(nConstant);
   return ConstOperationExecutor<Npp8u, 1, RShiftConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                          nppStreamCtx.hStream, op);
+                                                                         nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiRShiftC_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   RShiftConstOp<Npp8u> op(aConstants[0]);
   return ConstOperationExecutor<Npp8u, 3, RShiftConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                          nppStreamCtx.hStream, op);
+                                                                         nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiRShiftC_8u_AC4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp8u *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   RShiftConstOp<Npp8u> op(aConstants[0]);
   return ConstOperationExecutor<Npp8u, 4, RShiftConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                          nppStreamCtx.hStream, op);
+                                                                         nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiRShiftC_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   RShiftConstOp<Npp8u> op(aConstants[0]);
   return ConstOperationExecutor<Npp8u, 4, RShiftConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                          nppStreamCtx.hStream, op);
+                                                                         nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiRShiftC_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp32u nConstant, Npp16u *pDst, int nDstStep,

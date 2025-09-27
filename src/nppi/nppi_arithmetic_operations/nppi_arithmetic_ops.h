@@ -316,7 +316,6 @@ public:
   }
 };
 
-
 template <typename T> class AndConstOp {
 private:
   T constant;
@@ -563,12 +562,12 @@ public:
     }
 
     double result = static_cast<double>(a) / static_cast<double>(constant);
-    
+
     if (scaleFactor > 0 && std::is_integral_v<T>) {
       // For division, NPP uses right shift (truncation), not rounding division
       result = result / (1 << scaleFactor);
     }
-    
+
     return saturate_cast<T>(result);
   }
 };

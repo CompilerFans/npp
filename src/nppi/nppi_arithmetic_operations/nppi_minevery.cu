@@ -4,17 +4,17 @@
 using namespace nppi::arithmetic;
 
 // ============================================================================
-// MinEvery Implementation  
+// MinEvery Implementation
 // nppiMinEvery: result = min(src1, src2) for each pixel
 // ============================================================================
 
 extern "C" {
 
 // 8u versions
-NppStatus nppiMinEvery_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
-                                   NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp8u, 1, MinEveryOp<Npp8u>>::execute(
-      pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+NppStatus nppiMinEvery_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return BinaryOperationExecutor<Npp8u, 1, MinEveryOp<Npp8u>>::execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst,
+                                                                       nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppiMinEvery_8u_C1IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

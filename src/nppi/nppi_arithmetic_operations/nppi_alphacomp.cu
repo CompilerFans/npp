@@ -8,8 +8,7 @@ using namespace nppi::arithmetic;
 // nppiAlphaCompC: Alpha composition with constant alpha values
 // ============================================================================
 
-template <typename T>
-class AlphaCompOpExecutor {
+template <typename T> class AlphaCompOpExecutor {
 private:
   T alpha1, alpha2;
   NppiAlphaOp alphaOp;
@@ -22,7 +21,7 @@ public:
     double s1 = static_cast<double>(src1);
     double s2 = static_cast<double>(src2);
     double a1, a2;
-    
+
     // Normalize alpha values based on data type
     if constexpr (std::is_same_v<T, Npp8u>) {
       a1 = static_cast<double>(alpha1) / 255.0;
@@ -45,65 +44,65 @@ public:
     }
 
     switch (alphaOp) {
-      case NPPI_OP_ALPHA_OVER:
-        // Standard alpha blending: result = s1*a1 + s2*a2*(1-a1)
-        result = s1 * a1 + s2 * a2 * (1.0 - a1);
-        break;
-      case NPPI_OP_ALPHA_IN:
-        // Source inside destination: Based on NVIDIA behavior, appears to be s1 * (a1 * 3/4)
-        if constexpr (std::is_same_v<T, Npp8u>) {
-          // For 8u: Use integer arithmetic to match NVIDIA exactly
-          double modified_alpha = static_cast<double>(alpha1) * 3.0 / 4.0 / 255.0;
-          result = s1 * modified_alpha;
-        } else {
-          result = s1 * a1;
-        }
-        break;
-      case NPPI_OP_ALPHA_OUT:
-        // Source outside destination: result = s1 * (1 - a2)
-        result = s1 * (1.0 - a2);
-        break;
-      case NPPI_OP_ALPHA_ATOP:
-        // Source atop destination: result = s1*a2 + s2*(1-a1)
-        result = s1 * a2 + s2 * (1.0 - a1);
-        break;
-      case NPPI_OP_ALPHA_XOR:
-        // Source XOR destination: result = s1*(1-a2) + s2*(1-a1)
-        result = s1 * (1.0 - a2) + s2 * (1.0 - a1);
-        break;
-      case NPPI_OP_ALPHA_PLUS:
-        // Source plus destination: result = s1*a1 + s2*a2
-        result = s1 * a1 + s2 * a2;
-        break;
-      // Premultiplied alpha operations
-      case NPPI_OP_ALPHA_OVER_PREMUL:
-        // Premultiplied over: result = s1 + s2*(1-a1)
-        result = s1 + s2 * (1.0 - a1);
-        break;
-      case NPPI_OP_ALPHA_IN_PREMUL:
-        // Premultiplied in: result = s1 * a2
-        result = s1 * a2;
-        break;
-      case NPPI_OP_ALPHA_OUT_PREMUL:
-        // Premultiplied out: result = s1 * (1 - a2)
-        result = s1 * (1.0 - a2);
-        break;
-      case NPPI_OP_ALPHA_ATOP_PREMUL:
-        // Premultiplied atop: result = s1*a2 + s2*(1-a1)
-        result = s1 * a2 + s2 * (1.0 - a1);
-        break;
-      case NPPI_OP_ALPHA_XOR_PREMUL:
-        // Premultiplied XOR: result = s1*(1-a2) + s2*(1-a1)
-        result = s1 * (1.0 - a2) + s2 * (1.0 - a1);
-        break;
-      case NPPI_OP_ALPHA_PLUS_PREMUL:
-        // Premultiplied plus: result = s1 + s2
-        result = s1 + s2;
-        break;
-      default:
-        // Unsupported operation, return src1
-        result = s1;
-        break;
+    case NPPI_OP_ALPHA_OVER:
+      // Standard alpha blending: result = s1*a1 + s2*a2*(1-a1)
+      result = s1 * a1 + s2 * a2 * (1.0 - a1);
+      break;
+    case NPPI_OP_ALPHA_IN:
+      // Source inside destination: Based on NVIDIA behavior, appears to be s1 * (a1 * 3/4)
+      if constexpr (std::is_same_v<T, Npp8u>) {
+        // For 8u: Use integer arithmetic to match NVIDIA exactly
+        double modified_alpha = static_cast<double>(alpha1) * 3.0 / 4.0 / 255.0;
+        result = s1 * modified_alpha;
+      } else {
+        result = s1 * a1;
+      }
+      break;
+    case NPPI_OP_ALPHA_OUT:
+      // Source outside destination: result = s1 * (1 - a2)
+      result = s1 * (1.0 - a2);
+      break;
+    case NPPI_OP_ALPHA_ATOP:
+      // Source atop destination: result = s1*a2 + s2*(1-a1)
+      result = s1 * a2 + s2 * (1.0 - a1);
+      break;
+    case NPPI_OP_ALPHA_XOR:
+      // Source XOR destination: result = s1*(1-a2) + s2*(1-a1)
+      result = s1 * (1.0 - a2) + s2 * (1.0 - a1);
+      break;
+    case NPPI_OP_ALPHA_PLUS:
+      // Source plus destination: result = s1*a1 + s2*a2
+      result = s1 * a1 + s2 * a2;
+      break;
+    // Premultiplied alpha operations
+    case NPPI_OP_ALPHA_OVER_PREMUL:
+      // Premultiplied over: result = s1 + s2*(1-a1)
+      result = s1 + s2 * (1.0 - a1);
+      break;
+    case NPPI_OP_ALPHA_IN_PREMUL:
+      // Premultiplied in: result = s1 * a2
+      result = s1 * a2;
+      break;
+    case NPPI_OP_ALPHA_OUT_PREMUL:
+      // Premultiplied out: result = s1 * (1 - a2)
+      result = s1 * (1.0 - a2);
+      break;
+    case NPPI_OP_ALPHA_ATOP_PREMUL:
+      // Premultiplied atop: result = s1*a2 + s2*(1-a1)
+      result = s1 * a2 + s2 * (1.0 - a1);
+      break;
+    case NPPI_OP_ALPHA_XOR_PREMUL:
+      // Premultiplied XOR: result = s1*(1-a2) + s2*(1-a1)
+      result = s1 * (1.0 - a2) + s2 * (1.0 - a1);
+      break;
+    case NPPI_OP_ALPHA_PLUS_PREMUL:
+      // Premultiplied plus: result = s1 + s2
+      result = s1 + s2;
+      break;
+    default:
+      // Unsupported operation, return src1
+      result = s1;
+      break;
     }
 
     // Convert back to original range
@@ -119,10 +118,8 @@ public:
 
 // Custom kernel for AlphaComp operation
 template <typename T, int Channels>
-__global__ void alphaCompConstKernel(const T *pSrc1, int nSrc1Step, T alpha1,
-                                     const T *pSrc2, int nSrc2Step, T alpha2,
-                                     T *pDst, int nDstStep, int width, int height, 
-                                     NppiAlphaOp alphaOp) {
+__global__ void alphaCompConstKernel(const T *pSrc1, int nSrc1Step, T alpha1, const T *pSrc2, int nSrc2Step, T alpha2,
+                                     T *pDst, int nDstStep, int width, int height, NppiAlphaOp alphaOp) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -147,9 +144,8 @@ __global__ void alphaCompConstKernel(const T *pSrc1, int nSrc1Step, T alpha1,
 extern "C" {
 
 // 8u versions
-NppStatus nppiAlphaCompC_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1,
-                                    const Npp8u *pSrc2, int nSrc2Step, Npp8u nAlpha2,
-                                    Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
+NppStatus nppiAlphaCompC_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                    Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
                                     NppStreamContext nppStreamCtx) {
   // Validate parameters
   if (!pSrc1 || !pSrc2 || !pDst) {
@@ -166,29 +162,25 @@ NppStatus nppiAlphaCompC_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAl
 
   // Launch kernel
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   alphaCompConstKernel<Npp8u, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, 
-      oSizeROI.width, oSizeROI.height, eAlphaOp);
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaCompC_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1,
-                                const Npp8u *pSrc2, int nSrc2Step, Npp8u nAlpha2,
-                                Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaCompC_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiAlphaCompC_8u_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2,
-                                   pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
+  return nppiAlphaCompC_8u_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                   eAlphaOp, defaultCtx);
 }
 
 // 8u C3 versions
-NppStatus nppiAlphaCompC_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1,
-                                    const Npp8u *pSrc2, int nSrc2Step, Npp8u nAlpha2,
-                                    Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
+NppStatus nppiAlphaCompC_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                    Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
                                     NppStreamContext nppStreamCtx) {
   // Validate parameters
   if (!pSrc1 || !pSrc2 || !pDst) {
@@ -205,30 +197,26 @@ NppStatus nppiAlphaCompC_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAl
 
   // Launch kernel
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   alphaCompConstKernel<Npp8u, 3><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, 
-      oSizeROI.width, oSizeROI.height, eAlphaOp);
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaCompC_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1,
-                                const Npp8u *pSrc2, int nSrc2Step, Npp8u nAlpha2,
-                                Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaCompC_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiAlphaCompC_8u_C3R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2,
-                                   pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
+  return nppiAlphaCompC_8u_C3R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                   eAlphaOp, defaultCtx);
 }
 
 // 16u versions
-NppStatus nppiAlphaCompC_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1,
-                                     const Npp16u *pSrc2, int nSrc2Step, Npp16u nAlpha2,
-                                     Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
-                                     NppStreamContext nppStreamCtx) {
+NppStatus nppiAlphaCompC_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2,
+                                     int nSrc2Step, Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
   // Validate parameters
   if (!pSrc1 || !pSrc2 || !pDst) {
     return NPP_NULL_POINTER_ERROR;
@@ -244,30 +232,26 @@ NppStatus nppiAlphaCompC_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u 
 
   // Launch kernel
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   alphaCompConstKernel<Npp16u, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, 
-      oSizeROI.width, oSizeROI.height, eAlphaOp);
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaCompC_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1,
-                                 const Npp16u *pSrc2, int nSrc2Step, Npp16u nAlpha2,
-                                 Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaCompC_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2, int nSrc2Step,
+                                 Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiAlphaCompC_16u_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2,
-                                    pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
+  return nppiAlphaCompC_16u_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
 }
 
 // 32f versions
-NppStatus nppiAlphaCompC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, Npp32f nAlpha1,
-                                     const Npp32f *pSrc2, int nSrc2Step, Npp32f nAlpha2,
-                                     Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
-                                     NppStreamContext nppStreamCtx) {
+NppStatus nppiAlphaCompC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, Npp32f nAlpha1, const Npp32f *pSrc2,
+                                     int nSrc2Step, Npp32f nAlpha2, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
   // Validate parameters
   if (!pSrc1 || !pSrc2 || !pDst) {
     return NPP_NULL_POINTER_ERROR;
@@ -283,23 +267,20 @@ NppStatus nppiAlphaCompC_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, Npp32f 
 
   // Launch kernel
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   alphaCompConstKernel<Npp32f, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, 
-      oSizeROI.width, oSizeROI.height, eAlphaOp);
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaCompC_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, Npp32f nAlpha1,
-                                 const Npp32f *pSrc2, int nSrc2Step, Npp32f nAlpha2,
-                                 Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaCompC_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, Npp32f nAlpha1, const Npp32f *pSrc2, int nSrc2Step,
+                                 Npp32f nAlpha2, Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiAlphaCompC_32f_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2,
-                                    pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
+  return nppiAlphaCompC_32f_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
 }
 
 } // extern "C"

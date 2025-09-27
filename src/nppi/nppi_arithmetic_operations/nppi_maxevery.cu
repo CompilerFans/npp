@@ -4,17 +4,17 @@
 using namespace nppi::arithmetic;
 
 // ============================================================================
-// MaxEvery Implementation  
+// MaxEvery Implementation
 // nppiMaxEvery: result = max(src1, src2) for each pixel
 // ============================================================================
 
 extern "C" {
 
 // 8u versions
-NppStatus nppiMaxEvery_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
-                                   NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp8u, 1, MaxEveryOp<Npp8u>>::execute(
-      pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+NppStatus nppiMaxEvery_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return BinaryOperationExecutor<Npp8u, 1, MaxEveryOp<Npp8u>>::execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst,
+                                                                       nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppiMaxEvery_8u_C1IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
