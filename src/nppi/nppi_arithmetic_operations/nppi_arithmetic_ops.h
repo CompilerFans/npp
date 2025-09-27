@@ -143,6 +143,14 @@ template <typename T> struct MinOp {
   __device__ __host__ T operator()(T a, T b, int = 0) const { return a < b ? a : b; }
 };
 
+template <typename T> struct MaxEveryOp {
+  __device__ __host__ T operator()(T a, T b, int = 0) const { return a > b ? a : b; }
+};
+
+template <typename T> struct MinEveryOp {
+  __device__ __host__ T operator()(T a, T b, int = 0) const { return a < b ? a : b; }
+};
+
 // ============================================================================
 // Unary Operation Functors
 // ============================================================================
@@ -557,7 +565,8 @@ public:
     double result = static_cast<double>(a) / static_cast<double>(constant);
     
     if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      // For division, NPP uses right shift (truncation), not rounding division
+      result = result / (1 << scaleFactor);
     }
     
     return saturate_cast<T>(result);

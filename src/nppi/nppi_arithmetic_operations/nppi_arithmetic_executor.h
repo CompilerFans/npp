@@ -337,5 +337,41 @@ public:
   }
 };
 
+// ============================================================================
+// Three Operand Operation Helper Functions
+// ============================================================================
+
+template <typename SrcType1, typename SrcType2, typename DstType, typename OpType, bool InPlace>
+NppStatus executeThreeOperandOperation(const SrcType1 *pSrc1, int nSrc1Step, const SrcType2 *pSrc2, int nSrc2Step,
+                                       const DstType *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, 
+                                       NppiSize oSizeROI, int scaleFactor, NppStreamContext nppStreamCtx) {
+  // For AddProduct, the third operand is the destination that gets accumulated
+  // This handles the IR (in-place result) operations where result = dst + (src1 * src2)
+  if constexpr (InPlace) {
+    // For in-place operations, pSrc3 and pDst should be the same
+    if (pSrc3 != pDst) {
+      return NPP_BAD_ARGUMENT_ERROR;
+    }
+  }
+
+  // Validate parameters
+  if (!pSrc1 || !pSrc2 || !pSrc3 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
+  // For three operand operations, we need special handling
+  // AddProduct: result = src3 + (src1 * src2)
+  return TernaryOperationExecutor<DstType, 1, OpType>::execute(
+      (const DstType*)pSrc3, nSrc3Step, (const DstType*)pSrc1, nSrc1Step, (const DstType*)pSrc2, nSrc2Step,
+      pDst, nDstStep, oSizeROI, scaleFactor, 
+      nppStreamCtx.hStream);
+}
+
 } // namespace arithmetic
 } // namespace nppi
