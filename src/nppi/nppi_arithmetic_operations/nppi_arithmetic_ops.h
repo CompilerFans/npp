@@ -457,22 +457,6 @@ public:
   }
 };
 
-// Mixed precision AddWeighted operation
-template <typename TSrc, typename TDst> class MixedAddWeightedOp {
-private:
-  TDst alpha, beta;
-
-public:
-  __device__ __host__ MixedAddWeightedOp(TDst a, TDst b) : alpha(a), beta(b) {}
-
-  __device__ __host__ TDst operator()(TSrc a, TDst b, int = 0) const {
-    // Result = alpha * a + beta * b (mixed precision)
-    double result = static_cast<double>(alpha) * static_cast<double>(a) + 
-                    static_cast<double>(beta) * static_cast<double>(b);
-    return static_cast<TDst>(result);
-  }
-};
-
 // ============================================================================
 // Alpha Composition Operations
 // ============================================================================
@@ -496,21 +480,19 @@ template <typename T> struct AlphaCompOp {
 
 template <typename T> class AlphaCompConstOp {
 private:
-  T alpha1, alpha2;
+  T constant_alpha;
 
 public:
-  __device__ __host__ AlphaCompConstOp(T a1, T a2) : alpha1(a1), alpha2(a2) {}
+  __device__ __host__ AlphaCompConstOp(T alpha) : constant_alpha(alpha) {}
 
   __device__ __host__ T operator()(T src1, T src2, int = 0) const {
     if constexpr (std::is_same_v<T, Npp8u>) {
-      double a1 = static_cast<double>(alpha1) / 255.0;
-      double a2 = static_cast<double>(alpha2) / 255.0;
-      double result = static_cast<double>(src1) * a1 + static_cast<double>(src2) * a2 * (1.0 - a1);
+      double alpha = static_cast<double>(constant_alpha) / 255.0;
+      double result = static_cast<double>(src1) * alpha + static_cast<double>(src2) * (1.0 - alpha);
       return saturate_cast<T>(result);
     } else if constexpr (std::is_same_v<T, Npp32f>) {
-      double a1 = static_cast<double>(alpha1);
-      double a2 = static_cast<double>(alpha2);
-      double result = static_cast<double>(src1) * a1 + static_cast<double>(src2) * a2 * (1.0 - a1);
+      double alpha = static_cast<double>(constant_alpha);
+      double result = static_cast<double>(src1) * alpha + static_cast<double>(src2) * (1.0 - alpha);
       return static_cast<T>(result);
     }
     return src1; // Fallback
@@ -575,8 +557,7 @@ public:
     double result = static_cast<double>(a) / static_cast<double>(constant);
     
     if (scaleFactor > 0 && std::is_integral_v<T>) {
-      // For division, NPP uses right shift (truncation), not rounding division
-      result = result / (1 << scaleFactor);
+      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
     }
     
     return saturate_cast<T>(result);
