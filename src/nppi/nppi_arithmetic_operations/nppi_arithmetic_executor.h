@@ -373,5 +373,80 @@ NppStatus executeThreeOperandOperation(const SrcType1 *pSrc1, int nSrc1Step, con
       nppStreamCtx.hStream);
 }
 
+// ============================================================================
+// Mixed Type Ternary Operation Kernels and Executors  
+// ============================================================================
+
+template <typename SrcType1, typename SrcType2, typename DstType, int Channels, typename TernaryOp>
+__global__ void mixedTernaryKernel(const DstType *pSrc1, int nSrc1Step, const SrcType1 *pSrc2, int nSrc2Step, 
+                                   const SrcType2 *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, 
+                                   int width, int height, TernaryOp op, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const DstType *src1Row = (const DstType *)((const char *)pSrc1 + y * nSrc1Step);
+    const SrcType1 *src2Row = (const SrcType1 *)((const char *)pSrc2 + y * nSrc2Step);
+    const SrcType2 *src3Row = (const SrcType2 *)((const char *)pSrc3 + y * nSrc3Step);
+    DstType *dstRow = (DstType *)((char *)pDst + y * nDstStep);
+
+    if constexpr (Channels == 1) {
+      // Convert types and apply operation: result = src1 + (src2 * src3)
+      DstType val1 = src1Row[x];
+      DstType val2 = static_cast<DstType>(src2Row[x]);
+      DstType val3 = static_cast<DstType>(src3Row[x]);
+      dstRow[x] = op(val1, val2, val3, scaleFactor);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        DstType val1 = src1Row[idx + c];
+        DstType val2 = static_cast<DstType>(src2Row[idx + c]);
+        DstType val3 = static_cast<DstType>(src3Row[idx + c]);
+        dstRow[idx + c] = op(val1, val2, val3, scaleFactor);
+      }
+    }
+  }
+}
+
+template <typename SrcType1, typename SrcType2, typename DstType, int Channels, typename OpType> 
+class MixedTernaryOperationExecutor {
+public:
+  static NppStatus execute(const DstType *pSrc1, int nSrc1Step, const SrcType1 *pSrc2, int nSrc2Step, 
+                           const SrcType2 *pSrc3, int nSrc3Step, DstType *pDst, int nDstStep, 
+                           NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+    // Validate parameters
+    if (!pSrc1 || !pSrc2 || !pSrc3 || !pDst) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    int minSrc1Step = oSizeROI.width * Channels * sizeof(DstType);
+    int minSrc2Step = oSizeROI.width * Channels * sizeof(SrcType1);
+    int minSrc3Step = oSizeROI.width * Channels * sizeof(SrcType2);
+    int minDstStep = oSizeROI.width * Channels * sizeof(DstType);
+    
+    if (nSrc1Step < minSrc1Step || nSrc2Step < minSrc2Step || nSrc3Step < minSrc3Step || nDstStep < minDstStep) {
+      return NPP_STRIDE_ERROR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, 
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    mixedTernaryKernel<SrcType1, SrcType2, DstType, Channels, OpType>
+        <<<gridSize, blockSize, 0, stream>>>(
+            pSrc1, nSrc1Step, pSrc2, nSrc2Step, pSrc3, nSrc3Step, 
+            pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
 } // namespace arithmetic
 } // namespace nppi

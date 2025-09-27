@@ -242,40 +242,6 @@ TEST_F(AddFunctionalTest, Add_32f_C1IR_InPlaceOperation) {
       << "In-place Add operation produced incorrect results";
 }
 
-// ==================== 错误处理测试 ====================
-
-// Test error handling for null pointers
-TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_NullPointer) {
-  const int width = 16;
-  const int height = 16;
-
-  NppImageMemory<Npp32f> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试null指针
-  NppStatus status = nppiAdd_32f_C1R(nullptr, src.step(), src.get(), src.step(), dst.get(), dst.step(), roi);
-
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null pointer";
-}
-
-// Test error handling for invalid ROI
-TEST_F(AddFunctionalTest, DISABLED_Add_ErrorHandling_InvalidROI) {
-  const int width = 16;
-  const int height = 16;
-
-  NppImageMemory<Npp32f> src1(width, height);
-  NppImageMemory<Npp32f> src2(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  // 测试无效的ROI
-  NppiSize roi = {0, height}; // 宽度为0
-  NppStatus status = nppiAdd_32f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
-
-  EXPECT_EQ(status, NPP_NO_ERROR) << "vendor NPP returns success for zero-size ROI";
-}
-
 // ==================== 边界情况测试 ====================
 
 TEST_F(AddFunctionalTest, Add_BoundaryConditions_SmallImage) {

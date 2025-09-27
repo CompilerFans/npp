@@ -104,31 +104,6 @@ TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Basic) {
   cudaFree(d_hist);
 }
 
-// 测试直方图错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPIHistogramTest, DISABLED_HistogramEven_ErrorHandling) {
-  int nLevels = 256;
-  Npp32s nLowerLevel = 0;
-  Npp32s nUpperLevel = 255;
-
-  // 测试空指针
-  NppStatus status = nppiHistogramEven_8u_C1R(nullptr, 32, roi, nullptr, nLevels, nLowerLevel, nUpperLevel, nullptr);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidRoi = {0, 0};
-  status = nppiHistogramEven_8u_C1R(nullptr, 32, invalidRoi, nullptr, nLevels, nLowerLevel, nUpperLevel, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效等级数
-  status = nppiHistogramEven_8u_C1R(nullptr, 32, roi, nullptr, 1, nLowerLevel, nUpperLevel, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效边界
-  status = nppiHistogramEven_8u_C1R(nullptr, 32, roi, nullptr, nLevels, 255, 0, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // 测试增强版8位单通道直方图（更多bins）
 TEST_F(NPPIHistogramTest, HistogramEven_8u_C1R_Enhanced) {
   const int width = 32, height = 32;

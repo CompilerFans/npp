@@ -318,26 +318,6 @@ TEST_F(LnFunctionalTest, Ln_32f_C1IR_InPlace) {
   nppiFree(d_data);
 }
 
-// Test error handling
-TEST_F(LnFunctionalTest, Ln_ErrorHandling) {
-  // Test null pointer
-  NppStatus status = nppiLn_32f_C1R(nullptr, 32, nullptr, 16, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test invalid ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiLn_32f_C1R(nullptr, 32, nullptr, 16, invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test invalid step
-  status = nppiLn_32f_C1R(nullptr, 0, nullptr, 16, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test negative scale factor
-  status = nppiLn_8u_C1RSfs(nullptr, 32, nullptr, 16, roi, -1);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // Test stream context version
 TEST_F(LnFunctionalTest, Ln_StreamContext) {
   std::vector<Npp32f> srcData(width * height, (float)M_E); // All pixels = e

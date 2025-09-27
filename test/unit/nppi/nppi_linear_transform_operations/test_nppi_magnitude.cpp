@@ -42,20 +42,3 @@ TEST_F(MagnitudeFunctionalTest, Magnitude_32fc_32f_C1R_BasicOperation) {
       << "Magnitude operation produced incorrect results";
 }
 
-// nppiMagnitude_32f_C2R 函数在标准NPP API中不存在，测试已删除
-
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(MagnitudeFunctionalTest, DISABLED_Magnitude_ErrorHandling) {
-  const int width = 16;
-  const int height = 16;
-
-  NppImageMemory<Npp32fc> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试null指针
-  NppStatus status = nppiMagnitude_32fc32f_C1R(nullptr, src.step(), dst.get(), dst.step(), roi);
-
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null pointer";
-}

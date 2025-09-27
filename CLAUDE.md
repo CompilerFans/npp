@@ -151,3 +151,6 @@ Note: Rebuild project after switching versions.
 
 ## API Version Compatibility
 - 12.8和12.2、11.4版本的api接口定义和参数差异，会导致不同版本的测试应用程序出错。我们mpp库可对所有版本的api实现都支持
+
+## Test Restrictions
+- 不要增加_ErrorHandling的测试

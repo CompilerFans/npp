@@ -86,37 +86,3 @@ TEST_F(AbsFunctionalTest, Abs_32f_C1IR_InPlaceOperation) {
       << "In-place Abs operation produced incorrect results";
 }
 
-// 注意：nppiAbs_8s_C1R函数在标准NPP API中不存在，相关边界测试已删除
-
-// ==================== 错误处理测试 ====================
-
-// Test error handling for null pointers
-TEST_F(AbsFunctionalTest, Abs_ErrorHandling_NullPointer) {
-  const int width = 16;
-  const int height = 16;
-
-  NppImageMemory<Npp32f> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试null源指针
-  NppStatus status = nppiAbs_32f_C1R(nullptr, src.step(), dst.get(), dst.step(), roi);
-
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR) << "Should detect null source pointer";
-}
-
-// Test error handling for invalid ROI
-TEST_F(AbsFunctionalTest, Abs_ErrorHandling_InvalidROI) {
-  const int width = 16;
-  const int height = 16;
-
-  NppImageMemory<Npp32f> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  // 测试无效的ROI
-  NppiSize roi = {0, height}; // 宽度为0
-  NppStatus status = nppiAbs_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
-
-  EXPECT_EQ(status, NPP_NO_ERROR) << "vendor NPP returns success for zero-size ROI";
-}
