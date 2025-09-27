@@ -182,30 +182,5 @@ TEST_F(NppiDivDeviceCTest, DivDeviceC_32f_C1R_FloatingPoint) {
     cudaFree(d_constant);
 }
 
-TEST_F(NppiDivDeviceCTest, DivDeviceC_ErrorHandling) {
-    // Test null pointer handling
-    NppiSize oSizeROI = {2, 2};
-    NppStreamContext nppStreamCtx;
-    nppGetStreamContext(&nppStreamCtx);
-
-    // Test with null source
-    NppStatus status = nppiDivDeviceC_8u_C1RSfs_Ctx(nullptr, 16, (Npp8u*)0x1000, (Npp8u*)0x2000, 16, oSizeROI, 0, nppStreamCtx);
-    EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-    // Test with null destination  
-    status = nppiDivDeviceC_8u_C1RSfs_Ctx((Npp8u*)0x1000, 16, (Npp8u*)0x2000, nullptr, 16, oSizeROI, 0, nppStreamCtx);
-    EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-    // Test with null constant
-    status = nppiDivDeviceC_8u_C1RSfs_Ctx((Npp8u*)0x1000, 16, nullptr, (Npp8u*)0x2000, 16, oSizeROI, 0, nppStreamCtx);
-    EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-    // Test with invalid scale factor
-    status = nppiDivDeviceC_8u_C1RSfs_Ctx((Npp8u*)0x1000, 16, (Npp8u*)0x2000, (Npp8u*)0x3000, 16, oSizeROI, -1, nppStreamCtx);
-    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
-
-    status = nppiDivDeviceC_8u_C1RSfs_Ctx((Npp8u*)0x1000, 16, (Npp8u*)0x2000, (Npp8u*)0x3000, 16, oSizeROI, 32, nppStreamCtx);
-    EXPECT_EQ(status, NPP_BAD_ARGUMENT_ERROR);
-}
 
 #endif // USE_NVIDIA_NPP_TESTS

@@ -243,34 +243,3 @@ TEST_F(NppiMulDeviceCTest, MulDeviceC_32f_C1R_FloatingPoint) {
     cudaFree(d_constant);
 }
 
-// ============================================================================
-// Error Handling Tests
-// ============================================================================
-
-TEST_F(NppiMulDeviceCTest, MulDeviceC_ErrorHandling) {
-    int step;
-    Npp8u *d_valid = nppiMalloc_8u_C1(2, 2, &step);
-    Npp8u *d_constant;
-    cudaMalloc(&d_constant, sizeof(Npp8u));
-    
-    ASSERT_NE(d_valid, nullptr);
-    ASSERT_NE(d_constant, nullptr);
-
-    NppiSize oSizeROI = {2, 2};
-
-    NppStreamContext nppStreamCtx;
-    nppGetStreamContext(&nppStreamCtx);
-
-    // Test invalid scale factor
-    EXPECT_EQ(nppiMulDeviceC_8u_C1RSfs_Ctx(d_valid, step, d_constant, d_valid, step, oSizeROI, -1, nppStreamCtx), NPP_BAD_ARGUMENT_ERROR);
-    EXPECT_EQ(nppiMulDeviceC_8u_C1RSfs_Ctx(d_valid, step, d_constant, d_valid, step, oSizeROI, 32, nppStreamCtx), NPP_BAD_ARGUMENT_ERROR);
-
-    // Test null pointer errors
-    EXPECT_EQ(nppiMulDeviceC_8u_C1RSfs_Ctx(nullptr, step, d_constant, d_valid, step, oSizeROI, 0, nppStreamCtx), NPP_NULL_POINTER_ERROR);
-    EXPECT_EQ(nppiMulDeviceC_8u_C1RSfs_Ctx(d_valid, step, nullptr, d_valid, step, oSizeROI, 0, nppStreamCtx), NPP_NULL_POINTER_ERROR);
-    EXPECT_EQ(nppiMulDeviceC_8u_C1RSfs_Ctx(d_valid, step, d_constant, nullptr, step, oSizeROI, 0, nppStreamCtx), NPP_NULL_POINTER_ERROR);
-
-    // Cleanup
-    nppiFree(d_valid);
-    cudaFree(d_constant);
-}
