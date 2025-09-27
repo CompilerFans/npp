@@ -371,6 +371,22 @@ public:
   }
 };
 
+template <typename T> class AbsDiffConstOp {
+private:
+  T constant;
+
+public:
+  __device__ __host__ AbsDiffConstOp(T c) : constant(c) {}
+
+  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
+    double result = std::abs(static_cast<double>(a) - static_cast<double>(constant));
+    if (scaleFactor > 0 && std::is_integral_v<T>) {
+      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    }
+    return saturate_cast<T>(result);
+  }
+};
+
 // ============================================================================
 // Comparison Operation Functors (output Npp8u)
 // ============================================================================
