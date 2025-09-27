@@ -153,8 +153,9 @@ TEST_F(NppiAlphaPremulTest, AlphaPremulC_8u_C3R_MultiChannel) {
 
   // Verify results (with tolerance for rounding)
   for (int i = 0; i < totalPixels; ++i) {
-    EXPECT_NEAR(hostResult[i], expected[i], 1) << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i])
-                                               << " expected " << static_cast<int>(expected[i]);
+    EXPECT_NEAR(hostResult[i], expected[i], 1)
+        << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i]) << " expected "
+        << static_cast<int>(expected[i]);
   }
 
   // Cleanup
@@ -316,8 +317,9 @@ TEST_F(NppiAlphaPremulTest, AlphaPremul_8u_AC4IR_InPlacePixelAlpha) {
 
   // Verify results (with tolerance for rounding)
   for (int i = 0; i < totalPixels; ++i) {
-    EXPECT_NEAR(hostResult[i], expected[i], 1) << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i])
-                                               << " expected " << static_cast<int>(expected[i]);
+    EXPECT_NEAR(hostResult[i], expected[i], 1)
+        << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i]) << " expected "
+        << static_cast<int>(expected[i]);
   }
 
   // Cleanup
