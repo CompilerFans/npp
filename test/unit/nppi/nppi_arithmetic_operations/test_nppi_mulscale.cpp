@@ -289,23 +289,6 @@ TEST_F(MulScaleFunctionalTest, MulScale_8u_C1IR_InPlace) {
   // Resources will be automatically cleaned up by ResourceGuard destructor
 }
 
-// Test error handling
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(MulScaleFunctionalTest, DISABLED_MulScale_ErrorHandling) {
-  // Test null pointer
-  NppStatus status = nppiMulScale_8u_C1R(nullptr, 32, nullptr, 32, nullptr, 16, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test invalid ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiMulScale_8u_C1R(nullptr, 32, nullptr, 32, nullptr, 16, invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test invalid step
-  status = nppiMulScale_8u_C1R(nullptr, 0, nullptr, 32, nullptr, 16, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // Test stream context version
 TEST_F(MulScaleFunctionalTest, MulScale_StreamContext) {
   std::vector<Npp8u> src1Data(width * height, 255); // All pixels = 255

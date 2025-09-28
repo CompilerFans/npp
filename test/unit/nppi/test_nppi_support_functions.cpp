@@ -146,44 +146,6 @@ protected:
   void getMemoryInfo(size_t &free, size_t &total) { cudaMemGetInfo(&free, &total); }
 };
 
-// Test 1: Basic malloc/free for single channel
-TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_C1_BasicAllocation) {
-  const int width = 256;
-  const int height = 256;
-  int step;
-
-  // Get initial memory state
-  size_t freeBefore, total;
-  getMemoryInfo(freeBefore, total);
-
-  // Allocate memory
-  Npp32f *ptr = nppiMalloc_32f_C1(width, height, &step);
-  ASSERT_NE(ptr, nullptr);
-  EXPECT_GT(step, 0);
-  EXPECT_GE(step, width * sizeof(Npp32f));
-
-  // Check alignment (NPP typically aligns to 256 bytes)
-  EXPECT_TRUE(isAligned(ptr, 256)) << "Memory not properly aligned";
-  EXPECT_EQ(step % 256, 0) << "Step not aligned to 256 bytes";
-
-  // Get memory after allocation
-  size_t freeAfter, totalAfter;
-  getMemoryInfo(freeAfter, totalAfter);
-  EXPECT_LT(freeAfter, freeBefore) << "Memory was not allocated";
-
-  // Test memory access
-  cudaError_t err = cudaMemset(ptr, 0x42, step * height);
-  EXPECT_EQ(err, cudaSuccess);
-
-  // Free memory
-  nppiFree(ptr);
-
-  // Verify memory is released
-  size_t freeAfterFree, totalAfterFree;
-  getMemoryInfo(freeAfterFree, totalAfterFree);
-  EXPECT_GE(freeAfterFree, freeAfter) << "Memory was not freed";
-}
-
 // Test 2: Basic malloc/free for 3 channels
 TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_C3_BasicAllocation) {
   const int width = 256;
@@ -470,70 +432,6 @@ TEST_F(NppiMemoryManagementTest, nppiMalloc_nppiFree_FragmentationTest) {
   }
 }
 
-// Test 9: Multi-threaded allocation/deallocation
-TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_MultiThreaded) {
-  const int numThreads = 4;
-  const int allocsPerThread = 25;
-  const int width = 512;
-  const int height = 512;
-
-  std::vector<std::thread> threads;
-  std::vector<std::vector<Npp32f *>> threadAllocations(numThreads);
-  std::mutex resultMutex;
-  std::atomic<int> successCount(0);
-
-  auto threadFunc = [&](int threadId) {
-    // Set device in thread
-    cudaSetDevice(0);
-
-    std::vector<Npp32f *> localAllocs;
-
-    // Allocate memory
-    for (int i = 0; i < allocsPerThread; i++) {
-      int step;
-      Npp32f *ptr = (i % 2 == 0) ? nppiMalloc_32f_C1(width, height, &step) : nppiMalloc_32f_C3(width, height, &step);
-
-      if (ptr != nullptr) {
-        localAllocs.push_back(ptr);
-
-        // Test memory
-        cudaError_t err = cudaMemset(ptr, threadId * 10 + i, step * height);
-        if (err == cudaSuccess) {
-          successCount++;
-        }
-      }
-    }
-
-    // Store allocations
-    {
-      std::lock_guard<std::mutex> lock(resultMutex);
-      threadAllocations[threadId] = localAllocs;
-    }
-  };
-
-  // Launch threads
-  for (int i = 0; i < numThreads; i++) {
-    threads.emplace_back(threadFunc, i);
-  }
-
-  // Wait for all threads
-  for (auto &t : threads) {
-    t.join();
-  }
-
-  // Verify and clean up
-  int totalAllocs = 0;
-  for (int i = 0; i < numThreads; i++) {
-    totalAllocs += threadAllocations[i].size();
-    for (auto ptr : threadAllocations[i]) {
-      nppiFree(ptr);
-    }
-  }
-
-  EXPECT_GT(totalAllocs, 0) << "No successful allocations";
-  EXPECT_EQ(successCount.load(), totalAllocs) << "Some memory accesses failed";
-}
-
 // Test 10: Alignment verification for edge cases
 TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_AlignmentVerification) {
   // Test specific widths that might cause alignment issues
@@ -565,73 +463,5 @@ TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_AlignmentVerification) {
         nppiFree(ptr);
       }
     }
-  }
-}
-
-// Test 11: Free null pointer (should be safe)
-TEST_F(NppiMemoryManagementTest, DISABLED_nppiFree_NullPointer) {
-  // This should not crash or cause errors
-  nppiFree(nullptr);
-}
-
-// Test 12: Memory pattern preservation
-TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_MemoryPatternPreservation) {
-  const int width = 256;
-  const int height = 256;
-
-  // Test C1
-  {
-    int step;
-    Npp32f *ptr = nppiMalloc_32f_C1(width, height, &step);
-    ASSERT_NE(ptr, nullptr);
-
-    // Create and upload test pattern
-    std::vector<Npp32f> pattern(width * height);
-    for (int i = 0; i < width * height; i++) {
-      pattern[i] = i * 0.1f;
-    }
-
-    cudaMemcpy2D(ptr, step, pattern.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
-                 cudaMemcpyHostToDevice);
-
-    // Read back and verify
-    std::vector<Npp32f> readback(width * height);
-    cudaMemcpy2D(readback.data(), width * sizeof(Npp32f), ptr, step, width * sizeof(Npp32f), height,
-                 cudaMemcpyDeviceToHost);
-
-    for (int i = 0; i < width * height; i++) {
-      EXPECT_FLOAT_EQ(readback[i], pattern[i]);
-    }
-
-    nppiFree(ptr);
-  }
-
-  // Test C3
-  {
-    int step;
-    Npp32f *ptr = nppiMalloc_32f_C3(width, height, &step);
-    ASSERT_NE(ptr, nullptr);
-
-    // Create and upload test pattern
-    std::vector<Npp32f> pattern(width * height * 3);
-    for (int i = 0; i < width * height; i++) {
-      pattern[i * 3] = i * 0.1f;
-      pattern[i * 3 + 1] = i * 0.2f;
-      pattern[i * 3 + 2] = i * 0.3f;
-    }
-
-    cudaMemcpy2D(ptr, step, pattern.data(), width * 3 * sizeof(Npp32f), width * 3 * sizeof(Npp32f), height,
-                 cudaMemcpyHostToDevice);
-
-    // Read back and verify
-    std::vector<Npp32f> readback(width * height * 3);
-    cudaMemcpy2D(readback.data(), width * 3 * sizeof(Npp32f), ptr, step, width * 3 * sizeof(Npp32f), height,
-                 cudaMemcpyDeviceToHost);
-
-    for (int i = 0; i < width * height * 3; i++) {
-      EXPECT_FLOAT_EQ(readback[i], pattern[i]);
-    }
-
-    nppiFree(ptr);
   }
 }

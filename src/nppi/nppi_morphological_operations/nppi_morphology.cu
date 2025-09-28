@@ -1,4 +1,5 @@
 #include "npp.h"
+#include <cfloat>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
@@ -35,7 +36,7 @@ template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, 
 template <>
 
 __device__ inline Npp32f erode3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
-  Npp32f minVal = 1e10f; // Large value for float
+  Npp32f minVal = FLT_MAX; // Maximum float value
 
   // Apply 3x3 structuring element
   for (int dy = -1; dy <= 1; dy++) {
@@ -90,7 +91,7 @@ template <typename T> __device__ inline T dilate3x3(const T *pSrc, int nSrcStep,
 template <>
 
 __device__ inline Npp32f dilate3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
-  Npp32f maxVal = -1e10f; // Very small value for float
+  Npp32f maxVal = -FLT_MAX; // Most negative float value
 
   // Apply 3x3 structuring element
   for (int dy = -1; dy <= 1; dy++) {
@@ -284,7 +285,7 @@ template <>
 __device__ inline Npp32f erodeGeneral<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height,
                                               const Npp8u *pMask, int maskWidth, int maskHeight, int anchorX,
                                               int anchorY) {
-  Npp32f minVal = 1e10f; // Large value for float
+  Npp32f minVal = FLT_MAX; // Maximum float value
 
   for (int my = 0; my < maskHeight; my++) {
     for (int mx = 0; mx < maskWidth; mx++) {
@@ -341,7 +342,7 @@ template <>
 __device__ inline Npp32f dilateGeneral<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height,
                                                const Npp8u *pMask, int maskWidth, int maskHeight, int anchorX,
                                                int anchorY) {
-  Npp32f maxVal = -1e10f; // Small value for float
+  Npp32f maxVal = -FLT_MAX; // Most negative float value
 
   for (int my = 0; my < maskHeight; my++) {
     for (int mx = 0; mx < maskWidth; mx++) {
@@ -447,7 +448,7 @@ __global__ void nppiErode_32f_C4R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32
       const Npp32f *src_chan = pSrc + c;
       Npp32f *dst_chan = dst_row + x * 4 + c;
 
-      Npp32f minVal = 1e10f;
+      Npp32f minVal = FLT_MAX;
       for (int my = 0; my < maskHeight; my++) {
         for (int mx = 0; mx < maskWidth; mx++) {
           if (pMask[my * maskWidth + mx] != 0) {
@@ -552,7 +553,7 @@ __global__ void nppiDilate_32f_C4R_kernel(const Npp32f *pSrc, int nSrcStep, Npp3
       const Npp32f *src_chan = pSrc + c;
       Npp32f *dst_chan = dst_row + x * 4 + c;
 
-      Npp32f maxVal = -1e10f;
+      Npp32f maxVal = -FLT_MAX;
       for (int my = 0; my < maskHeight; my++) {
         for (int mx = 0; mx < maskWidth; mx++) {
           if (pMask[my * maskWidth + mx] != 0) {

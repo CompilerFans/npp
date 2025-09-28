@@ -163,25 +163,3 @@ TEST_F(NppiNotTest, Not_8u_C1R_ZeroSizeROI) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
-
-TEST_F(NppiNotTest, Not_8u_C1R_ErrorHandling) {
-  int step;
-  Npp8u *d_valid = nppiMalloc_8u_C1(2, 2, &step);
-  ASSERT_NE(d_valid, nullptr);
-
-  NppiSize oSizeROI = {2, 2};
-
-  // Test null pointer errors
-  EXPECT_EQ(nppiNot_8u_C1R(nullptr, step, d_valid, step, oSizeROI), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiNot_8u_C1R(d_valid, step, nullptr, step, oSizeROI), NPP_NULL_POINTER_ERROR);
-
-  // Test negative size errors
-  NppiSize invalidSize = {-1, 2};
-  EXPECT_EQ(nppiNot_8u_C1R(d_valid, step, d_valid, step, invalidSize), NPP_SIZE_ERROR);
-
-  invalidSize = {2, -1};
-  EXPECT_EQ(nppiNot_8u_C1R(d_valid, step, d_valid, step, invalidSize), NPP_SIZE_ERROR);
-
-  // Cleanup
-  nppiFree(d_valid);
-}

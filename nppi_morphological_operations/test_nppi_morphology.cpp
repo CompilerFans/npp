@@ -568,27 +568,23 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
                  cudaMemcpyDeviceToHost);
 
-    // Verify erosion occurred - erosion should not increase values
-    float maxInput = *std::max_element(binaryData.begin(), binaryData.end());
-    float maxOutput = *std::max_element(result.begin(), result.end());
-    EXPECT_LE(maxOutput, maxInput + 1e-5f) << "Erosion should not increase maximum value";
+    // Verify erosion occurred
+    int originalHighPixels = std::count(binaryData.begin(), binaryData.end(), 1.0f);
+    int resultHighPixels = std::count(result.begin(), result.end(), 1.0f);
+    EXPECT_LE(resultHighPixels, originalHighPixels);
 
-    // Verify no invalid values (NaN or Inf)
-    bool hasValidValues = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
-    if (!hasValidValues) {
-      // Find and print invalid values for debugging
-      int invalidCount = 0;
-      for (size_t i = 0; i < result.size() && invalidCount < 10; i++) {
-        if (!std::isfinite(result[i])) {
-          printf("Invalid value at index %zu: %f (isnan=%d, isinf=%d)\n", 
-                 i, result[i], std::isnan(result[i]), std::isinf(result[i]));
-          invalidCount++;
+    // Verify values are in expected range
+    bool allInRange = std::all_of(result.begin(), result.end(), [](Npp32f val) { return val >= 0.0f && val <= 1.0f; });
+    if (!allInRange) {
+      // Find and print out-of-range values for debugging
+      for (int i = 0; i < std::min(10, (int)result.size()); i++) {
+        if (result[i] < 0.0f || result[i] > 1.0f) {
+          printf("Out of range value at index %d: %f\n", i, result[i]);
+          fflush(stdout);
         }
       }
     }
-    EXPECT_TRUE(hasValidValues) << "Result should not contain NaN or Inf values";
+    EXPECT_TRUE(allInRange);
 
     nppiFree(d_src);
     nppiFree(d_dst);
@@ -634,11 +630,18 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
                  cudaMemcpyDeviceToHost);
 
-    // Verify no invalid values (NaN or Inf)
-    bool hasValidValues2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
-    EXPECT_TRUE(hasValidValues2) << "Result should not contain NaN or Inf values (context version)";
+    // Verify results are reasonable
+    bool allInRange2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { return val >= 0.0f && val <= 1.0f; });
+    if (!allInRange2) {
+      // Find and print out-of-range values for debugging
+      for (int i = 0; i < std::min(10, (int)result.size()); i++) {
+        if (result[i] < 0.0f || result[i] > 1.0f) {
+          printf("Ctx version: Out of range value at index %d: %f\n", i, result[i]);
+          fflush(stdout);
+        }
+      }
+    }
+    EXPECT_TRUE(allInRange2);
 
     cudaStreamDestroy(stream);
     nppiFree(d_src);
@@ -687,27 +690,23 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
                  cudaMemcpyDeviceToHost);
 
-    // Verify dilation occurred - dilation should not decrease values
-    float minInput = *std::min_element(checkerData.begin(), checkerData.end());
-    float minOutput = *std::min_element(result.begin(), result.end());
-    EXPECT_GE(minOutput, minInput - 1e-5f) << "Dilation should not decrease minimum value";
+    // Verify dilation occurred
+    int originalHighPixels = std::count(checkerData.begin(), checkerData.end(), 1.0f);
+    int resultHighPixels = std::count(result.begin(), result.end(), 1.0f);
+    EXPECT_GE(resultHighPixels, originalHighPixels);
 
-    // Verify no invalid values (NaN or Inf)
-    bool hasValidValues = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
-    if (!hasValidValues) {
-      // Find and print invalid values for debugging
-      int invalidCount = 0;
-      for (size_t i = 0; i < result.size() && invalidCount < 10; i++) {
-        if (!std::isfinite(result[i])) {
-          printf("Invalid value at index %zu: %f (isnan=%d, isinf=%d)\n", 
-                 i, result[i], std::isnan(result[i]), std::isinf(result[i]));
-          invalidCount++;
+    // Verify values are in expected range
+    bool allInRange = std::all_of(result.begin(), result.end(), [](Npp32f val) { return val >= 0.0f && val <= 1.0f; });
+    if (!allInRange) {
+      // Find and print out-of-range values for debugging
+      for (int i = 0; i < std::min(10, (int)result.size()); i++) {
+        if (result[i] < 0.0f || result[i] > 1.0f) {
+          printf("Out of range value at index %d: %f\n", i, result[i]);
+          fflush(stdout);
         }
       }
     }
-    EXPECT_TRUE(hasValidValues) << "Result should not contain NaN or Inf values";
+    EXPECT_TRUE(allInRange);
 
     nppiFree(d_src);
     nppiFree(d_dst);
@@ -753,11 +752,18 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
                  cudaMemcpyDeviceToHost);
 
-    // Verify no invalid values (NaN or Inf)
-    bool hasValidValues2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
-    EXPECT_TRUE(hasValidValues2) << "Result should not contain NaN or Inf values (context version)";
+    // Verify results are reasonable
+    bool allInRange2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { return val >= 0.0f && val <= 1.0f; });
+    if (!allInRange2) {
+      // Find and print out-of-range values for debugging
+      for (int i = 0; i < std::min(10, (int)result.size()); i++) {
+        if (result[i] < 0.0f || result[i] > 1.0f) {
+          printf("Ctx version: Out of range value at index %d: %f\n", i, result[i]);
+          fflush(stdout);
+        }
+      }
+    }
+    EXPECT_TRUE(allInRange2);
 
     cudaStreamDestroy(stream);
     nppiFree(d_src);

@@ -150,25 +150,3 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
     }
   }
 }
-
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(ResizeFunctionalTest, DISABLED_Resize_ErrorHandling) {
-  const int width = 16, height = 16;
-
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width * 2, height * 2);
-
-  NppiSize srcSize = {width, height};
-  NppiSize dstSize = {width * 2, height * 2};
-  NppiRect srcROI = {0, 0, width, height};
-  NppiRect dstROI = {0, 0, width * 2, height * 2};
-
-  // 测试空指针
-  NppStatus status = nppiResize_8u_C1R(nullptr, src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, 0);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效尺寸
-  NppiSize invalidSize = {0, 0};
-  status = nppiResize_8u_C1R(src.get(), src.step(), invalidSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, 0);
-  EXPECT_NE(status, NPP_SUCCESS);
-}

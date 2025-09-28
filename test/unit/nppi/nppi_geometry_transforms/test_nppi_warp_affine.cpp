@@ -355,29 +355,6 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_InterpolationMethods) {
   nppiFree(d_dst);
 }
 
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(WarpAffineFunctionalTest, DISABLED_WarpAffine_ErrorHandling) {
-  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
-
-  // 测试空指针
-  NppStatus status = nppiWarpAffine_8u_C1R(nullptr, srcSize, 32, srcROI, nullptr, 32, dstROI, coeffs, NPPI_INTER_NN);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效的step
-  status = nppiWarpAffine_8u_C1R(nullptr, srcSize, 0, srcROI, nullptr, 32, dstROI, coeffs, NPPI_INTER_NN);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效的尺寸
-  NppiSize invalidSize = {0, 0};
-  status = nppiWarpAffine_8u_C1R(nullptr, invalidSize, 32, srcROI, nullptr, 32, dstROI, coeffs, NPPI_INTER_NN);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效的插值方法
-  status = nppiWarpAffine_8u_C1R(nullptr, srcSize, 32, srcROI, nullptr, 32, dstROI, coeffs, 999); // 无效插值方法
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // 测试流上下文版本
 TEST_F(WarpAffineFunctionalTest, WarpAffine_StreamContext) {
   const int size = 4;

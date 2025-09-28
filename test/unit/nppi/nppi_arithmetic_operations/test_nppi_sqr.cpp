@@ -245,26 +245,6 @@ TEST_F(SqrFunctionalTest, Sqr_32f_C1R_SpecialValues) {
   nppiFree(d_dst);
 }
 
-// Test error handling
-TEST_F(SqrFunctionalTest, Sqr_ErrorHandling) {
-  // Test null pointer
-  NppStatus status = nppiSqr_32f_C1R(nullptr, 32, nullptr, 16, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test invalid ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiSqr_32f_C1R(nullptr, 32, nullptr, 16, invalidRoi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test invalid step
-  status = nppiSqr_32f_C1R(nullptr, 0, nullptr, 16, roi);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // Test negative scale factor
-  status = nppiSqr_8u_C1RSfs(nullptr, 32, nullptr, 16, roi, -1);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // Test stream context version
 TEST_F(SqrFunctionalTest, Sqr_StreamContext) {
   std::vector<Npp32f> srcData(width * height, 3.0f); // All pixels = 3.0

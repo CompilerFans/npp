@@ -325,24 +325,3 @@ TEST_F(NPPICompareCTest, CompareC_AllOperations) {
   cudaFree(d_src);
   cudaFree(d_dst);
 }
-
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPICompareCTest, DISABLED_ErrorHandling) {
-  // 测试空指针
-  NppStatus status = nppiCompareC_8u_C1R(nullptr, 32, 100, nullptr, 32, roi, NPP_CMP_LESS);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidRoi = {0, 0};
-  status = nppiCompareC_8u_C1R(nullptr, 32, 100, nullptr, 32, invalidRoi, NPP_CMP_LESS);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效步长
-  status = nppiCompareC_8u_C1R(nullptr, 0, 100, nullptr, 0, roi, NPP_CMP_LESS);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效比较操作
-  status = nppiCompareC_8u_C1R(nullptr, 32, 100, nullptr, 32, roi, static_cast<NppCmpOp>(-1));
-  EXPECT_NE(status, NPP_SUCCESS);
-}

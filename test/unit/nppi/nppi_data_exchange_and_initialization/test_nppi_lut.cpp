@@ -92,23 +92,3 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Basic) {
 
   // 资源将由ResourceGuard自动清理
 }
-
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPILUTTest, DISABLED_LUT_Linear_ErrorHandling) {
-  std::vector<Npp32s> pLevels = {0, 255};
-  std::vector<Npp32s> pValues = {0, 255};
-
-  // 测试空指针
-  NppStatus status = nppiLUT_Linear_8u_C1R(nullptr, 32, nullptr, 32, roi, pValues.data(), pLevels.data(), 2);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidRoi = {0, 0};
-  status = nppiLUT_Linear_8u_C1R(nullptr, 32, nullptr, 32, invalidRoi, pValues.data(), pLevels.data(), 2);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效等级数
-  status = nppiLUT_Linear_8u_C1R(nullptr, 32, nullptr, 32, roi, pValues.data(), pLevels.data(), 1);
-  EXPECT_NE(status, NPP_SUCCESS);
-}

@@ -361,24 +361,6 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_InterpolationMethods) {
   nppiFree(d_dst);
 }
 
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(WarpPerspectiveFunctionalTest, DISABLED_WarpPerspective_ErrorHandling) {
-  // 测试空指针
-  double coeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
-
-  NppStatus status =
-      nppiWarpPerspective_8u_C1R(nullptr, srcSize, 32, srcROI, nullptr, 32, dstROI, coeffs, NPPI_INTER_NN);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效矩阵（会导致除零）
-  double invalidCoeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 0.0}};
-
-  status = nppiWarpPerspective_8u_C1R((Npp8u *)0x1000, srcSize, 32, srcROI, (Npp8u *)0x2000, 32, dstROI, invalidCoeffs,
-                                      NPPI_INTER_NN);
-  EXPECT_EQ(status, NPP_COEFFICIENT_ERROR);
-}
-
 // 测试流上下文
 TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_StreamContext) {
   std::vector<Npp8u> srcData(16, 128); // 小图像，填充值128

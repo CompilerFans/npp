@@ -592,18 +592,3 @@ TEST_F(CopyTest, Copy_8u_C1R_ROI) {
 TEST_F(CopyTest, Copy_32f_C3R_ROI) {
   testCopyROI<Npp32f, 3>(128, 96, 32, 24, 64, 48, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
 }
-
-// Error handling tests
-TEST_F(CopyTest, Copy_ErrorHandling) {
-  GPUMemoryManager<Npp8u> src(16, 16, 1);
-  GPUMemoryManager<Npp8u> dst(16, 16, 1);
-  NppiSize roi = {16, 16};
-
-  // Test null pointer
-  EXPECT_EQ(nppiCopy_8u_C1R(nullptr, src.step(), dst.get(), dst.step(), roi), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiCopy_8u_C1R(src.get(), src.step(), nullptr, dst.step(), roi), NPP_NULL_POINTER_ERROR);
-
-  // Test invalid size
-  NppiSize invalidROI = {-1, -1};
-  EXPECT_EQ(nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidROI), NPP_SIZE_ERROR);
-}

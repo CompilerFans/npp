@@ -26,19 +26,6 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsGetBufferSize_Basic) {
   EXPECT_GT(bufferSize, 0);
 }
 
-// 测试缓冲区大小获取错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPICompressLabelsTest, DISABLED_CompressMarkerLabelsGetBufferSize_ErrorHandling) {
-  // 测试空指针
-  NppStatus status = nppiCompressMarkerLabelsGetBufferSize_32u_C1R(100, nullptr);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效标签数
-  int bufferSize = 0;
-  status = nppiCompressMarkerLabelsGetBufferSize_32u_C1R(-1, &bufferSize);
-  EXPECT_NE(status, NPP_SUCCESS);
-}
-
 // 测试标签压缩基础功能
 TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
   size_t dataSize = width * height;
@@ -116,26 +103,4 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
   EXPECT_GT((int)uniqueLabels.size(), 0);
 
   // 资源将由ResourceGuard自动清理
-}
-
-// 测试错误处理
-// NOTE: 测试已被禁用 - vendor NPP对无效参数的错误检测行为与预期不符
-TEST_F(NPPICompressLabelsTest, DISABLED_CompressMarkerLabelsUF_ErrorHandling) {
-  // 测试空指针
-  int newCount = 0;
-  NppStatus status = nppiCompressMarkerLabelsUF_32u_C1IR(nullptr, 32, oMarkerLabelsROI, 1, &newCount, nullptr);
-  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
-
-  // 测试无效尺寸
-  NppiSize invalidROI = {0, 0};
-  status = nppiCompressMarkerLabelsUF_32u_C1IR(nullptr, 32, invalidROI, 1, &newCount, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效步长
-  status = nppiCompressMarkerLabelsUF_32u_C1IR(nullptr, -1, oMarkerLabelsROI, 1, &newCount, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
-
-  // 测试无效起始数字
-  status = nppiCompressMarkerLabelsUF_32u_C1IR(nullptr, 32, oMarkerLabelsROI, -1, &newCount, nullptr);
-  EXPECT_NE(status, NPP_SUCCESS);
 }

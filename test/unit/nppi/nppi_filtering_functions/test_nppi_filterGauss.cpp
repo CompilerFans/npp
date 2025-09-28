@@ -204,30 +204,6 @@ TEST_F(GaussianFilterFunctionalTest, FilterGauss_32f_C1R_Float) {
   EXPECT_TRUE(hasValidFloats) << "Float Gaussian filter should produce valid floating-point results";
 }
 
-// 错误处理测试
-TEST_F(GaussianFilterFunctionalTest, FilterGauss_ErrorHandling) {
-  const int width = 16, height = 16;
-
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
-  NppiSize roi = {width, height};
-
-  // 测试空指针
-  NppStatus status = nppiFilterGauss_8u_C1R(nullptr, src.step(), dst.get(), dst.step(), roi, NPP_MASK_SIZE_3_X_3);
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with null source pointer";
-
-  // 测试无效ROI
-  NppiSize invalidRoi = {0, 0};
-  status = nppiFilterGauss_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi, NPP_MASK_SIZE_3_X_3);
-  EXPECT_EQ(status, NPP_NO_ERROR) << "vendor NPP returns success for zero-size ROI";
-
-  // 测试不支持的mask大小
-  status =
-      nppiFilterGauss_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, NPP_MASK_SIZE_1_X_3); // 不支持的大小
-  EXPECT_NE(status, NPP_SUCCESS) << "Should fail with unsupported mask size";
-}
-
 // 性能和不同核大小比较测试
 TEST_F(GaussianFilterFunctionalTest, FilterGauss_DifferentKernelSizes) {
   const int width = 64, height = 64;

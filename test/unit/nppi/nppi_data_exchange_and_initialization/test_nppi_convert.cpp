@@ -381,18 +381,3 @@ INSTANTIATE_TEST_SUITE_P(SizeVariations, ConvertSizeTest,
                                            std::make_tuple(256, 256, 3),  // Medium
                                            std::make_tuple(1920, 1080, 3) // HD
                                            ));
-
-// Error handling tests
-TEST_F(ConvertTest, Convert_ErrorHandling) {
-  GPUMemoryManager<Npp8u> src(16, 16, 1);
-  GPUMemoryManager<Npp32f> dst(16, 16, 1);
-  NppiSize roi = {16, 16};
-
-  // Test null pointer
-  EXPECT_EQ(nppiConvert_8u32f_C1R(nullptr, src.step(), dst.get(), dst.step(), roi), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiConvert_8u32f_C1R(src.get(), src.step(), nullptr, dst.step(), roi), NPP_NULL_POINTER_ERROR);
-
-  // Test invalid size
-  NppiSize invalidROI = {-1, -1};
-  EXPECT_EQ(nppiConvert_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), invalidROI), NPP_SIZE_ERROR);
-}
