@@ -190,6 +190,234 @@ NppStatus nppiHistogramRangeGetBufferSize_32f_C1R_Ctx(NppiSize oSizeROI, int nLe
 }
 
 //=============================================================================
+// HistogramRange Multi-channel Buffer Size APIs - C3R variants
+//=============================================================================
+
+NppStatus nppiHistogramRangeGetBufferSize_8u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16s_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_32f_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_32f_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_32f_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+//=============================================================================
+// HistogramRange Multi-channel Buffer Size APIs - C4R variants
+//=============================================================================
+
+NppStatus nppiHistogramRangeGetBufferSize_8u_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_8u_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16u_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16s_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_32f_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_32f_C4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+//=============================================================================
+// HistogramRange Multi-channel Buffer Size APIs - AC4R variants
+//=============================================================================
+
+NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16s_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_32f_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+//=============================================================================
+// Multi-channel Buffer Size APIs - C3R variants
+//=============================================================================
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  // Validate input parameters
+  if (!hpBufferSize || !nLevels) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+
+  // For 3-channel, calculate buffer size based on maximum levels across channels
+  int maxLevels = nLevels[0];
+  for (int i = 1; i < 3; i++) {
+    if (nLevels[i] > maxLevels) {
+      maxLevels = nLevels[i];
+    }
+  }
+
+  // Use maximum levels for buffer calculation and multiply by 3 for channels
+  size_t singleChannelSize;
+  NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R_Ctx_impl(oSizeROI, maxLevels, &singleChannelSize);
+  if (status == NPP_SUCCESS) {
+    size_t totalSize = singleChannelSize * 3; // 3 channels
+    if (totalSize > static_cast<size_t>(INT_MAX)) {
+      return NPP_MEMORY_ALLOCATION_ERR;
+    }
+    *hpBufferSize = static_cast<int>(totalSize);
+  }
+  return status;
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx; // Stream context not used for buffer size calculation
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramEvenGetBufferSize_16u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16s_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramEvenGetBufferSize_16s_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+//=============================================================================
+// Multi-channel Buffer Size APIs - AC4R variants
+//=============================================================================
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  // AC4R uses only 3 channels (ignores alpha), so same as C3R
+  return nppiHistogramEvenGetBufferSize_8u_C3R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramEvenGetBufferSize_16u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_8u_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramEvenGetBufferSize_16s_AC4R(oSizeROI, nLevels, hpBufferSize);
+}
+
+//=============================================================================
 // Histogram Computation APIs
 //=============================================================================
 
