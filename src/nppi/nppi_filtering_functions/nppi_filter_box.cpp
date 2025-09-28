@@ -13,21 +13,28 @@ cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Np
                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream);
 }
 
+// IMPORTANT: This implementation assumes that the input buffer (pSrc) contains valid data
+// outside the ROI boundaries. The caller must ensure that pSrc points to a location
+// within a larger buffer such that accessing pixels at negative offsets and beyond
+// ROI boundaries will not cause memory access violations.
+// 
+// For a ROI at position (x,y) with filter anchor at (ax,ay), the kernel will access:
+// - Minimum offset: (x - ax, y - ay)
+// - Maximum offset: (x + maskWidth - ax - 1, y + maskHeight - ay - 1)
+
 NppStatus nppiFilterBox_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                    NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
   // Parameter validation
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
     return NPP_SIZE_ERROR;
   }
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) {
     return NPP_MASK_SIZE_ERROR;
   }
-  if (oMaskSize.width > oSizeROI.width || oMaskSize.height > oSizeROI.height) {
-    return NPP_MASK_SIZE_ERROR;
-  }
+  // Note: We don't check if mask is larger than ROI since we assume data exists outside
   if (nSrcStep < oSizeROI.width || nDstStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
