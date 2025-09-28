@@ -59,7 +59,11 @@ protected:
         }
         
         // Get buffer size and allocate
+#ifdef USE_NVIDIA_NPP_TESTS
+        size_t bufferSize;
+#else
         int bufferSize;
+#endif
         ASSERT_EQ(nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
         ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
     }
@@ -181,7 +185,11 @@ TEST_F(HistogramEvenMultiChannelTest, DifferentLevelsPerChannel) {
         ASSERT_EQ(cudaMalloc(&d_hist[c], (nLevels[c] - 1) * sizeof(Npp32s)), cudaSuccess);
     }
     
+#ifdef USE_NVIDIA_NPP_TESTS
+    size_t bufferSize;
+#else
     int bufferSize;
+#endif
     ASSERT_EQ(nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
     ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
     
@@ -216,7 +224,11 @@ TEST_F(HistogramEvenMultiChannelTest, SharedMemoryOptimization) {
         ASSERT_EQ(cudaMalloc(&d_hist[c], (nLevels[c] - 1) * sizeof(Npp32s)), cudaSuccess);
     }
     
+#ifdef USE_NVIDIA_NPP_TESTS
+    size_t bufferSize;
+#else
     int bufferSize;
+#endif
     ASSERT_EQ(nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
     ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
     

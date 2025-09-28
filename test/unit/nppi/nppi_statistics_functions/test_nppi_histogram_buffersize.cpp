@@ -3,6 +3,13 @@
 #include <gtest/gtest.h>
 #include <vector>
 
+// Type alias for buffer size to handle API differences
+#ifdef USE_NVIDIA_NPP_TESTS
+using BufferSizeType = size_t;
+#else
+using BufferSizeType = int;
+#endif
+
 class NppiHistogramBufferSizeTest : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -20,7 +27,7 @@ protected:
 
 // Test nppiHistogramEvenGetBufferSize_8u_C1R
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_8u_C1R_BasicOperation) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
 
   // Test small image
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(smallSize, nLevels, &bufferSize);
@@ -44,7 +51,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_8u_C1R_BasicOpera
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_8u_C1R_Ctx_BasicOperation) {
   NppStreamContext nppStreamCtx = {};
   nppStreamCtx.hStream = 0;
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
 
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(smallSize, nLevels, &bufferSize, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -53,7 +60,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_8u_C1R_Ctx_BasicO
 
 // Test nppiHistogramEvenGetBufferSize_8u_C4R
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_8u_C4R_BasicOperation) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
   int nLevelsArray[4] = {256, 256, 256, 256}; // For C4R format
 
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C4R(smallSize, nLevelsArray, &bufferSize);
@@ -61,14 +68,14 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_8u_C4R_BasicOpera
   EXPECT_GT(bufferSize, 0) << "Buffer size should be positive";
 
   // C4R should typically require more buffer than C1R for same image size
-  int c1rBufferSize = 0;
+  BufferSizeType c1rBufferSize = 0;
   nppiHistogramEvenGetBufferSize_8u_C1R(smallSize, nLevels, &c1rBufferSize);
   EXPECT_GE(bufferSize, c1rBufferSize) << "C4R should need equal or more buffer than C1R";
 }
 
 // Test nppiHistogramEvenGetBufferSize_16u_C1R
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_16u_C1R_BasicOperation) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
   int nLevels16u = 512; // Higher levels for 16-bit data
 
   NppStatus status = nppiHistogramEvenGetBufferSize_16u_C1R(smallSize, nLevels16u, &bufferSize);
@@ -78,7 +85,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_16u_C1R_BasicOper
 
 // Test nppiHistogramEvenGetBufferSize_16s_C1R
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_16s_C1R_BasicOperation) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
   int nLevels16s = 512;
 
   NppStatus status = nppiHistogramEvenGetBufferSize_16s_C1R(smallSize, nLevels16s, &bufferSize);
@@ -88,7 +95,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_16s_C1R_BasicOper
 
 // Test that NVIDIA NPP accepts various parameter values (very permissive)
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_ParameterTolerance) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
 
   // NVIDIA NPP is very permissive with parameters
   // Test that it doesn't crash with various inputs
@@ -101,7 +108,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_ParameterToleranc
 
 // Test that buffer size calculation is consistent
 TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_Consistency) {
-  int bufferSize1 = 0, bufferSize2 = 0;
+  BufferSizeType bufferSize1 = 0, bufferSize2 = 0;
 
   // Call twice with same parameters
   NppStatus status1 = nppiHistogramEvenGetBufferSize_8u_C1R(smallSize, nLevels, &bufferSize1);
@@ -114,7 +121,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_Consistency) {
 
 // Test nppiHistogramRangeGetBufferSize_8u_C1R
 TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_8u_C1R_BasicOperation) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
 
   NppStatus status = nppiHistogramRangeGetBufferSize_8u_C1R(smallSize, nLevels, &bufferSize);
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -123,7 +130,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_8u_C1R_BasicOper
 
 // Test nppiHistogramRangeGetBufferSize_32f_C1R
 TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_32f_C1R_BasicOperation) {
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
 
   NppStatus status = nppiHistogramRangeGetBufferSize_32f_C1R(smallSize, nLevels, &bufferSize);
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -153,7 +160,7 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_Integration) {
 
   // Get buffer size
   NppiSize imageSize = {width, height};
-  int bufferSize = 0;
+  BufferSizeType bufferSize = 0;
   NppStatus status = nppiHistogramEvenGetBufferSize_8u_C1R(imageSize, nLevels, &bufferSize);
   ASSERT_EQ(status, NPP_SUCCESS);
   ASSERT_GT(bufferSize, 0);
