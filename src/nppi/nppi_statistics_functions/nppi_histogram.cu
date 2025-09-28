@@ -314,6 +314,136 @@ __global__ void nppiHistogramEven_8u_C4R_kernel_global(const Npp8u *pSrc, int nS
   }
 }
 
+// HistogramRange kernels for user-defined bin ranges
+__global__ void nppiHistogramRange_8u_C1R_kernel_shared(const Npp8u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist, const Npp32s *pLevels, int nLevels) {
+  extern __shared__ int shared_hist[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  // Initialize shared memory histogram
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    shared_hist[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    // Find bin using linear search on levels array
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&shared_hist[bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  // Copy shared histogram to global memory
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    atomicAdd(&pHist[i], shared_hist[i]);
+  }
+}
+
+__global__ void nppiHistogramRange_8u_C1R_kernel_global(const Npp8u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist, const Npp32s *pLevels, int nLevels) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    // Find bin using linear search on levels array
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&pHist[bin], 1);
+    }
+  }
+}
+
+// 32-bit floating point HistogramRange kernels
+__global__ void nppiHistogramRange_32f_C1R_kernel_shared(const Npp32f *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist, const Npp32f *pLevels, int nLevels) {
+  extern __shared__ int shared_hist[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    shared_hist[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
+    float pixel_value = src_row[x];
+
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&shared_hist[bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    atomicAdd(&pHist[i], shared_hist[i]);
+  }
+}
+
+__global__ void nppiHistogramRange_32f_C1R_kernel_global(const Npp32f *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist, const Npp32f *pLevels, int nLevels) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
+    float pixel_value = src_row[x];
+
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&pHist[bin], 1);
+    }
+  }
+}
+
 extern "C" {
 
 // Get buffer size for histogram computation
@@ -457,6 +587,68 @@ NppStatus nppiHistogramEven_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
         nLevels[0], nLevels[1], nLevels[2], nLevels[3],
         nLowerLevel[0], nLowerLevel[1], nLowerLevel[2], nLowerLevel[3],
         nUpperLevel[0], nUpperLevel[1], nUpperLevel[2], nUpperLevel[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// HistogramRange implementations
+NppStatus nppiHistogramRange_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                             const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                             NppStreamContext nppStreamCtx) {
+  // Initialize histogram to zero
+  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  // Choose kernel based on histogram size and image size
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int histBins = nLevels - 1;
+
+  if (histBins <= 256 && imageSize < 1024 * 1024) {
+    // Use shared memory kernel for small histograms and images
+    size_t sharedMemSize = histBins * sizeof(int);
+
+    nppiHistogramRange_8u_C1R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  } else {
+    // Use global memory kernel for large histograms or images
+    nppiHistogramRange_8u_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRange_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                              const Npp32f *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx) {
+  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int histBins = nLevels - 1;
+
+  if (histBins <= 256 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = histBins * sizeof(int);
+    nppiHistogramRange_32f_C1R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  } else {
+    nppiHistogramRange_32f_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
   }
 
   cudaError_t cudaStatus = cudaGetLastError();

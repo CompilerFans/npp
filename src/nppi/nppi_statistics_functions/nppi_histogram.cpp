@@ -21,6 +21,12 @@ NppStatus nppiHistogramEven_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
                                             Npp32s *pHist[4], int nLevels[4], Npp32s nLowerLevel[4], 
                                             Npp32s nUpperLevel[4], Npp8u *pDeviceBuffer,
                                             NppStreamContext nppStreamCtx);
+NppStatus nppiHistogramRange_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                             const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                             NppStreamContext nppStreamCtx);
+NppStatus nppiHistogramRange_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                              const Npp32f *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx);
 }
 
 // Internal helper function for buffer size calculation (uses size_t internally)
@@ -365,4 +371,81 @@ NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBoun
   }
 
   return NPP_SUCCESS;
+}
+
+//=============================================================================
+// HistogramRange Computation APIs  
+//=============================================================================
+
+NppStatus nppiHistogramRange_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                        const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                        NppStreamContext nppStreamCtx) {
+  // Validate input parameters
+  if (!pSrc || !pHist || !pLevels || !pDeviceBuffer) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+
+  if (nSrcStep < oSizeROI.width) {
+    return NPP_STEP_ERROR;
+  }
+
+  if (nLevels < 2) {
+    return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
+  }
+
+  // Validate that levels are in ascending order
+  for (int i = 0; i < nLevels - 1; i++) {
+    if (pLevels[i] >= pLevels[i + 1]) {
+      return NPP_RANGE_ERROR;
+    }
+  }
+
+  return nppiHistogramRange_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, pDeviceBuffer, nppStreamCtx);
+}
+
+NppStatus nppiHistogramRange_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                   const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiHistogramRange_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, pDeviceBuffer, nppStreamCtx);
+}
+
+NppStatus nppiHistogramRange_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                         const Npp32f *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                         NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pHist || !pLevels || !pDeviceBuffer) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+
+  if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) {
+    return NPP_STEP_ERROR;
+  }
+
+  if (nLevels < 2) {
+    return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
+  }
+
+  // Validate that levels are in ascending order
+  for (int i = 0; i < nLevels - 1; i++) {
+    if (pLevels[i] >= pLevels[i + 1]) {
+      return NPP_RANGE_ERROR;
+    }
+  }
+
+  return nppiHistogramRange_32f_C1R_Ctx_impl(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, pDeviceBuffer, nppStreamCtx);
+}
+
+NppStatus nppiHistogramRange_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                    const Npp32f *pLevels, int nLevels, Npp8u *pDeviceBuffer) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiHistogramRange_32f_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, pDeviceBuffer, nppStreamCtx);
 }
