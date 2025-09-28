@@ -66,6 +66,121 @@ __global__ void nppiHistogramEven_8u_C1R_kernel_global(const Npp8u *pSrc, int nS
   }
 }
 
+// 16-bit unsigned histogram kernels
+__global__ void nppiHistogramEven_16u_C1R_kernel_shared(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist, int nLevels, Npp32s nLowerLevel,
+                                                        Npp32s nUpperLevel) {
+  extern __shared__ int shared_hist[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  // Initialize shared memory histogram
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    shared_hist[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    if (pixel_value >= nLowerLevel && pixel_value < nUpperLevel) {
+      int range = nUpperLevel - nLowerLevel;
+      int bin = ((pixel_value - nLowerLevel) * (nLevels - 1)) / range;
+      bin = min(bin, nLevels - 2);
+
+      atomicAdd(&shared_hist[bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    atomicAdd(&pHist[i], shared_hist[i]);
+  }
+}
+
+__global__ void nppiHistogramEven_16u_C1R_kernel_global(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist, int nLevels, Npp32s nLowerLevel,
+                                                        Npp32s nUpperLevel) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    if (pixel_value >= nLowerLevel && pixel_value < nUpperLevel) {
+      int range = nUpperLevel - nLowerLevel;
+      int bin = ((pixel_value - nLowerLevel) * (nLevels - 1)) / range;
+      bin = min(bin, nLevels - 2);
+
+      atomicAdd(&pHist[bin], 1);
+    }
+  }
+}
+
+// 16-bit signed histogram kernels
+__global__ void nppiHistogramEven_16s_C1R_kernel_shared(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist, int nLevels, Npp32s nLowerLevel,
+                                                        Npp32s nUpperLevel) {
+  extern __shared__ int shared_hist[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    shared_hist[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    if (pixel_value >= nLowerLevel && pixel_value < nUpperLevel) {
+      int range = nUpperLevel - nLowerLevel;
+      int bin = ((pixel_value - nLowerLevel) * (nLevels - 1)) / range;
+      bin = min(bin, nLevels - 2);
+
+      atomicAdd(&shared_hist[bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    atomicAdd(&pHist[i], shared_hist[i]);
+  }
+}
+
+__global__ void nppiHistogramEven_16s_C1R_kernel_global(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist, int nLevels, Npp32s nLowerLevel,
+                                                        Npp32s nUpperLevel) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    if (pixel_value >= nLowerLevel && pixel_value < nUpperLevel) {
+      int range = nUpperLevel - nLowerLevel;
+      int bin = ((pixel_value - nLowerLevel) * (nLevels - 1)) / range;
+      bin = min(bin, nLevels - 2);
+
+      atomicAdd(&pHist[bin], 1);
+    }
+  }
+}
+
 extern "C" {
 
 // Get buffer size for histogram computation
@@ -104,6 +219,64 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
   } else {
     // Use global memory kernel for large histograms or images
     nppiHistogramEven_8u_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, nLevels, nLowerLevel, nUpperLevel);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 16-bit unsigned histogram computation  
+NppStatus nppiHistogramEven_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                             int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
+                                             NppStreamContext nppStreamCtx) {
+  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int histBins = nLevels - 1;
+
+  if (histBins <= 256 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = histBins * sizeof(int);
+    nppiHistogramEven_16u_C1R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, nLevels, nLowerLevel, nUpperLevel);
+  } else {
+    nppiHistogramEven_16u_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, nLevels, nLowerLevel, nUpperLevel);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 16-bit signed histogram computation
+NppStatus nppiHistogramEven_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                             int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
+                                             NppStreamContext nppStreamCtx) {
+  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int histBins = nLevels - 1;
+
+  if (histBins <= 256 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = histBins * sizeof(int);
+    nppiHistogramEven_16s_C1R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, nLevels, nLowerLevel, nUpperLevel);
+  } else {
+    nppiHistogramEven_16s_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, nLevels, nLowerLevel, nUpperLevel);
   }
 

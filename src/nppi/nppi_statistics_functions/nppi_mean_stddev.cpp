@@ -82,14 +82,14 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpB
                                                      NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
-  *hpBufferSize = size;
+  *hpBufferSize = static_cast<int>(size);
   return ret;
 }
 
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &size);
-  *hpBufferSize = size;
+  *hpBufferSize = static_cast<int>(size);
   return ret;
 }
 
@@ -98,14 +98,14 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, int *hp
                                                       NppStreamContext nppStreamCtx) {
   size_t size = 0;
   auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
-  *hpBufferSize = size;
+  *hpBufferSize = static_cast<int>(size);
   return ret;
 }
 
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, int *hpBufferSize) {
   size_t size = 0;
-  auto ret = nppiMeanStdDevGetBufferHostSize_8u_C1R(oSizeROI, &size);
-  *hpBufferSize = size;
+  auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1R(oSizeROI, &size);
+  *hpBufferSize = static_cast<int>(size);
   return ret;
 }
 // ==========================
