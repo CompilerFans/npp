@@ -623,12 +623,7 @@ NppStatus nppiHistogramRange_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSiz
     return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
   }
 
-  // Validate that levels are in ascending order
-  for (int i = 0; i < nLevels - 1; i++) {
-    if (pLevels[i] >= pLevels[i + 1]) {
-      return NPP_RANGE_ERROR;
-    }
-  }
+  // Note: Cannot validate level ordering here as pLevels is a device pointer
 
   return nppiHistogramRange_8u_C1R_Ctx_impl(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, pDeviceBuffer,
                                             nppStreamCtx);
@@ -660,12 +655,7 @@ NppStatus nppiHistogramRange_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiS
     return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
   }
 
-  // Validate that levels are in ascending order
-  for (int i = 0; i < nLevels - 1; i++) {
-    if (pLevels[i] >= pLevels[i + 1]) {
-      return NPP_RANGE_ERROR;
-    }
-  }
+  // Note: Cannot validate level ordering here as pLevels is a device pointer
 
   return nppiHistogramRange_32f_C1R_Ctx_impl(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, pDeviceBuffer,
                                              nppStreamCtx);
