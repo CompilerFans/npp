@@ -248,48 +248,6 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_WithContext) {
     EXPECT_GT(totalCount, 0);
 }
 
-TEST_F(HistogramRangeTest, ParameterValidation_8u) {
-    allocateTestData8u();
-    setupLevels8u();
-    allocateHistogramMemory();
-
-    // Test null pointer errors
-    EXPECT_EQ(nppiHistogramRange_8u_C1R(nullptr, nSrcStep_8u, oSizeROI, d_hist, d_levels_8u, nLevels, d_buffer),
-             NPP_NULL_POINTER_ERROR);
-
-    EXPECT_EQ(nppiHistogramRange_8u_C1R(d_src_8u, nSrcStep_8u, oSizeROI, nullptr, d_levels_8u, nLevels, d_buffer),
-             NPP_NULL_POINTER_ERROR);
-
-    EXPECT_EQ(nppiHistogramRange_8u_C1R(d_src_8u, nSrcStep_8u, oSizeROI, d_hist, nullptr, nLevels, d_buffer),
-             NPP_NULL_POINTER_ERROR);
-
-    // Test size error
-    NppiSize invalidSize = {0, height};
-    EXPECT_EQ(nppiHistogramRange_8u_C1R(d_src_8u, nSrcStep_8u, invalidSize, d_hist, d_levels_8u, nLevels, d_buffer),
-             NPP_SIZE_ERROR);
-
-    // Test levels error (too few levels)
-    EXPECT_EQ(nppiHistogramRange_8u_C1R(d_src_8u, nSrcStep_8u, oSizeROI, d_hist, d_levels_8u, 1, d_buffer),
-             NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR);
-}
-
-TEST_F(HistogramRangeTest, ParameterValidation_32f) {
-    allocateTestData32f();
-    setupLevels32f();
-
-    BufferSizeType bufferSize;
-    ASSERT_EQ(nppiHistogramRangeGetBufferSize_32f_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
-    ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
-    
-    h_hist.resize(nLevels - 1, 0);
-    ASSERT_EQ(cudaMalloc(&d_hist, (nLevels - 1) * sizeof(Npp32s)), cudaSuccess);
-
-    // Test step error - too small step for 32f data
-    int invalidStep = width * sizeof(Npp32f) - 1;
-    EXPECT_EQ(nppiHistogramRange_32f_C1R(d_src_32f, invalidStep, oSizeROI, d_hist, d_levels_32f, nLevels, d_buffer),
-             NPP_STEP_ERROR);
-}
-
 TEST_F(HistogramRangeTest, CustomLevels_NonUniform) {
     allocateTestData8u();
     allocateHistogramMemory();

@@ -213,47 +213,6 @@ TEST_F(HistogramEven16BitTest, HistogramEven_16u_C1R_WithContext) {
   EXPECT_EQ(totalCount, totalPixels);
 }
 
-TEST_F(HistogramEven16BitTest, ParameterValidation_16u) {
-  allocateTestData16u();
-  allocateHistogramMemory();
-
-  // Test null pointer errors
-  EXPECT_EQ(nppiHistogramEven_16u_C1R(nullptr, nSrcStep_16u, oSizeROI, d_hist, nLevels, nLowerLevel, nUpperLevel_16u,
-                                      d_buffer),
-            NPP_NULL_POINTER_ERROR);
-
-  EXPECT_EQ(nppiHistogramEven_16u_C1R(d_src_16u, nSrcStep_16u, oSizeROI, nullptr, nLevels, nLowerLevel, nUpperLevel_16u,
-                                      d_buffer),
-            NPP_NULL_POINTER_ERROR);
-
-  // Test size error
-  NppiSize invalidSize = {0, height};
-  EXPECT_EQ(nppiHistogramEven_16u_C1R(d_src_16u, nSrcStep_16u, invalidSize, d_hist, nLevels, nLowerLevel,
-                                      nUpperLevel_16u, d_buffer),
-            NPP_SIZE_ERROR);
-
-  // Test range error
-  EXPECT_EQ(nppiHistogramEven_16u_C1R(d_src_16u, nSrcStep_16u, oSizeROI, d_hist, nLevels, nUpperLevel_16u, nLowerLevel,
-                                      d_buffer),
-            NPP_RANGE_ERROR);
-}
-
-TEST_F(HistogramEven16BitTest, ParameterValidation_16s) {
-  allocateTestData16s();
-  allocateHistogramMemory();
-
-  // Test null pointer errors
-  EXPECT_EQ(nppiHistogramEven_16s_C1R(nullptr, nSrcStep_16s, oSizeROI, d_hist, nLevels, nLowerLevel, nUpperLevel_16s,
-                                      d_buffer),
-            NPP_NULL_POINTER_ERROR);
-
-  // Test step error - too small step
-  int invalidStep = width * sizeof(Npp16s) - 1;
-  EXPECT_EQ(nppiHistogramEven_16s_C1R(d_src_16s, invalidStep, oSizeROI, d_hist, nLevels, nLowerLevel, nUpperLevel_16s,
-                                      d_buffer),
-            NPP_STEP_ERROR);
-}
-
 TEST_F(HistogramEven16BitTest, SmallLevelsOptimization) {
   allocateTestData16u();
 

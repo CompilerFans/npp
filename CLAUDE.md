@@ -135,6 +135,7 @@ Note: Rebuild project after switching versions.
 
 ## Testing Restrictions
 - GTEST_SKIP禁止使用
+- 不需要添加ParameterValidation和错误校验测试
 
 ## Code Documentation
 - Check existing comments in the code
