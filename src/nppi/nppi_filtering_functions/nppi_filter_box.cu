@@ -2,23 +2,26 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// IMPLEMENTATION NOTE:
-// This filter box implementation assumes valid data exists outside the ROI boundaries.
-// Unlike zero-padding approaches, this implementation directly accesses memory outside
-// the specified ROI without bounds checking. This design choice:
-//
-// 1. Improves performance by eliminating boundary condition checks
-// 2. Requires the caller to ensure pSrc points to a location within a sufficiently
-//    large buffer to accommodate all filter accesses
-// 3. Is suitable when processing sub-regions of larger images where valid data
-//    exists in the surrounding areas
-//
-// Memory Access Pattern:
-// For pixel (x,y) with mask size (mw,mh) and anchor (ax,ay):
-// - Accesses from (x-ax, y-ay) to (x-ax+mw-1, y-ay+mh-1)
-// - No bounds checking is performed on these accesses
+// Define boundary handling mode
+// MPP_FILTERBOX_ZERO_PADDING: Use zero padding for out-of-bounds pixels
+// If not defined, assumes valid data exists outside boundaries
+// #define MPP_FILTERBOX_ZERO_PADDING
 
-// Box filter kernel implementation - assumes data exists outside boundaries
+// IMPLEMENTATION NOTE:
+// This filter box implementation supports two boundary handling modes:
+// 
+// 1. Zero Padding Mode (MPP_FILTERBOX_ZERO_PADDING defined):
+//    - Out-of-bounds pixels are treated as zeros
+//    - Safe for processing images without surrounding context
+//    - Slightly slower due to boundary checks
+//
+// 2. Direct Access Mode (default):
+//    - Assumes valid data exists outside the ROI boundaries
+//    - No bounds checking is performed
+//    - Faster but requires sufficient buffer around ROI
+//    - Suitable for processing sub-regions of larger images
+
+// Box filter kernel implementation with configurable boundary handling
 __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                  int anchorY) {
@@ -32,15 +35,23 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // No boundary checking - assume valid data exists outside ROI
     int sum = 0;
     int totalMaskPixels = maskWidth * maskHeight;
 
     for (int j = startY; j < endY; j++) {
       for (int i = startX; i < endX; i++) {
-        // Access data directly without bounds checking
+#ifdef MPP_FILTERBOX_ZERO_PADDING
+        // Check bounds and use zero for out-of-bounds pixels
+        if (i >= 0 && i < width && j >= 0 && j < height) {
+          const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
+          sum += pSrcRow[i];
+        }
+        // else: pixel is out of bounds, implicitly add 0
+#else
+        // Direct access without bounds checking
         const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
         sum += pSrcRow[i];
+#endif
       }
     }
 
@@ -50,7 +61,7 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
   }
 }
 
-// Box filter kernel for 4-channel 8-bit unsigned - assumes data exists outside boundaries
+// Box filter kernel for 4-channel 8-bit unsigned with configurable boundary handling
 __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                  int anchorY) {
@@ -64,17 +75,27 @@ __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // No boundary checking - assume valid data exists outside ROI
     int sum[4] = {0, 0, 0, 0};
     int totalMaskPixels = maskWidth * maskHeight;
 
     for (int j = startY; j < endY; j++) {
       for (int i = startX; i < endX; i++) {
-        // Access data directly without bounds checking
+#ifdef MPP_FILTERBOX_ZERO_PADDING
+        // Check bounds and use zero for out-of-bounds pixels
+        if (i >= 0 && i < width && j >= 0 && j < height) {
+          const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
+          for (int c = 0; c < 4; c++) {
+            sum[c] += pSrcRow[i * 4 + c];
+          }
+        }
+        // else: pixel is out of bounds, implicitly add 0
+#else
+        // Direct access without bounds checking
         const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
         for (int c = 0; c < 4; c++) {
           sum[c] += pSrcRow[i * 4 + c];
         }
+#endif
       }
     }
 
@@ -86,7 +107,7 @@ __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
   }
 }
 
-// Box filter kernel for single-channel 32-bit float - assumes data exists outside boundaries
+// Box filter kernel for single-channel 32-bit float with configurable boundary handling
 __global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
                                                   int width, int height, int maskWidth, int maskHeight, int anchorX,
                                                   int anchorY) {
@@ -100,15 +121,23 @@ __global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    // No boundary checking - assume valid data exists outside ROI
     float sum = 0.0f;
     int totalMaskPixels = maskWidth * maskHeight;
 
     for (int j = startY; j < endY; j++) {
       for (int i = startX; i < endX; i++) {
-        // Access data directly without bounds checking
+#ifdef MPP_FILTERBOX_ZERO_PADDING
+        // Check bounds and use zero for out-of-bounds pixels
+        if (i >= 0 && i < width && j >= 0 && j < height) {
+          const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + j * nSrcStep);
+          sum += pSrcRow[i];
+        }
+        // else: pixel is out of bounds, implicitly add 0.0f
+#else
+        // Direct access without bounds checking
         const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + j * nSrcStep);
         sum += pSrcRow[i];
+#endif
       }
     }
 

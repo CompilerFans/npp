@@ -13,12 +13,21 @@ cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Np
                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream);
 }
 
-// IMPORTANT: This implementation assumes that the input buffer (pSrc) contains valid data
-// outside the ROI boundaries. The caller must ensure that pSrc points to a location
-// within a larger buffer such that accessing pixels at negative offsets and beyond
-// ROI boundaries will not cause memory access violations.
+// BOUNDARY HANDLING:
+// This implementation supports two modes controlled by MPP_FILTERBOX_ZERO_PADDING macro:
 //
-// For a ROI at position (x,y) with filter anchor at (ax,ay), the kernel will access:
+// 1. If MPP_FILTERBOX_ZERO_PADDING is defined (zero padding mode):
+//    - Out-of-bounds pixels are treated as zeros
+//    - Safe for processing images without surrounding context
+//    - Suitable for edge detection and filtering at image boundaries
+//
+// 2. If MPP_FILTERBOX_ZERO_PADDING is NOT defined (direct access mode, default):
+//    - Assumes valid data exists outside the ROI boundaries
+//    - The caller must ensure pSrc points to a location within a larger buffer
+//    - Accessing pixels at negative offsets and beyond ROI boundaries must be safe
+//    - Better performance due to no boundary checks
+//
+// For a ROI at position (x,y) with filter anchor at (ax,ay), the kernel may access:
 // - Minimum offset: (x - ax, y - ay)
 // - Maximum offset: (x + maskWidth - ax - 1, y + maskHeight - ay - 1)
 
@@ -34,7 +43,14 @@ NppStatus nppiFilterBox_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) {
     return NPP_MASK_SIZE_ERROR;
   }
-  // Note: We don't check if mask is larger than ROI since we assume data exists outside
+#ifdef MPP_FILTERBOX_ZERO_PADDING
+  // In zero padding mode, mask can be larger than ROI
+#else
+  // In direct access mode, check if mask is larger than ROI
+  if (oMaskSize.width > oSizeROI.width || oMaskSize.height > oSizeROI.height) {
+    return NPP_MASK_SIZE_ERROR;
+  }
+#endif
   if (nSrcStep < oSizeROI.width || nDstStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
@@ -70,9 +86,13 @@ NppStatus nppiFilterBox_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) {
     return NPP_MASK_SIZE_ERROR;
   }
+#ifdef MPP_FILTERBOX_ZERO_PADDING
+  // In zero padding mode, mask can be larger than ROI
+#else
   if (oMaskSize.width > oSizeROI.width || oMaskSize.height > oSizeROI.height) {
     return NPP_MASK_SIZE_ERROR;
   }
+#endif
   if (nSrcStep < oSizeROI.width * 4 || nDstStep < oSizeROI.width * 4) {
     return NPP_STEP_ERROR;
   }
@@ -108,9 +128,13 @@ NppStatus nppiFilterBox_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
   if (oMaskSize.width <= 0 || oMaskSize.height <= 0) {
     return NPP_MASK_SIZE_ERROR;
   }
+#ifdef MPP_FILTERBOX_ZERO_PADDING
+  // In zero padding mode, mask can be larger than ROI
+#else
   if (oMaskSize.width > oSizeROI.width || oMaskSize.height > oSizeROI.height) {
     return NPP_MASK_SIZE_ERROR;
   }
+#endif
   if (nSrcStep < static_cast<Npp32s>(oSizeROI.width * sizeof(Npp32f)) ||
       nDstStep < static_cast<Npp32s>(oSizeROI.width * sizeof(Npp32f))) {
     return NPP_STEP_ERROR;
