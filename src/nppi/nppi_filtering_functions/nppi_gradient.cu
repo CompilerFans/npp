@@ -365,7 +365,7 @@ extern "C" NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_impl_xy(
         pSrc, nSrcStep, oSrcSize.width, oSrcSize.height, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag,
         nDstMagStep, pDstAngle, nDstAngleStep, oSizeROI.width, oSizeROI.height, eNorm, eBorderType);
   } else {
-    // TODO: Implement 5x5 version
+    // 5x5 version not yet implemented
     return NPP_MASK_SIZE_ERROR;
   }
 

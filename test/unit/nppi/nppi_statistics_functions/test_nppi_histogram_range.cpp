@@ -160,17 +160,9 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_Basic) {
   setupLevels8u();
   allocateHistogramMemory();
 
-  // Print debug info
-  printf("Debug: width=%d, height=%d, nLevels=%d\n", width, height, nLevels);
-  printf("Debug: h_levels_8u size=%zu, first few levels: ", h_levels_8u.size());
-  for (int i = 0; i < std::min(5, (int)h_levels_8u.size()); i++) {
-    printf("%d ", h_levels_8u[i]);
-  }
-  printf("\n");
 
   // Compute histogram
   NppStatus status = nppiHistogramRange_8u_C1R(d_src_8u, nSrcStep_8u, oSizeROI, d_hist, d_levels_8u, nLevels, d_buffer);
-  printf("Debug: nppiHistogramRange_8u_C1R returned status=%d\n", status);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   if (status == NPP_SUCCESS) {
@@ -195,7 +187,6 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_Basic) {
       }
     }
 
-    printf("Debug: totalCount=%d, expectedCount=%d\n", totalCount, expectedCount);
     EXPECT_EQ(totalCount, expectedCount);
   }
 }
