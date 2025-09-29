@@ -2,6 +2,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+#ifndef MPP_FILTERBOX_ZERO_PADDING
+#define MPP_FILTERBOX_ZERO_PADDING
+#endif
 // Define boundary handling mode
 // MPP_FILTERBOX_ZERO_PADDING: Use zero padding for out-of-bounds pixels
 // If not defined, assumes valid data exists outside boundaries

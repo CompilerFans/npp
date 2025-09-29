@@ -3,6 +3,12 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+// Default to REPLICATE mode (boundary clamping) for safety
+// User can define MPP_MORPHOLOGY_DIRECT_ACCESS to disable boundary checking
+#ifndef MPP_MORPHOLOGY_DIRECT_ACCESS
+#define MPP_MORPHOLOGY_REPLICATE
+#endif
+
 // Morphological operations kernels
 
 // Device function for 3x3 erosion (minimum value in neighborhood)
@@ -16,12 +22,18 @@ template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, 
       int srcY = y + dy;
       int srcX = x + dx;
 
-      // Handle boundaries by clamping
+#ifdef MPP_MORPHOLOGY_REPLICATE
+      // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-
+      
       const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
       T pixelValue = src_row[srcX];
+#else
+      // Direct access without bounds checking (assumes valid data outside ROI)
+      const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
+      T pixelValue = src_row[srcX];
+#endif
 
       if (pixelValue < minVal) {
         minVal = pixelValue;
@@ -34,7 +46,6 @@ template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, 
 
 // Template specialization for Npp32f (float)
 template <>
-
 __device__ inline Npp32f erode3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
   Npp32f minVal = FLT_MAX; // Maximum float value
 
@@ -44,12 +55,18 @@ __device__ inline Npp32f erode3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int 
       int srcY = y + dy;
       int srcX = x + dx;
 
-      // Handle boundaries by clamping
+#ifdef MPP_MORPHOLOGY_REPLICATE
+      // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-
+      
       const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
       Npp32f pixelValue = src_row[srcX];
+#else
+      // Direct access without bounds checking (assumes valid data outside ROI)
+      const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
+      Npp32f pixelValue = src_row[srcX];
+#endif
 
       if (pixelValue < minVal) {
         minVal = pixelValue;
@@ -71,12 +88,24 @@ template <typename T> __device__ inline T dilate3x3(const T *pSrc, int nSrcStep,
       int srcY = y + dy;
       int srcX = x + dx;
 
-      // Handle boundaries by clamping
+#ifdef MPP_MORPHOLOGY_REPLICATE
+      // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-
+      
       const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
       T pixelValue = src_row[srcX];
+#else
+      // Handle boundaries with constant value
+      T pixelValue;
+      if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+        const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
+        pixelValue = src_row[srcX];
+      } else {
+        // For dilation, use minimum possible value for out-of-bounds
+        pixelValue = (T)0;
+      }
+#endif
 
       if (pixelValue > maxVal) {
         maxVal = pixelValue;
@@ -89,7 +118,6 @@ template <typename T> __device__ inline T dilate3x3(const T *pSrc, int nSrcStep,
 
 // Template specialization for Npp32f (float) dilation
 template <>
-
 __device__ inline Npp32f dilate3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
   Npp32f maxVal = -FLT_MAX; // Most negative float value
 
@@ -99,12 +127,24 @@ __device__ inline Npp32f dilate3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int
       int srcY = y + dy;
       int srcX = x + dx;
 
-      // Handle boundaries by clamping
+#ifdef MPP_MORPHOLOGY_REPLICATE
+      // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-
+      
       const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
       Npp32f pixelValue = src_row[srcX];
+#else
+      // Handle boundaries with constant value
+      Npp32f pixelValue;
+      if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+        const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
+        pixelValue = src_row[srcX];
+      } else {
+        // For dilation, use minimum possible value for out-of-bounds
+        pixelValue = -FLT_MAX;
+      }
+#endif
 
       if (pixelValue > maxVal) {
         maxVal = pixelValue;
@@ -263,12 +303,24 @@ __device__ inline T erodeGeneral(const T *pSrc, int nSrcStep, int x, int y, int 
         int srcY = y + my - anchorY;
         int srcX = x + mx - anchorX;
 
-        // Handle boundaries by clamping
+#ifdef MPP_MORPHOLOGY_REPLICATE
+        // Handle boundaries by clamping (replicate)
         srcY = max(0, min(srcY, height - 1));
         srcX = max(0, min(srcX, width - 1));
 
         const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
         T pixelValue = src_row[srcX];
+#else
+        // Handle boundaries with constant value
+        T pixelValue;
+        if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+          const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
+          pixelValue = src_row[srcX];
+        } else {
+          // For erosion, use maximum possible value for out-of-bounds
+          pixelValue = T(255);
+        }
+#endif
 
         if (pixelValue < minVal) {
           minVal = pixelValue;
@@ -293,11 +345,23 @@ __device__ inline Npp32f erodeGeneral<Npp32f>(const Npp32f *pSrc, int nSrcStep, 
         int srcY = y + my - anchorY;
         int srcX = x + mx - anchorX;
 
+#ifdef MPP_MORPHOLOGY_REPLICATE
         srcY = max(0, min(srcY, height - 1));
         srcX = max(0, min(srcX, width - 1));
 
         const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
         Npp32f pixelValue = src_row[srcX];
+#else
+        // Handle boundaries with constant value
+        Npp32f pixelValue;
+        if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+          const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
+          pixelValue = src_row[srcX];
+        } else {
+          // For erosion, use maximum possible value for out-of-bounds
+          pixelValue = FLT_MAX;
+        }
+#endif
 
         if (pixelValue < minVal) {
           minVal = pixelValue;
@@ -321,11 +385,23 @@ __device__ inline T dilateGeneral(const T *pSrc, int nSrcStep, int x, int y, int
         int srcY = y + my - anchorY;
         int srcX = x + mx - anchorX;
 
+#ifdef MPP_MORPHOLOGY_REPLICATE
         srcY = max(0, min(srcY, height - 1));
         srcX = max(0, min(srcX, width - 1));
 
         const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
         T pixelValue = src_row[srcX];
+#else
+        // Handle boundaries with constant value
+        T pixelValue;
+        if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+          const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
+          pixelValue = src_row[srcX];
+        } else {
+          // For dilation, use minimum possible value for out-of-bounds
+          pixelValue = T(0);
+        }
+#endif
 
         if (pixelValue > maxVal) {
           maxVal = pixelValue;
@@ -350,11 +426,23 @@ __device__ inline Npp32f dilateGeneral<Npp32f>(const Npp32f *pSrc, int nSrcStep,
         int srcY = y + my - anchorY;
         int srcX = x + mx - anchorX;
 
+#ifdef MPP_MORPHOLOGY_REPLICATE
         srcY = max(0, min(srcY, height - 1));
         srcX = max(0, min(srcX, width - 1));
 
         const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
         Npp32f pixelValue = src_row[srcX];
+#else
+        // Handle boundaries with constant value
+        Npp32f pixelValue;
+        if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+          const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
+          pixelValue = src_row[srcX];
+        } else {
+          // For dilation, use minimum possible value for out-of-bounds
+          pixelValue = -FLT_MAX;
+        }
+#endif
 
         if (pixelValue > maxVal) {
           maxVal = pixelValue;
@@ -403,11 +491,23 @@ __global__ void nppiErode_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
             int srcY = y + my - anchorY;
             int srcX = x + mx - anchorX;
 
+#ifdef MPP_MORPHOLOGY_REPLICATE
             srcY = max(0, min(srcY, height - 1));
             srcX = max(0, min(srcX, width - 1));
 
             const Npp8u *src_row = (const Npp8u *)((const char *)src_chan + srcY * nSrcStep);
             Npp8u pixelValue = src_row[srcX * 4];
+#else
+            // Handle boundaries with constant value
+            Npp8u pixelValue;
+            if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+              const Npp8u *src_row = (const Npp8u *)((const char *)src_chan + srcY * nSrcStep);
+              pixelValue = src_row[srcX * 4];
+            } else {
+              // For erosion, use maximum possible value for out-of-bounds
+              pixelValue = 255;
+            }
+#endif
 
             if (pixelValue < minVal) {
               minVal = pixelValue;

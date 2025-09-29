@@ -13,6 +13,10 @@ cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Np
                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream);
 }
 
+#ifndef MPP_FILTERBOX_ZERO_PADDING
+#define MPP_FILTERBOX_ZERO_PADDING
+#endif
+
 // BOUNDARY HANDLING:
 // This implementation supports two modes controlled by MPP_FILTERBOX_ZERO_PADDING macro:
 //
