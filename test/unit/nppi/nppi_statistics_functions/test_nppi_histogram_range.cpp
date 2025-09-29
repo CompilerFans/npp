@@ -160,7 +160,6 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_Basic) {
   setupLevels8u();
   allocateHistogramMemory();
 
-
   // Compute histogram
   NppStatus status = nppiHistogramRange_8u_C1R(d_src_8u, nSrcStep_8u, oSizeROI, d_hist, d_levels_8u, nLevels, d_buffer);
   EXPECT_EQ(status, NPP_SUCCESS);

@@ -17,7 +17,7 @@ cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Np
 // outside the ROI boundaries. The caller must ensure that pSrc points to a location
 // within a larger buffer such that accessing pixels at negative offsets and beyond
 // ROI boundaries will not cause memory access violations.
-// 
+//
 // For a ROI at position (x,y) with filter anchor at (ax,ay), the kernel will access:
 // - Minimum offset: (x - ax, y - ay)
 // - Maximum offset: (x + maskWidth - ax - 1, y + maskHeight - ay - 1)

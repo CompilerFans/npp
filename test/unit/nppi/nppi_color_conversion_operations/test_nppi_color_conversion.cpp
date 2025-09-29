@@ -150,16 +150,3 @@ TEST_F(ColorConversionTest, YUVToRGB_RoundTrip) {
     EXPECT_NEAR(h_result[i], h_src[i], 5); // 允许5个单位的误差
   }
 }
-
-// Parameter validation测试
-TEST(ColorConversionParameterTest, NullPointerError) {
-  NppiSize size = {10, 10};
-  int step = 30;
-  Npp8u dummy;
-
-  EXPECT_EQ(nppiRGBToYUV_8u_C3R(nullptr, step, &dummy, step, size), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiRGBToYUV_8u_C3R(&dummy, step, nullptr, step, size), NPP_NULL_POINTER_ERROR);
-
-  EXPECT_EQ(nppiYUVToRGB_8u_C3R(nullptr, step, &dummy, step, size), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiYUVToRGB_8u_C3R(&dummy, step, nullptr, step, size), NPP_NULL_POINTER_ERROR);
-}

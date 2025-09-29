@@ -2,13 +2,13 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// IMPLEMENTATION NOTE: 
+// IMPLEMENTATION NOTE:
 // This filter box implementation assumes valid data exists outside the ROI boundaries.
 // Unlike zero-padding approaches, this implementation directly accesses memory outside
 // the specified ROI without bounds checking. This design choice:
 //
 // 1. Improves performance by eliminating boundary condition checks
-// 2. Requires the caller to ensure pSrc points to a location within a sufficiently 
+// 2. Requires the caller to ensure pSrc points to a location within a sufficiently
 //    large buffer to accommodate all filter accesses
 // 3. Is suitable when processing sub-regions of larger images where valid data
 //    exists in the surrounding areas

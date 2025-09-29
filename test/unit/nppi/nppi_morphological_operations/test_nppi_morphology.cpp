@@ -574,16 +574,14 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     EXPECT_LE(maxOutput, maxInput + 1e-5f) << "Erosion should not increase maximum value";
 
     // Verify no invalid values (NaN or Inf)
-    bool hasValidValues = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
+    bool hasValidValues = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     if (!hasValidValues) {
       // Find and print invalid values for debugging
       int invalidCount = 0;
       for (size_t i = 0; i < result.size() && invalidCount < 10; i++) {
         if (!std::isfinite(result[i])) {
-          printf("Invalid value at index %zu: %f (isnan=%d, isinf=%d)\n", 
-                 i, result[i], std::isnan(result[i]), std::isinf(result[i]));
+          printf("Invalid value at index %zu: %f (isnan=%d, isinf=%d)\n", i, result[i], std::isnan(result[i]),
+                 std::isinf(result[i]));
           invalidCount++;
         }
       }
@@ -635,9 +633,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
                  cudaMemcpyDeviceToHost);
 
     // Verify no invalid values (NaN or Inf)
-    bool hasValidValues2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
+    bool hasValidValues2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     EXPECT_TRUE(hasValidValues2) << "Result should not contain NaN or Inf values (context version)";
 
     cudaStreamDestroy(stream);
@@ -693,16 +689,14 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     EXPECT_GE(minOutput, minInput - 1e-5f) << "Dilation should not decrease minimum value";
 
     // Verify no invalid values (NaN or Inf)
-    bool hasValidValues = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
+    bool hasValidValues = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     if (!hasValidValues) {
       // Find and print invalid values for debugging
       int invalidCount = 0;
       for (size_t i = 0; i < result.size() && invalidCount < 10; i++) {
         if (!std::isfinite(result[i])) {
-          printf("Invalid value at index %zu: %f (isnan=%d, isinf=%d)\n", 
-                 i, result[i], std::isnan(result[i]), std::isinf(result[i]));
+          printf("Invalid value at index %zu: %f (isnan=%d, isinf=%d)\n", i, result[i], std::isnan(result[i]),
+                 std::isinf(result[i]));
           invalidCount++;
         }
       }
@@ -754,9 +748,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
                  cudaMemcpyDeviceToHost);
 
     // Verify no invalid values (NaN or Inf)
-    bool hasValidValues2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { 
-      return std::isfinite(val); 
-    });
+    bool hasValidValues2 = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     EXPECT_TRUE(hasValidValues2) << "Result should not contain NaN or Inf values (context version)";
 
     cudaStreamDestroy(stream);
