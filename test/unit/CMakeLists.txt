@@ -29,6 +29,7 @@ npp_create_test_suite("unit" "${UNIT_TEST_SOURCES}" npp)
 # 为单元测试添加特定的包含路径
 target_include_directories(unit_tests
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../framework  # 测试框架
-    ${CMAKE_CURRENT_SOURCE_DIR}               # 单元测试根目录
+    ${CMAKE_CURRENT_SOURCE_DIR}/framework   # test framework
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src   # src root
+    ${CMAKE_CURRENT_SOURCE_DIR}             # ut root
 )
