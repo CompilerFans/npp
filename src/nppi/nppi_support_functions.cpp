@@ -18,6 +18,9 @@ static T *nppiMallocTemplate(int nWidthPixels, int nHeightPixels, int nChannels,
     return nullptr;
   }
 
+  // Initialize allocated memory to zero to prevent NaN/Inf values
+  cudaMemset2D(devPtr, pitch, 0, widthInBytes, nHeightPixels);
+
   *pStepBytes = static_cast<int>(pitch);
   return static_cast<T *>(devPtr);
 }

@@ -100,6 +100,9 @@ protected:
   void SetUp() override {
     cudaError_t err = cudaSetDevice(0);
     ASSERT_EQ(err, cudaSuccess);
+    
+    // Clear any potential CUDA errors from previous tests
+    cudaGetLastError();
   }
 
   void TearDown() override {
@@ -2236,6 +2239,9 @@ protected:
   void SetUp() override {
     cudaError_t err = cudaSetDevice(0);
     ASSERT_EQ(err, cudaSuccess);
+    
+    // Clear any potential CUDA errors from previous tests
+    cudaGetLastError();
   }
 
   void TearDown() override {
