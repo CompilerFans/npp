@@ -16,6 +16,9 @@ template <typename T> static T *nppsMallocTemplate(size_t nSize) {
     return nullptr;
   }
 
+  // Initialize allocated memory to zero to prevent uninitialized data
+  cudaMemset(devPtr, 0, sizeInBytes);
+
   return static_cast<T *>(devPtr);
 }
 
