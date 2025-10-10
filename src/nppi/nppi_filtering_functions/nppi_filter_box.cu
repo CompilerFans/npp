@@ -12,7 +12,7 @@
 
 // IMPLEMENTATION NOTE:
 // This filter box implementation supports two boundary handling modes:
-// 
+//
 // 1. Zero Padding Mode (MPP_FILTERBOX_ZERO_PADDING defined):
 //    - Out-of-bounds pixels are treated as zeros
 //    - Safe for processing images without surrounding context

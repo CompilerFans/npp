@@ -26,7 +26,7 @@ template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, 
       // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-      
+
       const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
       T pixelValue = src_row[srcX];
 #else
@@ -59,7 +59,7 @@ __device__ inline Npp32f erode3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int 
       // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-      
+
       const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
       Npp32f pixelValue = src_row[srcX];
 #else
@@ -92,7 +92,7 @@ template <typename T> __device__ inline T dilate3x3(const T *pSrc, int nSrcStep,
       // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-      
+
       const T *src_row = (const T *)((const char *)pSrc + srcY * nSrcStep);
       T pixelValue = src_row[srcX];
 #else
@@ -131,7 +131,7 @@ __device__ inline Npp32f dilate3x3<Npp32f>(const Npp32f *pSrc, int nSrcStep, int
       // Handle boundaries by clamping (replicate)
       srcY = max(0, min(srcY, height - 1));
       srcX = max(0, min(srcX, width - 1));
-      
+
       const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + srcY * nSrcStep);
       Npp32f pixelValue = src_row[srcX];
 #else

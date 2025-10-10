@@ -14,17 +14,16 @@
 #include <vector>
 
 // Helper structure for padded buffer management
-template <typename T>
-struct PaddedBuffer {
-  T* base_ptr;     // Base pointer (includes padding)
-  T* data_ptr;     // Data pointer (actual ROI area)
-  int step;        // Step size
-  int padding;     // Padding size
-  int width;       // ROI width
-  int height;      // ROI height
-  
+template <typename T> struct PaddedBuffer {
+  T *base_ptr; // Base pointer (includes padding)
+  T *data_ptr; // Data pointer (actual ROI area)
+  int step;    // Step size
+  int padding; // Padding size
+  int width;   // ROI width
+  int height;  // ROI height
+
   PaddedBuffer() : base_ptr(nullptr), data_ptr(nullptr), step(0), padding(0), width(0), height(0) {}
-  
+
   ~PaddedBuffer() {
     if (base_ptr) {
       nppiFree(base_ptr);
@@ -33,17 +32,16 @@ struct PaddedBuffer {
 };
 
 // Helper function to allocate GPU memory with padding
-template <typename T>
-PaddedBuffer<T>* allocateWithPadding(int width, int height, int padding = 8) {
-  auto* buffer = new PaddedBuffer<T>();
+template <typename T> PaddedBuffer<T> *allocateWithPadding(int width, int height, int padding = 8) {
+  auto *buffer = new PaddedBuffer<T>();
   buffer->width = width;
   buffer->height = height;
   buffer->padding = padding;
-  
+
   // Allocate larger buffer with padding on all sides
   int paddedWidth = width + 2 * padding;
   int paddedHeight = height + 2 * padding;
-  
+
   if constexpr (std::is_same_v<T, Npp8u>) {
     buffer->base_ptr = nppiMalloc_8u_C1(paddedWidth, paddedHeight, &buffer->step);
   } else if constexpr (std::is_same_v<T, Npp32f>) {
@@ -52,39 +50,32 @@ PaddedBuffer<T>* allocateWithPadding(int width, int height, int padding = 8) {
     delete buffer;
     return nullptr;
   }
-  
+
   if (!buffer->base_ptr) {
     delete buffer;
     return nullptr;
   }
-  
+
   // Initialize entire buffer to zero (including padding)
   cudaMemset2D(buffer->base_ptr, buffer->step, 0, paddedWidth * sizeof(T), paddedHeight);
-  
+
   // Calculate data pointer (points to start of actual ROI within padded buffer)
-  buffer->data_ptr = reinterpret_cast<T*>(
-    reinterpret_cast<char*>(buffer->base_ptr) + padding * buffer->step + padding * sizeof(T)
-  );
-  
+  buffer->data_ptr =
+      reinterpret_cast<T *>(reinterpret_cast<char *>(buffer->base_ptr) + padding * buffer->step + padding * sizeof(T));
+
   return buffer;
 }
 
 // Helper function to copy data to padded buffer
-template <typename T>
-void copyToPaddedBuffer(PaddedBuffer<T>* buffer, const std::vector<T>& hostData) {
-  cudaMemcpy2D(buffer->data_ptr, buffer->step, 
-               hostData.data(), buffer->width * sizeof(T),
-               buffer->width * sizeof(T), buffer->height,
-               cudaMemcpyHostToDevice);
+template <typename T> void copyToPaddedBuffer(PaddedBuffer<T> *buffer, const std::vector<T> &hostData) {
+  cudaMemcpy2D(buffer->data_ptr, buffer->step, hostData.data(), buffer->width * sizeof(T), buffer->width * sizeof(T),
+               buffer->height, cudaMemcpyHostToDevice);
 }
 
-// Helper function to copy data from padded buffer  
-template <typename T>
-void copyFromPaddedBuffer(std::vector<T>& hostData, const PaddedBuffer<T>* buffer) {
-  cudaMemcpy2D(hostData.data(), buffer->width * sizeof(T),
-               buffer->data_ptr, buffer->step,
-               buffer->width * sizeof(T), buffer->height,
-               cudaMemcpyDeviceToHost);
+// Helper function to copy data from padded buffer
+template <typename T> void copyFromPaddedBuffer(std::vector<T> &hostData, const PaddedBuffer<T> *buffer) {
+  cudaMemcpy2D(hostData.data(), buffer->width * sizeof(T), buffer->data_ptr, buffer->step, buffer->width * sizeof(T),
+               buffer->height, cudaMemcpyDeviceToHost);
 }
 
 // Test parameter structure for morphological operations
@@ -100,7 +91,7 @@ protected:
   void SetUp() override {
     cudaError_t err = cudaSetDevice(0);
     ASSERT_EQ(err, cudaSuccess);
-    
+
     // Clear any potential CUDA errors from previous tests
     cudaGetLastError();
   }
@@ -618,14 +609,14 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
   // Test regular version
   {
     // Use padded buffers to ensure valid data outside ROI boundaries
-    auto* srcBuffer = allocateWithPadding<Npp32f>(width, height, 8);
-    auto* dstBuffer = allocateWithPadding<Npp32f>(width, height, 8);
+    auto *srcBuffer = allocateWithPadding<Npp32f>(width, height, 8);
+    auto *dstBuffer = allocateWithPadding<Npp32f>(width, height, 8);
     ASSERT_NE(srcBuffer, nullptr);
     ASSERT_NE(dstBuffer, nullptr);
-    
+
     // Copy test data to padded source buffer
     copyToPaddedBuffer(srcBuffer, binaryData);
-    
+
     // Get step values from buffers
     int srcStep = srcBuffer->step;
     int dstStep = dstBuffer->step;
@@ -639,7 +630,8 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_32f_C1R(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErode_32f_C1R(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI, d_mask,
+                                         oMaskSize, oAnchor);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height);
@@ -673,11 +665,11 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
   // Test context version
   {
     // Use padded buffers
-    auto* srcBuffer = allocateWithPadding<Npp32f>(width, height, 8);
-    auto* dstBuffer = allocateWithPadding<Npp32f>(width, height, 8);
+    auto *srcBuffer = allocateWithPadding<Npp32f>(width, height, 8);
+    auto *dstBuffer = allocateWithPadding<Npp32f>(width, height, 8);
     ASSERT_NE(srcBuffer, nullptr);
     ASSERT_NE(dstBuffer, nullptr);
-    
+
     int srcStep = srcBuffer->step;
     int dstStep = dstBuffer->step;
 
@@ -688,9 +680,8 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     nppStreamCtx.hStream = stream;
 
     // Use async copy to padded buffer
-    cudaMemcpy2DAsync(srcBuffer->data_ptr, srcStep, binaryData.data(), 
-                      width * sizeof(Npp32f), width * sizeof(Npp32f), height,
-                      cudaMemcpyHostToDevice, stream);
+    cudaMemcpy2DAsync(srcBuffer->data_ptr, srcStep, binaryData.data(), width * sizeof(Npp32f), width * sizeof(Npp32f),
+                      height, cudaMemcpyHostToDevice, stream);
 
     auto kernel = createCrossKernel3x3();
     Npp8u *d_mask = nullptr;
@@ -701,8 +692,8 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status =
-        nppiErode_32f_C1R_Ctx(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+    NppStatus status = nppiErode_32f_C1R_Ctx(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI,
+                                             d_mask, oMaskSize, oAnchor, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -738,10 +729,10 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     auto dstBuffer = allocateWithPadding<Npp32f>(width, height, padding);
     ASSERT_NE(srcBuffer, nullptr);
     ASSERT_NE(dstBuffer, nullptr);
-    
+
     // Copy test data to padded source buffer
     copyToPaddedBuffer(srcBuffer, checkerData);
-    
+
     // Get step values from buffers
     int srcStep = srcBuffer->step;
     int dstStep = dstBuffer->step;
@@ -755,9 +746,8 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiDilate_32f_C1R(srcBuffer->data_ptr, srcStep, 
-                                          dstBuffer->data_ptr, dstStep, 
-                                          oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilate_32f_C1R(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI, d_mask,
+                                          oMaskSize, oAnchor);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height);
@@ -900,7 +890,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C4R_ComprehensiveTest) {
       EXPECT_LE(resultHighPixels, originalHighPixels) << "Channel " << c;
     }
 
-    // Verify values are finite (no NaN or Inf) 
+    // Verify values are finite (no NaN or Inf)
     bool allFinite = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     if (!allFinite) {
       // Find and print non-finite values for debugging
@@ -954,7 +944,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C4R_ComprehensiveTest) {
     cudaMemcpy2D(result.data(), width * 4 * sizeof(Npp32f), d_dst, dstStep, width * 4 * sizeof(Npp32f), height,
                  cudaMemcpyDeviceToHost);
 
-    // Verify values are finite (no NaN or Inf) 
+    // Verify values are finite (no NaN or Inf)
     bool allFinite = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     if (!allFinite) {
       // Find and print non-finite values for debugging
@@ -1032,7 +1022,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C4R_ComprehensiveTest) {
       EXPECT_GE(resultHighPixels, originalHighPixels) << "Channel " << c;
     }
 
-    // Verify values are finite (no NaN or Inf) 
+    // Verify values are finite (no NaN or Inf)
     bool allFinite = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     if (!allFinite) {
       // Find and print non-finite values for debugging
@@ -1086,7 +1076,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C4R_ComprehensiveTest) {
     cudaMemcpy2D(result.data(), width * 4 * sizeof(Npp32f), d_dst, dstStep, width * 4 * sizeof(Npp32f), height,
                  cudaMemcpyDeviceToHost);
 
-    // Verify values are finite (no NaN or Inf) 
+    // Verify values are finite (no NaN or Inf)
     bool allFinite = std::all_of(result.begin(), result.end(), [](Npp32f val) { return std::isfinite(val); });
     if (!allFinite) {
       // Find and print non-finite values for debugging
@@ -2239,7 +2229,7 @@ protected:
   void SetUp() override {
     cudaError_t err = cudaSetDevice(0);
     ASSERT_EQ(err, cudaSuccess);
-    
+
     // Clear any potential CUDA errors from previous tests
     cudaGetLastError();
   }
@@ -2605,14 +2595,14 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Comprehensive) {
 
     // Allocate padded device memory to ensure valid data outside ROI boundaries
     const int padding = 8; // Sufficient for up to 15x15 kernels
-    auto* srcBuffer = allocateWithPadding<Npp32f>(config.width, config.height, padding);
-    auto* dstBuffer = allocateWithPadding<Npp32f>(config.width, config.height, padding);
+    auto *srcBuffer = allocateWithPadding<Npp32f>(config.width, config.height, padding);
+    auto *dstBuffer = allocateWithPadding<Npp32f>(config.width, config.height, padding);
     ASSERT_NE(srcBuffer, nullptr);
     ASSERT_NE(dstBuffer, nullptr);
-    
+
     // Copy test data to padded source buffer
     copyToPaddedBuffer(srcBuffer, testData);
-    
+
     // Get step values from buffers
     int srcStep = srcBuffer->step;
     int dstStep = dstBuffer->step;
@@ -2628,7 +2618,8 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Comprehensive) {
     NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
     // Test regular version
-    NppStatus status = nppiErode_32f_C1R(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErode_32f_C1R(srcBuffer->data_ptr, srcStep, dstBuffer->data_ptr, dstStep, oSizeROI, d_mask,
+                                         oMaskSize, oAnchor);
     ASSERT_EQ(status, NPP_SUCCESS) << "Erosion 32f failed for config: " << config.description;
 
     // Download and verify results

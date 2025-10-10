@@ -17,7 +17,7 @@ protected:
   void SetUp() override {
     // Clear any previous CUDA errors
     cudaGetLastError();
-    
+
     width = 64;
     height = 64;
     totalPixels = width * height;
@@ -26,14 +26,14 @@ protected:
     oSizeROI = {width, height};
   }
 
-  void TearDown() override { 
+  void TearDown() override {
     // Ensure all CUDA operations are complete before cleanup
     cudaDeviceSynchronize();
-    cleanupDeviceMemory(); 
-    
+    cleanupDeviceMemory();
+
     // Clear any remaining errors
     cudaGetLastError();
-    
+
     // Force flush any remaining operations
     cudaDeviceSynchronize();
   }
@@ -171,7 +171,7 @@ TEST_F(HistogramRangeTest, BufferSize_32f_C1R_Basic) {
 TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_Basic) {
   // Clear any previous CUDA errors
   cudaGetLastError();
-  
+
   allocateTestData8u();
   setupLevels8u();
   allocateHistogramMemory();
@@ -204,7 +204,7 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_Basic) {
 
     EXPECT_EQ(totalCount, expectedCount);
   }
-  
+
   // Ensure operations complete before next test
   cudaDeviceSynchronize();
 }
@@ -212,7 +212,7 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C1R_Basic) {
 TEST_F(HistogramRangeTest, HistogramRange_32f_C1R_Basic) {
   // Clear any previous CUDA errors
   cudaGetLastError();
-  
+
   allocateTestData32f();
   setupLevels32f();
 
@@ -226,7 +226,7 @@ TEST_F(HistogramRangeTest, HistogramRange_32f_C1R_Basic) {
     cudaFree(d_buffer);
     d_buffer = nullptr;
   }
-  
+
   h_hist.resize(nLevels - 1, 0);
   ASSERT_EQ(cudaMalloc(&d_hist, (nLevels - 1) * sizeof(Npp32s)), cudaSuccess);
 
@@ -257,7 +257,7 @@ TEST_F(HistogramRangeTest, HistogramRange_32f_C1R_Basic) {
   }
 
   EXPECT_EQ(totalCount, expectedCount);
-  
+
   // Ensure operations complete before next test
   cudaDeviceSynchronize();
 }
@@ -326,7 +326,7 @@ TEST_F(HistogramRangeTest, CustomLevels_NonUniform) {
 TEST_F(HistogramRangeTest, DISABLED_SharedMemoryOptimization) {
   // Clear any previous CUDA errors at test start
   cudaGetLastError();
-  
+
   allocateTestData8u();
   setupLevels8u();
 
@@ -353,7 +353,7 @@ TEST_F(HistogramRangeTest, DISABLED_SharedMemoryOptimization) {
 
   h_hist.resize(nLevels - 1, 0);
   ASSERT_EQ(cudaMalloc(&d_hist, (nLevels - 1) * sizeof(Npp32s)), cudaSuccess);
-  
+
   // Initialize histogram memory to zero
   cudaMemset(d_hist, 0, (nLevels - 1) * sizeof(Npp32s));
 
@@ -367,7 +367,7 @@ TEST_F(HistogramRangeTest, DISABLED_SharedMemoryOptimization) {
 
   // Ensure operation completes
   cudaDeviceSynchronize();
-  
+
   ASSERT_EQ(cudaMemcpy(h_hist.data(), d_hist, (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
 
   int totalCount = 0;
@@ -375,7 +375,7 @@ TEST_F(HistogramRangeTest, DISABLED_SharedMemoryOptimization) {
     totalCount += h_hist[i];
   }
   EXPECT_GT(totalCount, 0) << "Shared memory optimization should produce valid results";
-  
+
   // Clear any CUDA errors and ensure complete synchronization before test ends
   cudaGetLastError();
   cudaDeviceSynchronize();
