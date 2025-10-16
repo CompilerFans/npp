@@ -20,6 +20,12 @@ cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYSt
 cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
                                                         int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                         const Npp32f aTwist[3][4], cudaStream_t stream);
+
+cudaError_t nppiNV12ToBGR_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
+                                          Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+
+cudaError_t nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
+                                                 Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 }
 
 /**
@@ -221,10 +227,10 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用CUDA内核 - 使用RGB内核然后交换通道
-  cudaError_t cudaStatus = nppiNV12ToRGB_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
+  // Call BGR kernel
+  cudaError_t cudaStatus = nppiNV12ToBGR_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                          pSrc[1], rSrcStep, // UV plane (interleaved)
-                                                         pDst, nDstStep,    // BGR output (will swap R and B)
+                                                         pDst, nDstStep,    // BGR output
                                                          oSizeROI, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
@@ -270,8 +276,8 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // 调用BT.709 CUDA内核 (outputs RGB, assume BGR=RGB for now)
-  cudaError_t cudaStatus = nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
+  // Call BT.709 BGR kernel
+  cudaError_t cudaStatus = nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                                 pSrc[1], rSrcStep, // UV plane
                                                                 pDst, nDstStep,    // BGR output
                                                                 oSizeROI, nppStreamCtx.hStream);
