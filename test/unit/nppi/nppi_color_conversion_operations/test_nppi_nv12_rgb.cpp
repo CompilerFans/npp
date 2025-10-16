@@ -61,7 +61,7 @@ protected:
 };
 
 // 测试基本的NV12到RGB转换
-TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R) {
+TEST_F(NV12ToRGBTest, NV12ToRGB_8u_P2C3R) {
   std::vector<Npp8u> hostYData, hostUVData;
   createTestNV12Data(hostYData, hostUVData);
 
@@ -112,7 +112,7 @@ TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R) {
 }
 
 // 测试基本的NV12到RGB转换 (带Context版本)
-TEST_F(NV12ToRGBTest, BasicNV12ToRGB_8u_P2C3R_Ctx) {
+TEST_F(NV12ToRGBTest, NV12ToRGB_8u_P2C3R_Ctx) {
   std::vector<Npp8u> hostYData, hostUVData;
   createTestNV12Data(hostYData, hostUVData);
 

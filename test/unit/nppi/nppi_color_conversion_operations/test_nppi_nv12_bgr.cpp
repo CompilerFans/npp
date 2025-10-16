@@ -4,14 +4,14 @@
 
 using namespace npp_functional_test;
 
-class NV12ToBGRFunctionalTest : public NppTestBase {
+class NV12ToBGRTest : public NppTestBase {
 protected:
   void SetUp() override { NppTestBase::SetUp(); }
 
   void TearDown() override { NppTestBase::TearDown(); }
 
   // Helper to create standard NV12 test data
-  void createNV12TestData(int width, int height, std::vector<Npp8u>& yData, std::vector<Npp8u>& uvData) {
+  void createNV12TestData(int width, int height, std::vector<Npp8u> &yData, std::vector<Npp8u> &uvData) {
     yData.resize(width * height);
     uvData.resize(width * height / 2);
 
@@ -27,7 +27,7 @@ protected:
 };
 
 // Test standard NV12 to BGR conversion
-TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
+TEST_F(NV12ToBGRTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
   const int width = 64, height = 64;
   const int chromaHeight = height / 2;
 
@@ -48,8 +48,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
 
-  NppStatus status = nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, srcStep, bgrImage.get(),
-                                                  bgrImage.step(), oSizeROI, nppStreamCtx);
+  NppStatus status = nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, srcStep, bgrImage.get(), bgrImage.step(), oSizeROI, nppStreamCtx);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -76,7 +75,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_Ctx_Basic) {
 }
 
 // Test without stream context
-TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_NoContext) {
+TEST_F(NV12ToBGRTest, NV12ToBGR_8u_P2C3R_NoContext) {
   const int width = 32, height = 32;
   const int chromaHeight = height / 2;
 
@@ -94,8 +93,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_NoContext) {
   int srcStep = yPlane.step();
   NppiSize oSizeROI = {width, height};
 
-  NppStatus status = nppiNV12ToBGR_8u_P2C3R(pSrc, srcStep, bgrImage.get(),
-                                            bgrImage.step(), oSizeROI);
+  NppStatus status = nppiNV12ToBGR_8u_P2C3R(pSrc, srcStep, bgrImage.get(), bgrImage.step(), oSizeROI);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -114,7 +112,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_8u_P2C3R_NoContext) {
 }
 
 // Test BT.709 HDTV color space
-TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_709HDTV_8u_P2C3R_Ctx) {
+TEST_F(NV12ToBGRTest, NV12ToBGR_709HDTV_8u_P2C3R_Ctx) {
   const int width = 64, height = 64;
   const int chromaHeight = height / 2;
 
@@ -135,8 +133,8 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_709HDTV_8u_P2C3R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
 
-  NppStatus status = nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(pSrc, srcStep, bgrImage.get(),
-                                                         bgrImage.step(), oSizeROI, nppStreamCtx);
+  NppStatus status =
+      nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(pSrc, srcStep, bgrImage.get(), bgrImage.step(), oSizeROI, nppStreamCtx);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -155,7 +153,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_709HDTV_8u_P2C3R_Ctx) {
 }
 
 // Test BT.709 CSC color space
-TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_709CSC_8u_P2C3R_Ctx) {
+TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_8u_P2C3R_Ctx) {
   const int width = 64, height = 64;
   const int chromaHeight = height / 2;
 
@@ -176,8 +174,8 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_709CSC_8u_P2C3R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
 
-  NppStatus status = nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, srcStep, bgrImage.get(),
-                                                        bgrImage.step(), oSizeROI, nppStreamCtx);
+  NppStatus status =
+      nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, srcStep, bgrImage.get(), bgrImage.step(), oSizeROI, nppStreamCtx);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -196,7 +194,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_709CSC_8u_P2C3R_Ctx) {
 }
 
 // Test with known Y=128, U=128, V=128 (neutral gray)
-TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_ColorAccuracy_Gray) {
+TEST_F(NV12ToBGRTest, NV12ToBGR_ColorAccuracy_Gray) {
   const int width = 16, height = 16;
   const int chromaHeight = height / 2;
 
@@ -219,8 +217,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_ColorAccuracy_Gray) {
   int srcStep = yPlane.step();
   NppiSize oSizeROI = {width, height};
 
-  NppStatus status = nppiNV12ToBGR_8u_P2C3R(pSrc, srcStep, bgrImage.get(),
-                                            bgrImage.step(), oSizeROI);
+  NppStatus status = nppiNV12ToBGR_8u_P2C3R(pSrc, srcStep, bgrImage.get(), bgrImage.step(), oSizeROI);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -246,7 +243,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_ColorAccuracy_Gray) {
 }
 
 // Test pure white and black values
-TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_ColorAccuracy_WhiteBlack) {
+TEST_F(NV12ToBGRTest, NV12ToBGR_ColorAccuracy_WhiteBlack) {
   const int width = 16, height = 16;
   const int chromaHeight = height / 2;
 
@@ -277,8 +274,7 @@ TEST_F(NV12ToBGRFunctionalTest, NV12ToBGR_ColorAccuracy_WhiteBlack) {
   int srcStep = yPlane.step();
   NppiSize oSizeROI = {width, height};
 
-  NppStatus status = nppiNV12ToBGR_8u_P2C3R(pSrc, srcStep, bgrImage.get(),
-                                            bgrImage.step(), oSizeROI);
+  NppStatus status = nppiNV12ToBGR_8u_P2C3R(pSrc, srcStep, bgrImage.get(), bgrImage.step(), oSizeROI);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
