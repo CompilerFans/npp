@@ -591,3 +591,134 @@ TEST_F(TorchCodecCompatibilityTest, TorchCodecYUVConversion) {
   std::cout << "TorchCodec compatibility test passed. Valid pixels: " << validPixelCount << std::endl;
 }
 #endif
+
+// Test strict color accuracy with known YUV values
+TEST_F(NV12ToRGBTest, ColorAccuracy_StrictGray) {
+  const int width = 16, height = 16;
+
+  // Pure gray: Y=128, U=128, V=128
+  std::vector<Npp8u> yData(width * height, 128);
+  std::vector<Npp8u> uvData(width * height / 2);
+  for (int i = 0; i < width * height / 2; i += 2) {
+    uvData[i] = 128;
+    uvData[i + 1] = 128;
+  }
+
+  Npp8u *d_srcY = nppsMalloc_8u(width * height);
+  Npp8u *d_srcUV = nppsMalloc_8u(width * height / 2);
+  int rgbStep;
+  Npp8u *d_rgb = nppiMalloc_8u_C3(width, height, &rgbStep);
+
+  ASSERT_NE(d_srcY, nullptr);
+  ASSERT_NE(d_srcUV, nullptr);
+  ASSERT_NE(d_rgb, nullptr);
+
+  cudaMemcpy(d_srcY, yData.data(), yData.size(), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_srcUV, uvData.data(), uvData.size(), cudaMemcpyHostToDevice);
+
+  const Npp8u *pSrc[2] = {d_srcY, d_srcUV};
+  NppiSize roi = {width, height};
+
+  NppStatus status = nppiNV12ToRGB_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> hostRGB(rgbStep * height);
+  cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
+
+  // For neutral gray, all RGB channels should be equal
+  for (int i = 0; i < width * height; i++) {
+    int rgbIdx = (i / width) * rgbStep + (i % width) * 3;
+    Npp8u r = hostRGB[rgbIdx];
+    Npp8u g = hostRGB[rgbIdx + 1];
+    Npp8u b = hostRGB[rgbIdx + 2];
+
+    EXPECT_NEAR(r, g, 3) << "R and G mismatch at pixel " << i;
+    EXPECT_NEAR(g, b, 3) << "G and B mismatch at pixel " << i;
+    EXPECT_NEAR(r, b, 3) << "R and B mismatch at pixel " << i;
+
+    EXPECT_GT(r, 110) << "Gray value too low at pixel " << i;
+    EXPECT_LT(r, 150) << "Gray value too high at pixel " << i;
+  }
+
+  nppsFree(d_srcY);
+  nppsFree(d_srcUV);
+  nppiFree(d_rgb);
+}
+
+// Test strict white and black accuracy
+TEST_F(NV12ToRGBTest, ColorAccuracy_StrictWhiteBlack) {
+  const int width = 16, height = 16;
+
+  std::vector<Npp8u> yData(width * height);
+  std::vector<Npp8u> uvData(width * height / 2);
+
+  // Top half: white (Y=235, U=128, V=128)
+  // Bottom half: black (Y=16, U=128, V=128)
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      yData[y * width + x] = (y < height / 2) ? 235 : 16;
+    }
+  }
+
+  for (int i = 0; i < width * height / 2; i += 2) {
+    uvData[i] = 128;
+    uvData[i + 1] = 128;
+  }
+
+  Npp8u *d_srcY = nppsMalloc_8u(width * height);
+  Npp8u *d_srcUV = nppsMalloc_8u(width * height / 2);
+  int rgbStep;
+  Npp8u *d_rgb = nppiMalloc_8u_C3(width, height, &rgbStep);
+
+  ASSERT_NE(d_srcY, nullptr);
+  ASSERT_NE(d_srcUV, nullptr);
+  ASSERT_NE(d_rgb, nullptr);
+
+  cudaMemcpy(d_srcY, yData.data(), yData.size(), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_srcUV, uvData.data(), uvData.size(), cudaMemcpyHostToDevice);
+
+  const Npp8u *pSrc[2] = {d_srcY, d_srcUV};
+  NppiSize roi = {width, height};
+
+  NppStatus status = nppiNV12ToRGB_8u_P2C3R(pSrc, width, d_rgb, rgbStep, roi);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> hostRGB(rgbStep * height);
+  cudaMemcpy(hostRGB.data(), d_rgb, rgbStep * height, cudaMemcpyDeviceToHost);
+
+  // Check white pixels (top half)
+  for (int y = 0; y < height / 2; y++) {
+    for (int x = 0; x < width; x++) {
+      int rgbIdx = y * rgbStep + x * 3;
+      Npp8u r = hostRGB[rgbIdx];
+      Npp8u g = hostRGB[rgbIdx + 1];
+      Npp8u b = hostRGB[rgbIdx + 2];
+
+      EXPECT_GT(r, 230) << "White R too low at (" << x << "," << y << ")";
+      EXPECT_GT(g, 230) << "White G too low at (" << x << "," << y << ")";
+      EXPECT_GT(b, 230) << "White B too low at (" << x << "," << y << ")";
+      EXPECT_NEAR(r, g, 2) << "White RG mismatch at (" << x << "," << y << ")";
+      EXPECT_NEAR(g, b, 2) << "White GB mismatch at (" << x << "," << y << ")";
+    }
+  }
+
+  // Check black pixels (bottom half)
+  for (int y = height / 2; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int rgbIdx = y * rgbStep + x * 3;
+      Npp8u r = hostRGB[rgbIdx];
+      Npp8u g = hostRGB[rgbIdx + 1];
+      Npp8u b = hostRGB[rgbIdx + 2];
+
+      EXPECT_LT(r, 25) << "Black R too high at (" << x << "," << y << ")";
+      EXPECT_LT(g, 25) << "Black G too high at (" << x << "," << y << ")";
+      EXPECT_LT(b, 25) << "Black B too high at (" << x << "," << y << ")";
+      EXPECT_NEAR(r, g, 2) << "Black RG mismatch at (" << x << "," << y << ")";
+      EXPECT_NEAR(g, b, 2) << "Black GB mismatch at (" << x << "," << y << ")";
+    }
+  }
+
+  nppsFree(d_srcY);
+  nppsFree(d_srcUV);
+  nppiFree(d_rgb);
+}

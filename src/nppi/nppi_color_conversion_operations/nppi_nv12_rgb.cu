@@ -92,6 +92,66 @@ __global__ void nv12_to_rgb_709_kernel(const uint8_t *__restrict__ srcY, int src
   dst[dst_offset + 2] = B;
 }
 
+// BGR kernels - output in BGR order instead of RGB
+__global__ void nv12_to_bgr_kernel(const uint8_t *__restrict__ srcY, int srcYStep, const uint8_t *__restrict__ srcUV,
+                                   int srcUVStep, uint8_t *__restrict__ dst, int dstStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height)
+    return;
+
+  // Get Y value
+  uint8_t Y = srcY[y * srcYStep + x];
+
+  // Get UV values (chroma is subsampled by 2 in both dimensions)
+  int uv_x = (x >> 1) << 1;
+  int uv_y = y >> 1;
+  int uv_offset = uv_y * srcUVStep + uv_x;
+  uint8_t U = srcUV[uv_offset];
+  uint8_t V = srcUV[uv_offset + 1];
+
+  // Convert to RGB
+  uint8_t R, G, B;
+  nv12_to_rgb_pixel(Y, U, V, R, G, B, YUV2RGB_BT601);
+
+  // Store BGR result (note the reversed order)
+  int dst_offset = y * dstStep + x * 3;
+  dst[dst_offset] = B;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = R;
+}
+
+__global__ void nv12_to_bgr_709_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
+                                       const uint8_t *__restrict__ srcUV, int srcUVStep, uint8_t *__restrict__ dst,
+                                       int dstStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height)
+    return;
+
+  // Get Y value
+  uint8_t Y = srcY[y * srcYStep + x];
+
+  // Get UV values (chroma is subsampled)
+  int uv_x = (x >> 1) << 1;
+  int uv_y = y >> 1;
+  int uv_offset = uv_y * srcUVStep + uv_x;
+  uint8_t U = srcUV[uv_offset];
+  uint8_t V = srcUV[uv_offset + 1];
+
+  // Convert to RGB using BT.709
+  uint8_t R, G, B;
+  nv12_to_rgb_pixel(Y, U, V, R, G, B, YUV2RGB_BT709);
+
+  // Store BGR result (note the reversed order)
+  int dst_offset = y * dstStep + x * 3;
+  dst[dst_offset] = B;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = R;
+}
+
 extern "C" cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
                                                      int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                      cudaStream_t stream) {
@@ -209,4 +269,29 @@ extern "C" cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *
   cudaFree(d_twist);
 
   return err;
+}
+
+// BGR kernel wrappers
+extern "C" cudaError_t nppiNV12ToBGR_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                                     int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                                     cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nv12_to_bgr_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
+                                                         oSizeROI.width, oSizeROI.height);
+
+  return cudaGetLastError();
+}
+
+extern "C" cudaError_t nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                                            int nSrcUVStep, Npp8u *pDst, int nDstStep,
+                                                            NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nv12_to_bgr_709_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
+                                                             oSizeROI.width, oSizeROI.height);
+
+  return cudaGetLastError();
 }

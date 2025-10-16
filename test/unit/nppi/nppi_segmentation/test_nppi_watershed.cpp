@@ -21,7 +21,7 @@ protected:
 
 // 测试缓冲区大小获取
 TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_Basic) {
-  SIZE_TYPE bufferSize = 0;
+  int bufferSize = 0;
 
   NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -49,7 +49,7 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   markerData[(height - 2) * width + (width - 2)] = 2; // 右下角种子点
 
   // 获取缓冲区大小
-  SIZE_TYPE bufferSize = 0;
+  int bufferSize = 0;
   NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
 

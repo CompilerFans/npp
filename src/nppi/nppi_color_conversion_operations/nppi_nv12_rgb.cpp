@@ -13,6 +13,12 @@ cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYSt
 cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
                                                         int nSrcUVStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                                         const Npp32f aTwist[3][4], cudaStream_t stream);
+
+cudaError_t nppiNV12ToBGR_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
+                                          Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+
+cudaError_t nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
+                                                 Npp8u *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 }
 
 NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
@@ -181,18 +187,15 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  //
-  cudaError_t cudaStatus = nppiNV12ToRGB_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
+  // Call BGR kernel
+  cudaError_t cudaStatus = nppiNV12ToBGR_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                          pSrc[1], rSrcStep, // UV plane (interleaved)
-                                                         pDst, nDstStep,    // BGR output (will swap R and B)
+                                                         pDst, nDstStep,    // BGR output
                                                          oSizeROI, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
-
-  // Swap R and B channels to convert RGB to BGR
-  // This would need a separate kernel in practice, for now we assume RGB=BGR
 
   return NPP_NO_ERROR;
 }
@@ -224,8 +227,8 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  // CallBT.709 GPUkernel (outputs RGB, assume BGR=RGB for now)
-  cudaError_t cudaStatus = nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
+  // Call BT.709 BGR kernel
+  cudaError_t cudaStatus = nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(pSrc[0], rSrcStep, // Y plane
                                                                 pSrc[1], rSrcStep, // UV plane
                                                                 pDst, nDstStep,    // BGR output
                                                                 oSizeROI, nppStreamCtx.hStream);
