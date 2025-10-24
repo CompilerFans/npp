@@ -38,7 +38,8 @@ __global__ void nppiCopy_8u_C4R_vectorized_kernel(const Npp8u *pSrc, int nSrcSte
 
 // Packed to planar copy kernel (C3P3R, C4P4R)
 template <typename T, int CHANNELS>
-__global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, T *const *pDst, int nDstStep, int width, int height) {
+__global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, T *const *pDst, int nDstStep, int width,
+                                      int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -185,12 +186,12 @@ NppStatus nppiCopy_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
   return nppiCopy_impl<Npp32f, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-}  // extern "C"
+} // extern "C"
 
 // Generic packed to planar implementation (outside extern "C")
 template <typename T, int CHANNELS>
 NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int nDstStep, NppiSize oSizeROI,
-                               NppStreamContext nppStreamCtx) {
+                              NppStreamContext nppStreamCtx) {
   T **d_pDst;
 
   cudaError_t cudaStatus = cudaMalloc(&d_pDst, CHANNELS * sizeof(T *));
@@ -207,8 +208,8 @@ NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiCopy_CxPxR_kernel<T, CHANNELS>
-      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, d_pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  nppiCopy_CxPxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, d_pDst, nDstStep,
+                                                                                       oSizeROI.width, oSizeROI.height);
 
   cudaStatus = cudaGetLastError();
   cudaFree(d_pDst);
@@ -223,7 +224,7 @@ NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int 
 // Generic planar to packed implementation
 template <typename T, int CHANNELS>
 NppStatus nppiCopy_PxCxR_impl(T *const pSrc[], int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
-                               NppStreamContext nppStreamCtx) {
+                              NppStreamContext nppStreamCtx) {
   T **d_pSrc;
 
   cudaError_t cudaStatus = cudaMalloc(&d_pSrc, CHANNELS * sizeof(T *));
@@ -240,8 +241,8 @@ NppStatus nppiCopy_PxCxR_impl(T *const pSrc[], int nSrcStep, T *pDst, int nDstSt
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiCopy_PxCxR_kernel<T, CHANNELS>
-      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(d_pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  nppiCopy_PxCxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(d_pSrc, nSrcStep, pDst, nDstStep,
+                                                                                       oSizeROI.width, oSizeROI.height);
 
   cudaStatus = cudaGetLastError();
   cudaFree(d_pSrc);
@@ -338,5 +339,4 @@ NppStatus nppiCopy_32f_P4C4R_Ctx_impl(const Npp32f *const pSrc[4], int nSrcStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiCopy_PxCxR_impl<Npp32f, 4>(const_cast<Npp32f **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
-
 }

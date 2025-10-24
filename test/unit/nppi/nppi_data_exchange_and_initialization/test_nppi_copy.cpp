@@ -696,6 +696,86 @@ protected:
     Helper::validateResults(result, testData.expected);
   }
 
+  // Round-trip test: Packed -> Planar -> Packed
+  template <typename T, int NumPlanes>
+  void testRoundTripPackedToPlanarToPacked(int width, int height, typename CopyTestHelper<T>::DataPattern pattern) {
+    using Helper = CopyTestHelper<T>;
+
+    // Generate original packed data
+    auto testData = Helper::generateTestData(width, height, NumPlanes, pattern);
+
+    // Allocate memory for round-trip
+    GPUMemoryManager<T> srcPacked(width, height, NumPlanes);
+    PlanarGPUMemoryManager<T, NumPlanes> intermediatePlanar(width, height);
+    GPUMemoryManager<T> finalPacked(width, height, NumPlanes);
+
+    ASSERT_TRUE(srcPacked.isValid()) << "Failed to allocate source packed memory";
+    ASSERT_TRUE(intermediatePlanar.isValid()) << "Failed to allocate intermediate planar memory";
+    ASSERT_TRUE(finalPacked.isValid()) << "Failed to allocate final packed memory";
+
+    // Copy original data to GPU
+    ASSERT_TRUE(srcPacked.copyFromHost(testData.src, width, height, NumPlanes));
+
+    NppiSize roi = {width, height};
+
+    // Step 1: Packed -> Planar (C3P3R or C4P4R)
+    NppStatus status1 = performPackedToPlanarCopy<T, NumPlanes>(srcPacked.get(), srcPacked.step(),
+                                                                 intermediatePlanar.getPlanes(),
+                                                                 intermediatePlanar.step(), roi);
+    ASSERT_EQ(status1, NPP_SUCCESS) << "First conversion (packed to planar) failed";
+
+    // Step 2: Planar -> Packed (P3C3R or P4C4R)
+    NppStatus status2 = performPlanarToPackedCopy<T, NumPlanes>(intermediatePlanar.getPlanes(),
+                                                                 intermediatePlanar.step(), finalPacked.get(),
+                                                                 finalPacked.step(), roi);
+    ASSERT_EQ(status2, NPP_SUCCESS) << "Second conversion (planar to packed) failed";
+
+    // Validate final result matches original
+    std::vector<T> result;
+    ASSERT_TRUE(finalPacked.copyToHost(result, width, height, NumPlanes));
+
+    Helper::validateResults(result, testData.expected);
+  }
+
+  // Round-trip test: Planar -> Packed -> Planar
+  template <typename T, int NumPlanes>
+  void testRoundTripPlanarToPackedToPlanar(int width, int height, typename CopyTestHelper<T>::DataPattern pattern) {
+    using Helper = CopyTestHelper<T>;
+
+    // Generate original packed data (will be converted to planar)
+    auto testData = Helper::generateTestData(width, height, NumPlanes, pattern);
+
+    // Allocate memory for round-trip
+    PlanarGPUMemoryManager<T, NumPlanes> srcPlanar(width, height);
+    GPUMemoryManager<T> intermediatePacked(width, height, NumPlanes);
+    PlanarGPUMemoryManager<T, NumPlanes> finalPlanar(width, height);
+
+    ASSERT_TRUE(srcPlanar.isValid()) << "Failed to allocate source planar memory";
+    ASSERT_TRUE(intermediatePacked.isValid()) << "Failed to allocate intermediate packed memory";
+    ASSERT_TRUE(finalPlanar.isValid()) << "Failed to allocate final planar memory";
+
+    // Copy original data to GPU in planar format
+    ASSERT_TRUE(srcPlanar.copyFromHostPacked(testData.src, width, height));
+
+    NppiSize roi = {width, height};
+
+    // Step 1: Planar -> Packed (P3C3R or P4C4R)
+    NppStatus status1 = performPlanarToPackedCopy<T, NumPlanes>(srcPlanar.getPlanes(), srcPlanar.step(),
+                                                                 intermediatePacked.get(), intermediatePacked.step(), roi);
+    ASSERT_EQ(status1, NPP_SUCCESS) << "First conversion (planar to packed) failed";
+
+    // Step 2: Packed -> Planar (C3P3R or C4P4R)
+    NppStatus status2 = performPackedToPlanarCopy<T, NumPlanes>(intermediatePacked.get(), intermediatePacked.step(),
+                                                                 finalPlanar.getPlanes(), finalPlanar.step(), roi);
+    ASSERT_EQ(status2, NPP_SUCCESS) << "Second conversion (packed to planar) failed";
+
+    // Validate final result matches original
+    std::vector<T> result;
+    ASSERT_TRUE(finalPlanar.copyToHostPacked(result, width, height));
+
+    Helper::validateResults(result, testData.expected);
+  }
+
 private:
   // Specialized copy function dispatch
   template <typename T, int Channels>
@@ -1101,4 +1181,76 @@ TEST_F(CopyTest, Copy_8u_C4P4R) {
 
 TEST_F(CopyTest, Copy_16u_C4P4R) {
   testCopyPackedToPlanar<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
+}
+
+// ============================================================================
+// Round-trip Conversion Tests (Packed <-> Planar <-> Packed)
+// ============================================================================
+
+// 3-channel round-trip tests: Packed -> Planar -> Packed
+TEST_F(CopyTest, RoundTrip_8u_Packed_Planar_Packed_3Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp8u, 3>(32, 24, CopyTestHelper<Npp8u>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, RoundTrip_16u_Packed_Planar_Packed_3Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp16u, 3>(32, 32, CopyTestHelper<Npp16u>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, RoundTrip_16s_Packed_Planar_Packed_3Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp16s, 3>(24, 24, CopyTestHelper<Npp16s>::DataPattern::GRADIENT);
+}
+
+TEST_F(CopyTest, RoundTrip_32s_Packed_Planar_Packed_3Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp32s, 3>(32, 32, CopyTestHelper<Npp32s>::DataPattern::RANDOM);
+}
+
+TEST_F(CopyTest, RoundTrip_32f_Packed_Planar_Packed_3Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp32f, 3>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
+}
+
+// 4-channel round-trip tests: Packed -> Planar -> Packed
+TEST_F(CopyTest, RoundTrip_8u_Packed_Planar_Packed_4Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp8u, 4>(32, 32, CopyTestHelper<Npp8u>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, RoundTrip_16u_Packed_Planar_Packed_4Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
+}
+
+TEST_F(CopyTest, RoundTrip_32f_Packed_Planar_Packed_4Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+// 3-channel round-trip tests: Planar -> Packed -> Planar
+TEST_F(CopyTest, RoundTrip_8u_Planar_Packed_Planar_3Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp8u, 3>(32, 24, CopyTestHelper<Npp8u>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, RoundTrip_16u_Planar_Packed_Planar_3Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp16u, 3>(32, 32, CopyTestHelper<Npp16u>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, RoundTrip_16s_Planar_Packed_Planar_3Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp16s, 3>(24, 24, CopyTestHelper<Npp16s>::DataPattern::RANDOM);
+}
+
+TEST_F(CopyTest, RoundTrip_32s_Planar_Packed_Planar_3Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp32s, 3>(32, 32, CopyTestHelper<Npp32s>::DataPattern::GRADIENT);
+}
+
+TEST_F(CopyTest, RoundTrip_32f_Planar_Packed_Planar_3Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp32f, 3>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+// 4-channel round-trip tests: Planar -> Packed -> Planar
+TEST_F(CopyTest, RoundTrip_8u_Planar_Packed_Planar_4Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp8u, 4>(32, 32, CopyTestHelper<Npp8u>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, RoundTrip_16u_Planar_Packed_Planar_4Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
+}
+
+TEST_F(CopyTest, RoundTrip_32f_Planar_Packed_Planar_4Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::SINE_WAVE);
 }

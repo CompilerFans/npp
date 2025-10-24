@@ -142,7 +142,7 @@ NPPI_COPY_WRAPPER(Npp32f, 32f, C4R)
 // Helper for validating planar copy inputs (packed to planar)
 template <int CHANNELS>
 static inline NppStatus validatePlanarInputs_CxPxR(const void *pSrc, int nSrcStep, void *const pDst[], int nDstStep,
-                                                    NppiSize oSizeROI) {
+                                                   NppiSize oSizeROI) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -167,7 +167,7 @@ static inline NppStatus validatePlanarInputs_CxPxR(const void *pSrc, int nSrcSte
 // Helper for validating planar copy inputs (planar to packed)
 template <int CHANNELS>
 static inline NppStatus validatePlanarInputs_PxCxR(const void *const pSrc[], int nSrcStep, void *pDst, int nDstStep,
-                                                    NppiSize oSizeROI) {
+                                                   NppiSize oSizeROI) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -190,43 +190,44 @@ static inline NppStatus validatePlanarInputs_PxCxR(const void *const pSrc[], int
 }
 
 // Macro for C3P3R/C4P4R wrapper functions
-#define NPPI_COPY_CXPXR_WRAPPER(TYPE, SUFFIX, CHANNELS)                                                                  \
-  NppStatus nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx(const TYPE *pSrc, Npp32s nSrcStep,                       \
-                                                                TYPE *const pDst[CHANNELS], Npp32s nDstStep,              \
-                                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {       \
-    NppStatus status = validatePlanarInputs_CxPxR<CHANNELS>(pSrc, nSrcStep, (void *const *)pDst, nDstStep, oSizeROI);   \
-    if (status != NPP_SUCCESS)                                                                                           \
-      return status;                                                                                                     \
-    return nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,            \
-                                                                   nppStreamCtx);                                        \
-  }                                                                                                                      \
-                                                                                                                         \
-  NppStatus nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R(const TYPE *pSrc, Npp32s nSrcStep,                           \
-                                                            TYPE *const pDst[CHANNELS], Npp32s nDstStep,                 \
-                                                            NppiSize oSizeROI) {                                         \
-    NppStreamContext nppStreamCtx;                                                                                       \
-    nppStreamCtx.hStream = 0;                                                                                            \
-    return nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);  \
+#define NPPI_COPY_CXPXR_WRAPPER(TYPE, SUFFIX, CHANNELS)                                                                \
+  NppStatus nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx(const TYPE *pSrc, Npp32s nSrcStep,                     \
+                                                                TYPE *const pDst[CHANNELS], Npp32s nDstStep,           \
+                                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {    \
+    NppStatus status = validatePlanarInputs_CxPxR<CHANNELS>(pSrc, nSrcStep, (void *const *)pDst, nDstStep, oSizeROI);  \
+    if (status != NPP_SUCCESS)                                                                                         \
+      return status;                                                                                                   \
+    return nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,          \
+                                                                    nppStreamCtx);                                     \
+  }                                                                                                                    \
+                                                                                                                       \
+  NppStatus nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R(                                                           \
+      const TYPE *pSrc, Npp32s nSrcStep, TYPE *const pDst[CHANNELS], Npp32s nDstStep, NppiSize oSizeROI) {             \
+    NppStreamContext nppStreamCtx;                                                                                     \
+    nppStreamCtx.hStream = 0;                                                                                          \
+    return nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,               \
+                                                               nppStreamCtx);                                          \
   }
 
 // Macro for P3C3R/P4C4R wrapper functions
-#define NPPI_COPY_PXCXR_WRAPPER(TYPE, SUFFIX, CHANNELS)                                                                  \
-  NppStatus nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx(const TYPE *const pSrc[CHANNELS], Npp32s nSrcStep,       \
-                                                                TYPE *pDst, Npp32s nDstStep, NppiSize oSizeROI,          \
-                                                                NppStreamContext nppStreamCtx) {                         \
-    NppStatus status = validatePlanarInputs_PxCxR<CHANNELS>((const void *const *)pSrc, nSrcStep, pDst, nDstStep,        \
-                                                             oSizeROI);                                                  \
-    if (status != NPP_SUCCESS)                                                                                           \
-      return status;                                                                                                     \
-    return nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,            \
-                                                                   nppStreamCtx);                                        \
-  }                                                                                                                      \
-                                                                                                                         \
-  NppStatus nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R(const TYPE *const pSrc[CHANNELS], Npp32s nSrcStep,           \
-                                                            TYPE *pDst, Npp32s nDstStep, NppiSize oSizeROI) {            \
-    NppStreamContext nppStreamCtx;                                                                                       \
-    nppStreamCtx.hStream = 0;                                                                                            \
-    return nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);  \
+#define NPPI_COPY_PXCXR_WRAPPER(TYPE, SUFFIX, CHANNELS)                                                                \
+  NppStatus nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx(const TYPE *const pSrc[CHANNELS], Npp32s nSrcStep,     \
+                                                                TYPE *pDst, Npp32s nDstStep, NppiSize oSizeROI,        \
+                                                                NppStreamContext nppStreamCtx) {                       \
+    NppStatus status =                                                                                                 \
+        validatePlanarInputs_PxCxR<CHANNELS>((const void *const *)pSrc, nSrcStep, pDst, nDstStep, oSizeROI);           \
+    if (status != NPP_SUCCESS)                                                                                         \
+      return status;                                                                                                   \
+    return nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,          \
+                                                                    nppStreamCtx);                                     \
+  }                                                                                                                    \
+                                                                                                                       \
+  NppStatus nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R(const TYPE *const pSrc[CHANNELS], Npp32s nSrcStep,         \
+                                                            TYPE *pDst, Npp32s nDstStep, NppiSize oSizeROI) {          \
+    NppStreamContext nppStreamCtx;                                                                                     \
+    nppStreamCtx.hStream = 0;                                                                                          \
+    return nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,               \
+                                                               nppStreamCtx);                                          \
   }
 
 // C3P3R wrappers
