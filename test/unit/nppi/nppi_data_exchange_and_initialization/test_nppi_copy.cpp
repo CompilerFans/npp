@@ -719,15 +719,13 @@ protected:
     NppiSize roi = {width, height};
 
     // Step 1: Packed -> Planar (C3P3R or C4P4R)
-    NppStatus status1 = performPackedToPlanarCopy<T, NumPlanes>(srcPacked.get(), srcPacked.step(),
-                                                                 intermediatePlanar.getPlanes(),
-                                                                 intermediatePlanar.step(), roi);
+    NppStatus status1 = performPackedToPlanarCopy<T, NumPlanes>(
+        srcPacked.get(), srcPacked.step(), intermediatePlanar.getPlanes(), intermediatePlanar.step(), roi);
     ASSERT_EQ(status1, NPP_SUCCESS) << "First conversion (packed to planar) failed";
 
     // Step 2: Planar -> Packed (P3C3R or P4C4R)
-    NppStatus status2 = performPlanarToPackedCopy<T, NumPlanes>(intermediatePlanar.getPlanes(),
-                                                                 intermediatePlanar.step(), finalPacked.get(),
-                                                                 finalPacked.step(), roi);
+    NppStatus status2 = performPlanarToPackedCopy<T, NumPlanes>(
+        intermediatePlanar.getPlanes(), intermediatePlanar.step(), finalPacked.get(), finalPacked.step(), roi);
     ASSERT_EQ(status2, NPP_SUCCESS) << "Second conversion (planar to packed) failed";
 
     // Validate final result matches original
@@ -760,13 +758,13 @@ protected:
     NppiSize roi = {width, height};
 
     // Step 1: Planar -> Packed (P3C3R or P4C4R)
-    NppStatus status1 = performPlanarToPackedCopy<T, NumPlanes>(srcPlanar.getPlanes(), srcPlanar.step(),
-                                                                 intermediatePacked.get(), intermediatePacked.step(), roi);
+    NppStatus status1 = performPlanarToPackedCopy<T, NumPlanes>(
+        srcPlanar.getPlanes(), srcPlanar.step(), intermediatePacked.get(), intermediatePacked.step(), roi);
     ASSERT_EQ(status1, NPP_SUCCESS) << "First conversion (planar to packed) failed";
 
     // Step 2: Packed -> Planar (C3P3R or C4P4R)
     NppStatus status2 = performPackedToPlanarCopy<T, NumPlanes>(intermediatePacked.get(), intermediatePacked.step(),
-                                                                 finalPlanar.getPlanes(), finalPlanar.step(), roi);
+                                                                finalPlanar.getPlanes(), finalPlanar.step(), roi);
     ASSERT_EQ(status2, NPP_SUCCESS) << "Second conversion (packed to planar) failed";
 
     // Validate final result matches original
