@@ -314,6 +314,12 @@ public:
         ptr_ = nppiMalloc_16u_C3(width, height, &step_);
       else if (channels == 4)
         ptr_ = nppiMalloc_16u_C4(width, height, &step_);
+    } else if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
+      size_t pitch;
+      cudaError_t err = cudaMallocPitch(&ptr_, &pitch, width * channels * sizeof(T), height);
+      if (err == cudaSuccess) {
+        step_ = static_cast<int>(pitch);
+      }
     }
 
     allocated_ = (ptr_ != nullptr);
@@ -322,7 +328,11 @@ public:
 
   void free() {
     if (allocated_ && ptr_) {
-      nppiFree(ptr_);
+      if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
+        cudaFree(ptr_);
+      } else {
+        nppiFree(ptr_);
+      }
       ptr_ = nullptr;
       allocated_ = false;
     }
@@ -491,6 +501,22 @@ private:
       } else if constexpr (Channels == 4) {
         return nppiCopy_16u_C4R(src, srcStep, dst, dstStep, roi);
       }
+    } else if constexpr (std::is_same_v<T, Npp16s>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_16s_C1R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_16s_C3R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_16s_C4R(src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_32s_C1R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_32s_C3R(src, srcStep, dst, dstStep, roi);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_32s_C4R(src, srcStep, dst, dstStep, roi);
+      }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
   }
@@ -520,6 +546,22 @@ private:
         return nppiCopy_16u_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
       } else if constexpr (Channels == 4) {
         return nppiCopy_16u_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16s>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_16s_C1R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_16s_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_16s_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if constexpr (Channels == 1) {
+        return nppiCopy_32s_C1R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 3) {
+        return nppiCopy_32s_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (Channels == 4) {
+        return nppiCopy_32s_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -591,4 +633,41 @@ TEST_F(CopyTest, Copy_8u_C1R_ROI) {
 
 TEST_F(CopyTest, Copy_32f_C3R_ROI) {
   testCopyROI<Npp32f, 3>(128, 96, 32, 24, 64, 48, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
+}
+
+// Tests for 16s (signed 16-bit)
+TEST_F(CopyTest, Copy_16s_C1R_Sequential) {
+  testCopy<Npp16s, 1>(32, 32, CopyTestHelper<Npp16s>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, Copy_16s_C3R_Gradient) { testCopy<Npp16s, 3>(48, 48, CopyTestHelper<Npp16s>::DataPattern::GRADIENT); }
+
+TEST_F(CopyTest, Copy_16s_C4R_Random) { testCopy<Npp16s, 4>(24, 24, CopyTestHelper<Npp16s>::DataPattern::RANDOM); }
+
+TEST_F(CopyTest, Copy_16s_C1R_WithContext) {
+  testCopy<Npp16s, 1>(32, 32, CopyTestHelper<Npp16s>::DataPattern::BOUNDARY, true);
+}
+
+// Tests for 32s (signed 32-bit)
+TEST_F(CopyTest, Copy_32s_C1R_Gradient) { testCopy<Npp32s, 1>(64, 48, CopyTestHelper<Npp32s>::DataPattern::GRADIENT); }
+
+TEST_F(CopyTest, Copy_32s_C3R_Coordinate) {
+  testCopy<Npp32s, 3>(32, 24, CopyTestHelper<Npp32s>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, Copy_32s_C4R_Checkerboard) {
+  testCopy<Npp32s, 4>(32, 32, CopyTestHelper<Npp32s>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, Copy_32s_C1R_WithContext) {
+  testCopy<Npp32s, 1>(48, 32, CopyTestHelper<Npp32s>::DataPattern::SINE_WAVE, true);
+}
+
+// Test for 32f_C4
+TEST_F(CopyTest, Copy_32f_C4R_ColorGradient) {
+  testCopy<Npp32f, 4>(32, 32, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_32f_C4R_WithContext) {
+  testCopy<Npp32f, 4>(48, 32, CopyTestHelper<Npp32f>::DataPattern::RANDOM, true);
 }
