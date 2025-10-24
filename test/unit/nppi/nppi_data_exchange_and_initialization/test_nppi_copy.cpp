@@ -390,6 +390,143 @@ public:
 };
 
 // ============================================================================
+// Planar Memory Management Helper
+// ============================================================================
+
+template <typename T, int NumPlanes> class PlanarGPUMemoryManager {
+private:
+  T *planes_[NumPlanes];
+  int step_;
+  bool allocated_;
+
+public:
+  PlanarGPUMemoryManager() : step_(0), allocated_(false) {
+    for (int i = 0; i < NumPlanes; i++) {
+      planes_[i] = nullptr;
+    }
+  }
+
+  PlanarGPUMemoryManager(int width, int height) : allocated_(false) {
+    for (int i = 0; i < NumPlanes; i++) {
+      planes_[i] = nullptr;
+    }
+    allocate(width, height);
+  }
+
+  ~PlanarGPUMemoryManager() { free(); }
+
+  PlanarGPUMemoryManager(const PlanarGPUMemoryManager &) = delete;
+  PlanarGPUMemoryManager &operator=(const PlanarGPUMemoryManager &) = delete;
+
+  bool allocate(int width, int height) {
+    free();
+
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      for (int i = 0; i < NumPlanes; i++) {
+        planes_[i] = nppiMalloc_8u_C1(width, height, &step_);
+        if (!planes_[i])
+          return false;
+      }
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      for (int i = 0; i < NumPlanes; i++) {
+        planes_[i] = nppiMalloc_32f_C1(width, height, &step_);
+        if (!planes_[i])
+          return false;
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      for (int i = 0; i < NumPlanes; i++) {
+        planes_[i] = nppiMalloc_16u_C1(width, height, &step_);
+        if (!planes_[i])
+          return false;
+      }
+    } else if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
+      size_t pitch;
+      for (int i = 0; i < NumPlanes; i++) {
+        cudaError_t err = cudaMallocPitch(&planes_[i], &pitch, width * sizeof(T), height);
+        if (err != cudaSuccess)
+          return false;
+        step_ = static_cast<int>(pitch);
+      }
+    }
+
+    allocated_ = true;
+    return allocated_;
+  }
+
+  void free() {
+    if (allocated_) {
+      for (int i = 0; i < NumPlanes; i++) {
+        if (planes_[i]) {
+          if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
+            cudaFree(planes_[i]);
+          } else {
+            nppiFree(planes_[i]);
+          }
+          planes_[i] = nullptr;
+        }
+      }
+      allocated_ = false;
+    }
+  }
+
+  T *getPlane(int index) const {
+    if (index >= 0 && index < NumPlanes)
+      return planes_[index];
+    return nullptr;
+  }
+
+  T *const *getPlanes() const { return const_cast<T *const *>(planes_); }
+
+  int step() const { return step_; }
+  bool isValid() const { return allocated_; }
+
+  bool copyFromHostPacked(const std::vector<T> &packedData, int width, int height) {
+    if (!isValid())
+      return false;
+
+    std::vector<T> planeData(width * height);
+
+    for (int plane = 0; plane < NumPlanes; plane++) {
+      for (int i = 0; i < width * height; i++) {
+        planeData[i] = packedData[i * NumPlanes + plane];
+      }
+
+      for (int y = 0; y < height; y++) {
+        const T *srcRow = planeData.data() + y * width;
+        T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(planes_[plane]) + y * step_);
+        cudaError_t err = cudaMemcpy(dstRow, srcRow, width * sizeof(T), cudaMemcpyHostToDevice);
+        if (err != cudaSuccess)
+          return false;
+      }
+    }
+    return true;
+  }
+
+  bool copyToHostPacked(std::vector<T> &packedData, int width, int height) const {
+    if (!isValid())
+      return false;
+
+    packedData.resize(width * height * NumPlanes);
+    std::vector<T> planeData(width * height);
+
+    for (int plane = 0; plane < NumPlanes; plane++) {
+      for (int y = 0; y < height; y++) {
+        const T *srcRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(planes_[plane]) + y * step_);
+        T *dstRow = planeData.data() + y * width;
+        cudaError_t err = cudaMemcpy(dstRow, srcRow, width * sizeof(T), cudaMemcpyDeviceToHost);
+        if (err != cudaSuccess)
+          return false;
+      }
+
+      for (int i = 0; i < width * height; i++) {
+        packedData[i * NumPlanes + plane] = planeData[i];
+      }
+    }
+    return true;
+  }
+};
+
+// ============================================================================
 // Unified Copy Test Class
 // ============================================================================
 
@@ -471,6 +608,92 @@ protected:
     ASSERT_TRUE(dstGPU.copyToHost(result, roiWidth, roiHeight, Channels));
 
     Helper::validateROIResults(result, testData.src, srcWidth, srcHeight, roiX, roiY, roiWidth, roiHeight, Channels);
+  }
+
+  // Planar to Packed copy test (P3C3R/P4C4R)
+  template <typename T, int NumPlanes>
+  void testCopyPlanarToPacked(int width, int height, typename CopyTestHelper<T>::DataPattern pattern,
+                              bool useContext = false) {
+    using Helper = CopyTestHelper<T>;
+
+    // Generate packed test data
+    auto testData = Helper::generateTestData(width, height, NumPlanes, pattern);
+
+    // Allocate planar source and packed destination
+    PlanarGPUMemoryManager<T, NumPlanes> srcPlanar(width, height);
+    GPUMemoryManager<T> dstPacked(width, height, NumPlanes);
+
+    ASSERT_TRUE(srcPlanar.isValid()) << "Failed to allocate planar source memory";
+    ASSERT_TRUE(dstPacked.isValid()) << "Failed to allocate packed destination memory";
+
+    // Copy packed data to planar format on GPU
+    ASSERT_TRUE(srcPlanar.copyFromHostPacked(testData.src, width, height));
+
+    // Perform planar to packed copy
+    NppiSize roi = {width, height};
+    NppStatus status;
+
+    if (useContext) {
+      NppStreamContext ctx;
+      nppGetStreamContext(&ctx);
+      status = performPlanarToPackedCopy<T, NumPlanes>(srcPlanar.getPlanes(), srcPlanar.step(), dstPacked.get(),
+                                                       dstPacked.step(), roi, ctx);
+      cudaStreamSynchronize(ctx.hStream);
+    } else {
+      status = performPlanarToPackedCopy<T, NumPlanes>(srcPlanar.getPlanes(), srcPlanar.step(), dstPacked.get(),
+                                                       dstPacked.step(), roi);
+    }
+
+    ASSERT_EQ(status, NPP_SUCCESS) << "Planar to packed copy failed";
+
+    // Copy result back and validate
+    std::vector<T> result;
+    ASSERT_TRUE(dstPacked.copyToHost(result, width, height, NumPlanes));
+
+    Helper::validateResults(result, testData.expected);
+  }
+
+  // Packed to Planar copy test (C3P3R/C4P4R)
+  template <typename T, int NumPlanes>
+  void testCopyPackedToPlanar(int width, int height, typename CopyTestHelper<T>::DataPattern pattern,
+                              bool useContext = false) {
+    using Helper = CopyTestHelper<T>;
+
+    // Generate packed test data
+    auto testData = Helper::generateTestData(width, height, NumPlanes, pattern);
+
+    // Allocate packed source and planar destination
+    GPUMemoryManager<T> srcPacked(width, height, NumPlanes);
+    PlanarGPUMemoryManager<T, NumPlanes> dstPlanar(width, height);
+
+    ASSERT_TRUE(srcPacked.isValid()) << "Failed to allocate packed source memory";
+    ASSERT_TRUE(dstPlanar.isValid()) << "Failed to allocate planar destination memory";
+
+    // Copy test data to GPU
+    ASSERT_TRUE(srcPacked.copyFromHost(testData.src, width, height, NumPlanes));
+
+    // Perform packed to planar copy
+    NppiSize roi = {width, height};
+    NppStatus status;
+
+    if (useContext) {
+      NppStreamContext ctx;
+      nppGetStreamContext(&ctx);
+      status = performPackedToPlanarCopy<T, NumPlanes>(srcPacked.get(), srcPacked.step(), dstPlanar.getPlanes(),
+                                                       dstPlanar.step(), roi, ctx);
+      cudaStreamSynchronize(ctx.hStream);
+    } else {
+      status = performPackedToPlanarCopy<T, NumPlanes>(srcPacked.get(), srcPacked.step(), dstPlanar.getPlanes(),
+                                                       dstPlanar.step(), roi);
+    }
+
+    ASSERT_EQ(status, NPP_SUCCESS) << "Packed to planar copy failed";
+
+    // Copy result back and validate
+    std::vector<T> result;
+    ASSERT_TRUE(dstPlanar.copyToHostPacked(result, width, height));
+
+    Helper::validateResults(result, testData.expected);
   }
 
 private:
@@ -562,6 +785,138 @@ private:
         return nppiCopy_32s_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
       } else if constexpr (Channels == 4) {
         return nppiCopy_32s_C4R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    }
+    return NPP_NOT_IMPLEMENTED_ERROR;
+  }
+
+  // Planar to Packed function dispatch (P3C3R/P4C4R)
+  template <typename T, int NumPlanes>
+  NppStatus performPlanarToPackedCopy(T *const *src, int srcStep, T *dst, int dstStep, NppiSize roi) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_8u_P3C3R((const Npp8u *const *)src, srcStep, dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_8u_P4C4R((const Npp8u *const *)src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32f_P3C3R((const Npp32f *const *)src, srcStep, dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32f_P4C4R((const Npp32f *const *)src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16u_P3C3R((const Npp16u *const *)src, srcStep, dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16u_P4C4R((const Npp16u *const *)src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16s_P3C3R((const Npp16s *const *)src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32s_P3C3R((const Npp32s *const *)src, srcStep, dst, dstStep, roi);
+      }
+    }
+    return NPP_NOT_IMPLEMENTED_ERROR;
+  }
+
+  template <typename T, int NumPlanes>
+  NppStatus performPlanarToPackedCopy(T *const *src, int srcStep, T *dst, int dstStep, NppiSize roi,
+                                      NppStreamContext ctx) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_8u_P3C3R_Ctx((const Npp8u *const *)src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_8u_P4C4R_Ctx((const Npp8u *const *)src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32f_P3C3R_Ctx((const Npp32f *const *)src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32f_P4C4R_Ctx((const Npp32f *const *)src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16u_P3C3R_Ctx((const Npp16u *const *)src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16u_P4C4R_Ctx((const Npp16u *const *)src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16s_P3C3R_Ctx((const Npp16s *const *)src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32s_P3C3R_Ctx((const Npp32s *const *)src, srcStep, dst, dstStep, roi, ctx);
+      }
+    }
+    return NPP_NOT_IMPLEMENTED_ERROR;
+  }
+
+  // Packed to Planar function dispatch (C3P3R/C4P4R)
+  template <typename T, int NumPlanes>
+  NppStatus performPackedToPlanarCopy(const T *src, int srcStep, T *const *dst, int dstStep, NppiSize roi) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_8u_C3P3R(src, srcStep, (Npp8u *const *)dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_8u_C4P4R(src, srcStep, (Npp8u *const *)dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32f_C3P3R(src, srcStep, (Npp32f *const *)dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32f_C4P4R(src, srcStep, (Npp32f *const *)dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16u_C3P3R(src, srcStep, (Npp16u *const *)dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16u_C4P4R(src, srcStep, (Npp16u *const *)dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16s_C3P3R(src, srcStep, (Npp16s *const *)dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32s_C3P3R(src, srcStep, (Npp32s *const *)dst, dstStep, roi);
+      }
+    }
+    return NPP_NOT_IMPLEMENTED_ERROR;
+  }
+
+  template <typename T, int NumPlanes>
+  NppStatus performPackedToPlanarCopy(const T *src, int srcStep, T *const *dst, int dstStep, NppiSize roi,
+                                      NppStreamContext ctx) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_8u_C3P3R_Ctx(src, srcStep, (Npp8u *const *)dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_8u_C4P4R_Ctx(src, srcStep, (Npp8u *const *)dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32f_C3P3R_Ctx(src, srcStep, (Npp32f *const *)dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32f_C4P4R_Ctx(src, srcStep, (Npp32f *const *)dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16u_C3P3R_Ctx(src, srcStep, (Npp16u *const *)dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16u_C4P4R_Ctx(src, srcStep, (Npp16u *const *)dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp16s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_16s_C3P3R_Ctx(src, srcStep, (Npp16s *const *)dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if constexpr (NumPlanes == 3) {
+        return nppiCopy_32s_C3P3R_Ctx(src, srcStep, (Npp32s *const *)dst, dstStep, roi, ctx);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -670,4 +1025,80 @@ TEST_F(CopyTest, Copy_32f_C4R_ColorGradient) {
 
 TEST_F(CopyTest, Copy_32f_C4R_WithContext) {
   testCopy<Npp32f, 4>(48, 32, CopyTestHelper<Npp32f>::DataPattern::RANDOM, true);
+}
+
+// ============================================================================
+// Planar to Packed (P3C3R/P4C4R) Tests
+// ============================================================================
+
+// P3C3R Tests
+TEST_F(CopyTest, Copy_32f_P3C3R) {
+  testCopyPlanarToPacked<Npp32f, 3>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_8u_P3C3R) {
+  testCopyPlanarToPacked<Npp8u, 3>(32, 24, CopyTestHelper<Npp8u>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, Copy_16u_P3C3R) {
+  testCopyPlanarToPacked<Npp16u, 3>(32, 32, CopyTestHelper<Npp16u>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, Copy_16s_P3C3R) {
+  testCopyPlanarToPacked<Npp16s, 3>(24, 24, CopyTestHelper<Npp16s>::DataPattern::GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_32s_P3C3R) {
+  testCopyPlanarToPacked<Npp32s, 3>(32, 32, CopyTestHelper<Npp32s>::DataPattern::RANDOM);
+}
+
+// P4C4R Tests
+TEST_F(CopyTest, Copy_32f_P4C4R) {
+  testCopyPlanarToPacked<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_8u_P4C4R) {
+  testCopyPlanarToPacked<Npp8u, 4>(32, 32, CopyTestHelper<Npp8u>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, Copy_16u_P4C4R) {
+  testCopyPlanarToPacked<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
+}
+
+// ============================================================================
+// Packed to Planar (C3P3R/C4P4R) Tests
+// ============================================================================
+
+// C3P3R Tests
+TEST_F(CopyTest, Copy_32f_C3P3R) {
+  testCopyPackedToPlanar<Npp32f, 3>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_8u_C3P3R) {
+  testCopyPackedToPlanar<Npp8u, 3>(32, 24, CopyTestHelper<Npp8u>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, Copy_16u_C3P3R) {
+  testCopyPackedToPlanar<Npp16u, 3>(32, 32, CopyTestHelper<Npp16u>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, Copy_16s_C3P3R) {
+  testCopyPackedToPlanar<Npp16s, 3>(24, 24, CopyTestHelper<Npp16s>::DataPattern::GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_32s_C3P3R) {
+  testCopyPackedToPlanar<Npp32s, 3>(32, 32, CopyTestHelper<Npp32s>::DataPattern::RANDOM);
+}
+
+// C4P4R Tests
+TEST_F(CopyTest, Copy_32f_C4P4R) {
+  testCopyPackedToPlanar<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_8u_C4P4R) {
+  testCopyPackedToPlanar<Npp8u, 4>(32, 32, CopyTestHelper<Npp8u>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, Copy_16u_C4P4R) {
+  testCopyPackedToPlanar<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
 }
