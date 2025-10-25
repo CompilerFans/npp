@@ -197,6 +197,34 @@ def compare_versions(v1_funcs: Dict, v2_funcs: Dict) -> Dict:
     }
 
 
+def generate_csv(version_data: Dict, output_path: Path):
+    """Generate CSV file with all API functions"""
+    import csv
+
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+
+        # Header
+        writer.writerow(['function_name', 'module', 'return_type', 'params', 'signature'])
+
+        # Sort functions by module then name
+        functions = []
+        for key, func_info in version_data['inventory'].items():
+            functions.append(func_info)
+
+        functions.sort(key=lambda x: (x['file'], x['name']))
+
+        # Write data
+        for func in functions:
+            writer.writerow([
+                func['name'],
+                func['file'],
+                func['return_type'],
+                func['params'],
+                func['signature']
+            ])
+
+
 def generate_report(results: Dict, output_path: Path):
     """Generate markdown report"""
     lines = ["# NPP API Analysis Report\n"]
@@ -325,6 +353,13 @@ def main():
     report_path = args.output / 'api_report.md'
     generate_report(results, report_path)
     print(f"Saved report to {report_path}")
+
+    # Generate CSV for latest version
+    if results:
+        latest = sorted([v for v in results.keys() if v != 'comparisons'])[-1]
+        csv_path = args.output / 'api_functions.csv'
+        generate_csv(results[latest], csv_path)
+        print(f"Saved function list to {csv_path}")
 
 
 if __name__ == '__main__':
