@@ -192,7 +192,7 @@ class CoverageAnalyzer:
 def main():
     parser = argparse.ArgumentParser(description='Analyze NPP implementation coverage')
     parser.add_argument('--api-csv', type=Path,
-                        default=Path('api_analysis/api_functions.csv'),
+                        default=Path('api_analysis/api_functions_12.2.csv'),
                         help='Path to API functions CSV')
     parser.add_argument('--src-dir', type=Path, default=Path('src'),
                         help='Source code directory')

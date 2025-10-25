@@ -357,7 +357,7 @@ def main():
     # Generate CSV for latest version
     if results:
         latest = sorted([v for v in results.keys() if v != 'comparisons'])[-1]
-        csv_path = args.output / 'api_functions.csv'
+        csv_path = args.output / f'api_functions_{latest}.csv'
         generate_csv(results[latest], csv_path)
         print(f"Saved function list to {csv_path}")
 
