@@ -2,9 +2,11 @@
 #include <cuda_runtime.h>
 
 #if 0
+// nvidia warp 32
 #define WARP_SIZE 32
 #define SHFL_MASK 0xFFFFFFFF
 #else
+// metax warp 64
 #define WARP_SIZE 64
 #define SHFL_MASK 0xFFFFFFFFFFFFFFFFULL
 #endif
