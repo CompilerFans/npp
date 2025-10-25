@@ -5,3 +5,4 @@ build-nvidia/
 *.so
 *.zip
 api_analysis/api_inventory.json
+api_analysis/coverage_report.md
