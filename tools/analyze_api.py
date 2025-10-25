@@ -354,11 +354,11 @@ def main():
     generate_report(results, report_path)
     print(f"Saved report to {report_path}")
 
-    # Generate CSV for latest version
-    if results:
-        latest = sorted([v for v in results.keys() if v != 'comparisons'])[-1]
-        csv_path = args.output / f'api_functions_{latest}.csv'
-        generate_csv(results[latest], csv_path)
+    # Generate CSV for each version
+    versions = sorted([v for v in results.keys() if v != 'comparisons'])
+    for version in versions:
+        csv_path = args.output / f'api_functions_{version}.csv'
+        generate_csv(results[version], csv_path)
         print(f"Saved function list to {csv_path}")
 
 
