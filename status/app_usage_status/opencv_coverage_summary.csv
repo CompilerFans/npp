@@ -1,0 +1,14 @@
+category,total,implemented,missing,coverage_%
+Arithmetic,4,4,0,100.0
+Color,30,4,26,13.3
+Filtering,32,22,10,68.8
+Geometry,117,18,99,15.4
+Histogram,56,36,20,64.3
+Integral,13,0,13,0.0
+Legacy,13,0,13,0.0
+Logical,68,48,20,70.6
+Other,59,13,46,22.0
+Segmentation,4,0,4,0.0
+Statistics,20,16,4,80.0
+Threshold,2,2,0,100.0
+Transpose,17,2,15,11.8
