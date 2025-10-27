@@ -1,0 +1,375 @@
+modules/cudafilters/CMakeLists.txt:  set(extra_libs CUDA::nppif${CUDA_LIB_EXT} CUDA::nppim${CUDA_LIB_EXT})
+modules/cudaimgproc/CMakeLists.txt:  set(extra_libs CUDA::nppial${CUDA_LIB_EXT} CUDA::nppist${CUDA_LIB_EXT} CUDA::nppicc${CUDA_LIB_EXT} CUDA::nppidei${CUDA_LIB_EXT})
+modules/cudaarithm/CMakeLists.txt:  list(APPEND extra_dependencies CUDA::cudart_static CUDA::nppial${CUDA_LIB_EXT} CUDA::nppc${CUDA_LIB_EXT} CUDA::nppitc${CUDA_LIB_EXT} CUDA::nppig${CUDA_LIB_EXT} CUDA::nppist${CUDA_LIB_EXT} CUDA::nppidei${CUDA_LIB_EXT})
+modules/cudawarping/CMakeLists.txt:  set(extra_libs CUDA::nppial${CUDA_LIB_EXT} CUDA::nppig${CUDA_LIB_EXT})
+modules/cudafilters/src/filtering.cpp:            static const nppFilterBox8U_t funcs8U[] = { 0, nppiFilterBox_8u_C1R_Ctx, 0, 0, nppiFilterBox_8u_C4R_Ctx };
+modules/cudafilters/src/filtering.cpp:            static const nppFilterBox8U_t funcs8U[] = { 0, nppiFilterBox_8u_C1R, 0, 0, nppiFilterBox_8u_C4R };
+modules/cudafilters/src/filtering.cpp:            static const nppFilterBox32F_t funcs32F[] = { 0, nppiFilterBox_32f_C1R_Ctx, 0, 0, 0 };
+modules/cudafilters/src/filtering.cpp:            static const nppFilterBox32F_t funcs32F[] = { 0, nppiFilterBox_32f_C1R, 0, 0, 0 };
+modules/cudafilters/src/filtering.cpp:            {0, nppiErode_8u_C1R_Ctx, 0, 0, nppiErode_8u_C4R_Ctx },
+modules/cudafilters/src/filtering.cpp:            {0, nppiDilate_8u_C1R_Ctx, 0, 0, nppiDilate_8u_C4R_Ctx }
+modules/cudafilters/src/filtering.cpp:            {0, nppiErode_32f_C1R_Ctx, 0, 0, nppiErode_32f_C4R_Ctx },
+modules/cudafilters/src/filtering.cpp:            {0, nppiDilate_32f_C1R_Ctx, 0, 0, nppiDilate_32f_C4R_Ctx }
+modules/cudafilters/src/filtering.cpp:            {0, nppiErode_8u_C1R, 0, 0, nppiErode_8u_C4R },
+modules/cudafilters/src/filtering.cpp:            {0, nppiDilate_8u_C1R, 0, 0, nppiDilate_8u_C4R }
+modules/cudafilters/src/filtering.cpp:            {0, nppiErode_32f_C1R, 0, 0, nppiErode_32f_C4R },
+modules/cudafilters/src/filtering.cpp:            {0, nppiDilate_32f_C1R, 0, 0, nppiDilate_32f_C4R }
+modules/cudafilters/src/filtering.cpp:        static const nppFilterRank_t maxFuncs[] = {0, nppiFilterMax_8u_C1R_Ctx, 0, 0, nppiFilterMax_8u_C4R_Ctx};
+modules/cudafilters/src/filtering.cpp:        static const nppFilterRank_t minFuncs[] = { 0, nppiFilterMin_8u_C1R_Ctx, 0, 0, nppiFilterMin_8u_C4R_Ctx };
+modules/cudafilters/src/filtering.cpp:        static const nppFilterRank_t maxFuncs[] = { 0, nppiFilterMax_8u_C1R, 0, 0, nppiFilterMax_8u_C4R };
+modules/cudafilters/src/filtering.cpp:        static const nppFilterRank_t minFuncs[] = {0, nppiFilterMin_8u_C1R, 0, 0, nppiFilterMin_8u_C4R};
+modules/cudafilters/src/filtering.cpp:        nppSafeCall(nppiSumWindowRow_8u32f_C1R_Ctx(srcRoi.ptr<Npp8u>(), static_cast<int>(srcRoi.step),
+modules/cudafilters/src/filtering.cpp:        nppSafeCall( nppiSumWindowRow_8u32f_C1R(srcRoi.ptr<Npp8u>(), static_cast<int>(srcRoi.step),
+modules/cudafilters/src/filtering.cpp:        nppSafeCall( nppiSumWindowColumn_8u32f_C1R_Ctx(srcRoi.ptr<Npp8u>(), static_cast<int>(srcRoi.step),
+modules/cudafilters/src/filtering.cpp:        nppSafeCall(nppiSumWindowColumn_8u32f_C1R(srcRoi.ptr<Npp8u>(), static_cast<int>(srcRoi.step),
+modules/cudaimgproc/src/histogram.cpp:    nppSafeCall( nppiEvenLevelsHost_32s(host_levels.ptr<Npp32s>(), nLevels, lowerLevel, upperLevel) );
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC1<CV_8U , nppiHistogramEven_8u_C1R_Ctx , nppiHistogramEvenGetBufferSize_8u_C1R_Ctx >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC1<CV_16U, nppiHistogramEven_16u_C1R_Ctx, nppiHistogramEvenGetBufferSize_16u_C1R_Ctx>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC1<CV_16S, nppiHistogramEven_16s_C1R_Ctx, nppiHistogramEvenGetBufferSize_16s_C1R_Ctx>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC1<CV_8U , nppiHistogramEven_8u_C1R , nppiHistogramEvenGetBufferSize_8u_C1R >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC1<CV_16U, nppiHistogramEven_16u_C1R, nppiHistogramEvenGetBufferSize_16u_C1R>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC1<CV_16S, nppiHistogramEven_16s_C1R, nppiHistogramEvenGetBufferSize_16s_C1R>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC4<CV_8U , nppiHistogramEven_8u_C4R_Ctx , nppiHistogramEvenGetBufferSize_8u_C4R_Ctx >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC4<CV_16U, nppiHistogramEven_16u_C4R_Ctx, nppiHistogramEvenGetBufferSize_16u_C4R_Ctx>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC4<CV_16S, nppiHistogramEven_16s_C4R_Ctx, nppiHistogramEvenGetBufferSize_16s_C4R_Ctx>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC4<CV_8U , nppiHistogramEven_8u_C4R , nppiHistogramEvenGetBufferSize_8u_C4R >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC4<CV_16U, nppiHistogramEven_16u_C4R, nppiHistogramEvenGetBufferSize_16u_C4R>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramEvenC4<CV_16S, nppiHistogramEven_16s_C4R, nppiHistogramEvenGetBufferSize_16s_C4R>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_8U , nppiHistogramRange_8u_C1R_Ctx , nppiHistogramRangeGetBufferSize_8u_C1R_Ctx >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_16U, nppiHistogramRange_16u_C1R_Ctx, nppiHistogramRangeGetBufferSize_16u_C1R_Ctx>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_16S, nppiHistogramRange_16s_C1R_Ctx, nppiHistogramRangeGetBufferSize_16s_C1R_Ctx>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_32F, nppiHistogramRange_32f_C1R_Ctx, nppiHistogramRangeGetBufferSize_32f_C1R_Ctx>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_8U , nppiHistogramRange_8u_C1R , nppiHistogramRangeGetBufferSize_8u_C1R >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_16U, nppiHistogramRange_16u_C1R, nppiHistogramRangeGetBufferSize_16u_C1R>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_16S, nppiHistogramRange_16s_C1R, nppiHistogramRangeGetBufferSize_16s_C1R>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC1<CV_32F, nppiHistogramRange_32f_C1R, nppiHistogramRangeGetBufferSize_32f_C1R>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_8U , nppiHistogramRange_8u_C4R_Ctx , nppiHistogramRangeGetBufferSize_8u_C4R_Ctx >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_16U, nppiHistogramRange_16u_C4R_Ctx, nppiHistogramRangeGetBufferSize_16u_C4R_Ctx>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_16S, nppiHistogramRange_16s_C4R_Ctx, nppiHistogramRangeGetBufferSize_16s_C4R_Ctx>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_32F, nppiHistogramRange_32f_C4R_Ctx, nppiHistogramRangeGetBufferSize_32f_C4R_Ctx>::hist
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_8U , nppiHistogramRange_8u_C4R , nppiHistogramRangeGetBufferSize_8u_C4R >::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_16U, nppiHistogramRange_16u_C4R, nppiHistogramRangeGetBufferSize_16u_C4R>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_16S, nppiHistogramRange_16s_C4R, nppiHistogramRangeGetBufferSize_16s_C4R>::hist,
+modules/cudaimgproc/src/histogram.cpp:        NppHistogramRangeC4<CV_32F, nppiHistogramRange_32f_C4R, nppiHistogramRangeGetBufferSize_32f_C4R>::hist
+modules/cudaimgproc/src/color.cpp:            nppSafeCall( nppiAlphaPremul_8u_AC4R_Ctx(src.ptr<Npp8u>(), static_cast<int>(src.step), dst.ptr<Npp8u>(), static_cast<int>(dst.step), oSizeROI, h) );
+modules/cudaimgproc/src/color.cpp:            nppSafeCall( nppiAlphaPremul_16u_AC4R_Ctx(src.ptr<Npp16u>(), static_cast<int>(src.step), dst.ptr<Npp16u>(), static_cast<int>(dst.step), oSizeROI, h) );
+modules/cudaimgproc/src/color.cpp:            nppSafeCall(nppiAlphaPremul_8u_AC4R(src.ptr<Npp8u>(), static_cast<int>(src.step), dst.ptr<Npp8u>(), static_cast<int>(dst.step), oSizeROI));
+modules/cudaimgproc/src/color.cpp:            nppSafeCall(nppiAlphaPremul_16u_AC4R(src.ptr<Npp16u>(), static_cast<int>(src.step), dst.ptr<Npp16u>(), static_cast<int>(dst.step), oSizeROI));
+modules/cudaimgproc/src/color.cpp:    nppSafeCall( nppiSwapChannels_8u_C4IR_Ctx(image.ptr<Npp8u>(), static_cast<int>(image.step), sz, dstOrder, h) );
+modules/cudaimgproc/src/color.cpp:    nppSafeCall(nppiSwapChannels_8u_C4IR(image.ptr<Npp8u>(), static_cast<int>(image.step), sz, dstOrder));
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaInv_8u_C3R_Ctx, nppiGammaInv_8u_AC4R_Ctx},
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaFwd_8u_C3R_Ctx, nppiGammaFwd_8u_AC4R_Ctx}
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaInv_8u_C3IR_Ctx, nppiGammaInv_8u_AC4IR_Ctx},
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaFwd_8u_C3IR_Ctx, nppiGammaFwd_8u_AC4IR_Ctx}
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaInv_8u_C3R, nppiGammaInv_8u_AC4R},
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaFwd_8u_C3R, nppiGammaFwd_8u_AC4R}
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaInv_8u_C3IR, nppiGammaInv_8u_AC4IR},
+modules/cudaimgproc/src/color.cpp:        {0, 0, 0, nppiGammaFwd_8u_C3IR, nppiGammaFwd_8u_AC4IR}
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_8U, nppiAlphaComp_8u_AC4R_Ctx>::call,
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_16U, nppiAlphaComp_16u_AC4R_Ctx>::call,
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_32S, nppiAlphaComp_32s_AC4R_Ctx>::call,
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_32F, nppiAlphaComp_32f_AC4R_Ctx>::call
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_8U, nppiAlphaComp_8u_AC4R>::call,
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_16U, nppiAlphaComp_16u_AC4R>::call,
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_32S, nppiAlphaComp_32s_AC4R>::call,
+modules/cudaimgproc/src/color.cpp:        NppAlphaComp<CV_32F, nppiAlphaComp_32f_AC4R>::call
+modules/cudalegacy/src/graphcuts.cpp:            nppSafeCall( nppiGraphcutFree(pState) );
+modules/cudalegacy/src/graphcuts.cpp:    nppSafeCall( nppiGraphcutGetSize(sznpp, &bufsz) );
+modules/cudalegacy/src/graphcuts.cpp:    NppiGraphcutStateHandler state(sznpp, buf.ptr<Npp8u>(), nppiGraphcutInitAlloc);
+modules/cudalegacy/src/graphcuts.cpp:    nppSafeCall( nppiGraphcut_32s8u(terminals.ptr<Npp32s>(), leftTransp.ptr<Npp32s>(), rightTransp.ptr<Npp32s>(), top.ptr<Npp32s>(), bottom.ptr<Npp32s>(),
+modules/cudalegacy/src/graphcuts.cpp:        nppSafeCall( nppiGraphcut_32s8u(terminals.ptr<Npp32s>(), leftTransp.ptr<Npp32s>(), rightTransp.ptr<Npp32s>(), top.ptr<Npp32s>(), bottom.ptr<Npp32s>(),
+modules/cudalegacy/src/graphcuts.cpp:        nppSafeCall( nppiGraphcut_32f8u(terminals.ptr<Npp32f>(), leftTransp.ptr<Npp32f>(), rightTransp.ptr<Npp32f>(), top.ptr<Npp32f>(), bottom.ptr<Npp32f>(),
+modules/cudalegacy/src/graphcuts.cpp:    nppSafeCall( nppiGraphcut8GetSize(sznpp, &bufsz) );
+modules/cudalegacy/src/graphcuts.cpp:    NppiGraphcutStateHandler state(sznpp, buf.ptr<Npp8u>(), nppiGraphcut8InitAlloc);
+modules/cudalegacy/src/graphcuts.cpp:    nppSafeCall( nppiGraphcut8_32s8u(terminals.ptr<Npp32s>(), leftTransp.ptr<Npp32s>(), rightTransp.ptr<Npp32s>(),
+modules/cudalegacy/src/graphcuts.cpp:        nppSafeCall( nppiGraphcut8_32s8u(terminals.ptr<Npp32s>(), leftTransp.ptr<Npp32s>(), rightTransp.ptr<Npp32s>(),
+modules/cudalegacy/src/graphcuts.cpp:        nppSafeCall( nppiGraphcut8_32f8u(terminals.ptr<Npp32f>(), leftTransp.ptr<Npp32f>(), rightTransp.ptr<Npp32f>(),
+modules/cudalegacy/test/TestIntegralImage.cpp:        ncvStat = nppiStIntegralGetSize_8u32u(NcvSize32u(this->width, this->height), &bufSize, this->devProp);
+modules/cudalegacy/test/TestIntegralImage.cpp:        ncvStat = nppiStIntegralGetSize_32f32f(NcvSize32u(this->width, this->height), &bufSize, this->devProp);
+modules/cudalegacy/test/TestIntegralImage.cpp:        ncvStat = nppiStIntegral_8u32u_C1R((Ncv8u *)d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestIntegralImage.cpp:        ncvStat = nppiStIntegral_32f32f_C1R((Ncv32f *)d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestIntegralImage.cpp:        ncvStat = nppiStIntegral_8u32u_C1R_host((Ncv8u *)h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestIntegralImage.cpp:        ncvStat = nppiStIntegral_32f32f_C1R_host((Ncv32f *)h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/src/interpolate_frames.cpp:    ncvSafeCall( nppiStInterpolateFrames(&state) );
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStIntegralGetSize_8u32u(NcvSize32u(this->width, this->height), &bufSizeII, this->devProp);
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStSqrIntegralGetSize_8u64u(NcvSize32u(this->width, this->height), &bufSizeSII, this->devProp);
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStIntegral_8u32u_C1R(d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStSqrIntegral_8u64u_C1R(d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStRectStdDev_32f_C1R(d_imgII.ptr(), d_imgII.pitch(),
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStIntegral_8u32u_C1R_host(h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStSqrIntegral_8u64u_C1R_host(h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestRectStdDev.cpp:    ncvStat = nppiStRectStdDev_32f_C1R_host(h_imgII.ptr(), h_imgII.pitch(),
+modules/cudalegacy/test/TestTranspose.cpp:        ncvStat = nppiStTranspose_32u_C1R((Ncv32u *)d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestTranspose.cpp:        ncvStat = nppiStTranspose_64u_C1R((Ncv64u *)d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestTranspose.cpp:        ncvStat = nppiStTranspose_32u_C1R_host((Ncv32u *)h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestTranspose.cpp:        ncvStat = nppiStTranspose_64u_C1R_host((Ncv64u *)h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestResize.cpp:        ncvStat = nppiStDecimate_32u_C1R((Ncv32u *)d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestResize.cpp:        ncvStat = nppiStDecimate_64u_C1R((Ncv64u *)d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestResize.cpp:        ncvStat = nppiStDecimate_32u_C1R_host((Ncv32u *)h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestResize.cpp:        ncvStat = nppiStDecimate_64u_C1R_host((Ncv64u *)h_img.ptr(), h_img.pitch(),
+modules/cudalegacy/test/TestHaarCascadeApplication.cpp:    nppStat = nppiStIntegralGetSize_8u32u(NcvSize32u(this->width, this->height), &szTmpBufIntegral, this->devProp);
+modules/cudalegacy/test/TestHaarCascadeApplication.cpp:    nppStat = nppiStSqrIntegralGetSize_8u64u(NcvSize32u(this->width, this->height), &szTmpBufSqIntegral, this->devProp);
+modules/cudalegacy/test/TestHaarCascadeApplication.cpp:    nppStat = nppiStIntegral_8u32u_C1R(d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestHaarCascadeApplication.cpp:    nppStat = nppiStSqrIntegral_8u64u_C1R(d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestHaarCascadeApplication.cpp:    nppStat = nppiStRectStdDev_32f_C1R(
+modules/cudalegacy/test/TestIntegralImageSquared.cpp:    ncvStat = nppiStSqrIntegralGetSize_8u64u(NcvSize32u(this->width, this->height), &bufSize, this->devProp);
+modules/cudalegacy/test/TestIntegralImageSquared.cpp:    ncvStat = nppiStSqrIntegral_8u64u_C1R(d_img.ptr(), d_img.pitch(),
+modules/cudalegacy/test/TestIntegralImageSquared.cpp:    ncvStat = nppiStSqrIntegral_8u64u_C1R_host(h_img.ptr(), h_img.pitch(),
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_8U, nppiMirror_8u_C1R_Ctx>::call, 0, NppMirror<CV_8U, nppiMirror_8u_C3R_Ctx>::call, NppMirror<CV_8U, nppiMirror_8u_C4R_Ctx>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_16U, nppiMirror_16u_C1R_Ctx>::call, 0, NppMirror<CV_16U, nppiMirror_16u_C3R_Ctx>::call, NppMirror<CV_16U, nppiMirror_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_32S, nppiMirror_32s_C1R_Ctx>::call, 0, NppMirror<CV_32S, nppiMirror_32s_C3R_Ctx>::call, NppMirror<CV_32S, nppiMirror_32s_C4R_Ctx>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_32F, nppiMirror_32f_C1R_Ctx>::call, 0, NppMirror<CV_32F, nppiMirror_32f_C3R_Ctx>::call, NppMirror<CV_32F, nppiMirror_32f_C4R_Ctx>::call}
+modules/cudaarithm/src/core.cpp:        { NppMirror<CV_8U, nppiMirror_8u_C1R>::call, 0, NppMirror<CV_8U, nppiMirror_8u_C3R>::call, NppMirror<CV_8U, nppiMirror_8u_C4R>::call },
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_16U, nppiMirror_16u_C1R>::call, 0, NppMirror<CV_16U, nppiMirror_16u_C3R>::call, NppMirror<CV_16U, nppiMirror_16u_C4R>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_32S, nppiMirror_32s_C1R>::call, 0, NppMirror<CV_32S, nppiMirror_32s_C3R>::call, NppMirror<CV_32S, nppiMirror_32s_C4R>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirror<CV_32F, nppiMirror_32f_C1R>::call, 0, NppMirror<CV_32F, nppiMirror_32f_C3R>::call, NppMirror<CV_32F, nppiMirror_32f_C4R>::call}
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_8U, nppiMirror_8u_C1IR_Ctx>::call, 0, NppMirrorI<CV_8U, nppiMirror_8u_C3IR_Ctx>::call, NppMirrorI<CV_8U, nppiMirror_8u_C4IR_Ctx>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_16U, nppiMirror_16u_C1IR_Ctx>::call, 0, NppMirrorI<CV_16U, nppiMirror_16u_C3IR_Ctx>::call, NppMirrorI<CV_16U, nppiMirror_16u_C4IR_Ctx>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_32S, nppiMirror_32s_C1IR_Ctx>::call, 0, NppMirrorI<CV_32S, nppiMirror_32s_C3IR_Ctx>::call, NppMirrorI<CV_32S, nppiMirror_32s_C4IR_Ctx>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_32F, nppiMirror_32f_C1IR_Ctx>::call, 0, NppMirrorI<CV_32F, nppiMirror_32f_C3IR_Ctx>::call, NppMirrorI<CV_32F, nppiMirror_32f_C4IR_Ctx>::call}
+modules/cudaarithm/src/core.cpp:        { NppMirrorI<CV_8U, nppiMirror_8u_C1IR>::call, 0, NppMirrorI<CV_8U, nppiMirror_8u_C3IR>::call, NppMirrorI<CV_8U, nppiMirror_8u_C4IR>::call },
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_16U, nppiMirror_16u_C1IR>::call, 0, NppMirrorI<CV_16U, nppiMirror_16u_C3IR>::call, NppMirrorI<CV_16U, nppiMirror_16u_C4IR>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_32S, nppiMirror_32s_C1IR>::call, 0, NppMirrorI<CV_32S, nppiMirror_32s_C3IR>::call, NppMirrorI<CV_32S, nppiMirror_32s_C4IR>::call},
+modules/cudaarithm/src/core.cpp:        {NppMirrorI<CV_32F, nppiMirror_32f_C1IR>::call, 0, NppMirrorI<CV_32F, nppiMirror_32f_C3IR>::call, NppMirrorI<CV_32F, nppiMirror_32f_C4IR>::call}
+modules/cudaarithm/src/reductions.cpp:    nppSafeCall( nppiMeanStdDev8uC1RGetBufferHostSize(sz, &bufSize) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(sz, &bufSize, h));
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(sz, &bufSize, h));
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMeanStdDevGetBufferHostSize_8u_C1R(sz, &bufSize) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMeanStdDevGetBufferHostSize_32f_C1R(sz, &bufSize) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMean_StdDev_8u_C1R_Ctx(gsrc.ptr<Npp8u>(), static_cast<int>(gsrc.step), sz, buf.ptr<Npp8u>(), gdst.ptr<Npp64f>(), gdst.ptr<Npp64f>() + 1, h));
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMean_StdDev_32f_C1R_Ctx(gsrc.ptr<Npp32f>(), static_cast<int>(gsrc.step), sz, buf.ptr<Npp8u>(), gdst.ptr<Npp64f>(), gdst.ptr<Npp64f>() + 1, h));
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMean_StdDev_8u_C1R(gsrc.ptr<Npp8u>(), static_cast<int>(gsrc.step), sz, buf.ptr<Npp8u>(), gdst.ptr<Npp64f>(), gdst.ptr<Npp64f>() + 1) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMean_StdDev_32f_C1R(gsrc.ptr<Npp32f>(), static_cast<int>(gsrc.step), sz, buf.ptr<Npp8u>(), gdst.ptr<Npp64f>(), gdst.ptr<Npp64f>() + 1) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMeanStdDev8uC1MRGetBufferHostSize(sz, &bufSize) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(sz, &bufSize, h));
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(sz, &bufSize, h));
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMeanStdDevGetBufferHostSize_8u_C1MR(sz, &bufSize) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMeanStdDevGetBufferHostSize_32f_C1MR(sz, &bufSize) );
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMean_StdDev_8u_C1MR_Ctx(gsrc.ptr<Npp8u>(), static_cast<int>(gsrc.step), gmask.ptr<Npp8u>(), static_cast<int>(gmask.step),
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall(nppiMean_StdDev_32f_C1MR_Ctx(gsrc.ptr<Npp32f>(), static_cast<int>(gsrc.step), gmask.ptr<Npp8u>(), static_cast<int>(gmask.step),
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMean_StdDev_8u_C1MR(gsrc.ptr<Npp8u>(), static_cast<int>(gsrc.step), gmask.ptr<Npp8u>(), static_cast<int>(gmask.step),
+modules/cudaarithm/src/reductions.cpp:        nppSafeCall( nppiMean_StdDev_32f_C1MR(gsrc.ptr<Npp32f>(), static_cast<int>(gsrc.step), gmask.ptr<Npp8u>(), static_cast<int>(gmask.step),
+modules/cudaarithm/src/reductions.cpp:    nppSafeCall(nppiRectStdDev_32s32f_C1R_Ctx(src.ptr<Npp32s>(), static_cast<int>(src.step), sqr.ptr<Npp64f>(), static_cast<int>(sqr.step),
+modules/cudaarithm/src/reductions.cpp:    nppSafeCall( nppiRectStdDev_32s32f_C1R(src.ptr<Npp32s>(), static_cast<int>(src.step), sqr.ptr<Npp64f>(), static_cast<int>(sqr.step),
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_8U , 1, nppiRShiftC_8u_C1R_Ctx>::call, 0, NppShift<CV_8U , 3, nppiRShiftC_8u_C3R_Ctx>::call, NppShift<CV_8U , 4, nppiRShiftC_8u_C4R_Ctx>::call },
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_8S , 1, nppiRShiftC_8s_C1R_Ctx>::call, 0, NppShift<CV_8S , 3, nppiRShiftC_8s_C3R_Ctx>::call, NppShift<CV_8S , 4, nppiRShiftC_8s_C4R_Ctx>::call },
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_16U, 1, nppiRShiftC_16u_C1R_Ctx>::call, 0, NppShift<CV_16U, 3, nppiRShiftC_16u_C3R_Ctx>::call, NppShift<CV_16U, 4, nppiRShiftC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_16S, 1, nppiRShiftC_16s_C1R_Ctx>::call, 0, NppShift<CV_16S, 3, nppiRShiftC_16s_C3R_Ctx>::call, NppShift<CV_16S, 4, nppiRShiftC_16s_C4R_Ctx>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_32S, 1, nppiRShiftC_32s_C1R_Ctx>::call, 0, NppShift<CV_32S, 3, nppiRShiftC_32s_C3R_Ctx>::call, NppShift<CV_32S, 4, nppiRShiftC_32s_C4R_Ctx>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_8U , 1, nppiRShiftC_8u_C1R >::call, 0, NppShift<CV_8U , 3, nppiRShiftC_8u_C3R >::call, NppShift<CV_8U , 4, nppiRShiftC_8u_C4R>::call },
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_8S , 1, nppiRShiftC_8s_C1R >::call, 0, NppShift<CV_8S , 3, nppiRShiftC_8s_C3R >::call, NppShift<CV_8S , 4, nppiRShiftC_8s_C4R>::call },
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_16U, 1, nppiRShiftC_16u_C1R>::call, 0, NppShift<CV_16U, 3, nppiRShiftC_16u_C3R>::call, NppShift<CV_16U, 4, nppiRShiftC_16u_C4R>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_16S, 1, nppiRShiftC_16s_C1R>::call, 0, NppShift<CV_16S, 3, nppiRShiftC_16s_C3R>::call, NppShift<CV_16S, 4, nppiRShiftC_16s_C4R>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_32S, 1, nppiRShiftC_32s_C1R>::call, 0, NppShift<CV_32S, 3, nppiRShiftC_32s_C3R>::call, NppShift<CV_32S, 4, nppiRShiftC_32s_C4R>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_8U , 1, nppiLShiftC_8u_C1R_Ctx>::call , 0, NppShift<CV_8U , 3, nppiLShiftC_8u_C3R_Ctx>::call , NppShift<CV_8U , 4, nppiLShiftC_8u_C4R_Ctx>::call },
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_16U, 1, nppiLShiftC_16u_C1R_Ctx>::call, 0, NppShift<CV_16U, 3, nppiLShiftC_16u_C3R_Ctx>::call, NppShift<CV_16U, 4, nppiLShiftC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_32S, 1, nppiLShiftC_32s_C1R_Ctx>::call, 0, NppShift<CV_32S, 3, nppiLShiftC_32s_C3R_Ctx>::call, NppShift<CV_32S, 4, nppiLShiftC_32s_C4R_Ctx>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_8U , 1, nppiLShiftC_8u_C1R>::call , 0, NppShift<CV_8U , 3, nppiLShiftC_8u_C3R>::call , NppShift<CV_8U , 4, nppiLShiftC_8u_C4R>::call },
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_16U, 1, nppiLShiftC_16u_C1R>::call, 0, NppShift<CV_16U, 3, nppiLShiftC_16u_C3R>::call, NppShift<CV_16U, 4, nppiLShiftC_16u_C4R>::call},
+modules/cudaarithm/src/element_operations.cpp:        {NppShift<CV_32S, 1, nppiLShiftC_32s_C1R>::call, 0, NppShift<CV_32S, 3, nppiLShiftC_32s_C3R>::call, NppShift<CV_32S, 4, nppiLShiftC_32s_C4R>::call},
+modules/cudaarithm/src/element_operations.cpp:    npp_magnitude(src, dst, nppiMagnitude_32fc32f_C1R_Ctx, StreamAccessor::getStream(stream));
+modules/cudaarithm/src/element_operations.cpp:    npp_magnitude(src, dst, nppiMagnitude_32fc32f_C1R, StreamAccessor::getStream(stream));
+modules/cudaarithm/src/element_operations.cpp:    npp_magnitude(src, dst, nppiMagnitudeSqr_32fc32f_C1R_Ctx, StreamAccessor::getStream(stream));
+modules/cudaarithm/src/element_operations.cpp:    npp_magnitude(src, dst, nppiMagnitudeSqr_32fc32f_C1R, StreamAccessor::getStream(stream));
+modules/cudaobjdetect/src/cascadeclassifier.cpp:            ncvSafeCall( nppiStIntegralGetSize_8u32u(roiSize, &bufSize, prop) );
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpAffine_8u_C1R_Ctx>::call, 0, NppWarp<CV_8U, nppiWarpAffine_8u_C3R_Ctx>::call, NppWarp<CV_8U, nppiWarpAffine_8u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpAffine_16u_C1R_Ctx>::call, 0, NppWarp<CV_16U, nppiWarpAffine_16u_C3R_Ctx>::call, NppWarp<CV_16U, nppiWarpAffine_16u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpAffine_32s_C1R_Ctx>::call, 0, NppWarp<CV_32S, nppiWarpAffine_32s_C3R_Ctx>::call, NppWarp<CV_32S, nppiWarpAffine_32s_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpAffine_32f_C1R_Ctx>::call, 0, NppWarp<CV_32F, nppiWarpAffine_32f_C3R_Ctx>::call, NppWarp<CV_32F, nppiWarpAffine_32f_C4R_Ctx>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpAffineBack_8u_C1R_Ctx>::call, 0, NppWarp<CV_8U, nppiWarpAffineBack_8u_C3R_Ctx>::call, NppWarp<CV_8U, nppiWarpAffineBack_8u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpAffineBack_16u_C1R_Ctx>::call, 0, NppWarp<CV_16U, nppiWarpAffineBack_16u_C3R_Ctx>::call, NppWarp<CV_16U, nppiWarpAffineBack_16u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpAffineBack_32s_C1R_Ctx>::call, 0, NppWarp<CV_32S, nppiWarpAffineBack_32s_C3R_Ctx>::call, NppWarp<CV_32S, nppiWarpAffineBack_32s_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpAffineBack_32f_C1R_Ctx>::call, 0, NppWarp<CV_32F, nppiWarpAffineBack_32f_C3R_Ctx>::call, NppWarp<CV_32F, nppiWarpAffineBack_32f_C4R_Ctx>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpAffine_8u_C1R>::call, 0, NppWarp<CV_8U, nppiWarpAffine_8u_C3R>::call, NppWarp<CV_8U, nppiWarpAffine_8u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpAffine_16u_C1R>::call, 0, NppWarp<CV_16U, nppiWarpAffine_16u_C3R>::call, NppWarp<CV_16U, nppiWarpAffine_16u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpAffine_32s_C1R>::call, 0, NppWarp<CV_32S, nppiWarpAffine_32s_C3R>::call, NppWarp<CV_32S, nppiWarpAffine_32s_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpAffine_32f_C1R>::call, 0, NppWarp<CV_32F, nppiWarpAffine_32f_C3R>::call, NppWarp<CV_32F, nppiWarpAffine_32f_C4R>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpAffineBack_8u_C1R>::call, 0, NppWarp<CV_8U, nppiWarpAffineBack_8u_C3R>::call, NppWarp<CV_8U, nppiWarpAffineBack_8u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpAffineBack_16u_C1R>::call, 0, NppWarp<CV_16U, nppiWarpAffineBack_16u_C3R>::call, NppWarp<CV_16U, nppiWarpAffineBack_16u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpAffineBack_32s_C1R>::call, 0, NppWarp<CV_32S, nppiWarpAffineBack_32s_C3R>::call, NppWarp<CV_32S, nppiWarpAffineBack_32s_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpAffineBack_32f_C1R>::call, 0, NppWarp<CV_32F, nppiWarpAffineBack_32f_C3R>::call, NppWarp<CV_32F, nppiWarpAffineBack_32f_C4R>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpPerspective_8u_C1R_Ctx>::call, 0, NppWarp<CV_8U, nppiWarpPerspective_8u_C3R_Ctx>::call, NppWarp<CV_8U, nppiWarpPerspective_8u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpPerspective_16u_C1R_Ctx>::call, 0, NppWarp<CV_16U, nppiWarpPerspective_16u_C3R_Ctx>::call, NppWarp<CV_16U, nppiWarpPerspective_16u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpPerspective_32s_C1R_Ctx>::call, 0, NppWarp<CV_32S, nppiWarpPerspective_32s_C3R_Ctx>::call, NppWarp<CV_32S, nppiWarpPerspective_32s_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpPerspective_32f_C1R_Ctx>::call, 0, NppWarp<CV_32F, nppiWarpPerspective_32f_C3R_Ctx>::call, NppWarp<CV_32F, nppiWarpPerspective_32f_C4R_Ctx>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpPerspectiveBack_8u_C1R_Ctx>::call, 0, NppWarp<CV_8U, nppiWarpPerspectiveBack_8u_C3R_Ctx>::call, NppWarp<CV_8U, nppiWarpPerspectiveBack_8u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpPerspectiveBack_16u_C1R_Ctx>::call, 0, NppWarp<CV_16U, nppiWarpPerspectiveBack_16u_C3R_Ctx>::call, NppWarp<CV_16U, nppiWarpPerspectiveBack_16u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpPerspectiveBack_32s_C1R_Ctx>::call, 0, NppWarp<CV_32S, nppiWarpPerspectiveBack_32s_C3R_Ctx>::call, NppWarp<CV_32S, nppiWarpPerspectiveBack_32s_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpPerspectiveBack_32f_C1R_Ctx>::call, 0, NppWarp<CV_32F, nppiWarpPerspectiveBack_32f_C3R_Ctx>::call, NppWarp<CV_32F, nppiWarpPerspectiveBack_32f_C4R_Ctx>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpPerspective_8u_C1R>::call, 0, NppWarp<CV_8U, nppiWarpPerspective_8u_C3R>::call, NppWarp<CV_8U, nppiWarpPerspective_8u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpPerspective_16u_C1R>::call, 0, NppWarp<CV_16U, nppiWarpPerspective_16u_C3R>::call, NppWarp<CV_16U, nppiWarpPerspective_16u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpPerspective_32s_C1R>::call, 0, NppWarp<CV_32S, nppiWarpPerspective_32s_C3R>::call, NppWarp<CV_32S, nppiWarpPerspective_32s_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpPerspective_32f_C1R>::call, 0, NppWarp<CV_32F, nppiWarpPerspective_32f_C3R>::call, NppWarp<CV_32F, nppiWarpPerspective_32f_C4R>::call}
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_8U, nppiWarpPerspectiveBack_8u_C1R>::call, 0, NppWarp<CV_8U, nppiWarpPerspectiveBack_8u_C3R>::call, NppWarp<CV_8U, nppiWarpPerspectiveBack_8u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_16U, nppiWarpPerspectiveBack_16u_C1R>::call, 0, NppWarp<CV_16U, nppiWarpPerspectiveBack_16u_C3R>::call, NppWarp<CV_16U, nppiWarpPerspectiveBack_16u_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32S, nppiWarpPerspectiveBack_32s_C1R>::call, 0, NppWarp<CV_32S, nppiWarpPerspectiveBack_32s_C3R>::call, NppWarp<CV_32S, nppiWarpPerspectiveBack_32s_C4R>::call},
+modules/cudawarping/src/warp.cpp:                {NppWarp<CV_32F, nppiWarpPerspectiveBack_32f_C1R>::call, 0, NppWarp<CV_32F, nppiWarpPerspectiveBack_32f_C3R>::call, NppWarp<CV_32F, nppiWarpPerspectiveBack_32f_C4R>::call}
+modules/cudawarping/src/warp.cpp:        {NppRotate<CV_8U, nppiRotate_8u_C1R_Ctx>::call, 0, NppRotate<CV_8U, nppiRotate_8u_C3R_Ctx>::call, NppRotate<CV_8U, nppiRotate_8u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:        {NppRotate<CV_16U, nppiRotate_16u_C1R_Ctx>::call, 0, NppRotate<CV_16U, nppiRotate_16u_C3R_Ctx>::call, NppRotate<CV_16U, nppiRotate_16u_C4R_Ctx>::call},
+modules/cudawarping/src/warp.cpp:        {NppRotate<CV_32F, nppiRotate_32f_C1R_Ctx>::call, 0, NppRotate<CV_32F, nppiRotate_32f_C3R_Ctx>::call, NppRotate<CV_32F, nppiRotate_32f_C4R_Ctx>::call}
+modules/cudawarping/src/warp.cpp:        {NppRotate<CV_8U, nppiRotate_8u_C1R>::call, 0, NppRotate<CV_8U, nppiRotate_8u_C3R>::call, NppRotate<CV_8U, nppiRotate_8u_C4R>::call},
+modules/cudawarping/src/warp.cpp:        {NppRotate<CV_16U, nppiRotate_16u_C1R>::call, 0, NppRotate<CV_16U, nppiRotate_16u_C3R>::call, NppRotate<CV_16U, nppiRotate_16u_C4R>::call},
+modules/cudawarping/src/warp.cpp:        {NppRotate<CV_32F, nppiRotate_32f_C1R>::call, 0, NppRotate<CV_32F, nppiRotate_32f_C3R>::call, NppRotate<CV_32F, nppiRotate_32f_C4R>::call}
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStResize_32f_C1R (I0->ptr(), srcSize, prev_level_pitch, srcROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStResize_32f_C1R (I1->ptr(), srcSize, prev_level_pitch, srcROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterRowBorder_32f_C1R (I0->ptr(), srcSize, nSrcStep, Ix0.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterColumnBorder_32f_C1R (I0->ptr(), srcSize, nSrcStep, Iy0.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterRowBorder_32f_C1R (I1->ptr(), srcSize, nSrcStep, Ix.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterColumnBorder_32f_C1R (I1->ptr(), srcSize, nSrcStep, Iy.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterRowBorder_32f_C1R (Ix.ptr(), srcSize, nSrcStep, Ixx.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterColumnBorder_32f_C1R (Iy.ptr(), srcSize, nSrcStep, Iyy.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:            ncvAssertReturnNcvStat( nppiStFilterRowBorder_32f_C1R (Iy.ptr(), srcSize, nSrcStep, Ixy.ptr(), srcSize, nSrcStep, oROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:                ncvAssertReturnNcvStat( nppiStResize_32f_C1R (ptrU->ptr(), inner_srcSize, kLevelStride * sizeof (float), srcROI,
+modules/cudalegacy/src/cuda/NCVBroxOpticalFlow.cu:                ncvAssertReturnNcvStat( nppiStResize_32f_C1R (ptrV->ptr(), inner_srcSize, kLevelStride * sizeof (float), srcROI,
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:    nppStat = nppiStIntegralGetSize_8u32u(NcvSize32u(d_srcImg.width(), d_srcImg.height()), &szTmpBufIntegral, devProp);
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:    nppStat = nppiStSqrIntegralGetSize_8u64u(NcvSize32u(d_srcImg.width(), d_srcImg.height()), &szTmpBufSqIntegral, devProp);
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:    nppStat = nppiStIntegral_8u32u_C1R(d_srcImg.ptr(), d_srcImg.pitch(),
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:    nppStat = nppiStSqrIntegral_8u64u_C1R(d_srcImg.ptr(), d_srcImg.pitch(),
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:        nppStat = nppiStDecimate_32u_C1R(
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:        nppStat = nppiStDecimate_64u_C1R(
+modules/cudalegacy/src/cuda/NCVHaarObjectDetection.cu:        nppStat = nppiStRectStdDev_32f_C1R(
+modules/cudalegacy/src/cuda/NPP_staging.cu:    ncvStat = nppiStTranspose_32u_C1R((Ncv32u *)Tmp32_1.ptr(), PaddedWidthII32*sizeof(Ncv32u),
+modules/cudalegacy/src/cuda/NPP_staging.cu:    ncvStat = nppiStTranspose_32u_C1R((Ncv32u *)Tmp32_1.ptr(), PaddedHeightII32*sizeof(Ncv32u),
+modules/cudalegacy/src/cuda/NPP_staging.cu:    ncvStat = nppiStTranspose_32u_C1R(Tmp32_2.ptr(), PaddedWidthII32*sizeof(Ncv32u),
+modules/cudalegacy/src/cuda/NPP_staging.cu:    ncvStat = nppiStTranspose_64u_C1R(Tmp64_2.ptr(), PaddedHeightII64*sizeof(Ncv64u),
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStIntegralGetSize_8u32u(NcvSize32u roiSize, Ncv32u *pBufsize, cudaDeviceProp &devProp)
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStIntegralGetSize_32f32f(NcvSize32u roiSize, Ncv32u *pBufsize, cudaDeviceProp &devProp)
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStSqrIntegralGetSize_8u64u(NcvSize32u roiSize, Ncv32u *pBufsize, cudaDeviceProp &devProp)
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStIntegral_8u32u_C1R(Ncv8u *d_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStIntegral_32f32f_C1R(Ncv32f *d_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStSqrIntegral_8u64u_C1R(Ncv8u *d_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStIntegral_8u32u_C1R_host(Ncv8u *h_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStIntegral_32f32f_C1R_host(Ncv32f *h_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStSqrIntegral_8u64u_C1R_host(Ncv8u *h_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:    NCVStatus nppiStDecimate_##bit##typ##_C1R(Ncv##bit##typ *d_src, Ncv32u srcStep, \
+modules/cudalegacy/src/cuda/NPP_staging.cu:    NCVStatus nppiStDecimate_##bit##typ##_C1R_host(Ncv##bit##typ *h_src, Ncv32u srcStep, \
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStRectStdDev_32f_C1R(Ncv32u *d_sum, Ncv32u sumStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStRectStdDev_32f_C1R_host(Ncv32u *h_sum, Ncv32u sumStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:    NCVStatus nppiStTranspose_##bit##typ##_C1R(Ncv##bit##typ *d_src, Ncv32u srcStep, \
+modules/cudalegacy/src/cuda/NPP_staging.cu:    NCVStatus nppiStTranspose_##bit##typ##_C1R_host(Ncv##bit##typ *h_src, Ncv32u srcStep, \
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStTranspose_128_C1R(void *d_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStTranspose_128_C1R_host(void *d_src, Ncv32u srcStep,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStFilterRowBorder_32f_C1R(Ncv32f *pSrc,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStFilterColumnBorder_32f_C1R(Ncv32f *pSrc,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStGetInterpolationBufferSize(NcvSize32u srcSize,
+modules/cudalegacy/src/cuda/NPP_staging.cu:    status = nppiStVectorWarpGetBufferSize(srcSize, nStep, hpSize);
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStInterpolateFrames(const NppStInterpolationState *pState)
+modules/cudalegacy/src/cuda/NPP_staging.cu:        nppiStVectorWarp_PSF2x2_32f_C1 (pState->pFU,
+modules/cudalegacy/src/cuda/NPP_staging.cu:        nppiStVectorWarp_PSF2x2_32f_C1 (pState->pFV,
+modules/cudalegacy/src/cuda/NPP_staging.cu:        nppiStVectorWarp_PSF2x2_32f_C1 (pState->pBU,
+modules/cudalegacy/src/cuda/NPP_staging.cu:        nppiStVectorWarp_PSF2x2_32f_C1 (pState->pBV,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStVectorWarpGetBufferSize (NcvSize32u srcSize, Ncv32u nSrcStep, Ncv32u *hpSize)
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStVectorWarp_PSF1x1_32f_C1(const Ncv32f *pSrc,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStVectorWarp_PSF2x2_32f_C1(const Ncv32f *pSrc,
+modules/cudalegacy/src/cuda/NPP_staging.cu:NCVStatus nppiStResize_32f_C1R(Ncv32f *pSrc,
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_and, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiAndC_8u_C3R_Ctx >::call, BitScalar4< bitScalarOp<bit_and, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_and, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiAndC_8u_C3R_Ctx >::call, BitScalar4< bitScalarOp<bit_and, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_and, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiAndC_16u_C3R_Ctx>::call, NppBitwiseC<CV_16U, 4, nppiAndC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_and, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiAndC_16u_C3R_Ctx>::call, NppBitwiseC<CV_16U, 4, nppiAndC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_and, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiAndC_32s_C3R_Ctx>::call, NppBitwiseC<CV_32S, 4, nppiAndC_32s_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_and, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiAndC_32s_C3R_Ctx>::call, NppBitwiseC<CV_32S, 4, nppiAndC_32s_C4R_Ctx>::call}
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_or, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiOrC_8u_C3R_Ctx >::call, BitScalar4< bitScalarOp<bit_or, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_or, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiOrC_8u_C3R_Ctx >::call, BitScalar4< bitScalarOp<bit_or, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_or, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiOrC_16u_C3R_Ctx>::call, NppBitwiseC<CV_16U, 4, nppiOrC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_or, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiOrC_16u_C3R_Ctx>::call, NppBitwiseC<CV_16U, 4, nppiOrC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_or, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiOrC_32s_C3R_Ctx>::call, NppBitwiseC<CV_32S, 4, nppiOrC_32s_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_or, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiOrC_32s_C3R_Ctx>::call, NppBitwiseC<CV_32S, 4, nppiOrC_32s_C4R_Ctx>::call}
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_xor, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiXorC_8u_C3R_Ctx >::call, BitScalar4< bitScalarOp<bit_xor, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_xor, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiXorC_8u_C3R_Ctx >::call, BitScalar4< bitScalarOp<bit_xor, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_xor, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiXorC_16u_C3R_Ctx>::call, NppBitwiseC<CV_16U, 4, nppiXorC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_xor, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiXorC_16u_C3R_Ctx>::call, NppBitwiseC<CV_16U, 4, nppiXorC_16u_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_xor, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiXorC_32s_C3R_Ctx>::call, NppBitwiseC<CV_32S, 4, nppiXorC_32s_C4R_Ctx>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_xor, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiXorC_32s_C3R_Ctx>::call, NppBitwiseC<CV_32S, 4, nppiXorC_32s_C4R_Ctx>::call}
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            { BitScalar<uchar, bitScalarOp<bit_and, uchar> >::call, 0, NppBitwiseC<CV_8U, 3, nppiAndC_8u_C3R >::call, BitScalar4< bitScalarOp<bit_and, uint> >::call },
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            { BitScalar<uchar, bitScalarOp<bit_and, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiAndC_8u_C3R >::call, BitScalar4< bitScalarOp<bit_and, uint> >::call },
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            { BitScalar<ushort, bitScalarOp<bit_and, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiAndC_16u_C3R>::call, NppBitwiseC<CV_16U, 4, nppiAndC_16u_C4R>::call },
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            { BitScalar<ushort, bitScalarOp<bit_and, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiAndC_16u_C3R>::call, NppBitwiseC<CV_16U, 4, nppiAndC_16u_C4R>::call },
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            { BitScalar<uint, bitScalarOp<bit_and, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiAndC_32s_C3R>::call, NppBitwiseC<CV_32S, 4, nppiAndC_32s_C4R>::call },
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            { BitScalar<uint, bitScalarOp<bit_and, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiAndC_32s_C3R>::call, NppBitwiseC<CV_32S, 4, nppiAndC_32s_C4R>::call }
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_or, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiOrC_8u_C3R >::call, BitScalar4< bitScalarOp<bit_or, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_or, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiOrC_8u_C3R >::call, BitScalar4< bitScalarOp<bit_or, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_or, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiOrC_16u_C3R>::call, NppBitwiseC<CV_16U, 4, nppiOrC_16u_C4R>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_or, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiOrC_16u_C3R>::call, NppBitwiseC<CV_16U, 4, nppiOrC_16u_C4R>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_or, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiOrC_32s_C3R>::call, NppBitwiseC<CV_32S, 4, nppiOrC_32s_C4R>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_or, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiOrC_32s_C3R>::call, NppBitwiseC<CV_32S, 4, nppiOrC_32s_C4R>::call}
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_xor, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiXorC_8u_C3R >::call, BitScalar4< bitScalarOp<bit_xor, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uchar, bitScalarOp<bit_xor, uchar> >::call  , 0, NppBitwiseC<CV_8U , 3, nppiXorC_8u_C3R >::call, BitScalar4< bitScalarOp<bit_xor, uint> >::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_xor, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiXorC_16u_C3R>::call, NppBitwiseC<CV_16U, 4, nppiXorC_16u_C4R>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<ushort, bitScalarOp<bit_xor, ushort> >::call, 0, NppBitwiseC<CV_16U, 3, nppiXorC_16u_C3R>::call, NppBitwiseC<CV_16U, 4, nppiXorC_16u_C4R>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_xor, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiXorC_32s_C3R>::call, NppBitwiseC<CV_32S, 4, nppiXorC_32s_C4R>::call},
+modules/cudaarithm/src/cuda/bitwise_scalar.cu:            {BitScalar<uint, bitScalarOp<bit_xor, uint> >::call    , 0, NppBitwiseC<CV_32S, 3, nppiXorC_32s_C3R>::call, NppBitwiseC<CV_32S, 4, nppiXorC_32s_C4R>::call}
+modules/cudaarithm/src/cuda/threshold.cu:        nppSafeCall(nppiThreshold_32f_C1R_Ctx(src.ptr<Npp32f>(), static_cast<int>(src.step),
+modules/cudaarithm/src/cuda/threshold.cu:        nppSafeCall( nppiThreshold_32f_C1R(src.ptr<Npp32f>(), static_cast<int>(src.step),
+modules/cudaarithm/src/cuda/transpose.cu:        nppSafeCall(nppiTranspose_8u_C1R_Ctx(src.ptr<Npp8u>(), static_cast<int>(src.step),
+modules/cudaarithm/src/cuda/transpose.cu:        nppSafeCall( nppiTranspose_8u_C1R(src.ptr<Npp8u>(), static_cast<int>(src.step),
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:/** \defgroup nppi NPPST Image Processing
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStGetInterpolationBufferSize(NcvSize32u srcSize,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStInterpolateFrames(const NppStInterpolationState *pState);
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStFilterRowBorder_32f_C1R(Ncv32f *pSrc,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStFilterColumnBorder_32f_C1R(Ncv32f *pSrc,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStVectorWarpGetBufferSize(NcvSize32u srcSize,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStVectorWarp_PSF1x1_32f_C1(const Ncv32f *pSrc,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStVectorWarp_PSF2x2_32f_C1(const Ncv32f *pSrc,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStResize_32f_C1R(Ncv32f *pSrc,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_32u_C1R(Ncv32u *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_32s_C1R(Ncv32s *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_32f_C1R(Ncv32f *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:* \see nppiStDecimate_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_64u_C1R(Ncv64u *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_64s_C1R(Ncv64s *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_64f_C1R(Ncv64f *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_32u_C1R_host(Ncv32u *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_32s_C1R_host(Ncv32s *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_32f_C1R_host(Ncv32f *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_64u_C1R_host(Ncv64u *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_64s_C1R_host(Ncv64s *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStDecimate_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStDecimate_64f_C1R_host(Ncv64f *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStRectStdDev_32f_C1R(Ncv32u *d_sum, Ncv32u sumStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStRectStdDev_32f_C1R_host(Ncv32u *h_sum, Ncv32u sumStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_32u_C1R(Ncv32u *d_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_32s_C1R(Ncv32s *d_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_32f_C1R(Ncv32f *d_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_64u_C1R(Ncv64u *d_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_64s_C1R(Ncv64s *d_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_64f_C1R(Ncv64f *d_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_128_C1R(void *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_32u_C1R_host(Ncv32u *h_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_32s_C1R_host(Ncv32s *h_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_32f_C1R_host(Ncv32f *h_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_64u_C1R_host(Ncv64u *h_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_64s_C1R_host(Ncv64s *h_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_64f_C1R_host(Ncv64f *h_src, Ncv32u srcStride,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStTranspose_32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStTranspose_128_C1R_host(void *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStIntegralGetSize_8u32u(NcvSize32u roiSize, Ncv32u *pBufsize, cudaDeviceProp &devProp);
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStIntegralGetSize_8u32u
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStIntegralGetSize_32f32f(NcvSize32u roiSize, Ncv32u *pBufsize, cudaDeviceProp &devProp);
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStIntegral_8u32u_C1R(Ncv8u *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStIntegral_8u32u_C1R
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStIntegral_32f32f_C1R(Ncv32f *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStIntegral_8u32u_C1R_host(Ncv8u *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp: * \see nppiStIntegral_8u32u_C1R_host
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStIntegral_32f32f_C1R_host(Ncv32f *h_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStSqrIntegralGetSize_8u64u(NcvSize32u roiSize, Ncv32u *pBufsize, cudaDeviceProp &devProp);
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStSqrIntegral_8u64u_C1R(Ncv8u *d_src, Ncv32u srcStep,
+modules/cudalegacy/include/opencv2/cudalegacy/NPP_staging.hpp:NCVStatus nppiStSqrIntegral_8u64u_C1R_host(Ncv8u *h_src, Ncv32u srcStep,
