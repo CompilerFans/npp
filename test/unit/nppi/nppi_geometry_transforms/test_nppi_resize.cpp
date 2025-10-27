@@ -1,4 +1,5 @@
 #include "npp_test_base.h"
+#include <functional>
 
 using namespace npp_functional_test;
 
@@ -7,98 +8,199 @@ protected:
   void SetUp() override { NppTestBase::SetUp(); }
 
   void TearDown() override { NppTestBase::TearDown(); }
+
+  // ===== Data Generation Helpers =====
+
+  // Generate checkerboard pattern
+  template <typename T, int CHANNELS>
+  void fillCheckerboard(std::vector<T> &data, int width, int height, int blockSize, T white, T black) {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * CHANNELS;
+        bool isWhite = ((x / blockSize) + (y / blockSize)) % 2 == 0;
+        T value = isWhite ? white : black;
+        for (int c = 0; c < CHANNELS; c++) {
+          data[idx + c] = value;
+        }
+      }
+    }
+  }
+
+  // Generate horizontal gradient
+  template <typename T, int CHANNELS>
+  void fillHorizontalGradient(std::vector<T> &data, int width, int height, T minVal, T maxVal) {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * CHANNELS;
+        T value = static_cast<T>(minVal + (maxVal - minVal) * x / (width - 1));
+        for (int c = 0; c < CHANNELS; c++) {
+          data[idx + c] = value;
+        }
+      }
+    }
+  }
+
+  // Generate vertical gradient
+  template <typename T, int CHANNELS>
+  void fillVerticalGradient(std::vector<T> &data, int width, int height, T minVal, T maxVal) {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * CHANNELS;
+        T value = static_cast<T>(minVal + (maxVal - minVal) * y / (height - 1));
+        for (int c = 0; c < CHANNELS; c++) {
+          data[idx + c] = value;
+        }
+      }
+    }
+  }
+
+  // Generate uniform block
+  template <typename T, int CHANNELS>
+  void fillUniformBlock(std::vector<T> &data, int width, int height, int blockX, int blockY, int blockW, int blockH,
+                        T insideVal, T outsideVal) {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * CHANNELS;
+        bool inside = (x >= blockX && x < blockX + blockW && y >= blockY && y < blockY + blockH);
+        T value = inside ? insideVal : outsideVal;
+        for (int c = 0; c < CHANNELS; c++) {
+          data[idx + c] = value;
+        }
+      }
+    }
+  }
+
+  // Generate uniform value
+  template <typename T, int CHANNELS>
+  void fillUniform(std::vector<T> &data, const T values[CHANNELS]) {
+    size_t pixels = data.size() / CHANNELS;
+    for (size_t i = 0; i < pixels; i++) {
+      for (int c = 0; c < CHANNELS; c++) {
+        data[i * CHANNELS + c] = values[c];
+      }
+    }
+  }
+
+  // ===== Validation Helpers =====
+
+  // Validate horizontal gradient monotonicity
+  template <typename T, int CHANNELS>
+  void validateHorizontalMonotonic(const std::vector<T> &data, int width, int height, int channel = 0) {
+    for (int y = 0; y < height; y++) {
+      for (int x = 1; x < width - 1; x++) {
+        int idx = (y * width + x) * CHANNELS + channel;
+        int prevIdx = (y * width + (x - 1)) * CHANNELS + channel;
+        int nextIdx = (y * width + (x + 1)) * CHANNELS + channel;
+
+        EXPECT_GE(data[idx], data[prevIdx]) << "Not monotonic at (" << x << "," << y << ")";
+        EXPECT_LE(data[idx], data[nextIdx]) << "Not monotonic at (" << x << "," << y << ")";
+      }
+    }
+  }
+
+  // Validate vertical gradient monotonicity
+  template <typename T, int CHANNELS>
+  void validateVerticalMonotonic(const std::vector<T> &data, int width, int height, int channel = 0) {
+    for (int x = 0; x < width; x++) {
+      for (int y = 1; y < height - 1; y++) {
+        int idx = (y * width + x) * CHANNELS + channel;
+        int prevIdx = ((y - 1) * width + x) * CHANNELS + channel;
+        int nextIdx = ((y + 1) * width + x) * CHANNELS + channel;
+
+        EXPECT_GE(data[idx], data[prevIdx]) << "Not monotonic at (" << x << "," << y << ")";
+        EXPECT_LE(data[idx], data[nextIdx]) << "Not monotonic at (" << x << "," << y << ")";
+      }
+    }
+  }
+
+  // Validate channel independence
+  template <typename T, int CHANNELS>
+  void validateChannelValues(const std::vector<T> &data, int width, int height, const T expected[CHANNELS],
+                             T tolerance) {
+    for (int i = 0; i < width * height; i++) {
+      for (int c = 0; c < CHANNELS; c++) {
+        EXPECT_NEAR(data[i * CHANNELS + c], expected[c], tolerance)
+            << "Channel " << c << " mismatch at pixel " << i;
+      }
+    }
+  }
+
+  // Validate value range
+  template <typename T>
+  void validateRange(const std::vector<T> &data, T minVal, T maxVal, const std::string &message = "") {
+    for (size_t i = 0; i < data.size(); i++) {
+      EXPECT_GE(data[i], minVal) << message << " - value too low at index " << i;
+      EXPECT_LE(data[i], maxVal) << message << " - value too high at index " << i;
+    }
+  }
+
+  // Validate non-zero pixel count
+  template <typename T>
+  void validateNonZeroCount(const std::vector<T> &data, int minCount, int maxCount) {
+    int nonZeroCount = 0;
+    for (size_t i = 0; i < data.size(); i++) {
+      if (data[i] > 0)
+        nonZeroCount++;
+    }
+    EXPECT_GE(nonZeroCount, minCount) << "Not enough non-zero pixels";
+    EXPECT_LT(nonZeroCount, maxCount) << "Too many non-zero pixels";
+  }
 };
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor) {
   const int srcWidth = 32, srcHeight = 32;
   const int dstWidth = 64, dstHeight = 64;
 
-  // prepare test data
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
-
-  // 生成棋盘图案
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      srcData[y * srcWidth + x] = ((x / 4 + y / 4) % 2) ? 255 : 0;
-    }
-  }
+  fillCheckerboard<Npp8u, 1>(srcData, srcWidth, srcHeight, 4, 255, 0);
 
   NppImageMemory<Npp8u> src(srcWidth, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
 
   src.copyFromHost(srcData);
 
-  // 设置源和目标区域
   NppiSize srcSize = {srcWidth, srcHeight};
   NppiSize dstSize = {dstWidth, dstHeight};
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  // 执行最近邻缩放
   NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN); // 最近邻插值
+                                       NPPI_INTER_NN);
 
-  ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C1R failed";
+  ASSERT_EQ(status, NPP_SUCCESS);
 
-  // Validate结果 - 简单检查非零像素存在
   std::vector<Npp8u> resultData(dstWidth * dstHeight);
   dst.copyToHost(resultData);
 
-  // 统计非零像素
-  int nonZeroCount = 0;
-  for (size_t i = 0; i < resultData.size(); i++) {
-    if (resultData[i] > 0)
-      nonZeroCount++;
-  }
-
-  EXPECT_GT(nonZeroCount, dstWidth * dstHeight / 4) << "Not enough non-zero pixels after resize";
-  EXPECT_LT(nonZeroCount, dstWidth * dstHeight * 3 / 4) << "Too many non-zero pixels after resize";
+  validateNonZeroCount(resultData, dstWidth * dstHeight / 4, dstWidth * dstHeight * 3 / 4);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C1R_Bilinear) {
   const int srcWidth = 16, srcHeight = 16;
   const int dstWidth = 32, dstHeight = 32;
 
-  // 准备梯度测试数据
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
-
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      srcData[y * srcWidth + x] = (Npp8u)(x * 255 / (srcWidth - 1));
-    }
-  }
+  fillHorizontalGradient<Npp8u, 1>(srcData, srcWidth, srcHeight, 0, 255);
 
   NppImageMemory<Npp8u> src(srcWidth, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
 
   src.copyFromHost(srcData);
 
-  // 设置源和目标区域
   NppiSize srcSize = {srcWidth, srcHeight};
   NppiSize dstSize = {dstWidth, dstHeight};
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  // 执行双线性缩放
   NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_LINEAR); // 双线性插值
+                                       NPPI_INTER_LINEAR);
 
-  ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C1R bilinear failed";
+  ASSERT_EQ(status, NPP_SUCCESS);
 
-  // Validate结果 - 检查梯度连续性
   std::vector<Npp8u> resultData(dstWidth * dstHeight);
   dst.copyToHost(resultData);
 
-  // 检查第一行的梯度
-  for (int x = 1; x < dstWidth - 1; x++) {
-    int current = resultData[x];
-    int prev = resultData[x - 1];
-    int next = resultData[x + 1];
-
-    // 梯度应该是单调递增的
-    EXPECT_GE(current, prev) << "Gradient not monotonic at x=" << x;
-    EXPECT_LE(current, next) << "Gradient not monotonic at x=" << x;
-  }
+  validateHorizontalMonotonic<Npp8u, 1>(resultData, dstWidth, dstHeight);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
@@ -265,18 +367,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_4xDownscale) {
   const int dstWidth = 32, dstHeight = 32;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create checkerboard pattern to test 4x downscaling
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      bool isWhite = ((x / 4) + (y / 4)) % 2 == 0;
-      Npp8u value = isWhite ? 200 : 50;
-      srcData[idx + 0] = value;
-      srcData[idx + 1] = value;
-      srcData[idx + 2] = value;
-    }
-  }
+  fillCheckerboard<Npp8u, 3>(srcData, srcWidth, srcHeight, 4, 200, 50);
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
@@ -291,21 +382,12 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_4xDownscale) {
   NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
                                        NPPI_INTER_SUPER);
 
-  ASSERT_EQ(status, NPP_SUCCESS) << "4x downscale failed";
+  ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-  // With 4x downscaling, each dst pixel averages 16 src pixels
-  // Checkerboard should produce averaged values
-  for (int y = 0; y < dstHeight; y++) {
-    for (int x = 0; x < dstWidth; x++) {
-      int idx = (y * dstWidth + x) * 3;
-      // Value should be between 50 and 200 due to averaging
-      EXPECT_GE(resultData[idx], 50) << "Value too low at (" << x << "," << y << ")";
-      EXPECT_LE(resultData[idx], 200) << "Value too high at (" << x << "," << y << ")";
-    }
-  }
+  validateRange(resultData, Npp8u(50), Npp8u(200), "4x downscale checkerboard");
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_NonIntegerScale) {
@@ -357,9 +439,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_SmallImage) {
   const int dstWidth = 4, dstHeight = 4;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Fill with uniform value
-  std::fill(srcData.begin(), srcData.end(), 100);
+  const Npp8u uniform[3] = {100, 100, 100};
+  fillUniform<Npp8u, 3>(srcData, uniform);
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
@@ -808,16 +889,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ChannelIndependence) {
   const int dstWidth = 4, dstHeight = 4;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Fill each channel with different uniform values
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = 80;  // R channel
-      srcData[idx + 1] = 160; // G channel
-      srcData[idx + 2] = 240; // B channel
-    }
-  }
+  const Npp8u uniform[3] = {80, 160, 240};
+  fillUniform<Npp8u, 3>(srcData, uniform);
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
@@ -837,12 +910,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ChannelIndependence) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-  // Each channel should maintain its value independently
-  for (int i = 0; i < dstWidth * dstHeight; i++) {
-    EXPECT_NEAR(resultData[i * 3 + 0], 80, 1) << "R channel at pixel " << i;
-    EXPECT_NEAR(resultData[i * 3 + 1], 160, 1) << "G channel at pixel " << i;
-    EXPECT_NEAR(resultData[i * 3 + 2], 240, 1) << "B channel at pixel " << i;
-  }
+  validateChannelValues<Npp8u, 3>(resultData, dstWidth, dstHeight, uniform, 1);
 }
 
 // Test extreme value boundaries (0 and 255)
@@ -851,18 +919,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ExtremeValues) {
   const int dstWidth = 8, dstHeight = 8;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create checkerboard with extreme values
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      bool isWhite = ((x / 2) + (y / 2)) % 2 == 0;
-      Npp8u value = isWhite ? 255 : 0;
-      srcData[idx + 0] = value;
-      srcData[idx + 1] = value;
-      srcData[idx + 2] = value;
-    }
-  }
+  fillCheckerboard<Npp8u, 3>(srcData, srcWidth, srcHeight, 2, 255, 0);
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
