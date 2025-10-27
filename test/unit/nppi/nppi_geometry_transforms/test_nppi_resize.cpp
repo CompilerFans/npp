@@ -2015,25 +2015,13 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ROITest) {
   const int dstWidth = 16, dstHeight = 16;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create checkerboard pattern
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      bool isWhite = ((x / 4) + (y / 4)) % 2 == 0;
-      Npp8u value = isWhite ? 200 : 50;
-      srcData[idx + 0] = value;
-      srcData[idx + 1] = value;
-      srcData[idx + 2] = value;
-    }
-  }
+  fillCheckerboard<Npp8u, 3>(srcData, srcWidth, srcHeight, 4, 200, 50);
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
 
   src.copyFromHost(srcData);
 
-  // Use only top-left quarter as source ROI
   NppiSize srcSize = {srcWidth, srcHeight};
   NppiSize dstSize = {dstWidth, dstHeight};
   NppiRect srcROI = {0, 0, srcWidth / 2, srcHeight / 2};
