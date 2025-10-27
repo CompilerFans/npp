@@ -198,12 +198,22 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super) {
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 
+  // Create uniform blocks to verify averaging behavior
+  // Scale factor is 2 (64/32), so each dst pixel samples from approximately 2x2 src region
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (Npp8u)((x + y) % 256);
-      srcData[idx + 1] = (Npp8u)((x * 2) % 256);
-      srcData[idx + 2] = (Npp8u)((y * 2) % 256);
+      // Set top-left 8x8 block to 100, rest to 0
+      // This ensures dst(0,0) through dst(3,3) all sample from value-100 regions
+      if (x < 8 && y < 8) {
+        srcData[idx + 0] = 100;
+        srcData[idx + 1] = 150;
+        srcData[idx + 2] = 200;
+      } else {
+        srcData[idx + 0] = 0;
+        srcData[idx + 1] = 0;
+        srcData[idx + 2] = 0;
+      }
     }
   }
 
@@ -225,13 +235,28 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-  // Verify result has valid data
-  int validPixels = 0;
-  for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
-    if (resultData[i] > 0) {
-      validPixels++;
-    }
-  }
+  // Verify super sampling averages correctly
+  // dst(0,0) samples from src region [0,2)x[0,2), all 100
+  int dst_idx_0_0 = (0 * dstWidth + 0) * 3;
+  EXPECT_NEAR(resultData[dst_idx_0_0 + 0], 100, 5) << "Super sampling R channel at (0,0)";
+  EXPECT_NEAR(resultData[dst_idx_0_0 + 1], 150, 5) << "Super sampling G channel at (0,0)";
+  EXPECT_NEAR(resultData[dst_idx_0_0 + 2], 200, 5) << "Super sampling B channel at (0,0)";
 
-  EXPECT_GT(validPixels, dstWidth * dstHeight) << "Not enough valid pixels after super sampling";
+  // dst(2,2) samples from src region [4,6)x[4,6), still within 8x8 block
+  int dst_idx_2_2 = (2 * dstWidth + 2) * 3;
+  EXPECT_NEAR(resultData[dst_idx_2_2 + 0], 100, 5) << "Super sampling R channel at (2,2)";
+  EXPECT_NEAR(resultData[dst_idx_2_2 + 1], 150, 5) << "Super sampling G channel at (2,2)";
+
+  // dst(4,4) samples from src region [8,10)x[8,10), which is all 0
+  int dst_idx_4_4 = (4 * dstWidth + 4) * 3;
+  EXPECT_EQ(resultData[dst_idx_4_4 + 0], 0) << "Region outside block should be 0";
+  EXPECT_EQ(resultData[dst_idx_4_4 + 1], 0) << "Region outside block should be 0";
+  EXPECT_EQ(resultData[dst_idx_4_4 + 2], 0) << "Region outside block should be 0";
+
+  // Verify edge case: dst(3,3) samples from src [6,8)x[6,8), partially overlapping
+  // This tests the averaging behavior at boundaries
+  int dst_idx_3_3 = (3 * dstWidth + 3) * 3;
+  // Should be less than 100 due to averaging with 0 values
+  EXPECT_LT(resultData[dst_idx_3_3 + 0], 100) << "Edge pixel should show averaging effect";
+  EXPECT_GT(resultData[dst_idx_3_3 + 0], 0) << "Edge pixel should have non-zero value";
 }
