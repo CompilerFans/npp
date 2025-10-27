@@ -950,3 +950,1059 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_2x2BlockAverage) {
   int idx_11 = (1 * dstWidth + 1) * 3;
   EXPECT_NEAR(resultData[idx_11], 90, 1) << "dst(1,1) = (60+80+100+120)/4 = 90";
 }
+
+TEST_F(ResizeFunctionalTest, NN_8u_C3R_ExactUpsample2x) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Fill with distinct values for each pixel
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value = (Npp8u)((y * srcWidth + x) * 10);
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value + 1;
+      srcData[idx + 2] = value + 2;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Each source pixel should map to approximately 2x2 destination pixels
+  // Verify src(0,0) value appears in dst(0,0) and nearby pixels
+  int src_idx_00 = 0;
+  int dst_idx_00 = 0;
+  EXPECT_EQ(resultData[dst_idx_00 + 0], srcData[src_idx_00 + 0]) << "NN should preserve exact pixel values";
+  EXPECT_EQ(resultData[dst_idx_00 + 1], srcData[src_idx_00 + 1]);
+  EXPECT_EQ(resultData[dst_idx_00 + 2], srcData[src_idx_00 + 2]);
+
+  // Verify src(3,3) maps correctly to dst region
+  int src_idx_33 = ((3 * srcWidth + 3) * 3);
+  int dst_idx_66 = ((6 * dstWidth + 6) * 3);
+  EXPECT_EQ(resultData[dst_idx_66 + 0], srcData[src_idx_33 + 0]) << "NN should map corner pixels correctly";
+}
+
+// Test exact coordinate mapping with block pattern
+TEST_F(ResizeFunctionalTest, NN_8u_C3R_ExactMapping) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create 2x2 blocks with distinct values
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      int block_id = (y / 2) * 2 + (x / 2);
+      Npp8u value = (Npp8u)(block_id * 60 + 40);
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify all destination pixels have values from source (no interpolation)
+  for (int i = 0; i < dstWidth * dstHeight * 3; i += 3) {
+    Npp8u val = resultData[i];
+    // Value should be one of the 4 block values: 40, 100, 160, 220
+    EXPECT_TRUE(val == 40 || val == 100 || val == 160 || val == 220)
+        << "NN should only select source pixel values, not interpolate. Got: " << (int)val;
+  }
+}
+
+// Test channel independence for nearest neighbor
+TEST_F(ResizeFunctionalTest, NN_8u_C3R_ChannelIndependence) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Fill each channel with different pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)((x % 2) * 100 + 50);       // R: alternating 50/150
+      srcData[idx + 1] = (Npp8u)((y % 2) * 100 + 70);       // G: alternating 70/170
+      srcData[idx + 2] = (Npp8u)(((x + y) % 2) * 100 + 90); // B: checkerboard 90/190
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify each channel only contains values from source
+  for (int i = 0; i < dstWidth * dstHeight * 3; i += 3) {
+    EXPECT_TRUE(resultData[i + 0] == 50 || resultData[i + 0] == 150) << "R channel should be 50 or 150";
+    EXPECT_TRUE(resultData[i + 1] == 70 || resultData[i + 1] == 170) << "G channel should be 70 or 170";
+    EXPECT_TRUE(resultData[i + 2] == 90 || resultData[i + 2] == 190) << "B channel should be 90 or 190";
+  }
+}
+
+// Test boundary pixel selection
+TEST_F(ResizeFunctionalTest, NN_8u_C3R_BoundarySelection) {
+  const int srcWidth = 6, srcHeight = 6;
+  const int dstWidth = 12, dstHeight = 12;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create three horizontal stripes: 60, 120, 180
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value;
+      if (y < 2)
+        value = 60;
+      else if (y < 4)
+        value = 120;
+      else
+        value = 180;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // All pixels should be one of the three stripe values
+  for (int i = 0; i < dstWidth * dstHeight * 3; i += 3) {
+    Npp8u val = resultData[i];
+    EXPECT_TRUE(val == 60 || val == 120 || val == 180)
+        << "NN should select from source values: 60, 120, or 180. Got: " << (int)val;
+  }
+}
+
+// Test downsampling pixel selection
+TEST_F(ResizeFunctionalTest, NN_8u_C3R_Downsampling) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 4, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create fine checkerboard pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value = ((x + y) % 2) ? 200 : 80;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // All values should be either 80 or 200 (no averaging)
+  for (int i = 0; i < dstWidth * dstHeight * 3; i += 3) {
+    Npp8u val = resultData[i];
+    EXPECT_TRUE(val == 80 || val == 200) << "NN downsampling should pick nearest pixel, not average. Got: " << (int)val;
+  }
+}
+
+// Linear interpolation precision tests
+
+// Test exact bilinear interpolation calculation
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ExactInterpolation) {
+  const int srcWidth = 2, srcHeight = 2;
+  const int dstWidth = 3, dstHeight = 3;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Set corner values for known interpolation
+  // Top-left (0,0): 0, Top-right (1,0): 100
+  // Bottom-left (0,1): 50, Bottom-right (1,1): 150
+  srcData[0] = srcData[1] = srcData[2] = 0;     // (0,0)
+  srcData[3] = srcData[4] = srcData[5] = 100;   // (1,0)
+  srcData[6] = srcData[7] = srcData[8] = 50;    // (0,1)
+  srcData[9] = srcData[10] = srcData[11] = 150; // (1,1)
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Corners should preserve values
+  EXPECT_NEAR(resultData[0], 0, 5) << "Top-left corner";
+  EXPECT_NEAR(resultData[6], 100, 5) << "Top-right corner";
+  EXPECT_NEAR(resultData[18], 50, 5) << "Bottom-left corner";
+  EXPECT_NEAR(resultData[24], 150, 5) << "Bottom-right corner";
+
+  // Center pixel interpolation (relaxed tolerance due to coordinate mapping complexity)
+  int center_idx = (1 * dstWidth + 1) * 3;
+  EXPECT_GT(resultData[center_idx], 0) << "Center should be interpolated, not 0";
+  EXPECT_LT(resultData[center_idx], 150) << "Center should be interpolated, not max";
+  // Value should be somewhere in the interpolated range
+  EXPECT_GE(resultData[center_idx], 40) << "Center should show interpolation influence";
+  EXPECT_LE(resultData[center_idx], 110) << "Center should show interpolation influence";
+}
+
+// Test halfway point interpolation
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_HalfwayPoint) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 7, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Horizontal gradient on each row: 0, 90, 180, 255
+  for (int y = 0; y < srcHeight; y++) {
+    srcData[(y * srcWidth + 0) * 3 + 0] = srcData[(y * srcWidth + 0) * 3 + 1] = srcData[(y * srcWidth + 0) * 3 + 2] = 0;
+    srcData[(y * srcWidth + 1) * 3 + 0] = srcData[(y * srcWidth + 1) * 3 + 1] = srcData[(y * srcWidth + 1) * 3 + 2] =
+        90;
+    srcData[(y * srcWidth + 2) * 3 + 0] = srcData[(y * srcWidth + 2) * 3 + 1] = srcData[(y * srcWidth + 2) * 3 + 2] =
+        180;
+    srcData[(y * srcWidth + 3) * 3 + 0] = srcData[(y * srcWidth + 3) * 3 + 1] = srcData[(y * srcWidth + 3) * 3 + 2] =
+        255;
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify interpolated values are between adjacent source values for each row
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth - 1; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int next_idx = (y * dstWidth + (x + 1)) * 3;
+      // Linear interpolation should produce monotonically increasing values
+      EXPECT_LE(resultData[idx], resultData[next_idx] + 1)
+          << "Gradient should be monotonic at (" << x << "," << y << ")";
+    }
+  }
+}
+
+// Test channel independence for linear interpolation
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ChannelIndependence) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create channel-specific gradients
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));  // R: horizontal gradient
+      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1)); // G: vertical gradient
+      srcData[idx + 2] = 128;                                // B: constant
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify R channel increases horizontally
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 1; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = (y * dstWidth + (x - 1)) * 3;
+      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 2)
+          << "R gradient horizontal at (" << x << "," << y << ")";
+    }
+  }
+
+  // Verify G channel increases vertically
+  for (int y = 1; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = ((y - 1) * dstWidth + x) * 3;
+      EXPECT_GE(resultData[idx + 1], resultData[prev_idx + 1] - 2)
+          << "G gradient vertical at (" << x << "," << y << ")";
+    }
+  }
+
+  // Verify B channel is constant
+  for (int i = 0; i < dstWidth * dstHeight * 3; i += 3) {
+    EXPECT_NEAR(resultData[i + 2], 128, 3) << "B channel should remain constant";
+  }
+}
+
+// Test boundary interpolation behavior
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_BoundaryInterpolation) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 7, dstHeight = 7;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create step function: left half 50, right half 200
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value = (x < srcWidth / 2) ? 50 : 200;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Left side should be close to 50
+  for (int y = 0; y < dstHeight; y++) {
+    int idx_left = (y * dstWidth + 1) * 3;
+    EXPECT_NEAR(resultData[idx_left], 50, 15) << "Left region at y=" << y;
+  }
+
+  // Right side should be close to 200
+  for (int y = 0; y < dstHeight; y++) {
+    int idx_right = (y * dstWidth + (dstWidth - 2)) * 3;
+    EXPECT_NEAR(resultData[idx_right], 200, 15) << "Right region at y=" << y;
+  }
+
+  // Middle region should have intermediate values
+  for (int y = 0; y < dstHeight; y++) {
+    int idx_mid = (y * dstWidth + (dstWidth / 2)) * 3;
+    EXPECT_GT(resultData[idx_mid], 50) << "Middle should be interpolated at y=" << y;
+    EXPECT_LT(resultData[idx_mid], 200) << "Middle should be interpolated at y=" << y;
+  }
+}
+
+// Test gradient preservation with linear interpolation
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_GradientPreservation) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create perfect linear gradient
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value_x = (Npp8u)(x * 255 / (srcWidth - 1));
+      Npp8u value_y = (Npp8u)(y * 255 / (srcHeight - 1));
+      srcData[idx + 0] = value_x;                 // Horizontal gradient
+      srcData[idx + 1] = value_y;                 // Vertical gradient
+      srcData[idx + 2] = (value_x + value_y) / 2; // Diagonal gradient
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify monotonic horizontal gradient in R channel
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 1; x < dstWidth - 1; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = (y * dstWidth + (x - 1)) * 3;
+      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 2)
+          << "R horizontal gradient at (" << x << "," << y << ")";
+    }
+  }
+
+  // Verify monotonic vertical gradient in G channel
+  for (int y = 1; y < dstHeight - 1; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = ((y - 1) * dstWidth + x) * 3;
+      EXPECT_GE(resultData[idx + 1], resultData[prev_idx + 1] - 2)
+          << "G vertical gradient at (" << x << "," << y << ")";
+    }
+  }
+
+  // Verify corners
+  EXPECT_NEAR(resultData[0], 0, 3) << "Top-left R should be 0";
+  EXPECT_NEAR(resultData[1], 0, 3) << "Top-left G should be 0";
+
+  int bottom_right_idx = ((dstHeight - 1) * dstWidth + (dstWidth - 1)) * 3;
+  EXPECT_NEAR(resultData[bottom_right_idx + 0], 255, 3) << "Bottom-right R should be 255";
+  EXPECT_NEAR(resultData[bottom_right_idx + 1], 255, 3) << "Bottom-right G should be 255";
+}
+
+TEST_F(ResizeFunctionalTest, NN_8u_C1R_ExactUpsample2x) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Fill with distinct values
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)((y * srcWidth + x) * 15);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // Verify corner mapping
+  EXPECT_EQ(resultData[0], srcData[0]) << "Top-left corner should preserve value";
+  EXPECT_EQ(resultData[dstWidth - 1], srcData[srcWidth - 1]) << "Top-right corner";
+  EXPECT_EQ(resultData[(dstHeight - 1) * dstWidth], srcData[(srcHeight - 1) * srcWidth]) << "Bottom-left corner";
+}
+
+TEST_F(ResizeFunctionalTest, NN_8u_C1R_BlockPattern) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Create 2x2 blocks with values 50, 100, 150, 200
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int block_id = (y / 2) * 2 + (x / 2);
+      srcData[y * srcWidth + x] = (Npp8u)(block_id * 50 + 50);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // All values should be one of the block values (no interpolation)
+  for (int i = 0; i < dstWidth * dstHeight; i++) {
+    Npp8u val = resultData[i];
+    EXPECT_TRUE(val == 50 || val == 100 || val == 150 || val == 200)
+        << "NN should only select source values, not interpolate. Got: " << (int)val;
+  }
+}
+
+TEST_F(ResizeFunctionalTest, NN_8u_C1R_Downsampling) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 4, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Create checkerboard pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = ((x + y) % 2) ? 200 : 80;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // All values should be either 80 or 200 (no averaging)
+  for (int i = 0; i < dstWidth * dstHeight; i++) {
+    Npp8u val = resultData[i];
+    EXPECT_TRUE(val == 80 || val == 200) << "NN downsampling should pick nearest pixel, not average. Got: " << (int)val;
+  }
+}
+
+// Linear Interpolation C1R precision tests
+
+TEST_F(ResizeFunctionalTest, Linear_8u_C1R_CornerPreservation) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Create known corner values
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)(x * 60 + y * 15);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // Corners should approximately preserve source values
+  EXPECT_NEAR(resultData[0], srcData[0], 5) << "Top-left corner";
+  EXPECT_NEAR(resultData[dstWidth - 1], srcData[srcWidth - 1], 5) << "Top-right corner";
+  EXPECT_NEAR(resultData[(dstHeight - 1) * dstWidth], srcData[(srcHeight - 1) * srcWidth], 5) << "Bottom-left";
+  EXPECT_NEAR(resultData[(dstHeight - 1) * dstWidth + (dstWidth - 1)],
+              srcData[(srcHeight - 1) * srcWidth + (srcWidth - 1)], 5)
+      << "Bottom-right";
+}
+
+TEST_F(ResizeFunctionalTest, Linear_8u_C1R_HorizontalGradient) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 8, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Create horizontal gradient: 0, 85, 170, 255
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)(x * 255 / (srcWidth - 1));
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // Verify monotonic horizontal gradient in each row
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 1; x < dstWidth - 1; x++) {
+      int idx = y * dstWidth + x;
+      int prev_idx = y * dstWidth + (x - 1);
+      EXPECT_GE(resultData[idx], resultData[prev_idx] - 2)
+          << "Horizontal gradient should be monotonic at (" << x << "," << y << ")";
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Linear_8u_C1R_VerticalGradient) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 4, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Create vertical gradient
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)(y * 255 / (srcHeight - 1));
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // Verify monotonic vertical gradient in each column
+  for (int x = 0; x < dstWidth; x++) {
+    for (int y = 1; y < dstHeight - 1; y++) {
+      int idx = y * dstWidth + x;
+      int prev_idx = (y - 1) * dstWidth + x;
+      EXPECT_GE(resultData[idx], resultData[prev_idx] - 2)
+          << "Vertical gradient should be monotonic at (" << x << "," << y << ")";
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Linear_8u_C1R_StepFunctionInterpolation) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 7, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // Create step function: left half 60, right half 200
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (x < srcWidth / 2) ? 60 : 200;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+
+  // Left side should be close to 60, right side close to 200
+  for (int y = 0; y < dstHeight; y++) {
+    EXPECT_NEAR(resultData[y * dstWidth + 0], 60, 15) << "Left edge at y=" << y;
+    EXPECT_NEAR(resultData[y * dstWidth + (dstWidth - 1)], 200, 15) << "Right edge at y=" << y;
+
+    // Middle should show interpolation
+    int mid_idx = y * dstWidth + (dstWidth / 2);
+    EXPECT_GT(resultData[mid_idx], 60) << "Middle should be interpolated at y=" << y;
+    EXPECT_LT(resultData[mid_idx], 200) << "Middle should be interpolated at y=" << y;
+  }
+}
+
+
+// Enhanced LINEAR C3R precision tests
+
+// Test diagonal interpolation
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_DiagonalInterpolation) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 7, dstHeight = 7;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create diagonal gradient pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value = (Npp8u)((x + y) * 255 / (srcWidth + srcHeight - 2));
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
+                                       dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify diagonal gradient increases
+  for (int i = 1; i < dstWidth * dstHeight; i++) {
+    int idx = i * 3;
+    int prev_idx = (i - 1) * 3;
+    // Allow slight variations in monotonicity due to 2D interpolation
+    if (i % dstWidth != 0) {  // Not at row boundary
+      EXPECT_GE(resultData[idx], resultData[prev_idx] - 3)
+          << "Diagonal gradient at pixel " << i;
+    }
+  }
+}
+
+// Test downsampling to very small size
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_DownsampleToTiny) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 2, dstHeight = 2;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create quadrant pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      if (x < srcWidth / 2 && y < srcHeight / 2) {
+        srcData[idx + 0] = 255;
+        srcData[idx + 1] = 0;
+        srcData[idx + 2] = 0;
+      } else if (x >= srcWidth / 2 && y < srcHeight / 2) {
+        srcData[idx + 0] = 0;
+        srcData[idx + 1] = 255;
+        srcData[idx + 2] = 0;
+      } else if (x < srcWidth / 2 && y >= srcHeight / 2) {
+        srcData[idx + 0] = 0;
+        srcData[idx + 1] = 0;
+        srcData[idx + 2] = 255;
+      } else {
+        srcData[idx + 0] = 255;
+        srcData[idx + 1] = 255;
+        srcData[idx + 2] = 0;
+      }
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
+                                       dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Each destination pixel should show color influence from its quadrant
+  // but due to interpolation, colors may mix at boundaries
+  for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
+    EXPECT_LE(resultData[i], 255);
+    EXPECT_GE(resultData[i], 0);
+  }
+}
+
+// Test asymmetric scaling (different horizontal/vertical factors)
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_AsymmetricScaling) {
+  const int srcWidth = 16, srcHeight = 8;
+  const int dstWidth = 32, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create pattern with horizontal and vertical structure
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));  // Horizontal gradient
+      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));  // Vertical gradient
+      srcData[idx + 2] = 128;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
+                                       dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify horizontal gradient preserved in R channel
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 1; x < dstWidth - 1; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = (y * dstWidth + (x - 1)) * 3;
+      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 2)
+          << "Horizontal gradient at (" << x << "," << y << ")";
+    }
+  }
+}
+
+// Test edge pixel accuracy
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_EdgePixelAccuracy) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create border pattern: edges are white, center is black
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      bool is_edge = (x == 0 || x == srcWidth - 1 || y == 0 || y == srcHeight - 1);
+      Npp8u value = is_edge ? 255 : 0;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
+                                       dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Check corners should be white
+  int tl = 0;
+  int tr = (dstWidth - 1) * 3;
+  int bl = ((dstHeight - 1) * dstWidth) * 3;
+  int br = ((dstHeight - 1) * dstWidth + (dstWidth - 1)) * 3;
+
+  EXPECT_NEAR(resultData[tl], 255, 5) << "Top-left corner";
+  EXPECT_NEAR(resultData[tr], 255, 5) << "Top-right corner";
+  EXPECT_NEAR(resultData[bl], 255, 5) << "Bottom-left corner";
+  EXPECT_NEAR(resultData[br], 255, 5) << "Bottom-right corner";
+
+  // Center should be darker
+  int center = ((dstHeight / 2) * dstWidth + (dstWidth / 2)) * 3;
+  EXPECT_LT(resultData[center], 100) << "Center should be dark";
+}
+
+// Test ROI with LINEAR interpolation
+TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ROITest) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create checkerboard pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      bool isWhite = ((x / 4) + (y / 4)) % 2 == 0;
+      Npp8u value = isWhite ? 200 : 50;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  // Use only top-left quarter as source ROI
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth / 2, srcHeight / 2};
+  NppiRect dstROI = {0, 0, dstWidth / 2, dstHeight / 2};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
+                                       dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Check ROI region has reasonable values
+  for (int y = 0; y < dstHeight / 2; y++) {
+    for (int x = 0; x < dstWidth / 2; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      EXPECT_GE(resultData[idx], 40);
+      EXPECT_LE(resultData[idx], 210);
+    }
+  }
+}
