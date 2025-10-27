@@ -50,8 +50,8 @@ protected:
   }
 
   // Compare with golden data (exact match)
-  void compareWithGolden(const std::vector<Npp8u> &result, const std::vector<Npp8u> &golden, const std::string &testName,
-                         int width, int height, int channels) {
+  void compareWithGolden(const std::vector<Npp8u> &result, const std::vector<Npp8u> &golden,
+                         const std::string &testName, int width, int height, int channels) {
     ASSERT_EQ(result.size(), golden.size()) << "Result size mismatch for " << testName;
 
     int totalPixels = width * height;
@@ -112,8 +112,8 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_UniformBlock_4x_Golden) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status =
-      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_SUPER);
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -148,8 +148,8 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));          // R: horizontal gradient
-      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));         // G: vertical gradient
+      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));                   // R: horizontal gradient
+      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));                  // G: vertical gradient
       srcData[idx + 2] = (Npp8u)((x + y) * 255 / (srcWidth + srcHeight - 2)); // B: diagonal gradient
     }
   }
@@ -164,8 +164,8 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status =
-      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_SUPER);
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -218,8 +218,8 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Checkerboard_8x_Golden) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status =
-      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_SUPER);
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -272,8 +272,8 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Random_4x_Golden) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status =
-      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_SUPER);
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -325,8 +325,8 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_MultiLevel_3x_Golden) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status =
-      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_SUPER);
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
