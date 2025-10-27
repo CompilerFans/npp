@@ -150,3 +150,88 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
     }
   }
 }
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Bilinear) {
+  const int srcWidth = 16, srcHeight = 16;
+  const int dstWidth = 32, dstHeight = 32;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));
+      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));
+      srcData[idx + 2] = 128;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C3R bilinear failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Check gradient continuity in first row for R channel
+  for (int x = 1; x < dstWidth - 1; x++) {
+    int current = resultData[x * 3];
+    int prev = resultData[(x - 1) * 3];
+    EXPECT_GE(current, prev - 2) << "R gradient not continuous at x=" << x;
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super) {
+  const int srcWidth = 64, srcHeight = 64;
+  const int dstWidth = 32, dstHeight = 32;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)((x + y) % 256);
+      srcData[idx + 1] = (Npp8u)((x * 2) % 256);
+      srcData[idx + 2] = (Npp8u)((y * 2) % 256);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize_8u_C3R super sampling failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify result has valid data
+  int validPixels = 0;
+  for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
+    if (resultData[i] > 0) {
+      validPixels++;
+    }
+  }
+
+  EXPECT_GT(validPixels, dstWidth * dstHeight) << "Not enough valid pixels after super sampling";
+}
