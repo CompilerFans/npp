@@ -188,7 +188,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Bilinear) {
   for (int x = 1; x < dstWidth - 1; x++) {
     int current = resultData[x * 3];
     int prev = resultData[(x - 1) * 3];
-    EXPECT_GE(current, prev - 2) << "R gradient not continuous at x=" << x;
+    EXPECT_GE(current, prev - 1) << "R gradient not continuous at x=" << x;
   }
 }
 
@@ -238,14 +238,14 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super) {
   // Verify super sampling averages correctly
   // dst(0,0) samples from src region [0,2)x[0,2), all 100
   int dst_idx_0_0 = (0 * dstWidth + 0) * 3;
-  EXPECT_NEAR(resultData[dst_idx_0_0 + 0], 100, 5) << "Super sampling R channel at (0,0)";
-  EXPECT_NEAR(resultData[dst_idx_0_0 + 1], 150, 5) << "Super sampling G channel at (0,0)";
-  EXPECT_NEAR(resultData[dst_idx_0_0 + 2], 200, 5) << "Super sampling B channel at (0,0)";
+  EXPECT_NEAR(resultData[dst_idx_0_0 + 0], 100, 2) << "Super sampling R channel at (0,0)";
+  EXPECT_NEAR(resultData[dst_idx_0_0 + 1], 150, 2) << "Super sampling G channel at (0,0)";
+  EXPECT_NEAR(resultData[dst_idx_0_0 + 2], 200, 2) << "Super sampling B channel at (0,0)";
 
   // dst(2,2) samples from src region [4,6)x[4,6), still within 8x8 block
   int dst_idx_2_2 = (2 * dstWidth + 2) * 3;
-  EXPECT_NEAR(resultData[dst_idx_2_2 + 0], 100, 5) << "Super sampling R channel at (2,2)";
-  EXPECT_NEAR(resultData[dst_idx_2_2 + 1], 150, 5) << "Super sampling G channel at (2,2)";
+  EXPECT_NEAR(resultData[dst_idx_2_2 + 0], 100, 2) << "Super sampling R channel at (2,2)";
+  EXPECT_NEAR(resultData[dst_idx_2_2 + 1], 150, 2) << "Super sampling G channel at (2,2)";
 
   // dst(4,4) samples from src region [8,10)x[8,10), which is all 0
   int dst_idx_4_4 = (4 * dstWidth + 4) * 3;
@@ -347,7 +347,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_NonIntegerScale) {
     for (int x = 1; x < dstWidth; x++) {
       int idx = (y * dstWidth + x) * 3;
       int prev_idx = (y * dstWidth + (x - 1)) * 3;
-      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 10) << "Gradient not monotonic";
+      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 3) << "Gradient not monotonic";
     }
   }
 }
@@ -381,7 +381,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_SmallImage) {
 
   // Uniform input should produce uniform output
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
-    EXPECT_NEAR(resultData[i], 100, 5) << "Uniform averaging failed at index " << i;
+    EXPECT_NEAR(resultData[i], 100, 2) << "Uniform averaging failed at index " << i;
   }
 }
 
@@ -485,6 +485,181 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_LargeDownscale) {
 
   // 16x downscaling of alternating stripes should produce ~127
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
-    EXPECT_NEAR(resultData[i], 127, 30) << "Large downscale averaging incorrect at " << i;
+    EXPECT_NEAR(resultData[i], 127, 15) << "Large downscale averaging incorrect at " << i;
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_BoundaryTest) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3, 0);
+
+  // Create precise boundary test pattern
+  // Fill left half with 200, right half with 0
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      if (x < srcWidth / 2) {
+        srcData[idx + 0] = 200;
+        srcData[idx + 1] = 200;
+        srcData[idx + 2] = 200;
+      }
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Test boundary pixels at the transition
+  // dst(7,y) should sample from src around x=14-16, which is at boundary
+  // dst(8,y) should sample from src around x=16-18, which crosses boundary
+
+  for (int y = 0; y < dstHeight; y++) {
+    // Far left: should be ~200 (fully in 200 region)
+    int idx_left = (y * dstWidth + 3) * 3;
+    EXPECT_NEAR(resultData[idx_left + 0], 200, 3) << "Left region incorrect at y=" << y;
+
+    // At boundary: dst(7,y) maps to src(14-16, y*2 to y*2+2)
+    int idx_boundary = (y * dstWidth + 7) * 3;
+    EXPECT_GE(resultData[idx_boundary + 0], 100) << "Boundary should show 200 influence at y=" << y;
+    EXPECT_LE(resultData[idx_boundary + 0], 200) << "Boundary should not exceed max at y=" << y;
+
+    // Just after boundary: dst(8,y) maps to src(16-18, y*2 to y*2+2)
+    int idx_after = (y * dstWidth + 8) * 3;
+    EXPECT_LT(resultData[idx_after + 0], 100) << "After boundary should show averaging at y=" << y;
+
+    // Far right: should be ~0 (fully in 0 region)
+    int idx_right = (y * dstWidth + 12) * 3;
+    EXPECT_NEAR(resultData[idx_right + 0], 0, 3) << "Right region incorrect at y=" << y;
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_CornerTest) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3, 0);
+
+  // Create quadrant pattern: top-left corner is 255, rest is 0
+  for (int y = 0; y < 8; y++) {
+    for (int x = 0; x < 8; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = 255;
+      srcData[idx + 1] = 255;
+      srcData[idx + 2] = 255;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // With 4x downscaling, source 8x8 block maps perfectly to dst 2x2 region
+  // Top-left 2x2 block: samples from src[0,8)x[0,8), fully in 255 region
+  for (int y = 0; y < 2; y++) {
+    for (int x = 0; x < 2; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      EXPECT_NEAR(resultData[idx], 255, 3) << "Pixel (" << x << "," << y << ") should be ~255";
+    }
+  }
+
+  // Pixels outside 2x2 block: sample from 0 region
+  int idx_20 = (0 * dstWidth + 2) * 3;
+  EXPECT_EQ(resultData[idx_20], 0) << "Pixel (2,0) should be 0";
+
+  int idx_02 = (2 * dstWidth + 0) * 3;
+  EXPECT_EQ(resultData[idx_02], 0) << "Pixel (0,2) should be 0";
+
+  int idx_77 = (7 * dstWidth + 7) * 3;
+  EXPECT_EQ(resultData[idx_77], 0) << "Far corner (7,7) should be 0";
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_GradientBoundary) {
+  const int srcWidth = 64, srcHeight = 64;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create horizontal gradient with sharp boundary in the middle
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      // Left half: gradient 0->200, right half: constant 0
+      if (x < srcWidth / 2) {
+        Npp8u value = (Npp8u)((x * 200) / (srcWidth / 2));
+        srcData[idx + 0] = value;
+        srcData[idx + 1] = value;
+        srcData[idx + 2] = value;
+      } else {
+        srcData[idx + 0] = 0;
+        srcData[idx + 1] = 0;
+        srcData[idx + 2] = 0;
+      }
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify gradient is preserved in left half
+  for (int y = 0; y < dstHeight; y++) {
+    // Check monotonic increase in left half
+    for (int x = 1; x < dstWidth / 2 - 1; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = (y * dstWidth + (x - 1)) * 3;
+      EXPECT_GE(resultData[idx], resultData[prev_idx] - 2)
+        << "Gradient not preserved at (" << x << "," << y << ")";
+    }
+
+    // Right half should be mostly 0
+    for (int x = dstWidth / 2 + 2; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      EXPECT_LT(resultData[idx], 10) << "Right region should be near 0 at (" << x << "," << y << ")";
+    }
   }
 }

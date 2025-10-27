@@ -183,8 +183,8 @@ __global__ void nppiResize_8u_C3R_super_kernel(const Npp8u *pSrc, int nSrcStep, 
 
   int x_start = max((int)src_x_start, oSrcRectROI.x);
   int y_start = max((int)src_y_start, oSrcRectROI.y);
-  int x_end = min((int)(src_x_end + 1.0f), oSrcRectROI.x + oSrcRectROI.width);
-  int y_end = min((int)(src_y_end + 1.0f), oSrcRectROI.y + oSrcRectROI.height);
+  int x_end = min((int)src_x_end, oSrcRectROI.x + oSrcRectROI.width);
+  int y_end = min((int)src_y_end, oSrcRectROI.y + oSrcRectROI.height);
 
   float sum[3] = {0.0f, 0.0f, 0.0f};
   int count = 0;
