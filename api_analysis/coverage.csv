@@ -4430,7 +4430,7 @@ nppiFilterBox_16u_C4R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_32f_AC4R,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_32f_AC4R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_32f_C1R,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
-nppiFilterBox_32f_C1R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,no,
+nppiFilterBox_32f_C1R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
 nppiFilterBox_32f_C3R,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_32f_C3R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_32f_C4R,nppi_filtering_functions.h,no,,no,
@@ -4440,11 +4440,11 @@ nppiFilterBox_64f_C1R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_8u_AC4R,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_8u_AC4R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_8u_C1R,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nvidia_boundary_analysis.cpp
-nppiFilterBox_8u_C1R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,no,
+nppiFilterBox_8u_C1R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
 nppiFilterBox_8u_C3R,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_8u_C3R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiFilterBox_8u_C4R,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
-nppiFilterBox_8u_C4R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,no,
+nppiFilterBox_8u_C4R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filter_box.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
 nppiFilterCannyBorderGetBufferSize,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filterCanny.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filterCanny.cpp
 nppiFilterCannyBorder_8u_C1R,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filterCanny.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_filterCanny.cpp
 nppiFilterCannyBorder_8u_C1R_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_filterCanny.cpp,no,
@@ -6134,7 +6134,7 @@ nppiMirror_8u_AC4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiMirror_8u_C1IR,nppi_geometry_transforms.h,no,,no,
 nppiMirror_8u_C1IR_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiMirror_8u_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_mirror.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp
-nppiMirror_8u_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_mirror.cpp,no,
+nppiMirror_8u_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_mirror.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp
 nppiMirror_8u_C3IR,nppi_geometry_transforms.h,no,,no,
 nppiMirror_8u_C3IR_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiMirror_8u_C3R,nppi_geometry_transforms.h,no,,no,
@@ -6368,7 +6368,7 @@ nppiRotate_16u_C4R,nppi_geometry_transforms.h,no,,no,
 nppiRotate_16u_C4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiRotate_32f_AC4R,nppi_geometry_transforms.h,no,,no,
 nppiRotate_32f_AC4R_Ctx,nppi_geometry_transforms.h,no,,no,
-nppiRotate_32f_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,no,
+nppiRotate_32f_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
 nppiRotate_32f_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
 nppiRotate_32f_C3R,nppi_geometry_transforms.h,no,,no,
 nppiRotate_32f_C3R_Ctx,nppi_geometry_transforms.h,no,,no,
@@ -6376,9 +6376,9 @@ nppiRotate_32f_C4R,nppi_geometry_transforms.h,no,,no,
 nppiRotate_32f_C4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiRotate_8u_AC4R,nppi_geometry_transforms.h,no,,no,
 nppiRotate_8u_AC4R_Ctx,nppi_geometry_transforms.h,no,,no,
-nppiRotate_8u_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,no,
+nppiRotate_8u_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
 nppiRotate_8u_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
-nppiRotate_8u_C3R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,no,
+nppiRotate_8u_C3R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
 nppiRotate_8u_C3R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_rotate.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
 nppiRotate_8u_C4R,nppi_geometry_transforms.h,no,,no,
 nppiRotate_8u_C4R_Ctx,nppi_geometry_transforms.h,no,,no,
@@ -6559,9 +6559,9 @@ nppiWarpAffine_64f_P4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpAffine_8u_AC4R,nppi_geometry_transforms.h,no,,no,
 nppiWarpAffine_8u_AC4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpAffine_8u_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_affine.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
-nppiWarpAffine_8u_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_affine.cpp,no,
+nppiWarpAffine_8u_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_affine.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
 nppiWarpAffine_8u_C3R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_affine.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
-nppiWarpAffine_8u_C3R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_affine.cpp,no,
+nppiWarpAffine_8u_C3R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_affine.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
 nppiWarpAffine_8u_C4R,nppi_geometry_transforms.h,no,,no,
 nppiWarpAffine_8u_C4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpAffine_8u_P3R,nppi_geometry_transforms.h,no,,no,
@@ -6709,7 +6709,7 @@ nppiWarpPerspective_16u_P4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_32f_AC4R,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_32f_AC4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_32f_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
-nppiWarpPerspective_32f_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,no,
+nppiWarpPerspective_32f_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
 nppiWarpPerspective_32f_C3R,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_32f_C3R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_32f_C4R,nppi_geometry_transforms.h,no,,no,
@@ -6735,7 +6735,7 @@ nppiWarpPerspective_8u_AC4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_8u_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
 nppiWarpPerspective_8u_C1R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
 nppiWarpPerspective_8u_C3R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
-nppiWarpPerspective_8u_C3R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,no,
+nppiWarpPerspective_8u_C3R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_warp_perspective.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
 nppiWarpPerspective_8u_C4R,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_8u_C4R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_8u_P3R,nppi_geometry_transforms.h,no,,no,

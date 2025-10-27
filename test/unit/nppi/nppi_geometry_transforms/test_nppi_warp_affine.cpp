@@ -391,3 +391,95 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_StreamContext) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
+
+// Test 8u C1R Ctx version
+TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Ctx) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)((x + y * 2) % 256);
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiWarpAffine_8u_C1R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  for (int i = 0; i < srcWidth * srcHeight; i++) {
+    EXPECT_EQ(resultData[i], srcData[i]) << "Identity transform failed at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// Test 8u C3R Ctx version
+TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C3R_Ctx) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)(x % 256);
+      srcData[idx + 1] = (Npp8u)(y % 256);
+      srcData[idx + 2] = (Npp8u)((x + y) % 256);
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C3(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiWarpAffine_8u_C3R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
+    EXPECT_EQ(resultData[i], srcData[i]) << "C3 identity transform failed at channel " << (i % 3) << ", pixel "
+                                         << (i / 3);
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}

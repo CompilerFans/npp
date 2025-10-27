@@ -147,3 +147,29 @@ TEST_F(GeometryTest, Mirror_InPlace) {
     }
   }
 }
+
+TEST_F(GeometryTest, Mirror_8u_C1R_Ctx) {
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      h_src[y * width + x] = y * 10 + x;
+    }
+  }
+
+  cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width, width, height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status = nppiMirror_8u_C1R_Ctx(d_src, step_src, d_dst, step_dst, size, NPP_HORIZONTAL_AXIS, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      EXPECT_EQ(h_dst[y * width + x], h_src[(height - 1 - y) * width + x]);
+    }
+  }
+}

@@ -1491,3 +1491,123 @@ INSTANTIATE_TEST_SUITE_P(BoundaryAnalysis, FilterBoxBoundaryTest, ::testing::Val
 INSTANTIATE_TEST_SUITE_P(ZeroPaddingVerification, FilterBoxZeroPaddingTest, ::testing::ValuesIn(ZERO_PADDING_CONFIGS));
 
 INSTANTIATE_TEST_SUITE_P(ReplicationAnalysis, FilterBoxReplicationTest, ::testing::ValuesIn(REPLICATION_CONFIGS));
+
+// Context version tests for OpenCV compatibility
+TEST_F(FilterTest, FilterBox_8u_C1R_Ctx) {
+  std::fill(h_src.begin(), h_src.end(), 100);
+  
+  cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width, width, height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  NppiSize maskSize = {3, 3};
+  NppiPoint anchor = {1, 1};
+  
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  
+  NppStatus status = nppiFilterBox_8u_C1R_Ctx(d_src, step_src, d_dst, step_dst, size, maskSize, anchor, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  
+  err = cudaMemcpy2D(h_dst.data(), width, d_dst, step_dst, width, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  for (int y = 1; y < height - 1; y++) {
+    for (int x = 1; x < width - 1; x++) {
+      EXPECT_EQ(h_dst[y * width + x], 100);
+    }
+  }
+}
+
+TEST_F(FilterTest, FilterBox_32f_C1R_Ctx) {
+  std::vector<Npp32f> h_src_32f(width * height, 0.5f);
+  std::vector<Npp32f> h_dst_32f(width * height);
+  
+  Npp32f *d_src_32f = nppiMalloc_32f_C1(width, height, &step_src);
+  Npp32f *d_dst_32f = nppiMalloc_32f_C1(width, height, &step_dst);
+  ASSERT_NE(d_src_32f, nullptr);
+  ASSERT_NE(d_dst_32f, nullptr);
+  
+  cudaError_t err = cudaMemcpy2D(d_src_32f, step_src, h_src_32f.data(), width * sizeof(Npp32f), 
+                                  width * sizeof(Npp32f), height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  NppiSize maskSize = {3, 3};
+  NppiPoint anchor = {1, 1};
+  
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  
+  NppStatus status = nppiFilterBox_32f_C1R_Ctx(d_src_32f, step_src, d_dst_32f, step_dst, size, maskSize, anchor, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  
+  err = cudaMemcpy2D(h_dst_32f.data(), width * sizeof(Npp32f), d_dst_32f, step_dst, 
+                      width * sizeof(Npp32f), height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  for (int y = 1; y < height - 1; y++) {
+    for (int x = 1; x < width - 1; x++) {
+      EXPECT_NEAR(h_dst_32f[y * width + x], 0.5f, 0.01f);
+    }
+  }
+  
+  nppiFree(d_src_32f);
+  nppiFree(d_dst_32f);
+}
+
+class FilterTestC4 : public ::testing::Test {
+protected:
+  void SetUp() override {
+    width = 16;
+    height = 16;
+    size.width = width;
+    size.height = height;
+    
+    d_src = nppiMalloc_8u_C4(width, height, &step_src);
+    d_dst = nppiMalloc_8u_C4(width, height, &step_dst);
+    
+    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_dst, nullptr);
+    
+    h_src.resize(width * height * 4);
+    h_dst.resize(width * height * 4);
+  }
+  
+  void TearDown() override {
+    if (d_src) nppiFree(d_src);
+    if (d_dst) nppiFree(d_dst);
+  }
+  
+  int width, height;
+  int step_src, step_dst;
+  NppiSize size;
+  Npp8u *d_src, *d_dst;
+  std::vector<Npp8u> h_src, h_dst;
+};
+
+TEST_F(FilterTestC4, FilterBox_8u_C4R_Ctx) {
+  std::fill(h_src.begin(), h_src.end(), 100);
+  
+  cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width * 4, width * 4, height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  NppiSize maskSize = {3, 3};
+  NppiPoint anchor = {1, 1};
+  
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  
+  NppStatus status = nppiFilterBox_8u_C4R_Ctx(d_src, step_src, d_dst, step_dst, size, maskSize, anchor, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  
+  err = cudaMemcpy2D(h_dst.data(), width * 4, d_dst, step_dst, width * 4, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+  
+  for (int y = 1; y < height - 1; y++) {
+    for (int x = 1; x < width - 1; x++) {
+      for (int c = 0; c < 4; c++) {
+        EXPECT_EQ(h_dst[(y * width + x) * 4 + c], 100);
+      }
+    }
+  }
+}
+
