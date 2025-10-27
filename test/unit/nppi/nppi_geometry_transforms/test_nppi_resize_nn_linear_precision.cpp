@@ -38,8 +38,8 @@ TEST_F(ResizePrecisionTest, NN_8u_C3R_ExactUpsample2x) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN);
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -89,8 +89,8 @@ TEST_F(ResizePrecisionTest, NN_8u_C3R_ExactMapping) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN);
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -117,8 +117,8 @@ TEST_F(ResizePrecisionTest, NN_8u_C3R_ChannelIndependence) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (Npp8u)((x % 2) * 100 + 50);      // R: alternating 50/150
-      srcData[idx + 1] = (Npp8u)((y % 2) * 100 + 70);      // G: alternating 70/170
+      srcData[idx + 0] = (Npp8u)((x % 2) * 100 + 50);       // R: alternating 50/150
+      srcData[idx + 1] = (Npp8u)((y % 2) * 100 + 70);       // G: alternating 70/170
       srcData[idx + 2] = (Npp8u)(((x + y) % 2) * 100 + 90); // B: checkerboard 90/190
     }
   }
@@ -133,8 +133,8 @@ TEST_F(ResizePrecisionTest, NN_8u_C3R_ChannelIndependence) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN);
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -183,8 +183,8 @@ TEST_F(ResizePrecisionTest, NN_8u_C3R_BoundarySelection) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN);
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -227,8 +227,8 @@ TEST_F(ResizePrecisionTest, NN_8u_C3R_Downsampling) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN);
+  NppStatus status =
+      nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -254,10 +254,10 @@ TEST_F(ResizePrecisionTest, Linear_8u_C3R_ExactInterpolation) {
   // Set corner values for known interpolation
   // Top-left (0,0): 0, Top-right (1,0): 100
   // Bottom-left (0,1): 50, Bottom-right (1,1): 150
-  srcData[0] = srcData[1] = srcData[2] = 0;       // (0,0)
-  srcData[3] = srcData[4] = srcData[5] = 100;     // (1,0)
-  srcData[6] = srcData[7] = srcData[8] = 50;      // (0,1)
-  srcData[9] = srcData[10] = srcData[11] = 150;   // (1,1)
+  srcData[0] = srcData[1] = srcData[2] = 0;     // (0,0)
+  srcData[3] = srcData[4] = srcData[5] = 100;   // (1,0)
+  srcData[6] = srcData[7] = srcData[8] = 50;    // (0,1)
+  srcData[9] = srcData[10] = srcData[11] = 150; // (1,1)
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
@@ -302,9 +302,12 @@ TEST_F(ResizePrecisionTest, Linear_8u_C3R_HalfwayPoint) {
   // Horizontal gradient on each row: 0, 90, 180, 255
   for (int y = 0; y < srcHeight; y++) {
     srcData[(y * srcWidth + 0) * 3 + 0] = srcData[(y * srcWidth + 0) * 3 + 1] = srcData[(y * srcWidth + 0) * 3 + 2] = 0;
-    srcData[(y * srcWidth + 1) * 3 + 0] = srcData[(y * srcWidth + 1) * 3 + 1] = srcData[(y * srcWidth + 1) * 3 + 2] = 90;
-    srcData[(y * srcWidth + 2) * 3 + 0] = srcData[(y * srcWidth + 2) * 3 + 1] = srcData[(y * srcWidth + 2) * 3 + 2] = 180;
-    srcData[(y * srcWidth + 3) * 3 + 0] = srcData[(y * srcWidth + 3) * 3 + 1] = srcData[(y * srcWidth + 3) * 3 + 2] = 255;
+    srcData[(y * srcWidth + 1) * 3 + 0] = srcData[(y * srcWidth + 1) * 3 + 1] = srcData[(y * srcWidth + 1) * 3 + 2] =
+        90;
+    srcData[(y * srcWidth + 2) * 3 + 0] = srcData[(y * srcWidth + 2) * 3 + 1] = srcData[(y * srcWidth + 2) * 3 + 2] =
+        180;
+    srcData[(y * srcWidth + 3) * 3 + 0] = srcData[(y * srcWidth + 3) * 3 + 1] = srcData[(y * srcWidth + 3) * 3 + 2] =
+        255;
   }
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
@@ -331,7 +334,8 @@ TEST_F(ResizePrecisionTest, Linear_8u_C3R_HalfwayPoint) {
       int idx = (y * dstWidth + x) * 3;
       int next_idx = (y * dstWidth + (x + 1)) * 3;
       // Linear interpolation should produce monotonically increasing values
-      EXPECT_LE(resultData[idx], resultData[next_idx] + 1) << "Gradient should be monotonic at (" << x << "," << y << ")";
+      EXPECT_LE(resultData[idx], resultData[next_idx] + 1)
+          << "Gradient should be monotonic at (" << x << "," << y << ")";
     }
   }
 }
@@ -376,7 +380,8 @@ TEST_F(ResizePrecisionTest, Linear_8u_C3R_ChannelIndependence) {
     for (int x = 1; x < dstWidth; x++) {
       int idx = (y * dstWidth + x) * 3;
       int prev_idx = (y * dstWidth + (x - 1)) * 3;
-      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 2) << "R gradient horizontal at (" << x << "," << y << ")";
+      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 2)
+          << "R gradient horizontal at (" << x << "," << y << ")";
     }
   }
 
@@ -385,7 +390,8 @@ TEST_F(ResizePrecisionTest, Linear_8u_C3R_ChannelIndependence) {
     for (int x = 0; x < dstWidth; x++) {
       int idx = (y * dstWidth + x) * 3;
       int prev_idx = ((y - 1) * dstWidth + x) * 3;
-      EXPECT_GE(resultData[idx + 1], resultData[prev_idx + 1] - 2) << "G gradient vertical at (" << x << "," << y << ")";
+      EXPECT_GE(resultData[idx + 1], resultData[prev_idx + 1] - 2)
+          << "G gradient vertical at (" << x << "," << y << ")";
     }
   }
 
@@ -464,8 +470,8 @@ TEST_F(ResizePrecisionTest, Linear_8u_C3R_GradientPreservation) {
       int idx = (y * srcWidth + x) * 3;
       Npp8u value_x = (Npp8u)(x * 255 / (srcWidth - 1));
       Npp8u value_y = (Npp8u)(y * 255 / (srcHeight - 1));
-      srcData[idx + 0] = value_x;  // Horizontal gradient
-      srcData[idx + 1] = value_y;  // Vertical gradient
+      srcData[idx + 0] = value_x;                 // Horizontal gradient
+      srcData[idx + 1] = value_y;                 // Vertical gradient
       srcData[idx + 2] = (value_x + value_y) / 2; // Diagonal gradient
     }
   }

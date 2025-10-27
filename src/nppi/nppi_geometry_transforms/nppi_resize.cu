@@ -272,8 +272,8 @@ NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
   dim3 gridSize((oDstRectROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstRectROI.height + blockSize.y - 1) / blockSize.y);
 
-  // Choose interpolation method (0 = nearest neighbor, 1 = linear)
-  if (eInterpolation == 0) {
+  // Choose interpolation method (1 = nearest neighbor, 2 = linear)
+  if (eInterpolation == 1) { // NPPI_INTER_NN
     nppiResize_8u_C1R_nearest_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
   } else {

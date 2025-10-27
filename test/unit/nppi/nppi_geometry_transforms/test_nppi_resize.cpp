@@ -652,8 +652,7 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_GradientBoundary) {
     for (int x = 1; x < dstWidth / 2 - 1; x++) {
       int idx = (y * dstWidth + x) * 3;
       int prev_idx = (y * dstWidth + (x - 1)) * 3;
-      EXPECT_GE(resultData[idx], resultData[prev_idx] - 2)
-        << "Gradient not preserved at (" << x << "," << y << ")";
+      EXPECT_GE(resultData[idx], resultData[prev_idx] - 2) << "Gradient not preserved at (" << x << "," << y << ")";
     }
 
     // Right half should be mostly 0
@@ -814,9 +813,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ChannelIndependence) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = 80;   // R channel
-      srcData[idx + 1] = 160;  // G channel
-      srcData[idx + 2] = 240;  // B channel
+      srcData[idx + 0] = 80;  // R channel
+      srcData[idx + 1] = 160; // G channel
+      srcData[idx + 2] = 240; // B channel
     }
   }
 
