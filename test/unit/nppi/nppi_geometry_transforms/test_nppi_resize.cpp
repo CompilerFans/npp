@@ -663,3 +663,291 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_GradientBoundary) {
     }
   }
 }
+
+// Test precise averaging with known values
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ExactAveraging) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 2, dstHeight = 2;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create 2x2 blocks with known values for exact average calculation
+  // Each dst pixel will sample exactly 4x4=16 src pixels
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      int block_x = x / 4;
+      int block_y = y / 4;
+
+      if (block_x == 0 && block_y == 0) {
+        // Top-left: all 100
+        srcData[idx + 0] = 100;
+        srcData[idx + 1] = 100;
+        srcData[idx + 2] = 100;
+      } else if (block_x == 1 && block_y == 0) {
+        // Top-right: all 200
+        srcData[idx + 0] = 200;
+        srcData[idx + 1] = 200;
+        srcData[idx + 2] = 200;
+      } else if (block_x == 0 && block_y == 1) {
+        // Bottom-left: all 50
+        srcData[idx + 0] = 50;
+        srcData[idx + 1] = 50;
+        srcData[idx + 2] = 50;
+      } else {
+        // Bottom-right: all 150
+        srcData[idx + 0] = 150;
+        srcData[idx + 1] = 150;
+        srcData[idx + 2] = 150;
+      }
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Each dst pixel averages 16 src pixels, verify exact values
+  int idx_00 = (0 * dstWidth + 0) * 3;
+  EXPECT_NEAR(resultData[idx_00], 100, 1) << "dst(0,0) should average to exactly 100";
+
+  int idx_10 = (0 * dstWidth + 1) * 3;
+  EXPECT_NEAR(resultData[idx_10], 200, 1) << "dst(1,0) should average to exactly 200";
+
+  int idx_01 = (1 * dstWidth + 0) * 3;
+  EXPECT_NEAR(resultData[idx_01], 50, 1) << "dst(0,1) should average to exactly 50";
+
+  int idx_11 = (1 * dstWidth + 1) * 3;
+  EXPECT_NEAR(resultData[idx_11], 150, 1) << "dst(1,1) should average to exactly 150";
+}
+
+// Test multi-level boundary transitions
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_MultiBoundary) {
+  const int srcWidth = 48, srcHeight = 48;
+  const int dstWidth = 12, dstHeight = 12;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create three vertical stripes: 0, 128, 255
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value;
+      if (x < srcWidth / 3) {
+        value = 0;
+      } else if (x < 2 * srcWidth / 3) {
+        value = 128;
+      } else {
+        value = 255;
+      }
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  for (int y = 0; y < dstHeight; y++) {
+    // Left stripe: should be ~0
+    int idx_left = (y * dstWidth + 1) * 3;
+    EXPECT_NEAR(resultData[idx_left], 0, 2) << "Left stripe at y=" << y;
+
+    // Middle stripe: should be ~128
+    int idx_mid = (y * dstWidth + 6) * 3;
+    EXPECT_NEAR(resultData[idx_mid], 128, 2) << "Middle stripe at y=" << y;
+
+    // Right stripe: should be ~255
+    int idx_right = (y * dstWidth + 10) * 3;
+    EXPECT_NEAR(resultData[idx_right], 255, 2) << "Right stripe at y=" << y;
+
+    // First boundary region (dst x=3,4 crosses left/middle at src x=16)
+    int idx_b1_before = (y * dstWidth + 3) * 3;
+    EXPECT_GE(resultData[idx_b1_before], 0) << "Before boundary 1 at y=" << y;
+    EXPECT_LE(resultData[idx_b1_before], 64) << "Before boundary 1 at y=" << y;
+
+    // Second boundary region (dst x=7,8 crosses middle/right at src x=32)
+    int idx_b2_before = (y * dstWidth + 7) * 3;
+    EXPECT_GE(resultData[idx_b2_before], 128) << "Before boundary 2 at y=" << y;
+    EXPECT_LE(resultData[idx_b2_before], 192) << "Before boundary 2 at y=" << y;
+  }
+}
+
+// Test channel independence
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ChannelIndependence) {
+  const int srcWidth = 16, srcHeight = 16;
+  const int dstWidth = 4, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Fill each channel with different uniform values
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = 80;   // R channel
+      srcData[idx + 1] = 160;  // G channel
+      srcData[idx + 2] = 240;  // B channel
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Each channel should maintain its value independently
+  for (int i = 0; i < dstWidth * dstHeight; i++) {
+    EXPECT_NEAR(resultData[i * 3 + 0], 80, 1) << "R channel at pixel " << i;
+    EXPECT_NEAR(resultData[i * 3 + 1], 160, 1) << "G channel at pixel " << i;
+    EXPECT_NEAR(resultData[i * 3 + 2], 240, 1) << "B channel at pixel " << i;
+  }
+}
+
+// Test extreme value boundaries (0 and 255)
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ExtremeValues) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create checkerboard with extreme values
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      bool isWhite = ((x / 2) + (y / 2)) % 2 == 0;
+      Npp8u value = isWhite ? 255 : 0;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // With 4x downscaling of alternating pixels, should average to ~127
+  for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
+    EXPECT_NEAR(resultData[i], 127, 5) << "Extreme value averaging at index " << i;
+  }
+}
+
+// Test precise 2x2 block averaging
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_2x2BlockAverage) {
+  const int srcWidth = 4, srcHeight = 4;
+  const int dstWidth = 2, dstHeight = 2;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Top-left 2x2: values 10, 20, 30, 40 (average should be 25)
+  srcData[0] = srcData[1] = srcData[2] = 10;
+  srcData[3] = srcData[4] = srcData[5] = 20;
+  srcData[12] = srcData[13] = srcData[14] = 30;
+  srcData[15] = srcData[16] = srcData[17] = 40;
+
+  // Top-right 2x2: all 100
+  srcData[6] = srcData[7] = srcData[8] = 100;
+  srcData[9] = srcData[10] = srcData[11] = 100;
+  srcData[18] = srcData[19] = srcData[20] = 100;
+  srcData[21] = srcData[22] = srcData[23] = 100;
+
+  // Bottom-left 2x2: all 200
+  srcData[24] = srcData[25] = srcData[26] = 200;
+  srcData[27] = srcData[28] = srcData[29] = 200;
+  srcData[36] = srcData[37] = srcData[38] = 200;
+  srcData[39] = srcData[40] = srcData[41] = 200;
+
+  // Bottom-right 2x2: values 60, 80, 100, 120 (average should be 90)
+  srcData[30] = srcData[31] = srcData[32] = 60;
+  srcData[33] = srcData[34] = srcData[35] = 80;
+  srcData[42] = srcData[43] = srcData[44] = 100;
+  srcData[45] = srcData[46] = srcData[47] = 120;
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify precise averages
+  int idx_00 = (0 * dstWidth + 0) * 3;
+  EXPECT_NEAR(resultData[idx_00], 25, 1) << "dst(0,0) = (10+20+30+40)/4 = 25";
+
+  int idx_10 = (0 * dstWidth + 1) * 3;
+  EXPECT_NEAR(resultData[idx_10], 100, 1) << "dst(1,0) = 100";
+
+  int idx_01 = (1 * dstWidth + 0) * 3;
+  EXPECT_NEAR(resultData[idx_01], 200, 1) << "dst(0,1) = 200";
+
+  int idx_11 = (1 * dstWidth + 1) * 3;
+  EXPECT_NEAR(resultData[idx_11], 90, 1) << "dst(1,1) = (60+80+100+120)/4 = 90";
+}
