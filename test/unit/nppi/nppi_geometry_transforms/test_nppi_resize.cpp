@@ -260,3 +260,232 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super) {
   EXPECT_LT(resultData[dst_idx_3_3 + 0], 100) << "Edge pixel should show averaging effect";
   EXPECT_GT(resultData[dst_idx_3_3 + 0], 0) << "Edge pixel should have non-zero value";
 }
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_4xDownscale) {
+  const int srcWidth = 128, srcHeight = 128;
+  const int dstWidth = 32, dstHeight = 32;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create checkerboard pattern to test 4x downscaling
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      bool isWhite = ((x / 4) + (y / 4)) % 2 == 0;
+      Npp8u value = isWhite ? 200 : 50;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "4x downscale failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // With 4x downscaling, each dst pixel averages 16 src pixels
+  // Checkerboard should produce averaged values
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      // Value should be between 50 and 200 due to averaging
+      EXPECT_GE(resultData[idx], 50) << "Value too low at (" << x << "," << y << ")";
+      EXPECT_LE(resultData[idx], 200) << "Value too high at (" << x << "," << y << ")";
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_NonIntegerScale) {
+  const int srcWidth = 100, srcHeight = 100;
+  const int dstWidth = 30, dstHeight = 30;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create gradient pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)(x * 255 / srcWidth);
+      srcData[idx + 1] = (Npp8u)(y * 255 / srcHeight);
+      srcData[idx + 2] = 128;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "Non-integer scale failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Verify gradient is preserved (R increases left to right)
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 1; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      int prev_idx = (y * dstWidth + (x - 1)) * 3;
+      EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 10) << "Gradient not monotonic";
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_SmallImage) {
+  const int srcWidth = 16, srcHeight = 16;
+  const int dstWidth = 4, dstHeight = 4;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Fill with uniform value
+  std::fill(srcData.begin(), srcData.end(), 100);
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "Small image resize failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Uniform input should produce uniform output
+  for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
+    EXPECT_NEAR(resultData[i], 100, 5) << "Uniform averaging failed at index " << i;
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ROITest) {
+  const int srcWidth = 64, srcHeight = 64;
+  const int dstWidth = 32, dstHeight = 32;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create quadrant pattern
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      if (x < srcWidth / 2 && y < srcHeight / 2) {
+        srcData[idx + 0] = 255;
+        srcData[idx + 1] = 0;
+        srcData[idx + 2] = 0;
+      } else if (x >= srcWidth / 2 && y < srcHeight / 2) {
+        srcData[idx + 0] = 0;
+        srcData[idx + 1] = 255;
+        srcData[idx + 2] = 0;
+      } else if (x < srcWidth / 2 && y >= srcHeight / 2) {
+        srcData[idx + 0] = 0;
+        srcData[idx + 1] = 0;
+        srcData[idx + 2] = 255;
+      } else {
+        srcData[idx + 0] = 255;
+        srcData[idx + 1] = 255;
+        srcData[idx + 2] = 0;
+      }
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  // Test with ROI on upper-left quadrant only
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth / 2, srcHeight / 2};
+  NppiRect dstROI = {0, 0, dstWidth / 2, dstHeight / 2};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "ROI resize failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Upper-left quadrant should be predominantly red
+  int red_dominant = 0;
+  for (int y = 0; y < dstHeight / 2; y++) {
+    for (int x = 0; x < dstWidth / 2; x++) {
+      int idx = (y * dstWidth + x) * 3;
+      if (resultData[idx + 0] > resultData[idx + 1] && resultData[idx + 0] > resultData[idx + 2]) {
+        red_dominant++;
+      }
+    }
+  }
+
+  EXPECT_GT(red_dominant, (dstWidth / 2) * (dstHeight / 2) / 2) << "ROI color not preserved";
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_LargeDownscale) {
+  const int srcWidth = 256, srcHeight = 256;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // Create alternating stripes
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      Npp8u value = (x % 2) ? 255 : 0;
+      srcData[idx + 0] = value;
+      srcData[idx + 1] = value;
+      srcData[idx + 2] = value;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       NPPI_INTER_SUPER);
+
+  ASSERT_EQ(status, NPP_SUCCESS) << "Large downscale failed";
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // 16x downscaling of alternating stripes should produce ~127
+  for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
+    EXPECT_NEAR(resultData[i], 127, 30) << "Large downscale averaging incorrect at " << i;
+  }
+}
