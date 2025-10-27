@@ -120,11 +120,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_UniformBlock_4x_Golden) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-#ifdef USE_NVIDIA_NPP_TESTS
-  // When using NVIDIA NPP, save as golden reference
-  saveGoldenData(goldenFile, resultData);
-  SUCCEED() << "Golden reference saved to " << goldenFile;
-#else
   // When using MPP, compare against golden reference
   if (!goldenFileExists(goldenFile)) {
     FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
@@ -133,7 +128,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_UniformBlock_4x_Golden) {
   std::vector<Npp8u> goldenData;
   ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
   compareWithGolden(resultData, goldenData, "UniformBlock_4x", dstWidth, dstHeight, 3);
-#endif
 }
 
 // Test 2: Gradient pattern downsampling 2x
@@ -172,10 +166,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-#ifdef USE_NVIDIA_NPP_TESTS
-  saveGoldenData(goldenFile, resultData);
-  SUCCEED() << "Golden reference saved to " << goldenFile;
-#else
   if (!goldenFileExists(goldenFile)) {
     FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
   }
@@ -183,7 +173,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
   std::vector<Npp8u> goldenData;
   ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
   compareWithGolden(resultData, goldenData, "Gradient_2x", dstWidth, dstHeight, 3);
-#endif
 }
 
 // Test 3: Checkerboard pattern downsampling 8x
@@ -226,10 +215,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Checkerboard_8x_Golden) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-#ifdef USE_NVIDIA_NPP_TESTS
-  saveGoldenData(goldenFile, resultData);
-  SUCCEED() << "Golden reference saved to " << goldenFile;
-#else
   if (!goldenFileExists(goldenFile)) {
     FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
   }
@@ -237,7 +222,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Checkerboard_8x_Golden) {
   std::vector<Npp8u> goldenData;
   ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
   compareWithGolden(resultData, goldenData, "Checkerboard_8x", dstWidth, dstHeight, 3);
-#endif
 }
 
 // Test 4: Random pattern downsampling 4x
@@ -280,10 +264,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Random_4x_Golden) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-#ifdef USE_NVIDIA_NPP_TESTS
-  saveGoldenData(goldenFile, resultData);
-  SUCCEED() << "Golden reference saved to " << goldenFile;
-#else
   if (!goldenFileExists(goldenFile)) {
     FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
   }
@@ -291,7 +271,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Random_4x_Golden) {
   std::vector<Npp8u> goldenData;
   ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
   compareWithGolden(resultData, goldenData, "Random_4x", dstWidth, dstHeight, 3);
-#endif
 }
 
 // Test 5: Complex multi-level pattern
@@ -333,10 +312,6 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_MultiLevel_3x_Golden) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-#ifdef USE_NVIDIA_NPP_TESTS
-  saveGoldenData(goldenFile, resultData);
-  SUCCEED() << "Golden reference saved to " << goldenFile;
-#else
   if (!goldenFileExists(goldenFile)) {
     FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
   }
@@ -344,5 +319,4 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_MultiLevel_3x_Golden) {
   std::vector<Npp8u> goldenData;
   ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
   compareWithGolden(resultData, goldenData, "MultiLevel_3x", dstWidth, dstHeight, 3);
-#endif
 }
