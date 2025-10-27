@@ -418,8 +418,8 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status =
-      nppiWarpAffine_8u_C1R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN, nppStreamCtx);
+  NppStatus status = nppiWarpAffine_8u_C1R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs,
+                                               NPPI_INTER_NN, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> resultData(dstWidth * dstHeight);
@@ -465,8 +465,8 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C3R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status =
-      nppiWarpAffine_8u_C3R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN, nppStreamCtx);
+  NppStatus status = nppiWarpAffine_8u_C3R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs,
+                                               NPPI_INTER_NN, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);

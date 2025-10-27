@@ -163,9 +163,8 @@ __global__ void nppiResize_8u_C3R_linear_kernel(const Npp8u *pSrc, int nSrcStep,
 }
 
 // Super sampling resize kernel for 8-bit three channel
-__global__ void nppiResize_8u_C3R_super_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                               NppiRect oSrcRectROI, Npp8u *pDst, int nDstStep, NppiSize oDstSize,
-                                               NppiRect oDstRectROI) {
+__global__ void nppiResize_8u_C3R_super_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                               Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI) {
   int dx = blockIdx.x * blockDim.x + threadIdx.x;
   int dy = blockIdx.y * blockDim.y + threadIdx.y;
 

@@ -290,8 +290,8 @@ TEST_F(RotateFunctionalTest, Rotate_32f_C1R_180Degrees) {
   double shiftX = (double)width;
   double shiftY = (double)height;
 
-  NppStatus status = nppiRotate_32f_C1R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), srcROI,
-                                        angle, shiftX, shiftY, NPPI_INTER_CUBIC);
+  NppStatus status = nppiRotate_32f_C1R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), srcROI, angle,
+                                        shiftX, shiftY, NPPI_INTER_CUBIC);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
