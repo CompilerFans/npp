@@ -185,25 +185,21 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
   // Dispatch to appropriate kernel based on interpolation mode
   switch (eInterpolation) {
   case 1: // NPPI_INTER_NN
-    resizeKernel<T, CHANNELS, NearestInterpolator<T, CHANNELS>>
-        <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep,
-                                                            oDstSize, oDstRectROI);
+    resizeKernel<T, CHANNELS, NearestInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   case 2: // NPPI_INTER_LINEAR
-    resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>>
-        <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep,
-                                                            oDstSize, oDstRectROI);
+    resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   case 8: // NPPI_INTER_SUPER
-    resizeKernel<T, CHANNELS, SuperSamplingInterpolator<T, CHANNELS>>
-        <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep,
-                                                            oDstSize, oDstRectROI);
+    resizeKernel<T, CHANNELS, SuperSamplingInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   default:
     // Default to linear
-    resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>>
-        <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep,
-                                                            oDstSize, oDstRectROI);
+    resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   }
 
@@ -219,46 +215,41 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
 extern "C" {
 
 // 8u C1R
-NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                                 NppiRect oSrcRectROI, Npp8u *pDst, int nDstStep, NppiSize oDstSize,
-                                                 NppiRect oDstRectROI, int eInterpolation,
-                                                 NppStreamContext nppStreamCtx) {
+NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                     Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                     int eInterpolation, NppStreamContext nppStreamCtx) {
   return resizeImpl<Npp8u, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                               eInterpolation, nppStreamCtx);
 }
 
 // 8u C3R
-NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                                 NppiRect oSrcRectROI, Npp8u *pDst, int nDstStep, NppiSize oDstSize,
-                                                 NppiRect oDstRectROI, int eInterpolation,
-                                                 NppStreamContext nppStreamCtx) {
+NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                     Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                     int eInterpolation, NppStreamContext nppStreamCtx) {
   return resizeImpl<Npp8u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                               eInterpolation, nppStreamCtx);
 }
 
 // 16u C1R
-NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                                  NppiRect oSrcRectROI, Npp16u *pDst, int nDstStep, NppiSize oDstSize,
-                                                  NppiRect oDstRectROI, int eInterpolation,
-                                                  NppStreamContext nppStreamCtx) {
+NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   return resizeImpl<Npp16u, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
 
 // 32f C1R
-NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                                  NppiRect oSrcRectROI, Npp32f *pDst, int nDstStep, NppiSize oDstSize,
-                                                  NppiRect oDstRectROI, int eInterpolation,
-                                                  NppStreamContext nppStreamCtx) {
+NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   return resizeImpl<Npp32f, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
 
 // 32f C3R
-NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                                  NppiRect oSrcRectROI, Npp32f *pDst, int nDstStep, NppiSize oDstSize,
-                                                  NppiRect oDstRectROI, int eInterpolation,
-                                                  NppStreamContext nppStreamCtx) {
+NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   return resizeImpl<Npp32f, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }

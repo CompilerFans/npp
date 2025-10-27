@@ -1747,7 +1747,6 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C1R_StepFunctionInterpolation) {
   }
 }
 
-
 // Enhanced LINEAR C3R precision tests
 
 // Test diagonal interpolation
@@ -1778,8 +1777,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_DiagonalInterpolation) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
-                                       dst.get(), dst.step(), dstSize, dstROI,
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
                                        NPPI_INTER_LINEAR);
 
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -1792,9 +1790,8 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_DiagonalInterpolation) {
     int idx = i * 3;
     int prev_idx = (i - 1) * 3;
     // Allow slight variations in monotonicity due to 2D interpolation
-    if (i % dstWidth != 0) {  // Not at row boundary
-      EXPECT_GE(resultData[idx], resultData[prev_idx] - 3)
-          << "Diagonal gradient at pixel " << i;
+    if (i % dstWidth != 0) { // Not at row boundary
+      EXPECT_GE(resultData[idx], resultData[prev_idx] - 3) << "Diagonal gradient at pixel " << i;
     }
   }
 }
@@ -1840,8 +1837,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_DownsampleToTiny) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
-                                       dst.get(), dst.step(), dstSize, dstROI,
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
                                        NPPI_INTER_LINEAR);
 
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -1869,7 +1865,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_AsymmetricScaling) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
       srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));  // Horizontal gradient
-      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));  // Vertical gradient
+      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1)); // Vertical gradient
       srcData[idx + 2] = 128;
     }
   }
@@ -1884,8 +1880,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_AsymmetricScaling) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
-                                       dst.get(), dst.step(), dstSize, dstROI,
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
                                        NPPI_INTER_LINEAR);
 
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -1933,8 +1928,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_EdgePixelAccuracy) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
-                                       dst.get(), dst.step(), dstSize, dstROI,
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
                                        NPPI_INTER_LINEAR);
 
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -1988,8 +1982,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ROITest) {
   NppiRect srcROI = {0, 0, srcWidth / 2, srcHeight / 2};
   NppiRect dstROI = {0, 0, dstWidth / 2, dstHeight / 2};
 
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI,
-                                       dst.get(), dst.step(), dstSize, dstROI,
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
                                        NPPI_INTER_LINEAR);
 
   ASSERT_EQ(status, NPP_SUCCESS);
@@ -2005,4 +1998,142 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ROITest) {
       EXPECT_LE(resultData[idx], 210);
     }
   }
+}
+
+// Test 16u C1R with LINEAR interpolation
+TEST_F(ResizeFunctionalTest, Resize_16u_C1R_Ctx_LinearInterpolation) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 64, dstHeight = 64;
+
+  // Prepare test data - gradient pattern
+  std::vector<Npp16u> srcData(srcWidth * srcHeight);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = static_cast<Npp16u>((x + y) * 1000);
+    }
+  }
+
+  NppImageMemory<Npp16u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp16u> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiResize_16u_C1R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
+                                            dstROI, NPPI_INTER_LINEAR, nppStreamCtx);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp16u> dstData(dstWidth * dstHeight);
+  dst.copyToHost(dstData);
+
+  // Validate result is not all zeros
+  bool hasNonZero = false;
+  for (const auto &val : dstData) {
+    if (val != 0) {
+      hasNonZero = true;
+      break;
+    }
+  }
+  ASSERT_TRUE(hasNonZero);
+}
+
+// Test 32f C1R with CUBIC interpolation
+TEST_F(ResizeFunctionalTest, Resize_32f_C1R_Ctx_CubicInterpolation) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 48, dstHeight = 48;
+
+  // Prepare test data - sine wave pattern
+  std::vector<Npp32f> srcData(srcWidth * srcHeight);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = sinf(x * 0.2f) * cosf(y * 0.2f);
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiResize_32f_C1R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
+                                            dstROI, NPPI_INTER_CUBIC, nppStreamCtx);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp32f> dstData(dstWidth * dstHeight);
+  dst.copyToHost(dstData);
+
+  // Validate result contains valid data
+  float maxVal = *std::max_element(dstData.begin(), dstData.end());
+  float minVal = *std::min_element(dstData.begin(), dstData.end());
+  ASSERT_GT(maxVal - minVal, 0.1f);
+}
+
+// Test 32f C3R with LINEAR interpolation
+TEST_F(ResizeFunctionalTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 64, dstHeight = 64;
+
+  // Prepare test data - color gradient
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 3);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = static_cast<float>(x) / srcWidth;
+      srcData[idx + 1] = static_cast<float>(y) / srcHeight;
+      srcData[idx + 2] = 1.0f - static_cast<float>(x + y) / (srcWidth + srcHeight);
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight, 3);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight, 3);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiResize_32f_C3R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
+                                            dstROI, NPPI_INTER_LINEAR, nppStreamCtx);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp32f> dstData(dstWidth * dstHeight * 3);
+  dst.copyToHost(dstData);
+
+  // Validate RGB channels all have valid data
+  float rMax = 0, gMax = 0, bMax = 0;
+  for (int i = 0; i < dstWidth * dstHeight; i++) {
+    rMax = std::max(rMax, dstData[i * 3 + 0]);
+    gMax = std::max(gMax, dstData[i * 3 + 1]);
+    bMax = std::max(bMax, dstData[i * 3 + 2]);
+  }
+
+  ASSERT_GT(rMax, 0.5f);
+  ASSERT_GT(gMax, 0.5f);
+  ASSERT_GT(bMax, 0.1f);
 }
