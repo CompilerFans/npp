@@ -100,8 +100,10 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   case 8: // NPPI_INTER_SUPER
-          // nppiResize_8u_C3R_super_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-          //     pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+    nppiResize_8u_C3R_linear_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+    // nppiResize_8u_C3R_super_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+    //     pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     return NPP_BAD_ARGUMENT_ERROR;
     break;
   default:
