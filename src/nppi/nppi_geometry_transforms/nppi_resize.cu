@@ -88,6 +88,10 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
   dim3 gridSize((oDstRectROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstRectROI.height + blockSize.y - 1) / blockSize.y);
 
+#if 1
+  nppiResize_8u_C3R_linear_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+#else
   // Select kernel based on interpolation mode
   switch (eInterpolation) {
   case 1: // NPPI_INTER_NN
@@ -113,6 +117,7 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
     return NPP_BAD_ARGUMENT_ERROR;
     break;
   }
+#endif
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
