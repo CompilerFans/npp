@@ -119,9 +119,11 @@ LinearInterpolationCPU<Npp8u>::resize(
 
 ## Known Limitations
 
-1. **Non-Integer Upscaling**: CPU reference uses standard bilinear, NPP uses different weights
-   - Differences typically within ±5 pixels
-   - Corner and edge pixels usually match perfectly
+1. **Non-Integer Upscaling**: CPU reference uses standard bilinear, NPP uses different algorithm
+   - Differences typically within ±5 pixels (±2% of 0-255 range)
+   - Corner pixels always match perfectly
+   - Edge pixels show systematic -1 to -2 bias
+   - **See `NON_INTEGER_SCALE_ANALYSIS.md` for detailed investigation**
 
 2. **Non-Integer Downscaling**: Floor method doesn't provide anti-aliasing
    - May show aliasing artifacts
@@ -130,6 +132,14 @@ LinearInterpolationCPU<Npp8u>::resize(
 3. **Non-Uniform Scaling**: Each dimension handled separately
    - One dimension upscale + one dimension downscale
    - Mixed interpolation behavior
+
+### What We Discovered
+
+After extensive testing (coordinate mapping variations, rounding methods, fixed-point arithmetic, weight modifications):
+- NPP uses fx=fy≈0.4 for edge pixels (not 0.5 as in standard bilinear)
+- This gives 8/9 matches for 2x2→3x3 test case
+- Center pixel still doesn't match, suggesting more complex logic
+- **Conclusion**: NPP LINEAR mode uses proprietary interpolation for non-integer scales
 
 ## Recommendations
 
