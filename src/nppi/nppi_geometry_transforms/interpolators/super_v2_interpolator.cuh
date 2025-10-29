@@ -5,6 +5,15 @@
 
 // Super sampling V2 interpolation (weighted box filter, based on kunzmi/mpp)
 // This version uses fractional edge pixel weights for accurate downsampling
+//
+// Boundary Handling Note:
+// Unlike fixed-kernel neighborhood operations (e.g., 3×3 box filter) that require border
+// expansion, super sampling for downsampling does NOT need nppiCopyConstBorder because:
+// 1. Output size < input size (downsampling property)
+// 2. Sampling regions naturally fit within input boundaries
+// 3. Each output pixel samples from [center - scale/2, center + scale/2),
+//    which is mathematically guaranteed to be within [ROI.x, ROI.x + ROI.width) for valid coordinates
+// The boundary checks in this code are defensive programming for edge cases and floating-point rounding.
 template <typename T, int CHANNELS> struct SuperSamplingV2Interpolator {
   __device__ static void interpolate(const T *pSrc, int nSrcStep, const NppiRect &oSrcRectROI, int dx, int dy,
                                      float scaleX, float scaleY, T *pDst, int nDstStep, const NppiRect &oDstRectROI) {

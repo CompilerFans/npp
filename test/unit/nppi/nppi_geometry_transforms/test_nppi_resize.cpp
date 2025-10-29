@@ -1,3 +1,4 @@
+#include "../../../../ref_code/super_sampling_cpu_reference/src/super_sampling_cpu.h"
 #include "npp_test_base.h"
 #include <functional>
 
@@ -141,6 +142,40 @@ protected:
     }
     EXPECT_GE(nonZeroCount, minCount) << "Not enough non-zero pixels";
     EXPECT_LT(nonZeroCount, maxCount) << "Too many non-zero pixels";
+  }
+
+  // Validate against CPU reference implementation for super sampling
+  template <typename T, int CHANNELS>
+  void validateAgainstCPUReference(const std::vector<T> &cudaResult, const std::vector<T> &srcData, int srcWidth,
+                                   int srcHeight, int dstWidth, int dstHeight, int tolerance = 1) {
+    std::vector<T> cpuResult(dstWidth * dstHeight * CHANNELS);
+
+    SuperSamplingCPU<T>::resize(srcData.data(), srcWidth * CHANNELS, srcWidth, srcHeight, cpuResult.data(),
+                                dstWidth * CHANNELS, dstWidth, dstHeight, CHANNELS);
+
+    int maxDiff = 0;
+    int totalDiff = 0;
+    int mismatchCount = 0;
+
+    for (int i = 0; i < dstWidth * dstHeight * CHANNELS; i++) {
+      int diff = std::abs((int)cudaResult[i] - (int)cpuResult[i]);
+      if (diff > tolerance) {
+        mismatchCount++;
+      }
+      maxDiff = std::max(maxDiff, diff);
+      totalDiff += diff;
+
+      EXPECT_NEAR(cudaResult[i], cpuResult[i], tolerance)
+          << "Pixel mismatch at index " << i << " (pixel " << (i / CHANNELS) << ", channel " << (i % CHANNELS) << ")"
+          << ": CUDA=" << (int)cudaResult[i] << ", CPU=" << (int)cpuResult[i];
+    }
+
+    if (mismatchCount == 0) {
+      std::cout << "  CPU reference validation: Perfect match (max_diff=" << maxDiff << ")" << std::endl;
+    } else {
+      std::cout << "  CPU reference validation: " << mismatchCount << " mismatches (max_diff=" << maxDiff << ")"
+                << std::endl;
+    }
   }
 };
 
@@ -357,6 +392,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super) {
   int dst_idx_3_3 = (3 * dstWidth + 3) * 3;
   EXPECT_LE(resultData[dst_idx_3_3 + 0], 100) << "Edge pixel value should not exceed source max";
   EXPECT_GE(resultData[dst_idx_3_3 + 0], 0) << "Edge pixel should have non-negative value";
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_4xDownscale) {
@@ -385,6 +423,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_4xDownscale) {
   dst.copyToHost(resultData);
 
   validateRange(resultData, Npp8u(50), Npp8u(200), "4x downscale checkerboard");
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_NonIntegerScale) {
@@ -429,6 +470,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_NonIntegerScale) {
       EXPECT_GE(resultData[idx + 0], resultData[prev_idx + 0] - 3) << "Gradient not monotonic";
     }
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_SmallImage) {
@@ -461,6 +505,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_SmallImage) {
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
     EXPECT_NEAR(resultData[i], 100, 2) << "Uniform averaging failed at index " << i;
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ROITest) {
@@ -524,6 +571,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ROITest) {
   }
 
   EXPECT_GT(red_dominant, (dstWidth / 2) * (dstHeight / 2) / 2) << "ROI color not preserved";
+
+  // Note: CPU reference validation skipped for ROI test as the reference implementation
+  // currently doesn't support ROI parameters (it processes full image only)
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_LargeDownscale) {
@@ -566,6 +616,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_LargeDownscale) {
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
     EXPECT_NEAR(resultData[i], 127, 2) << "Large downscale averaging incorrect at " << i;
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_BoundaryTest) {
@@ -627,6 +680,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_BoundaryTest) {
     int idx_right = (y * dstWidth + 12) * 3;
     EXPECT_NEAR(resultData[idx_right + 0], 0, 2) << "Right region incorrect at y=" << y;
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_CornerTest) {
@@ -682,6 +738,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_CornerTest) {
 
   int idx_77 = (7 * dstWidth + 7) * 3;
   EXPECT_EQ(resultData[idx_77], 0) << "Far corner (7,7) should be 0";
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_GradientBoundary) {
@@ -741,6 +800,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_GradientBoundary) {
       EXPECT_LT(resultData[idx], 10) << "Right region should be near 0 at (" << x << "," << y << ")";
     }
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 // Test precise averaging with known values
@@ -812,6 +874,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ExactAveraging) {
 
   int idx_11 = (1 * dstWidth + 1) * 3;
   EXPECT_NEAR(resultData[idx_11], 150, 1) << "dst(1,1) should average to exactly 150";
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 // Test multi-level boundary transitions
@@ -880,6 +945,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_MultiBoundary) {
     EXPECT_GE(resultData[idx_b2_before], 128) << "Before boundary 2 at y=" << y;
     EXPECT_LE(resultData[idx_b2_before], 192) << "Before boundary 2 at y=" << y;
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 // Test channel independence
@@ -910,6 +978,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ChannelIndependence) {
   dst.copyToHost(resultData);
 
   validateChannelValues<Npp8u, 3>(resultData, dstWidth, dstHeight, uniform, 1);
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 // Test extreme value boundaries (0 and 255)
@@ -943,6 +1014,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ExtremeValues) {
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
     EXPECT_NEAR(resultData[i], 127, 2) << "Extreme value averaging at index " << i;
   }
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 // Test precise 2x2 block averaging
@@ -1006,6 +1080,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_2x2BlockAverage) {
 
   int idx_11 = (1 * dstWidth + 1) * 3;
   EXPECT_NEAR(resultData[idx_11], 90, 1) << "dst(1,1) = (60+80+100+120)/4 = 90";
+
+  // Validate against CPU reference implementation
+  validateAgainstCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 1);
 }
 
 TEST_F(ResizeFunctionalTest, NN_8u_C3R_ExactUpsample2x) {
