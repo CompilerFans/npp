@@ -2154,3 +2154,180 @@ TEST_F(ResizeFunctionalTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
   ASSERT_GT(gMax, 0.5f);
   ASSERT_GT(bMax, 0.1f);
 }
+
+// ===== Parametrized Test Framework =====
+
+struct ResizeParams {
+  int srcWidth;
+  int srcHeight;
+  int dstWidth;
+  int dstHeight;
+  int interpolation;
+  std::string testName;
+};
+
+// Base class for parametrized resize tests
+class ResizeParametrizedTest : public ResizeFunctionalTest, public ::testing::WithParamInterface<ResizeParams> {};
+
+// Checkerboard pattern test with different sizes and interpolation modes
+TEST_P(ResizeParametrizedTest, CheckerboardPattern) {
+  auto params = GetParam();
+
+  std::vector<Npp8u> srcData(params.srcWidth * params.srcHeight * 3);
+  fillCheckerboard<Npp8u, 3>(srcData, params.srcWidth, params.srcHeight, 4, 200, 50);
+
+  NppImageMemory<Npp8u> src(params.srcWidth * 3, params.srcHeight);
+  NppImageMemory<Npp8u> dst(params.dstWidth * 3, params.dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {params.srcWidth, params.srcHeight};
+  NppiSize dstSize = {params.dstWidth, params.dstHeight};
+  NppiRect srcROI = {0, 0, params.srcWidth, params.srcHeight};
+  NppiRect dstROI = {0, 0, params.dstWidth, params.dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       params.interpolation);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(params.dstWidth * params.dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  validateRange(resultData, Npp8u(50), Npp8u(200), params.testName);
+}
+
+// Horizontal gradient test
+TEST_P(ResizeParametrizedTest, HorizontalGradient) {
+  auto params = GetParam();
+
+  std::vector<Npp8u> srcData(params.srcWidth * params.srcHeight * 3);
+  fillHorizontalGradient<Npp8u, 3>(srcData, params.srcWidth, params.srcHeight, 0, 255);
+
+  NppImageMemory<Npp8u> src(params.srcWidth * 3, params.srcHeight);
+  NppImageMemory<Npp8u> dst(params.dstWidth * 3, params.dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {params.srcWidth, params.srcHeight};
+  NppiSize dstSize = {params.dstWidth, params.dstHeight};
+  NppiRect srcROI = {0, 0, params.srcWidth, params.srcHeight};
+  NppiRect dstROI = {0, 0, params.dstWidth, params.dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       params.interpolation);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(params.dstWidth * params.dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // For linear interpolation, validate monotonicity
+  if (params.interpolation == NPPI_INTER_LINEAR) {
+    validateHorizontalMonotonic<Npp8u, 3>(resultData, params.dstWidth, params.dstHeight, 0);
+  }
+}
+
+// Vertical gradient test
+TEST_P(ResizeParametrizedTest, VerticalGradient) {
+  auto params = GetParam();
+
+  std::vector<Npp8u> srcData(params.srcWidth * params.srcHeight * 3);
+  fillVerticalGradient<Npp8u, 3>(srcData, params.srcWidth, params.srcHeight, 0, 255);
+
+  NppImageMemory<Npp8u> src(params.srcWidth * 3, params.srcHeight);
+  NppImageMemory<Npp8u> dst(params.dstWidth * 3, params.dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {params.srcWidth, params.srcHeight};
+  NppiSize dstSize = {params.dstWidth, params.dstHeight};
+  NppiRect srcROI = {0, 0, params.srcWidth, params.srcHeight};
+  NppiRect dstROI = {0, 0, params.dstWidth, params.dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       params.interpolation);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(params.dstWidth * params.dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // For linear interpolation, validate monotonicity
+  if (params.interpolation == NPPI_INTER_LINEAR) {
+    validateVerticalMonotonic<Npp8u, 3>(resultData, params.dstWidth, params.dstHeight, 1);
+  }
+}
+
+// Uniform value test
+TEST_P(ResizeParametrizedTest, UniformValue) {
+  auto params = GetParam();
+
+  std::vector<Npp8u> srcData(params.srcWidth * params.srcHeight * 3);
+  const Npp8u uniform[3] = {100, 150, 200};
+  fillUniform<Npp8u, 3>(srcData, uniform);
+
+  NppImageMemory<Npp8u> src(params.srcWidth * 3, params.srcHeight);
+  NppImageMemory<Npp8u> dst(params.dstWidth * 3, params.dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {params.srcWidth, params.srcHeight};
+  NppiSize dstSize = {params.dstWidth, params.dstHeight};
+  NppiRect srcROI = {0, 0, params.srcWidth, params.srcHeight};
+  NppiRect dstROI = {0, 0, params.dstWidth, params.dstHeight};
+
+  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                       params.interpolation);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(params.dstWidth * params.dstHeight * 3);
+  dst.copyToHost(resultData);
+
+  // Uniform input should produce uniform or near-uniform output
+  validateChannelValues<Npp8u, 3>(resultData, params.dstWidth, params.dstHeight, uniform, 3);
+}
+
+// Instantiate test suite with different parameters
+INSTANTIATE_TEST_SUITE_P(
+    NearestNeighbor_Upscale, ResizeParametrizedTest,
+    ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_NN, "NN_2x_upscale"},
+                      ResizeParams{32, 32, 64, 64, NPPI_INTER_NN, "NN_2x_upscale_large"},
+                      ResizeParams{8, 8, 24, 24, NPPI_INTER_NN, "NN_3x_upscale"},
+                      ResizeParams{16, 16, 48, 48, NPPI_INTER_NN, "NN_3x_upscale_large"}));
+
+INSTANTIATE_TEST_SUITE_P(
+    NearestNeighbor_Downscale, ResizeParametrizedTest,
+    ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_NN, "NN_2x_downscale"},
+                      ResizeParams{64, 64, 32, 32, NPPI_INTER_NN, "NN_2x_downscale_large"},
+                      ResizeParams{48, 48, 16, 16, NPPI_INTER_NN, "NN_3x_downscale"},
+                      ResizeParams{96, 96, 32, 32, NPPI_INTER_NN, "NN_3x_downscale_large"}));
+
+INSTANTIATE_TEST_SUITE_P(
+    Linear_Upscale, ResizeParametrizedTest,
+    ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_LINEAR, "LINEAR_2x_upscale"},
+                      ResizeParams{32, 32, 64, 64, NPPI_INTER_LINEAR, "LINEAR_2x_upscale_large"},
+                      ResizeParams{8, 8, 24, 24, NPPI_INTER_LINEAR, "LINEAR_3x_upscale"},
+                      ResizeParams{16, 16, 48, 48, NPPI_INTER_LINEAR, "LINEAR_3x_upscale_large"}));
+
+INSTANTIATE_TEST_SUITE_P(
+    Linear_Downscale, ResizeParametrizedTest,
+    ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_LINEAR, "LINEAR_2x_downscale"},
+                      ResizeParams{64, 64, 32, 32, NPPI_INTER_LINEAR, "LINEAR_2x_downscale_large"},
+                      ResizeParams{48, 48, 16, 16, NPPI_INTER_LINEAR, "LINEAR_3x_downscale"},
+                      ResizeParams{96, 96, 32, 32, NPPI_INTER_LINEAR, "LINEAR_3x_downscale_large"}));
+
+INSTANTIATE_TEST_SUITE_P(
+    Super_Downscale, ResizeParametrizedTest,
+    ::testing::Values(ResizeParams{64, 64, 32, 32, NPPI_INTER_SUPER, "SUPER_2x_downscale"},
+                      ResizeParams{128, 128, 32, 32, NPPI_INTER_SUPER, "SUPER_4x_downscale"},
+                      ResizeParams{100, 100, 30, 30, NPPI_INTER_SUPER, "SUPER_noninteger"},
+                      ResizeParams{32, 32, 8, 8, NPPI_INTER_SUPER, "SUPER_4x_downscale_small"}));
+
+INSTANTIATE_TEST_SUITE_P(
+    NonSquare, ResizeParametrizedTest,
+    ::testing::Values(ResizeParams{32, 16, 64, 32, NPPI_INTER_LINEAR, "LINEAR_nonsquare_2x"},
+                      ResizeParams{16, 32, 32, 64, NPPI_INTER_LINEAR, "LINEAR_nonsquare_2x_tall"},
+                      ResizeParams{64, 32, 32, 16, NPPI_INTER_LINEAR, "LINEAR_nonsquare_halfscale"},
+                      ResizeParams{32, 64, 16, 32, NPPI_INTER_LINEAR, "LINEAR_nonsquare_halfscale_tall"}));

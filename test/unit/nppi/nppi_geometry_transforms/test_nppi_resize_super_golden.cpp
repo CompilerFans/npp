@@ -78,13 +78,22 @@ protected:
 
     EXPECT_EQ(mismatchCount, 0) << testName << ": Implementation differs from NVIDIA NPP golden reference";
   }
+
+  // Helper to get full golden file path
+  std::string getGoldenFilePath(const std::string &filename) {
+#ifdef GOLDEN_DATA_DIR
+    return std::string(GOLDEN_DATA_DIR) + "/" + filename;
+#else
+    return "test/golden/" + filename;
+#endif
+  }
 };
 
 // Test 1: Uniform block downsampling 4x
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_UniformBlock_4x_Golden) {
   const int srcWidth = 128, srcHeight = 128;
   const int dstWidth = 32, dstHeight = 32;
-  const std::string goldenFile = "test/golden/resize_super_uniformblock_4x_c3r.bin";
+  const std::string goldenFile = getGoldenFilePath("resize_super_uniformblock_4x_c3r.bin");
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 
@@ -134,7 +143,7 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_UniformBlock_4x_Golden) {
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
   const int srcWidth = 64, srcHeight = 64;
   const int dstWidth = 32, dstHeight = 32;
-  const std::string goldenFile = "test/golden/resize_super_gradient_2x_c3r.bin";
+  const std::string goldenFile = getGoldenFilePath("resize_super_gradient_2x_c3r.bin");
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 
@@ -179,7 +188,7 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Checkerboard_8x_Golden) {
   const int srcWidth = 128, srcHeight = 128;
   const int dstWidth = 16, dstHeight = 16;
-  const std::string goldenFile = "test/golden/resize_super_checkerboard_8x_c3r.bin";
+  const std::string goldenFile = getGoldenFilePath("resize_super_checkerboard_8x_c3r.bin");
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 
@@ -228,7 +237,7 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Checkerboard_8x_Golden) {
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Random_4x_Golden) {
   const int srcWidth = 80, srcHeight = 80;
   const int dstWidth = 20, dstHeight = 20;
-  const std::string goldenFile = "test/golden/resize_super_random_4x_c3r.bin";
+  const std::string goldenFile = getGoldenFilePath("resize_super_random_4x_c3r.bin");
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 
@@ -277,7 +286,7 @@ TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Random_4x_Golden) {
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_MultiLevel_3x_Golden) {
   const int srcWidth = 96, srcHeight = 96;
   const int dstWidth = 32, dstHeight = 32;
-  const std::string goldenFile = "test/golden/resize_super_multilevel_3x_c3r.bin";
+  const std::string goldenFile = getGoldenFilePath("resize_super_multilevel_3x_c3r.bin");
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 

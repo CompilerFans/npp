@@ -22,9 +22,15 @@ endforeach()
 npp_create_test_suite("unit" "${UNIT_TEST_SOURCES}" npp)
 
 # 为单元测试添加特定的包含路径
-target_include_directories(unit_tests 
+target_include_directories(unit_tests
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/framework  # 测试框架
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src  # 测试框架
     ${CMAKE_CURRENT_SOURCE_DIR}             # 单元测试根目录
+)
+
+# Define golden data directory path
+target_compile_definitions(unit_tests
+    PRIVATE
+    GOLDEN_DATA_DIR="${CMAKE_SOURCE_DIR}/test/golden"
 )
