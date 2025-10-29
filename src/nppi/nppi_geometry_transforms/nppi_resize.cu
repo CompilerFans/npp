@@ -1,6 +1,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#include "../../nppcore/logger.h"
 
 // Interpolation helper
 __device__ inline float lerp(float a, float b, float t) { return a + t * (b - a); }
@@ -392,9 +393,36 @@ __global__ void resizeKernel(const T *pSrc, int nSrcStep, NppiSize oSrcSize, Npp
 template <typename T, int CHANNELS>
 NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, T *pDst, int nDstStep,
                      NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_DEBUG("=== nppiResize START ===");
+  LOG_DEBUG("Source: size=(%d, %d), ROI=(%d, %d, %d, %d), step=%d bytes",
+            oSrcSize.width, oSrcSize.height,
+            oSrcRectROI.x, oSrcRectROI.y, oSrcRectROI.width, oSrcRectROI.height,
+            nSrcStep);
+  LOG_DEBUG("Destination: size=(%d, %d), ROI=(%d, %d, %d, %d), step=%d bytes",
+            oDstSize.width, oDstSize.height,
+            oDstRectROI.x, oDstRectROI.y, oDstRectROI.width, oDstRectROI.height,
+            nDstStep);
+
+  const char* interpMode = "UNKNOWN";
+  switch (eInterpolation) {
+    case 1: interpMode = "NEAREST_NEIGHBOR"; break;
+    case 2: interpMode = "LINEAR"; break;
+    case 4: interpMode = "CUBIC"; break;
+    case 8: interpMode = "SUPER"; break;
+    case 16: interpMode = "LANCZOS"; break;
+  }
+  LOG_DEBUG("Interpolation mode: %s (%d), Channels: %d", interpMode, eInterpolation, CHANNELS);
+
+  float scaleX = (float)oSrcRectROI.width / (float)oDstRectROI.width;
+  float scaleY = (float)oSrcRectROI.height / (float)oDstRectROI.height;
+  LOG_DEBUG("Scale factors: X=%.4f, Y=%.4f", scaleX, scaleY);
+
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstRectROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstRectROI.height + blockSize.y - 1) / blockSize.y);
+  LOG_DEBUG("Grid config: blocks=(%d, %d), threads=(%d, %d), total_threads=%d",
+            gridSize.x, gridSize.y, blockSize.x, blockSize.y,
+            gridSize.x * gridSize.y * blockSize.x * blockSize.y);
 
   // Dispatch to appropriate kernel based on interpolation mode
   switch (eInterpolation) {
@@ -427,9 +455,13 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
+    LOG_ERROR("Kernel launch failed: %s (%d)", cudaGetErrorString(cudaStatus), cudaStatus);
+    LOG_DEBUG("=== nppiResize END (ERROR) ===");
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
+  LOG_DEBUG("Kernel launched successfully");
+  LOG_DEBUG("=== nppiResize END (SUCCESS) ===");
   return NPP_SUCCESS;
 }
 
@@ -440,6 +472,8 @@ extern "C" {
 NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_8u_C1R called: %dx%d -> %dx%d",
+           oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width, oDstRectROI.height);
   return resizeImpl<Npp8u, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                               eInterpolation, nppStreamCtx);
 }
@@ -448,6 +482,8 @@ NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
 NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_8u_C3R called: %dx%d -> %dx%d",
+           oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width, oDstRectROI.height);
   return resizeImpl<Npp8u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                               eInterpolation, nppStreamCtx);
 }
@@ -456,6 +492,8 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
 NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_16u_C1R called: %dx%d -> %dx%d",
+           oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width, oDstRectROI.height);
   return resizeImpl<Npp16u, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
@@ -464,6 +502,8 @@ NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize
 NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_32f_C1R called: %dx%d -> %dx%d",
+           oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width, oDstRectROI.height);
   return resizeImpl<Npp32f, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
@@ -472,6 +512,8 @@ NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize
 NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_32f_C3R called: %dx%d -> %dx%d",
+           oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width, oDstRectROI.height);
   return resizeImpl<Npp32f, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
