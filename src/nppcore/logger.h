@@ -1,31 +1,25 @@
 #ifndef MPP_LOGGER_H
 #define MPP_LOGGER_H
 
+#include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <cstdarg>
 
 namespace mpp {
 
-enum class LogLevel {
-  DEBUG = 0,
-  INFO = 1,
-  WARNING = 2,
-  ERROR = 3,
-  NONE = 4
-};
+enum class LogLevel { DEBUG = 0, INFO = 1, WARNING = 2, ERROR = 3, NONE = 4 };
 
 class Logger {
 public:
-  static Logger& getInstance();
+  static Logger &getInstance();
 
   void setLevel(LogLevel level);
   LogLevel getLevel() const { return level_; }
 
-  void debug(const char* format, ...);
-  void info(const char* format, ...);
-  void warning(const char* format, ...);
-  void error(const char* format, ...);
+  void debug(const char *format, ...);
+  void info(const char *format, ...);
+  void warning(const char *format, ...);
+  void error(const char *format, ...);
 
   // Enable/disable logging
   void enable() { enabled_ = true; }
@@ -35,10 +29,10 @@ public:
 private:
   Logger();
   ~Logger() = default;
-  Logger(const Logger&) = delete;
-  Logger& operator=(const Logger&) = delete;
+  Logger(const Logger &) = delete;
+  Logger &operator=(const Logger &) = delete;
 
-  void log(LogLevel level, const char* level_str, const char* format, va_list args);
+  void log(LogLevel level, const char *level_str, const char *format, va_list args);
 
   LogLevel level_;
   bool enabled_;
