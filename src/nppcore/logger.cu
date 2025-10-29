@@ -4,7 +4,7 @@
 
 namespace mpp {
 
-Logger::Logger() : level_(LogLevel::INFO), enabled_(true) {
+Logger::Logger() : level_(LogLevel::NONE), enabled_(true) {
   // Check environment variable for log level
   const char* env_level = std::getenv("MPP_LOG_LEVEL");
   if (env_level) {
