@@ -14,10 +14,17 @@ This directory contains:
 
 ### Core Implementation
 
-- **`linear_interpolation_cpu.h`** - Template-based CPU reference implementation
-  - Supports all data types (Npp8u, Npp16u, Npp32f, etc.)
-  - Supports 1, 3, 4 channel images
-  - Implements NPP's exact behavior for integer scales
+- **`linear_interpolation_cpu.h`** (V1) - NPP-matching hybrid algorithm
+  - Uses bilinear interpolation for upscale
+  - Uses floor method for downscale (matches NPP)
+  - 100% match with NPP for integer scales
+  - Optimized for NPP compatibility
+
+- **`linear_interpolation_v2.h`** (V2) - mpp-style standard bilinear
+  - Based on kunzmi/mpp repository design
+  - Uses separable bilinear for all cases (upscale and downscale)
+  - Better downscale quality with proper anti-aliasing
+  - Standard mathematical approach
 
 ### Documentation
 
@@ -27,12 +34,45 @@ This directory contains:
   - Downscale behavior (floor method)
   - Known limitations for non-integer scales
 
+- **`MPP_VS_NPP_COMPARISON.md`** - Detailed comparison between mpp and NPP implementations
+  - Algorithm differences and design philosophies
+  - Accuracy test results and performance implications
+  - Use case recommendations
+
+- **`V1_VS_V2_ANALYSIS.md`** - Complete analysis of V1 vs V2 implementations
+  - Detailed test results for all scenarios
+  - Code complexity and quality comparisons
+  - Performance and use case recommendations
+  - Key finding: V1 for NPP compatibility, V2 for better quality
+
+- **`NON_INTEGER_SCALE_ANALYSIS.md`** - Investigation of non-integer scale behavior
+  - Testing of 6 different hypotheses
+  - Discovery of NPP's modified weight approach
+  - Conclusion about proprietary algorithm
+
+- **`V1_NPP_PRECISION_ANALYSIS.md`** - Comprehensive V1 vs NPP precision analysis
+  - 14 detailed test case analyses
+  - Precision categories: Perfect, Acceptable, Problematic
+  - Root cause analysis and recommendations
+  - Testing guidelines for different scenarios
+
+- **`PRECISION_SUMMARY.md`** - Quick reference for V1 vs NPP precision
+  - One-page summary table with all results
+  - Usage guidelines and tolerance recommendations
+  - Visual precision scale
+  - Conclusion: 50% bit-exact, 80% visually acceptable
+
 ### Validation & Testing
 
-- **`validate_linear_cpu.cpp`** - Main validation test suite
+- **`validate_linear_cpu.cpp`** - Main validation test suite (V1 vs NPP)
   - 16 test cases covering upscale, downscale, and non-uniform scaling
   - Accuracy statistics and diff histograms
   - Sample pixel comparisons
+
+- **`compare_v1_v2_npp.cpp`** - Comprehensive V1 vs V2 vs NPP comparison
+  - 8 test scenarios covering all scale types
+  - Detailed pixel-level comparison
+  - Side-by-side result display
 
 - **`test_linear_analysis.cpp`** - NPP behavior analysis test
   - Simple patterns for understanding NPP algorithm
@@ -44,23 +84,29 @@ This directory contains:
 
 ### Build Scripts
 
-- **`compile_validate_linear.sh`** - Compile validation test
+- **`compile_validate_linear.sh`** - Compile V1 validation test
+- **`compile_compare_v1_v2.sh`** - Compile V1 vs V2 comparison test
 - **`compile_linear_analysis.sh`** - Compile analysis test
 - **`compile_debug.sh`** - Compile debug test
 
 ## Quick Start
 
 ```bash
-# Compile and run validation
 cd /home/cjxu/npp/ref_code/linear_resize_cpu_reference
+
+# V1 validation (NPP-matching implementation)
 ./compile_validate_linear.sh
 ./validate_linear_cpu
 
-# Compile and run analysis
+# V1 vs V2 comparison
+./compile_compare_v1_v2.sh
+./compare_v1_v2_npp
+
+# NPP behavior analysis
 ./compile_linear_analysis.sh
 ./test_linear_analysis
 
-# Compile and run debug test
+# Debug with simple patterns
 ./compile_debug.sh
 ./test_linear_debug
 ```
@@ -101,10 +147,12 @@ cd /home/cjxu/npp/ref_code/linear_resize_cpu_reference
 
 ## Usage in Tests
 
+### V1 (NPP-matching)
+
 ```cpp
 #include "linear_interpolation_cpu.h"
 
-// Example: Resize 8-bit grayscale image
+// Example: Resize 8-bit grayscale image (matches NPP behavior)
 std::vector<Npp8u> src(srcW * srcH);
 std::vector<Npp8u> dst(dstW * dstH);
 
@@ -116,6 +164,29 @@ LinearInterpolationCPU<Npp8u>::resize(
     1                                      // channels
 );
 ```
+
+### V2 (mpp-style)
+
+```cpp
+#include "linear_interpolation_v2.h"
+
+// Example: Resize with standard bilinear (better downscale quality)
+std::vector<uint8_t> src(srcW * srcH);
+std::vector<uint8_t> dst(dstW * dstH);
+
+LinearInterpolationV2::resize(
+    src.data(), srcW * sizeof(uint8_t),  // source
+    srcW, srcH,
+    dst.data(), dstW * sizeof(uint8_t),  // destination
+    dstW, dstH,
+    1                                      // channels
+);
+```
+
+### Which Version to Use?
+
+- **Use V1** when you need exact NPP behavior matching (testing, validation)
+- **Use V2** for better image quality, especially downscaling
 
 ## Known Limitations
 
@@ -143,15 +214,29 @@ After extensive testing (coordinate mapping variations, rounding methods, fixed-
 
 ## Recommendations
 
-- **Use for**: Integer scale operations (2x, 0.5x, etc.)
-- **Accept small differences for**: Non-integer scales
-- **Future work**: Reverse-engineer exact NPP algorithm for non-integer scales
+### For NPP Testing and Validation
+- Use **V1** for bit-exact NPP matching
+- Perfect for integer scales (2x, 0.5x, etc.)
+- Accept small differences for non-integer scales
+
+### For Production Image Processing
+- Use **V2** for better quality
+- Standard bilinear provides proper anti-aliasing
+- Better downscale results
+
+### Future Work
+- Reverse-engineer exact NPP algorithm for non-integer scales
+- Add high-quality pre-filtering for downscaling
+- Implement cubic and Lanczos interpolation modes
 
 ## Integration Status
 
-- ✓ CPU reference implementation complete
+- ✓ V1 CPU reference (NPP-matching) complete
+- ✓ V2 CPU reference (mpp-style) complete
 - ✓ Validation test suite complete
-- ✓ Analysis documentation complete
+- ✓ V1 vs V2 comparison complete
+- ✓ mpp vs NPP analysis complete
+- ✓ Comprehensive documentation complete
 - ⏳ Integration into main test framework - pending
 
 ## References

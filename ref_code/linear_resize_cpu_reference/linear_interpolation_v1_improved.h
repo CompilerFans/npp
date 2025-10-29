@@ -1,5 +1,5 @@
-#ifndef LINEAR_INTERPOLATION_CPU_H
-#define LINEAR_INTERPOLATION_CPU_H
+#ifndef LINEAR_INTERPOLATION_V1_IMPROVED_H
+#define LINEAR_INTERPOLATION_V1_IMPROVED_H
 
 #include <algorithm>
 #include <cmath>
@@ -12,7 +12,7 @@
 // 3. Better handling of non-uniform scaling
 
 template<typename T>
-class LinearInterpolationCPU {
+class LinearInterpolationV1Improved {
 public:
     // Main resize function with improved algorithm selection
     static void resize(const T* pSrc, int nSrcStep, int srcWidth, int srcHeight,
@@ -182,4 +182,4 @@ private:
     }
 };
 
-#endif // LINEAR_INTERPOLATION_CPU_H
+#endif // LINEAR_INTERPOLATION_V1_IMPROVED_H
