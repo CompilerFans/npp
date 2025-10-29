@@ -5,6 +5,31 @@
 // Interpolation helper
 __device__ inline float lerp(float a, float b, float t) { return a + t * (b - a); }
 
+// Cubic interpolation weight function (Catmull-Rom)
+__device__ inline float cubicWeight(float x) {
+  x = fabsf(x);
+  if (x <= 1.0f) {
+    return 1.5f * x * x * x - 2.5f * x * x + 1.0f;
+  } else if (x < 2.0f) {
+    return -0.5f * x * x * x + 2.5f * x * x - 4.0f * x + 2.0f;
+  }
+  return 0.0f;
+}
+
+// Lanczos-3 interpolation weight function
+__device__ inline float lanczosWeight(float x) {
+  x = fabsf(x);
+  if (x < 3.0f) {
+    if (x < 0.0001f)
+      return 1.0f;
+    constexpr float pi = 3.14159265358979323846f;
+    float pi_x = pi * x;
+    float pi_x_3 = pi_x / 3.0f;
+    return (sinf(pi_x) / pi_x) * (sinf(pi_x_3) / pi_x_3);
+  }
+  return 0.0f;
+}
+
 // Interpolation strategies (using template specialization)
 
 // Strategy: Nearest Neighbor
@@ -155,6 +180,195 @@ template <typename T, int CHANNELS> struct SuperSamplingInterpolator {
   }
 };
 
+// Strategy: Bicubic Interpolation (generic for 8u and integer types)
+template <typename T, int CHANNELS> struct CubicInterpolator {
+  __device__ static void interpolate(const T *pSrc, int nSrcStep, const NppiRect &oSrcRectROI, int dx, int dy,
+                                     float scaleX, float scaleY, T *pDst, int nDstStep, const NppiRect &oDstRectROI) {
+    // Map destination coordinates to source coordinates
+    float fx = dx * scaleX + oSrcRectROI.x;
+    float fy = dy * scaleY + oSrcRectROI.y;
+
+    int x_center = (int)floorf(fx);
+    int y_center = (int)floorf(fy);
+
+    float tx = fx - x_center;
+    float ty = fy - y_center;
+
+    T *dst_row = (T *)((char *)pDst + (dy + oDstRectROI.y) * nDstStep);
+
+#pragma unroll
+    for (int c = 0; c < CHANNELS; c++) {
+      float sum = 0.0f;
+
+      // Sample 4x4 neighborhood
+      for (int j = -1; j <= 2; j++) {
+        int sy = y_center + j;
+        sy = max(sy, oSrcRectROI.y);
+        sy = min(sy, oSrcRectROI.y + oSrcRectROI.height - 1);
+
+        float wy = cubicWeight(ty - j);
+
+        const T *src_row = (const T *)((const char *)pSrc + sy * nSrcStep);
+
+        for (int i = -1; i <= 2; i++) {
+          int sx = x_center + i;
+          sx = max(sx, oSrcRectROI.x);
+          sx = min(sx, oSrcRectROI.x + oSrcRectROI.width - 1);
+
+          float wx = cubicWeight(tx - i);
+          float weight = wx * wy;
+
+          sum += src_row[sx * CHANNELS + c] * weight;
+        }
+      }
+
+      // Clamp result to valid range
+      sum = max(0.0f, min(sum, 255.0f));
+      dst_row[(dx + oDstRectROI.x) * CHANNELS + c] = (T)(sum + 0.5f);
+    }
+  }
+};
+
+// Strategy: Bicubic Interpolation (specialized for float)
+template <int CHANNELS> struct CubicInterpolator<float, CHANNELS> {
+  __device__ static void interpolate(const float *pSrc, int nSrcStep, const NppiRect &oSrcRectROI, int dx, int dy,
+                                     float scaleX, float scaleY, float *pDst, int nDstStep,
+                                     const NppiRect &oDstRectROI) {
+    float fx = dx * scaleX + oSrcRectROI.x;
+    float fy = dy * scaleY + oSrcRectROI.y;
+
+    int x_center = (int)floorf(fx);
+    int y_center = (int)floorf(fy);
+
+    float tx = fx - x_center;
+    float ty = fy - y_center;
+
+    float *dst_row = (float *)((char *)pDst + (dy + oDstRectROI.y) * nDstStep);
+
+#pragma unroll
+    for (int c = 0; c < CHANNELS; c++) {
+      float sum = 0.0f;
+
+      for (int j = -1; j <= 2; j++) {
+        int sy = y_center + j;
+        sy = max(sy, oSrcRectROI.y);
+        sy = min(sy, oSrcRectROI.y + oSrcRectROI.height - 1);
+
+        float wy = cubicWeight(ty - j);
+
+        const float *src_row = (const float *)((const char *)pSrc + sy * nSrcStep);
+
+        for (int i = -1; i <= 2; i++) {
+          int sx = x_center + i;
+          sx = max(sx, oSrcRectROI.x);
+          sx = min(sx, oSrcRectROI.x + oSrcRectROI.width - 1);
+
+          float wx = cubicWeight(tx - i);
+          float weight = wx * wy;
+
+          sum += src_row[sx * CHANNELS + c] * weight;
+        }
+      }
+
+      dst_row[(dx + oDstRectROI.x) * CHANNELS + c] = sum; // No clamping or rounding for float
+    }
+  }
+};
+
+// Strategy: Lanczos-3 Interpolation (generic for 8u and integer types)
+template <typename T, int CHANNELS> struct LanczosInterpolator {
+  __device__ static void interpolate(const T *pSrc, int nSrcStep, const NppiRect &oSrcRectROI, int dx, int dy,
+                                     float scaleX, float scaleY, T *pDst, int nDstStep, const NppiRect &oDstRectROI) {
+    float fx = dx * scaleX + oSrcRectROI.x;
+    float fy = dy * scaleY + oSrcRectROI.y;
+
+    int x_center = (int)floorf(fx);
+    int y_center = (int)floorf(fy);
+
+    float tx = fx - x_center;
+    float ty = fy - y_center;
+
+    T *dst_row = (T *)((char *)pDst + (dy + oDstRectROI.y) * nDstStep);
+
+#pragma unroll
+    for (int c = 0; c < CHANNELS; c++) {
+      float sum = 0.0f;
+
+      // Sample 6x6 neighborhood for Lanczos-3
+      for (int j = -2; j <= 3; j++) {
+        int sy = y_center + j;
+        sy = max(sy, oSrcRectROI.y);
+        sy = min(sy, oSrcRectROI.y + oSrcRectROI.height - 1);
+
+        float wy = lanczosWeight(ty - j);
+
+        const T *src_row = (const T *)((const char *)pSrc + sy * nSrcStep);
+
+        for (int i = -2; i <= 3; i++) {
+          int sx = x_center + i;
+          sx = max(sx, oSrcRectROI.x);
+          sx = min(sx, oSrcRectROI.x + oSrcRectROI.width - 1);
+
+          float wx = lanczosWeight(tx - i);
+          float weight = wx * wy;
+
+          sum += src_row[sx * CHANNELS + c] * weight;
+        }
+      }
+
+      // Clamp result to valid range
+      sum = max(0.0f, min(sum, 255.0f));
+      dst_row[(dx + oDstRectROI.x) * CHANNELS + c] = (T)(sum + 0.5f);
+    }
+  }
+};
+
+// Strategy: Lanczos-3 Interpolation (specialized for float)
+template <int CHANNELS> struct LanczosInterpolator<float, CHANNELS> {
+  __device__ static void interpolate(const float *pSrc, int nSrcStep, const NppiRect &oSrcRectROI, int dx, int dy,
+                                     float scaleX, float scaleY, float *pDst, int nDstStep,
+                                     const NppiRect &oDstRectROI) {
+    float fx = dx * scaleX + oSrcRectROI.x;
+    float fy = dy * scaleY + oSrcRectROI.y;
+
+    int x_center = (int)floorf(fx);
+    int y_center = (int)floorf(fy);
+
+    float tx = fx - x_center;
+    float ty = fy - y_center;
+
+    float *dst_row = (float *)((char *)pDst + (dy + oDstRectROI.y) * nDstStep);
+
+#pragma unroll
+    for (int c = 0; c < CHANNELS; c++) {
+      float sum = 0.0f;
+
+      for (int j = -2; j <= 3; j++) {
+        int sy = y_center + j;
+        sy = max(sy, oSrcRectROI.y);
+        sy = min(sy, oSrcRectROI.y + oSrcRectROI.height - 1);
+
+        float wy = lanczosWeight(ty - j);
+
+        const float *src_row = (const float *)((const char *)pSrc + sy * nSrcStep);
+
+        for (int i = -2; i <= 3; i++) {
+          int sx = x_center + i;
+          sx = max(sx, oSrcRectROI.x);
+          sx = min(sx, oSrcRectROI.x + oSrcRectROI.width - 1);
+
+          float wx = lanczosWeight(tx - i);
+          float weight = wx * wy;
+
+          sum += src_row[sx * CHANNELS + c] * weight;
+        }
+      }
+
+      dst_row[(dx + oDstRectROI.x) * CHANNELS + c] = sum; // No clamping or rounding for float
+    }
+  }
+};
+
 // Unified resize kernel template
 template <typename T, int CHANNELS, typename Interpolator>
 __global__ void resizeKernel(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, T *pDst,
@@ -192,8 +406,16 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
     resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
+  case 4: // NPPI_INTER_CUBIC
+    resizeKernel<T, CHANNELS, CubicInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+    break;
   case 8: // NPPI_INTER_SUPER
     resizeKernel<T, CHANNELS, SuperSamplingInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+    break;
+  case 16: // NPPI_INTER_LANCZOS
+    resizeKernel<T, CHANNELS, LanczosInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   default:
