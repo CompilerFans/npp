@@ -71,8 +71,7 @@ protected:
   }
 
   // Generate uniform value
-  template <typename T, int CHANNELS>
-  void fillUniform(std::vector<T> &data, const T values[CHANNELS]) {
+  template <typename T, int CHANNELS> void fillUniform(std::vector<T> &data, const T values[CHANNELS]) {
     size_t pixels = data.size() / CHANNELS;
     for (size_t i = 0; i < pixels; i++) {
       for (int c = 0; c < CHANNELS; c++) {
@@ -119,8 +118,7 @@ protected:
                              T tolerance) {
     for (int i = 0; i < width * height; i++) {
       for (int c = 0; c < CHANNELS; c++) {
-        EXPECT_NEAR(data[i * CHANNELS + c], expected[c], tolerance)
-            << "Channel " << c << " mismatch at pixel " << i;
+        EXPECT_NEAR(data[i * CHANNELS + c], expected[c], tolerance) << "Channel " << c << " mismatch at pixel " << i;
       }
     }
   }
@@ -135,8 +133,7 @@ protected:
   }
 
   // Validate non-zero pixel count
-  template <typename T>
-  void validateNonZeroCount(const std::vector<T> &data, int minCount, int maxCount) {
+  template <typename T> void validateNonZeroCount(const std::vector<T> &data, int minCount, int maxCount) {
     int nonZeroCount = 0;
     for (size_t i = 0; i < data.size(); i++) {
       if (data[i] > 0)
@@ -164,8 +161,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  NppStatus status = nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_NN);
+  NppStatus status =
+      nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN);
 
   ASSERT_EQ(status, NPP_SUCCESS);
 
@@ -2295,40 +2292,36 @@ TEST_P(ResizeParametrizedTest, UniformValue) {
 }
 
 // Instantiate test suite with different parameters
-INSTANTIATE_TEST_SUITE_P(
-    NearestNeighbor_Upscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_NN, "NN_2x_upscale"},
-                      ResizeParams{32, 32, 64, 64, NPPI_INTER_NN, "NN_2x_upscale_large"},
-                      ResizeParams{8, 8, 24, 24, NPPI_INTER_NN, "NN_3x_upscale"},
-                      ResizeParams{16, 16, 48, 48, NPPI_INTER_NN, "NN_3x_upscale_large"}));
+INSTANTIATE_TEST_SUITE_P(NearestNeighbor_Upscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_NN, "NN_2x_upscale"},
+                                           ResizeParams{32, 32, 64, 64, NPPI_INTER_NN, "NN_2x_upscale_large"},
+                                           ResizeParams{8, 8, 24, 24, NPPI_INTER_NN, "NN_3x_upscale"},
+                                           ResizeParams{16, 16, 48, 48, NPPI_INTER_NN, "NN_3x_upscale_large"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    NearestNeighbor_Downscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_NN, "NN_2x_downscale"},
-                      ResizeParams{64, 64, 32, 32, NPPI_INTER_NN, "NN_2x_downscale_large"},
-                      ResizeParams{48, 48, 16, 16, NPPI_INTER_NN, "NN_3x_downscale"},
-                      ResizeParams{96, 96, 32, 32, NPPI_INTER_NN, "NN_3x_downscale_large"}));
+INSTANTIATE_TEST_SUITE_P(NearestNeighbor_Downscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_NN, "NN_2x_downscale"},
+                                           ResizeParams{64, 64, 32, 32, NPPI_INTER_NN, "NN_2x_downscale_large"},
+                                           ResizeParams{48, 48, 16, 16, NPPI_INTER_NN, "NN_3x_downscale"},
+                                           ResizeParams{96, 96, 32, 32, NPPI_INTER_NN, "NN_3x_downscale_large"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    Linear_Upscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_LINEAR, "LINEAR_2x_upscale"},
-                      ResizeParams{32, 32, 64, 64, NPPI_INTER_LINEAR, "LINEAR_2x_upscale_large"},
-                      ResizeParams{8, 8, 24, 24, NPPI_INTER_LINEAR, "LINEAR_3x_upscale"},
-                      ResizeParams{16, 16, 48, 48, NPPI_INTER_LINEAR, "LINEAR_3x_upscale_large"}));
+INSTANTIATE_TEST_SUITE_P(Linear_Upscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_LINEAR, "LINEAR_2x_upscale"},
+                                           ResizeParams{32, 32, 64, 64, NPPI_INTER_LINEAR, "LINEAR_2x_upscale_large"},
+                                           ResizeParams{8, 8, 24, 24, NPPI_INTER_LINEAR, "LINEAR_3x_upscale"},
+                                           ResizeParams{16, 16, 48, 48, NPPI_INTER_LINEAR, "LINEAR_3x_upscale_large"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    Linear_Downscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_LINEAR, "LINEAR_2x_downscale"},
-                      ResizeParams{64, 64, 32, 32, NPPI_INTER_LINEAR, "LINEAR_2x_downscale_large"},
-                      ResizeParams{48, 48, 16, 16, NPPI_INTER_LINEAR, "LINEAR_3x_downscale"},
-                      ResizeParams{96, 96, 32, 32, NPPI_INTER_LINEAR, "LINEAR_3x_downscale_large"}));
+INSTANTIATE_TEST_SUITE_P(Linear_Downscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_LINEAR, "LINEAR_2x_downscale"},
+                                           ResizeParams{64, 64, 32, 32, NPPI_INTER_LINEAR, "LINEAR_2x_downscale_large"},
+                                           ResizeParams{48, 48, 16, 16, NPPI_INTER_LINEAR, "LINEAR_3x_downscale"},
+                                           ResizeParams{96, 96, 32, 32, NPPI_INTER_LINEAR,
+                                                        "LINEAR_3x_downscale_large"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    Super_Downscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{64, 64, 32, 32, NPPI_INTER_SUPER, "SUPER_2x_downscale"},
-                      ResizeParams{128, 128, 32, 32, NPPI_INTER_SUPER, "SUPER_4x_downscale"},
-                      ResizeParams{100, 100, 30, 30, NPPI_INTER_SUPER, "SUPER_noninteger"},
-                      ResizeParams{32, 32, 8, 8, NPPI_INTER_SUPER, "SUPER_4x_downscale_small"}));
+INSTANTIATE_TEST_SUITE_P(Super_Downscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{64, 64, 32, 32, NPPI_INTER_SUPER, "SUPER_2x_downscale"},
+                                           ResizeParams{128, 128, 32, 32, NPPI_INTER_SUPER, "SUPER_4x_downscale"},
+                                           ResizeParams{100, 100, 30, 30, NPPI_INTER_SUPER, "SUPER_noninteger"},
+                                           ResizeParams{32, 32, 8, 8, NPPI_INTER_SUPER, "SUPER_4x_downscale_small"}));
 
 INSTANTIATE_TEST_SUITE_P(
     NonSquare, ResizeParametrizedTest,
@@ -2337,26 +2330,24 @@ INSTANTIATE_TEST_SUITE_P(
                       ResizeParams{64, 32, 32, 16, NPPI_INTER_LINEAR, "LINEAR_nonsquare_halfscale"},
                       ResizeParams{32, 64, 16, 32, NPPI_INTER_LINEAR, "LINEAR_nonsquare_halfscale_tall"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    Cubic_Upscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_CUBIC, "CUBIC_2x_upscale"},
-                      ResizeParams{32, 32, 64, 64, NPPI_INTER_CUBIC, "CUBIC_2x_upscale_large"},
-                      ResizeParams{8, 8, 24, 24, NPPI_INTER_CUBIC, "CUBIC_3x_upscale"},
-                      ResizeParams{16, 16, 48, 48, NPPI_INTER_CUBIC, "CUBIC_3x_upscale_large"}));
+INSTANTIATE_TEST_SUITE_P(Cubic_Upscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_CUBIC, "CUBIC_2x_upscale"},
+                                           ResizeParams{32, 32, 64, 64, NPPI_INTER_CUBIC, "CUBIC_2x_upscale_large"},
+                                           ResizeParams{8, 8, 24, 24, NPPI_INTER_CUBIC, "CUBIC_3x_upscale"},
+                                           ResizeParams{16, 16, 48, 48, NPPI_INTER_CUBIC, "CUBIC_3x_upscale_large"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    Cubic_Downscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_CUBIC, "CUBIC_2x_downscale"},
-                      ResizeParams{64, 64, 32, 32, NPPI_INTER_CUBIC, "CUBIC_2x_downscale_large"},
-                      ResizeParams{48, 48, 16, 16, NPPI_INTER_CUBIC, "CUBIC_3x_downscale"},
-                      ResizeParams{96, 96, 32, 32, NPPI_INTER_CUBIC, "CUBIC_3x_downscale_large"}));
+INSTANTIATE_TEST_SUITE_P(Cubic_Downscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{32, 32, 16, 16, NPPI_INTER_CUBIC, "CUBIC_2x_downscale"},
+                                           ResizeParams{64, 64, 32, 32, NPPI_INTER_CUBIC, "CUBIC_2x_downscale_large"},
+                                           ResizeParams{48, 48, 16, 16, NPPI_INTER_CUBIC, "CUBIC_3x_downscale"},
+                                           ResizeParams{96, 96, 32, 32, NPPI_INTER_CUBIC, "CUBIC_3x_downscale_large"}));
 
-INSTANTIATE_TEST_SUITE_P(
-    Lanczos_Upscale, ResizeParametrizedTest,
-    ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_2x_upscale"},
-                      ResizeParams{32, 32, 64, 64, NPPI_INTER_LANCZOS, "LANCZOS_2x_upscale_large"},
-                      ResizeParams{8, 8, 24, 24, NPPI_INTER_LANCZOS, "LANCZOS_3x_upscale"},
-                      ResizeParams{16, 16, 48, 48, NPPI_INTER_LANCZOS, "LANCZOS_3x_upscale_large"}));
+INSTANTIATE_TEST_SUITE_P(Lanczos_Upscale, ResizeParametrizedTest,
+                         ::testing::Values(ResizeParams{16, 16, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_2x_upscale"},
+                                           ResizeParams{32, 32, 64, 64, NPPI_INTER_LANCZOS, "LANCZOS_2x_upscale_large"},
+                                           ResizeParams{8, 8, 24, 24, NPPI_INTER_LANCZOS, "LANCZOS_3x_upscale"},
+                                           ResizeParams{16, 16, 48, 48, NPPI_INTER_LANCZOS,
+                                                        "LANCZOS_3x_upscale_large"}));
 
 INSTANTIATE_TEST_SUITE_P(
     Lanczos_Downscale, ResizeParametrizedTest,
