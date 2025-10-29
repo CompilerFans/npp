@@ -1202,17 +1202,7 @@ TEST_F(ResizeFunctionalTest, NN_8u_C3R_Downsampling) {
   const int dstWidth = 4, dstHeight = 4;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create fine checkerboard pattern
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      Npp8u value = ((x + y) % 2) ? 200 : 80;
-      srcData[idx + 0] = value;
-      srcData[idx + 1] = value;
-      srcData[idx + 2] = value;
-    }
-  }
+  fillCheckerboard<Npp8u, 3>(srcData, srcWidth, srcHeight, 1, 200, 80);
 
   NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
@@ -1602,13 +1592,7 @@ TEST_F(ResizeFunctionalTest, NN_8u_C1R_Downsampling) {
   const int dstWidth = 4, dstHeight = 4;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
-
-  // Create checkerboard pattern
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      srcData[y * srcWidth + x] = ((x + y) % 2) ? 200 : 80;
-    }
-  }
+  fillCheckerboard<Npp8u, 1>(srcData, srcWidth, srcHeight, 1, 200, 80);
 
   NppImageMemory<Npp8u> src(srcWidth, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
@@ -1682,13 +1666,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C1R_HorizontalGradient) {
   const int dstWidth = 8, dstHeight = 4;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
-
-  // Create horizontal gradient: 0, 85, 170, 255
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      srcData[y * srcWidth + x] = (Npp8u)(x * 255 / (srcWidth - 1));
-    }
-  }
+  fillHorizontalGradient<Npp8u, 1>(srcData, srcWidth, srcHeight, 0, 255);
 
   NppImageMemory<Npp8u> src(srcWidth, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
@@ -1724,13 +1702,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C1R_VerticalGradient) {
   const int dstWidth = 4, dstHeight = 8;
 
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
-
-  // Create vertical gradient
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      srcData[y * srcWidth + x] = (Npp8u)(y * 255 / (srcHeight - 1));
-    }
-  }
+  fillVerticalGradient<Npp8u, 1>(srcData, srcWidth, srcHeight, 0, 255);
 
   NppImageMemory<Npp8u> src(srcWidth, srcHeight);
   NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
