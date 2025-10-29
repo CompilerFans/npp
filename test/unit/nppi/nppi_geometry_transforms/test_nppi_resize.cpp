@@ -562,8 +562,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_LargeDownscale) {
   dst.copyToHost(resultData);
 
   // 16x downscaling of alternating stripes should produce ~127
+  // V2 algorithm achieves error <= 1, tightened from tolerance 15 to 2
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
-    EXPECT_NEAR(resultData[i], 127, 15) << "Large downscale averaging incorrect at " << i;
+    EXPECT_NEAR(resultData[i], 127, 2) << "Large downscale averaging incorrect at " << i;
   }
 }
 
@@ -609,9 +610,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_BoundaryTest) {
   // dst(8,y) should sample from src around x=16-18, which crosses boundary
 
   for (int y = 0; y < dstHeight; y++) {
-    // Far left: should be ~200 (fully in 200 region)
+    // Far left: should be ~200 (fully in 200 region, tightened from tolerance 3 to 2)
     int idx_left = (y * dstWidth + 3) * 3;
-    EXPECT_NEAR(resultData[idx_left + 0], 200, 3) << "Left region incorrect at y=" << y;
+    EXPECT_NEAR(resultData[idx_left + 0], 200, 2) << "Left region incorrect at y=" << y;
 
     // At boundary: dst(7,y) maps to src(14-16, y*2 to y*2+2)
     int idx_boundary = (y * dstWidth + 7) * 3;
@@ -622,9 +623,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_BoundaryTest) {
     int idx_after = (y * dstWidth + 8) * 3;
     EXPECT_LT(resultData[idx_after + 0], 100) << "After boundary should show averaging at y=" << y;
 
-    // Far right: should be ~0 (fully in 0 region)
+    // Far right: should be ~0 (fully in 0 region, tightened from tolerance 3 to 2)
     int idx_right = (y * dstWidth + 12) * 3;
-    EXPECT_NEAR(resultData[idx_right + 0], 0, 3) << "Right region incorrect at y=" << y;
+    EXPECT_NEAR(resultData[idx_right + 0], 0, 2) << "Right region incorrect at y=" << y;
   }
 }
 
@@ -664,10 +665,11 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_CornerTest) {
 
   // With 4x downscaling, source 8x8 block maps perfectly to dst 2x2 region
   // Top-left 2x2 block: samples from src[0,8)x[0,8), fully in 255 region
+  // Tightened from tolerance 3 to 2
   for (int y = 0; y < 2; y++) {
     for (int x = 0; x < 2; x++) {
       int idx = (y * dstWidth + x) * 3;
-      EXPECT_NEAR(resultData[idx], 255, 3) << "Pixel (" << x << "," << y << ") should be ~255";
+      EXPECT_NEAR(resultData[idx], 255, 2) << "Pixel (" << x << "," << y << ") should be ~255";
     }
   }
 
@@ -937,8 +939,9 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Super_ExtremeValues) {
   dst.copyToHost(resultData);
 
   // With 4x downscaling of alternating pixels, should average to ~127
+  // V2 algorithm achieves error <= 1, tightened from tolerance 5 to 2
   for (int i = 0; i < dstWidth * dstHeight * 3; i++) {
-    EXPECT_NEAR(resultData[i], 127, 5) << "Extreme value averaging at index " << i;
+    EXPECT_NEAR(resultData[i], 127, 2) << "Extreme value averaging at index " << i;
   }
 }
 
@@ -1261,11 +1264,11 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ExactInterpolation) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-  // Corners should preserve values
-  EXPECT_NEAR(resultData[0], 0, 5) << "Top-left corner";
-  EXPECT_NEAR(resultData[6], 100, 5) << "Top-right corner";
-  EXPECT_NEAR(resultData[18], 50, 5) << "Bottom-left corner";
-  EXPECT_NEAR(resultData[24], 150, 5) << "Bottom-right corner";
+  // Corners should preserve values (tightened from tolerance 5 to 2)
+  EXPECT_NEAR(resultData[0], 0, 2) << "Top-left corner";
+  EXPECT_NEAR(resultData[6], 100, 2) << "Top-right corner";
+  EXPECT_NEAR(resultData[18], 50, 2) << "Bottom-left corner";
+  EXPECT_NEAR(resultData[24], 150, 2) << "Bottom-right corner";
 
   // Center pixel interpolation (relaxed tolerance due to coordinate mapping complexity)
   int center_idx = (1 * dstWidth + 1) * 3;
@@ -1421,16 +1424,16 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_BoundaryInterpolation) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
   dst.copyToHost(resultData);
 
-  // Left side should be close to 50
+  // Left side should be close to 50 (tightened from tolerance 15 to 3)
   for (int y = 0; y < dstHeight; y++) {
     int idx_left = (y * dstWidth + 1) * 3;
-    EXPECT_NEAR(resultData[idx_left], 50, 15) << "Left region at y=" << y;
+    EXPECT_NEAR(resultData[idx_left], 50, 3) << "Left region at y=" << y;
   }
 
-  // Right side should be close to 200
+  // Right side should be close to 200 (tightened from tolerance 15 to 3)
   for (int y = 0; y < dstHeight; y++) {
     int idx_right = (y * dstWidth + (dstWidth - 2)) * 3;
-    EXPECT_NEAR(resultData[idx_right], 200, 15) << "Right region at y=" << y;
+    EXPECT_NEAR(resultData[idx_right], 200, 3) << "Right region at y=" << y;
   }
 
   // Middle region should have intermediate values
@@ -1761,10 +1764,10 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C1R_StepFunctionInterpolation) {
   std::vector<Npp8u> resultData(dstWidth * dstHeight);
   dst.copyToHost(resultData);
 
-  // Left side should be close to 60, right side close to 200
+  // Left side should be close to 60, right side close to 200 (tightened from tolerance 15 to 3)
   for (int y = 0; y < dstHeight; y++) {
-    EXPECT_NEAR(resultData[y * dstWidth + 0], 60, 15) << "Left edge at y=" << y;
-    EXPECT_NEAR(resultData[y * dstWidth + (dstWidth - 1)], 200, 15) << "Right edge at y=" << y;
+    EXPECT_NEAR(resultData[y * dstWidth + 0], 60, 3) << "Left edge at y=" << y;
+    EXPECT_NEAR(resultData[y * dstWidth + (dstWidth - 1)], 200, 3) << "Right edge at y=" << y;
 
     // Middle should show interpolation
     int mid_idx = y * dstWidth + (dstWidth / 2);

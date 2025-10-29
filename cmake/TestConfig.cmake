@@ -27,9 +27,10 @@ function(npp_setup_gtest)
 endfunction()
 
 # 创建NPP测试目标
+# library_target: 当USE_NVIDIA_NPP=OFF时使用的MPP库target，USE_NVIDIA_NPP=ON时可为空
 function(npp_create_test_target target_name sources library_target)
     add_executable(${target_name} ${sources})
-    
+
     # 根据选项决定链接哪个NPP库
     if(USE_NVIDIA_NPP)
         # 查找NVIDIA NPP库 - 只需要检查一个核心库的存在
@@ -37,11 +38,11 @@ function(npp_create_test_target target_name sources library_target)
             NAMES nppc
             PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib /usr/local/cuda/lib64
         )
-        
+
         if(NOT NVIDIA_NPPC_LIB)
             message(FATAL_ERROR "NVIDIA NPP libraries not found. Please check your CUDA installation.")
         endif()
-        
+
         # 链接NVIDIA NPP库
         target_link_libraries(${target_name}
             PRIVATE
@@ -50,30 +51,34 @@ function(npp_create_test_target target_name sources library_target)
             gtest
             gtest_main
         )
-        
+
         # 添加库搜索路径和链接NPP库
         target_link_directories(${target_name} PRIVATE /usr/local/cuda/lib64)
-        target_link_libraries(${target_name} PRIVATE 
+        target_link_libraries(${target_name} PRIVATE
             nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
-        
+
         # 使用NVIDIA NPP头文件
-        target_include_directories(${target_name} 
+        target_include_directories(${target_name}
             PRIVATE
             ${CUDA_TOOLKIT_ROOT_DIR}/include
         )
-        
+
         # 定义宏标识使用NVIDIA NPP
         target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
     else()
-        # 链接MPP库
+        # 链接MPP库 - library_target must be provided
+        if(NOT library_target)
+            message(FATAL_ERROR "library_target must be provided when USE_NVIDIA_NPP=OFF")
+        endif()
+
         target_link_libraries(${target_name}
             PRIVATE
             ${library_target}
             gtest
             gtest_main
         )
-        
+
         message(STATUS "Test ${target_name} will use MPP library")
     endif()
     

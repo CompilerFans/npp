@@ -12,19 +12,23 @@ include(InstallConfig)
 # 需要的cmake模块
 include(CMakePackageConfigHelpers)
 
-# 配置CUDA环境
-npp_configure_cuda()
-
-# 构建src目录 - 核心库
-add_subdirectory(src)
-
-# 构建选项
+# 构建选项 - moved before subdirectories to control build flow
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
 option(NPP_STRICT_TESTING "Use strict precision testing (exact match)" OFF)
+
+# 配置CUDA环境
+npp_configure_cuda()
+
+# 构建src目录 - 仅在不使用NVIDIA NPP时构建
+if(NOT USE_NVIDIA_NPP)
+    add_subdirectory(src)
+else()
+    message(STATUS "Skipping src directory build (using NVIDIA NPP library)")
+endif()
 
 # 显示配置选项
 if(BUILD_SHARED_LIBS)
@@ -51,8 +55,14 @@ if(BUILD_TESTS)
 endif()
 
 if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
+    if(NOT USE_NVIDIA_NPP)
+        add_subdirectory(examples)
+    else()
+        message(STATUS "Skipping examples build (requires MPP library)")
+    endif()
 endif()
 
-# 配置安装
-npp_configure_install()
+# 配置安装 - 仅在构建MPP库时需要
+if(NOT USE_NVIDIA_NPP)
+    npp_configure_install()
+endif()
