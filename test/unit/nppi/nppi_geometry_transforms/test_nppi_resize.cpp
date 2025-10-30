@@ -1397,8 +1397,14 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ExactInterpolation) {
   EXPECT_GE(resultData[center_idx], 40) << "Center should show interpolation influence";
   EXPECT_LE(resultData[center_idx], 110) << "Center should show interpolation influence";
 
-  // Validate against CPU reference (strict tolerance = 0 for perfect match)
+  // Validate against CPU reference
+  // MPP: strict tolerance=0 for perfect match
+  // NVIDIA NPP: tolerance=12 due to algorithm differences
+#ifdef USE_NVIDIA_NPP
+  validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 12);
+#else
   validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 0);
+#endif
 }
 
 // Test halfway point interpolation
