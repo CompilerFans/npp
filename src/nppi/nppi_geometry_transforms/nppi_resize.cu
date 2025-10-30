@@ -10,8 +10,16 @@
 #define USE_SUPER_V2 1
 #endif
 
+// Control which linear interpolation algorithm to use
+// 0: Use BilinearInterpolator (standard bilinear)
+// 1: Use BilinearV2Interpolator (NPP-compatible algorithm, higher precision)
+#ifndef USE_LINEAR_V2
+#define USE_LINEAR_V2 1
+#endif
+
 // Include interpolator implementations
 #include "interpolators/bilinear_interpolator.cuh"
+#include "interpolators/bilinear_v2_interpolator.cuh"
 #include "interpolators/cubic_interpolator.cuh"
 #include "interpolators/interpolator_common.cuh"
 #include "interpolators/lanczos_interpolator.cuh"
@@ -85,8 +93,13 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
     break;
   case 2: // NPPI_INTER_LINEAR
+#if USE_LINEAR_V2
+    resizeKernel<T, CHANNELS, BilinearV2Interpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+#else
     resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+#endif
     break;
   case 4: // NPPI_INTER_CUBIC
     resizeKernel<T, CHANNELS, CubicInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
@@ -108,8 +121,13 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
     break;
   default:
     // Default to linear
+#if USE_LINEAR_V2
+    resizeKernel<T, CHANNELS, BilinearV2Interpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+#else
     resizeKernel<T, CHANNELS, BilinearInterpolator<T, CHANNELS>><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+#endif
     break;
   }
 

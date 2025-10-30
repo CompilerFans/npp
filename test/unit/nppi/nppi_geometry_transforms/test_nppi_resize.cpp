@@ -1,4 +1,5 @@
 #include "../../../../ref_code/super_sampling_cpu_reference/src/super_sampling_cpu.h"
+#include "../../../../ref_code/linear_resize_cpu_reference/linear_resize_refactored.h"
 #include "npp_test_base.h"
 #include <functional>
 
@@ -175,6 +176,47 @@ protected:
     } else {
       std::cout << "  CPU reference validation: " << mismatchCount << " mismatches (max_diff=" << maxDiff << ")"
                 << std::endl;
+    }
+  }
+
+  // Validate against CPU reference implementation for linear interpolation
+  template <typename T, int CHANNELS>
+  void validateAgainstLinearCPUReference(const std::vector<T> &cudaResult, const std::vector<T> &srcData, int srcWidth,
+                                         int srcHeight, int dstWidth, int dstHeight, int tolerance = 0) {
+    std::vector<T> cpuResult(dstWidth * dstHeight * CHANNELS);
+
+    LinearResizeRefactored<T>::resize(srcData.data(), srcWidth * CHANNELS, srcWidth, srcHeight, cpuResult.data(),
+                                      dstWidth * CHANNELS, dstWidth, dstHeight, CHANNELS);
+
+    int maxDiff = 0;
+    int totalDiff = 0;
+    int mismatchCount = 0;
+    int perfectMatch = 0;
+
+    for (int i = 0; i < dstWidth * dstHeight * CHANNELS; i++) {
+      int diff = std::abs((int)cudaResult[i] - (int)cpuResult[i]);
+      if (diff == 0) {
+        perfectMatch++;
+      } else if (diff > tolerance) {
+        mismatchCount++;
+      }
+      maxDiff = std::max(maxDiff, diff);
+      totalDiff += diff;
+
+      EXPECT_NEAR(cudaResult[i], cpuResult[i], tolerance)
+          << "Pixel mismatch at index " << i << " (pixel " << (i / CHANNELS) << ", channel " << (i % CHANNELS) << ")"
+          << ": CUDA=" << (int)cudaResult[i] << ", CPU Reference=" << (int)cpuResult[i];
+    }
+
+    int totalPixels = dstWidth * dstHeight * CHANNELS;
+    float matchPercent = 100.0f * perfectMatch / totalPixels;
+
+    std::cout << "Linear CPU Reference Validation:\n";
+    std::cout << "  Perfect match: " << perfectMatch << " / " << totalPixels << " (" << matchPercent << "%)\n";
+    std::cout << "  Max diff: " << maxDiff << ", Avg diff: " << (float)totalDiff / totalPixels << std::endl;
+
+    if (mismatchCount > 0) {
+      std::cout << "  Mismatches beyond tolerance: " << mismatchCount << std::endl;
     }
   }
 };
@@ -1354,6 +1396,9 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ExactInterpolation) {
   // Value should be somewhere in the interpolated range
   EXPECT_GE(resultData[center_idx], 40) << "Center should show interpolation influence";
   EXPECT_LE(resultData[center_idx], 110) << "Center should show interpolation influence";
+
+  // Validate against CPU reference (strict tolerance = 0 for perfect match)
+  validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 0);
 }
 
 // Test halfway point interpolation
