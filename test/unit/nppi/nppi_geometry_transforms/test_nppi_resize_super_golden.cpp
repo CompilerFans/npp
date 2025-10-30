@@ -1,31 +1,170 @@
 #include "npp_test_base.h"
 #include <fstream>
 #include <sys/stat.h>
+#include <memory>
+#include <functional>
 
 using namespace npp_functional_test;
+
+// Pattern generator interface for resize golden tests
+class ResizePatternGenerator {
+public:
+  virtual ~ResizePatternGenerator() = default;
+  virtual void generate(std::vector<Npp8u> &data, int width, int height, int channels) const = 0;
+  virtual std::string getName() const = 0;
+};
+
+// Uniform block pattern
+class UniformBlockGenerator : public ResizePatternGenerator {
+  int blockSize_;
+
+public:
+  explicit UniformBlockGenerator(int blockSize = 32) : blockSize_(blockSize) {}
+
+  void generate(std::vector<Npp8u> &data, int width, int height, int channels) const override {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * channels;
+        int blockX = x / blockSize_;
+        int blockY = y / blockSize_;
+        int blocksPerRow = (width + blockSize_ - 1) / blockSize_;
+        int blockId = blockY * blocksPerRow + blockX;
+        Npp8u value = (Npp8u)(blockId * 15 + 50);
+
+        for (int c = 0; c < channels; c++) {
+          data[idx + c] = value + c * 10;
+        }
+      }
+    }
+  }
+
+  std::string getName() const override { return "UniformBlock"; }
+};
+
+// Gradient pattern
+class GradientGenerator : public ResizePatternGenerator {
+public:
+  void generate(std::vector<Npp8u> &data, int width, int height, int channels) const override {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * channels;
+        if (channels >= 1)
+          data[idx + 0] = (Npp8u)(x * 255 / std::max(1, width - 1));
+        if (channels >= 2)
+          data[idx + 1] = (Npp8u)(y * 255 / std::max(1, height - 1));
+        if (channels >= 3)
+          data[idx + 2] = (Npp8u)((x + y) * 255 / std::max(1, width + height - 2));
+        for (int c = 3; c < channels; c++) {
+          data[idx + c] = (Npp8u)(((x ^ y) * 255) / std::max(1, width * height));
+        }
+      }
+    }
+  }
+
+  std::string getName() const override { return "Gradient"; }
+};
+
+// Checkerboard pattern
+class CheckerboardGenerator : public ResizePatternGenerator {
+  int checkSize_;
+  Npp8u light_[3], dark_[3];
+
+public:
+  CheckerboardGenerator(int checkSize = 2) : checkSize_(checkSize) {
+    light_[0] = 255;
+    light_[1] = 200;
+    light_[2] = 220;
+    dark_[0] = 50;
+    dark_[1] = 80;
+    dark_[2] = 60;
+  }
+
+  void generate(std::vector<Npp8u> &data, int width, int height, int channels) const override {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * channels;
+        bool isLight = ((x / checkSize_) + (y / checkSize_)) % 2 == 0;
+        const Npp8u *colors = isLight ? light_ : dark_;
+
+        for (int c = 0; c < std::min(channels, 3); c++) {
+          data[idx + c] = colors[c];
+        }
+        for (int c = 3; c < channels; c++) {
+          data[idx + c] = 128;
+        }
+      }
+    }
+  }
+
+  std::string getName() const override { return "Checkerboard"; }
+};
+
+// Random pattern
+class RandomGenerator : public ResizePatternGenerator {
+  unsigned int seed_;
+
+public:
+  explicit RandomGenerator(unsigned int seed = 12345) : seed_(seed) {}
+
+  void generate(std::vector<Npp8u> &data, int width, int height, int channels) const override {
+    unsigned int s = seed_;
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * channels;
+        for (int c = 0; c < channels; c++) {
+          s = s * 1103515245 + 12345;
+          data[idx + c] = (Npp8u)((s >> 16) & 0xFF);
+        }
+      }
+    }
+  }
+
+  std::string getName() const override { return "Random"; }
+};
+
+// Multi-level pattern
+class MultiLevelGenerator : public ResizePatternGenerator {
+public:
+  void generate(std::vector<Npp8u> &data, int width, int height, int channels) const override {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int idx = (y * width + x) * channels;
+        if (channels >= 1)
+          data[idx + 0] = (Npp8u)((x % 4) * 60 + 40);
+        if (channels >= 2)
+          data[idx + 1] = (Npp8u)((y % 8) * 30 + 50);
+        if (channels >= 3)
+          data[idx + 2] = (Npp8u)(((x / 16) + (y / 16)) * 40 + 80);
+        for (int c = 3; c < channels; c++) {
+          data[idx + c] = (Npp8u)(((x % 3) + (y % 5)) * 30 + 60);
+        }
+      }
+    }
+  }
+
+  std::string getName() const override { return "MultiLevel"; }
+};
 
 class ResizeSuperGoldenTest : public NppTestBase {
 protected:
   void SetUp() override { NppTestBase::SetUp(); }
   void TearDown() override { NppTestBase::TearDown(); }
 
-  // Check if golden file exists
   bool goldenFileExists(const std::string &filename) {
     struct stat buffer;
     return (stat(filename.c_str(), &buffer) == 0);
   }
 
-  // Save golden reference data
   void saveGoldenData(const std::string &filename, const std::vector<Npp8u> &data) {
     std::ofstream ofs(filename, std::ios::binary);
     if (!ofs) {
-      FAIL() << "Failed to create golden file: " << filename;
+      ADD_FAILURE() << "Failed to create golden file: " << filename;
+      return;
     }
     ofs.write(reinterpret_cast<const char *>(data.data()), data.size());
     ofs.close();
   }
 
-  // Load golden reference data
   bool loadGoldenData(const std::string &filename, size_t expectedSize, std::vector<Npp8u> &data) {
     std::ifstream ifs(filename, std::ios::binary);
     if (!ifs) {
@@ -49,37 +188,76 @@ protected:
     return true;
   }
 
-  // Compare with golden data (exact match)
-  void compareWithGolden(const std::vector<Npp8u> &result, const std::vector<Npp8u> &golden,
-                         const std::string &testName, int width, int height, int channels) {
-    ASSERT_EQ(result.size(), golden.size()) << "Result size mismatch for " << testName;
+  struct CompareResult {
+    int totalPixels;
+    int mismatchCount;
+    int maxDiff;
+    double avgDiff;
+    bool passed;
+  };
 
-    int totalPixels = width * height;
-    int mismatchCount = 0;
-    int maxMismatches = 10; // Report first 10 mismatches
+  CompareResult compareWithGolden(const std::vector<Npp8u> &result, const std::vector<Npp8u> &golden,
+                                   const std::string &testName, int width, int height, int channels,
+                                   int tolerance = 0) {
+    CompareResult res = {};
+    res.totalPixels = width * height * channels;
+    res.mismatchCount = 0;
+    res.maxDiff = 0;
+    res.avgDiff = 0.0;
+    res.passed = true;
 
-    for (int i = 0; i < totalPixels * channels; i++) {
-      if (result[i] != golden[i]) {
-        mismatchCount++;
-        if (mismatchCount <= maxMismatches) {
+    EXPECT_EQ(result.size(), golden.size()) << "Result size mismatch for " << testName;
+    if (result.size() != golden.size()) {
+      res.passed = false;
+      return res;
+    }
+
+    int maxMismatchesToReport = 10;
+    long long totalDiff = 0;
+
+    for (int i = 0; i < res.totalPixels; i++) {
+      int diff = std::abs((int)result[i] - (int)golden[i]);
+      totalDiff += diff;
+
+      if (diff > res.maxDiff) {
+        res.maxDiff = diff;
+      }
+
+      if (diff > tolerance) {
+        res.mismatchCount++;
+        if (res.mismatchCount <= maxMismatchesToReport) {
           int pixelIdx = i / channels;
           int channel = i % channels;
           int y = pixelIdx / width;
           int x = pixelIdx % width;
-          EXPECT_EQ(result[i], golden[i]) << testName << " mismatch at pixel (" << x << "," << y << ") channel "
-                                          << channel << ": got " << (int)result[i] << ", expected " << (int)golden[i];
+          EXPECT_LE(diff, tolerance) << testName << " mismatch at pixel (" << x << "," << y << ") channel " << channel
+                                     << ": got " << (int)result[i] << ", expected " << (int)golden[i] << ", diff="
+                                     << diff;
         }
       }
     }
 
-    if (mismatchCount > maxMismatches) {
-      FAIL() << testName << ": Total " << mismatchCount << " pixel mismatches (showing first " << maxMismatches << ")";
+    res.avgDiff = (double)totalDiff / res.totalPixels;
+    res.passed = (res.mismatchCount == 0);
+
+    if (res.mismatchCount > 0) {
+      std::cout << testName << " comparison summary:\n"
+                << "  Total pixels: " << res.totalPixels << "\n"
+                << "  Mismatches: " << res.mismatchCount << " (" << (100.0 * res.mismatchCount / res.totalPixels)
+                << "%)\n"
+                << "  Max diff: " << res.maxDiff << "\n"
+                << "  Avg diff: " << res.avgDiff << "\n"
+                << "  Tolerance: " << tolerance << "\n";
+
+      if (res.mismatchCount > maxMismatchesToReport) {
+        ADD_FAILURE() << testName << ": Total " << res.mismatchCount << " mismatches (showing first "
+                      << maxMismatchesToReport << ")";
+      }
     }
 
-    EXPECT_EQ(mismatchCount, 0) << testName << ": Implementation differs from NVIDIA NPP golden reference";
+    return res;
   }
 
-  // Helper to get full golden file path
   std::string getGoldenFilePath(const std::string &filename) {
 #ifdef GOLDEN_DATA_DIR
     return std::string(GOLDEN_DATA_DIR) + "/" + filename;
@@ -87,245 +265,87 @@ protected:
     return "test/golden/" + filename;
 #endif
   }
+
+  // Common test template
+  void runSuperSamplingGoldenTest(const std::string &testName, int srcWidth, int srcHeight, int dstWidth,
+                                  int dstHeight, int channels, const ResizePatternGenerator &generator,
+                                  int tolerance = 0) {
+    std::string goldenFile = getGoldenFilePath("resize_super_" + testName + "_c" + std::to_string(channels) + "r.bin");
+
+    // Generate test data
+    std::vector<Npp8u> srcData(srcWidth * srcHeight * channels);
+    generator.generate(srcData, srcWidth, srcHeight, channels);
+
+    // Allocate device memory
+    NppImageMemory<Npp8u> src(srcWidth * channels, srcHeight);
+    NppImageMemory<Npp8u> dst(dstWidth * channels, dstHeight);
+
+    src.copyFromHost(srcData);
+
+    // Setup NPP parameters
+    NppiSize srcSize = {srcWidth, srcHeight};
+    NppiSize dstSize = {dstWidth, dstHeight};
+    NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+    NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+    // Run resize
+    NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
+                                         dstROI, NPPI_INTER_SUPER);
+
+    ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize failed for " << testName;
+
+    // Get result
+    std::vector<Npp8u> resultData(dstWidth * dstHeight * channels);
+    dst.copyToHost(resultData);
+
+#ifdef USE_NVIDIA_NPP
+    // Generate mode: save golden file
+    if (!goldenFileExists(goldenFile)) {
+      std::cout << "Generating golden file: " << goldenFile << "\n";
+      saveGoldenData(goldenFile, resultData);
+    }
+#else
+    // Validation mode: compare against golden
+    if (!goldenFileExists(goldenFile)) {
+      FAIL() << "Golden file not found: " << goldenFile
+             << "\nRun with --use-nvidia-npp build first to generate it.";
+    }
+
+    std::vector<Npp8u> goldenData;
+    ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data for "
+                                                                            << testName;
+
+    CompareResult res = compareWithGolden(resultData, goldenData, testName, dstWidth, dstHeight, channels, tolerance);
+    EXPECT_TRUE(res.passed) << testName << ": Implementation differs from golden reference";
+
+    if (res.passed) {
+      std::cout << "  " << testName << ": Perfect match with golden reference ✓\n";
+    }
+#endif
+  }
 };
 
-// Test 1: Uniform block downsampling 4x
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_UniformBlock_4x_Golden) {
-  const int srcWidth = 128, srcHeight = 128;
-  const int dstWidth = 32, dstHeight = 32;
-  const std::string goldenFile = getGoldenFilePath("resize_super_uniformblock_4x_c3r.bin");
-
-  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create 4x4 blocks with distinct values
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      int blockX = x / 32;
-      int blockY = y / 32;
-      int blockId = blockY * 4 + blockX;
-      Npp8u value = (Npp8u)(blockId * 15 + 50);
-      srcData[idx + 0] = value;
-      srcData[idx + 1] = value + 10;
-      srcData[idx + 2] = value + 20;
-    }
-  }
-
-  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
-  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
-
-  src.copyFromHost(srcData);
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiSize dstSize = {dstWidth, dstHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
-
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_SUPER);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
-  dst.copyToHost(resultData);
-
-  // When using MPP, compare against golden reference
-  if (!goldenFileExists(goldenFile)) {
-    FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
-  }
-
-  std::vector<Npp8u> goldenData;
-  ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
-  compareWithGolden(resultData, goldenData, "UniformBlock_4x", dstWidth, dstHeight, 3);
+  UniformBlockGenerator gen(32);
+  runSuperSamplingGoldenTest("uniformblock_4x", 128, 128, 32, 32, 3, gen);
 }
 
-// Test 2: Gradient pattern downsampling 2x
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Gradient_2x_Golden) {
-  const int srcWidth = 64, srcHeight = 64;
-  const int dstWidth = 32, dstHeight = 32;
-  const std::string goldenFile = getGoldenFilePath("resize_super_gradient_2x_c3r.bin");
-
-  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create gradient pattern
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));                   // R: horizontal gradient
-      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));                  // G: vertical gradient
-      srcData[idx + 2] = (Npp8u)((x + y) * 255 / (srcWidth + srcHeight - 2)); // B: diagonal gradient
-    }
-  }
-
-  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
-  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
-
-  src.copyFromHost(srcData);
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiSize dstSize = {dstWidth, dstHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
-
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_SUPER);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
-  dst.copyToHost(resultData);
-
-  if (!goldenFileExists(goldenFile)) {
-    FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
-  }
-
-  std::vector<Npp8u> goldenData;
-  ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
-  compareWithGolden(resultData, goldenData, "Gradient_2x", dstWidth, dstHeight, 3);
+  GradientGenerator gen;
+  runSuperSamplingGoldenTest("gradient_2x", 64, 64, 32, 32, 3, gen);
 }
 
-// Test 3: Checkerboard pattern downsampling 8x
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Checkerboard_8x_Golden) {
-  const int srcWidth = 128, srcHeight = 128;
-  const int dstWidth = 16, dstHeight = 16;
-  const std::string goldenFile = getGoldenFilePath("resize_super_checkerboard_8x_c3r.bin");
-
-  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create fine checkerboard pattern
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      bool isWhite = ((x / 2) + (y / 2)) % 2 == 0;
-      Npp8u r = isWhite ? 255 : 50;
-      Npp8u g = isWhite ? 200 : 80;
-      Npp8u b = isWhite ? 220 : 60;
-      srcData[idx + 0] = r;
-      srcData[idx + 1] = g;
-      srcData[idx + 2] = b;
-    }
-  }
-
-  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
-  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
-
-  src.copyFromHost(srcData);
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiSize dstSize = {dstWidth, dstHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
-
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_SUPER);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
-  dst.copyToHost(resultData);
-
-  if (!goldenFileExists(goldenFile)) {
-    FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
-  }
-
-  std::vector<Npp8u> goldenData;
-  ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
-  compareWithGolden(resultData, goldenData, "Checkerboard_8x", dstWidth, dstHeight, 3);
+  CheckerboardGenerator gen(2);
+  runSuperSamplingGoldenTest("checkerboard_8x", 128, 128, 16, 16, 3, gen);
 }
 
-// Test 4: Random pattern downsampling 4x
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_Random_4x_Golden) {
-  const int srcWidth = 80, srcHeight = 80;
-  const int dstWidth = 20, dstHeight = 20;
-  const std::string goldenFile = getGoldenFilePath("resize_super_random_4x_c3r.bin");
-
-  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create deterministic pseudo-random pattern
-  unsigned int seed = 12345;
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      seed = seed * 1103515245 + 12345; // Linear congruential generator
-      srcData[idx + 0] = (Npp8u)((seed >> 16) & 0xFF);
-      seed = seed * 1103515245 + 12345;
-      srcData[idx + 1] = (Npp8u)((seed >> 16) & 0xFF);
-      seed = seed * 1103515245 + 12345;
-      srcData[idx + 2] = (Npp8u)((seed >> 16) & 0xFF);
-    }
-  }
-
-  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
-  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
-
-  src.copyFromHost(srcData);
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiSize dstSize = {dstWidth, dstHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
-
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_SUPER);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
-  dst.copyToHost(resultData);
-
-  if (!goldenFileExists(goldenFile)) {
-    FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
-  }
-
-  std::vector<Npp8u> goldenData;
-  ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
-  compareWithGolden(resultData, goldenData, "Random_4x", dstWidth, dstHeight, 3);
+  RandomGenerator gen(12345);
+  runSuperSamplingGoldenTest("random_4x", 80, 80, 20, 20, 3, gen);
 }
 
-// Test 5: Complex multi-level pattern
 TEST_F(ResizeSuperGoldenTest, Super_8u_C3R_MultiLevel_3x_Golden) {
-  const int srcWidth = 96, srcHeight = 96;
-  const int dstWidth = 32, dstHeight = 32;
-  const std::string goldenFile = getGoldenFilePath("resize_super_multilevel_3x_c3r.bin");
-
-  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
-
-  // Create multi-level pattern with different frequencies
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      int idx = (y * srcWidth + x) * 3;
-      // R: high frequency
-      srcData[idx + 0] = (Npp8u)((x % 4) * 60 + 40);
-      // G: medium frequency
-      srcData[idx + 1] = (Npp8u)((y % 8) * 30 + 50);
-      // B: low frequency
-      srcData[idx + 2] = (Npp8u)(((x / 16) + (y / 16)) * 40 + 80);
-    }
-  }
-
-  NppImageMemory<Npp8u> src(srcWidth * 3, srcHeight);
-  NppImageMemory<Npp8u> dst(dstWidth * 3, dstHeight);
-
-  src.copyFromHost(srcData);
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiSize dstSize = {dstWidth, dstHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
-
-  NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                       NPPI_INTER_SUPER);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
-  dst.copyToHost(resultData);
-
-  if (!goldenFileExists(goldenFile)) {
-    FAIL() << "Golden file not found: " << goldenFile << ". Run with USE_NVIDIA_NPP=ON first to generate it.";
-  }
-
-  std::vector<Npp8u> goldenData;
-  ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data";
-  compareWithGolden(resultData, goldenData, "MultiLevel_3x", dstWidth, dstHeight, 3);
+  MultiLevelGenerator gen;
+  runSuperSamplingGoldenTest("multilevel_3x", 96, 96, 32, 32, 3, gen);
 }
