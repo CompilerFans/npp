@@ -111,6 +111,11 @@ int main() {
 
   int iterations = 1000;
 
+  std::cout << "Testing very small images (320x240):" << std::endl;
+  benchmark_C3P3R(320, 240, iterations);
+  benchmark_P3C3R(320, 240, iterations);
+  std::cout << std::endl;
+
   std::cout << "Testing small images (640x480):" << std::endl;
   benchmark_C3P3R(640, 480, iterations);
   benchmark_P3C3R(640, 480, iterations);
@@ -124,6 +129,11 @@ int main() {
   std::cout << "Testing large images (3840x2160):" << std::endl;
   benchmark_C3P3R(3840, 2160, iterations);
   benchmark_P3C3R(3840, 2160, iterations);
+  std::cout << std::endl;
+
+  std::cout << "Testing very large images (7680x4320):" << std::endl;
+  benchmark_C3P3R(7680, 4320, iterations / 10);
+  benchmark_P3C3R(7680, 4320, iterations / 10);
   std::cout << std::endl;
 
   return 0;
