@@ -36,39 +36,46 @@ __global__ void nppiCopy_8u_C4R_vectorized_kernel(const Npp8u *pSrc, int nSrcSte
   dst_row[x] = src_row[x];
 }
 
-// Vectorized packed to planar for 32f C3
+// Ultra-optimized C3P3R: process 8 pixels per thread for max throughput
 __global__ void nppiCopy_32f_C3P3R_vectorized(const float *pSrc, int nSrcStep, float *pDst0, float *pDst1, float *pDst2,
                                               int nDstStep, int width, int height) {
-  int x = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
+  int x = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (y >= height)
-    return;
+  if (y >= height) return;
 
   const float *src_row = (const float *)((const char *)pSrc + y * nSrcStep);
   float *dst_row0 = (float *)((char *)pDst0 + y * nDstStep);
   float *dst_row1 = (float *)((char *)pDst1 + y * nDstStep);
   float *dst_row2 = (float *)((char *)pDst2 + y * nDstStep);
 
-  if (x + 3 < width) {
-    // Manual vectorized load
-    float v[12];
-    #pragma unroll
-    for (int i = 0; i < 12; i++) {
-      v[i] = src_row[x * 3 + i];
-    }
+  if (x + 7 < width) {
+    // Read 24 floats (8 RGB pixels) using 6 vectorized loads
+    float4 v0 = *reinterpret_cast<const float4*>(&src_row[x * 3]);
+    float4 v1 = *reinterpret_cast<const float4*>(&src_row[x * 3 + 4]);
+    float4 v2 = *reinterpret_cast<const float4*>(&src_row[x * 3 + 8]);
+    float4 v3 = *reinterpret_cast<const float4*>(&src_row[x * 3 + 12]);
+    float4 v4 = *reinterpret_cast<const float4*>(&src_row[x * 3 + 16]);
+    float4 v5 = *reinterpret_cast<const float4*>(&src_row[x * 3 + 20]);
 
-    // Store to planar
-    float4 c0 = make_float4(v[0], v[3], v[6], v[9]);
-    float4 c1 = make_float4(v[1], v[4], v[7], v[10]);
-    float4 c2 = make_float4(v[2], v[5], v[8], v[11]);
+    // Transpose: RGBRGBRGBRGBRGBRGBRGBRGB -> RRRRRRRR GGGGGGGG BBBBBBBB
+    float4 r0 = make_float4(v0.x, v0.w, v1.z, v2.y);
+    float4 r1 = make_float4(v3.x, v3.w, v4.z, v5.y);
+    float4 g0 = make_float4(v0.y, v1.x, v1.w, v2.z);
+    float4 g1 = make_float4(v3.y, v4.x, v4.w, v5.z);
+    float4 b0 = make_float4(v0.z, v1.y, v2.x, v2.w);
+    float4 b1 = make_float4(v3.z, v4.y, v5.x, v5.w);
 
-    *reinterpret_cast<float4*>(&dst_row0[x]) = c0;
-    *reinterpret_cast<float4*>(&dst_row1[x]) = c1;
-    *reinterpret_cast<float4*>(&dst_row2[x]) = c2;
+    // Write using vectorized stores - 2x float4 per channel
+    *reinterpret_cast<float4*>(&dst_row0[x]) = r0;
+    *reinterpret_cast<float4*>(&dst_row0[x + 4]) = r1;
+    *reinterpret_cast<float4*>(&dst_row1[x]) = g0;
+    *reinterpret_cast<float4*>(&dst_row1[x + 4]) = g1;
+    *reinterpret_cast<float4*>(&dst_row2[x]) = b0;
+    *reinterpret_cast<float4*>(&dst_row2[x + 4]) = b1;
   } else {
     // Handle remaining pixels
-    for (int i = 0; i < 4 && x + i < width; i++) {
+    for (int i = 0; i < 8 && x + i < width; i++) {
       int idx = x + i;
       dst_row0[idx] = src_row[idx * 3];
       dst_row1[idx] = src_row[idx * 3 + 1];
@@ -129,41 +136,46 @@ __global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, T *const *pDs
   }
 }
 
-// Vectorized planar to packed for 32f P3C3
+// Ultra-optimized P3C3R: process 8 pixels per thread for max throughput
 __global__ void nppiCopy_32f_P3C3R_vectorized(const float *pSrc0, const float *pSrc1, const float *pSrc2,
                                               int nSrcStep, float *pDst, int nDstStep, int width, int height) {
-  int x = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
+  int x = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  if (y >= height)
-    return;
+  if (y >= height) return;
 
   const float *src_row0 = (const float *)((const char *)pSrc0 + y * nSrcStep);
   const float *src_row1 = (const float *)((const char *)pSrc1 + y * nSrcStep);
   const float *src_row2 = (const float *)((const char *)pSrc2 + y * nSrcStep);
   float *dst_row = (float *)((char *)pDst + y * nDstStep);
 
-  if (x + 3 < width) {
-    // Vectorized load from planar sources
-    float4 c0 = *reinterpret_cast<const float4*>(&src_row0[x]);
-    float4 c1 = *reinterpret_cast<const float4*>(&src_row1[x]);
-    float4 c2 = *reinterpret_cast<const float4*>(&src_row2[x]);
+  if (x + 7 < width) {
+    // Read 8 pixels from each channel using 2 vectorized loads per channel
+    float4 r0 = *reinterpret_cast<const float4*>(&src_row0[x]);
+    float4 r1 = *reinterpret_cast<const float4*>(&src_row0[x + 4]);
+    float4 g0 = *reinterpret_cast<const float4*>(&src_row1[x]);
+    float4 g1 = *reinterpret_cast<const float4*>(&src_row1[x + 4]);
+    float4 b0 = *reinterpret_cast<const float4*>(&src_row2[x]);
+    float4 b1 = *reinterpret_cast<const float4*>(&src_row2[x + 4]);
 
-    // Interleave manually
-    float v[12];
-    v[0] = c0.x; v[1] = c1.x; v[2] = c2.x;
-    v[3] = c0.y; v[4] = c1.y; v[5] = c2.y;
-    v[6] = c0.z; v[7] = c1.z; v[8] = c2.z;
-    v[9] = c0.w; v[10] = c1.w; v[11] = c2.w;
+    // Transpose: RRRRRRRR GGGGGGGG BBBBBBBB -> RGBRGBRGBRGBRGBRGBRGBRGB
+    float4 v0 = make_float4(r0.x, g0.x, b0.x, r0.y);
+    float4 v1 = make_float4(g0.y, b0.y, r0.z, g0.z);
+    float4 v2 = make_float4(b0.z, r0.w, g0.w, b0.w);
+    float4 v3 = make_float4(r1.x, g1.x, b1.x, r1.y);
+    float4 v4 = make_float4(g1.y, b1.y, r1.z, g1.z);
+    float4 v5 = make_float4(b1.z, r1.w, g1.w, b1.w);
 
-    // Write interleaved
-    #pragma unroll
-    for (int i = 0; i < 12; i++) {
-      dst_row[x * 3 + i] = v[i];
-    }
+    // Write using vectorized stores - 6x float4 total
+    *reinterpret_cast<float4*>(&dst_row[x * 3]) = v0;
+    *reinterpret_cast<float4*>(&dst_row[x * 3 + 4]) = v1;
+    *reinterpret_cast<float4*>(&dst_row[x * 3 + 8]) = v2;
+    *reinterpret_cast<float4*>(&dst_row[x * 3 + 12]) = v3;
+    *reinterpret_cast<float4*>(&dst_row[x * 3 + 16]) = v4;
+    *reinterpret_cast<float4*>(&dst_row[x * 3 + 20]) = v5;
   } else {
     // Handle remaining pixels
-    for (int i = 0; i < 4 && x + i < width; i++) {
+    for (int i = 0; i < 8 && x + i < width; i++) {
       int idx = x + i;
       dst_row[idx * 3] = src_row0[idx];
       dst_row[idx * 3 + 1] = src_row1[idx];
@@ -338,14 +350,16 @@ NppStatus nppiCopy_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
 
 } // extern "C"
 
-// Optimized C3P3R for 32f with vectorized loads
+// Optimized C3P3R for 32f with ultra-vectorized operations
 NppStatus nppiCopy_32f_C3P3R_impl_vectorized(const float *pSrc, int nSrcStep, float *const pDst[3], int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  int blockX = (oSizeROI.width < 512) ? 64 : 128;
-  int blockY = (oSizeROI.height < 256) ? 4 : 8;
+  // Each thread processes 8 pixels using 6 float4 loads + 6 float4 stores
+  // Optimize block size based on image size
+  int blockX = (oSizeROI.width < 512) ? 16 : 32;
+  int blockY = (oSizeROI.height < 256) ? 2 : 4;
 
   dim3 blockSize(blockX, blockY);
-  dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+  dim3 gridSize((oSizeROI.width + blockSize.x * 8 - 1) / (blockSize.x * 8),
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiCopy_32f_C3P3R_vectorized<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
@@ -411,14 +425,16 @@ NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int 
   return NPP_SUCCESS;
 }
 
-// Optimized P3C3R for 32f with vectorized loads
+// Optimized P3C3R for 32f with ultra-vectorized operations
 NppStatus nppiCopy_32f_P3C3R_impl_vectorized(float *const pSrc[3], int nSrcStep, float *pDst, int nDstStep,
                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  int blockX = (oSizeROI.width < 512) ? 64 : 128;
-  int blockY = (oSizeROI.height < 256) ? 4 : 8;
+  // Each thread processes 8 pixels using 6 float4 loads + 6 float4 stores
+  // Optimize block size based on image size
+  int blockX = (oSizeROI.width < 512) ? 16 : 32;
+  int blockY = (oSizeROI.height < 256) ? 2 : 4;
 
   dim3 blockSize(blockX, blockY);
-  dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+  dim3 gridSize((oSizeROI.width + blockSize.x * 8 - 1) / (blockSize.x * 8),
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiCopy_32f_P3C3R_vectorized<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
