@@ -1,6 +1,9 @@
 #include "../../../../ref_code/super_sampling_cpu_reference/src/super_sampling_cpu.h"
 #include "npp_test_base.h"
+#include <array>
 #include <functional>
+#include <type_traits>
+#include <vector>
 
 using namespace npp_functional_test;
 
@@ -179,6 +182,206 @@ protected:
   }
 };
 
+namespace {
+
+template <typename T> T generatePlanarPixel(int channel, int x, int y);
+
+template <>
+inline Npp8u generatePlanarPixel<Npp8u>(int channel, int x, int y) {
+  return static_cast<Npp8u>(((channel + 1) * (x + y + 1)) & 0xFF);
+}
+
+template <>
+inline Npp16u generatePlanarPixel<Npp16u>(int channel, int x, int y) {
+  return static_cast<Npp16u>((channel + 1) * 1000 + x * 25 + y * 19);
+}
+
+template <>
+inline Npp32f generatePlanarPixel<Npp32f>(int channel, int x, int y) {
+  return static_cast<Npp32f>((channel + 1) * 0.1f + 0.015f * x + 0.02f * y);
+}
+
+template <typename T, int CHANNELS>
+void RunPlanarResizeRoundTrip(int srcWidth, int srcHeight, int dstWidth, int dstHeight, int interpolation) {
+  std::array<std::vector<T>, CHANNELS> srcHost;
+  for (int c = 0; c < CHANNELS; ++c) {
+    srcHost[c].resize(srcWidth * srcHeight);
+  }
+
+  for (int c = 0; c < CHANNELS; ++c) {
+    for (int y = 0; y < srcHeight; ++y) {
+      for (int x = 0; x < srcWidth; ++x) {
+        srcHost[c][y * srcWidth + x] = generatePlanarPixel<T>(c, x, y);
+      }
+    }
+  }
+
+  std::vector<NppImageMemory<T>> srcPlanes;
+  std::vector<NppImageMemory<T>> dstPlanes;
+  std::vector<NppImageMemory<T>> dstCtxPlanes;
+  std::vector<NppImageMemory<T>> refPlanes;
+  srcPlanes.reserve(CHANNELS);
+  dstPlanes.reserve(CHANNELS);
+  dstCtxPlanes.reserve(CHANNELS);
+  refPlanes.reserve(CHANNELS);
+
+  for (int c = 0; c < CHANNELS; ++c) {
+    srcPlanes.emplace_back(srcWidth, srcHeight);
+    dstPlanes.emplace_back(dstWidth, dstHeight);
+    dstCtxPlanes.emplace_back(dstWidth, dstHeight);
+    refPlanes.emplace_back(dstWidth, dstHeight);
+    srcPlanes[c].copyFromHost(srcHost[c]);
+  }
+
+  std::array<const T *, CHANNELS> srcPtrs{};
+  std::array<T *, CHANNELS> dstPtrs{};
+  std::array<T *, CHANNELS> dstCtxPtrs{};
+  std::array<T *, CHANNELS> refPtrs{};
+  for (int c = 0; c < CHANNELS; ++c) {
+    srcPtrs[c] = srcPlanes[c].get();
+    dstPtrs[c] = dstPlanes[c].get();
+    dstCtxPtrs[c] = dstCtxPlanes[c].get();
+    refPtrs[c] = refPlanes[c].get();
+  }
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+  int srcStep = srcPlanes[0].step();
+  int dstStep = dstPlanes[0].step();
+  int dstCtxStep = dstCtxPlanes[0].step();
+
+  NppStatus status = NPP_SUCCESS;
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    if constexpr (CHANNELS == 3) {
+      status = nppiResize_8u_P3R(const_cast<const Npp8u **>(reinterpret_cast<const Npp8u *const *>(srcPtrs.data())),
+                                 srcStep, srcSize, srcROI,
+                                 const_cast<Npp8u **>(reinterpret_cast<Npp8u *const *>(dstPtrs.data())), dstStep,
+                                 dstSize, dstROI, interpolation);
+    } else {
+      status = nppiResize_8u_P4R(const_cast<const Npp8u **>(reinterpret_cast<const Npp8u *const *>(srcPtrs.data())),
+                                 srcStep, srcSize, srcROI,
+                                 const_cast<Npp8u **>(reinterpret_cast<Npp8u *const *>(dstPtrs.data())), dstStep,
+                                 dstSize, dstROI, interpolation);
+    }
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    if constexpr (CHANNELS == 3) {
+      status = nppiResize_16u_P3R(const_cast<const Npp16u **>(reinterpret_cast<const Npp16u *const *>(srcPtrs.data())),
+                                  srcStep, srcSize, srcROI,
+                                  const_cast<Npp16u **>(reinterpret_cast<Npp16u *const *>(dstPtrs.data())), dstStep,
+                                  dstSize, dstROI, interpolation);
+    } else {
+      status = nppiResize_16u_P4R(const_cast<const Npp16u **>(reinterpret_cast<const Npp16u *const *>(srcPtrs.data())),
+                                  srcStep, srcSize, srcROI,
+                                  const_cast<Npp16u **>(reinterpret_cast<Npp16u *const *>(dstPtrs.data())), dstStep,
+                                  dstSize, dstROI, interpolation);
+    }
+  } else if constexpr (std::is_same_v<T, Npp32f>) {
+    if constexpr (CHANNELS == 3) {
+      status = nppiResize_32f_P3R(const_cast<const Npp32f **>(reinterpret_cast<const Npp32f *const *>(srcPtrs.data())),
+                                  srcStep, srcSize, srcROI,
+                                  const_cast<Npp32f **>(reinterpret_cast<Npp32f *const *>(dstPtrs.data())), dstStep,
+                                  dstSize, dstROI, interpolation);
+    } else {
+      status = nppiResize_32f_P4R(const_cast<const Npp32f **>(reinterpret_cast<const Npp32f *const *>(srcPtrs.data())),
+                                  srcStep, srcSize, srcROI,
+                                  const_cast<Npp32f **>(reinterpret_cast<Npp32f *const *>(dstPtrs.data())), dstStep,
+                                  dstSize, dstROI, interpolation);
+    }
+  }
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::array<std::vector<T>, CHANNELS> dstHost;
+  std::array<std::vector<T>, CHANNELS> refHost;
+  std::array<std::vector<T>, CHANNELS> dstCtxHost;
+  for (int c = 0; c < CHANNELS; ++c) {
+    dstHost[c].resize(dstWidth * dstHeight);
+    refHost[c].resize(dstWidth * dstHeight);
+    dstCtxHost[c].resize(dstWidth * dstHeight);
+    dstPlanes[c].copyToHost(dstHost[c]);
+
+    NppStatus refStatus = NPP_SUCCESS;
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      refStatus = nppiResize_8u_C1R(srcPlanes[c].get(), srcPlanes[c].step(), srcSize, srcROI, refPtrs[c],
+                                    refPlanes[c].step(), dstSize, dstROI, interpolation);
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      refStatus = nppiResize_16u_C1R(srcPlanes[c].get(), srcPlanes[c].step(), srcSize, srcROI, refPtrs[c],
+                                     refPlanes[c].step(), dstSize, dstROI, interpolation);
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
+      refStatus = nppiResize_32f_C1R(srcPlanes[c].get(), srcPlanes[c].step(), srcSize, srcROI, refPtrs[c],
+                                     refPlanes[c].step(), dstSize, dstROI, interpolation);
+    }
+    ASSERT_EQ(refStatus, NPP_SUCCESS);
+    refPlanes[c].copyToHost(refHost[c]);
+  }
+
+  for (int c = 0; c < CHANNELS; ++c) {
+    for (size_t i = 0; i < dstHost[c].size(); ++i) {
+      if constexpr (std::is_same_v<T, Npp32f>) {
+        EXPECT_NEAR(dstHost[c][i], refHost[c][i], 1e-4f) << "Channel " << c << " mismatch at element " << i;
+      } else {
+        EXPECT_EQ(dstHost[c][i], refHost[c][i]) << "Channel " << c << " mismatch at element " << i;
+      }
+    }
+  }
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    if constexpr (CHANNELS == 3) {
+      status = nppiResize_8u_P3R_Ctx(
+          const_cast<const Npp8u **>(reinterpret_cast<const Npp8u *const *>(srcPtrs.data())), srcStep, srcSize,
+          srcROI, const_cast<Npp8u **>(reinterpret_cast<Npp8u *const *>(dstCtxPtrs.data())), dstCtxStep, dstSize,
+          dstROI, interpolation, nppStreamCtx);
+    } else {
+      status = nppiResize_8u_P4R_Ctx(
+          const_cast<const Npp8u **>(reinterpret_cast<const Npp8u *const *>(srcPtrs.data())), srcStep, srcSize,
+          srcROI, const_cast<Npp8u **>(reinterpret_cast<Npp8u *const *>(dstCtxPtrs.data())), dstCtxStep, dstSize,
+          dstROI, interpolation, nppStreamCtx);
+    }
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    if constexpr (CHANNELS == 3) {
+      status = nppiResize_16u_P3R_Ctx(
+          const_cast<const Npp16u **>(reinterpret_cast<const Npp16u *const *>(srcPtrs.data())), srcStep, srcSize,
+          srcROI, const_cast<Npp16u **>(reinterpret_cast<Npp16u *const *>(dstCtxPtrs.data())), dstCtxStep, dstSize,
+          dstROI, interpolation, nppStreamCtx);
+    } else {
+      status = nppiResize_16u_P4R_Ctx(
+          const_cast<const Npp16u **>(reinterpret_cast<const Npp16u *const *>(srcPtrs.data())), srcStep, srcSize,
+          srcROI, const_cast<Npp16u **>(reinterpret_cast<Npp16u *const *>(dstCtxPtrs.data())), dstCtxStep, dstSize,
+          dstROI, interpolation, nppStreamCtx);
+    }
+  } else if constexpr (std::is_same_v<T, Npp32f>) {
+    if constexpr (CHANNELS == 3) {
+      status = nppiResize_32f_P3R_Ctx(
+          const_cast<const Npp32f **>(reinterpret_cast<const Npp32f *const *>(srcPtrs.data())), srcStep, srcSize,
+          srcROI, const_cast<Npp32f **>(reinterpret_cast<Npp32f *const *>(dstCtxPtrs.data())), dstCtxStep, dstSize,
+          dstROI, interpolation, nppStreamCtx);
+    } else {
+      status = nppiResize_32f_P4R_Ctx(
+          const_cast<const Npp32f **>(reinterpret_cast<const Npp32f *const *>(srcPtrs.data())), srcStep, srcSize,
+          srcROI, const_cast<Npp32f **>(reinterpret_cast<Npp32f *const *>(dstCtxPtrs.data())), dstCtxStep, dstSize,
+          dstROI, interpolation, nppStreamCtx);
+    }
+  }
+  ASSERT_EQ(status, NPP_SUCCESS);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+
+  for (int c = 0; c < CHANNELS; ++c) {
+    dstCtxPlanes[c].copyToHost(dstCtxHost[c]);
+    for (size_t i = 0; i < dstCtxHost[c].size(); ++i) {
+      if constexpr (std::is_same_v<T, Npp32f>) {
+        EXPECT_NEAR(dstCtxHost[c][i], refHost[c][i], 1e-4f) << "Ctx channel " << c << " mismatch at element " << i;
+      } else {
+        EXPECT_EQ(dstCtxHost[c][i], refHost[c][i]) << "Ctx channel " << c << " mismatch at element " << i;
+      }
+    }
+  }
+}
+
+} // namespace
+
 TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor) {
   const int srcWidth = 32, srcHeight = 32;
   const int dstWidth = 64, dstHeight = 64;
@@ -356,6 +559,119 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Bilinear) {
     int prev = resultData[(x - 1) * 3];
     EXPECT_GE(current, prev - 1) << "R gradient not continuous at x=" << x;
   }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_AC4R_AlphaPreserved) {
+  const int srcWidth = 16, srcHeight = 16;
+  const int dstWidth = 32, dstHeight = 32;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<Npp8u>(x * 8);
+      srcData[idx + 1] = static_cast<Npp8u>(y * 8);
+      srcData[idx + 2] = 100;
+      srcData[idx + 3] = static_cast<Npp8u>((x * 7 + y * 13) & 0xFF);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_8u_AC4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 4);
+  dst.copyToHost(resultData);
+
+  auto expectedAlpha = [&](int dx, int dy) {
+    float scaleX = static_cast<float>(srcROI.width) / dstROI.width;
+    float scaleY = static_cast<float>(srcROI.height) / dstROI.height;
+    int sx = static_cast<int>(dx * scaleX + 0.5f) + srcROI.x;
+    int sy = static_cast<int>(dy * scaleY + 0.5f) + srcROI.y;
+    sx = std::min(std::max(sx, srcROI.x), srcROI.x + srcROI.width - 1);
+    sy = std::min(std::max(sy, srcROI.y), srcROI.y + srcROI.height - 1);
+    return srcData[(sy * srcWidth + sx) * 4 + 3];
+  };
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      EXPECT_EQ(resultData[idx + 3], expectedAlpha(x, y)) << "Alpha mismatch at (" << x << "," << y << ")";
+    }
+  }
+
+  validateHorizontalMonotonic<Npp8u, 4>(resultData, dstWidth, dstHeight);
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_AC4R_Ctx_AlphaPreserved) {
+  const int srcWidth = 20, srcHeight = 12;
+  const int dstWidth = 40, dstHeight = 24;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<Npp8u>((x * 11) & 0xFF);
+      srcData[idx + 1] = static_cast<Npp8u>((y * 17) & 0xFF);
+      srcData[idx + 2] = static_cast<Npp8u>((x + y) & 0xFF);
+      srcData[idx + 3] = static_cast<Npp8u>((x * 5 + y * 9) & 0xFF);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiResize_8u_AC4R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                           NPPI_INTER_LINEAR, nppStreamCtx);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 4);
+  dst.copyToHost(resultData);
+
+  auto expectedAlpha = [&](int dx, int dy) {
+    float scaleX = static_cast<float>(srcROI.width) / dstROI.width;
+    float scaleY = static_cast<float>(srcROI.height) / dstROI.height;
+    int sx = static_cast<int>(dx * scaleX + 0.5f) + srcROI.x;
+    int sy = static_cast<int>(dy * scaleY + 0.5f) + srcROI.y;
+    sx = std::min(std::max(sx, srcROI.x), srcROI.x + srcROI.width - 1);
+    sy = std::min(std::max(sy, srcROI.y), srcROI.y + srcROI.height - 1);
+    return srcData[(sy * srcWidth + sx) * 4 + 3];
+  };
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      EXPECT_EQ(resultData[idx + 3], expectedAlpha(x, y)) << "Alpha mismatch at (" << x << "," << y << ")";
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_PlanarMatchesC1) {
+  RunPlanarResizeRoundTrip<Npp8u, 3>(19, 21, 31, 29, NPPI_INTER_LINEAR);
+  RunPlanarResizeRoundTrip<Npp8u, 4>(18, 20, 26, 24, NPPI_INTER_LINEAR);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_Ctx_Bilinear) {
@@ -2237,6 +2553,120 @@ TEST_F(ResizeFunctionalTest, Resize_16u_C1R_Ctx_LinearInterpolation) {
   ASSERT_TRUE(hasNonZero);
 }
 
+TEST_F(ResizeFunctionalTest, Resize_16u_AC4R_AlphaPreserved) {
+  const int srcWidth = 24, srcHeight = 12;
+  const int dstWidth = 12, dstHeight = 6;
+
+  std::vector<Npp16u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<Npp16u>(x * 300);
+      srcData[idx + 1] = static_cast<Npp16u>(y * 400);
+      srcData[idx + 2] = static_cast<Npp16u>(5000 + x * 10 + y * 5);
+      srcData[idx + 3] = static_cast<Npp16u>((x * 1234 + y * 2345) & 0xFFFF);
+    }
+  }
+
+  NppImageMemory<Npp16u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp16u> dst(dstWidth, dstHeight, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_16u_AC4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> resultData(dstWidth * dstHeight * 4);
+  dst.copyToHost(resultData);
+
+  auto expectedAlpha = [&](int dx, int dy) {
+    float scaleX = static_cast<float>(srcROI.width) / dstROI.width;
+    float scaleY = static_cast<float>(srcROI.height) / dstROI.height;
+    int sx = static_cast<int>(dx * scaleX + 0.5f) + srcROI.x;
+    int sy = static_cast<int>(dy * scaleY + 0.5f) + srcROI.y;
+    sx = std::min(std::max(sx, srcROI.x), srcROI.x + srcROI.width - 1);
+    sy = std::min(std::max(sy, srcROI.y), srcROI.y + srcROI.height - 1);
+    return srcData[(sy * srcWidth + sx) * 4 + 3];
+  };
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      EXPECT_EQ(resultData[idx + 3], expectedAlpha(x, y));
+    }
+  }
+
+  validateHorizontalMonotonic<Npp16u, 4>(resultData, dstWidth, dstHeight);
+  validateVerticalMonotonic<Npp16u, 4>(resultData, dstWidth, dstHeight);
+}
+
+TEST_F(ResizeFunctionalTest, Resize_16u_AC4R_Ctx_AlphaPreserved) {
+  const int srcWidth = 18, srcHeight = 14;
+  const int dstWidth = 27, dstHeight = 21;
+
+  std::vector<Npp16u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<Npp16u>(1000 + x * 200);
+      srcData[idx + 1] = static_cast<Npp16u>(2000 + y * 300);
+      srcData[idx + 2] = static_cast<Npp16u>(3000 + x * 50 + y * 25);
+      srcData[idx + 3] = static_cast<Npp16u>((x * 321 + y * 654) & 0xFFFF);
+    }
+  }
+
+  NppImageMemory<Npp16u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp16u> dst(dstWidth, dstHeight, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiResize_16u_AC4R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
+                                             dstROI, NPPI_INTER_LINEAR, nppStreamCtx);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+
+  std::vector<Npp16u> resultData(dstWidth * dstHeight * 4);
+  dst.copyToHost(resultData);
+
+  auto expectedAlpha = [&](int dx, int dy) {
+    float scaleX = static_cast<float>(srcROI.width) / dstROI.width;
+    float scaleY = static_cast<float>(srcROI.height) / dstROI.height;
+    int sx = static_cast<int>(dx * scaleX + 0.5f) + srcROI.x;
+    int sy = static_cast<int>(dy * scaleY + 0.5f) + srcROI.y;
+    sx = std::min(std::max(sx, srcROI.x), srcROI.x + srcROI.width - 1);
+    sy = std::min(std::max(sy, srcROI.y), srcROI.y + srcROI.height - 1);
+    return srcData[(sy * srcWidth + sx) * 4 + 3];
+  };
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      EXPECT_EQ(resultData[idx + 3], expectedAlpha(x, y));
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_16u_PlanarMatchesC1) {
+  RunPlanarResizeRoundTrip<Npp16u, 3>(22, 18, 33, 27, NPPI_INTER_LINEAR);
+  RunPlanarResizeRoundTrip<Npp16u, 4>(20, 16, 30, 24, NPPI_INTER_LINEAR);
+}
+
 TEST_F(ResizeFunctionalTest, Resize_32f_C1R_BilinearInterpolation) {
   const int srcWidth = 32, srcHeight = 32;
   const int dstWidth = 48, dstHeight = 48;
@@ -2269,6 +2699,117 @@ TEST_F(ResizeFunctionalTest, Resize_32f_C1R_BilinearInterpolation) {
   float maxVal = *std::max_element(dstData.begin(), dstData.end());
   float minVal = *std::min_element(dstData.begin(), dstData.end());
   ASSERT_GT(maxVal - minVal, 0.1f);
+}
+
+TEST_F(ResizeFunctionalTest, Resize_32f_AC4R_AlphaPreserved) {
+  const int srcWidth = 20, srcHeight = 20;
+  const int dstWidth = 30, dstHeight = 30;
+
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<float>(x) / srcWidth;
+      srcData[idx + 1] = static_cast<float>(y) / srcHeight;
+      srcData[idx + 2] = 0.5f * (x + y) / (srcWidth + srcHeight);
+      srcData[idx + 3] = 0.25f + 0.5f * ((x + y) % 5) / 5.0f;
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status =
+      nppiResize_32f_AC4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_LINEAR);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> resultData(dstWidth * dstHeight * 4);
+  dst.copyToHost(resultData);
+
+  auto expectedAlpha = [&](int dx, int dy) {
+    float scaleX = static_cast<float>(srcROI.width) / dstROI.width;
+    float scaleY = static_cast<float>(srcROI.height) / dstROI.height;
+    int sx = static_cast<int>(dx * scaleX + 0.5f) + srcROI.x;
+    int sy = static_cast<int>(dy * scaleY + 0.5f) + srcROI.y;
+    sx = std::min(std::max(sx, srcROI.x), srcROI.x + srcROI.width - 1);
+    sy = std::min(std::max(sy, srcROI.y), srcROI.y + srcROI.height - 1);
+    return srcData[(sy * srcWidth + sx) * 4 + 3];
+  };
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      EXPECT_FLOAT_EQ(resultData[idx + 3], expectedAlpha(x, y));
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_32f_AC4R_Ctx_AlphaPreserved) {
+  const int srcWidth = 18, srcHeight = 12;
+  const int dstWidth = 36, dstHeight = 24;
+
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<float>(x) / srcWidth;
+      srcData[idx + 1] = static_cast<float>(y) / srcHeight;
+      srcData[idx + 2] = 1.0f - static_cast<float>(x + y) / (srcWidth + srcHeight);
+      srcData[idx + 3] = 0.1f * (static_cast<float>((x * 3 + y * 5) % 7));
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiResize_32f_AC4R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
+                                             dstROI, NPPI_INTER_LINEAR, nppStreamCtx);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+
+  std::vector<Npp32f> resultData(dstWidth * dstHeight * 4);
+  dst.copyToHost(resultData);
+
+  auto expectedAlpha = [&](int dx, int dy) {
+    float scaleX = static_cast<float>(srcROI.width) / dstROI.width;
+    float scaleY = static_cast<float>(srcROI.height) / dstROI.height;
+    int sx = static_cast<int>(dx * scaleX + 0.5f) + srcROI.x;
+    int sy = static_cast<int>(dy * scaleY + 0.5f) + srcROI.y;
+    sx = std::min(std::max(sx, srcROI.x), srcROI.x + srcROI.width - 1);
+    sy = std::min(std::max(sy, srcROI.y), srcROI.y + srcROI.height - 1);
+    return srcData[(sy * srcWidth + sx) * 4 + 3];
+  };
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      EXPECT_FLOAT_EQ(resultData[idx + 3], expectedAlpha(x, y));
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_32f_PlanarMatchesC1) {
+  RunPlanarResizeRoundTrip<Npp32f, 3>(21, 17, 35, 29, NPPI_INTER_LINEAR);
+  RunPlanarResizeRoundTrip<Npp32f, 4>(24, 18, 36, 30, NPPI_INTER_LINEAR);
 }
 
 // Test 32f C1R with CUBIC interpolation
