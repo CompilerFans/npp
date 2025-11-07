@@ -23,12 +23,16 @@ set_target_properties(npp PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} \
+    -use-dim-intrinsic \
+    -mllvm -metaxgpu-new-streg-abi=true")
+
 # 如果是动态库，添加动态库特有的配置
 if(BUILD_SHARED_LIBS)
     # Windows DLL导出符号
     target_compile_definitions(npp PRIVATE MPP_EXPORTS)
     target_compile_definitions(npp INTERFACE MPP_IMPORTS)
-    
+
     # 设置动态库的运行时路径
     if(NOT WIN32)
         set_target_properties(npp PROPERTIES
