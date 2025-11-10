@@ -1,11 +1,4 @@
-/**
- * @file test_npp_core_functional.cpp
- * @brief NPP 核心功能纯功能单元测试
- *
- * 测试NPP库的核心功能，包括版本信息、设备管理、内存分配等
- */
-
-#include "../framework/npp_test_base.h"
+#include "npp_test_base.h"
 
 using namespace npp_functional_test;
 
@@ -212,23 +205,6 @@ TEST_F(NppCoreFunctionalTest, Memory_AllocationLimits) {
   } else {
     std::cout << "Large memory allocation failed (may be expected on some systems)" << std::endl;
   }
-}
-
-// 测试基础的stream操作行为
-TEST_F(NppCoreFunctionalTest, DISABLED_ErrorHandling_StreamOperations) {
-  // 获取当前stream上下文
-  NppStreamContext ctx;
-  NppStatus status = nppGetStreamContext(&ctx);
-  EXPECT_EQ(status, NPP_NO_ERROR) << "nppGetStreamContext should succeed";
-
-  // 设置默认stream应该是允许的
-  status = nppSetStream(nullptr); // nullptr表示使用默认stream
-  EXPECT_EQ(status, NPP_NO_ERROR) << "nppSetStream with nullptr should succeed";
-
-  // 验证我们可以重新获取上下文
-  NppStreamContext newCtx;
-  status = nppGetStreamContext(&newCtx);
-  EXPECT_EQ(status, NPP_NO_ERROR) << "nppGetStreamContext should work after nppSetStream";
 }
 
 // ==================== 计算能力测试 ====================

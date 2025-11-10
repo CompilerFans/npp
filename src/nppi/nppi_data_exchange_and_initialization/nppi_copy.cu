@@ -53,7 +53,7 @@ __global__ void nppiCopy_32f_C3P3R_vectorized(const float *pSrc, int nSrcStep, f
   if (x + 3 < width) {
     // Manual vectorized load
     float v[12];
-    #pragma unroll
+#pragma unroll
     for (int i = 0; i < 12; i++) {
       v[i] = src_row[x * 3 + i];
     }
@@ -63,9 +63,9 @@ __global__ void nppiCopy_32f_C3P3R_vectorized(const float *pSrc, int nSrcStep, f
     float4 c1 = make_float4(v[1], v[4], v[7], v[10]);
     float4 c2 = make_float4(v[2], v[5], v[8], v[11]);
 
-    *reinterpret_cast<float4*>(&dst_row0[x]) = c0;
-    *reinterpret_cast<float4*>(&dst_row1[x]) = c1;
-    *reinterpret_cast<float4*>(&dst_row2[x]) = c2;
+    *reinterpret_cast<float4 *>(&dst_row0[x]) = c0;
+    *reinterpret_cast<float4 *>(&dst_row1[x]) = c1;
+    *reinterpret_cast<float4 *>(&dst_row2[x]) = c2;
   } else {
     // Handle remaining pixels
     for (int i = 0; i < 4 && x + i < width; i++) {
@@ -79,8 +79,8 @@ __global__ void nppiCopy_32f_C3P3R_vectorized(const float *pSrc, int nSrcStep, f
 
 // Generic packed to planar copy kernel (fallback)
 template <typename T, int CHANNELS>
-__global__ void nppiCopy_CxPxR_kernel_optimized(const T *pSrc, int nSrcStep, T *pDst0, T *pDst1, T *pDst2,
-                                                int nDstStep, int width, int height) {
+__global__ void nppiCopy_CxPxR_kernel_optimized(const T *pSrc, int nSrcStep, T *pDst0, T *pDst1, T *pDst2, int nDstStep,
+                                                int width, int height) {
   int x = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -93,19 +93,21 @@ __global__ void nppiCopy_CxPxR_kernel_optimized(const T *pSrc, int nSrcStep, T *
   T *dst_row2 = (T *)((char *)pDst2 + y * nDstStep);
 
   if (x + 3 < width) {
-    #pragma unroll
+#pragma unroll
     for (int i = 0; i < 4; i++) {
       int idx = x + i;
       dst_row0[idx] = src_row[idx * CHANNELS];
       dst_row1[idx] = src_row[idx * CHANNELS + 1];
-      if (CHANNELS >= 3) dst_row2[idx] = src_row[idx * CHANNELS + 2];
+      if (CHANNELS >= 3)
+        dst_row2[idx] = src_row[idx * CHANNELS + 2];
     }
   } else {
     for (int i = 0; i < 4 && x + i < width; i++) {
       int idx = x + i;
       dst_row0[idx] = src_row[idx * CHANNELS];
       dst_row1[idx] = src_row[idx * CHANNELS + 1];
-      if (CHANNELS >= 3) dst_row2[idx] = src_row[idx * CHANNELS + 2];
+      if (CHANNELS >= 3)
+        dst_row2[idx] = src_row[idx * CHANNELS + 2];
     }
   }
 }
@@ -130,8 +132,8 @@ __global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, T *const *pDs
 }
 
 // Vectorized planar to packed for 32f P3C3
-__global__ void nppiCopy_32f_P3C3R_vectorized(const float *pSrc0, const float *pSrc1, const float *pSrc2,
-                                              int nSrcStep, float *pDst, int nDstStep, int width, int height) {
+__global__ void nppiCopy_32f_P3C3R_vectorized(const float *pSrc0, const float *pSrc1, const float *pSrc2, int nSrcStep,
+                                              float *pDst, int nDstStep, int width, int height) {
   int x = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -145,19 +147,27 @@ __global__ void nppiCopy_32f_P3C3R_vectorized(const float *pSrc0, const float *p
 
   if (x + 3 < width) {
     // Vectorized load from planar sources
-    float4 c0 = *reinterpret_cast<const float4*>(&src_row0[x]);
-    float4 c1 = *reinterpret_cast<const float4*>(&src_row1[x]);
-    float4 c2 = *reinterpret_cast<const float4*>(&src_row2[x]);
+    float4 c0 = *reinterpret_cast<const float4 *>(&src_row0[x]);
+    float4 c1 = *reinterpret_cast<const float4 *>(&src_row1[x]);
+    float4 c2 = *reinterpret_cast<const float4 *>(&src_row2[x]);
 
     // Interleave manually
     float v[12];
-    v[0] = c0.x; v[1] = c1.x; v[2] = c2.x;
-    v[3] = c0.y; v[4] = c1.y; v[5] = c2.y;
-    v[6] = c0.z; v[7] = c1.z; v[8] = c2.z;
-    v[9] = c0.w; v[10] = c1.w; v[11] = c2.w;
+    v[0] = c0.x;
+    v[1] = c1.x;
+    v[2] = c2.x;
+    v[3] = c0.y;
+    v[4] = c1.y;
+    v[5] = c2.y;
+    v[6] = c0.z;
+    v[7] = c1.z;
+    v[8] = c2.z;
+    v[9] = c0.w;
+    v[10] = c1.w;
+    v[11] = c2.w;
 
-    // Write interleaved
-    #pragma unroll
+// Write interleaved
+#pragma unroll
     for (int i = 0; i < 12; i++) {
       dst_row[x * 3 + i] = v[i];
     }
@@ -174,8 +184,8 @@ __global__ void nppiCopy_32f_P3C3R_vectorized(const float *pSrc0, const float *p
 
 // Generic planar to packed copy kernel (fallback)
 template <typename T, int CHANNELS>
-__global__ void nppiCopy_PxCxR_kernel_optimized(const T *pSrc0, const T *pSrc1, const T *pSrc2,
-                                                int nSrcStep, T *pDst, int nDstStep, int width, int height) {
+__global__ void nppiCopy_PxCxR_kernel_optimized(const T *pSrc0, const T *pSrc1, const T *pSrc2, int nSrcStep, T *pDst,
+                                                int nDstStep, int width, int height) {
   int x = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -188,19 +198,21 @@ __global__ void nppiCopy_PxCxR_kernel_optimized(const T *pSrc0, const T *pSrc1, 
   T *dst_row = (T *)((char *)pDst + y * nDstStep);
 
   if (x + 3 < width) {
-    #pragma unroll
+#pragma unroll
     for (int i = 0; i < 4; i++) {
       int idx = x + i;
       dst_row[idx * CHANNELS] = src_row0[idx];
       dst_row[idx * CHANNELS + 1] = src_row1[idx];
-      if (CHANNELS >= 3) dst_row[idx * CHANNELS + 2] = src_row2[idx];
+      if (CHANNELS >= 3)
+        dst_row[idx * CHANNELS + 2] = src_row2[idx];
     }
   } else {
     for (int i = 0; i < 4 && x + i < width; i++) {
       int idx = x + i;
       dst_row[idx * CHANNELS] = src_row0[idx];
       dst_row[idx * CHANNELS + 1] = src_row1[idx];
-      if (CHANNELS >= 3) dst_row[idx * CHANNELS + 2] = src_row2[idx];
+      if (CHANNELS >= 3)
+        dst_row[idx * CHANNELS + 2] = src_row2[idx];
     }
   }
 }
@@ -361,8 +373,8 @@ NppStatus nppiCopy_32f_C3P3R_impl_vectorized(const float *pSrc, int nSrcStep, fl
 
 // Generic C3P3R implementation
 template <typename T>
-NppStatus nppiCopy_C3P3R_impl_optimized(const T *pSrc, int nSrcStep, T *const pDst[3], int nDstStep,
-                                        NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCopy_C3P3R_impl_optimized(const T *pSrc, int nSrcStep, T *const pDst[3], int nDstStep, NppiSize oSizeROI,
+                                        NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
   dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -434,8 +446,8 @@ NppStatus nppiCopy_32f_P3C3R_impl_vectorized(float *const pSrc[3], int nSrcStep,
 
 // Generic P3C3R implementation
 template <typename T>
-NppStatus nppiCopy_P3C3R_impl_optimized(T *const pSrc[3], int nSrcStep, T *pDst, int nDstStep,
-                                        NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCopy_P3C3R_impl_optimized(T *const pSrc[3], int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
+                                        NppStreamContext nppStreamCtx) {
   dim3 blockSize(32, 8);
   dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -531,27 +543,32 @@ NppStatus nppiCopy_32f_C4P4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *
 // P3C3R implementations for all data types
 NppStatus nppiCopy_8u_P3C3R_Ctx_impl(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiCopy_P3C3R_impl_optimized<Npp8u>(const_cast<Npp8u **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiCopy_P3C3R_impl_optimized<Npp8u>(const_cast<Npp8u **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI,
+                                              nppStreamCtx);
 }
 
 NppStatus nppiCopy_16u_P3C3R_Ctx_impl(const Npp16u *const pSrc[3], int nSrcStep, Npp16u *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiCopy_P3C3R_impl_optimized<Npp16u>(const_cast<Npp16u **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiCopy_P3C3R_impl_optimized<Npp16u>(const_cast<Npp16u **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI,
+                                               nppStreamCtx);
 }
 
 NppStatus nppiCopy_16s_P3C3R_Ctx_impl(const Npp16s *const pSrc[3], int nSrcStep, Npp16s *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiCopy_P3C3R_impl_optimized<Npp16s>(const_cast<Npp16s **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiCopy_P3C3R_impl_optimized<Npp16s>(const_cast<Npp16s **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI,
+                                               nppStreamCtx);
 }
 
 NppStatus nppiCopy_32s_P3C3R_Ctx_impl(const Npp32s *const pSrc[3], int nSrcStep, Npp32s *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiCopy_P3C3R_impl_optimized<Npp32s>(const_cast<Npp32s **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiCopy_P3C3R_impl_optimized<Npp32s>(const_cast<Npp32s **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI,
+                                               nppStreamCtx);
 }
 
 NppStatus nppiCopy_32f_P3C3R_Ctx_impl(const Npp32f *const pSrc[3], int nSrcStep, Npp32f *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppiCopy_32f_P3C3R_impl_vectorized(const_cast<Npp32f **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return nppiCopy_32f_P3C3R_impl_vectorized(const_cast<Npp32f **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI,
+                                            nppStreamCtx);
 }
 
 // P4C4R implementations for all data types

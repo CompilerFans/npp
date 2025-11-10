@@ -5,20 +5,10 @@
 #include <cstring>
 #include <cuda_runtime.h>
 
-/**
- * Internal helper functions for NPP implementation
- * These functions are not part of the public API
- */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * Create a properly initialized NppStreamContext with default stream
- * This helper function avoids missing field initializer warnings
- * @return Properly initialized NppStreamContext
- */
 static inline NppStreamContext nppCreateDefaultStreamContext(void) {
   NppStreamContext ctx;
 

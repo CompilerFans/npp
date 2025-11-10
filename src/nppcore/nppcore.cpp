@@ -19,9 +19,6 @@ int nppGetGpuNumSMs(void) {
   return prop.multiProcessorCount;
 }
 
-/**
- * Get the maximum number of threads per block on the active CUDA device.
- */
 int nppGetMaxThreadsPerBlock(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -35,9 +32,6 @@ int nppGetMaxThreadsPerBlock(void) {
   return prop.maxThreadsPerBlock;
 }
 
-/**
- * Get the maximum number of threads per SM for the active GPU
- */
 int nppGetMaxThreadsPerSM(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -51,9 +45,6 @@ int nppGetMaxThreadsPerSM(void) {
   return prop.maxThreadsPerMultiProcessor;
 }
 
-/**
- * Get the maximum number of threads per SM, maximum threads per block, and number of SMs for the active GPU
- */
 int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, int *pNumberOfSMs) {
   if (!pMaxThreadsPerSM || !pMaxThreadsPerBlock || !pNumberOfSMs) {
     return -1;
@@ -76,9 +67,6 @@ int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, i
   return 0; // cudaSuccess
 }
 
-/**
- * Get the name of the active CUDA device.
- */
 const char *nppGetGpuName(void) {
   static char deviceName[256] = {0};
   static bool initialized = false;
@@ -106,20 +94,12 @@ const char *nppGetGpuName(void) {
   return deviceName;
 }
 
-/**
- * Get the NPP CUDA stream.
- * Since we don't manage streams internally, this returns the current CUDA stream.
- */
 cudaStream_t nppGetStream(void) {
   // Return the default stream (0)
   // In a real application, the user should manage their own streams
   return cudaStreamLegacy; // Use legacy default stream for compatibility
 }
 
-/**
- * Set the NPP CUDA stream.
- * Since we don't manage streams internally, this is a no-op for compatibility.
- */
 NppStatus nppSetStream(cudaStream_t hStream) {
   // This function exists for API compatibility
   // Users should use Runtime API directly to manage streams
@@ -134,10 +114,6 @@ NppStatus nppSetStream(cudaStream_t hStream) {
   return NPP_NO_ERROR;
 }
 
-/**
- * Get the current NPP managed CUDA stream context.
- * Fills the context based on current CUDA device and stream.
- */
 NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
   if (!pNppStreamContext) {
     return NPP_NULL_POINTER_ERROR;
@@ -171,7 +147,7 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
   pNppStreamContext->nCudaDevAttrComputeCapabilityMinor = prop.minor;
 
   // Get stream flags for default stream
-  // Default stream (0) doesn't support cudaStreamGetFlags in some CUDA versions
+  // Default stream (0) doesn't support cudaStreamGetFlags in some GPU versions
   // Set to default blocking stream flags
   pNppStreamContext->nStreamFlags = cudaStreamDefault;
 
@@ -181,10 +157,6 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
   return NPP_NO_ERROR;
 }
 
-/**
- * Set the NPP stream context for current operations.
- * This is a simplified implementation that validates the context.
- */
 NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
   // Validate device ID
   int deviceCount;
@@ -218,16 +190,13 @@ NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
     result = cudaStreamGetFlags(nppStreamContext.hStream, &flags);
     if (result != cudaSuccess) {
       // Stream might be invalid, but we can't be sure
-      // Accept it for now as CUDA will fail later if invalid
+      // Accept it for now as GPU will fail later if invalid
     }
   }
 
   return NPP_NO_ERROR;
 }
 
-/**
- * Get the number of SMs on the device associated with the current NPP CUDA stream.
- */
 unsigned int nppGetStreamNumSMs(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -242,9 +211,6 @@ unsigned int nppGetStreamNumSMs(void) {
   return static_cast<unsigned int>(prop.multiProcessorCount);
 }
 
-/**
- * Get the maximum number of threads per SM on the device associated with the current NPP CUDA stream.
- */
 unsigned int nppGetStreamMaxThreadsPerSM(void) {
   int deviceId;
   if (cudaGetDevice(&deviceId) != cudaSuccess) {
@@ -259,9 +225,6 @@ unsigned int nppGetStreamMaxThreadsPerSM(void) {
   return static_cast<unsigned int>(prop.maxThreadsPerMultiProcessor);
 }
 
-/**
- * Get the CUDA compute capability of the current device.
- */
 NppStatus nppGetGpuComputeCapability(int *pMajor, int *pMinor) {
   if (!pMajor || !pMinor) {
     return NPP_NULL_POINTER_ERROR;
@@ -429,10 +392,6 @@ __attribute__((unused)) static const char *nppGetStatusStringInternal(NppStatus 
   }
 }
 
-/**
- * Create a properly initialized NppStreamContext with default stream
- * This helper function can be used to avoid missing field initializer warnings
- */
 NppStreamContext nppCreateDefaultStreamContext(void) {
   NppStreamContext ctx;
 
