@@ -143,6 +143,62 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
   return NPP_SUCCESS;
 }
 
+__device__ __forceinline__ void process_pixel_channel(const Npp8u *src_row1, const Npp8u *src_row2, int x1, int x2,
+                                                      float tx, float ty, int channel, Npp8u *dst_ptr) {
+  float p11 = src_row1[x1 * 3 + channel];
+  float p12 = src_row1[x2 * 3 + channel];
+  float p21 = src_row2[x1 * 3 + channel];
+  float p22 = src_row2[x2 * 3 + channel];
+
+  float top = fmaf(tx, p12 - p11, p11);
+  float bot = fmaf(tx, p22 - p21, p21);
+  float v = fmaf(ty, bot - top, top);
+
+  v = fminf(255.f, fmaxf(0.f, v + 0.5f));
+  dst_ptr[channel] = (Npp8u)v;
+}
+
+__global__ void nppiResize_8u_C3R_linear_kernel_opt(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
+                                                    NppiRect oSrcRectROI, Npp8u *pDst, int nDstStep, NppiSize oDstSize,
+                                                    NppiRect oDstRectROI) {
+  int dx = blockIdx.x * blockDim.x + threadIdx.x;
+  int dy = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (dx >= oDstRectROI.width || dy >= oDstRectROI.height)
+    return;
+
+  float scaleX = (float)oSrcRectROI.width / (float)oDstRectROI.width;
+  float scaleY = (float)oSrcRectROI.height / (float)oDstRectROI.height;
+
+  float fx = (dx + 0.5f) * scaleX - 0.5f + oSrcRectROI.x;
+  float fy = (dy + 0.5f) * scaleY - 0.5f + oSrcRectROI.y;
+
+  const float maxXf = (float)(oSrcRectROI.x + oSrcRectROI.width - 1);
+  const float maxYf = (float)(oSrcRectROI.y + oSrcRectROI.height - 1);
+  fx = fminf(maxXf, fmaxf((float)oSrcRectROI.x, fx));
+  fy = fminf(maxYf, fmaxf((float)oSrcRectROI.y, fy));
+
+  int x1 = (int)floorf(fx);
+  int y1 = (int)floorf(fy);
+  x1 = max(x1, oSrcRectROI.x);
+  y1 = max(y1, oSrcRectROI.y);
+
+  int x2 = min(x1 + 1, oSrcRectROI.x + oSrcRectROI.width - 1);
+  int y2 = min(y1 + 1, oSrcRectROI.y + oSrcRectROI.height - 1);
+
+  float tx = fx - (float)x1;
+  float ty = fy - (float)y1;
+
+  const Npp8u *src_row1 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep);
+  const Npp8u *src_row2 = (const Npp8u *)((const char *)pSrc + y2 * nSrcStep);
+
+  Npp8u *dst_ptr = (Npp8u *)((char *)pDst + (dy + oDstRectROI.y) * nDstStep + (dx + oDstRectROI.x) * 3);
+
+  process_pixel_channel(src_row1, src_row2, x1, x2, tx, ty, 0, dst_ptr);
+  process_pixel_channel(src_row1, src_row2, x1, x2, tx, ty, 1, dst_ptr);
+  process_pixel_channel(src_row1, src_row2, x1, x2, tx, ty, 2, dst_ptr);
+}
+
 // Explicit instantiations for all supported types
 extern "C" {
 
@@ -162,8 +218,24 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   LOG_INFO("nppiResize_8u_C3R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
            oDstRectROI.height);
-  return resizeImpl<Npp8u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
-                              eInterpolation, nppStreamCtx);
+  if (eInterpolation == NPPI_INTER_LINEAR){
+    dim3 blockSize(32, 32);
+    dim3 gridSize((oDstRectROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+                  (oDstRectROI.height + blockSize.y - 1) / blockSize.y);
+
+    nppiResize_8u_C3R_linear_kernel_opt<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+
+    cudaError_t cudaStatus = cudaGetLastError();
+    if (cudaStatus != cudaSuccess) {
+      return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+    return NPP_SUCCESS;
+  } else {
+    return resizeImpl<Npp8u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+  }
+
 }
 
 // 16u C1R
