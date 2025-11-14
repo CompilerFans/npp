@@ -364,6 +364,164 @@ __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
   }
 }
 
+// Specialized 3x3 box filter with additional optimizations
+__global__ void nppiFilterBox_8u_C4R_shared_3x3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             int width, int height) {
+    const int MASK_WIDTH = 3;
+    const int MASK_HEIGHT = 3;
+    const int ANCHOR_X = 1;
+    const int ANCHOR_Y = 1;
+    const int TILE_WIDTH = blockDim.x + MASK_WIDTH - 1;
+    const int TILE_HEIGHT = blockDim.y + MASK_HEIGHT - 1;
+
+    extern __shared__ uchar4 shared_mem[];
+
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int tile_x = blockIdx.x * blockDim.x;
+    int tile_y = blockIdx.y * blockDim.y;
+
+    // load data to shared memory
+    for (int i = ty; i < TILE_HEIGHT; i += blockDim.y) {
+        for (int j = tx; j < TILE_WIDTH; j += blockDim.x) {
+            int global_x = tile_x + j - ANCHOR_X;
+            int global_y = tile_y + i - ANCHOR_Y;
+
+            uchar4 value = make_uchar4(0, 0, 0, 0);
+            if (global_x >= 0 && global_x < width && global_y >= 0 && global_y < height) {
+                const uchar4 *src_row = (const uchar4 *)((const char *)pSrc + global_y * nSrcStep);
+                value = src_row[global_x];
+            }
+
+            shared_mem[i * TILE_WIDTH + j] = value;
+        }
+    }
+
+    __syncthreads();
+
+    int out_x = tile_x + tx;
+    int out_y = tile_y + ty;
+
+    if (out_x < width && out_y < height) {
+        // read form shared memory
+        uchar4 p00 = shared_mem[ty * TILE_WIDTH + tx];
+        uchar4 p01 = shared_mem[ty * TILE_WIDTH + tx + 1];
+        uchar4 p02 = shared_mem[ty * TILE_WIDTH + tx + 2];
+        uchar4 p10 = shared_mem[(ty + 1) * TILE_WIDTH + tx];
+        uchar4 p11 = shared_mem[(ty + 1) * TILE_WIDTH + tx + 1];
+        uchar4 p12 = shared_mem[(ty + 1) * TILE_WIDTH + tx + 2];
+        uchar4 p20 = shared_mem[(ty + 2) * TILE_WIDTH + tx];
+        uchar4 p21 = shared_mem[(ty + 2) * TILE_WIDTH + tx + 1];
+        uchar4 p22 = shared_mem[(ty + 2) * TILE_WIDTH + tx + 2];
+
+        uchar4 SumVal;
+        SumVal.x = (p00.x + p01.x + p02.x + p10.x + p11.x + p12.x + p20.x + p21.x + p22.x) / 9;
+        SumVal.y = (p00.y + p01.y + p02.y + p10.y + p11.y + p12.y + p20.y + p21.y + p22.y) / 9;
+        SumVal.z = (p00.z + p01.z + p02.z + p10.z + p11.z + p12.z + p20.z + p21.z + p22.z) / 9;
+        SumVal.w = (p00.w + p01.w + p02.w + p10.w + p11.w + p12.w + p20.w + p21.w + p22.w) / 9;
+
+        uchar4 *dst_row = (uchar4 *)((char *)pDst + out_y * nDstStep);
+        dst_row[out_x] = SumVal;
+    }
+}
+
+// Optimized NxN box filter
+template<int Mask_Width, int Mask_Heigth, int Anchor_X, int Anchor_Y>
+__global__ void nppiFilterBox_8u_C4R_shared_NxN(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             int width, int height) {
+    const int MASK_WIDTH = Mask_Width;
+    const int MASK_HEIGHT = Mask_Heigth;
+    const int ANCHOR_X = Anchor_X;
+    const int ANCHOR_Y = Anchor_Y;
+    const int TILE_WIDTH = blockDim.x + MASK_WIDTH - 1;
+    const int TILE_HEIGHT = blockDim.y + MASK_HEIGHT -1;
+
+    extern __shared__ uchar4 shared_mem[];
+
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int tile_x = blockIdx.x * blockDim.x;
+    int tile_y = blockIdx.y * blockDim.y;
+
+    // load data to shared memory
+    for (int i = ty; i < TILE_HEIGHT; i += blockDim.y) {
+        for (int j = tx; j < TILE_WIDTH; j += blockDim.x) {
+            int global_x = tile_x + j - ANCHOR_X;
+            int global_y = tile_y + i - ANCHOR_Y;
+
+            uchar4 value = make_uchar4(0, 0, 0, 0);
+            if (global_x >= 0 && global_x < width && global_y >= 0 && global_y < height) {
+                const uchar4 *src_row = (const uchar4 *)((const char *)pSrc + global_y * nSrcStep);
+                value = src_row[global_x];
+            }
+
+            shared_mem[i * TILE_WIDTH + j] = value;
+        }
+    }
+
+    __syncthreads();
+
+    int out_x = tile_x + tx;
+    int out_y = tile_y + ty;
+
+    if (out_x < width && out_y < height) {
+        uchar4 sumVal = make_uchar4(0, 0, 0, 0);
+
+        #pragma unroll
+        for (int dy = 0; dy < Mask_Width; dy++) {
+            #pragma unroll
+            for (int dx = 0; dx < Mask_Heigth; dx++) {
+                uchar4 pixel = shared_mem[(ty + dy) * TILE_WIDTH + (tx + dx)];
+                sumVal.x += pixel.x;
+                sumVal.y += pixel.y;
+                sumVal.z += pixel.z;
+                sumVal.w += pixel.w;
+            }
+        }
+        sumVal.x = sumVal.x / (Mask_Width * Mask_Heigth);
+        sumVal.y = sumVal.y / (Mask_Width * Mask_Heigth);
+        sumVal.z = sumVal.z / (Mask_Width * Mask_Heigth);
+        sumVal.w = sumVal.w / (Mask_Width * Mask_Heigth);
+
+        uchar4 *dst_row = (uchar4 *)((char *)pDst + out_y * nDstStep);
+        dst_row[out_x] = sumVal;
+    }
+}
+
+__global__ void nppiFilterBox_8u_C4R_kernel_vec(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                             int height,int maskWidth, int maskHeight, int anchorX, int anchorY) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+
+    uchar4 *dst_pixel = (uchar4 *)((char *)pDst + y * nDstStep) + x;
+    uchar4 sumVal_vec = make_uchar4(0, 0, 0, 0);
+
+    for (int my = 0; my < maskHeight; my++) {
+      for (int mx = 0; mx < maskWidth; mx++) {
+          int srcY = y + my - anchorY;
+          int srcX = x + mx - anchorX;
+          uchar4 pixelValue_vec = make_uchar4(0, 0, 0, 0);
+          if(0 <= srcY && srcY <= (height - 1) && 0 <= srcX && srcX <= (width - 1)) {
+            const uchar4 *src_pixel = (const uchar4 *)((const char *)pSrc + srcY * nSrcStep) + srcX;
+            pixelValue_vec = *src_pixel;
+          }
+
+          sumVal_vec.x += pixelValue_vec.x;
+          sumVal_vec.y += pixelValue_vec.y;
+          sumVal_vec.z += pixelValue_vec.z;
+          sumVal_vec.w += pixelValue_vec.z;
+      }
+    }
+    sumVal_vec.x = sumVal_vec.x / (maskHeight * maskWidth);
+    sumVal_vec.y = sumVal_vec.x / (maskHeight * maskWidth);
+    sumVal_vec.z = sumVal_vec.x / (maskHeight * maskWidth);
+    sumVal_vec.w = sumVal_vec.x / (maskHeight * maskWidth);
+    *dst_pixel = sumVal_vec;
+  }
+}
+
 // Box filter kernel for single-channel 32-bit float with zero padding
 __global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
                                                   int width, int height, int maskWidth, int maskHeight, int anchorX,
@@ -527,9 +685,46 @@ cudaError_t nppiFilterBox_8u_C4R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterBox_8u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                       oSizeROI.height, oMaskSize.width,
-                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
+  // Select optimized kernel based on filter size
+  if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
+    int tile_width = blockSize.x + oMaskSize.width - 1;
+    int tile_height = blockSize.y + oMaskSize.height - 1;
+    size_t shared_mem_size = tile_width * tile_height * sizeof(uchar4);
+
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    nppiFilterBox_8u_C4R_shared_3x3<<<gridSize, blockSize, shared_mem_size, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  } else if (oMaskSize.width == 5 && oMaskSize.height == 5 && oAnchor.x == 2 && oAnchor.y == 2) {
+    int tile_width = blockSize.x + oMaskSize.width - 1;
+    int tile_height = blockSize.y + oMaskSize.height - 1;
+    size_t shared_mem_size = tile_width * tile_height * sizeof(uchar4);
+
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    nppiFilterBox_8u_C4R_shared_NxN<5, 5, 2, 2><<<gridSize, blockSize, shared_mem_size, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  } else if (oMaskSize.width == 7 && oMaskSize.height == 7 && oAnchor.x == 3 && oAnchor.y == 3) {
+    int tile_width = blockSize.x + oMaskSize.width - 1;
+    int tile_height = blockSize.y + oMaskSize.height - 1;
+    size_t shared_mem_size = tile_width * tile_height * sizeof(uchar4);
+
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    nppiFilterBox_8u_C4R_shared_NxN<7, 7, 3, 3><<<gridSize, blockSize, shared_mem_size, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  } else {
+    // Calculate halo region and shared memory size
+    dim3 blockSize(32, 8);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+    nppiFilterBox_8u_C4R_kernel_vec<<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, oMaskSize.width, oMaskSize.height,
+        oAnchor.x, oAnchor.y);
+  }
 
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
