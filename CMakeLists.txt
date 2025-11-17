@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.10)
 project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
 
 # 包含模块化cmake配置
