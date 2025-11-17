@@ -29,7 +29,18 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 echo -e "${YELLOW}Step 1: Building and benchmarking MPP implementation...${NC}"
 
 cd "$PROJECT_ROOT"
-./build.sh --release
+
+# 清理并重新构建 MPP 版本
+rm -rf build
+mkdir -p build
+cd build
+
+cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_BENCHMARKS=ON \
+    -DUSE_NVIDIA_NPP=OFF
+
+make nppi_arithmetic_benchmark -j$(nproc)
 
 if [ ! -f "$BENCHMARK_DIR/nppi_arithmetic_benchmark" ]; then
     echo -e "${RED}Error: MPP benchmark executable not found${NC}"
@@ -53,7 +64,18 @@ echo ""
 echo -e "${YELLOW}Step 2: Building and benchmarking NVIDIA NPP implementation...${NC}"
 
 cd "$PROJECT_ROOT"
-./build.sh --release --use-nvidia-npp
+
+# 清理并重新构建 NVIDIA NPP 版本
+rm -rf build
+mkdir -p build
+cd build
+
+cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_BENCHMARKS=ON \
+    -DUSE_NVIDIA_NPP=ON
+
+make nppi_arithmetic_benchmark -j$(nproc)
 
 if [ ! -f "$BENCHMARK_DIR/nppi_arithmetic_benchmark" ]; then
     echo -e "${RED}Error: NVIDIA NPP benchmark executable not found${NC}"

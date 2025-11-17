@@ -96,7 +96,11 @@ if ! command -v nvcc &> /dev/null; then
     print_error "CUDA 未安装或未设置环境变量"
     exit 1
 else
-    CUDA_VERSION=$(nvcc --version | grep "release" | sed -n 's/.*release \([0-9.]*\).*/\1/p')
+    # 使用 -V 而不是 --version（更兼容）
+    CUDA_VERSION=$(nvcc -V 2>/dev/null | grep "release" | sed -n 's/.*release \([0-9.]*\).*/\1/p')
+    if [ -z "$CUDA_VERSION" ]; then
+        CUDA_VERSION="unknown"
+    fi
     print_success "检测到 CUDA 版本: $CUDA_VERSION"
 fi
 
