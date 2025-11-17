@@ -8,17 +8,20 @@ include(CudaConfig)
 include(FindSources)
 include(TestConfig)
 include(InstallConfig)
+include(BenchmarkConfig)
 
 # 需要的cmake模块
 include(CMakePackageConfigHelpers)
 
 # 构建选项 - moved before subdirectories to control build flow
 option(BUILD_TESTS "Build tests" ON)
+option(BUILD_BENCHMARKS "Build performance benchmarks" OFF)
 option(BUILD_EXAMPLES "Build examples" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
 option(NPP_STRICT_TESTING "Use strict precision testing (exact match)" OFF)
+option(NPP_REGISTER_BENCHMARKS_TO_CTEST "Register benchmarks to CTest" OFF)
 
 # 配置CUDA环境
 npp_configure_cuda()
