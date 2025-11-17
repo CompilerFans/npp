@@ -47,29 +47,47 @@ function(npp_create_benchmark_target target_name sources library_target)
     
     # 根据选项决定链接哪个 NPP 库
     if(USE_NVIDIA_NPP)
-        # 链接 NVIDIA NPP 库
+        # 查找 NVIDIA NPP 库
         find_library(NVIDIA_NPPC_LIB
             NAMES nppc
             PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib /usr/local/cuda/lib64
         )
         
         if(NOT NVIDIA_NPPC_LIB)
-            message(FATAL_ERROR "NVIDIA NPP libraries not found.")
+            message(FATAL_ERROR "NVIDIA NPP libraries not found. Please check your CUDA installation.")
         endif()
         
-        target_link_libraries(${target_name}
-            PRIVATE
-            ${CUDA_LIBRARIES}
-            ${CUDA_cudart_LIBRARY}
-        )
-        
-        target_link_directories(${target_name} PRIVATE /usr/local/cuda/lib64)
-        target_link_libraries(${target_name} PRIVATE
-            nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
-        
+        # 使用 NVIDIA NPP 头文件
         target_include_directories(${target_name}
             PRIVATE
             ${CUDA_TOOLKIT_ROOT_DIR}/include
+        )
+        
+        # 添加库搜索路径
+        target_link_directories(${target_name} PRIVATE 
+            ${CUDA_TOOLKIT_ROOT_DIR}/lib64
+            /usr/local/cuda-13.0/lib64
+            /usr/local/cuda/lib64
+        )
+        
+        # 链接所有必要的库（顺序很重要！）
+        target_link_libraries(${target_name}
+            PRIVATE
+            # NPP 库必须在 CUDA 库之前
+            nppial
+            nppicc
+            nppidei
+            nppif
+            nppig
+            nppim
+            nppist
+            nppisu
+            nppitc
+            npps
+            nppc
+            # CUDA 运行时库
+            ${CUDA_LIBRARIES}
+            ${CUDA_cudart_LIBRARY}
         )
         
         target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_BENCHMARK)
