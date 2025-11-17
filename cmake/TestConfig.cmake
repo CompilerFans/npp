@@ -34,13 +34,28 @@ function(npp_create_test_target target_name sources library_target)
     # 根据选项决定链接哪个NPP库
     if(USE_NVIDIA_NPP)
         # 查找NVIDIA NPP库 - 只需要检查一个核心库的存在
+        # 尝试多个可能的路径
         find_library(NVIDIA_NPPC_LIB
             NAMES nppc
-            PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64 ${CUDA_TOOLKIT_ROOT_DIR}/lib
+            PATHS 
+                ${CUDA_TOOLKIT_ROOT_DIR}/lib64
+                ${CUDA_TOOLKIT_ROOT_DIR}/lib
+                ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
+                /usr/local/cuda/lib64
+                /usr/local/cuda/targets/x86_64-linux/lib
+                /usr/local/cuda-12.6/lib64
+                /usr/local/cuda-12.6/targets/x86_64-linux/lib
         )
 
         if(NOT NVIDIA_NPPC_LIB)
+            message(STATUS "CUDA_TOOLKIT_ROOT_DIR: ${CUDA_TOOLKIT_ROOT_DIR}")
+            message(STATUS "Searched paths:")
+            message(STATUS "  - ${CUDA_TOOLKIT_ROOT_DIR}/lib64")
+            message(STATUS "  - ${CUDA_TOOLKIT_ROOT_DIR}/lib")
+            message(STATUS "  - /usr/local/cuda/lib64")
             message(FATAL_ERROR "NVIDIA NPP libraries not found. Please check your CUDA installation.")
+        else()
+            message(STATUS "Found NVIDIA NPP library: ${NVIDIA_NPPC_LIB}")
         endif()
 
         # 链接NVIDIA NPP库
