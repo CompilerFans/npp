@@ -78,7 +78,7 @@ protected:
 // 图像操作基准测试基类
 template<typename PixelType>
 class ImageBenchmarkBase : public NppBenchmarkBase {
-protected:
+public:
     PixelType* d_src1_ = nullptr;
     PixelType* d_src2_ = nullptr;
     PixelType* d_dst_ = nullptr;
