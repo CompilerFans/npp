@@ -40,6 +40,11 @@ cmake .. \
     -DBUILD_BENCHMARKS=ON \
     -DUSE_NVIDIA_NPP=OFF
 
+# 先编译 MPP 库，再编译 benchmark
+echo "Building MPP libraries..."
+make npp_nppi_lib -j$(nproc)
+
+echo "Building benchmark..."
 make nppi_arithmetic_benchmark -j$(nproc)
 
 if [ ! -f "$BENCHMARK_DIR/nppi_arithmetic_benchmark" ]; then
