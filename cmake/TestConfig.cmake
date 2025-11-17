@@ -71,6 +71,7 @@ function(npp_create_test_target target_name sources library_target)
         target_link_directories(${target_name} PRIVATE 
             ${CUDA_TOOLKIT_ROOT_DIR}/lib64
             ${CUDA_TOOLKIT_ROOT_DIR}/lib
+            ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
         )
         target_link_libraries(${target_name} PRIVATE
             nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
