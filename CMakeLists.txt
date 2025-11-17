@@ -69,9 +69,3 @@ endif()
 if(NOT USE_NVIDIA_NPP)
     npp_configure_install()
 endif()
-
-
-# GoogleTest 配置
-set(BUILD_GMOCK ON CACHE BOOL "" FORCE)
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/googletest)
-# 之后，测试目标链接 GTest::gtest 或 GTest::gtest_main 即可
