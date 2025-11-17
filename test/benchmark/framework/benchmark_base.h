@@ -10,7 +10,7 @@ namespace npp_benchmark {
 
 // 性能测试基类
 class NppBenchmarkBase {
-protected:
+public:
     // CUDA 设备初始化
     static void InitializeCuda() {
         cudaSetDevice(0);
