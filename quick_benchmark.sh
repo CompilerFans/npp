@@ -1,6 +1,12 @@
 #!/bin/bash
 # 一键编译和运行 NPP Benchmark
 # 兼容所有 CUDA 版本和服务器环境
+#
+# 使用方法:
+#   ./quick_benchmark.sh          # 交互式选择
+#   ./quick_benchmark.sh --nvidia # 测试 NVIDIA 官方 NPP
+#   ./quick_benchmark.sh --mpp    # 测试自己实现的 MPP
+#   ./quick_benchmark.sh --help   # 显示帮助
 
 set -e  # 遇到错误立即退出
 
@@ -10,6 +16,30 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# 解析命令行参数
+USE_NPP_ARG=""
+for arg in "$@"; do
+    case $arg in
+        --nvidia)
+            USE_NPP_ARG="ON"
+            ;;
+        --mpp)
+            USE_NPP_ARG="OFF"
+            ;;
+        --help|-h)
+            echo "用法: $0 [选项]"
+            echo ""
+            echo "选项:"
+            echo "  --nvidia    测试 NVIDIA 官方 NPP 库"
+            echo "  --mpp       测试自己实现的 MPP 库"
+            echo "  --help      显示此帮助信息"
+            echo ""
+            echo "不带参数运行时会进入交互式选择模式"
+            exit 0
+            ;;
+    esac
+done
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}   NPP Benchmark 一键编译运行脚本${NC}"
@@ -92,8 +122,45 @@ cd build
 
 # 选择构建类型
 BUILD_TYPE="Release"
-USE_NPP="ON"
 
+# 选择测试库：NVIDIA 官方 NPP 或自己的 MPP 实现
+if [ -n "$USE_NPP_ARG" ]; then
+    # 使用命令行参数指定的选项
+    USE_NPP="$USE_NPP_ARG"
+    if [ "$USE_NPP" == "ON" ]; then
+        echo -e "${GREEN}→ 将测试 NVIDIA 官方 NPP 库（命令行参数）${NC}"
+    else
+        echo -e "${GREEN}→ 将测试自己实现的 MPP 库（命令行参数）${NC}"
+    fi
+else
+    # 交互式选择
+    echo -e "${BLUE}请选择测试库:${NC}"
+    echo "  1) NVIDIA 官方 NPP 库（性能基准对比）"
+    echo "  2) 自己实现的 MPP 库（验证实现）"
+    echo -n "请输入选择 [1/2，默认 1]: "
+    
+    if [ -t 0 ]; then
+        # 交互模式：等待用户输入
+        read -r CHOICE
+    else
+        # 非交互模式（如脚本调用）：使用默认值
+        CHOICE="1"
+        echo "1 (默认)"
+    fi
+    
+    case "$CHOICE" in
+        2)
+            USE_NPP="OFF"
+            echo -e "${GREEN}→ 将测试自己实现的 MPP 库${NC}"
+            ;;
+        *)
+            USE_NPP="ON"
+            echo -e "${GREEN}→ 将测试 NVIDIA 官方 NPP 库${NC}"
+            ;;
+    esac
+fi
+
+echo ""
 echo "配置选项:"
 echo "  - 构建类型: $BUILD_TYPE"
 echo "  - 使用 NVIDIA NPP: $USE_NPP"
