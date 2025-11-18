@@ -20,7 +20,7 @@ set(NPPI_ARITHMETIC_BENCHMARK_SOURCES
 npp_create_benchmark_target(
     nppi_arithmetic_benchmark
     "${NPPI_ARITHMETIC_BENCHMARK_SOURCES}"
-    npp_nppi_lib
+    npp
 )
 
 target_include_directories(nppi_arithmetic_benchmark
@@ -44,7 +44,7 @@ endif()
 # npp_create_benchmark_target(
 #     nppi_filtering_benchmark
 #     "${NPPI_FILTERING_BENCHMARK_SOURCES}"
-#     npp_nppi_lib
+#     npp
 # )
 
 # NPPI 几何变换性能测试
@@ -54,7 +54,7 @@ endif()
 # npp_create_benchmark_target(
 #     nppi_geometry_benchmark
 #     "${NPPI_GEOMETRY_BENCHMARK_SOURCES}"
-#     npp_nppi_lib
+#     npp
 # )
 
 message(STATUS "Performance benchmarks configured")
