@@ -197,6 +197,21 @@ fi
 
 echo "使用 $CORES 个核心并行编译..."
 
+# 如果使用 MPP，需要先编译 MPP 库
+if [ "$USE_NPP" == "OFF" ]; then
+    echo "正在编译 MPP 库..."
+    make npp_nppi_lib -j$CORES 2>&1 | tee build_lib.log
+    
+    if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo -e "${RED}错误: MPP 库编译失败！${NC}"
+        echo "查看详细日志: build/build_lib.log"
+        exit 1
+    fi
+    echo -e "${GREEN}✓ MPP 库编译成功${NC}"
+    echo ""
+fi
+
+echo "正在编译 benchmark..."
 make nppi_arithmetic_benchmark -j$CORES 2>&1 | tee build.log
 
 if [ ${PIPESTATUS[0]} -ne 0 ]; then
