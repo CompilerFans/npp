@@ -1,5 +1,11 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10...3.28)
 project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
+
+# CMake 版本兼容性说明：
+# - 最低支持：3.10 (Ubuntu 18.04 默认版本)
+# - 最高测试：3.28 (最新稳定版)
+# - 3.10-3.16: 使用传统 CUDA 检测
+# - 3.17+: 使用 CUDAToolkit (更好的 CUDA 支持)
 
 # 包含模块化cmake配置
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -12,6 +18,14 @@ include(BenchmarkConfig)
 
 # 需要的cmake模块
 include(CMakePackageConfigHelpers)
+
+# 显示当前 CMake 版本和策略
+message(STATUS "CMake version: ${CMAKE_VERSION}")
+if(CMAKE_VERSION VERSION_LESS "3.17")
+    message(STATUS "Using legacy CUDA detection (CMake < 3.17)")
+else()
+    message(STATUS "Using modern CUDAToolkit detection (CMake >= 3.17)")
+endif()
 
 # 构建选项 - moved before subdirectories to control build flow
 option(BUILD_TESTS "Build tests" ON)
