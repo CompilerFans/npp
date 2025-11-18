@@ -59,6 +59,9 @@ echo "Running MPP benchmarks..."
     --benchmark_repetitions=5 \
     --benchmark_report_aggregates_only=true
 
+# 修复权限问题
+chmod 644 "$RESULTS_DIR/mpp_${TIMESTAMP}.json"
+
 echo -e "${GREEN}✓ MPP benchmarks completed${NC}"
 echo ""
 
@@ -94,38 +97,55 @@ echo "Running NVIDIA NPP benchmarks..."
     --benchmark_repetitions=5 \
     --benchmark_report_aggregates_only=true
 
+# 修复权限问题
+chmod 644 "$RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json"
+
 echo -e "${GREEN}✓ NVIDIA NPP benchmarks completed${NC}"
 echo ""
 
 # ============================================================
-# 步骤 3：显示对比结果
+# 步骤 3：生成详细对比报告
 # ============================================================
 
 echo ""
-echo -e "${GREEN}=== Quick Summary ===${NC}"
-echo "MPP results:        $RESULTS_DIR/mpp_${TIMESTAMP}.json"
-echo "NVIDIA NPP results: $RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json"
+echo -e "${YELLOW}Step 3: Generating detailed comparison report...${NC}"
 echo ""
 
-if command -v jq &> /dev/null; then
-    echo "Performance comparison (sample):"
-    echo ""
+# 检查 JSON 文件是否存在
+if [ ! -f "$RESULTS_DIR/mpp_${TIMESTAMP}.json" ]; then
+    echo -e "${RED}Error: MPP results file not found${NC}"
+    exit 1
+fi
+
+if [ ! -f "$RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json" ]; then
+    echo -e "${RED}Error: NVIDIA NPP results file not found${NC}"
+    exit 1
+fi
+
+# 使用 Python 脚本生成详细对比
+if command -v python3 &> /dev/null; then
+    HTML_REPORT="$RESULTS_DIR/comparison_${TIMESTAMP}.html"
     
-    # 提取并对比 Add_8u_C1RSfs 的性能
-    mpp_time=$(jq -r '.benchmarks[] | select(.name | contains("BM_nppiAdd_8u_C1RSfs_Fixed")) | .real_time' \
-        "$RESULTS_DIR/mpp_${TIMESTAMP}.json" | head -1)
-    nvidia_time=$(jq -r '.benchmarks[] | select(.name | contains("BM_nppiAdd_8u_C1RSfs_Fixed")) | .real_time' \
-        "$RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json" | head -1)
+    python3 "$SCRIPT_DIR/compare_results.py" \
+        "$RESULTS_DIR/mpp_${TIMESTAMP}.json" \
+        "$RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json" \
+        "$HTML_REPORT"
     
-    if [ -n "$mpp_time" ] && [ -n "$nvidia_time" ]; then
-        speedup=$(echo "scale=2; $nvidia_time / $mpp_time" | bc)
-        echo "  nppiAdd_8u_C1RSfs (1920x1080):"
-        echo "    MPP:        ${mpp_time} ms"
-        echo "    NVIDIA NPP: ${nvidia_time} ms"
-        echo "    Speedup:    ${speedup}x"
+    if [ $? -eq 0 ]; then
+        echo ""
+        echo -e "${GREEN}✓ Detailed comparison report generated${NC}"
+        echo -e "   HTML Report: ${HTML_REPORT}"
+        echo -e "   View in browser: file://${HTML_REPORT}"
+    else
+        echo -e "${RED}✗ Failed to generate comparison report${NC}"
     fi
 else
-    echo -e "${YELLOW}Install 'jq' for quick performance comparison${NC}"
+    echo -e "${RED}Error: Python3 not found${NC}"
+    echo "Please install Python3 to generate comparison reports"
+    echo ""
+    echo "Manual comparison:"
+    echo "  MPP results:        $RESULTS_DIR/mpp_${TIMESTAMP}.json"
+    echo "  NVIDIA NPP results: $RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json"
 fi
 
 echo ""
