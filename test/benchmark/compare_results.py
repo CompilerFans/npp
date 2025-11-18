@@ -10,6 +10,7 @@ NPP 性能对比工具
 
 import json
 import sys
+import csv
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -61,15 +62,19 @@ def compare_results(mpp_results: Dict, nvidia_results: Dict) -> List[Tuple]:
             speedup = 0
             percentage = 0
         
-        # 评级
+        # 评级（不使用 emoji）
         if percentage >= 95:
-            rating = '🟢 优秀'
+            rating = 'Excellent'
+            rating_color = '\033[92m'  # Green
         elif percentage >= 80:
-            rating = '🟡 良好'
+            rating = 'Good'
+            rating_color = '\033[93m'  # Yellow
         elif percentage >= 60:
-            rating = '🟠 可接受'
+            rating = 'Acceptable'
+            rating_color = '\033[33m'  # Orange
         else:
-            rating = '🔴 需优化'
+            rating = 'NeedsOpt'
+            rating_color = '\033[91m'  # Red
         
         comparisons.append({
             'name': name,
@@ -78,6 +83,7 @@ def compare_results(mpp_results: Dict, nvidia_results: Dict) -> List[Tuple]:
             'speedup': speedup,
             'percentage': percentage,
             'rating': rating,
+            'rating_color': rating_color,
             'mpp_throughput': mpp['bytes_per_second'],
             'nvidia_throughput': nvidia['bytes_per_second'],
         })
@@ -85,51 +91,103 @@ def compare_results(mpp_results: Dict, nvidia_results: Dict) -> List[Tuple]:
     return comparisons
 
 def generate_text_report(comparisons: List[Dict]) -> str:
-    """生成文本格式的对比报告"""
+    """生成文本格式的对比报告（带颜色）"""
+    RESET = '\033[0m'
     report = []
     report.append("=" * 100)
-    report.append("NPP 性能对比报告")
+    report.append("NPP Performance Comparison Report")
     report.append("=" * 100)
     report.append("")
     
     # 表头
-    report.append(f"{'测试名称':<50} {'MPP (ms)':>12} {'NVIDIA (ms)':>12} {'性能比':>10} {'评级':>10}")
+    report.append(f"{'Test Name':<60} {'MPP (ms)':>12} {'NVIDIA (ms)':>12} {'Perf%':>10} {'Rating':>12}")
     report.append("-" * 100)
     
-    # 数据行
+    # 数据行（带颜色）
     for comp in comparisons:
         name = comp['name']
-        if len(name) > 48:
-            name = name[:45] + "..."
+        if len(name) > 58:
+            name = name[:55] + "..."
+        
+        # 使用颜色代码
+        color = comp['rating_color']
+        rating = f"{color}{comp['rating']}{RESET}"
         
         report.append(
-            f"{name:<50} "
+            f"{name:<60} "
             f"{comp['mpp_time']:>12.3f} "
             f"{comp['nvidia_time']:>12.3f} "
             f"{comp['percentage']:>9.1f}% "
-            f"{comp['rating']:>10}"
+            f"{rating}"
         )
     
     report.append("-" * 100)
     
     # 统计信息
     avg_percentage = sum(c['percentage'] for c in comparisons) / len(comparisons) if comparisons else 0
-    excellent = sum(1 for c in comparisons if '优秀' in c['rating'])
-    good = sum(1 for c in comparisons if '良好' in c['rating'])
-    acceptable = sum(1 for c in comparisons if '可接受' in c['rating'])
-    needs_opt = sum(1 for c in comparisons if '需优化' in c['rating'])
+    excellent = sum(1 for c in comparisons if c['rating'] == 'Excellent')
+    good = sum(1 for c in comparisons if c['rating'] == 'Good')
+    acceptable = sum(1 for c in comparisons if c['rating'] == 'Acceptable')
+    needs_opt = sum(1 for c in comparisons if c['rating'] == 'NeedsOpt')
     
     report.append("")
-    report.append("总体统计:")
-    report.append(f"  平均性能比: {avg_percentage:.1f}%")
-    report.append(f"  优秀 (≥95%):   {excellent} 个")
-    report.append(f"  良好 (80-95%): {good} 个")
-    report.append(f"  可接受 (60-80%): {acceptable} 个")
-    report.append(f"  需优化 (<60%): {needs_opt} 个")
+    report.append("Overall Statistics:")
+    report.append(f"  Average Performance: {avg_percentage:.1f}%")
+    report.append(f"  Excellent (>=95%):   {excellent} tests")
+    report.append(f"  Good (80-95%):       {good} tests")
+    report.append(f"  Acceptable (60-80%): {acceptable} tests")
+    report.append(f"  Needs Opt (<60%):    {needs_opt} tests")
     report.append("")
     report.append("=" * 100)
     
     return "\n".join(report)
+
+def generate_csv_report(comparisons: List[Dict], output_file: str):
+    """生成 CSV 格式的对比报告"""
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        
+        # 写入表头
+        writer.writerow([
+            'Test Name',
+            'MPP Time (ms)',
+            'NVIDIA Time (ms)',
+            'Performance Ratio (%)',
+            'Speedup',
+            'Rating',
+            'MPP Throughput (bytes/s)',
+            'NVIDIA Throughput (bytes/s)'
+        ])
+        
+        # 写入数据行
+        for comp in comparisons:
+            writer.writerow([
+                comp['name'],
+                f"{comp['mpp_time']:.6f}",
+                f"{comp['nvidia_time']:.6f}",
+                f"{comp['percentage']:.2f}",
+                f"{comp['speedup']:.4f}",
+                comp['rating'],
+                f"{comp['mpp_throughput']:.0f}",
+                f"{comp['nvidia_throughput']:.0f}"
+            ])
+        
+        # 添加统计信息
+        avg_percentage = sum(c['percentage'] for c in comparisons) / len(comparisons) if comparisons else 0
+        excellent = sum(1 for c in comparisons if c['rating'] == 'Excellent')
+        good = sum(1 for c in comparisons if c['rating'] == 'Good')
+        acceptable = sum(1 for c in comparisons if c['rating'] == 'Acceptable')
+        needs_opt = sum(1 for c in comparisons if c['rating'] == 'NeedsOpt')
+        
+        # 空行分隔
+        writer.writerow([])
+        writer.writerow(['Overall Statistics'])
+        writer.writerow(['Average Performance (%)', f"{avg_percentage:.2f}"])
+        writer.writerow(['Excellent (>=95%)', excellent])
+        writer.writerow(['Good (80-95%)', good])
+        writer.writerow(['Acceptable (60-80%)', acceptable])
+        writer.writerow(['Needs Optimization (<60%)', needs_opt])
+        writer.writerow(['Total Tests', len(comparisons)])
 
 def generate_html_report(comparisons: List[Dict], output_file: str):
     """生成 HTML 格式的对比报告"""
@@ -219,7 +277,7 @@ def generate_html_report(comparisons: List[Dict], output_file: str):
 
 def main():
     if len(sys.argv) < 3:
-        print("用法: python3 compare_results.py <mpp.json> <nvidia.json> [output.html]")
+        print("Usage: python3 compare_results.py <mpp.json> <nvidia.json> [output.csv]")
         sys.exit(1)
     
     mpp_file = sys.argv[1]
@@ -228,14 +286,14 @@ def main():
     
     # 检查文件是否存在
     if not Path(mpp_file).exists():
-        print(f"错误: 找不到文件 {mpp_file}")
+        print(f"Error: File not found {mpp_file}")
         sys.exit(1)
     if not Path(nvidia_file).exists():
-        print(f"错误: 找不到文件 {nvidia_file}")
+        print(f"Error: File not found {nvidia_file}")
         sys.exit(1)
     
     # 加载结果
-    print("正在加载结果...")
+    print("Loading benchmark results...")
     mpp_benchmarks = load_benchmark_results(mpp_file)
     nvidia_benchmarks = load_benchmark_results(nvidia_file)
     
@@ -243,25 +301,25 @@ def main():
     mpp_results = extract_test_results(mpp_benchmarks)
     nvidia_results = extract_test_results(nvidia_benchmarks)
     
-    print(f"MPP 测试数量: {len(mpp_results)}")
-    print(f"NVIDIA 测试数量: {len(nvidia_results)}")
+    print(f"MPP tests: {len(mpp_results)}")
+    print(f"NVIDIA tests: {len(nvidia_results)}")
     
     # 对比
     comparisons = compare_results(mpp_results, nvidia_results)
     
     if not comparisons:
-        print("警告: 没有找到可对比的测试结果")
+        print("Warning: No comparable test results found")
         sys.exit(0)
     
-    # 生成文本报告
+    # 生成文本报告（带颜色）
     text_report = generate_text_report(comparisons)
     print("\n" + text_report)
     
-    # 生成 HTML 报告
+    # 生成 CSV 报告
     if output_file:
-        generate_html_report(comparisons, output_file)
-        print(f"\n✅ HTML 报告已生成: {output_file}")
-        print(f"   在浏览器中打开查看: file://{Path(output_file).absolute()}")
+        generate_csv_report(comparisons, output_file)
+        print(f"\nCSV report generated: {output_file}")
+        print(f"Open with: Excel, LibreOffice, or any spreadsheet software")
 
 if __name__ == '__main__':
     main()

@@ -124,20 +124,22 @@ fi
 
 # 使用 Python 脚本生成详细对比
 if command -v python3 &> /dev/null; then
-    HTML_REPORT="$RESULTS_DIR/comparison_${TIMESTAMP}.html"
+    CSV_REPORT="$RESULTS_DIR/comparison_${TIMESTAMP}.csv"
     
     python3 "$SCRIPT_DIR/compare_results.py" \
         "$RESULTS_DIR/mpp_${TIMESTAMP}.json" \
         "$RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json" \
-        "$HTML_REPORT"
+        "$CSV_REPORT"
     
     if [ $? -eq 0 ]; then
         echo ""
-        echo -e "${GREEN}✓ Detailed comparison report generated${NC}"
-        echo -e "   HTML Report: ${HTML_REPORT}"
-        echo -e "   View in browser: file://${HTML_REPORT}"
+        echo -e "${GREEN}Detailed comparison report generated${NC}"
+        echo -e "   CSV Report: ${CSV_REPORT}"
+        echo -e "   JSON Results:"
+        echo -e "     - MPP:    $RESULTS_DIR/mpp_${TIMESTAMP}.json"
+        echo -e "     - NVIDIA: $RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json"
     else
-        echo -e "${RED}✗ Failed to generate comparison report${NC}"
+        echo -e "${RED}Failed to generate comparison report${NC}"
     fi
 else
     echo -e "${RED}Error: Python3 not found${NC}"
