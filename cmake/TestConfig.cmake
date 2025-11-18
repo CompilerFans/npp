@@ -67,36 +67,12 @@ function(npp_create_test_target target_name sources library_target)
             gtest_main
         )
 
-        # 查找并链接 NPP 库 - 优先使用检测到的 CUDA 版本
+        # 查找并链接 NPP 库 - 严格只使用检测到的 CUDA 版本
+        # 重要：不搜索其他版本，避免版本混用导致 undefined reference
         set(NPP_SEARCH_PATHS
-            # 优先使用检测到的 CUDA 版本（最可靠）
             ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
             ${CUDA_TOOLKIT_ROOT_DIR}/lib64
             ${CUDA_TOOLKIT_ROOT_DIR}/lib
-            # 然后尝试符号链接（可能指向不同版本）
-            /usr/local/cuda/targets/x86_64-linux/lib
-            /usr/local/cuda/lib64
-            /usr/local/cuda/lib
-            /usr/local/cuda-12.6/lib64
-            /usr/local/cuda-12.6/targets/x86_64-linux/lib
-            /usr/local/cuda-12.5/lib64
-            /usr/local/cuda-12.5/targets/x86_64-linux/lib
-            /usr/local/cuda-12.4/lib64
-            /usr/local/cuda-12.4/targets/x86_64-linux/lib
-            /usr/local/cuda-12.3/lib64
-            /usr/local/cuda-12.3/targets/x86_64-linux/lib
-            /usr/local/cuda-12.2/lib64
-            /usr/local/cuda-12.2/targets/x86_64-linux/lib
-            /usr/local/cuda-12.1/lib64
-            /usr/local/cuda-12.1/targets/x86_64-linux/lib
-            /usr/local/cuda-12.0/lib64
-            /usr/local/cuda-12.0/targets/x86_64-linux/lib
-            /usr/local/cuda-11.8/lib64
-            /usr/local/cuda-11.8/targets/x86_64-linux/lib
-            /usr/local/cuda-11.7/lib64
-            /usr/local/cuda-11.7/targets/x86_64-linux/lib
-            /opt/cuda/lib64
-            /opt/cuda/targets/x86_64-linux/lib
         )
         
         # 找到每个 NPP 库的完整路径
@@ -105,16 +81,25 @@ function(npp_create_test_target target_name sources library_target)
         
         set(NPP_TEST_FOUND_LIBS "")
         foreach(npp_lib ${NPP_LIBS})
+            # 清除缓存，强制重新搜索
+            unset(${npp_lib}_TEST_LIBRARY CACHE)
+            
             find_library(${npp_lib}_TEST_LIBRARY
                 NAMES ${npp_lib}
                 PATHS ${NPP_SEARCH_PATHS}
                 NO_DEFAULT_PATH
             )
             if(${npp_lib}_TEST_LIBRARY)
+                # 验证找到的库确实来自正确的 CUDA 版本
+                string(FIND "${${npp_lib}_TEST_LIBRARY}" "${CUDA_TOOLKIT_ROOT_DIR}" pos)
+                if(pos EQUAL -1)
+                    message(FATAL_ERROR "Found NPP library ${${npp_lib}_TEST_LIBRARY} is NOT from detected CUDA ${CUDA_TOOLKIT_ROOT_DIR}! This will cause linking errors.")
+                endif()
+                
                 list(APPEND NPP_TEST_FOUND_LIBS ${${npp_lib}_TEST_LIBRARY})
                 message(STATUS "Found NPP library for tests: ${${npp_lib}_TEST_LIBRARY}")
             else()
-                message(WARNING "NPP library not found for tests: ${npp_lib}")
+                message(FATAL_ERROR "NPP library not found for tests: ${npp_lib} in ${NPP_SEARCH_PATHS}")
             endif()
         endforeach()
         
