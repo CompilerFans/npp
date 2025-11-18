@@ -109,6 +109,13 @@ if [ ! -f "third_party/googletest/CMakeLists.txt" ]; then
 fi
 print_success "GoogleTest submodule verified"
 
+# 验证 Google Benchmark
+if [ ! -f "third_party/benchmark/CMakeLists.txt" ]; then
+    print_error "Google Benchmark submodule not found!"
+    exit 1
+fi
+print_success "Google Benchmark submodule verified"
+
 # =============================================================================
 # 3. 清理和配置
 # =============================================================================
