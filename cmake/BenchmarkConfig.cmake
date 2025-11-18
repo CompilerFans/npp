@@ -79,14 +79,16 @@ function(npp_create_benchmark_target target_name sources library_target)
             ${CUDA_cudart_LIBRARY}
         )
         
-        # 查找并链接 NPP 库 - 使用完整路径更可靠
+        # 查找并链接 NPP 库 - 优先使用检测到的 CUDA 版本
         set(NPP_SEARCH_PATHS
+            # 优先使用检测到的 CUDA 版本（最可靠）
+            ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
             ${CUDA_TOOLKIT_ROOT_DIR}/lib64
             ${CUDA_TOOLKIT_ROOT_DIR}/lib
-            ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
+            # 然后尝试符号链接（可能指向不同版本）
+            /usr/local/cuda/targets/x86_64-linux/lib
             /usr/local/cuda/lib64
             /usr/local/cuda/lib
-            /usr/local/cuda/targets/x86_64-linux/lib
             /usr/local/cuda-12.6/lib64
             /usr/local/cuda-12.6/targets/x86_64-linux/lib
             /usr/local/cuda-12.5/lib64
