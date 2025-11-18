@@ -109,16 +109,17 @@ def generate_text_report(comparisons: List[Dict]) -> str:
         if len(name) > 58:
             name = name[:55] + "..."
         
-        # 使用颜色代码
+        # 先格式化文本，再添加颜色（避免颜色代码影响对齐）
         color = comp['rating_color']
-        rating = f"{color}{comp['rating']}{RESET}"
+        rating_text = f"{comp['rating']:>12}"  # 先对齐文本
+        rating_colored = f"{color}{rating_text}{RESET}"  # 再加颜色
         
         report.append(
             f"{name:<60} "
             f"{comp['mpp_time']:>12.3f} "
             f"{comp['nvidia_time']:>12.3f} "
             f"{comp['percentage']:>9.1f}% "
-            f"{rating}"
+            f"{rating_colored}"
         )
     
     report.append("-" * 100)
