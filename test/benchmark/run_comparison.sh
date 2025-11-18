@@ -42,7 +42,7 @@ cmake .. \
 
 # 先编译 MPP 库，再编译 benchmark
 echo "Building MPP libraries..."
-make npp_nppi_lib -j$(nproc)
+make npp -j$(nproc)
 
 echo "Building benchmark..."
 make nppi_arithmetic_benchmark -j$(nproc)
