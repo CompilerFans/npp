@@ -80,10 +80,43 @@ function(npp_create_benchmark_target target_name sources library_target)
         )
         
         # 添加库搜索路径和链接 NPP 库（第二次调用：NPP 库）
+        # 支持多个 CUDA 版本和安装位置
         target_link_directories(${target_name} PRIVATE 
+            # 当前检测到的 CUDA 路径
             ${CUDA_TOOLKIT_ROOT_DIR}/lib64
             ${CUDA_TOOLKIT_ROOT_DIR}/lib
             ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
+            
+            # 常见的 CUDA 安装路径（覆盖多个版本）
+            /usr/local/cuda/lib64
+            /usr/local/cuda/lib
+            /usr/local/cuda/targets/x86_64-linux/lib
+            
+            # CUDA 12.x 版本
+            /usr/local/cuda-12.6/lib64
+            /usr/local/cuda-12.6/targets/x86_64-linux/lib
+            /usr/local/cuda-12.5/lib64
+            /usr/local/cuda-12.5/targets/x86_64-linux/lib
+            /usr/local/cuda-12.4/lib64
+            /usr/local/cuda-12.4/targets/x86_64-linux/lib
+            /usr/local/cuda-12.3/lib64
+            /usr/local/cuda-12.3/targets/x86_64-linux/lib
+            /usr/local/cuda-12.2/lib64
+            /usr/local/cuda-12.2/targets/x86_64-linux/lib
+            /usr/local/cuda-12.1/lib64
+            /usr/local/cuda-12.1/targets/x86_64-linux/lib
+            /usr/local/cuda-12.0/lib64
+            /usr/local/cuda-12.0/targets/x86_64-linux/lib
+            
+            # CUDA 11.x 版本
+            /usr/local/cuda-11.8/lib64
+            /usr/local/cuda-11.8/targets/x86_64-linux/lib
+            /usr/local/cuda-11.7/lib64
+            /usr/local/cuda-11.7/targets/x86_64-linux/lib
+            
+            # 其他可能的路径
+            /opt/cuda/lib64
+            /opt/cuda/targets/x86_64-linux/lib
         )
         target_link_libraries(${target_name} PRIVATE
             nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
