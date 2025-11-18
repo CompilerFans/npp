@@ -642,6 +642,75 @@ __global__ void nppiErode_32f_C4R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32
   }
 }
 
+__global__ void nppiErode_32f_C4R_kernel_opt(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
+                                             int nDstStep, int width, int height, const Npp8u *__restrict__ pMask,
+                                             int maskWidth, int maskHeight, int anchorX, int anchorY) {
+  const int tx = threadIdx.x;
+  const int ty = threadIdx.y;
+  const int tile_x = blockIdx.x * blockDim.x;
+  const int tile_y = blockIdx.y * blockDim.y;
+  const int out_x = tile_x + tx;
+  const int out_y = tile_y + ty;
+  if (out_x >= width || out_y >= height)
+    return;
+
+  const int TILE_WIDTH = blockDim.x + maskWidth - 1;
+  const int TILE_HEIGHT = blockDim.y + maskHeight - 1;
+  const int maskSize = maskWidth * maskHeight;
+
+  extern __shared__ unsigned char sdata[];
+
+  float4 *tile = reinterpret_cast<float4 *>(sdata);
+  Npp8u *sMask = reinterpret_cast<Npp8u *>(tile + TILE_WIDTH * TILE_HEIGHT);
+
+  const int tid = ty * blockDim.x + tx;
+  const int numThreads = blockDim.x * blockDim.y;
+
+  // 1) mask -> shared
+  for (int idx = tid; idx < maskSize; idx += numThreads) {
+    sMask[idx] = pMask[idx];
+  }
+  __syncthreads();
+
+  // 2) tile + halo -> shared
+  for (int j = ty; j < TILE_HEIGHT; j += blockDim.y) {
+    int gy = tile_y + j - anchorY;
+    gy = max(0, min(gy, height - 1));
+    const float4 *src_row = reinterpret_cast<const float4 *>((const char *)pSrc + gy * nSrcStep);
+
+    for (int i = tx; i < TILE_WIDTH; i += blockDim.x) {
+      int gx = tile_x + i - anchorX;
+      gx = max(0, min(gx, width - 1));
+      tile[j * TILE_WIDTH + i] = src_row[gx];
+    }
+  }
+  __syncthreads();
+
+  float4 minVal = make_float4(1e10f, 1e10f, 1e10f, 1e10f);
+
+  for (int my = 0; my < maskHeight; ++my) {
+    const int sy = ty + my;
+    const int maskRow = my * maskWidth;
+
+    for (int mx = 0; mx < maskWidth; ++mx) {
+      if (!sMask[maskRow + mx])
+        continue;
+
+      const int sx = tx + mx;
+      const float4 v = tile[sy * TILE_WIDTH + sx];
+
+      minVal.x = fminf(minVal.x, v.x);
+      minVal.y = fminf(minVal.y, v.y);
+      minVal.z = fminf(minVal.z, v.z);
+      minVal.w = fminf(minVal.w, v.w);
+    }
+  }
+
+  float4 *dst_row = reinterpret_cast<float4 *>((char *)pDst + out_y * nDstStep);
+  dst_row[out_x] = minVal;
+}
+
+
 __global__ void nppiDilate_8u_C1R_3x3_opt(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                           int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1022,6 +1091,74 @@ __global__ void nppiDilate_32f_C4R_kernel(const Npp32f *pSrc, int nSrcStep, Npp3
   }
 }
 
+__global__ void nppiDilate_32f_C4R_kernel_opt(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
+                                              int nDstStep, int width, int height, const Npp8u *__restrict__ pMask,
+                                              int maskWidth, int maskHeight, int anchorX, int anchorY) {
+  const int tx = threadIdx.x;
+  const int ty = threadIdx.y;
+  const int tile_x = blockIdx.x * blockDim.x;
+  const int tile_y = blockIdx.y * blockDim.y;
+  const int out_x = tile_x + tx;
+  const int out_y = tile_y + ty;
+  if (out_x >= width || out_y >= height)
+    return;
+
+  const int TILE_WIDTH = blockDim.x + maskWidth - 1;
+  const int TILE_HEIGHT = blockDim.y + maskHeight - 1;
+  const int maskSize = maskWidth * maskHeight;
+
+  extern __shared__ unsigned char sdata[];
+
+  float4 *tile = reinterpret_cast<float4 *>(sdata);
+  Npp8u *sMask = reinterpret_cast<Npp8u *>(tile + TILE_WIDTH * TILE_HEIGHT);
+
+  const int tid = ty * blockDim.x + tx;
+  const int numThreads = blockDim.x * blockDim.y;
+
+  // mask -> shared
+  for (int idx = tid; idx < maskSize; idx += numThreads) {
+    sMask[idx] = pMask[idx];
+  }
+  __syncthreads();
+
+  // tile + halo -> shared
+  for (int j = ty; j < TILE_HEIGHT; j += blockDim.y) {
+    int gy = tile_y + j - anchorY;
+    gy = max(0, min(gy, height - 1));
+    const float4 *src_row = reinterpret_cast<const float4 *>((const char *)pSrc + gy * nSrcStep);
+
+    for (int i = tx; i < TILE_WIDTH; i += blockDim.x) {
+      int gx = tile_x + i - anchorX;
+      gx = max(0, min(gx, width - 1));
+      tile[j * TILE_WIDTH + i] = src_row[gx];
+    }
+  }
+  __syncthreads();
+
+  float4 maxVal = make_float4(-1e10f, -1e10f, -1e10f, -1e10f);
+
+  for (int my = 0; my < maskHeight; ++my) {
+    const int sy = ty + my;
+    const int maskRow = my * maskWidth;
+
+    for (int mx = 0; mx < maskWidth; ++mx) {
+      if (!sMask[maskRow + mx])
+        continue;
+
+      const int sx = tx + mx;
+      const float4 v = tile[sy * TILE_WIDTH + sx];
+
+      maxVal.x = fmaxf(maxVal.x, v.x);
+      maxVal.y = fmaxf(maxVal.y, v.y);
+      maxVal.z = fmaxf(maxVal.z, v.z);
+      maxVal.w = fmaxf(maxVal.w, v.w);
+    }
+  }
+
+  float4 *dst_row = reinterpret_cast<float4 *>((char *)pDst + out_y * nDstStep);
+  dst_row[out_x] = maxVal;
+}
+
 //=============================================================================
 // Host functions for general morphology operations
 //=============================================================================
@@ -1092,7 +1229,13 @@ NppStatus nppiErode_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *p
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiErode_32f_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  const int tileW = blockSize.x + oMaskSize.width - 1;
+  const int tileH = blockSize.y + oMaskSize.height - 1;
+
+  size_t sharedSize = static_cast<size_t>(tileW) * tileH * sizeof(float4) +
+                      static_cast<size_t>(oMaskSize.width) * oMaskSize.height * sizeof(Npp8u);
+
+  nppiErode_32f_C4R_kernel_opt<<<gridSize, blockSize, sharedSize, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
       oAnchor.x, oAnchor.y);
 
@@ -1176,7 +1319,13 @@ NppStatus nppiDilate_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiDilate_32f_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  const int tileW = blockSize.x + oMaskSize.width - 1;
+  const int tileH = blockSize.y + oMaskSize.height - 1;
+
+  size_t sharedSize = static_cast<size_t>(tileW) * tileH * sizeof(float4) +
+                      static_cast<size_t>(oMaskSize.width) * oMaskSize.height * sizeof(Npp8u);
+
+  nppiDilate_32f_C4R_kernel_opt<<<gridSize, blockSize, sharedSize, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
       oAnchor.x, oAnchor.y);
 
