@@ -67,20 +67,14 @@ function(npp_create_test_target target_name sources library_target)
             gtest_main
         )
 
-        # 添加库搜索路径和链接NPP库
-        # 支持多个 CUDA 版本和安装位置
-        target_link_directories(${target_name} PRIVATE 
-            # 当前检测到的 CUDA 路径
+        # 查找并链接 NPP 库 - 使用完整路径更可靠
+        set(NPP_SEARCH_PATHS
             ${CUDA_TOOLKIT_ROOT_DIR}/lib64
             ${CUDA_TOOLKIT_ROOT_DIR}/lib
             ${CUDA_TOOLKIT_ROOT_DIR}/targets/x86_64-linux/lib
-            
-            # 常见的 CUDA 安装路径（覆盖多个版本）
             /usr/local/cuda/lib64
             /usr/local/cuda/lib
             /usr/local/cuda/targets/x86_64-linux/lib
-            
-            # CUDA 12.x 版本
             /usr/local/cuda-12.6/lib64
             /usr/local/cuda-12.6/targets/x86_64-linux/lib
             /usr/local/cuda-12.5/lib64
@@ -95,19 +89,29 @@ function(npp_create_test_target target_name sources library_target)
             /usr/local/cuda-12.1/targets/x86_64-linux/lib
             /usr/local/cuda-12.0/lib64
             /usr/local/cuda-12.0/targets/x86_64-linux/lib
-            
-            # CUDA 11.x 版本
             /usr/local/cuda-11.8/lib64
             /usr/local/cuda-11.8/targets/x86_64-linux/lib
             /usr/local/cuda-11.7/lib64
             /usr/local/cuda-11.7/targets/x86_64-linux/lib
-            
-            # 其他可能的路径
             /opt/cuda/lib64
             /opt/cuda/targets/x86_64-linux/lib
         )
-        target_link_libraries(${target_name} PRIVATE
-            nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
+        
+        # 找到每个 NPP 库的完整路径
+        set(NPP_LIBS nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
+        foreach(npp_lib ${NPP_LIBS})
+            find_library(${npp_lib}_TEST_LIBRARY
+                NAMES ${npp_lib}
+                PATHS ${NPP_SEARCH_PATHS}
+                NO_DEFAULT_PATH
+            )
+            if(${npp_lib}_TEST_LIBRARY)
+                target_link_libraries(${target_name} PRIVATE ${${npp_lib}_TEST_LIBRARY})
+                message(STATUS "Found NPP library for tests: ${${npp_lib}_TEST_LIBRARY}")
+            else()
+                message(WARNING "NPP library not found for tests: ${npp_lib}")
+            endif()
+        endforeach()
 
         # 使用NVIDIA NPP头文件
         target_include_directories(${target_name}
