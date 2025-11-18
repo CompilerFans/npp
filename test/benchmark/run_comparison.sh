@@ -98,25 +98,7 @@ echo -e "${GREEN}✓ NVIDIA NPP benchmarks completed${NC}"
 echo ""
 
 # ============================================================
-# 步骤 3：生成对比报告
-# ============================================================
-
-echo -e "${YELLOW}Step 3: Generating comparison report...${NC}"
-
-if command -v python3 &> /dev/null; then
-    # 如果有 Python，生成详细的对比报告
-    python3 "$SCRIPT_DIR/compare_results.py" \
-        "$RESULTS_DIR/mpp_${TIMESTAMP}.json" \
-        "$RESULTS_DIR/nvidia_npp_${TIMESTAMP}.json" \
-        "$RESULTS_DIR/comparison_${TIMESTAMP}.html"
-    
-    echo -e "${GREEN}✓ Comparison report generated: $RESULTS_DIR/comparison_${TIMESTAMP}.html${NC}"
-else
-    echo -e "${YELLOW}Python3 not found, skipping HTML report generation${NC}"
-fi
-
-# ============================================================
-# 步骤 4：显示简要对比
+# 步骤 3：显示对比结果
 # ============================================================
 
 echo ""
