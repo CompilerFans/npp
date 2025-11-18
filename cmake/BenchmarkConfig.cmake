@@ -112,7 +112,10 @@ function(npp_create_benchmark_target target_name sources library_target)
         )
         
         # 找到每个 NPP 库的完整路径
-        set(NPP_LIBS nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps nppc)
+        # 注意：必须先链接核心库 nppc，然后才是其他库（依赖顺序很重要！）
+        set(NPP_LIBS nppc nppial nppicc nppidei nppif nppig nppim nppist nppisu nppitc npps)
+        
+        set(NPP_FOUND_LIBS "")
         foreach(npp_lib ${NPP_LIBS})
             find_library(${npp_lib}_LIBRARY
                 NAMES ${npp_lib}
@@ -120,12 +123,17 @@ function(npp_create_benchmark_target target_name sources library_target)
                 NO_DEFAULT_PATH
             )
             if(${npp_lib}_LIBRARY)
-                target_link_libraries(${target_name} PRIVATE ${${npp_lib}_LIBRARY})
+                list(APPEND NPP_FOUND_LIBS ${${npp_lib}_LIBRARY})
                 message(STATUS "Found NPP library: ${${npp_lib}_LIBRARY}")
             else()
                 message(WARNING "NPP library not found: ${npp_lib}")
             endif()
         endforeach()
+        
+        # 一次性链接所有找到的库，保证顺序
+        if(NPP_FOUND_LIBS)
+            target_link_libraries(${target_name} PRIVATE ${NPP_FOUND_LIBS})
+        endif()
         
         # 使用 NVIDIA NPP 头文件
         target_include_directories(${target_name}
