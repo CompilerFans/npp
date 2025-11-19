@@ -84,7 +84,7 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
   float scaleY = (float)oSrcRectROI.height / (float)oDstRectROI.height;
   LOG_DEBUG("Scale factors: X=%.4f, Y=%.4f", scaleX, scaleY);
 
-  dim3 blockSize(16, 16);
+  dim3 blockSize(32, 8);
   dim3 gridSize((oDstRectROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstRectROI.height + blockSize.y - 1) / blockSize.y);
   LOG_DEBUG("Grid config: blocks=(%d, %d), threads=(%d, %d), total_threads=%d", gridSize.x, gridSize.y, blockSize.x,
@@ -163,16 +163,13 @@ __device__ __forceinline__ void process_pixel_channel(const Npp8u *src_row1, con
 }
 
 __global__ void nppiResize_8u_C3R_linear_kernel_opt(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize,
-                                                    NppiRect oSrcRectROI, Npp8u *pDst, int nDstStep, NppiSize oDstSize,
-                                                    NppiRect oDstRectROI) {
+                                                    NppiRect oSrcRectROI, float scaleX, float scaleY, Npp8u *pDst,
+                                                    int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI) {
   int dx = blockIdx.x * blockDim.x + threadIdx.x;
   int dy = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (dx >= oDstRectROI.width || dy >= oDstRectROI.height)
     return;
-
-  float scaleX = (float)oSrcRectROI.width / (float)oDstRectROI.width;
-  float scaleY = (float)oSrcRectROI.height / (float)oDstRectROI.height;
 
   float fx = (dx + 0.5f) * scaleX - 0.5f + oSrcRectROI.x;
   float fy = (dy + 0.5f) * scaleY - 0.5f + oSrcRectROI.y;
@@ -222,24 +219,23 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
                                      int eInterpolation, NppStreamContext nppStreamCtx) {
   LOG_INFO("nppiResize_8u_C3R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
            oDstRectROI.height);
-  if (eInterpolation == NPPI_INTER_LINEAR){
-    dim3 blockSize(32, 32);
-    dim3 gridSize((oDstRectROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+  if (eInterpolation == NPPI_INTER_LINEAR) {
+    dim3 blockSize(32, 8);
+    dim3 gridSize((oDstRectROI.width + blockSize.x - 1) / blockSize.x,
                   (oDstRectROI.height + blockSize.y - 1) / blockSize.y);
-
+    float scaleX = (float)oSrcRectROI.width / (float)oDstRectROI.width;
+    float scaleY = (float)oSrcRectROI.height / (float)oDstRectROI.height;
     nppiResize_8u_C3R_linear_kernel_opt<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI);
+        pSrc, nSrcStep, oSrcSize, oSrcRectROI, scaleX, scaleY, pDst, nDstStep, oDstSize, oDstRectROI);
 
     cudaError_t cudaStatus = cudaGetLastError();
     if (cudaStatus != cudaSuccess) {
       return NPP_CUDA_KERNEL_EXECUTION_ERROR;
     }
     return NPP_SUCCESS;
-  } else {
-    return resizeImpl<Npp8u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
-                               eInterpolation, nppStreamCtx);
   }
-
+  return resizeImpl<Npp8u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                              eInterpolation, nppStreamCtx);
 }
 
 // 16u C1R
@@ -392,8 +388,7 @@ NppStatus nppiResizeSqrPixel_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   float shiftY = static_cast<float>(nYShift);
 
   dim3 blockSize(16, 16);
-  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x,
-                (oDstROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   resizeSqrPixelKernel<Npp8u, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, invScaleX, invScaleY, shiftX, shiftY, eInterpolation);

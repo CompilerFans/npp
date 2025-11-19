@@ -181,19 +181,22 @@ template <int CHANNELS> struct BilinearV2Interpolator<float, CHANNELS> {
     const float *src_row0 = (const float *)((const char *)pSrc + y0 * nSrcStep);
     const float *src_row1 = (const float *)((const char *)pSrc + y1 * nSrcStep);
     float *dst_row = (float *)((char *)pDst + (dy + oDstRectROI.y) * nDstStep);
+    int ix0 = x0 * CHANNELS;
+    int ix1 = x1 * CHANNELS;
+    int odx = (dx + oDstRectROI.x) * CHANNELS;
 
 #pragma unroll
     for (int c = 0; c < CHANNELS; c++) {
-      float p00 = src_row0[x0 * CHANNELS + c];
-      float p10 = src_row0[x1 * CHANNELS + c];
-      float p01 = src_row1[x0 * CHANNELS + c];
-      float p11 = src_row1[x1 * CHANNELS + c];
+      float p00 = src_row0[ix0 + c];
+      float p10 = src_row0[ix1 + c];
+      float p01 = src_row1[ix0 + c];
+      float p11 = src_row1[ix1 + c];
 
       float v0 = interp1D(p00, p10, fx, scaleX, modeX);
       float v1 = interp1D(p01, p11, fx, scaleX, modeX);
       float result = interp1D(v0, v1, fy, scaleY, modeY);
 
-      dst_row[(dx + oDstRectROI.x) * CHANNELS + c] = result;
+      dst_row[odx + c] = result;
     }
   }
 };
