@@ -6,6 +6,10 @@ NppStatus nppiXorC_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aCon
                            NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiXorC_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 
 // NppStatus
 // nppiFilterBox_8u_C1R(const Npp8u * pSrc, Npp32s nSrcStep, Npp8u * pDst, Npp32s nDstStep, NppiSize oSizeROI,
@@ -16,16 +20,32 @@ NppStatus nppiXorC_32s_C3R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aCon
                            NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiXorC_32s_C3R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiSumWindowRow_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oROI,
                                      Npp32s nMaskSize, Npp32s nAnchor) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiSumWindowRow_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oROI,
+                                     Npp32s nMaskSize, Npp32s nAnchor, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp16u *pDst,
                               int nDstStep, NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp16u *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiAlphaComp_32f_AC4R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiAlphaComp_32f_AC4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 // NppStatus
@@ -42,6 +62,10 @@ NppStatus nppiFilterMin_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, 
                                NppiSize oMaskSize, NppiPoint oAnchor) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiFilterMin_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 // NppStatus
 // nppiAndC_8u_C3R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u  aConstants[3],
 //		 Npp8u * pDst,  int nDstStep,  NppiSize oSizeROI){
@@ -51,16 +75,32 @@ NppStatus nppiRShiftC_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aCo
                              NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiRShiftC_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiRShiftC_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiLShiftC_32s_C3R(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp32s *pDst,
                               int nDstStep, NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiLShiftC_32s_C3R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp32s *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiFilterMax_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiFilterMax_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 // NppStatus
@@ -72,6 +112,10 @@ NppStatus nppiOrC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aCons
                           NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiOrC_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
+                          NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 // NppStatus
 // nppiAndC_32s_C4R(const Npp32s * pSrc1, int nSrc1Step, const Npp32s  aConstants[4],
 //                        Npp32s * pDst,  int nDstStep,  NppiSize oSizeROI){
@@ -79,6 +123,10 @@ NppStatus nppiOrC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aCons
 // }
 NppStatus nppiXorC_32s_C4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
                            NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiXorC_32s_C4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx){
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 // NppStatus
@@ -90,8 +138,16 @@ NppStatus nppiOrC_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstan
                          NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiOrC_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                         NppiSize oSizeROI, NppStreamContext nppStreamCtx){
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiXorC_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
                           NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiXorC_8u_C3R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u  aConstants[3],
+                          Npp8u * pDst,  int nDstStep,  NppiSize oSizeROI, NppStreamContext nppStreamCtx){
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiXorC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
@@ -99,118 +155,239 @@ NppStatus nppiXorC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aCon
 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiXorC_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx){
+
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiOrC_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
                           NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiOrC_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                          NppiSize oSizeROI, NppStreamContext nppStreamCtx){
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiOrC_32s_C3R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
                           NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiOrC_32s_C3R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                          NppiSize oSizeROI, NppStreamContext nppStreamCtx){
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiOrC_32s_C4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
                           NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiOrC_32s_C4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s aConstants[4], Npp32s *pDst, int nDstStep,
+                          NppiSize oSizeROI, NppStreamContext nppStreamCtx){
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_32s_C4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp32s *pDst,
                               int nDstStep, NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_32s_C4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp32s *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx){
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiLShiftC_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp16u *pDst,
                               int nDstStep, NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiLShiftC_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp16u *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx){
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_32s_C1R(const Npp32s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp32s *pDst, int nDstStep,
                               NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_32s_C1R_Ctx(const Npp32s * pSrc1, int nSrc1Step, const Npp32u nConstant,
+                              Npp32s * pDst,  int nDstStep,  NppiSize oSizeROI, NppStreamContext nppStreamCtx){
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiRShiftC_16s_C3R(const Npp16s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp16s *pDst,
                               int nDstStep, NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiRShiftC_16s_C3R_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp16s *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp16u *pDst, int nDstStep,
                               NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiRShiftC_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiRShiftC_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiLShiftC_32s_C4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp32s *pDst,
                               int nDstStep, NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiLShiftC_32s_C4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp32s *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiRShiftC_8s_C1R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8s *pDst, int nDstStep,
                              NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiRShiftC_8s_C1R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8s *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_16s_C4R(const Npp16s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp16s *pDst,
                               int nDstStep, NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_16s_C4R_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp16s *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiLShiftC_32s_C1R(const Npp32s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp32s *pDst, int nDstStep,
                               NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiLShiftC_32s_C1R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_16s_C1R(const Npp16s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp16s *pDst, int nDstStep,
                               NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_16s_C1R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp32u nConstant,
+                               Npp16s * pDst,  int nDstStep,  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiRShiftC_32s_C3R(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp32s *pDst,
                               int nDstStep, NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiRShiftC_32s_C3R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp32s *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_8s_C3R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8s *pDst, int nDstStep,
                              NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_8s_C3R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8s *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiLShiftC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp16u *pDst,
                               int nDstStep, NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiLShiftC_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp16u *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_8s_C4R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8s *pDst, int nDstStep,
                              NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_8s_C4R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8s *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiLShiftC_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiLShiftC_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiRShiftC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp16u *pDst,
                               int nDstStep, NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiRShiftC_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp16u *pDst,
+                              int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiLShiftC_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiLShiftC_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiLShiftC_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp16u *pDst, int nDstStep,
                               NppiSize oSizeROI) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiLShiftC_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiLShiftC_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8u *pDst, int nDstStep,
                              NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiLShiftC_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiAlphaComp_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiAlphaComp_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiAlphaComp_32s_AC4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSrc2, int nSrc2Step, Npp32s *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiAlphaComp_32s_AC4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSrc2, int nSrc2Step, Npp32s *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiAlphaPremul_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u *pDst, int nDstStep, NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiAlphaPremul_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                       NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiAlphaComp_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiAlphaComp_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiAlphaPremul_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiAlphaPremul_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 NppStatus nppiFilterMax_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiFilterMax_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 // NppStatus
@@ -222,8 +399,16 @@ NppStatus nppiFilterMin_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, 
                                NppiSize oMaskSize, NppiPoint oAnchor) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
+NppStatus nppiFilterMin_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
 NppStatus nppiSumWindowColumn_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
                                         NppiSize oROI, Npp32s nMaskSize, Npp32s nAnchor) {
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+NppStatus nppiSumWindowColumn_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
+                                        NppiSize oROI, Npp32s nMaskSize, Npp32s nAnchor, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 // NppStatus nppiCopy_32f_P3C3R(const Npp32f * const aSrc[3], int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize
@@ -3722,7 +3907,8 @@ NppStatus nppiHistogramEven_16s_AC4R(const Npp16s *pSrc, int nSrcStep, NppiSize 
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3735,7 +3921,8 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, 
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3748,7 +3935,8 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C3R(NppiSize oSizeROI, int nLevels[3
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                    NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3761,7 +3949,8 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C4R(NppiSize oSizeROI, int nLevels[4
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3774,7 +3963,8 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3787,7 +3977,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels,
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3800,7 +3991,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16u_C3R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3813,7 +4005,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3826,7 +4019,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3839,7 +4033,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels,
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3852,7 +4047,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16s_C3R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3865,7 +4061,8 @@ NppStatus nppiHistogramEvenGetBufferSize_16s_C4R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4171,7 +4368,8 @@ NppStatus nppiHistogramRange_32f_AC4R(const Npp32f *pSrc, int nSrcStep, NppiSize
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4184,7 +4382,8 @@ NppStatus nppiHistogramRangeGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels,
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4197,7 +4396,8 @@ NppStatus nppiHistogramRangeGetBufferSize_8u_C3R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                     NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4210,7 +4410,8 @@ NppStatus nppiHistogramRangeGetBufferSize_8u_C4R(NppiSize oSizeROI, int nLevels[
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4223,7 +4424,8 @@ NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4236,7 +4438,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4249,7 +4452,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16u_C3R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4262,7 +4466,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4275,7 +4480,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R(NppiSize oSizeROI, int nLevel
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4288,7 +4494,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4301,7 +4508,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16s_C3R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4314,7 +4522,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16s_C4R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4327,7 +4536,8 @@ NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R(NppiSize oSizeROI, int nLevel
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_32f_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_32f_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4340,7 +4550,8 @@ NppStatus nppiHistogramRangeGetBufferSize_32f_C1R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_32f_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_32f_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4353,7 +4564,8 @@ NppStatus nppiHistogramRangeGetBufferSize_32f_C3R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4366,7 +4578,8 @@ NppStatus nppiHistogramRangeGetBufferSize_32f_C4R(NppiSize oSizeROI, int nLevels
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
  */
-NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
+NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
