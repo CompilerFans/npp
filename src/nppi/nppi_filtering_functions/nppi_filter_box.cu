@@ -465,7 +465,7 @@ __global__ void nppiFilterBox_8u_C4R_shared_NxN(const Npp8u *pSrc, int nSrcStep,
     int out_y = tile_y + ty;
 
     if (out_x < width && out_y < height) {
-        uchar4 sumVal = make_uchar4(0, 0, 0, 0);
+        uint4 sumVal = make_uint4(0, 0, 0, 0);
 
         #pragma unroll
         for (int dy = 0; dy < Mask_Width; dy++) {
@@ -478,13 +478,14 @@ __global__ void nppiFilterBox_8u_C4R_shared_NxN(const Npp8u *pSrc, int nSrcStep,
                 sumVal.w += pixel.w;
             }
         }
-        sumVal.x = sumVal.x / (Mask_Width * Mask_Heigth);
-        sumVal.y = sumVal.y / (Mask_Width * Mask_Heigth);
-        sumVal.z = sumVal.z / (Mask_Width * Mask_Heigth);
-        sumVal.w = sumVal.w / (Mask_Width * Mask_Heigth);
+        uchar4 sum_value = make_uchar4(0, 0, 0, 0);
+        sum_value.x = sumVal.x / (Mask_Width * Mask_Heigth);
+        sum_value.y = sumVal.y / (Mask_Width * Mask_Heigth);
+        sum_value.z = sumVal.z / (Mask_Width * Mask_Heigth);
+        sum_value.w = sumVal.w / (Mask_Width * Mask_Heigth);
 
         uchar4 *dst_row = (uchar4 *)((char *)pDst + out_y * nDstStep);
-        dst_row[out_x] = sumVal;
+        dst_row[out_x] = sum_value;
     }
 }
 
@@ -496,7 +497,7 @@ __global__ void nppiFilterBox_8u_C4R_kernel_vec(const Npp8u *pSrc, int nSrcStep,
   if (x < width && y < height) {
 
     uchar4 *dst_pixel = (uchar4 *)((char *)pDst + y * nDstStep) + x;
-    uchar4 sumVal_vec = make_uchar4(0, 0, 0, 0);
+    uint4 sumVal_vec = make_uint4(0, 0, 0, 0);
 
     for (int my = 0; my < maskHeight; my++) {
       for (int mx = 0; mx < maskWidth; mx++) {
@@ -511,14 +512,15 @@ __global__ void nppiFilterBox_8u_C4R_kernel_vec(const Npp8u *pSrc, int nSrcStep,
           sumVal_vec.x += pixelValue_vec.x;
           sumVal_vec.y += pixelValue_vec.y;
           sumVal_vec.z += pixelValue_vec.z;
-          sumVal_vec.w += pixelValue_vec.z;
+          sumVal_vec.w += pixelValue_vec.w;
       }
     }
-    sumVal_vec.x = sumVal_vec.x / (maskHeight * maskWidth);
-    sumVal_vec.y = sumVal_vec.x / (maskHeight * maskWidth);
-    sumVal_vec.z = sumVal_vec.x / (maskHeight * maskWidth);
-    sumVal_vec.w = sumVal_vec.x / (maskHeight * maskWidth);
-    *dst_pixel = sumVal_vec;
+    uchar4 sum_value = make_uchar4(0, 0, 0, 0);
+    sum_value.x = sumVal_vec.x / (maskHeight * maskWidth);
+    sum_value.y = sumVal_vec.y / (maskHeight * maskWidth);
+    sum_value.z = sumVal_vec.z / (maskHeight * maskWidth);
+    sum_value.w = sumVal_vec.w / (maskHeight * maskWidth);
+    *dst_pixel = sum_value;
   }
 }
 
