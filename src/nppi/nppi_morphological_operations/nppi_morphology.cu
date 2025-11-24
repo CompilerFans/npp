@@ -418,6 +418,171 @@ __global__ void nppiErode_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     }
   }
 }
+__global__ void nppiErode_8u_C4R_kernel_tiled(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
+                                              int nDstStep, int width, int height, const Npp8u *__restrict__ pMask,
+                                              int maskWidth, int maskHeight, int anchorX, int anchorY) {
+  extern __shared__ unsigned char shared[];
+
+  constexpr int PIXELS_PER_THREAD_X = 4;
+  const int blockSpanX = blockDim.x * PIXELS_PER_THREAD_X;
+
+  // tile width covered the entire block pixel range
+  const int tileWidth = blockSpanX + maskWidth - 1;
+  const int tileHeight = blockDim.y + maskHeight - 1;
+
+  uchar4 *tile = reinterpret_cast<uchar4 *>(shared);
+  unsigned char *maskShared = reinterpret_cast<unsigned char *>(tile + tileWidth * tileHeight);
+
+  const int tileOriginX = blockIdx.x * blockSpanX - anchorX;
+  const int tileOriginY = blockIdx.y * blockDim.y - anchorY;
+
+  const int linearThreadId = threadIdx.y * blockDim.x + threadIdx.x;
+  const int threadsPerBlock = blockDim.x * blockDim.y;
+
+  // load tile
+  const int tileSize = tileWidth * tileHeight;
+  for (int idx = linearThreadId; idx < tileSize; idx += threadsPerBlock) {
+    int localY = idx / tileWidth;
+    int localX = idx % tileWidth;
+
+    int srcX = tileOriginX + localX;
+    int srcY = tileOriginY + localY;
+
+    srcX = max(0, min(srcX, width - 1));
+    srcY = max(0, min(srcY, height - 1));
+
+    const uchar4 *src_row = reinterpret_cast<const uchar4 *>((const char *)pSrc + srcY * nSrcStep);
+    tile[idx] = src_row[srcX];
+  }
+
+  // load mask
+  const int maskSize = maskWidth * maskHeight;
+  for (int idx = linearThreadId; idx < maskSize; idx += threadsPerBlock) {
+    maskShared[idx] = pMask[idx];
+  }
+
+  __syncthreads();
+
+  const int outY = blockIdx.y * blockDim.y + threadIdx.y;
+  const int outXBase = (blockIdx.x * blockDim.x + threadIdx.x) * PIXELS_PER_THREAD_X;
+  if (outY >= height || outXBase >= width)
+    return;
+
+  uchar4 *dst_row = reinterpret_cast<uchar4 *>((char *)pDst + outY * nDstStep);
+
+#pragma unroll
+  for (int i = 0; i < PIXELS_PER_THREAD_X; ++i) {
+    int outX = outXBase + i;
+    if (outX >= width)
+      break;
+
+    uchar4 minVal = make_uchar4(255, 255, 255, 255);
+
+    for (int my = 0; my < maskHeight; ++my) {
+      const unsigned char *maskRow = maskShared + my * maskWidth;
+      const uchar4 *tileRow = tile + (threadIdx.y + my) * tileWidth;
+#pragma unroll 4
+      for (int mx = 0; mx < maskWidth; ++mx) {
+        if (maskRow[mx]) {
+          int tileX = threadIdx.x * PIXELS_PER_THREAD_X + i + mx;
+          uchar4 pixelValue = tileRow[tileX];
+
+          minVal.x = min(minVal.x, pixelValue.x);
+          minVal.y = min(minVal.y, pixelValue.y);
+          minVal.z = min(minVal.z, pixelValue.z);
+          minVal.w = min(minVal.w, pixelValue.w);
+        }
+      }
+    }
+
+    dst_row[outX] = minVal;
+  }
+}
+// opt for masksize 3x3
+__global__ void nppiErode_8u_C4R_3x3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                            int height) {
+
+  const int BLOCK_WIDTH = 32; // blockSize.x
+  const int BLOCK_HEIGHT = 8; // blockSize.y
+  const int SHARED_WIDTH = 34;
+  const int SHARED_HEIGHT = 10;
+
+  // fixed shared mem
+  __shared__ Npp8u shared_mem[10][136]; // [blockSize.y + 2][(blockSize.x + 2)*4]
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+  int blockX = blockIdx.x * BLOCK_WIDTH;
+  int blockY = blockIdx.y * BLOCK_HEIGHT;
+
+  // load
+  for (int pos = ty * blockDim.x + tx; pos < SHARED_HEIGHT * SHARED_WIDTH; pos += blockDim.x * blockDim.y) {
+    int loadY = pos / SHARED_WIDTH;
+    int loadX = pos % SHARED_WIDTH;
+
+    int srcY = blockY + loadY - 1;
+    int srcX = blockX + loadX - 1;
+
+    if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+      const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + srcY * nSrcStep);
+      const Npp8u *src_pixel = &src_row[srcX * 4];
+
+      shared_mem[loadY][loadX * 4 + 0] = src_pixel[0];
+      shared_mem[loadY][loadX * 4 + 1] = src_pixel[1];
+      shared_mem[loadY][loadX * 4 + 2] = src_pixel[2];
+      shared_mem[loadY][loadX * 4 + 3] = src_pixel[3];
+    } else {
+      shared_mem[loadY][loadX * 4 + 0] = 0;
+      shared_mem[loadY][loadX * 4 + 1] = 0;
+      shared_mem[loadY][loadX * 4 + 2] = 0;
+      shared_mem[loadY][loadX * 4 + 3] = 0;
+    }
+  }
+
+  __syncthreads();
+
+  int x = blockX + tx;
+  int y = blockY + ty;
+
+  if (x < width && y < height) {
+    int shared_y = ty + 1;
+    int shared_x = tx + 1;
+    int idx = shared_x * 4;
+
+    Npp8u minVal[4];
+
+    // init as center pixel
+    minVal[0] = shared_mem[shared_y][idx + 0];
+    minVal[1] = shared_mem[shared_y][idx + 1];
+    minVal[2] = shared_mem[shared_y][idx + 2];
+    minVal[3] = shared_mem[shared_y][idx + 3];
+
+    // 3x3 field compare
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        if (dx == 0 && dy == 0)
+          continue;
+
+        int neighbor_y = shared_y + dy;
+        int neighbor_x = shared_x + dx;
+        int neighbor_idx = neighbor_x * 4;
+
+        minVal[0] = min(minVal[0], shared_mem[neighbor_y][neighbor_idx + 0]);
+        minVal[1] = min(minVal[1], shared_mem[neighbor_y][neighbor_idx + 1]);
+        minVal[2] = min(minVal[2], shared_mem[neighbor_y][neighbor_idx + 2]);
+        minVal[3] = min(minVal[3], shared_mem[neighbor_y][neighbor_idx + 3]);
+      }
+    }
+
+    Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
+    Npp8u *dst_pixel = &dst_row[x * 4];
+
+    dst_pixel[0] = minVal[0];
+    dst_pixel[1] = minVal[1];
+    dst_pixel[2] = minVal[2];
+    dst_pixel[3] = minVal[3];
+  }
+}
 
 __global__ void nppiErode_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                          int height, const Npp8u *pMask, int maskWidth, int maskHeight, int anchorX,
@@ -590,6 +755,171 @@ __global__ void nppiDilate_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u 
     }
   }
 }
+__global__ void nppiDilate_8u_C4R_kernel_tiled(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
+                                               int nDstStep, int width, int height, const Npp8u *__restrict__ pMask,
+                                               int maskWidth, int maskHeight, int anchorX, int anchorY) {
+  extern __shared__ unsigned char shared[];
+
+  constexpr int PIXELS_PER_THREAD_X = 4;
+  const int blockSpanX = blockDim.x * PIXELS_PER_THREAD_X;
+
+  // tile width covered the entire block pixel range
+  const int tileWidth = blockSpanX + maskWidth - 1;
+  const int tileHeight = blockDim.y + maskHeight - 1;
+
+  uchar4 *tile = reinterpret_cast<uchar4 *>(shared);
+  unsigned char *maskShared = reinterpret_cast<unsigned char *>(tile + tileWidth * tileHeight);
+
+  const int tileOriginX = blockIdx.x * blockSpanX - anchorX;
+  const int tileOriginY = blockIdx.y * blockDim.y - anchorY;
+
+  const int linearThreadId = threadIdx.y * blockDim.x + threadIdx.x;
+  const int threadsPerBlock = blockDim.x * blockDim.y;
+
+  // load tile
+  const int tileSize = tileWidth * tileHeight;
+  for (int idx = linearThreadId; idx < tileSize; idx += threadsPerBlock) {
+    int localY = idx / tileWidth;
+    int localX = idx % tileWidth;
+
+    int srcX = tileOriginX + localX;
+    int srcY = tileOriginY + localY;
+
+    srcX = max(0, min(srcX, width - 1));
+    srcY = max(0, min(srcY, height - 1));
+
+    const uchar4 *src_row = reinterpret_cast<const uchar4 *>((const char *)pSrc + srcY * nSrcStep);
+    tile[idx] = src_row[srcX];
+  }
+
+  // load mask
+  const int maskSize = maskWidth * maskHeight;
+  for (int idx = linearThreadId; idx < maskSize; idx += threadsPerBlock) {
+    maskShared[idx] = pMask[idx];
+  }
+
+  __syncthreads();
+
+  const int outY = blockIdx.y * blockDim.y + threadIdx.y;
+  const int outXBase = (blockIdx.x * blockDim.x + threadIdx.x) * PIXELS_PER_THREAD_X;
+  if (outY >= height || outXBase >= width)
+    return;
+
+  uchar4 *dst_row = reinterpret_cast<uchar4 *>((char *)pDst + outY * nDstStep);
+
+#pragma unroll
+  for (int i = 0; i < PIXELS_PER_THREAD_X; ++i) {
+    int outX = outXBase + i;
+    if (outX >= width)
+      break;
+
+    uchar4 minVal = make_uchar4(0, 0, 0, 0);
+
+    for (int my = 0; my < maskHeight; ++my) {
+      const unsigned char *maskRow = maskShared + my * maskWidth;
+      const uchar4 *tileRow = tile + (threadIdx.y + my) * tileWidth;
+#pragma unroll 4
+      for (int mx = 0; mx < maskWidth; ++mx) {
+        if (maskRow[mx]) {
+          int tileX = threadIdx.x * PIXELS_PER_THREAD_X + i + mx;
+          uchar4 pixelValue = tileRow[tileX];
+
+          minVal.x = max(minVal.x, pixelValue.x);
+          minVal.y = max(minVal.y, pixelValue.y);
+          minVal.z = max(minVal.z, pixelValue.z);
+          minVal.w = max(minVal.w, pixelValue.w);
+        }
+      }
+    }
+
+    dst_row[outX] = minVal;
+  }
+}
+// opt for masksize 3x3
+__global__ void nppiDilate_8u_C4R_3x3_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                             int height) {
+
+  const int BLOCK_WIDTH = 32; // blockSize.x
+  const int BLOCK_HEIGHT = 8; // blockSize.y
+  const int SHARED_WIDTH = 34;
+  const int SHARED_HEIGHT = 10;
+
+  // fixed shared mem
+  __shared__ Npp8u shared_mem[10][136]; // [blockSize.y + 2][(blockSize.x + 2)*4]
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+  int blockX = blockIdx.x * BLOCK_WIDTH;
+  int blockY = blockIdx.y * BLOCK_HEIGHT;
+
+  // load
+  for (int pos = ty * blockDim.x + tx; pos < SHARED_HEIGHT * SHARED_WIDTH; pos += blockDim.x * blockDim.y) {
+    int loadY = pos / SHARED_WIDTH;
+    int loadX = pos % SHARED_WIDTH;
+
+    int srcY = blockY + loadY - 1;
+    int srcX = blockX + loadX - 1;
+
+    if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+      const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + srcY * nSrcStep);
+      const Npp8u *src_pixel = &src_row[srcX * 4];
+
+      shared_mem[loadY][loadX * 4 + 0] = src_pixel[0];
+      shared_mem[loadY][loadX * 4 + 1] = src_pixel[1];
+      shared_mem[loadY][loadX * 4 + 2] = src_pixel[2];
+      shared_mem[loadY][loadX * 4 + 3] = src_pixel[3];
+    } else {
+      shared_mem[loadY][loadX * 4 + 0] = 0;
+      shared_mem[loadY][loadX * 4 + 1] = 0;
+      shared_mem[loadY][loadX * 4 + 2] = 0;
+      shared_mem[loadY][loadX * 4 + 3] = 0;
+    }
+  }
+
+  __syncthreads();
+
+  int x = blockX + tx;
+  int y = blockY + ty;
+
+  if (x < width && y < height) {
+    int shared_y = ty + 1;
+    int shared_x = tx + 1;
+    int idx = shared_x * 4;
+
+    Npp8u maxVal[4];
+
+    // init as center pixel
+    maxVal[0] = shared_mem[shared_y][idx + 0];
+    maxVal[1] = shared_mem[shared_y][idx + 1];
+    maxVal[2] = shared_mem[shared_y][idx + 2];
+    maxVal[3] = shared_mem[shared_y][idx + 3];
+
+    // 3x3 field compare
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        if (dx == 0 && dy == 0)
+          continue;
+
+        int neighbor_y = shared_y + dy;
+        int neighbor_x = shared_x + dx;
+        int neighbor_idx = neighbor_x * 4;
+
+        maxVal[0] = max(maxVal[0], shared_mem[neighbor_y][neighbor_idx + 0]);
+        maxVal[1] = max(maxVal[1], shared_mem[neighbor_y][neighbor_idx + 1]);
+        maxVal[2] = max(maxVal[2], shared_mem[neighbor_y][neighbor_idx + 2]);
+        maxVal[3] = max(maxVal[3], shared_mem[neighbor_y][neighbor_idx + 3]);
+      }
+    }
+
+    Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
+    Npp8u *dst_pixel = &dst_row[x * 4];
+
+    dst_pixel[0] = maxVal[0];
+    dst_pixel[1] = maxVal[1];
+    dst_pixel[2] = maxVal[2];
+    dst_pixel[3] = maxVal[3];
+  }
+}
 
 __global__ void nppiDilate_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                           int height, const Npp8u *pMask, int maskWidth, int maskHeight, int anchorX,
@@ -720,8 +1050,10 @@ extern "C" {
 NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                     NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  const dim3 blockSize(16, 16);
+  const dim3 gridSize((oSizeROI.width + blockSize.x - 1) / (blockSize.x),
+                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiErode_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
@@ -734,13 +1066,27 @@ NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
 NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                     NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
+    dim3 blockSize(32, 8);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y); // special for 3x3
+    nppiErode_8u_C4R_3x3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                   oSizeROI.width, oSizeROI.height);
+  } else {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiErode_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
-      oAnchor.x, oAnchor.y);
+    const int tileWidth = blockSize.x * 4 + oMaskSize.width - 1;
+    const int tileHeight = blockSize.y + oMaskSize.height - 1;
+    const size_t tileSharedElements = static_cast<size_t>(tileWidth) * tileHeight;
+    const size_t maskSharedElements = static_cast<size_t>(oMaskSize.width) * oMaskSize.height;
+    const size_t sharedBytes = tileSharedElements * sizeof(uchar4) + maskSharedElements * sizeof(Npp8u);
 
+    nppiErode_8u_C4R_kernel_tiled<<<gridSize, blockSize, sharedBytes, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
+        oAnchor.x, oAnchor.y);
+  }
   cudaError_t cudaStatus = cudaGetLastError();
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
@@ -782,8 +1128,10 @@ NppStatus nppiErode_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *p
 NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                      NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  const dim3 blockSize(16, 16);
+  const dim3 gridSize((oSizeROI.width + blockSize.x - 1) / (blockSize.x),
+                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiDilate_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
@@ -796,13 +1144,28 @@ NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                      NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiDilate_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
-      oAnchor.x, oAnchor.y);
+  if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
+    dim3 blockSize(32, 8);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y); // special for 3x3
+    nppiDilate_8u_C4R_3x3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                   oSizeROI.width, oSizeROI.height);
+  } else {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+                  (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
+    const int tileWidth = blockSize.x * 4 + oMaskSize.width - 1;
+    const int tileHeight = blockSize.y + oMaskSize.height - 1;
+    const size_t tileSharedElements = static_cast<size_t>(tileWidth) * tileHeight;
+    const size_t maskSharedElements = static_cast<size_t>(oMaskSize.width) * oMaskSize.height;
+    const size_t sharedBytes = tileSharedElements * sizeof(uchar4) + maskSharedElements * sizeof(Npp8u);
+
+    nppiDilate_8u_C4R_kernel_tiled<<<gridSize, blockSize, sharedBytes, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
+        oAnchor.x, oAnchor.y);
+  }
   cudaError_t cudaStatus = cudaGetLastError();
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
