@@ -557,6 +557,158 @@ __global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
   }
 }
 
+__device__ __forceinline__ float getPixel(const Npp32f *pSrc, int nSrcStep, int x, int y, int width, int height) {
+    if (x >= 0 && x < width && y >= 0 && y < height) {
+        const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
+        return pSrcRow[x];
+    }
+    return 0.0f;
+}
+
+__global__ void nppiFilterBox_32f_C1R_3x3_shared(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
+                                                int width, int height) {
+    const int MASK_WIDTH = 3;
+    const int MASK_HEIGHT = 3;
+    const int ANCHOR_X = 1;
+    const int ANCHOR_Y = 1;
+    const int BLOCK_WIDTH = 16;
+    const int BLOCK_HEIGHT = 16;
+
+    __shared__ float shared_mem[BLOCK_HEIGHT + 2][BLOCK_WIDTH + 2];
+
+    int blockStartX = blockIdx.x * BLOCK_WIDTH;
+    int blockStartY = blockIdx.y * BLOCK_HEIGHT;
+
+    int threadX = threadIdx.x;
+    int threadY = threadIdx.y;
+
+    for (int loadY = threadY; loadY < BLOCK_HEIGHT + 2; loadY += BLOCK_HEIGHT) {
+        for (int loadX = threadX; loadX < BLOCK_WIDTH + 2; loadX += BLOCK_WIDTH) {
+            int globalX = blockStartX + loadX - ANCHOR_X;
+            int globalY = blockStartY + loadY - ANCHOR_Y;
+
+            shared_mem[loadY][loadX] = getPixel(pSrc, nSrcStep, globalX, globalY, width, height);
+        }
+    }
+
+    __syncthreads();
+
+    int x = blockStartX + threadIdx.x;
+    int y = blockStartY + threadIdx.y;
+
+    if (x < width && y < height) {
+        float sum =
+            shared_mem[threadIdx.y][threadIdx.x] +
+            shared_mem[threadIdx.y][threadIdx.x + 1] +
+            shared_mem[threadIdx.y][threadIdx.x + 2] +
+            shared_mem[threadIdx.y + 1][threadIdx.x] +
+            shared_mem[threadIdx.y + 1][threadIdx.x + 1] +
+            shared_mem[threadIdx.y + 1][threadIdx.x + 2] +
+            shared_mem[threadIdx.y + 2][threadIdx.x] +
+            shared_mem[threadIdx.y + 2][threadIdx.x + 1] +
+            shared_mem[threadIdx.y + 2][threadIdx.x + 2];
+
+        Npp32f *pDstRow = (Npp32f *)((char *)pDst + y * nDstStep);
+        pDstRow[x] = sum * 0.111111111f; // 1/9
+    }
+}
+
+__global__ void nppiFilterBox_32f_C1R_5x5_shared(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
+                                                int width, int height) {
+    const int MASK_WIDTH = 5;
+    const int MASK_HEIGHT = 5;
+    const int ANCHOR_X = 2;
+    const int ANCHOR_Y = 2;
+    const int BLOCK_WIDTH = 16;
+    const int BLOCK_HEIGHT = 16;
+
+    // shared memory: block size + 4 pixel bound
+    __shared__ float shared_mem[BLOCK_HEIGHT + 4][BLOCK_WIDTH + 4];
+
+    int blockStartX = blockIdx.x * BLOCK_WIDTH;
+    int blockStartY = blockIdx.y * BLOCK_HEIGHT;
+
+    int threadX = threadIdx.x;
+    int threadY = threadIdx.y;
+
+    for (int loadY = threadY; loadY < BLOCK_HEIGHT + 4; loadY += BLOCK_HEIGHT) {
+        for (int loadX = threadX; loadX < BLOCK_WIDTH + 4; loadX += BLOCK_WIDTH) {
+            int globalX = blockStartX + loadX - ANCHOR_X;
+            int globalY = blockStartY + loadY - ANCHOR_Y;
+
+            shared_mem[loadY][loadX] = getPixel(pSrc, nSrcStep, globalX, globalY, width, height);
+        }
+    }
+
+    __syncthreads();
+
+    int x = blockStartX + threadIdx.x;
+    int y = blockStartY + threadIdx.y;
+
+    if (x < width && y < height) {
+        float sum = 0.0f;
+
+        #pragma unroll
+        for (int j = 0; j < 5; j++) {
+            sum += shared_mem[threadIdx.y + j][threadIdx.x] +
+                   shared_mem[threadIdx.y + j][threadIdx.x + 1] +
+                   shared_mem[threadIdx.y + j][threadIdx.x + 2] +
+                   shared_mem[threadIdx.y + j][threadIdx.x + 3] +
+                   shared_mem[threadIdx.y + j][threadIdx.x + 4];
+        }
+
+        Npp32f *pDstRow = (Npp32f *)((char *)pDst + y * nDstStep);
+        pDstRow[x] = sum * 0.04f; // 1/25
+    }
+}
+
+__global__ void nppiFilterBox_32f_C1R_7x7_shared(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
+                                                int width, int height) {
+    const int MASK_WIDTH = 7;
+    const int MASK_HEIGHT = 7;
+    const int ANCHOR_X = 3;
+    const int ANCHOR_Y = 3;
+    const int BLOCK_WIDTH = 16;
+    const int BLOCK_HEIGHT = 16;
+
+    __shared__ float shared_mem[BLOCK_HEIGHT + 6][BLOCK_WIDTH + 6];
+
+    int blockStartX = blockIdx.x * BLOCK_WIDTH;
+    int blockStartY = blockIdx.y * BLOCK_HEIGHT;
+
+    int threadX = threadIdx.x;
+    int threadY = threadIdx.y;
+
+    for (int loadY = threadY; loadY < BLOCK_HEIGHT + 6; loadY += BLOCK_HEIGHT) {
+        for (int loadX = threadX; loadX < BLOCK_WIDTH + 6; loadX += BLOCK_WIDTH) {
+            int globalX = blockStartX + loadX - ANCHOR_X;
+            int globalY = blockStartY + loadY - ANCHOR_Y;
+
+            shared_mem[loadY][loadX] = getPixel(pSrc, nSrcStep, globalX, globalY, width, height);
+        }
+    }
+
+    __syncthreads();
+
+    int x = blockStartX + threadIdx.x;
+    int y = blockStartY + threadIdx.y;
+
+    if (x < width && y < height) {
+        float sum = 0.0f;
+
+        #pragma unroll
+        for (int j = 0; j < 7; j++) {
+            #pragma unroll
+            for (int i = 0; i < 7; i++) {
+                sum += shared_mem[threadIdx.y + j][threadIdx.x + i];
+            }
+        }
+
+        Npp32f *pDstRow = (Npp32f *)((char *)pDst + y * nDstStep);
+        pDstRow[x] = sum * 0.020408163f; // 1/49
+    }
+}
+
 extern "C" {
 cudaError_t nppiFilterBox_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
@@ -743,10 +895,20 @@ cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Np
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterBox_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                        oSizeROI.height, oMaskSize.width,
-                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
-
+  if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
+    nppiFilterBox_32f_C1R_3x3_shared<<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                              oSizeROI.width, oSizeROI.height);
+  } else if (oMaskSize.width == 5 && oMaskSize.height == 5 && oAnchor.x == 2 && oAnchor.y == 2) {
+    nppiFilterBox_32f_C1R_5x5_shared<<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                              oSizeROI.width, oSizeROI.height);
+  } else if (oMaskSize.width == 7 && oMaskSize.height == 7 && oAnchor.x == 3 && oAnchor.y == 3) {
+    nppiFilterBox_32f_C1R_7x7_shared<<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                              oSizeROI.width, oSizeROI.height);
+  } else {
+    nppiFilterBox_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                          oSizeROI.height, oMaskSize.width,
+                                                                          oMaskSize.height, oAnchor.x, oAnchor.y);
+  }
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
     if (stream == 0) {
