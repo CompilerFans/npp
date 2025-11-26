@@ -937,6 +937,72 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
   return output;
 }
 
+/**
+ * @brief 8u 图像执行 Box Filter (均值滤波)，使用零填充处理边界。
+ *
+ * 此函数模拟了 nppiFilterBox_8u_C4R 的核心行为，但使用零填充：
+ * - 输入和输出都是 4 通道 8 位无符号整数数据。
+ * - 处理指定的 ROI 区域。
+ * - 使用固定的矩形滤波核。
+ * - 输出 ROI 尺寸 = 输入 ROI 尺寸 (因为使用了零填充)。
+ * - 边界处理方式为零填充：超出输入 ROI 边界的像素值视为 0。
+ * - 使用简单的滑动窗口累加方法，未进行优化（如积分图）。
+ */
+template<int channels>
+std::vector<Npp8u> cpu_nppiFilterBoxBorder_8u_ZeroPad(const std::vector<Npp8u>& cpu_src, int roi_width, int roi_height,
+                                                          int mask_width, int mask_height, int anchor_x, int anchor_y) {
+
+    // 计算滤波器核覆盖的实际输入范围相对于当前输出像素的位置
+    const int start_x = -anchor_x;
+    const int start_y = -anchor_y;
+    const int end_x   = start_x + mask_width;
+    const int end_y   = start_y + mask_height;
+
+    const int window_area = mask_width * mask_height; // 总窗口像素数
+    int nDstStep = roi_width * channels;
+    int nSrcStep = roi_width * channels;
+
+    std::vector<Npp8u> cpu_out(roi_width * roi_height * channels);
+    // 遍历输出 ROI 中的每个像素 (y_dst, x_dst)
+    for (int y_dst = 0; y_dst < roi_height; ++y_dst) {
+        for (int x_dst = 0; x_dst < roi_width; ++x_dst) {
+            // 计算当前输出像素在输出缓冲区中的起始地址
+            size_t cpu_out_idx = y_dst * nDstStep + x_dst * channels;
+
+            // 初始化四个通道的累加和
+            std::vector<uint32_t> sum(channels, 0);
+
+            // 遍历滤波器核定义的窗口区域
+            for (int ky = start_y; ky < end_y; ++ky) {
+                int y_src = y_dst + ky; // 对应输入图像 ROI 内的绝对行坐标
+
+                for (int kx = start_x; kx < end_x; ++kx) {
+                    int x_src = x_dst + kx; // 对应输入图像 ROI 内的绝对列坐标
+
+                    // 检查源像素坐标是否在 ROI 边界内
+                    if (x_src >= 0 && x_src < roi_width &&
+                        y_src >= 0 && y_src < roi_height) {
+                        // 获取有效源像素指针
+                        size_t cpu_out_idx = y_src * nSrcStep + x_src * channels;
+                        for (int channel = 0; channel < channels; channel++) {
+                          // 累加通道的值
+                          sum[channel] += static_cast<uint32_t>(cpu_src[cpu_out_idx + channel]);
+                        }
+
+                    }
+                    // 如果超出边界，则值为 0，不需要显式累加 sum
+                }
+            }
+
+            // 计算平均值
+            for (int channel = 0; channel < channels; channel++) {
+              cpu_out[cpu_out_idx + channel] = static_cast<Npp8u>(sum[channel] / window_area);
+            }
+        }
+    }
+    return cpu_out;
+}
+
 // ==============================================================================
 // MAIN TEST CLASSES AND PARAMETERIZED TESTS
 // ==============================================================================
@@ -1169,6 +1235,7 @@ const std::vector<ReplicationTestConfig> REPLICATION_CONFIGS = {
 
 TEST_P(FilterBox8uC1RTest, ComprehensivePatternTesting) {
   auto params = GetParam();
+  const int channels = 1;
 
   std::vector<std::string> patterns = {"uniform", "impulse_corner", "checkerboard"};
 
@@ -1183,6 +1250,9 @@ TEST_P(FilterBox8uC1RTest, ComprehensivePatternTesting) {
       input = TestPatternGenerator<Npp8u>::createCheckerboard(params.width, params.height, 0, 255);
     }
 
+    auto cpu_dst = cpu_nppiFilterBoxBorder_8u_ZeroPad<channels>(input, params.width, params.height, params.maskWidth,
+                                                        params.maskHeight, params.anchorX, params.anchorY);
+
     ASSERT_NO_THROW({
       auto output = runNPPFilterBox8u(input, params.width, params.height, params.maskWidth, params.maskHeight,
                                       params.anchorX, params.anchorY);
@@ -1193,6 +1263,9 @@ TEST_P(FilterBox8uC1RTest, ComprehensivePatternTesting) {
                                 << patternType;
         EXPECT_LE(output[i], 255) << "Invalid output value at index " << i << " for " << params.description
                                   << " pattern " << patternType;
+        EXPECT_EQ(output[i], cpu_dst[i]) << "Invalid output value at index " << i << " for " << params.description
+                                         << " pattern " << patternType;
+
       }
     }) << "Failed for "
        << params.description << " with pattern " << patternType;
@@ -1248,6 +1321,8 @@ TEST_P(FilterBox8uC4RTest, MultiChannelTesting) {
     }
   }
 
+  auto cpu_dst = cpu_nppiFilterBoxBorder_8u_ZeroPad<channels>(input, params.width, params.height, params.maskWidth,
+                                                        params.maskHeight, params.anchorX, params.anchorY);
   ASSERT_NO_THROW({
     auto output = runNPPFilterBox8uC4R(input, params.width, params.height, params.maskWidth, params.maskHeight,
                                        params.anchorX, params.anchorY);
@@ -1260,6 +1335,8 @@ TEST_P(FilterBox8uC4RTest, MultiChannelTesting) {
                                   << params.description;
         EXPECT_LE(output[idx], 255) << "Invalid output in channel " << c << " at pixel " << i << " for "
                                     << params.description;
+        EXPECT_EQ(output[idx], cpu_dst[idx]) << "Invalid output in channel " << c << " at pixel " << i << " for "
+                                             << params.description;
       }
     }
   }) << "Failed for "
