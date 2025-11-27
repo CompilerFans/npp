@@ -417,35 +417,6 @@ NppStatus nppiSumWindowColumn_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, 
 //	return NPP_NOT_IMPLEMENTED_ERROR;
 // }
 
-NppStatus nppiWarpAffine_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                    int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation,
-                                    NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiWarpAffine_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Three-channel 8-bit unsigned affine warp.
- *
- * For common parameter descriptions, see <a href="#CommonWarpAffinePackedPixelParameters">Common parameters for
- * nppiWarpAffine packed pixel functions</a>.
- *
- */
-NppStatus nppiWarpAffine_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                    int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation,
-                                    NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiWarpAffine_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 /**
  * Four-channel 8-bit unsigned affine warp.
  *
@@ -788,24 +759,6 @@ NppStatus nppiWarpAffine_16f_C4R_Ctx(const Npp16f *pSrc, NppiSize oSrcSize, int 
 }
 
 NppStatus nppiWarpAffine_16f_C4R(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp16f *pDst,
-                                 int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Single-channel 32-bit floating-point affine warp.
- *
- * For common parameter descriptions, see <a href="#CommonWarpAffinePackedPixelParameters">Common parameters for
- * nppiWarpAffine packed pixel functions</a>.
- *
- */
-NppStatus nppiWarpAffine_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                     Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
-                                     int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiWarpAffine_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
                                  int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
@@ -2801,34 +2754,7 @@ NppStatus nppiWarpPerspectiveBack_32f_P4R(const Npp32f *pSrc[4], NppiSize oSrcSi
                                           int eInterpolation) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
-NppStatus nppiWarpPerspective_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                         int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiWarpPerspective_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3], int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Three-channel 8-bit unsigned integer perspective warp.
- *
- * For common parameter descriptions, see <a href="#CommonWarpPerspectivePackedPixelParameters">Common parameters for
- * nppiWarpPerspective packed pixel functions</a>.
- *
- */
-NppStatus nppiWarpPerspective_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                         int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiWarpPerspective_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3], int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Four-channel 8-bit unsigned integer perspective warp.
@@ -3185,25 +3111,6 @@ NppStatus nppiWarpPerspective_16f_C4R_Ctx(const Npp16f *pSrc, NppiSize oSrcSize,
 
 NppStatus nppiWarpPerspective_16f_C4R(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                       Npp16f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                      int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Single-channel 32-bit floating-point perspective warp.
- *
- * For common parameter descriptions, see <a href="#CommonWarpPerspectivePackedPixelParameters">Common parameters for
- * nppiWarpPerspective packed pixel functions</a>.
- *
- */
-NppStatus nppiWarpPerspective_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiWarpPerspective_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                      Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                       int eInterpolation) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
