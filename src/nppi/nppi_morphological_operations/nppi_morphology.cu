@@ -767,6 +767,85 @@ __global__ void nppiErode_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32
   }
 }
 
+__global__ void nppiErode_32f_C1R_kernel_opt(const Npp32f* pSrc, int nSrcStep,
+                                                  Npp32f* pDst, int nDstStep, int width, int height,
+                                                  const Npp8u *__restrict__ pMask, int maskW, int maskH, int anchorX,
+                                                  int anchorY, int tileH, int tilePitch) {
+  extern __shared__ Npp32f smem_32f_c1r[];
+
+  Npp32f *tile = smem_32f_c1r;
+  Npp32f *mskSh = tile + tilePitch * tileH;
+
+  const int tid = threadIdx.y * blockDim.x + threadIdx.x;
+  const int tcount = blockDim.x * blockDim.y;
+
+  // Output pixel start (4 pixels per thread horizontally)
+  const int outX0 = blockIdx.x * blockDim.x * 4 + threadIdx.x * 4;
+  const int outY = blockIdx.y * blockDim.y + threadIdx.y;
+
+  // Tile origin in source image (include anchor offset)
+  const int tileOrgX = blockIdx.x * blockDim.x * 4 - anchorX;
+  const int tileOrgY = blockIdx.y * blockDim.y - anchorY;
+
+  // 1) Load tile from global memory (with border clamping)
+  const int tileElems = tilePitch * tileH;
+  for (int idx = tid; idx < tileElems; idx += tcount) {
+    int ly = idx / tilePitch;
+    int lx = idx % tilePitch;
+
+    int sx = tileOrgX + lx;
+    int sy = tileOrgY + ly;
+
+    int clamped_x = min(max(sx, 0), width - 1);
+    int clamped_y = min(max(sy, 0), height - 1);
+
+    const Npp32f *srow = (const Npp32f *)((const char *)pSrc + clamped_y * nSrcStep);
+    tile[ly * tilePitch + lx] = srow[clamped_x];
+  }
+
+  // 2) Load mask to shared memory
+  const int msize = maskW * maskH;
+  for (int i = tid; i < msize; i += tcount) {
+    mskSh[i] = pMask[i];
+  }
+
+  __syncthreads();
+
+  // 3) Process output pixels
+  if (outY >= height)
+    return;
+
+  const int baseTileX = threadIdx.x * 4;
+  const int baseTileY = threadIdx.y;
+
+  for (int dx = 0; dx < 4; ++dx) {
+    int outX = outX0 + dx;
+    if (outX >= width)
+      continue;
+
+    Npp32f minVal = 1e10f;
+
+    // Iterate mask window
+    for (int my = 0; my < maskH; ++my) {
+      const Npp32f *trow = tile + (baseTileY + my) * tilePitch;
+      const Npp32f *mrow = mskSh + my * maskW;
+
+#pragma unroll
+      for (int mx = 0; mx < maskW; ++mx) {
+        if (mrow[mx]) {
+          Npp32f pixelVal = trow[baseTileX + dx + mx];
+          if (pixelVal < minVal) {
+            minVal = pixelVal;
+          }
+        }
+      }
+    }
+
+    Npp32f *drow = (Npp32f *)((char *)pDst + outY * nDstStep);
+    drow[outX] = minVal;
+  }
+}
+
 __global__ void nppiErode_32f_C4R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                          int height, const Npp8u *pMask, int maskWidth, int maskHeight, int anchorX,
                                          int anchorY) {
@@ -1272,6 +1351,85 @@ __global__ void nppiDilate_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp3
   }
 }
 
+__global__ void nppiDilate_32f_C1R_kernel_opt(const Npp32f* pSrc, int nSrcStep,
+                                                   Npp32f* pDst, int nDstStep, int width, int height,
+                                                   const Npp8u* pMask, int maskW, int maskH, int anchorX,
+                                                   int anchorY, int tileH, int tilePitch) {
+  extern __shared__ Npp32f smem_32f_c1r[];
+
+  Npp32f *tile = smem_32f_c1r;
+  Npp32f *mskSh = tile + tilePitch * tileH;
+
+  const int tid = threadIdx.y * blockDim.x + threadIdx.x;
+  const int tcount = blockDim.x * blockDim.y;
+
+  // Output pixel start (4 pixels per thread horizontally)
+  const int outX0 = blockIdx.x * blockDim.x * 4 + threadIdx.x * 4;
+  const int outY = blockIdx.y * blockDim.y + threadIdx.y;
+
+  // Tile origin in source image (include anchor offset)
+  const int tileOrgX = blockIdx.x * blockDim.x * 4 - anchorX;
+  const int tileOrgY = blockIdx.y * blockDim.y - anchorY;
+
+  // 1) Load tile from global memory (with border clamping)
+  const int tileElems = tilePitch * tileH;
+  for (int idx = tid; idx < tileElems; idx += tcount) {
+    int ly = idx / tilePitch;
+    int lx = idx % tilePitch;
+
+    int sx = tileOrgX + lx;
+    int sy = tileOrgY + ly;
+
+    int clamped_x = min(max(sx, 0), width - 1);
+    int clamped_y = min(max(sy, 0), height - 1);
+
+    const Npp32f *srow = (const Npp32f *)((const char *)pSrc + clamped_y * nSrcStep);
+    tile[ly * tilePitch + lx] = srow[clamped_x];
+  }
+
+  // 2) Load mask to shared memory
+  const int msize = maskW * maskH;
+  for (int i = tid; i < msize; i += tcount) {
+    mskSh[i] = pMask[i];
+  }
+
+  __syncthreads();
+
+  // 3) Process output pixels
+  if (outY >= height)
+    return;
+
+  const int baseTileX = threadIdx.x * 4;
+  const int baseTileY = threadIdx.y;
+
+  for (int dx = 0; dx < 4; ++dx) {
+    int outX = outX0 + dx;
+    if (outX >= width)
+      continue;
+
+    Npp32f maxVal = -1e10f;
+
+    // Iterate mask window
+    for (int my = 0; my < maskH; ++my) {
+      const Npp32f *trow = tile + (baseTileY + my) * tilePitch;
+      const Npp32f *mrow = mskSh + my * maskW;
+
+#pragma unroll
+      for (int mx = 0; mx < maskW; ++mx) {
+        if (mrow[mx]) {
+          Npp32f pixelVal = trow[baseTileX + dx + mx];
+          if (pixelVal > maxVal) {
+            maxVal = pixelVal;
+          }
+        }
+      }
+    }
+
+    Npp32f *drow = (Npp32f *)((char *)pDst + outY * nDstStep);
+    drow[outX] = maxVal;
+  }
+}
+
 __global__ void nppiDilate_32f_C4R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                           int height, const Npp8u *pMask, int maskWidth, int maskHeight, int anchorX,
                                           int anchorY) {
@@ -1449,12 +1607,22 @@ NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
 NppStatus nppiErode_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                      NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 blockSize(32, 4);
+  dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiErode_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  // Tile geometry (must match kernel)
+  const int tileW_noPad = blockSize.x * 4 + oMaskSize.width - 1;
+  const int tileH = blockSize.y + oMaskSize.height - 1;
+  const int tilePitch = (tileW_noPad + 3) & ~3;
+
+  const size_t tileSharedElements = size_t(tilePitch) * tileH;
+  const size_t maskSharedElements = size_t(oMaskSize.width) * oMaskSize.height;
+  const size_t sharedBytes = (tileSharedElements + maskSharedElements) * sizeof(Npp32f);
+
+  nppiErode_32f_C1R_kernel_opt<<<gridSize, blockSize, sharedBytes, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
-      oAnchor.x, oAnchor.y);
+      oAnchor.x, oAnchor.y, tileH, tilePitch);
 
   cudaError_t cudaStatus = cudaGetLastError();
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -1545,12 +1713,21 @@ NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 NppStatus nppiDilate_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                       const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                       NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 blockSize(32, 4);
+  dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiDilate_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  const int tileW_noPad = blockSize.x * 4 + oMaskSize.width - 1;
+  const int tileH = blockSize.y + oMaskSize.height - 1;
+  const int tilePitch = (tileW_noPad + 3) & ~3;
+
+  const size_t tileSharedElements = size_t(tilePitch) * tileH;
+  const size_t maskSharedElements = size_t(oMaskSize.width) * oMaskSize.height;
+  const size_t sharedBytes = (tileSharedElements + maskSharedElements) * sizeof(Npp32f);
+
+  nppiDilate_32f_C1R_kernel_opt<<<gridSize, blockSize, sharedBytes, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width, oMaskSize.height,
-      oAnchor.x, oAnchor.y);
+      oAnchor.x, oAnchor.y, tileH, tilePitch);
 
   cudaError_t cudaStatus = cudaGetLastError();
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
