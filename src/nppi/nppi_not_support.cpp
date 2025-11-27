@@ -3535,21 +3535,6 @@ NppStatus nppiGammaInv_8u_IP3R(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * One-channel 8-bit unsigned HistogramEven.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramEven_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
-                                       Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pBuffer,
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEven_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
-                                   Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Three-channel 8-bit unsigned HistogramEven.
@@ -3568,22 +3553,6 @@ NppStatus nppiHistogramEven_8u_C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSi
 }
 
 /**
- * Four-channel 8-bit unsigned HistogramEven.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramEven_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                       int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4], Npp8u *pBuffer,
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEven_8u_C4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4], int nLevels[4],
-                                   Npp32s nLowerLevel[4], Npp32s nUpperLevel[4], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
  * Four-channel 8-bit unsigned HistogramEven ignoring alpha channel.
  * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
  * nppiHistogramEven functions</a>.
@@ -3598,21 +3567,6 @@ NppStatus nppiHistogramEven_8u_AC4R(const Npp8u *pSrc, int nSrcStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * One-channel 16-bit unsigned HistogramEven.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramEven_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
-                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pBuffer,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEven_16u_C1R(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
-                                    Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Three-channel 16-bit unsigned HistogramEven.
@@ -3659,22 +3613,6 @@ NppStatus nppiHistogramEven_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiS
 
 NppStatus nppiHistogramEven_16u_AC4R(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[3],
                                      int nLevels[3], Npp32s nLowerLevel[3], Npp32s nUpperLevel[3], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * One-channel 16-bit signed HistogramEven.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramEven_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
-                                        Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pBuffer,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEven_16s_C1R(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist, int nLevels,
-                                    Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pBuffer) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -3728,186 +3666,6 @@ NppStatus nppiHistogramEven_16s_AC4R(const Npp16s *pSrc, int nSrcStep, NppiSize 
 
 /** @} */
 
-/** @name HistogramEvenGetBufferSize
- * Companion primitives for computing the device buffer size (in bytes) required by the HistogramEven primitives.
- * <h3><a name="CommonHistogramEvenGetBufferSizeParameters">Common parameters for nppiHistogramEvenGetBufferSize
- * functions include:</a></h3> \param oSizeROI \ref roi_specification. \param nLevels Number of levels in the histogram.
- * \param hpBufferSize Required buffer size. Important: hpBufferSize is a
- *        <em>host pointer.</em> \ref general_scratch_buffer.
- * \return NPP_NULL_POINTER_ERROR if hpBufferSize is 0 (NULL),  \ref roi_error_codes..
- * @{
- */
-
-/**
- * Buffer size for \ref nppiHistogramEven_8u_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                    NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_8u_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                    NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_8u_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                    NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_8u_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_8u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16u_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16u_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16u_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16u_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16s_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16s_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16s_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16s_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16s_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Buffer size for \ref nppiHistogramEven_16s_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/** @} */
-
 /** @} image_histogrameven */
 
 /** @defgroup image_histogramrange HistogramRange
@@ -3936,21 +3694,6 @@ NppStatus nppiHistogramEvenGetBufferSize_16s_AC4R(NppiSize oSizeROI, int nLevels
  * \return \ref image_data_error_codes, \ref roi_error_codes
  * @{
  */
-/**
- * One-channel 8-bit unsigned HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                        const Npp32s *pLevels, int nLevels, Npp8u *pBuffer,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                    const Npp32s *pLevels, int nLevels, Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Three-channel 8-bit unsigned HistogramRange.
@@ -4129,22 +3872,6 @@ NppStatus nppiHistogramRange_16s_AC4R(const Npp16s *pSrc, int nSrcStep, NppiSize
 }
 
 /**
- * One-channel 32-bit floating point HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                         const Npp32f *pLevels, int nLevels, Npp8u *pBuffer,
-                                         NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                     const Npp32f *pLevels, int nLevels, Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
  * Three-channel 32-bit floating point HistogramRange.
  * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
  * nppiHistogramEven functions</a>.
@@ -4192,69 +3919,6 @@ NppStatus nppiHistogramRange_32f_AC4R(const Npp32f *pSrc, int nSrcStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/** @} */
-
-/** @name HistogramRangeGetBufferSize
- * Companion primitives for computing the device buffer size (in bytes) required by the HistogramRange primitives.
- * @{
- */
-
-/**
- * Scratch-buffer size for nppiHistogramRange_8u_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                     NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_8u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_8u_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_8u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                     NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_8u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_8u_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_8u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                     NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_8u_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_8u_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_8u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 /**
  * Scratch-buffer size for nppiHistogramRange_16u_C1R.
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
@@ -4270,48 +3934,6 @@ NppStatus nppiHistogramRangeGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels
 }
 
 /**
- * Scratch-buffer size for nppiHistogramRange_16u_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16u_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16u_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16u_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16u_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16u_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
  * Scratch-buffer size for nppiHistogramRange_16s_C1R.
  * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
  * nppiHistogramEvenGetBufferSize functions</a>.
@@ -4322,104 +3944,6 @@ NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLe
 }
 
 NppStatus nppiHistogramRangeGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16s_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16s_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16s_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16s_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16s_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16s_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16s_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_32f_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_32f_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_32f_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_32f_C3R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_32f_C3R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_32f_C3R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_32f_C4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_32f_C4R(NppiSize oSizeROI, int nLevels[4], int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_32f_AC4R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize,
-                                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_32f_AC4R(NppiSize oSizeROI, int nLevels[3], int *hpBufferSize) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -4444,11 +3968,3 @@ NppStatus nppiSwapChannels_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiEvenLevelsHost_32s_Ctx(Npp32s *hpLevels, int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel,
-                                     NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiEvenLevelsHost_32s(Npp32s *hpLevels, int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
