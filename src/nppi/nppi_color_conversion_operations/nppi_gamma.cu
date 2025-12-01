@@ -8,8 +8,8 @@
 // 使用__constant__内存可以加速访问，因为它会被缓存
 // ============================================================================
 
-__constant__ uint8_t d_gamma_fwd_lut[256];  // sRGB正向Gamma校正表 (线性 -> Gamma空间)
-__constant__ uint8_t d_gamma_inv_lut[256];  // sRGB反向Gamma校正表 (Gamma空间 -> 线性)
+__constant__ Npp8u d_gamma_fwd_lut[256];  // sRGB正向Gamma校正表 (线性 -> Gamma空间)
+__constant__ Npp8u d_gamma_inv_lut[256];  // sRGB反向Gamma校正表 (Gamma空间 -> 线性)
 
 // ============================================================================
 // Device Helper Functions: sRGB Standard Gamma Curves
@@ -42,8 +42,8 @@ static void initGammaLUT() {
     static bool initialized = false;
     if (initialized) return;
     
-    uint8_t h_gamma_fwd_lut[256];
-    uint8_t h_gamma_inv_lut[256];
+    Npp8u h_gamma_fwd_lut[256];
+    Npp8u h_gamma_inv_lut[256];
     
     // 在CPU上预计算sRGB正向Gamma LUT (0-255)
     for (int i = 0; i < 256; i++) {
@@ -54,7 +54,7 @@ static void initGammaLUT() {
             gamma_value = 12.92f * linear;
         else
             gamma_value = 1.055f * powf(linear, 1.0f/2.4f) - 0.055f;
-        h_gamma_fwd_lut[i] = (uint8_t)(gamma_value * 255.0f + 0.5f);  // 反归一化并四舍五入
+        h_gamma_fwd_lut[i] = (Npp8u)(gamma_value * 255.0f + 0.5f);  // 反归一化并四舍五入
     }
     
     // 在CPU上预计算sRGB反向Gamma LUT
@@ -66,12 +66,12 @@ static void initGammaLUT() {
             gamma_value = srgb / 12.92f;
         else
             gamma_value = powf((srgb + 0.055f) / 1.055f, 2.4f);
-        h_gamma_inv_lut[i] = (uint8_t)(gamma_value * 255.0f + 0.5f);
+        h_gamma_inv_lut[i] = (Npp8u)(gamma_value * 255.0f + 0.5f);
     }
     
     // 拷贝到GPU常量内存（所有CUDA线程都可以快速访问）
-    cudaMemcpyToSymbol(d_gamma_fwd_lut, h_gamma_fwd_lut, 256 * sizeof(uint8_t));
-    cudaMemcpyToSymbol(d_gamma_inv_lut, h_gamma_inv_lut, 256 * sizeof(uint8_t));
+    cudaMemcpyToSymbol(d_gamma_fwd_lut, h_gamma_fwd_lut, 256 * sizeof(Npp8u));
+    cudaMemcpyToSymbol(d_gamma_inv_lut, h_gamma_inv_lut, 256 * sizeof(Npp8u));
     
     initialized = true;
 }
@@ -83,13 +83,13 @@ static void initGammaLUT() {
 // ============================================================================
 
 struct GammaFwdOp {
-    __device__ inline uint8_t operator()(uint8_t input) const {
+    __device__ inline Npp8u operator()(Npp8u input) const {
         return d_gamma_fwd_lut[input];  // 直接查表
     }
 };
 
 struct GammaInvOp {
-    __device__ inline uint8_t operator()(uint8_t input) const {
+    __device__ inline Npp8u operator()(Npp8u input) const {
         return d_gamma_inv_lut[input];
     }
 };
