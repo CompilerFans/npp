@@ -265,6 +265,66 @@ public:
 };
 
 // ============================================================================
+// Multi-Channel Constant Shift Operation Functors
+// ============================================================================
+template <typename T> struct LeftShiftStrategy {
+  __device__ __host__ static T apply(T value, Npp32u shiftCount) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      return (shiftCount < 8) ? (value << shiftCount) : 0;
+    } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
+      return (shiftCount < 16) ? (value << shiftCount) : 0;
+    } else if constexpr (std::is_same_v<T, Npp32u> || std::is_same_v<T, Npp32s>) {
+      return (shiftCount < 32) ? (value << shiftCount) : 0;
+    } else {
+      return value;
+    }
+  }
+};
+
+template <typename T> struct RightShiftStrategy {
+  __device__ __host__ static T apply(T value, Npp32u shiftCount) {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      return (shiftCount < 8) ? (value >> shiftCount) : 0;
+    } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
+      return (shiftCount < 16) ? (value >> shiftCount) : 0;
+    } else if constexpr (std::is_same_v<T, Npp32u> || std::is_same_v<T, Npp32s>) {
+      return (shiftCount < 32) ? (value >> shiftCount) : 0;
+    } else {
+      return value;
+    }
+  }
+};
+
+template <typename T, int Channels, template <typename> class ShiftStrategy> class ShiftConstMultiOp {
+private:
+  Npp32u constants[Channels];
+
+public:
+  __device__ __host__ ShiftConstMultiOp(const Npp32u aConstants[Channels]) {
+    for (int i = 0; i < Channels; i++) {
+      constants[i] = aConstants[i];
+    }
+  }
+
+  __device__ __host__ T operator()(T a, T = T(0), int = 0) const { return a; }
+
+  __device__ __host__ Npp32u getConstant(int channel) const {
+    if (channel < Channels) {
+      return constants[channel];
+    }
+    return 0;
+  }
+
+  __device__ __host__ T applyShift(T value, int channel) const {
+    return ShiftStrategy<T>::apply(value, getConstant(channel));
+  }
+};
+
+template <typename T, int Channels> using LShiftConstMultiOp = ShiftConstMultiOp<T, Channels, LeftShiftStrategy>;
+
+template <typename T, int Channels> using RShiftConstMultiOp = ShiftConstMultiOp<T, Channels, RightShiftStrategy>;
+
+// ============================================================================
 // Constant Operation Functors (for operations with constants)
 // ============================================================================
 

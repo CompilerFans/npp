@@ -508,5 +508,76 @@ public:
   }
 };
 
+// ============================================================================
+// Multi-Channel Shift Operation Kernels and Executors
+// ============================================================================
+
+template <typename T, int Channels, typename ShiftOp>
+__global__ void shiftMultiKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                 ShiftOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    int idx = x * Channels;
+    for (int c = 0; c < Channels; c++) {
+      T srcVal = srcRow[idx + c];
+      dstRow[idx + c] = op.applyShift(srcVal, c);
+    }
+  }
+}
+
+template <typename T, int Channels, typename ShiftOpType> class ShiftMultiOperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, const Npp32u aConstants[Channels], T *pDst, int nDstStep,
+                           NppiSize oSizeROI, cudaStream_t stream) {
+
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, Channels);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    NppStatus shiftStatus = validateShiftConstants<T>(aConstants, Channels);
+    if (shiftStatus != NPP_NO_ERROR)
+      return shiftStatus;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    ShiftOpType op(aConstants);
+    shiftMultiKernel<T, Channels, ShiftOpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+private:
+  template <typename U> static NppStatus validateShiftConstants(const Npp32u aConstants[Channels], int channels) {
+    for (int i = 0; i < channels; i++) {
+      if constexpr (std::is_same_v<U, Npp8u>) {
+        if (aConstants[i] > 7)
+          return NPP_BAD_ARGUMENT_ERROR;
+      } else if constexpr (std::is_same_v<U, Npp16u> || std::is_same_v<U, Npp16s>) {
+        if (aConstants[i] > 15)
+          return NPP_BAD_ARGUMENT_ERROR;
+      } else if constexpr (std::is_same_v<U, Npp32u> || std::is_same_v<U, Npp32s>) {
+        if (aConstants[i] > 31)
+          return NPP_BAD_ARGUMENT_ERROR;
+      }
+    }
+    return NPP_NO_ERROR;
+  }
+};
+
+template <typename T, int Channels>
+using LShiftMultiOperationExecutor = ShiftMultiOperationExecutor<T, Channels, LShiftConstMultiOp<T, Channels>>;
+
+template <typename T, int Channels>
+using RShiftMultiOperationExecutor = ShiftMultiOperationExecutor<T, Channels, RShiftConstMultiOp<T, Channels>>;
+
 } // namespace arithmetic
 } // namespace nppi

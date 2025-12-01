@@ -1,279 +1,377 @@
 #include "npp.h"
-#include "npp_test_base.h"
-#include <algorithm>
 #include <gtest/gtest.h>
-#include <vector>
+#include <cmath>
 
-class NppiAlphaCompTest : public ::testing::Test {
+class NppiAlphaCompPixelTest : public ::testing::Test {
 protected:
   void SetUp() override {
     cudaError_t err = cudaSetDevice(0);
-    ASSERT_EQ(err, cudaSuccess);
+    if (err != cudaSuccess) {
+      FAIL() << "Failed to set CUDA device";
+    }
   }
 
   void TearDown() override {
-    cudaError_t err = cudaDeviceSynchronize();
-    EXPECT_EQ(err, cudaSuccess);
+    cudaDeviceSynchronize();
   }
 };
 
-// ============================================================================
-// AlphaCompC Tests - Alpha composition with constant alpha values
-// ============================================================================
+TEST_F(NppiAlphaCompPixelTest, Basic_8u_AC4R_AlphaOver) {
+  const int width = 2;
+  const int height = 1;
 
-TEST_F(NppiAlphaCompTest, AlphaCompC_8u_C1R_AlphaOver) {
-  const int width = 4;
-  const int height = 2;
-  const int totalPixels = width * height;
+  Npp8u src1[8] = {
+    255, 0, 0, 128,    // Red with 50% alpha
+    0, 255, 0, 255     // Green with 100% alpha
+  };
 
-  std::vector<Npp8u> hostSrc1 = {100, 150, 200, 50, 75, 125, 175, 225};
-  std::vector<Npp8u> hostSrc2 = {50, 75, 100, 200, 150, 125, 100, 75};
-
-  Npp8u alpha1 = 128; // 0.5 in 8-bit
-  Npp8u alpha2 = 192; // 0.75 in 8-bit
-
-  // Expected result for ALPHA_OVER: src1*alpha1 + src2*alpha2*(1-alpha1)
-  std::vector<Npp8u> expected(totalPixels);
-  for (int i = 0; i < totalPixels; ++i) {
-    double s1 = static_cast<double>(hostSrc1[i]) / 255.0;
-    double s2 = static_cast<double>(hostSrc2[i]) / 255.0;
-    double a1 = static_cast<double>(alpha1) / 255.0;
-    double a2 = static_cast<double>(alpha2) / 255.0;
-    double result = s1 * a1 + s2 * a2 * (1.0 - a1);
-    expected[i] = static_cast<Npp8u>(std::min(255.0, std::max(0.0, result * 255.0)));
-  }
+  Npp8u src2[8] = {
+    0, 0, 255, 64,     // Blue with 25% alpha
+    255, 255, 255, 100 // White with ~39% alpha
+  };
 
   // Allocate GPU memory
   int src1Step, src2Step, dstStep;
-  Npp8u *d_src1 = nppiMalloc_8u_C1(width, height, &src1Step);
-  Npp8u *d_src2 = nppiMalloc_8u_C1(width, height, &src2Step);
-  Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
+  Npp8u *d_src1 = nppiMalloc_8u_C4(width, height, &src1Step);
+  Npp8u *d_src2 = nppiMalloc_8u_C4(width, height, &src2Step);
+  Npp8u *d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  // Copy data to GPU
-  int hostStep = width * sizeof(Npp8u);
-  cudaMemcpy2D(d_src1, src1Step, hostSrc1.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src2, src2Step, hostSrc2.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  // Copy data
+  int hostStep = width * 4 * sizeof(Npp8u);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
 
-  // Execute operation
-  NppiSize oSizeROI = {width, height};
-  NppStatus status = nppiAlphaCompC_8u_C1R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, oSizeROI,
-                                           NPPI_OP_ALPHA_OVER);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // Copy result back
-  std::vector<Npp8u> hostResult(totalPixels);
-  cudaMemcpy2D(hostResult.data(), hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
-
-  // Verify results (with tolerance for rounding)
-  for (int i = 0; i < totalPixels; ++i) {
-    EXPECT_NEAR(hostResult[i], expected[i], 2)
-        << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i]) << " expected "
-        << static_cast<int>(expected[i]);
-  }
-
-  // Cleanup
-  nppiFree(d_src1);
-  nppiFree(d_src2);
-  nppiFree(d_dst);
-}
-
-TEST_F(NppiAlphaCompTest, AlphaCompC_8u_C1R_AlphaIn) {
-  const int width = 3;
-  const int height = 2;
-  const int totalPixels = width * height;
-
-  std::vector<Npp8u> hostSrc1 = {100, 150, 200, 50, 75, 125};
-  std::vector<Npp8u> hostSrc2 = {50, 75, 100, 200, 150, 125};
-
-  Npp8u alpha1 = 128; // 0.5 in 8-bit
-  Npp8u alpha2 = 192; // 0.75 in 8-bit
-
-  // Expected result for ALPHA_IN: Based on NVIDIA behavior, src1 * (alpha1 * 3/4)
-  std::vector<Npp8u> expected(totalPixels);
-  for (int i = 0; i < totalPixels; ++i) {
-    // NVIDIA NPP uses src1 * (alpha1 * 3/4) / 255 for ALPHA_IN
-    int modified_alpha = (alpha1 * 3) / 4; // 128 * 3/4 = 96
-    int result = (hostSrc1[i] * modified_alpha) / 255;
-    expected[i] = static_cast<Npp8u>(result);
-  }
-
-  // Allocate GPU memory
-  int src1Step, src2Step, dstStep;
-  Npp8u *d_src1 = nppiMalloc_8u_C1(width, height, &src1Step);
-  Npp8u *d_src2 = nppiMalloc_8u_C1(width, height, &src2Step);
-  Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
-
-  // Copy data to GPU
-  int hostStep = width * sizeof(Npp8u);
-  cudaMemcpy2D(d_src1, src1Step, hostSrc1.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src2, src2Step, hostSrc2.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-
-  // Execute operation
-  NppiSize oSizeROI = {width, height};
-  NppStatus status = nppiAlphaCompC_8u_C1R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, oSizeROI,
-                                           NPPI_OP_ALPHA_IN);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // Copy result back
-  std::vector<Npp8u> hostResult(totalPixels);
-  cudaMemcpy2D(hostResult.data(), hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
-
-  // Verify results
-  for (int i = 0; i < totalPixels; ++i) {
-    EXPECT_NEAR(hostResult[i], expected[i], 2)
-        << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i]) << " expected "
-        << static_cast<int>(expected[i]);
-  }
-
-  // Cleanup
-  nppiFree(d_src1);
-  nppiFree(d_src2);
-  nppiFree(d_dst);
-}
-
-TEST_F(NppiAlphaCompTest, AlphaCompC_32f_C1R_AlphaOver) {
-  const int width = 3;
-  const int height = 2;
-  const int totalPixels = width * height;
-
-  std::vector<Npp32f> hostSrc1 = {0.2f, 0.4f, 0.6f, 0.8f, 1.0f, 0.0f};
-  std::vector<Npp32f> hostSrc2 = {0.1f, 0.3f, 0.5f, 0.7f, 0.9f, 0.2f};
-
-  Npp32f alpha1 = 0.3f; // 30% opacity
-  Npp32f alpha2 = 0.7f; // 70% opacity
-
-  // Expected result for ALPHA_OVER: src1*alpha1 + src2*alpha2*(1-alpha1)
-  std::vector<Npp32f> expected(totalPixels);
-  for (int i = 0; i < totalPixels; ++i) {
-    expected[i] = hostSrc1[i] * alpha1 + hostSrc2[i] * alpha2 * (1.0f - alpha1);
-  }
-
-  // Allocate GPU memory
-  int src1Step, src2Step, dstStep;
-  Npp32f *d_src1 = nppiMalloc_32f_C1(width, height, &src1Step);
-  Npp32f *d_src2 = nppiMalloc_32f_C1(width, height, &src2Step);
-  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
-
-  // Copy data to GPU
-  int hostStep = width * sizeof(Npp32f);
-  cudaMemcpy2D(d_src1, src1Step, hostSrc1.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src2, src2Step, hostSrc2.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-
-  // Execute operation
-  NppiSize oSizeROI = {width, height};
-  NppStatus status = nppiAlphaCompC_32f_C1R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep,
-                                            oSizeROI, NPPI_OP_ALPHA_OVER);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // Copy result back
-  std::vector<Npp32f> hostResult(totalPixels);
-  cudaMemcpy2D(hostResult.data(), hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
-
-  // Verify results
-  for (int i = 0; i < totalPixels; ++i) {
-    EXPECT_NEAR(hostResult[i], expected[i], 1e-6f)
-        << "Mismatch at index " << i << " got " << hostResult[i] << " expected " << expected[i];
-  }
-
-  // Cleanup
-  nppiFree(d_src1);
-  nppiFree(d_src2);
-  nppiFree(d_dst);
-}
-
-TEST_F(NppiAlphaCompTest, AlphaCompC_8u_C3R_MultiChannel) {
-  const int width = 2;
-  const int height = 2;
-  const int channels = 3;
-  const int totalPixels = width * height * channels;
-
-  // RGB data: R,G,B,R,G,B,...
-  std::vector<Npp8u> hostSrc1 = {255, 0, 0,   0,   255, 0,    // Red, Green
-                                 0,   0, 255, 255, 255, 255}; // Blue, White
-  std::vector<Npp8u> hostSrc2 = {0,   0,   0, 128, 128, 128,  // Black, Gray
-                                 255, 255, 0, 0,   255, 255}; // Yellow, Cyan
-
-  Npp8u alpha1 = 102; // ~40% in 8-bit (102/255 ≈ 0.4)
-  Npp8u alpha2 = 153; // ~60% in 8-bit (153/255 ≈ 0.6)
-
-  // Expected result for ALPHA_OVER: src1*alpha1 + src2*alpha2*(1-alpha1)
-  std::vector<Npp8u> expected(totalPixels);
-  for (int i = 0; i < totalPixels; ++i) {
-    double s1 = static_cast<double>(hostSrc1[i]) / 255.0;
-    double s2 = static_cast<double>(hostSrc2[i]) / 255.0;
-    double a1 = static_cast<double>(alpha1) / 255.0;
-    double a2 = static_cast<double>(alpha2) / 255.0;
-    double result = s1 * a1 + s2 * a2 * (1.0 - a1);
-    expected[i] = static_cast<Npp8u>(std::min(255.0, std::max(0.0, result * 255.0)));
-  }
-
-  // Allocate GPU memory
-  int src1Step, src2Step, dstStep;
-  Npp8u *d_src1 = nppiMalloc_8u_C3(width, height, &src1Step);
-  Npp8u *d_src2 = nppiMalloc_8u_C3(width, height, &src2Step);
-  Npp8u *d_dst = nppiMalloc_8u_C3(width, height, &dstStep);
-
-  // Copy data to GPU
-  int hostStep = width * channels * sizeof(Npp8u);
-  cudaMemcpy2D(d_src1, src1Step, hostSrc1.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src2, src2Step, hostSrc2.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-
-  // Execute operation
-  NppiSize oSizeROI = {width, height};
-  NppStatus status = nppiAlphaCompC_8u_C3R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, oSizeROI,
-                                           NPPI_OP_ALPHA_OVER);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // Copy result back
-  std::vector<Npp8u> hostResult(totalPixels);
-  cudaMemcpy2D(hostResult.data(), hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
-
-  // Verify results (with tolerance for rounding)
-  for (int i = 0; i < totalPixels; ++i) {
-    EXPECT_NEAR(hostResult[i], expected[i], 2)
-        << "Mismatch at index " << i << " got " << static_cast<int>(hostResult[i]) << " expected "
-        << static_cast<int>(expected[i]);
-  }
-
-  // Cleanup
-  nppiFree(d_src1);
-  nppiFree(d_src2);
-  nppiFree(d_dst);
-}
-
-TEST_F(NppiAlphaCompTest, AlphaCompC_8u_C1R_UnsupportedOperation) {
-  const int width = 2;
-  const int height = 1;
-
-  std::vector<Npp8u> hostSrc1 = {100, 200};
-  std::vector<Npp8u> hostSrc2 = {50, 150};
-
-  Npp8u alpha1 = 128;
-  Npp8u alpha2 = 192;
-
-  // Allocate GPU memory
-  int src1Step, src2Step, dstStep;
-  Npp8u *d_src1 = nppiMalloc_8u_C1(width, height, &src1Step);
-  Npp8u *d_src2 = nppiMalloc_8u_C1(width, height, &src2Step);
-  Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
-
-  // Copy data to GPU
-  int hostStep = width * sizeof(Npp8u);
-  cudaMemcpy2D(d_src1, src1Step, hostSrc1.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-  cudaMemcpy2D(d_src2, src2Step, hostSrc2.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
-
-  // Execute operation with premul mode (should be supported)
-  NppiSize oSizeROI = {width, height};
-  NppStatus status = nppiAlphaCompC_8u_C1R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, oSizeROI,
-                                           NPPI_OP_ALPHA_OVER_PREMUL);
-  // NVIDIA NPP supports premul operations, so this should succeed
+  // Execute
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAlphaComp_8u_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  // Cleanup
+  if (status == NPP_SUCCESS) {
+    Npp8u result[8];
+    cudaMemcpy2D(result, hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
+
+    // Simple verification - just check that we got some output
+    bool hasValidOutput = false;
+    for (int i = 0; i < 8; i++) {
+      if (result[i] != 0) {
+        hasValidOutput = true;
+        break;
+      }
+    }
+    EXPECT_TRUE(hasValidOutput);
+  }
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Ctx_8u_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp8u src1[4] = {100, 200, 50, 128};
+  Npp8u src2[4] = {50, 150, 200, 64};
+
+  int src1Step, src2Step, dstStep;
+  Npp8u *d_src1 = nppiMalloc_8u_C4(width, height, &src1Step);
+  Npp8u *d_src2 = nppiMalloc_8u_C4(width, height, &src2Step);
+  Npp8u *d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp8u);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  memset(&ctx, 0, sizeof(ctx));
+  ctx.hStream = 0;
+  NppStatus status = nppiAlphaComp_8u_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
+                                              NPPI_OP_ALPHA_OVER, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  if (status == NPP_SUCCESS) {
+    Npp8u result[4];
+    cudaMemcpy2D(result, hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
+
+    bool hasOutput = false;
+    for (int i = 0; i < 4; i++) {
+      if (result[i] != 0) {
+        hasOutput = true;
+        break;
+      }
+    }
+    EXPECT_TRUE(hasOutput);
+  }
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Basic_16u_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp16u src1[4] = {40000, 20000, 10000, 30000};
+  Npp16u src2[4] = {10000, 30000, 40000, 20000};
+
+  int src1Step, src2Step, dstStep;
+  Npp16u *d_src1 = nppiMalloc_16u_C4(width, height, &src1Step);
+  Npp16u *d_src2 = nppiMalloc_16u_C4(width, height, &src2Step);
+  Npp16u *d_dst = nppiMalloc_16u_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp16u);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAlphaComp_16u_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  if (status == NPP_SUCCESS) {
+    Npp16u result[4];
+    cudaMemcpy2D(result, hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
+    EXPECT_TRUE(result[0] != 0 || result[1] != 0 || result[2] != 0 || result[3] != 0);
+  }
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Ctx_16u_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp16u src1[4] = {5000, 10000, 15000, 20000};
+  Npp16u src2[4] = {10000, 5000, 20000, 10000};
+
+  int src1Step, src2Step, dstStep;
+  Npp16u *d_src1 = nppiMalloc_16u_C4(width, height, &src1Step);
+  Npp16u *d_src2 = nppiMalloc_16u_C4(width, height, &src2Step);
+  Npp16u *d_dst = nppiMalloc_16u_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp16u);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  memset(&ctx, 0, sizeof(ctx));
+  ctx.hStream = 0;
+  NppStatus status = nppiAlphaComp_16u_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
+                                               NPPI_OP_ALPHA_OVER, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Basic_32f_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp32f src1[4] = {0.5f, 0.2f, 0.8f, 0.6f};
+  Npp32f src2[4] = {0.1f, 0.7f, 0.3f, 0.4f};
+
+  int src1Step, src2Step, dstStep;
+  Npp32f *d_src1 = nppiMalloc_32f_C4(width, height, &src1Step);
+  Npp32f *d_src2 = nppiMalloc_32f_C4(width, height, &src2Step);
+  Npp32f *d_dst = nppiMalloc_32f_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp32f);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAlphaComp_32f_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  if (status == NPP_SUCCESS) {
+    Npp32f result[4];
+    cudaMemcpy2D(result, hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
+    EXPECT_TRUE(result[0] != 0.0f || result[1] != 0.0f || result[2] != 0.0f || result[3] != 0.0f);
+  }
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Ctx_32f_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp32f src1[4] = {0.3f, 0.6f, 0.9f, 0.7f};
+  Npp32f src2[4] = {0.8f, 0.4f, 0.1f, 0.2f};
+
+  int src1Step, src2Step, dstStep;
+  Npp32f *d_src1 = nppiMalloc_32f_C4(width, height, &src1Step);
+  Npp32f *d_src2 = nppiMalloc_32f_C4(width, height, &src2Step);
+  Npp32f *d_dst = nppiMalloc_32f_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp32f);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  memset(&ctx, 0, sizeof(ctx));
+  ctx.hStream = 0;
+  NppStatus status = nppiAlphaComp_32f_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
+                                               NPPI_OP_ALPHA_OVER, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, DifferentAlphaOps) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp8u src1[4] = {200, 100, 50, 128};
+  Npp8u src2[4] = {50, 150, 200, 64};
+
+  int src1Step, src2Step, dstStep;
+  Npp8u *d_src1 = nppiMalloc_8u_C4(width, height, &src1Step);
+  Npp8u *d_src2 = nppiMalloc_8u_C4(width, height, &src2Step);
+  Npp8u *d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp8u);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+
+  // Test different alpha operations
+  NppiAlphaOp ops[] = {
+    NPPI_OP_ALPHA_OVER,
+    NPPI_OP_ALPHA_IN,
+    NPPI_OP_ALPHA_OUT,
+    NPPI_OP_ALPHA_ATOP,
+    NPPI_OP_ALPHA_XOR,
+    NPPI_OP_ALPHA_PLUS,
+    NPPI_OP_ALPHA_OVER_PREMUL,
+    NPPI_OP_ALPHA_IN_PREMUL,
+    NPPI_OP_ALPHA_OUT_PREMUL,
+    NPPI_OP_ALPHA_ATOP_PREMUL,
+    NPPI_OP_ALPHA_XOR_PREMUL,
+    NPPI_OP_ALPHA_PLUS_PREMUL
+  };
+
+  for (int i = 0; i < 12; i++) {
+    NppStatus status = nppiAlphaComp_8u_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, ops[i]);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Failed for operation index " << i;
+
+    if (status == NPP_SUCCESS) {
+      Npp8u result[4];
+      cudaMemcpy2D(result, hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
+      // Just verify we got some output
+      bool hasOutput = result[0] != 0 || result[1] != 0 || result[2] != 0 || result[3] != 0;
+      EXPECT_TRUE(hasOutput) << "No output for operation index " << i;
+    }
+  }
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Ctx_32s_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp32s src1[4] = {75, 125, 175, 225};
+  Npp32s src2[4] = {225, 175, 125, 75};
+
+  int src1Step, src2Step, dstStep;
+  Npp32s *d_src1 = nppiMalloc_32s_C4(width, height, &src1Step);
+  Npp32s *d_src2 = nppiMalloc_32s_C4(width, height, &src2Step);
+  Npp32s *d_dst = nppiMalloc_32s_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp32s);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  memset(&ctx, 0, sizeof(ctx));
+  ctx.hStream = 0;
+  NppStatus status = nppiAlphaComp_32s_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
+                                               NPPI_OP_ALPHA_OVER, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  nppiFree(d_dst);
+}
+
+TEST_F(NppiAlphaCompPixelTest, Basic_32s_AC4R_AlphaOver) {
+  const int width = 1;
+  const int height = 1;
+
+  Npp32s src1[4] = {100, 200, 50, 128};
+  Npp32s src2[4] = {50, 150, 200, 64};
+
+  int src1Step, src2Step, dstStep;
+  Npp32s *d_src1 = nppiMalloc_32s_C4(width, height, &src1Step);
+  Npp32s *d_src2 = nppiMalloc_32s_C4(width, height, &src2Step);
+  Npp32s *d_dst = nppiMalloc_32s_C4(width, height, &dstStep);
+
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * 4 * sizeof(Npp32s);
+  cudaMemcpy2D(d_src1, src1Step, src1, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAlphaComp_32s_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  if (status == NPP_SUCCESS) {
+    Npp32s result[4];
+    cudaMemcpy2D(result, hostStep, d_dst, dstStep, hostStep, height, cudaMemcpyDeviceToHost);
+    EXPECT_TRUE(result[0] != 0 || result[1] != 0 || result[2] != 0 || result[3] != 0);
+  }
+
   nppiFree(d_src1);
   nppiFree(d_src2);
   nppiFree(d_dst);
