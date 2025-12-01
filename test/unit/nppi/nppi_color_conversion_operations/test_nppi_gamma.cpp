@@ -57,8 +57,8 @@ TEST_F(NppiGammaTest, GammaFwd_8u_C3R_Ctx) {
     
     // 分配设备内存
     Npp8u *d_src, *d_dst;
-    int src_step = width * channels * sizeof(Npp8u);
-    int dst_step = width * channels * sizeof(Npp8u);
+    int src_step = width * channels;  // step是每行的字节数
+    int dst_step = width * channels;
     
     cudaMalloc(&d_src, width * height * channels);
     cudaMalloc(&d_dst, width * height * channels);
