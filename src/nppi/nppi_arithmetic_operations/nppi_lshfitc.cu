@@ -16,11 +16,8 @@ NppStatus nppiLShiftC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32u nC
 NppStatus nppiLShiftC_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   // For shift operations, we need individual shift operations per channel
-  // Since MultiConstOperationExecutor expects same type, we need a custom approach
-  // For now, use the first constant for all channels (NPP behavior may vary)
-  LShiftConstOp<Npp8u> op(aConstants[0]);
-  return ConstOperationExecutor<Npp8u, 3, LShiftConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                         nppStreamCtx.hStream, op);
+  return LShiftMultiOperationExecutor<Npp8u, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI,
+                                                         nppStreamCtx.hStream);
 }
 
 NppStatus nppiLShiftC_8u_AC4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp8u *pDst,
@@ -32,9 +29,8 @@ NppStatus nppiLShiftC_8u_AC4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Np
 
 NppStatus nppiLShiftC_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  LShiftConstOp<Npp8u> op(aConstants[0]);
-  return ConstOperationExecutor<Npp8u, 4, LShiftConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                         nppStreamCtx.hStream, op);
+  return LShiftMultiOperationExecutor<Npp8u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI,
+                                                         nppStreamCtx.hStream);
 }
 
 NppStatus nppiLShiftC_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp32u nConstant, Npp16u *pDst, int nDstStep,
@@ -46,9 +42,8 @@ NppStatus nppiLShiftC_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp32u 
 
 NppStatus nppiLShiftC_16u_C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  LShiftConstOp<Npp16u> op(aConstants[0]);
-  return ConstOperationExecutor<Npp16u, 3, LShiftConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                           nppStreamCtx.hStream, op);
+  return LShiftMultiOperationExecutor<Npp16u, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI,
+                                                          nppStreamCtx.hStream);
 }
 
 NppStatus nppiLShiftC_16u_AC4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp16u *pDst,
@@ -60,9 +55,8 @@ NppStatus nppiLShiftC_16u_AC4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const 
 
 NppStatus nppiLShiftC_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp16u *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  LShiftConstOp<Npp16u> op(aConstants[0]);
-  return ConstOperationExecutor<Npp16u, 4, LShiftConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                           nppStreamCtx.hStream, op);
+  return LShiftMultiOperationExecutor<Npp16u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI,
+                                                          nppStreamCtx.hStream);
 }
 
 NppStatus nppiLShiftC_32s_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32u nConstant, Npp32s *pDst, int nDstStep,
@@ -74,9 +68,8 @@ NppStatus nppiLShiftC_32s_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32u 
 
 NppStatus nppiLShiftC_32s_C3R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp32s *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  LShiftConstOp<Npp32s> op(aConstants[0]);
-  return ConstOperationExecutor<Npp32s, 3, LShiftConstOp<Npp32s>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                           nppStreamCtx.hStream, op);
+  return LShiftMultiOperationExecutor<Npp32s, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI,
+                                                          nppStreamCtx.hStream);
 }
 
 NppStatus nppiLShiftC_32s_AC4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp32s *pDst,
@@ -88,9 +81,8 @@ NppStatus nppiLShiftC_32s_AC4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const 
 
 NppStatus nppiLShiftC_32s_C4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp32s *pDst,
                                        int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  LShiftConstOp<Npp32s> op(aConstants[0]);
-  return ConstOperationExecutor<Npp32s, 4, LShiftConstOp<Npp32s>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                           nppStreamCtx.hStream, op);
+  return LShiftMultiOperationExecutor<Npp32s, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI,
+                                                          nppStreamCtx.hStream);
 }
 
 } // extern "C"
@@ -150,4 +142,76 @@ NppStatus nppiLShiftC_32s_C1R(const Npp32s *pSrc, int nSrcStep, Npp32u nConstant
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   return nppiLShiftC_32s_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp8u *pDst, int nDstStep,
+                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiLShiftC_8u_C3R_Ctx_impl(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_8u_C3R(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiLShiftC_8u_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp8u *pDst, int nDstStep,
+                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiLShiftC_8u_C4R_Ctx_impl(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_8u_C4R(const Npp8u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiLShiftC_8u_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp16u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiLShiftC_16u_C3R_Ctx_impl(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_16u_C3R(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiLShiftC_16u_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp16u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiLShiftC_16u_C4R_Ctx_impl(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_16u_C4R(const Npp16u *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiLShiftC_16u_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_32s_C3R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp32s *pDst,
+                                  int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiLShiftC_32s_C3R_Ctx_impl(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_32s_C3R(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[3], Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiLShiftC_32s_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_32s_C4R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp32s *pDst,
+                                  int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiLShiftC_32s_C4R_Ctx_impl(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiLShiftC_32s_C4R(const Npp32s *pSrc, int nSrcStep, const Npp32u aConstants[4], Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiLShiftC_32s_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
