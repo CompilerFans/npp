@@ -315,9 +315,9 @@ NppStatus nppiAlphaCompC_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1
 }
 
 // 8u AC4 versions
-NppStatus nppiAlphaCompC_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
-                                     Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
-                                     NppStreamContext nppStreamCtx) {
+NppStatus nppiAlphaCompC_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2,
+                                     int nSrc2Step, Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
   if (!pSrc1 || !pSrc2 || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -461,8 +461,9 @@ NppStatus nppiAlphaCompC_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaCompC_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2, int nSrc2Step,
-                                  Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaCompC_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2,
+                                  int nSrc2Step, Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0;
   return nppiAlphaCompC_16u_AC4R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,

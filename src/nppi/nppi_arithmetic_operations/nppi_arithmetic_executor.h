@@ -681,8 +681,8 @@ public:
     dim3 blockSize(16, 16);
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-    multiConst16fKernel<Channels, Op16fFactory>
-        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants);
+    multiConst16fKernel<Channels, Op16fFactory><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants);
 
     cudaStreamSynchronize(stream);
     cudaError_t kernelResult = cudaGetLastError();
@@ -732,10 +732,350 @@ public:
     dim3 blockSize(16, 16);
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-    multiDeviceConst16fKernel<Channels, DeviceOp16fFactory>
-        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pConstants);
+    multiDeviceConst16fKernel<Channels, DeviceOp16fFactory><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pConstants);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// Masked Binary Operation Kernels and Executors
+// Updates destination only when mask is non-zero
+// ============================================================================
+
+template <typename SrcType, typename DstType, int Channels, typename BinaryOp>
+__global__ void maskedBinaryKernel(const SrcType *pSrc1, int nSrc1Step, const SrcType *pSrc2, int nSrc2Step,
+                                   const Npp8u *pMask, int nMaskStep, DstType *pSrcDst, int nSrcDstStep, int width,
+                                   int height, BinaryOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *maskRow = (const Npp8u *)((const char *)pMask + y * nMaskStep);
+
+    if (maskRow[x] != 0) {
+      const SrcType *src1Row = (const SrcType *)((const char *)pSrc1 + y * nSrc1Step);
+      const SrcType *src2Row = (const SrcType *)((const char *)pSrc2 + y * nSrc2Step);
+      DstType *dstRow = (DstType *)((char *)pSrcDst + y * nSrcDstStep);
+
+      if constexpr (Channels == 1) {
+        dstRow[x] = op(dstRow[x], static_cast<DstType>(src1Row[x]), static_cast<DstType>(src2Row[x]), 0);
+      } else {
+        int idx = x * Channels;
+        for (int c = 0; c < Channels; c++) {
+          dstRow[idx + c] =
+              op(dstRow[idx + c], static_cast<DstType>(src1Row[idx + c]), static_cast<DstType>(src2Row[idx + c]), 0);
+        }
+      }
+    }
+  }
+}
+
+template <typename SrcType, typename DstType, int Channels, typename OpType> class MaskedBinaryOperationExecutor {
+public:
+  static NppStatus execute(const SrcType *pSrc1, int nSrc1Step, const SrcType *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                           int nMaskStep, DstType *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+    if (!pSrc1 || !pSrc2 || !pMask || !pSrcDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    maskedBinaryKernel<SrcType, DstType, Channels, OpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, pSrcDst, nSrcDstStep,
+                                             oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// Masked Unary Operation Kernels and Executors
+// ============================================================================
+
+template <typename SrcType, typename DstType, int Channels, typename UnaryOp>
+__global__ void maskedUnaryKernel(const SrcType *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                  DstType *pSrcDst, int nSrcDstStep, int width, int height, UnaryOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *maskRow = (const Npp8u *)((const char *)pMask + y * nMaskStep);
+
+    if (maskRow[x] != 0) {
+      const SrcType *srcRow = (const SrcType *)((const char *)pSrc + y * nSrcStep);
+      DstType *dstRow = (DstType *)((char *)pSrcDst + y * nSrcDstStep);
+
+      if constexpr (Channels == 1) {
+        dstRow[x] = op(dstRow[x], static_cast<DstType>(srcRow[x]), 0);
+      } else {
+        int idx = x * Channels;
+        for (int c = 0; c < Channels; c++) {
+          dstRow[idx + c] = op(dstRow[idx + c], static_cast<DstType>(srcRow[idx + c]), 0);
+        }
+      }
+    }
+  }
+}
+
+template <typename SrcType, typename DstType, int Channels, typename OpType> class MaskedUnaryOperationExecutor {
+public:
+  static NppStatus execute(const SrcType *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, DstType *pSrcDst,
+                           int nSrcDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+    if (!pSrc || !pMask || !pSrcDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    maskedUnaryKernel<SrcType, DstType, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pMask, nMaskStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// Mixed Type Unary Operation Kernels and Executors
+// For operations like AddSquare: dst(32f) = dst + src(8u)^2
+// ============================================================================
+
+template <typename SrcType, typename DstType, int Channels, typename UnaryOp>
+__global__ void mixedUnaryKernel(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, int width,
+                                 int height, UnaryOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const SrcType *srcRow = (const SrcType *)((const char *)pSrc + y * nSrcStep);
+    DstType *dstRow = (DstType *)((char *)pSrcDst + y * nSrcDstStep);
+
+    if constexpr (Channels == 1) {
+      DstType srcVal = static_cast<DstType>(srcRow[x]);
+      dstRow[x] = op(dstRow[x], srcVal, 0);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        DstType srcVal = static_cast<DstType>(srcRow[idx + c]);
+        dstRow[idx + c] = op(dstRow[idx + c], srcVal, 0);
+      }
+    }
+  }
+}
+
+template <typename SrcType, typename DstType, int Channels, typename OpType> class MixedUnaryOperationExecutor {
+public:
+  static NppStatus execute(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                           cudaStream_t stream) {
+    if (!pSrc || !pSrcDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    mixedUnaryKernel<SrcType, DstType, Channels, OpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// Weighted Operation Kernels and Executors
+// For AddWeighted: dst = src * alpha + dst * (1 - alpha)
+// ============================================================================
+
+template <typename SrcType, typename DstType, int Channels, typename WeightedOp>
+__global__ void weightedKernel(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, int width,
+                               int height, DstType alpha, WeightedOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const SrcType *srcRow = (const SrcType *)((const char *)pSrc + y * nSrcStep);
+    DstType *dstRow = (DstType *)((char *)pSrcDst + y * nSrcDstStep);
+
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(static_cast<DstType>(srcRow[x]), dstRow[x], alpha);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(static_cast<DstType>(srcRow[idx + c]), dstRow[idx + c], alpha);
+      }
+    }
+  }
+}
+
+template <typename SrcType, typename DstType, int Channels, typename OpType> class WeightedOperationExecutor {
+public:
+  static NppStatus execute(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                           DstType alpha, cudaStream_t stream) {
+    if (!pSrc || !pSrcDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    weightedKernel<SrcType, DstType, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, alpha, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// Masked Weighted Operation Executors
+// ============================================================================
+
+template <typename SrcType, typename DstType, int Channels, typename WeightedOp>
+__global__ void maskedWeightedKernel(const SrcType *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                     DstType *pSrcDst, int nSrcDstStep, int width, int height, DstType alpha,
+                                     WeightedOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *maskRow = (const Npp8u *)((const char *)pMask + y * nMaskStep);
+
+    if (maskRow[x] != 0) {
+      const SrcType *srcRow = (const SrcType *)((const char *)pSrc + y * nSrcStep);
+      DstType *dstRow = (DstType *)((char *)pSrcDst + y * nSrcDstStep);
+
+      if constexpr (Channels == 1) {
+        dstRow[x] = op(static_cast<DstType>(srcRow[x]), dstRow[x], alpha);
+      } else {
+        int idx = x * Channels;
+        for (int c = 0; c < Channels; c++) {
+          dstRow[idx + c] = op(static_cast<DstType>(srcRow[idx + c]), dstRow[idx + c], alpha);
+        }
+      }
+    }
+  }
+}
+
+template <typename SrcType, typename DstType, int Channels, typename OpType> class MaskedWeightedOperationExecutor {
+public:
+  static NppStatus execute(const SrcType *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, DstType *pSrcDst,
+                           int nSrcDstStep, NppiSize oSizeROI, DstType alpha, cudaStream_t stream) {
+    if (!pSrc || !pMask || !pSrcDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    maskedWeightedKernel<SrcType, DstType, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pMask, nMaskStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, alpha, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// Alpha Premul Operation Kernels and Executors
+// ============================================================================
+
+template <typename T, int Channels, typename PremulOp>
+__global__ void alphaPremulConstKernelT(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                        T alpha, PremulOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(srcRow[x], alpha);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(srcRow[idx + c], alpha);
+      }
+    }
+  }
+}
+
+template <typename T, int Channels, typename OpType> class AlphaPremulConstExecutor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, T alpha,
+                           cudaStream_t stream) {
+    if (!pSrc || !pDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    alphaPremulConstKernelT<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, alpha, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  static NppStatus executeInplace(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, T alpha, cudaStream_t stream) {
+    return execute(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, alpha, stream);
+  }
+};
+
+// AC4 Alpha Premul - alpha from 4th channel
+template <typename T, typename PremulOp>
+__global__ void alphaPremulAC4KernelT(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                      PremulOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    int idx = x * 4;
+    T alpha = srcRow[idx + 3];
+
+    dstRow[idx + 0] = op(srcRow[idx + 0], alpha);
+    dstRow[idx + 1] = op(srcRow[idx + 1], alpha);
+    dstRow[idx + 2] = op(srcRow[idx + 2], alpha);
+    dstRow[idx + 3] = srcRow[idx + 3]; // Alpha unchanged
+  }
+}
+
+template <typename T, typename OpType> class AlphaPremulAC4Executor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+    if (!pSrc || !pDst)
+      return NPP_NULL_POINTER_ERROR;
+    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
+      return NPP_SIZE_ERROR;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    alphaPremulAC4KernelT<T, OpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  static NppStatus executeInplace(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+    return execute(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, stream);
   }
 };
 

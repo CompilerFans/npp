@@ -599,8 +599,8 @@ NppStatus nppiMulC_32fc_AC4R_Ctx(const Npp32fc *pSrc, int nSrcStep, const Npp32f
   return MulCMulti<Npp32fc, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-NppStatus nppiMulC_32fc_AC4R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst, int nDstStep,
-                             NppiSize oSizeROI) {
+NppStatus nppiMulC_32fc_AC4R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst,
+                             int nDstStep, NppiSize oSizeROI) {
   return nppiMulC_32fc_AC4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
 }
 
@@ -641,7 +641,7 @@ NppStatus nppiMulC_16f_C1R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp32f nConstan
                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   MulConst16fOp op(nConstant);
   return ConstOperationExecutor<Npp16f, 1, MulConst16fOp>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                    nppStreamCtx.hStream, op);
+                                                                   nppStreamCtx.hStream, op);
 }
 
 NppStatus nppiMulC_16f_C1R(const Npp16f *pSrc, int nSrcStep, Npp32f nConstant, Npp16f *pDst, int nDstStep,
@@ -661,7 +661,7 @@ NppStatus nppiMulC_16f_C1IR(Npp32f nConstant, Npp16f *pSrcDst, int nSrcDstStep, 
 NppStatus nppiMulC_16f_C3R_Ctx(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp16f *pDst, int nDstStep,
                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConst16fOperationExecutor<3, MulConst16fOp>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                    nppStreamCtx.hStream, aConstants);
+                                                                   nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiMulC_16f_C3R(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp16f *pDst, int nDstStep,
@@ -681,7 +681,7 @@ NppStatus nppiMulC_16f_C3IR(const Npp32f aConstants[3], Npp16f *pSrcDst, int nSr
 NppStatus nppiMulC_16f_C4R_Ctx(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[4], Npp16f *pDst, int nDstStep,
                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return MultiConst16fOperationExecutor<4, MulConst16fOp>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                                    nppStreamCtx.hStream, aConstants);
+                                                                   nppStreamCtx.hStream, aConstants);
 }
 
 NppStatus nppiMulC_16f_C4R(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[4], Npp16f *pDst, int nDstStep,

@@ -703,8 +703,8 @@ NppStatus nppiAdd_32fc_AC4R(const Npp32fc *pSrc1, int nSrc1Step, const Npp32fc *
   return nppiAdd_32fc_AC4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-NppStatus nppiAdd_32fc_AC4IR_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx) {
+NppStatus nppiAdd_32fc_AC4IR_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32fc *pSrcDst, int nSrcDstStep,
+                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return Add<Npp32fc, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 

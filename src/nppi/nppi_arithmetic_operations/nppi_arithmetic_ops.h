@@ -1079,5 +1079,47 @@ struct AddProduct16fOp {
   }
 };
 
+// ============================================================================
+// AddWeighted In-place Operation: dst = src * alpha + dst * (1 - alpha)
+// For mixed-type weighted operations (8u/16u source, 32f destination)
+// ============================================================================
+
+template <typename SrcType, typename DstType> struct AddWeightedInplaceOp {
+  __device__ __host__ DstType operator()(DstType src, DstType dst, DstType alpha) const {
+    return src * alpha + dst * (DstType(1) - alpha);
+  }
+};
+
+// ============================================================================
+// Alpha Premultiplication Operations (for pixel-based premul)
+// ============================================================================
+
+// Pixel alpha premul (AC4 format): result = src * alpha >> 8 (for 8u)
+template <typename T> struct AlphaPremulPixelOp {
+  __device__ __host__ T operator()(T src, T alpha) const {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) >> 8);
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      return static_cast<T>((static_cast<int64_t>(src) * static_cast<int64_t>(alpha)) / 65535);
+    } else {
+      return static_cast<T>(src * alpha);
+    }
+  }
+};
+
+// Const alpha premul (for AlphaPremulC): result = src * alpha / max_value
+// Uses division (not right shift) to match NVIDIA NPP behavior
+template <typename T> struct AlphaPremulConstSimpleOp {
+  __device__ __host__ T operator()(T src, T alpha) const {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      return static_cast<T>((static_cast<int>(src) * static_cast<int>(alpha)) / 255);
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      return static_cast<T>((static_cast<int64_t>(src) * static_cast<int64_t>(alpha)) / 65535);
+    } else {
+      return static_cast<T>(src * alpha);
+    }
+  }
+};
+
 } // namespace arithmetic
 } // namespace nppi

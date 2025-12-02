@@ -21,14 +21,14 @@ template <typename T, int C> using DivRound = DivRoundOpAPI<T, C>;
 NppStatus nppiDiv_Round_8u_C1RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
-  return DivRound<Npp8u, 1>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     nppStreamCtx);
+  return DivRound<Npp8u, 1>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDiv_Round_8u_C1RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor) {
-  return nppiDiv_Round_8u_C1RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     getDefaultStreamContext());
+  return nppiDiv_Round_8u_C1RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, getDefaultStreamContext());
 }
 
 // C1IR (in-place)
@@ -49,14 +49,14 @@ NppStatus nppiDiv_Round_8u_C1IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcD
 NppStatus nppiDiv_Round_8u_C3RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
-  return DivRound<Npp8u, 3>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     nppStreamCtx);
+  return DivRound<Npp8u, 3>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDiv_Round_8u_C3RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor) {
-  return nppiDiv_Round_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     getDefaultStreamContext());
+  return nppiDiv_Round_8u_C3RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, getDefaultStreamContext());
 }
 
 // C3IR (in-place)
@@ -74,11 +74,11 @@ NppStatus nppiDiv_Round_8u_C3IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcD
 }
 
 // AC4R
-NppStatus nppiDiv_Round_8u_AC4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
-                                       int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
-                                       NppStreamContext nppStreamCtx) {
-  return DivRound<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     nppStreamCtx);
+NppStatus nppiDiv_Round_8u_AC4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                       Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode,
+                                       int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return DivRound<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDiv_Round_8u_AC4RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -105,14 +105,14 @@ NppStatus nppiDiv_Round_8u_AC4IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrc
 NppStatus nppiDiv_Round_8u_C4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                       int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
                                       NppStreamContext nppStreamCtx) {
-  return DivRound<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     nppStreamCtx);
+  return DivRound<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDiv_Round_8u_C4RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor) {
-  return nppiDiv_Round_8u_C4RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode, nScaleFactor,
-                                     getDefaultStreamContext());
+  return nppiDiv_Round_8u_C4RSfs_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+                                     nScaleFactor, getDefaultStreamContext());
 }
 
 // C4IR (in-place)
