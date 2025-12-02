@@ -35,6 +35,10 @@ __device__ inline float srgb_inverse_float(float srgb) {
 
 static std::mutex g_init_mutex;
 
+// NVIDIA NPP uses simple power-law gamma (not standard sRGB)
+// Reverse-engineered from actual NVIDIA NPP behavior: gamma = 1.87
+static constexpr float NPP_GAMMA = 1.87f;
+
 static void initGammaLUT() {
     static bool initialized = false;
     if (initialized) return;
@@ -46,26 +50,18 @@ static void initGammaLUT() {
     Npp8u h_gamma_inv_lut[256];
 
     // Precompute Forward Gamma LUT
+    // NVIDIA uses simple power law: output = input^(1/gamma)
     for (int i = 0; i < 256; i++) {
         float normalized = i / 255.0f;
-        float linear = normalized;
-        float gamma_value;
-        if (linear <= 0.0031308f)
-            gamma_value = 12.92f * linear;
-        else
-            gamma_value = 1.055f * powf(linear, 1.0f/2.4f) - 0.055f;
+        float gamma_value = powf(normalized, 1.0f / NPP_GAMMA);
         h_gamma_fwd_lut[i] = (Npp8u)(gamma_value * 255.0f + 0.5f);
     }
 
     // Precompute Inverse Gamma LUT
+    // NVIDIA uses simple power law: output = input^gamma
     for (int i = 0; i < 256; i++) {
         float normalized = i / 255.0f;
-        float srgb = normalized;
-        float gamma_value;
-        if (srgb <= 0.04045f)
-            gamma_value = srgb / 12.92f;
-        else
-            gamma_value = powf((srgb + 0.055f) / 1.055f, 2.4f);
+        float gamma_value = powf(normalized, NPP_GAMMA);
         h_gamma_inv_lut[i] = (Npp8u)(gamma_value * 255.0f + 0.5f);
     }
 

@@ -11,26 +11,24 @@ protected:
         cudaSetDevice(0);
     }
     
-    // 辅助函数：CPU端sRGB forward
-    uint8_t cpu_srgb_forward(uint8_t input) {
-        float linear = input / 255.0f;
-        float gamma;
-        if (linear <= 0.0031308f)
-            gamma = 12.92f * linear;
-        else
-            gamma = 1.055f * powf(linear, 1.0f/2.4f) - 0.055f;
-        return (uint8_t)(gamma * 255.0f + 0.5f);
+    // NVIDIA NPP使用简单的power-law gamma (不是标准sRGB)
+    // 通过反向工程NVIDIA NPP实际输出确定：gamma = 1.87
+    static constexpr float NPP_GAMMA = 1.87f;
+
+    // 辅助函数：CPU端Gamma forward (匹配NVIDIA NPP行为)
+    Npp8u cpu_srgb_forward(Npp8u input) {
+        float normalized = input / 255.0f;
+        // NVIDIA使用简单的power law: output = input^(1/gamma)
+        float result = powf(normalized, 1.0f / NPP_GAMMA);
+        return (Npp8u)(result * 255.0f + 0.5f);
     }
-    
-    // 辅助函数：CPU端sRGB inverse
-    uint8_t cpu_srgb_inverse(uint8_t input) {
-        float srgb = input / 255.0f;
-        float linear;
-        if (srgb <= 0.04045f)
-            linear = srgb / 12.92f;
-        else
-            linear = powf((srgb + 0.055f) / 1.055f, 2.4f);
-        return (uint8_t)(linear * 255.0f + 0.5f);
+
+    // 辅助函数：CPU端Gamma inverse (匹配NVIDIA NPP行为)
+    Npp8u cpu_srgb_inverse(Npp8u input) {
+        float normalized = input / 255.0f;
+        // NVIDIA使用简单的power law: output = input^gamma
+        float result = powf(normalized, NPP_GAMMA);
+        return (Npp8u)(result * 255.0f + 0.5f);
     }
 };
 
@@ -41,9 +39,9 @@ TEST_F(NppiGammaTest, GammaFwd_8u_C3R_Ctx) {
     const int channels = 3;
     
     // 分配主机内存
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     // 填充测试数据（渐变）
     for (int i = 0; i < width * height * channels; i++) {
@@ -103,9 +101,9 @@ TEST_F(NppiGammaTest, GammaInv_8u_C3R_Ctx) {
     const int height = 480;
     const int channels = 3;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_src[i] = i % 256;
@@ -143,8 +141,8 @@ TEST_F(NppiGammaTest, GammaFwd_8u_C3IR_Ctx) {
     const int height = 48;
     const int channels = 3;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_data[i] = i % 256;
@@ -179,8 +177,8 @@ TEST_F(NppiGammaTest, RoundTrip_C3) {
     const int height = 1;
     const int channels = 3;
     
-    std::vector<uint8_t> h_original(width * channels);
-    std::vector<uint8_t> h_result(width * channels);
+    std::vector<Npp8u> h_original(width * channels);
+    std::vector<Npp8u> h_result(width * channels);
     
     // 所有可能的8位值
     for (int i = 0; i < width; i++) {
@@ -228,9 +226,9 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4R_Ctx) {
     const int height = 240;
     const int channels = 4;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     // 填充测试数据（RGB渐变，Alpha固定）
     for (int i = 0; i < width * height; i++) {
@@ -286,9 +284,9 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4R_Ctx) {
     const int height = 240;
     const int channels = 4;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
@@ -333,8 +331,8 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4IR_Ctx) {
     const int height = 96;
     const int channels = 4;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
@@ -373,9 +371,9 @@ TEST_F(NppiGammaTest, GammaFwd_8u_C3R_NonCtx) {
     const int height = 120;
     const int channels = 3;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_src[i] = i % 256;
@@ -412,9 +410,9 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4R_NonCtx) {
     const int height = 120;
     const int channels = 4;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
@@ -454,8 +452,8 @@ TEST_F(NppiGammaTest, RoundTrip_AC4) {
     const int height = 1;
     const int channels = 4;
     
-    std::vector<uint8_t> h_original(width * channels);
-    std::vector<uint8_t> h_result(width * channels);
+    std::vector<Npp8u> h_original(width * channels);
+    std::vector<Npp8u> h_result(width * channels);
     
     for (int i = 0; i < width; i++) {
         for (int c = 0; c < 3; c++) {
@@ -503,14 +501,14 @@ TEST_F(NppiGammaTest, BoundaryValues_C3) {
     const int height = 1;
     const int channels = 3;
     
-    std::vector<uint8_t> h_src = {
+    std::vector<Npp8u> h_src = {
         0, 0, 0,        // 黑色
         255, 255, 255,  // 白色
         128, 128, 128,  // 中灰
         1, 254, 127     // 混合
     };
     
-    std::vector<uint8_t> h_dst(width * channels);
+    std::vector<Npp8u> h_dst(width * channels);
     
     Npp8u *d_src, *d_dst;
     int step = width * channels;
@@ -586,8 +584,8 @@ TEST_F(NppiGammaTest, GammaFwd_8u_C3IR_NonCtx) {
     const int height = 96;
     const int channels = 3;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_data[i] = i % 256;
@@ -621,9 +619,9 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4R_NonCtx) {
     const int height = 120;
     const int channels = 4;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
@@ -667,8 +665,8 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4IR_NonCtx) {
     const int height = 80;
     const int channels = 4;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
@@ -705,9 +703,9 @@ TEST_F(NppiGammaTest, GammaInv_8u_C3R_NonCtx) {
     const int height = 150;
     const int channels = 3;
     
-    std::vector<uint8_t> h_src(width * height * channels);
-    std::vector<uint8_t> h_dst(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_src(width * height * channels);
+    std::vector<Npp8u> h_dst(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_src[i] = (i * 7) % 256;
@@ -743,8 +741,8 @@ TEST_F(NppiGammaTest, GammaInv_8u_C3IR_Ctx) {
     const int height = 96;
     const int channels = 3;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_data[i] = (i * 11) % 256;
@@ -779,8 +777,8 @@ TEST_F(NppiGammaTest, GammaInv_8u_C3IR_NonCtx) {
     const int height = 64;
     const int channels = 3;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height * channels; i++) {
         h_data[i] = (i * 13) % 256;
@@ -813,8 +811,8 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4IR_Ctx) {
     const int height = 90;
     const int channels = 4;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
@@ -857,8 +855,8 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4IR_NonCtx) {
     const int height = 85;
     const int channels = 4;
     
-    std::vector<uint8_t> h_data(width * height * channels);
-    std::vector<uint8_t> h_expected(width * height * channels);
+    std::vector<Npp8u> h_data(width * height * channels);
+    std::vector<Npp8u> h_expected(width * height * channels);
     
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
