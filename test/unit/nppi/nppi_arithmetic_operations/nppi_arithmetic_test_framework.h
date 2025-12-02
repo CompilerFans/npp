@@ -244,6 +244,156 @@ template <typename T, typename ConstT = T> T div_c_sfs(T x, ConstT c, int scaleF
   }
 }
 
+// Add: dst = saturate(src1 + src2)
+template <typename T> T add(T a, T b) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return a + b;
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(a) + static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(a) + static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(a) + static_cast<int>(b);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a + b);
+  }
+}
+
+// Add with scale factor: dst = saturate((src1 + src2) >> scaleFactor)
+template <typename T> T add_sfs(T a, T b, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(a) + static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(a) + static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(a) + static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a + b);
+  }
+}
+
+// Sub: dst = saturate(src1 - src2)
+template <typename T> T sub(T a, T b) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return a - b;
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(a) - static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(a) - static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(a) - static_cast<int>(b);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a - b);
+  }
+}
+
+// Sub with scale factor: dst = saturate((src1 - src2) >> scaleFactor)
+template <typename T> T sub_sfs(T a, T b, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(a) - static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(a) - static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(a) - static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a - b);
+  }
+}
+
+// Mul: dst = saturate(src1 * src2)
+template <typename T> T mul(T a, T b) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return a * b;
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(a) * static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(a) * static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(a) * static_cast<int>(b);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a * b);
+  }
+}
+
+// Mul with scale factor: dst = saturate((src1 * src2) >> scaleFactor)
+template <typename T> T mul_sfs(T a, T b, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(a) * static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(a) * static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(a) * static_cast<int>(b);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a * b);
+  }
+}
+
+// Div: dst = saturate(src1 / src2)
+template <typename T> T div(T a, T b) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return a / b;
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    if (b == 0) return 0;
+    int result = static_cast<int>(a) / static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    if (b == 0) return 0;
+    int result = static_cast<int>(a) / static_cast<int>(b);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    if (b == 0) return 0;
+    int result = static_cast<int>(a) / static_cast<int>(b);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(a / b);
+  }
+}
+
 } // namespace expect
 
 // Test parameter structures

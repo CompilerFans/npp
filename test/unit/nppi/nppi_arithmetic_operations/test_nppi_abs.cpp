@@ -800,3 +800,274 @@ TEST_F(AbsFunctionalTest, Abs_16s_C4IR_Ctx_InPlaceOperation) {
   EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData))
       << "In-place Abs 16s C4 Ctx operation produced incorrect results";
 }
+
+// ==================== AC4 (Alpha Channel 4) tests ====================
+
+// AC4 processes only the first 3 channels, leaving the alpha channel unchanged
+
+TEST_F(AbsFunctionalTest, Abs_16s_AC4R_BasicOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp16s> srcData(width * height * channels);
+
+  for (size_t i = 0; i < srcData.size(); i++) {
+    srcData[i] = static_cast<Npp16s>((i % 201) - 100);
+  }
+
+  NppImageMemory<Npp16s> src(width * channels, height);
+  NppImageMemory<Npp16s> dst(width * channels, height);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAbs_16s_AC4R(src.get(), src.step(), dst.get(), dst.step(), roi);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16s_AC4R failed";
+
+  std::vector<Npp16s> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+
+  // AC4: verify only first 3 channels, alpha is unspecified for non-in-place
+  for (size_t i = 0; i < width * height; i++) {
+    EXPECT_EQ(resultData[i * 4 + 0], static_cast<Npp16s>(std::abs(srcData[i * 4 + 0])));
+    EXPECT_EQ(resultData[i * 4 + 1], static_cast<Npp16s>(std::abs(srcData[i * 4 + 1])));
+    EXPECT_EQ(resultData[i * 4 + 2], static_cast<Npp16s>(std::abs(srcData[i * 4 + 2])));
+    // Alpha channel not verified - AC4R does not guarantee alpha in dst
+  }
+}
+
+TEST_F(AbsFunctionalTest, Abs_16s_AC4R_Ctx_BasicOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp16s> srcData(width * height * channels);
+
+  for (size_t i = 0; i < srcData.size(); i++) {
+    srcData[i] = static_cast<Npp16s>((i % 201) - 100);
+  }
+
+  NppImageMemory<Npp16s> src(width * channels, height);
+  NppImageMemory<Npp16s> dst(width * channels, height);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiAbs_16s_AC4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16s_AC4R_Ctx failed";
+
+  std::vector<Npp16s> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+
+  // AC4: verify only first 3 channels
+  for (size_t i = 0; i < width * height; i++) {
+    EXPECT_EQ(resultData[i * 4 + 0], static_cast<Npp16s>(std::abs(srcData[i * 4 + 0])));
+    EXPECT_EQ(resultData[i * 4 + 1], static_cast<Npp16s>(std::abs(srcData[i * 4 + 1])));
+    EXPECT_EQ(resultData[i * 4 + 2], static_cast<Npp16s>(std::abs(srcData[i * 4 + 2])));
+  }
+}
+
+TEST_F(AbsFunctionalTest, Abs_16s_AC4IR_InPlaceOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp16s> srcData(width * height * channels);
+  std::vector<Npp16s> expectedData(width * height * channels);
+
+  for (size_t i = 0; i < srcData.size(); i++) {
+    srcData[i] = static_cast<Npp16s>((i % 201) - 100);
+  }
+
+  for (size_t i = 0; i < width * height; i++) {
+    expectedData[i * 4 + 0] = static_cast<Npp16s>(std::abs(srcData[i * 4 + 0]));
+    expectedData[i * 4 + 1] = static_cast<Npp16s>(std::abs(srcData[i * 4 + 1]));
+    expectedData[i * 4 + 2] = static_cast<Npp16s>(std::abs(srcData[i * 4 + 2]));
+    expectedData[i * 4 + 3] = srcData[i * 4 + 3];
+  }
+
+  NppImageMemory<Npp16s> srcDst(width * channels, height);
+  srcDst.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAbs_16s_AC4IR(srcDst.get(), srcDst.step(), roi);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16s_AC4IR failed";
+
+  std::vector<Npp16s> resultData(width * height * channels);
+  srcDst.copyToHost(resultData);
+
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData))
+      << "In-place Abs 16s AC4 operation produced incorrect results";
+}
+
+TEST_F(AbsFunctionalTest, Abs_16s_AC4IR_Ctx_InPlaceOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp16s> srcData(width * height * channels);
+  std::vector<Npp16s> expectedData(width * height * channels);
+
+  for (size_t i = 0; i < srcData.size(); i++) {
+    srcData[i] = static_cast<Npp16s>((i % 201) - 100);
+  }
+
+  for (size_t i = 0; i < width * height; i++) {
+    expectedData[i * 4 + 0] = static_cast<Npp16s>(std::abs(srcData[i * 4 + 0]));
+    expectedData[i * 4 + 1] = static_cast<Npp16s>(std::abs(srcData[i * 4 + 1]));
+    expectedData[i * 4 + 2] = static_cast<Npp16s>(std::abs(srcData[i * 4 + 2]));
+    expectedData[i * 4 + 3] = srcData[i * 4 + 3];
+  }
+
+  NppImageMemory<Npp16s> srcDst(width * channels, height);
+  srcDst.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiAbs_16s_AC4IR_Ctx(srcDst.get(), srcDst.step(), roi, ctx);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16s_AC4IR_Ctx failed";
+
+  std::vector<Npp16s> resultData(width * height * channels);
+  srcDst.copyToHost(resultData);
+
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData))
+      << "In-place Abs 16s AC4 Ctx operation produced incorrect results";
+}
+
+// 32f AC4 tests
+
+TEST_F(AbsFunctionalTest, Abs_32f_AC4R_BasicOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp32f> srcData(width * height * channels);
+
+  TestDataGenerator::generateRandom(srcData, -100.0f, 100.0f, 55555);
+
+  NppImageMemory<Npp32f> src(width * channels, height);
+  NppImageMemory<Npp32f> dst(width * channels, height);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAbs_32f_AC4R(src.get(), src.step(), dst.get(), dst.step(), roi);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_32f_AC4R failed";
+
+  std::vector<Npp32f> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+
+  // AC4: verify only first 3 channels
+  for (size_t i = 0; i < width * height; i++) {
+    EXPECT_NEAR(resultData[i * 4 + 0], std::abs(srcData[i * 4 + 0]), 1e-5f);
+    EXPECT_NEAR(resultData[i * 4 + 1], std::abs(srcData[i * 4 + 1]), 1e-5f);
+    EXPECT_NEAR(resultData[i * 4 + 2], std::abs(srcData[i * 4 + 2]), 1e-5f);
+  }
+}
+
+TEST_F(AbsFunctionalTest, Abs_32f_AC4R_Ctx_BasicOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp32f> srcData(width * height * channels);
+
+  TestDataGenerator::generateRandom(srcData, -100.0f, 100.0f, 55555);
+
+  NppImageMemory<Npp32f> src(width * channels, height);
+  NppImageMemory<Npp32f> dst(width * channels, height);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiAbs_32f_AC4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_32f_AC4R_Ctx failed";
+
+  std::vector<Npp32f> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+
+  // AC4: verify only first 3 channels
+  for (size_t i = 0; i < width * height; i++) {
+    EXPECT_NEAR(resultData[i * 4 + 0], std::abs(srcData[i * 4 + 0]), 1e-5f);
+    EXPECT_NEAR(resultData[i * 4 + 1], std::abs(srcData[i * 4 + 1]), 1e-5f);
+    EXPECT_NEAR(resultData[i * 4 + 2], std::abs(srcData[i * 4 + 2]), 1e-5f);
+  }
+}
+
+TEST_F(AbsFunctionalTest, Abs_32f_AC4IR_InPlaceOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp32f> srcData(width * height * channels);
+  std::vector<Npp32f> expectedData(width * height * channels);
+
+  TestDataGenerator::generateRandom(srcData, -50.0f, 50.0f, 66666);
+
+  for (size_t i = 0; i < width * height; i++) {
+    expectedData[i * 4 + 0] = std::abs(srcData[i * 4 + 0]);
+    expectedData[i * 4 + 1] = std::abs(srcData[i * 4 + 1]);
+    expectedData[i * 4 + 2] = std::abs(srcData[i * 4 + 2]);
+    expectedData[i * 4 + 3] = srcData[i * 4 + 3];
+  }
+
+  NppImageMemory<Npp32f> srcDst(width * channels, height);
+  srcDst.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiAbs_32f_AC4IR(srcDst.get(), srcDst.step(), roi);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_32f_AC4IR failed";
+
+  std::vector<Npp32f> resultData(width * height * channels);
+  srcDst.copyToHost(resultData);
+
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-5f))
+      << "In-place Abs 32f AC4 operation produced incorrect results";
+}
+
+TEST_F(AbsFunctionalTest, Abs_32f_AC4IR_Ctx_InPlaceOperation) {
+  const int width = 16;
+  const int height = 16;
+  const int channels = 4;
+
+  std::vector<Npp32f> srcData(width * height * channels);
+  std::vector<Npp32f> expectedData(width * height * channels);
+
+  TestDataGenerator::generateRandom(srcData, -50.0f, 50.0f, 66666);
+
+  for (size_t i = 0; i < width * height; i++) {
+    expectedData[i * 4 + 0] = std::abs(srcData[i * 4 + 0]);
+    expectedData[i * 4 + 1] = std::abs(srcData[i * 4 + 1]);
+    expectedData[i * 4 + 2] = std::abs(srcData[i * 4 + 2]);
+    expectedData[i * 4 + 3] = srcData[i * 4 + 3];
+  }
+
+  NppImageMemory<Npp32f> srcDst(width * channels, height);
+  srcDst.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiAbs_32f_AC4IR_Ctx(srcDst.get(), srcDst.step(), roi, ctx);
+
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_32f_AC4IR_Ctx failed";
+
+  std::vector<Npp32f> resultData(width * height * channels);
+  srcDst.copyToHost(resultData);
+
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-5f))
+      << "In-place Abs 32f AC4 Ctx operation produced incorrect results";
+}
