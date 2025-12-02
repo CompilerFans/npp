@@ -283,4 +283,283 @@ NppStatus nppiAlphaCompC_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, Npp32f nAlp
                                     eAlphaOp, defaultCtx);
 }
 
+// 8u C4 versions
+NppStatus nppiAlphaCompC_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                    Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
+                                    NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp8u, 4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_8u_C4R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                   eAlphaOp, defaultCtx);
+}
+
+// 8u AC4 versions
+NppStatus nppiAlphaCompC_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                     Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
+                                     NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp8u, 4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2, int nSrc2Step,
+                                 Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_8u_AC4R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
+}
+
+// 8s C1 versions
+NppStatus nppiAlphaCompC_8s_C1R_Ctx(const Npp8s *pSrc1, int nSrc1Step, Npp8s nAlpha1, const Npp8s *pSrc2, int nSrc2Step,
+                                    Npp8s nAlpha2, Npp8s *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
+                                    NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp8s, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_8s_C1R(const Npp8s *pSrc1, int nSrc1Step, Npp8s nAlpha1, const Npp8s *pSrc2, int nSrc2Step,
+                                Npp8s nAlpha2, Npp8s *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_8s_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                   eAlphaOp, defaultCtx);
+}
+
+// 16u C3 versions
+NppStatus nppiAlphaCompC_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2,
+                                     int nSrc2Step, Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp16u, 3><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2, int nSrc2Step,
+                                 Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_16u_C3R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
+}
+
+// 16u C4 versions
+NppStatus nppiAlphaCompC_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2,
+                                     int nSrc2Step, Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp16u, 4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2, int nSrc2Step,
+                                 Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_16u_C4R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
+}
+
+// 16u AC4 versions
+NppStatus nppiAlphaCompC_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2,
+                                      int nSrc2Step, Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                      NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp16u, 4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, Npp16u nAlpha1, const Npp16u *pSrc2, int nSrc2Step,
+                                  Npp16u nAlpha2, Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_16u_AC4R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                     eAlphaOp, defaultCtx);
+}
+
+// 16s C1 versions
+NppStatus nppiAlphaCompC_16s_C1R_Ctx(const Npp16s *pSrc1, int nSrc1Step, Npp16s nAlpha1, const Npp16s *pSrc2,
+                                     int nSrc2Step, Npp16s nAlpha2, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp16s, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_16s_C1R(const Npp16s *pSrc1, int nSrc1Step, Npp16s nAlpha1, const Npp16s *pSrc2, int nSrc2Step,
+                                 Npp16s nAlpha2, Npp16s *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_16s_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
+}
+
+// 32u C1 versions
+NppStatus nppiAlphaCompC_32u_C1R_Ctx(const Npp32u *pSrc1, int nSrc1Step, Npp32u nAlpha1, const Npp32u *pSrc2,
+                                     int nSrc2Step, Npp32u nAlpha2, Npp32u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp32u, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_32u_C1R(const Npp32u *pSrc1, int nSrc1Step, Npp32u nAlpha1, const Npp32u *pSrc2, int nSrc2Step,
+                                 Npp32u nAlpha2, Npp32u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_32u_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
+}
+
+// 32s C1 versions
+NppStatus nppiAlphaCompC_32s_C1R_Ctx(const Npp32s *pSrc1, int nSrc1Step, Npp32s nAlpha1, const Npp32s *pSrc2,
+                                     int nSrc2Step, Npp32s nAlpha2, Npp32s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     NppiAlphaOp eAlphaOp, NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (eAlphaOp < NPPI_OP_ALPHA_OVER || eAlphaOp > NPPI_OP_ALPHA_PREMUL) {
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  alphaCompConstKernel<Npp32s, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eAlphaOp);
+
+  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAlphaCompC_32s_C1R(const Npp32s *pSrc1, int nSrc1Step, Npp32s nAlpha1, const Npp32s *pSrc2, int nSrc2Step,
+                                 Npp32s nAlpha2, Npp32s *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+  NppStreamContext defaultCtx = {};
+  defaultCtx.hStream = 0;
+  return nppiAlphaCompC_32s_C1R_Ctx(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI,
+                                    eAlphaOp, defaultCtx);
+}
+
 } // extern "C"
