@@ -308,3 +308,1167 @@ NppStatus nppiWarpAffine_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize,
   return NPP_SUCCESS;
 }
 }
+
+
+// =============================================
+// WarpAffineBack kernel
+//  2x3 matrix
+// WarpAffineBack
+// =============================================
+
+// 8u C1R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                 Npp8u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                 double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    // WarpAffineBack: 使用正向仿射变换矩阵将目标坐标映射到源坐标
+    // src_x = a00 * dst_x + a01 * dst_y + a02
+    // src_y = a10 * dst_x + a11 * dst_y + a12
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    Npp8u result;
+    switch (eInterpolation) {
+    case NPPI_INTER_NN:
+      result = nearestInterpolation<Npp8u>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_LINEAR:
+      result = bilinearInterpolation<Npp8u>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_CUBIC:
+      result = cubicInterpolation<Npp8u>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    default:
+      result = 0;
+      break;
+    }
+
+    Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x;
+    *dst_pixel = result;
+  }
+}
+
+// 8u C3R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                 Npp8u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                 double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 3; c++) {
+      Npp8u result = 0;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp8u *pixel = (const Npp8u *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp8u *p00 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
+        const Npp8u *p01 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
+        const Npp8u *p10 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
+        const Npp8u *p11 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
+
+        float interpolated =
+            (*p00) * (1.0f - dx) * (1.0f - dy) +
+            (*p01) * dx * (1.0f - dy) +
+            (*p10) * (1.0f - dx) * dy +
+            (*p11) * dx * dy;
+        result = (Npp8u)(interpolated + 0.5f);
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp8u *pixel = (const Npp8u *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x * 3 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 8u C4R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                 Npp8u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                 double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 4; c++) {
+      Npp8u result = 0;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp8u *pixel = (const Npp8u *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp8u *p00 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
+        const Npp8u *p01 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
+        const Npp8u *p10 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
+        const Npp8u *p11 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
+
+        float interpolated =
+            (*p00) * (1.0f - dx) * (1.0f - dy) +
+            (*p01) * dx * (1.0f - dy) +
+            (*p10) * (1.0f - dx) * dy +
+            (*p11) * dx * dy;
+        result = (Npp8u)(interpolated + 0.5f);
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp8u *pixel = (const Npp8u *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp8u *dst_pixel = (Npp8u *)((char *)pDst + y * nDstStep) + x * 4 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 16u C1R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_16u_C1R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp16u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    Npp16u result;
+    switch (eInterpolation) {
+    case NPPI_INTER_NN:
+      result = nearestInterpolation<Npp16u>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_LINEAR:
+      result = bilinearInterpolation<Npp16u>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_CUBIC:
+      result = cubicInterpolation<Npp16u>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    default:
+      result = 0;
+      break;
+    }
+
+    Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x;
+    *dst_pixel = result;
+  }
+}
+
+// 16u C3R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_16u_C3R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp16u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 3; c++) {
+      Npp16u result = 0;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp16u *pixel = (const Npp16u *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp16u *p00 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
+        const Npp16u *p01 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
+        const Npp16u *p10 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
+        const Npp16u *p11 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
+
+        float interpolated =
+            (*p00) * (1.0f - dx) * (1.0f - dy) +
+            (*p01) * dx * (1.0f - dy) +
+            (*p10) * (1.0f - dx) * dy +
+            (*p11) * dx * dy;
+        result = (Npp16u)(interpolated + 0.5f);
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp16u *pixel = (const Npp16u *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x * 3 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 16u C4R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_16u_C4R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp16u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 4; c++) {
+      Npp16u result = 0;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp16u *pixel = (const Npp16u *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp16u *p00 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
+        const Npp16u *p01 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
+        const Npp16u *p10 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
+        const Npp16u *p11 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
+
+        float interpolated =
+            (*p00) * (1.0f - dx) * (1.0f - dy) +
+            (*p01) * dx * (1.0f - dy) +
+            (*p10) * (1.0f - dx) * dy +
+            (*p11) * dx * dy;
+        result = (Npp16u)(interpolated + 0.5f);
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp16u *pixel = (const Npp16u *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x * 4 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 32f C1R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp32f *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    Npp32f result;
+    switch (eInterpolation) {
+    case NPPI_INTER_NN:
+      result = nearestInterpolation<Npp32f>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_LINEAR:
+      result = bilinearInterpolation<Npp32f>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_CUBIC:
+      result = cubicInterpolation<Npp32f>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    default:
+      result = 0.0f;
+      break;
+    }
+
+    Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x;
+    *dst_pixel = result;
+  }
+}
+
+// 32f C3R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_32f_C3R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp32f *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 3; c++) {
+      Npp32f result = 0.0f;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32f *pixel = (const Npp32f *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
+        const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
+        const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
+        const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
+
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
+                 (*p01) * dx * (1.0f - dy) +
+                 (*p10) * (1.0f - dx) * dy +
+                 (*p11) * dx * dy;
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32f *pixel = (const Npp32f *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x * 3 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 32f C4R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_32f_C4R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp32f *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 4; c++) {
+      Npp32f result = 0.0f;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32f *pixel = (const Npp32f *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
+        const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
+        const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
+        const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
+
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
+                 (*p01) * dx * (1.0f - dy) +
+                 (*p10) * (1.0f - dx) * dy +
+                 (*p11) * dx * dy;
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32f *pixel = (const Npp32f *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x * 4 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 32s C1R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_32s_C1R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp32s *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    Npp32s result;
+    switch (eInterpolation) {
+    case NPPI_INTER_NN:
+      result = nearestInterpolation<Npp32s>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_LINEAR:
+      result = bilinearInterpolation<Npp32s>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    case NPPI_INTER_CUBIC:
+      result = cubicInterpolation<Npp32s>(pSrc, nSrcStep, oSrcSize, abs_fx, abs_fy);
+      break;
+    default:
+      result = 0;
+      break;
+    }
+
+    Npp32s *dst_pixel = (Npp32s *)((char *)pDst + y * nDstStep) + x;
+    *dst_pixel = result;
+  }
+}
+
+// 32s C3R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_32s_C3R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp32s *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 3; c++) {
+      Npp32s result = 0;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32s *pixel = (const Npp32s *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp32s *p00 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
+        const Npp32s *p01 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
+        const Npp32s *p10 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
+        const Npp32s *p11 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
+
+        float interpolated =
+            (*p00) * (1.0f - dx) * (1.0f - dy) +
+            (*p01) * dx * (1.0f - dy) +
+            (*p10) * (1.0f - dx) * dy +
+            (*p11) * dx * dy;
+        result = (Npp32s)(interpolated + 0.5f);
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32s *pixel = (const Npp32s *)((const char *)pSrc + iy * nSrcStep) + ix * 3 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp32s *dst_pixel = (Npp32s *)((char *)pDst + y * nDstStep) + x * 3 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// 32s C4R 反向仿射变换内核
+__global__ void nppiWarpAffineBack_32s_C4R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp32s *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
+                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+
+    double src_x = a00 * dst_x + a01 * dst_y + a02;
+    double src_y = a10 * dst_x + a11 * dst_y + a12;
+
+    float abs_fx = (float)src_x;
+    float abs_fy = (float)src_y;
+
+    for (int c = 0; c < 4; c++) {
+      Npp32s result = 0;
+
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32s *pixel = (const Npp32s *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        abs_fx = max(0.0f, min(abs_fx, (float)(oSrcSize.width - 1)));
+        abs_fy = max(0.0f, min(abs_fy, (float)(oSrcSize.height - 1)));
+
+        int x0 = (int)floorf(abs_fx);
+        int y0 = (int)floorf(abs_fy);
+        int x1 = min(x0 + 1, oSrcSize.width - 1);
+        int y1 = min(y0 + 1, oSrcSize.height - 1);
+
+        float dx = abs_fx - x0;
+        float dy = abs_fy - y0;
+
+        if (x0 == x1) dx = 0.0f;
+        if (y0 == y1) dy = 0.0f;
+
+        const Npp32s *p00 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
+        const Npp32s *p01 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
+        const Npp32s *p10 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
+        const Npp32s *p11 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
+
+        float interpolated =
+            (*p00) * (1.0f - dx) * (1.0f - dy) +
+            (*p01) * dx * (1.0f - dy) +
+            (*p10) * (1.0f - dx) * dy +
+            (*p11) * dx * dy;
+        result = (Npp32s)(interpolated + 0.5f);
+        break;
+      }
+      case NPPI_INTER_CUBIC:
+      default: {
+        int ix = (int)roundf(abs_fx);
+        int iy = (int)roundf(abs_fy);
+        ix = max(0, min(ix, oSrcSize.width - 1));
+        iy = max(0, min(iy, oSrcSize.height - 1));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp32s *pixel = (const Npp32s *)((const char *)pSrc + iy * nSrcStep) + ix * 4 + c;
+          result = *pixel;
+        }
+        break;
+      }
+      }
+
+      Npp32s *dst_pixel = (Npp32s *)((char *)pDst + y * nDstStep) + x * 4 + c;
+      *dst_pixel = result;
+    }
+  }
+}
+
+// =============================================
+// WarpAffineBack 实现函数
+// =============================================
+
+extern "C" {
+// 8u C1R 实现
+NppStatus nppiWarpAffineBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 8u C3R 实现
+NppStatus nppiWarpAffineBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 8u C4R 实现
+NppStatus nppiWarpAffineBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 16u C1R 实现
+NppStatus nppiWarpAffineBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_16u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 16u C3R 实现
+NppStatus nppiWarpAffineBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_16u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 16u C4R 实现
+NppStatus nppiWarpAffineBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_16u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 32f C1R 实现
+NppStatus nppiWarpAffineBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 32f C3R 实现
+NppStatus nppiWarpAffineBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_32f_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 32f C4R 实现
+NppStatus nppiWarpAffineBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_32f_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 32s C1R 实现
+NppStatus nppiWarpAffineBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_32s_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 32s C3R 实现
+NppStatus nppiWarpAffineBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_32s_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// 32s C4R 实现
+NppStatus nppiWarpAffineBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiWarpAffineBack_32s_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
+      eInterpolation);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+}

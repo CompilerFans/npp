@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <vector>
+#include <iostream>
 
 class WarpAffineFunctionalTest : public ::testing::Test {
 protected:
@@ -483,3 +484,778 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C3R_Ctx) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
+
+class WarpAffineBackTest : public ::testing::Test {
+protected:
+  void SetUp() override {
+    srcWidth = 32;
+    srcHeight = 24;
+    dstWidth = 32;
+    dstHeight = 24;
+
+    srcSize = {srcWidth, srcHeight};
+    srcROI = {0, 0, srcWidth, srcHeight};
+    dstROI = {0, 0, dstWidth, dstHeight};
+  }
+
+  int srcWidth, srcHeight, dstWidth, dstHeight;
+  NppiSize srcSize;
+  NppiRect srcROI, dstROI;
+};
+
+// 测试 8u C1R 反向仿射变换 - 恒等变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C1R_Identity) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  // 创建测试图像
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)((x + y * 2) % 256);
+    }
+  }
+
+  // 恒等变换矩阵
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  // 分配GPU内存
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  // 复制数据到GPU
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  // 执行反向仿射变换
+  NppStatus status =
+      nppiWarpAffineBack_8u_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  // 复制结果回主机
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  // 验证恒等变换结果应该与原图相同
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+      if (errorCount <= 5) {
+        std::cout << "Error at pixel " << i << ": expected " << (int)srcData[i]
+                  << ", got " << (int)resultData[i] << std::endl;
+      }
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 8u C1R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 8u C1R Ctx 版本
+TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C1R_Ctx) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp8u)(x * 8 % 256);
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status = nppiWarpAffineBack_8u_C1R_Ctx(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs,
+                                                   NPPI_INTER_LINEAR, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  // 验证结果
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 8u C1R Ctx identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 8u C3R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C3R_Identity) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+
+  // 创建RGB测试图像
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp8u)(x % 256);       // R
+      srcData[idx + 1] = (Npp8u)(y % 256);       // G
+      srcData[idx + 2] = (Npp8u)((x + y) % 256); // B
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C3(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_8u_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+      if (errorCount <= 3) {
+        int pixelIdx = i / 3;
+        int channel = i % 3;
+        std::cout << "Error at pixel " << pixelIdx << ", channel " << channel
+                  << ": expected " << (int)srcData[i] << ", got " << (int)resultData[i] << std::endl;
+      }
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 8u C3R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 8u C4R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C4R_Identity) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = (Npp8u)(x % 256);       // R
+      srcData[idx + 1] = (Npp8u)(y % 256);       // G
+      srcData[idx + 2] = (Npp8u)((x + y) % 256); // B
+      srcData[idx + 3] = 255;                    // A
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C4(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C4(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 4, srcWidth * 4 * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_8u_C4R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 4);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 4, (char *)d_dst + y * dstStep, dstWidth * 4 * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight * 4; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 8u C4R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 16u C1R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_16u_C1R_Identity) {
+  std::vector<Npp16u> srcData(srcWidth * srcHeight);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (Npp16u)((x * 100 + y * 50) % 65535);
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp16u *d_src = nppiMalloc_16u_C1(srcWidth, srcHeight, &srcStep);
+  Npp16u *d_dst = nppiMalloc_16u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp16u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_16u_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp16u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 16u C1R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 16u C3R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_16u_C3R_Identity) {
+  std::vector<Npp16u> srcData(srcWidth * srcHeight * 3);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (Npp16u)(x * 100 % 65535);
+      srcData[idx + 1] = (Npp16u)(y * 100 % 65535);
+      srcData[idx + 2] = (Npp16u)((x + y) * 50 % 65535);
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp16u *d_src = nppiMalloc_16u_C3(srcWidth, srcHeight, &srcStep);
+  Npp16u *d_dst = nppiMalloc_16u_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp16u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_16u_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp16u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 16u C3R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 16u C4R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_16u_C4R_Identity) {
+  std::vector<Npp16u> srcData(srcWidth * srcHeight * 4);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = (Npp16u)(x * 100 % 65535);
+      srcData[idx + 1] = (Npp16u)(y * 100 % 65535);
+      srcData[idx + 2] = (Npp16u)((x + y) * 50 % 65535);
+      srcData[idx + 3] = 65535;
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp16u *d_src = nppiMalloc_16u_C4(srcWidth, srcHeight, &srcStep);
+  Npp16u *d_dst = nppiMalloc_16u_C4(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 4, srcWidth * 4 * sizeof(Npp16u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_16u_C4R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> resultData(dstWidth * dstHeight * 4);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 4, (char *)d_dst + y * dstStep, dstWidth * 4 * sizeof(Npp16u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight * 4; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 16u C4R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 32f C1R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_32f_C1R_Identity) {
+  std::vector<Npp32f> srcData(srcWidth * srcHeight);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (float)(x + y) / 10.0f;
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(srcWidth, srcHeight, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32f_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  const float tolerance = 0.001f;
+
+  for (int i = 0; i < srcWidth * srcHeight; i++) {
+    if (fabs(resultData[i] - srcData[i]) > tolerance) {
+      errorCount++;
+      if (errorCount <= 3) {
+        std::cout << "Error at pixel " << i << ": expected " << srcData[i]
+                  << ", got " << resultData[i] << std::endl;
+      }
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 32f C1R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 32f C3R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_32f_C3R_Identity) {
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 3);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = (float)x / srcWidth;
+      srcData[idx + 1] = (float)y / srcHeight;
+      srcData[idx + 2] = (float)(x + y) / (srcWidth + srcHeight);
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32f *d_src = nppiMalloc_32f_C3(srcWidth, srcHeight, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32f_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  const float tolerance = 0.001f;
+
+  for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
+    if (fabs(resultData[i] - srcData[i]) > tolerance) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 32f C3R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 32f C4R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_32f_C4R_Identity) {
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 4);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = (float)x / srcWidth;
+      srcData[idx + 1] = (float)y / srcHeight;
+      srcData[idx + 2] = (float)(x + y) / (srcWidth + srcHeight);
+      srcData[idx + 3] = 1.0f;
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32f *d_src = nppiMalloc_32f_C4(srcWidth, srcHeight, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C4(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 4, srcWidth * 4 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32f_C4R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> resultData(dstWidth * dstHeight * 4);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 4, (char *)d_dst + y * dstStep, dstWidth * 4 * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  const float tolerance = 0.001f;
+
+  for (int i = 0; i < srcWidth * srcHeight * 4; i++) {
+    if (fabs(resultData[i] - srcData[i]) > tolerance) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 32f C4R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 32s C1R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_32s_C1R_Identity) {
+  std::vector<Npp32s> srcData(srcWidth * srcHeight);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = x * 1000 + y * 100;
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32s *d_src = nppiMalloc_32s_C1(srcWidth, srcHeight, &srcStep);
+  Npp32s *d_dst = nppiMalloc_32s_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp32s),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32s_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32s> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp32s),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 32s C1R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 32s C3R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_32s_C3R_Identity) {
+  std::vector<Npp32s> srcData(srcWidth * srcHeight * 3);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 3;
+      srcData[idx + 0] = x * 1000;
+      srcData[idx + 1] = y * 1000;
+      srcData[idx + 2] = (x + y) * 500;
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32s *d_src = nppiMalloc_32s_C3(srcWidth, srcHeight, &srcStep);
+  Npp32s *d_dst = nppiMalloc_32s_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32s),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32s_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32s> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32s),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 32s C3R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试 32s C4R 反向仿射变换
+TEST_F(WarpAffineBackTest, WarpAffineBack_32s_C4R_Identity) {
+  std::vector<Npp32s> srcData(srcWidth * srcHeight * 4);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = x * 1000;
+      srcData[idx + 1] = y * 1000;
+      srcData[idx + 2] = (x + y) * 500;
+      srcData[idx + 3] = 10000;
+    }
+  }
+
+  double coeffs[2][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32s *d_src = nppiMalloc_32s_C4(srcWidth, srcHeight, &srcStep);
+  Npp32s *d_dst = nppiMalloc_32s_C4(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 4, srcWidth * 4 * sizeof(Npp32s),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32s_C4R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32s> resultData(dstWidth * dstHeight * 4);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 4, (char *)d_dst + y * dstStep, dstWidth * 4 * sizeof(Npp32s),
+               cudaMemcpyDeviceToHost);
+  }
+
+  int errorCount = 0;
+  for (int i = 0; i < srcWidth * srcHeight * 4; i++) {
+    if (resultData[i] != srcData[i]) {
+      errorCount++;
+    }
+  }
+
+  EXPECT_EQ(errorCount, 0) << "Found " << errorCount << " errors in 32s C4R identity transform";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试反向仿射变换的平移效果
+TEST_F(WarpAffineBackTest, WarpAffineBack_Translation) {
+  std::vector<Npp8u> srcData(srcWidth * srcHeight, 0);
+
+  // 创建一个白色方块
+  for (int y = 8; y < 16; y++) {
+    for (int x = 8; x < 16; x++) {
+      srcData[y * srcWidth + x] = 255;
+    }
+  }
+
+  // 平移变换矩阵：向右下移动4个像素
+  double coeffs[2][3] = {{1.0, 0.0, 4.0}, {0.0, 1.0, 4.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_8u_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  // 验证变换是否成功执行
+  int whitePixelCount = 0;
+  for (size_t i = 0; i < resultData.size(); i++) {
+    if (resultData[i] > 128) {
+      whitePixelCount++;
+    }
+  }
+
+  // 应该有一些变换后的像素
+  EXPECT_GT(whitePixelCount, 0) << "Translation should produce some bright pixels";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+// 测试反向仿射变换的缩放效果
+TEST_F(WarpAffineBackTest, WarpAffineBack_Scaling) {
+  std::vector<Npp32f> srcData(srcWidth * srcHeight);
+
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = (float)(x + y) / 10.0f;
+    }
+  }
+
+  // 缩放变换：放大1.5倍
+  double coeffs[2][3] = {{1.5, 0.0, 0.0}, {0.0, 1.5, 0.0}};
+
+  int srcStep, dstStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(srcWidth, srcHeight, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_32f_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_LINEAR);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  // 验证缩放效果
+  int nonZeroCount = 0;
+  for (size_t i = 0; i < resultData.size(); i++) {
+    if (resultData[i] != 0.0f) {
+      nonZeroCount++;
+    }
+  }
+
+  EXPECT_GT(nonZeroCount, 0) << "Scaling should produce some non-zero values";
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+

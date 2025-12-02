@@ -15,6 +15,33 @@ NppStatus nppiWarpPerspective_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
 NppStatus nppiWarpPerspective_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                                int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
 static inline NppStatus validateWarpPerspectiveInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep,
@@ -123,4 +150,533 @@ NppStatus nppiWarpPerspective_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int
   nppStreamCtx.hStream = 0;
   return nppiWarpPerspective_32f_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
                                          eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_16u_C1R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_16u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_16u_C1R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_16u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_16u_C3R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_16u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_16u_C3R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_16u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_16u_C4R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_16u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_16u_C4R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_16u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+// 32f C3R
+NppStatus nppiWarpPerspective_32f_C3R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_32f_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32f_C3R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_32f_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32f_C4R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_32f_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32f_C4R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_32f_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32s_C1R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_32s_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32s_C1R(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_32s_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32s_C3R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_32s_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32s_C3R(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_32s_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32s_C4R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_32s_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                              eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_32s_C4R(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                      Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                      int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_32s_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                         int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspective_8u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspective_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+                                     int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3], int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspective_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                        eInterpolation, nppStreamCtx);
+}
+
+// ============================================================================
+// nppiWarpPerspectiveBack API
+// ============================================================================
+extern "C" {
+
+NppStatus nppiWarpPerspectiveBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                  const double aCoeffs[3][3], int eInterpolation,
+                                                  NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                  const double aCoeffs[3][3], int eInterpolation,
+                                                  NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                  const double aCoeffs[3][3], int eInterpolation,
+                                                  NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+}
+
+// 8u C1R
+NppStatus nppiWarpPerspectiveBack_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                 eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                         int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_8u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                            eInterpolation, nppStreamCtx);
+}
+
+// 8u C3R
+NppStatus nppiWarpPerspectiveBack_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_8u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                 eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                         int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_8u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                            eInterpolation, nppStreamCtx);
+}
+
+// 8u C4R
+NppStatus nppiWarpPerspectiveBack_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_8u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                 eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                         int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                            eInterpolation, nppStreamCtx);
+}
+
+// 16u C1R
+NppStatus nppiWarpPerspectiveBack_16u_C1R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_16u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_16u_C1R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_16u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 16u C3R
+NppStatus nppiWarpPerspectiveBack_16u_C3R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_16u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_16u_C3R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_16u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 16u C4R
+NppStatus nppiWarpPerspectiveBack_16u_C4R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_16u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_16u_C4R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_16u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 32f C1R
+NppStatus nppiWarpPerspectiveBack_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_32f_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_32f_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 32f C3R
+NppStatus nppiWarpPerspectiveBack_32f_C3R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_32f_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_32f_C3R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_32f_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 32f C4R
+NppStatus nppiWarpPerspectiveBack_32f_C4R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_32f_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_32f_C4R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_32f_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 32s C1R
+NppStatus nppiWarpPerspectiveBack_32s_C1R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_32s_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_32s_C1R(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_32s_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 32s C3R
+NppStatus nppiWarpPerspectiveBack_32s_C3R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_32s_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_32s_C3R(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_32s_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
+}
+
+// 32s C4R
+NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                   eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                                  eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiWarpPerspectiveBack_32s_C4R(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                          int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiWarpPerspectiveBack_32s_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                             eInterpolation, nppStreamCtx);
 }
