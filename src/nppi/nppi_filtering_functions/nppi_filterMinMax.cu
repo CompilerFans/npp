@@ -18,8 +18,8 @@
 
 // FilterMax kernel for 8u_C1R
 __global__ void nppiFilterMax_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight,
-                                                  int anchorX, int anchorY) {
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -52,8 +52,8 @@ __global__ void nppiFilterMax_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
 
 // FilterMax kernel for 8u_C3R
 __global__ void nppiFilterMax_8u_C3R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight,
-                                                  int anchorX, int anchorY) {
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -92,8 +92,8 @@ __global__ void nppiFilterMax_8u_C3R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
 
 // FilterMax kernel for 8u_C4R
 __global__ void nppiFilterMax_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight,
-                                                  int anchorX, int anchorY) {
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -132,8 +132,8 @@ __global__ void nppiFilterMax_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
 
 // FilterMax kernel for 16u_C1R
 __global__ void nppiFilterMax_16u_C1R_kernel_impl(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep,
-                                                   int width, int height, int maskWidth, int maskHeight,
-                                                   int anchorX, int anchorY) {
+                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                  int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -166,8 +166,8 @@ __global__ void nppiFilterMax_16u_C1R_kernel_impl(const Npp16u *pSrc, Npp32s nSr
 
 // FilterMax kernel for 32f_C1R
 __global__ void nppiFilterMax_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                                   int width, int height, int maskWidth, int maskHeight,
-                                                   int anchorX, int anchorY) {
+                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                  int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -177,7 +177,7 @@ __global__ void nppiFilterMax_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    Npp32f maxVal = -3.402823466e+38f;  // -FLT_MAX
+    Npp32f maxVal = -3.402823466e+38f; // -FLT_MAX
 
     for (int j = startY; j < endY; j++) {
       for (int i = startX; i < endX; i++) {
@@ -200,8 +200,8 @@ __global__ void nppiFilterMax_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
 
 // FilterMax kernel for 32f_C3R
 __global__ void nppiFilterMax_32f_C3R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                                   int width, int height, int maskWidth, int maskHeight,
-                                                   int anchorX, int anchorY) {
+                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                  int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -244,8 +244,8 @@ __global__ void nppiFilterMax_32f_C3R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
 
 // FilterMin kernel for 8u_C1R
 __global__ void nppiFilterMin_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight,
-                                                  int anchorX, int anchorY) {
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -278,8 +278,8 @@ __global__ void nppiFilterMin_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
 
 // FilterMin kernel for 8u_C3R
 __global__ void nppiFilterMin_8u_C3R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight,
-                                                  int anchorX, int anchorY) {
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -318,8 +318,8 @@ __global__ void nppiFilterMin_8u_C3R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
 
 // FilterMin kernel for 8u_C4R
 __global__ void nppiFilterMin_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight,
-                                                  int anchorX, int anchorY) {
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -358,8 +358,8 @@ __global__ void nppiFilterMin_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
 
 // FilterMin kernel for 16u_C1R
 __global__ void nppiFilterMin_16u_C1R_kernel_impl(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep,
-                                                   int width, int height, int maskWidth, int maskHeight,
-                                                   int anchorX, int anchorY) {
+                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                  int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -392,8 +392,8 @@ __global__ void nppiFilterMin_16u_C1R_kernel_impl(const Npp16u *pSrc, Npp32s nSr
 
 // FilterMin kernel for 32f_C1R
 __global__ void nppiFilterMin_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                                   int width, int height, int maskWidth, int maskHeight,
-                                                   int anchorX, int anchorY) {
+                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                  int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -403,7 +403,7 @@ __global__ void nppiFilterMin_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
     int endX = startX + maskWidth;
     int endY = startY + maskHeight;
 
-    Npp32f minVal = 3.402823466e+38f;  // FLT_MAX
+    Npp32f minVal = 3.402823466e+38f; // FLT_MAX
 
     for (int j = startY; j < endY; j++) {
       for (int i = startX; i < endX; i++) {
@@ -426,8 +426,8 @@ __global__ void nppiFilterMin_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSr
 
 // FilterMin kernel for 32f_C3R
 __global__ void nppiFilterMin_32f_C3R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                                   int width, int height, int maskWidth, int maskHeight,
-                                                   int anchorX, int anchorY) {
+                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                  int anchorY) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -472,148 +472,154 @@ extern "C" {
 
 // FilterMax kernel wrappers
 cudaError_t nppiFilterMax_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMax_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMax_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                       oSizeROI.height, oMaskSize.width,
+                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMax_8u_C3R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMax_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMax_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                       oSizeROI.height, oMaskSize.width,
+                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMax_8u_C4R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMax_8u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMax_8u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                       oSizeROI.height, oMaskSize.width,
+                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMax_16u_C1R_kernel(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep,
-                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMax_16u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMax_16u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height, oMaskSize.width,
+                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMax_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMax_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMax_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height, oMaskSize.width,
+                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMax_32f_C3R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMax_32f_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMax_32f_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height, oMaskSize.width,
+                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 // FilterMin kernel wrappers
 cudaError_t nppiFilterMin_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMin_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMin_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                       oSizeROI.height, oMaskSize.width,
+                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMin_8u_C3R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMin_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMin_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                       oSizeROI.height, oMaskSize.width,
+                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMin_8u_C4R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMin_8u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMin_8u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                       oSizeROI.height, oMaskSize.width,
+                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMin_16u_C1R_kernel(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep,
-                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMin_16u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMin_16u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height, oMaskSize.width,
+                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMin_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMin_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMin_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height, oMaskSize.width,
+                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
 cudaError_t nppiFilterMin_32f_C3R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                          NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiFilterMin_32f_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y);
+  nppiFilterMin_32f_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height, oMaskSize.width,
+                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
 
   return cudaGetLastError();
 }
 
-}  // extern "C"
+} // extern "C"

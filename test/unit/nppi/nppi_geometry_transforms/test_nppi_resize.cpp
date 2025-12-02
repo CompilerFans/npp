@@ -1,5 +1,5 @@
-#include "../../../../ref_code/super_sampling_cpu_reference/src/super_sampling_cpu.h"
 #include "../../../../ref_code/linear_resize_cpu_reference/linear_resize_refactored.h"
+#include "../../../../ref_code/super_sampling_cpu_reference/src/super_sampling_cpu.h"
 #include "npp_test_base.h"
 #include <functional>
 

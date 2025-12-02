@@ -1,8 +1,8 @@
 #include "npp_test_base.h"
 #include <fstream>
-#include <sys/stat.h>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <sys/stat.h>
 
 using namespace npp_functional_test;
 
@@ -197,8 +197,7 @@ protected:
   };
 
   CompareResult compareWithGolden(const std::vector<Npp8u> &result, const std::vector<Npp8u> &golden,
-                                   const std::string &testName, int width, int height, int channels,
-                                   int tolerance = 0) {
+                                  const std::string &testName, int width, int height, int channels, int tolerance = 0) {
     CompareResult res = {};
     res.totalPixels = width * height * channels;
     res.mismatchCount = 0;
@@ -231,8 +230,8 @@ protected:
           int y = pixelIdx / width;
           int x = pixelIdx % width;
           EXPECT_LE(diff, tolerance) << testName << " mismatch at pixel (" << x << "," << y << ") channel " << channel
-                                     << ": got " << (int)result[i] << ", expected " << (int)golden[i] << ", diff="
-                                     << diff;
+                                     << ": got " << (int)result[i] << ", expected " << (int)golden[i]
+                                     << ", diff=" << diff;
         }
       }
     }
@@ -267,9 +266,8 @@ protected:
   }
 
   // Common test template
-  void runSuperSamplingGoldenTest(const std::string &testName, int srcWidth, int srcHeight, int dstWidth,
-                                  int dstHeight, int channels, const ResizePatternGenerator &generator,
-                                  int tolerance = 0) {
+  void runSuperSamplingGoldenTest(const std::string &testName, int srcWidth, int srcHeight, int dstWidth, int dstHeight,
+                                  int channels, const ResizePatternGenerator &generator, int tolerance = 0) {
     std::string goldenFile = getGoldenFilePath("resize_super_" + testName + "_c" + std::to_string(channels) + "r.bin");
 
     // Generate test data
@@ -289,8 +287,8 @@ protected:
     NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
     // Run resize
-    NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize,
-                                         dstROI, NPPI_INTER_SUPER);
+    NppStatus status = nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                         NPPI_INTER_SUPER);
 
     ASSERT_EQ(status, NPP_SUCCESS) << "nppiResize failed for " << testName;
 
@@ -307,13 +305,12 @@ protected:
 #else
     // Validation mode: compare against golden
     if (!goldenFileExists(goldenFile)) {
-      FAIL() << "Golden file not found: " << goldenFile
-             << "\nRun with --use-nvidia-npp build first to generate it.";
+      FAIL() << "Golden file not found: " << goldenFile << "\nRun with --use-nvidia-npp build first to generate it.";
     }
 
     std::vector<Npp8u> goldenData;
-    ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData)) << "Failed to load golden data for "
-                                                                            << testName;
+    ASSERT_TRUE(loadGoldenData(goldenFile, resultData.size(), goldenData))
+        << "Failed to load golden data for " << testName;
 
     CompareResult res = compareWithGolden(resultData, goldenData, testName, dstWidth, dstHeight, channels, tolerance);
     EXPECT_TRUE(res.passed) << testName << ": Implementation differs from golden reference";

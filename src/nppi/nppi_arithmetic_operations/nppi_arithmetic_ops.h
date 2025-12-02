@@ -45,8 +45,7 @@ template <typename T> __device__ __host__ inline T saturate_cast(double value) {
 }
 
 // Saturating cast for complex types - saturates real and imaginary components separately
-template <typename T>
-__device__ __host__ inline T saturate_cast_complex(double re, double im) {
+template <typename T> __device__ __host__ inline T saturate_cast_complex(double re, double im) {
   using ComponentT = complex_component_t<T>;
   T result;
   result.re = saturate_cast<ComponentT>(re);
@@ -108,10 +107,10 @@ template <typename T> struct MulOp {
     if constexpr (is_complex_v<T>) {
       // Complex multiplication: (a.re + a.im*i) * (b.re + b.im*i)
       // = (a.re*b.re - a.im*b.im) + (a.re*b.im + a.im*b.re)*i
-      double re = static_cast<double>(a.re) * static_cast<double>(b.re) -
-                  static_cast<double>(a.im) * static_cast<double>(b.im);
-      double im = static_cast<double>(a.re) * static_cast<double>(b.im) +
-                  static_cast<double>(a.im) * static_cast<double>(b.re);
+      double re =
+          static_cast<double>(a.re) * static_cast<double>(b.re) - static_cast<double>(a.im) * static_cast<double>(b.im);
+      double im =
+          static_cast<double>(a.re) * static_cast<double>(b.im) + static_cast<double>(a.im) * static_cast<double>(b.re);
       if (scaleFactor > 0) {
         double scale = 1.0 / (1 << scaleFactor);
         re = (re + (1 << (scaleFactor - 1))) * scale;
@@ -133,8 +132,8 @@ template <typename T> struct DivOp {
     if constexpr (is_complex_v<T>) {
       // Complex division: b / a = (b.re + b.im*i) / (a.re + a.im*i)
       // = ((b.re*a.re + b.im*a.im) + (b.im*a.re - b.re*a.im)*i) / (a.re² + a.im²)
-      double denom = static_cast<double>(a.re) * static_cast<double>(a.re) +
-                     static_cast<double>(a.im) * static_cast<double>(a.im);
+      double denom =
+          static_cast<double>(a.re) * static_cast<double>(a.re) + static_cast<double>(a.im) * static_cast<double>(a.im);
       if (denom == 0.0) {
         T result;
         result.re = 0;
@@ -142,9 +141,11 @@ template <typename T> struct DivOp {
         return result;
       }
       double re = (static_cast<double>(b.re) * static_cast<double>(a.re) +
-                   static_cast<double>(b.im) * static_cast<double>(a.im)) / denom;
+                   static_cast<double>(b.im) * static_cast<double>(a.im)) /
+                  denom;
       double im = (static_cast<double>(b.im) * static_cast<double>(a.re) -
-                   static_cast<double>(b.re) * static_cast<double>(a.im)) / denom;
+                   static_cast<double>(b.re) * static_cast<double>(a.im)) /
+                  denom;
       if (scaleFactor > 0) {
         double scale = 1.0 / (1 << scaleFactor);
         re = (re + (1 << (scaleFactor - 1))) * scale;

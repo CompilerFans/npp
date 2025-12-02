@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cuda_runtime.h>
-#include <gtest/gtest.h>
 #include <functional>
+#include <gtest/gtest.h>
 #include <limits>
 #include <random>
 #include <vector>
@@ -28,8 +28,8 @@ protected:
 
 // Helper function to compute CPU reference for max filter with border replication
 template <typename T>
-std::vector<T> computeMaxFilterCPU(const std::vector<T> &input, int width, int height, int channels,
-                                   int maskW, int maskH, int anchorX, int anchorY) {
+std::vector<T> computeMaxFilterCPU(const std::vector<T> &input, int width, int height, int channels, int maskW,
+                                   int maskH, int anchorX, int anchorY) {
   std::vector<T> output(width * height * channels);
 
   for (int y = 0; y < height; y++) {
@@ -61,8 +61,8 @@ std::vector<T> computeMaxFilterCPU(const std::vector<T> &input, int width, int h
 
 // Helper function to compute CPU reference for min filter with border replication
 template <typename T>
-std::vector<T> computeMinFilterCPU(const std::vector<T> &input, int width, int height, int channels,
-                                   int maskW, int maskH, int anchorX, int anchorY) {
+std::vector<T> computeMinFilterCPU(const std::vector<T> &input, int width, int height, int channels, int maskW,
+                                   int maskH, int anchorX, int anchorY) {
   std::vector<T> output(width * height * channels);
 
   for (int y = 0; y < height; y++) {
@@ -97,8 +97,8 @@ std::vector<T> computeMinFilterCPU(const std::vector<T> &input, int width, int h
 // ============================================================================
 
 // Run FilterMax with boundary expansion for 8u_C1R
-std::vector<Npp8u> runFilterMax8uC1R(const std::vector<Npp8u> &input, int width, int height,
-                                      int maskW, int maskH, int anchorX, int anchorY) {
+std::vector<Npp8u> runFilterMax8uC1R(const std::vector<Npp8u> &input, int width, int height, int maskW, int maskH,
+                                     int anchorX, int anchorY) {
   int padLeft = anchorX;
   int padRight = maskW - anchorX - 1;
   int padTop = anchorY;
@@ -121,7 +121,8 @@ std::vector<Npp8u> runFilterMax8uC1R(const std::vector<Npp8u> &input, int width,
   Npp8u *d_src = nppiMalloc_8u_C1(expandedWidth, expandedHeight, &srcStep);
   Npp8u *d_dst = nppiMalloc_8u_C1(expandedWidth, expandedHeight, &dstStep);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -130,7 +131,8 @@ std::vector<Npp8u> runFilterMax8uC1R(const std::vector<Npp8u> &input, int width,
   nppiFilterMax_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight,
+               cudaMemcpyDeviceToHost);
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -147,8 +149,8 @@ std::vector<Npp8u> runFilterMax8uC1R(const std::vector<Npp8u> &input, int width,
 }
 
 // Run FilterMin with boundary expansion for 8u_C1R
-std::vector<Npp8u> runFilterMin8uC1R(const std::vector<Npp8u> &input, int width, int height,
-                                      int maskW, int maskH, int anchorX, int anchorY) {
+std::vector<Npp8u> runFilterMin8uC1R(const std::vector<Npp8u> &input, int width, int height, int maskW, int maskH,
+                                     int anchorX, int anchorY) {
   int padLeft = anchorX;
   int padRight = maskW - anchorX - 1;
   int padTop = anchorY;
@@ -170,7 +172,8 @@ std::vector<Npp8u> runFilterMin8uC1R(const std::vector<Npp8u> &input, int width,
   Npp8u *d_src = nppiMalloc_8u_C1(expandedWidth, expandedHeight, &srcStep);
   Npp8u *d_dst = nppiMalloc_8u_C1(expandedWidth, expandedHeight, &dstStep);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -179,7 +182,8 @@ std::vector<Npp8u> runFilterMin8uC1R(const std::vector<Npp8u> &input, int width,
   nppiFilterMin_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight,
+               cudaMemcpyDeviceToHost);
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -248,7 +252,8 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C1R_Ctx) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -260,7 +265,8 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C1R_Ctx) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight,
+               cudaMemcpyDeviceToHost);
 
   // Crop and verify
   std::vector<Npp8u> result(width * height);
@@ -349,7 +355,8 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C1R_Ctx) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth, expandedWidth, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -361,7 +368,8 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C1R_Ctx) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight,
+               cudaMemcpyDeviceToHost);
 
   std::vector<Npp8u> result(width * height);
   for (int y = 0; y < height; y++) {
@@ -414,8 +422,8 @@ TEST_F(FilterMinMaxTest, FilterMax_16u_C1R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp16u),
-               expandedWidth * sizeof(Npp16u), expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp16u), expandedWidth * sizeof(Npp16u),
+               expandedHeight, cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -425,8 +433,8 @@ TEST_F(FilterMinMaxTest, FilterMax_16u_C1R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp16u> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp16u), d_dst, dstStep,
-               expandedWidth * sizeof(Npp16u), expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp16u), d_dst, dstStep, expandedWidth * sizeof(Npp16u),
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp16u> result(width * height);
   for (int y = 0; y < height; y++) {
@@ -479,8 +487,8 @@ TEST_F(FilterMinMaxTest, FilterMin_16u_C1R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp16u),
-               expandedWidth * sizeof(Npp16u), expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp16u), expandedWidth * sizeof(Npp16u),
+               expandedHeight, cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -490,8 +498,8 @@ TEST_F(FilterMinMaxTest, FilterMin_16u_C1R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp16u> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp16u), d_dst, dstStep,
-               expandedWidth * sizeof(Npp16u), expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp16u), d_dst, dstStep, expandedWidth * sizeof(Npp16u),
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp16u> result(width * height);
   for (int y = 0; y < height; y++) {
@@ -544,8 +552,8 @@ TEST_F(FilterMinMaxTest, FilterMax_32f_C1R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp32f),
-               expandedWidth * sizeof(Npp32f), expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp32f), expandedWidth * sizeof(Npp32f),
+               expandedHeight, cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -555,8 +563,8 @@ TEST_F(FilterMinMaxTest, FilterMax_32f_C1R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp32f), d_dst, dstStep,
-               expandedWidth * sizeof(Npp32f), expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp32f), d_dst, dstStep, expandedWidth * sizeof(Npp32f),
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp32f> result(width * height);
   for (int y = 0; y < height; y++) {
@@ -609,8 +617,8 @@ TEST_F(FilterMinMaxTest, FilterMin_32f_C1R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp32f),
-               expandedWidth * sizeof(Npp32f), expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * sizeof(Npp32f), expandedWidth * sizeof(Npp32f),
+               expandedHeight, cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -620,8 +628,8 @@ TEST_F(FilterMinMaxTest, FilterMin_32f_C1R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> expandedOutput(expandedWidth * expandedHeight);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp32f), d_dst, dstStep,
-               expandedWidth * sizeof(Npp32f), expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * sizeof(Npp32f), d_dst, dstStep, expandedWidth * sizeof(Npp32f),
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp32f> result(width * height);
   for (int y = 0; y < height; y++) {
@@ -680,8 +688,8 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C3R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels,
-               expandedWidth * channels, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels, expandedWidth * channels, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -691,8 +699,8 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C3R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep,
-               expandedWidth * channels, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep, expandedWidth * channels,
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp8u> result(width * height * channels);
   for (int y = 0; y < height; y++) {
@@ -750,8 +758,8 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C3R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels,
-               expandedWidth * channels, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels, expandedWidth * channels, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -761,8 +769,8 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C3R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep,
-               expandedWidth * channels, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep, expandedWidth * channels,
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp8u> result(width * height * channels);
   for (int y = 0; y < height; y++) {
@@ -821,8 +829,8 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C4R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels,
-               expandedWidth * channels, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels, expandedWidth * channels, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -832,8 +840,8 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C4R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep,
-               expandedWidth * channels, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep, expandedWidth * channels,
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp8u> result(width * height * channels);
   for (int y = 0; y < height; y++) {
@@ -892,8 +900,8 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C4R_Basic) {
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels,
-               expandedWidth * channels, expandedHeight, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels, expandedWidth * channels, expandedHeight,
+               cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {expandedWidth, expandedHeight};
   NppiSize oMaskSize = {maskW, maskH};
@@ -903,8 +911,8 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C4R_Basic) {
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
-  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep,
-               expandedWidth * channels, expandedHeight, cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep, expandedWidth * channels,
+               expandedHeight, cudaMemcpyDeviceToHost);
 
   std::vector<Npp8u> result(width * height * channels);
   for (int y = 0; y < height; y++) {
