@@ -145,6 +145,209 @@ NppStatus nppiAddDeviceC_32f_C4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const N
                                                            nppStreamCtx.hStream, pConstants);
 }
 
+// AddDeviceC In-place variants
+NppStatus nppiAddDeviceC_8u_C1IRSfs_Ctx(const Npp8u *pConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp8u, 1, AddConstOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                         nScaleFactor, nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiAddDeviceC_8u_C3IRSfs_Ctx(const Npp8u *pConstants, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp8u, 3, AddConstOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                         nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_8u_AC4IRSfs_Ctx(const Npp8u *pConstants, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp8u, 4, AddConstOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                         nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_8u_C4IRSfs_Ctx(const Npp8u *pConstants, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp8u, 4, AddConstOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                         nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16u_C1IRSfs_Ctx(const Npp16u *pConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 1, AddConstOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiAddDeviceC_16u_C3IRSfs_Ctx(const Npp16u *pConstants, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 3, AddConstOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16u_AC4IRSfs_Ctx(const Npp16u *pConstants, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                          int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 4, AddConstOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16u_C4IRSfs_Ctx(const Npp16u *pConstants, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 4, AddConstOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16s_C1IRSfs_Ctx(const Npp16s *pConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 1, AddConstOp<Npp16s>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiAddDeviceC_16s_C3IRSfs_Ctx(const Npp16s *pConstants, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 3, AddConstOp<Npp16s>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16s_AC4IRSfs_Ctx(const Npp16s *pConstants, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                          int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 4, AddConstOp<Npp16s>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16s_C4IRSfs_Ctx(const Npp16s *pConstants, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 4, AddConstOp<Npp16s>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_32s_C1IRSfs_Ctx(const Npp32s *pConstant, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp32s, 1, AddConstOp<Npp32s>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiAddDeviceC_32s_C3IRSfs_Ctx(const Npp32s *pConstants, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp32s, 3, AddConstOp<Npp32s>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI,
+                                                           nScaleFactor, nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_32f_C1IR_Ctx(const Npp32f *pConstant, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                      NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp32f, 1, AddConstOp<Npp32f>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                           nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiAddDeviceC_32f_C3IR_Ctx(const Npp32f *pConstants, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                      NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp32f, 3, AddConstOp<Npp32f>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_32f_AC4IR_Ctx(const Npp32f *pConstants, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp32f, 4, AddConstOp<Npp32f>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_32f_C4IR_Ctx(const Npp32f *pConstants, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                      NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp32f, 4, AddConstOp<Npp32f>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+// 16s multi-channel R variants
+NppStatus nppiAddDeviceC_16s_C3RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pConstants, Npp16s *pDst,
+                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                        NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 3, AddConstOp<Npp16s>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16s_AC4RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pConstants, Npp16s *pDst,
+                                         int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                         NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 4, AddConstOp<Npp16s>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16s_C4RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pConstants, Npp16s *pDst,
+                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                        NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16s, 4, AddConstOp<Npp16s>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+// 16u multi-channel R variants
+NppStatus nppiAddDeviceC_16u_C3RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pConstants, Npp16u *pDst,
+                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                        NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 3, AddConstOp<Npp16u>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16u_AC4RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pConstants, Npp16u *pDst,
+                                         int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                         NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 4, AddConstOp<Npp16u>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiAddDeviceC_16u_C4RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pConstants, Npp16u *pDst,
+                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                        NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp16u, 4, AddConstOp<Npp16u>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
+// 32s multi-channel R variant
+NppStatus nppiAddDeviceC_32s_C3RSfs_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pConstants, Npp32s *pDst,
+                                        int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                        NppStreamContext nppStreamCtx) {
+  if (nScaleFactor < 0 || nScaleFactor > 31)
+    return NPP_BAD_ARGUMENT_ERROR;
+  return executeDeviceConst<Npp32s, 3, AddConstOp<Npp32s>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                           nppStreamCtx.hStream, pConstants);
+}
+
 // ============================================================================
 // SubDeviceC Implementation
 // ============================================================================
