@@ -8,7 +8,27 @@
 namespace nppi {
 namespace arithmetic {
 
+// ============================================================================
+// Type traits for complex number detection
+// ============================================================================
+template <typename T> struct is_complex : std::false_type {};
+template <> struct is_complex<Npp16sc> : std::true_type {};
+template <> struct is_complex<Npp32sc> : std::true_type {};
+template <> struct is_complex<Npp32fc> : std::true_type {};
+
+template <typename T> inline constexpr bool is_complex_v = is_complex<T>::value;
+
+// Get the component type of a complex number
+template <typename T> struct complex_component { using type = T; };
+template <> struct complex_component<Npp16sc> { using type = Npp16s; };
+template <> struct complex_component<Npp32sc> { using type = Npp32s; };
+template <> struct complex_component<Npp32fc> { using type = Npp32f; };
+
+template <typename T> using complex_component_t = typename complex_component<T>::type;
+
+// ============================================================================
 // Type-specific saturating cast utility
+// ============================================================================
 template <typename T> __device__ __host__ inline T saturate_cast(double value) {
   if constexpr (std::is_same_v<T, Npp8u>) {
     return static_cast<T>(value < 0.0 ? 0.0 : (value > 255.0 ? 255.0 : value));
@@ -24,60 +44,132 @@ template <typename T> __device__ __host__ inline T saturate_cast(double value) {
   return static_cast<T>(value);
 }
 
+// Saturating cast for complex types - saturates real and imaginary components separately
+template <typename T>
+__device__ __host__ inline T saturate_cast_complex(double re, double im) {
+  using ComponentT = complex_component_t<T>;
+  T result;
+  result.re = saturate_cast<ComponentT>(re);
+  result.im = saturate_cast<ComponentT>(im);
+  return result;
+}
+
 // ============================================================================
 // Binary Operation Functors
 // ============================================================================
 
 template <typename T> struct AddOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    double result = static_cast<double>(a) + static_cast<double>(b);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (is_complex_v<T>) {
+      // Complex addition: (a.re + a.im*i) + (b.re + b.im*i)
+      double re = static_cast<double>(a.re) + static_cast<double>(b.re);
+      double im = static_cast<double>(a.im) + static_cast<double>(b.im);
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      double result = static_cast<double>(a) + static_cast<double>(b);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
 template <typename T> struct SubOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
     // NPP Sub convention: pSrc2 - pSrc1, so b - a
-    double result = static_cast<double>(b) - static_cast<double>(a);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (is_complex_v<T>) {
+      // Complex subtraction: (b.re + b.im*i) - (a.re + a.im*i)
+      double re = static_cast<double>(b.re) - static_cast<double>(a.re);
+      double im = static_cast<double>(b.im) - static_cast<double>(a.im);
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      double result = static_cast<double>(b) - static_cast<double>(a);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
 template <typename T> struct MulOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    double result = static_cast<double>(a) * static_cast<double>(b);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (is_complex_v<T>) {
+      // Complex multiplication: (a.re + a.im*i) * (b.re + b.im*i)
+      // = (a.re*b.re - a.im*b.im) + (a.re*b.im + a.im*b.re)*i
+      double re = static_cast<double>(a.re) * static_cast<double>(b.re) -
+                  static_cast<double>(a.im) * static_cast<double>(b.im);
+      double im = static_cast<double>(a.re) * static_cast<double>(b.im) +
+                  static_cast<double>(a.im) * static_cast<double>(b.re);
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      double result = static_cast<double>(a) * static_cast<double>(b);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
 template <typename T> struct DivOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    if (a == T(0)) {
-      // Division by zero - saturate to maximum value for integers
-      if constexpr (std::is_same_v<T, Npp8u>)
-        return T(255);
-      else if constexpr (std::is_same_v<T, Npp16u>)
-        return T(65535);
-      else if constexpr (std::is_same_v<T, Npp16s>)
-        return T(32767);
-      else
-        return T(0);
+    if constexpr (is_complex_v<T>) {
+      // Complex division: b / a = (b.re + b.im*i) / (a.re + a.im*i)
+      // = ((b.re*a.re + b.im*a.im) + (b.im*a.re - b.re*a.im)*i) / (a.re² + a.im²)
+      double denom = static_cast<double>(a.re) * static_cast<double>(a.re) +
+                     static_cast<double>(a.im) * static_cast<double>(a.im);
+      if (denom == 0.0) {
+        T result;
+        result.re = 0;
+        result.im = 0;
+        return result;
+      }
+      double re = (static_cast<double>(b.re) * static_cast<double>(a.re) +
+                   static_cast<double>(b.im) * static_cast<double>(a.im)) / denom;
+      double im = (static_cast<double>(b.im) * static_cast<double>(a.re) -
+                   static_cast<double>(b.re) * static_cast<double>(a.im)) / denom;
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      if (a == T(0)) {
+        // Division by zero - saturate to maximum value for integers
+        if constexpr (std::is_same_v<T, Npp8u>)
+          return T(255);
+        else if constexpr (std::is_same_v<T, Npp16u>)
+          return T(65535);
+        else if constexpr (std::is_same_v<T, Npp16s>)
+          return T(32767);
+        else
+          return T(0);
+      }
+      // NPP Div convention: pSrc2 / pSrc1, so b / a
+      double result = static_cast<double>(b) / static_cast<double>(a);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    // NPP Div convention: pSrc2 / pSrc1, so b / a
-    double result = static_cast<double>(b) / static_cast<double>(a);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
-    }
-    return saturate_cast<T>(result);
   }
 };
 

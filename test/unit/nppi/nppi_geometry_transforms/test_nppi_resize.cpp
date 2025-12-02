@@ -1400,7 +1400,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ExactInterpolation) {
   // Validate against CPU reference
   // MPP: strict tolerance=0 for perfect match
   // NVIDIA NPP: tolerance=12 due to algorithm differences
-#ifdef USE_NVIDIA_NPP
+#ifdef USE_NVIDIA_NPP_TESTS
   validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 12);
 #else
   validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 0);

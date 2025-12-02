@@ -14,6 +14,28 @@ WARNINGS_AS_ERRORS="ON"
 # Check environment variable first, then use default
 USE_NVIDIA_NPP="OFF"
 BUILD_DIR="build"  # Default build directory
+CUDA_ARCH=""  # Empty means auto-detect
+
+# Auto-detect GPU architecture
+detect_cuda_arch() {
+    if command -v nvidia-smi &> /dev/null; then
+        # Get compute capability from nvidia-smi (e.g., "8.6" -> "86")
+        local compute_cap=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1)
+        if [ -n "$compute_cap" ]; then
+            # Remove the dot: "8.6" -> "86"
+            echo "${compute_cap//./}"
+            return
+        fi
+    fi
+    # Fallback: try nvcc with __CUDA_ARCH_LIST__
+    if command -v nvcc &> /dev/null; then
+        # Common fallback architectures
+        echo "75"
+        return
+    fi
+    # Default fallback
+    echo "75"
+}
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -51,6 +73,10 @@ while [[ $# -gt 0 ]]; do
             BUILD_SHARED_LIBS="ON"
             shift
             ;;
+        --arch)
+            CUDA_ARCH="$2"
+            shift 2
+            ;;
         clean)
             echo "Cleaning build directories..."
             rm -rf build/ build-nvidia/
@@ -62,6 +88,7 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  -d, --debug     Debug build"
             echo "  -j N            Use N parallel jobs"
+            echo "  --arch N        Set CUDA architecture (e.g., 75, 86, 89). Auto-detected if not specified."
             echo "  --no-tests      Skip building tests"
             echo "  --no-examples   Skip building examples"
             echo "  --lib-only      Build library only (no tests, no examples)"
@@ -90,13 +117,21 @@ fi
 
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
 
+# Auto-detect CUDA architecture if not specified
+if [ -z "$CUDA_ARCH" ]; then
+    CUDA_ARCH=$(detect_cuda_arch)
+    echo "Auto-detected CUDA architecture: $CUDA_ARCH"
+else
+    echo "Using specified CUDA architecture: $CUDA_ARCH"
+fi
+
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
 echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
 cmake -S .\
     -B $BUILD_DIR\
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_CUDA_ARCHITECTURES="89" \
+    -DCMAKE_CUDA_ARCHITECTURES="$CUDA_ARCH" \
     -DBUILD_TESTS="$BUILD_TESTS" \
     -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
     -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
