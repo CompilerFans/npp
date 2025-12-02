@@ -119,9 +119,10 @@ __global__ void gamma_kernel(
             dst_row[pixel_idx + c] = op(src_row[pixel_idx + c]);
         }
 
-        // Copy Alpha channel if AC4 format
+        // Set Alpha channel to 0 if AC4 format (matching NVIDIA NPP behavior)
+        // NVIDIA NPP clears alpha channel instead of copying it
         if constexpr (Channels == 4) {
-            dst_row[pixel_idx + 3] = src_row[pixel_idx + 3];
+            dst_row[pixel_idx + 3] = 0;
         }
     }
 }
@@ -143,7 +144,11 @@ __global__ void gamma_inplace_kernel(
         for (int c = 0; c < 3; c++) {
             row[pixel_idx + c] = op(row[pixel_idx + c]);
         }
-        // Alpha channel remains unchanged
+
+        // Set Alpha channel to 0 if AC4 format (matching NVIDIA NPP behavior)
+        if constexpr (Channels == 4) {
+            row[pixel_idx + 3] = 0;
+        }
     }
 }
 

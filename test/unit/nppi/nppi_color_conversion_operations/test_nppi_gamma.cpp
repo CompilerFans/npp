@@ -271,12 +271,13 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4R_Ctx) {
         h_src[i * channels + 3] = 200;  // Alpha通道
     }
     
-    // 计算期望结果（RGB做Gamma，Alpha不变）
+    // 计算期望结果（RGB做Gamma，Alpha设置为0）
+    // NVIDIA NPP的AC4格式会将Alpha通道清零，而不是保持原值
     for (int i = 0; i < width * height; i++) {
         for (int c = 0; c < 3; c++) {
             h_expected[i * channels + c] = cpu_srgb_forward(h_src[i * channels + c]);
         }
-        h_expected[i * channels + 3] = h_src[i * channels + 3];  // Alpha不变
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_src, *d_dst;
@@ -303,8 +304,8 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4R_Ctx) {
             EXPECT_LE(abs((int)h_dst[idx] - (int)h_expected[idx]), 1) 
                 << "Pixel " << i << " channel " << c;
         }
-        // 验证Alpha通道不变
-        EXPECT_EQ(h_dst[i * channels + 3], 200) << "Alpha changed at pixel " << i;
+        // 验证Alpha通道被清零（NVIDIA NPP行为）
+        EXPECT_EQ(h_dst[i * channels + 3], 0) << "Alpha not cleared at pixel " << i;
     }
     
     cudaFree(d_src);
@@ -327,7 +328,7 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4R_Ctx) {
             h_expected[i * channels + c] = cpu_srgb_inverse(h_src[i * channels + c]);
         }
         h_src[i * channels + 3] = 150;
-        h_expected[i * channels + 3] = 150;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_src, *d_dst;
@@ -373,7 +374,7 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4IR_Ctx) {
             h_expected[i * channels + c] = cpu_srgb_forward(h_data[i * channels + c]);
         }
         h_data[i * channels + 3] = 255;
-        h_expected[i * channels + 3] = 255;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_data;
@@ -453,7 +454,7 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4R_NonCtx) {
             h_expected[i * channels + c] = cpu_srgb_inverse(h_src[i * channels + c]);
         }
         h_src[i * channels + 3] = 128;
-        h_expected[i * channels + 3] = 128;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_src, *d_dst;
@@ -519,8 +520,8 @@ TEST_F(NppiGammaTest, RoundTrip_AC4) {
             int diff = abs((int)h_original[idx] - (int)h_result[idx]);
             EXPECT_LE(diff, 2) << "Round-trip error at pixel " << i << " channel " << c;
         }
-        // 验证Alpha完全不变
-        EXPECT_EQ(h_result[i * channels + 3], 200) << "Alpha changed at pixel " << i;
+        // 验证Alpha被清零（NVIDIA NPP行为）
+        EXPECT_EQ(h_result[i * channels + 3], 0) << "Alpha not cleared at pixel " << i;
     }
     
     cudaFree(d_src);
@@ -662,7 +663,7 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4R_NonCtx) {
             h_expected[i * channels + c] = cpu_srgb_forward(h_src[i * channels + c]);
         }
         h_src[i * channels + 3] = 180;
-        h_expected[i * channels + 3] = 180;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_src, *d_dst;
@@ -685,7 +686,7 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4R_NonCtx) {
             int idx = i * channels + c;
             EXPECT_LE(abs((int)h_dst[idx] - (int)h_expected[idx]), 1);
         }
-        EXPECT_EQ(h_dst[i * channels + 3], 180);
+        EXPECT_EQ(h_dst[i * channels + 3], 0);  // NVIDIA NPP clears alpha
     }
     
     cudaFree(d_src);
@@ -707,7 +708,7 @@ TEST_F(NppiGammaTest, GammaFwd_8u_AC4IR_NonCtx) {
             h_expected[i * channels + c] = cpu_srgb_forward(h_data[i * channels + c]);
         }
         h_data[i * channels + 3] = 220;
-        h_expected[i * channels + 3] = 220;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_data;
@@ -853,7 +854,7 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4IR_Ctx) {
             h_expected[i * channels + c] = cpu_srgb_inverse(h_data[i * channels + c]);
         }
         h_data[i * channels + 3] = 240;
-        h_expected[i * channels + 3] = 240;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_data;
@@ -876,7 +877,7 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4IR_Ctx) {
             int idx = i * channels + c;
             EXPECT_LE(abs((int)h_data[idx] - (int)h_expected[idx]), 1);
         }
-        EXPECT_EQ(h_data[i * channels + 3], 240);
+        EXPECT_EQ(h_data[i * channels + 3], 0);  // NVIDIA NPP clears alpha
     }
     
     cudaFree(d_data);
@@ -897,7 +898,7 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4IR_NonCtx) {
             h_expected[i * channels + c] = cpu_srgb_inverse(h_data[i * channels + c]);
         }
         h_data[i * channels + 3] = 100;
-        h_expected[i * channels + 3] = 100;
+        h_expected[i * channels + 3] = 0;  // NVIDIA NPP clears alpha to 0
     }
     
     Npp8u *d_data;
@@ -918,7 +919,7 @@ TEST_F(NppiGammaTest, GammaInv_8u_AC4IR_NonCtx) {
             int idx = i * channels + c;
             EXPECT_LE(abs((int)h_data[idx] - (int)h_expected[idx]), 1);
         }
-        EXPECT_EQ(h_data[i * channels + 3], 100);
+        EXPECT_EQ(h_data[i * channels + 3], 0);  // NVIDIA NPP clears alpha
     }
     
     cudaFree(d_data);
