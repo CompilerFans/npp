@@ -430,3 +430,49 @@ NppStatus nppiAddC_32f_C4IR_Ctx(const Npp32f aConstants[4], Npp32f *pSrcDst, int
 NppStatus nppiAddC_32f_C4IR(const Npp32f aConstants[4], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
   return nppiAddC_32f_C4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
+
+// ============================================================================
+// 32s variants (with scale factor)
+// ============================================================================
+
+NppStatus nppiAddC_32s_C1RSfs_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s nConstant, Npp32s *pDst, int nDstStep,
+                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32s, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C1RSfs(const Npp32s *pSrc, int nSrcStep, Npp32s nConstant, Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32s_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32s_C1IRSfs_Ctx(Npp32s nConstant, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32s, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C1IRSfs(Npp32s nConstant, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32s_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32s_C3RSfs_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
+                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32s, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C3RSfs(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32s_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32s_C3IRSfs_Ctx(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32s, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C3IRSfs(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_32s_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}

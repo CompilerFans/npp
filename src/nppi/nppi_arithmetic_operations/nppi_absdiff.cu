@@ -51,6 +51,27 @@ NppStatus nppiAbsDiff_8u_C3IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, i
   return nppiAbsDiff_8u_C3IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
+// C4R
+NppStatus nppiAbsDiff_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AbsDiff<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAbsDiff_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                             int nDstStep, NppiSize oSizeROI) {
+  return nppiAbsDiff_8u_C4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+// C4IR (in-place)
+NppStatus nppiAbsDiff_8u_C4IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+  return AbsDiff<Npp8u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAbsDiff_8u_C4IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAbsDiff_8u_C4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
 // ============================================================================
 // Npp16u - Unsigned 16-bit
 // ============================================================================
