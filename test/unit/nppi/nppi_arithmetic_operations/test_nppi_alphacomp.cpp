@@ -1,6 +1,6 @@
 #include "npp.h"
-#include <gtest/gtest.h>
 #include <cmath>
+#include <gtest/gtest.h>
 
 class NppiAlphaCompPixelTest : public ::testing::Test {
 protected:
@@ -11,9 +11,7 @@ protected:
     }
   }
 
-  void TearDown() override {
-    cudaDeviceSynchronize();
-  }
+  void TearDown() override { cudaDeviceSynchronize(); }
 };
 
 TEST_F(NppiAlphaCompPixelTest, Basic_8u_AC4R_AlphaOver) {
@@ -21,13 +19,13 @@ TEST_F(NppiAlphaCompPixelTest, Basic_8u_AC4R_AlphaOver) {
   const int height = 1;
 
   Npp8u src1[8] = {
-    255, 0, 0, 128,    // Red with 50% alpha
-    0, 255, 0, 255     // Green with 100% alpha
+      255, 0,   0, 128, // Red with 50% alpha
+      0,   255, 0, 255  // Green with 100% alpha
   };
 
   Npp8u src2[8] = {
-    0, 0, 255, 64,     // Blue with 25% alpha
-    255, 255, 255, 100 // White with ~39% alpha
+      0,   0,   255, 64, // Blue with 25% alpha
+      255, 255, 255, 100 // White with ~39% alpha
   };
 
   // Allocate GPU memory
@@ -94,8 +92,8 @@ TEST_F(NppiAlphaCompPixelTest, Ctx_8u_AC4R_AlphaOver) {
   NppStreamContext ctx;
   memset(&ctx, 0, sizeof(ctx));
   ctx.hStream = 0;
-  NppStatus status = nppiAlphaComp_8u_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
-                                              NPPI_OP_ALPHA_OVER, ctx);
+  NppStatus status =
+      nppiAlphaComp_8u_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER, ctx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   if (status == NPP_SUCCESS) {
@@ -138,7 +136,8 @@ TEST_F(NppiAlphaCompPixelTest, Basic_16u_AC4R_AlphaOver) {
   cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiAlphaComp_16u_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
+  NppStatus status =
+      nppiAlphaComp_16u_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   if (status == NPP_SUCCESS) {
@@ -176,8 +175,8 @@ TEST_F(NppiAlphaCompPixelTest, Ctx_16u_AC4R_AlphaOver) {
   NppStreamContext ctx;
   memset(&ctx, 0, sizeof(ctx));
   ctx.hStream = 0;
-  NppStatus status = nppiAlphaComp_16u_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
-                                               NPPI_OP_ALPHA_OVER, ctx);
+  NppStatus status =
+      nppiAlphaComp_16u_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER, ctx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   nppiFree(d_src1);
@@ -206,7 +205,8 @@ TEST_F(NppiAlphaCompPixelTest, Basic_32f_AC4R_AlphaOver) {
   cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiAlphaComp_32f_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
+  NppStatus status =
+      nppiAlphaComp_32f_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   if (status == NPP_SUCCESS) {
@@ -244,8 +244,8 @@ TEST_F(NppiAlphaCompPixelTest, Ctx_32f_AC4R_AlphaOver) {
   NppStreamContext ctx;
   memset(&ctx, 0, sizeof(ctx));
   ctx.hStream = 0;
-  NppStatus status = nppiAlphaComp_32f_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
-                                               NPPI_OP_ALPHA_OVER, ctx);
+  NppStatus status =
+      nppiAlphaComp_32f_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER, ctx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   nppiFree(d_src1);
@@ -276,20 +276,10 @@ TEST_F(NppiAlphaCompPixelTest, DifferentAlphaOps) {
   NppiSize roi = {width, height};
 
   // Test different alpha operations
-  NppiAlphaOp ops[] = {
-    NPPI_OP_ALPHA_OVER,
-    NPPI_OP_ALPHA_IN,
-    NPPI_OP_ALPHA_OUT,
-    NPPI_OP_ALPHA_ATOP,
-    NPPI_OP_ALPHA_XOR,
-    NPPI_OP_ALPHA_PLUS,
-    NPPI_OP_ALPHA_OVER_PREMUL,
-    NPPI_OP_ALPHA_IN_PREMUL,
-    NPPI_OP_ALPHA_OUT_PREMUL,
-    NPPI_OP_ALPHA_ATOP_PREMUL,
-    NPPI_OP_ALPHA_XOR_PREMUL,
-    NPPI_OP_ALPHA_PLUS_PREMUL
-  };
+  NppiAlphaOp ops[] = {NPPI_OP_ALPHA_OVER,        NPPI_OP_ALPHA_IN,         NPPI_OP_ALPHA_OUT,
+                       NPPI_OP_ALPHA_ATOP,        NPPI_OP_ALPHA_XOR,        NPPI_OP_ALPHA_PLUS,
+                       NPPI_OP_ALPHA_OVER_PREMUL, NPPI_OP_ALPHA_IN_PREMUL,  NPPI_OP_ALPHA_OUT_PREMUL,
+                       NPPI_OP_ALPHA_ATOP_PREMUL, NPPI_OP_ALPHA_XOR_PREMUL, NPPI_OP_ALPHA_PLUS_PREMUL};
 
   for (int i = 0; i < 12; i++) {
     NppStatus status = nppiAlphaComp_8u_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, ops[i]);
@@ -333,8 +323,8 @@ TEST_F(NppiAlphaCompPixelTest, Ctx_32s_AC4R_AlphaOver) {
   NppStreamContext ctx;
   memset(&ctx, 0, sizeof(ctx));
   ctx.hStream = 0;
-  NppStatus status = nppiAlphaComp_32s_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi,
-                                               NPPI_OP_ALPHA_OVER, ctx);
+  NppStatus status =
+      nppiAlphaComp_32s_AC4R_Ctx(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER, ctx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   nppiFree(d_src1);
@@ -363,7 +353,8 @@ TEST_F(NppiAlphaCompPixelTest, Basic_32s_AC4R_AlphaOver) {
   cudaMemcpy2D(d_src2, src2Step, src2, hostStep, hostStep, height, cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiAlphaComp_32s_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
+  NppStatus status =
+      nppiAlphaComp_32s_AC4R(d_src1, src1Step, d_src2, src2Step, d_dst, dstStep, roi, NPPI_OP_ALPHA_OVER);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   if (status == NPP_SUCCESS) {

@@ -256,6 +256,32 @@ public:
 };
 
 // ============================================================================
+// Multi-Channel Shift Operation API Generator
+// ============================================================================
+
+template <typename T, int Channels, template <typename, int> class MultiOpTemplate> class ShiftMultiOpAPI {
+public:
+  // Multi-channel shift counts
+  static NppStatus execute(const T *pSrc, int nSrcStep, const Npp32u *aConstants, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return ShiftMultiOperationExecutor<T, Channels, MultiOpTemplate<T, Channels>>::execute(
+        pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+  }
+
+  // In-place multi-channel shift counts
+  static NppStatus executeInplace(const Npp32u *aConstants, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+    return execute(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  }
+};
+
+// Convenience aliases for shift operations
+template <typename T, int C> using LShift = ShiftOpAPI<T, C, LShiftConstOp>;
+template <typename T, int C> using RShift = ShiftOpAPI<T, C, RShiftConstOp>;
+template <typename T, int C> using LShiftMulti = ShiftMultiOpAPI<T, C, LShiftConstMultiOp>;
+template <typename T, int C> using RShiftMulti = ShiftMultiOpAPI<T, C, RShiftConstMultiOp>;
+
+// ============================================================================
 // Helper: Get default stream context
 // ============================================================================
 

@@ -120,8 +120,8 @@ public:
 
 // Custom kernels for AlphaComp operations with pixel alpha
 template <typename T>
-__global__ void alphaCompAC4Kernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
-                                   T *pDst, int nDstStep, int width, int height, NppiAlphaOp alphaOp) {
+__global__ void alphaCompAC4Kernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                                   int width, int height, NppiAlphaOp alphaOp) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -130,7 +130,7 @@ __global__ void alphaCompAC4Kernel(const T *pSrc1, int nSrc1Step, const T *pSrc2
     const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
     T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
-    int idx = x * 4; // AC4 format has 4 channels
+    int idx = x * 4;             // AC4 format has 4 channels
     T alpha1 = src1Row[idx + 3]; // Alpha from source 1
     T alpha2 = src2Row[idx + 3]; // Alpha from source 2
 
@@ -168,8 +168,8 @@ __global__ void alphaCompAC4Kernel(const T *pSrc1, int nSrc1Step, const T *pSrc2
 }
 
 template <typename T>
-__global__ void alphaCompAC4InPlaceKernel(const T *pSrc1, int nSrc1Step, T *pSrc2Dst, int nSrc2DstStep,
-                                         int width, int height, NppiAlphaOp alphaOp) {
+__global__ void alphaCompAC4InPlaceKernel(const T *pSrc1, int nSrc1Step, T *pSrc2Dst, int nSrc2DstStep, int width,
+                                          int height, NppiAlphaOp alphaOp) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -177,8 +177,8 @@ __global__ void alphaCompAC4InPlaceKernel(const T *pSrc1, int nSrc1Step, T *pSrc
     const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
     T *src2DstRow = (T *)((char *)pSrc2Dst + y * nSrc2DstStep);
 
-    int idx = x * 4; // AC4 format has 4 channels
-    T alpha1 = src1Row[idx + 3]; // Alpha from source 1
+    int idx = x * 4;                // AC4 format has 4 channels
+    T alpha1 = src1Row[idx + 3];    // Alpha from source 1
     T alpha2 = src2DstRow[idx + 3]; // Alpha from source 2 (in-place)
 
     AlphaCompPixelOp<T> op;
@@ -224,7 +224,7 @@ __global__ void alphaComp32sAC4Kernel(const Npp32s *pSrc1, int nSrc1Step, const 
     const Npp32s *src2Row = (const Npp32s *)((const char *)pSrc2 + y * nSrc2Step);
     Npp32s *dstRow = (Npp32s *)((char *)pDst + y * nDstStep);
 
-    int idx = x * 4; // AC4 format has 4 channels
+    int idx = x * 4;                  // AC4 format has 4 channels
     Npp32s alpha1 = src1Row[idx + 3]; // Alpha from source 1
     Npp32s alpha2 = src2Row[idx + 3]; // Alpha from source 2
 
@@ -245,7 +245,7 @@ __global__ void alphaComp32sAC4Kernel(const Npp32s *pSrc1, int nSrc1Step, const 
 }
 
 __global__ void alphaComp32sAC4InPlaceKernel(const Npp32s *pSrc1, int nSrc1Step, Npp32s *pSrc2Dst, int nSrc2DstStep,
-                                            int width, int height, NppiAlphaOp alphaOp) {
+                                             int width, int height, NppiAlphaOp alphaOp) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -253,8 +253,8 @@ __global__ void alphaComp32sAC4InPlaceKernel(const Npp32s *pSrc1, int nSrc1Step,
     const Npp32s *src1Row = (const Npp32s *)((const char *)pSrc1 + y * nSrc1Step);
     Npp32s *src2DstRow = (Npp32s *)((char *)pSrc2Dst + y * nSrc2DstStep);
 
-    int idx = x * 4; // AC4 format has 4 channels
-    Npp32s alpha1 = src1Row[idx + 3]; // Alpha from source 1
+    int idx = x * 4;                     // AC4 format has 4 channels
+    Npp32s alpha1 = src1Row[idx + 3];    // Alpha from source 1
     Npp32s alpha2 = src2DstRow[idx + 3]; // Alpha from source 2 (in-place)
 
     AlphaCompPixelOp<Npp32s> op;
@@ -279,8 +279,8 @@ extern "C" {
 // ============================================================================
 
 // 8u AC4 versions
-NppStatus nppiAlphaComp_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                    Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
+NppStatus nppiAlphaComp_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                    int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp,
                                     NppStreamContext nppStreamCtx) {
   // Validate parameters
   if (!pSrc1 || !pSrc2 || !pDst) {
@@ -305,8 +305,8 @@ NppStatus nppiAlphaComp_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaComp_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaComp_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAlphaComp_8u_AC4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
@@ -371,8 +371,8 @@ NppStatus nppiAlphaComp_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const N
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaComp_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
-                                 Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaComp_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAlphaComp_16u_AC4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
@@ -437,8 +437,8 @@ NppStatus nppiAlphaComp_32f_AC4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const N
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaComp_32f_AC4R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step,
-                                 Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaComp_32f_AC4R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAlphaComp_32f_AC4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
@@ -503,8 +503,8 @@ NppStatus nppiAlphaComp_32s_AC4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const N
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiAlphaComp_32s_AC4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSrc2, int nSrc2Step,
-                                 Npp32s *pDst, int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
+NppStatus nppiAlphaComp_32s_AC4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSrc2, int nSrc2Step, Npp32s *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppiAlphaOp eAlphaOp) {
   NppStreamContext defaultCtx = {};
   defaultCtx.hStream = 0; // Default CUDA stream
   return nppiAlphaComp_32s_AC4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eAlphaOp, defaultCtx);
