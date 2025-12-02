@@ -579,5 +579,54 @@ using LShiftMultiOperationExecutor = ShiftMultiOperationExecutor<T, Channels, LS
 template <typename T, int Channels>
 using RShiftMultiOperationExecutor = ShiftMultiOperationExecutor<T, Channels, RShiftConstMultiOp<T, Channels>>;
 
+// ============================================================================
+// DivRound Operation Kernel and Executor (with rounding mode)
+// ============================================================================
+
+template <typename T, int Channels>
+__global__ void divRoundKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                               int width, int height, NppRoundMode rndMode, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+    const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    DivRoundOp<T> op;
+    if constexpr (Channels == 1) {
+      dstRow[x] = op(src1Row[x], src2Row[x], scaleFactor, rndMode);
+    } else {
+      int idx = x * Channels;
+      for (int c = 0; c < Channels; c++) {
+        dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], scaleFactor, rndMode);
+      }
+    }
+  }
+}
+
+template <typename T, int Channels> class DivRoundOperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppRoundMode rndMode, int scaleFactor, cudaStream_t stream) {
+    // Validate parameters
+    NppStatus status = validateBinaryParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, Channels);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    divRoundKernel<T, Channels><<<gridSize, blockSize, 0, stream>>>(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, rndMode, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
 } // namespace arithmetic
 } // namespace nppi

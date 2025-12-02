@@ -1,67 +1,51 @@
-#include "nppi_arithmetic_executor.h"
-#include "nppi_arithmetic_ops.h"
+// Absolute difference with constant operation using template-based API
+#include "nppi_arithmetic_api.h"
 
 using namespace nppi::arithmetic;
 
-// Implementation functions using the unified executor
-extern "C" {
+template <typename T, int C> using AbsDiffC = ConstOpAPI<T, C, AbsDiffConstOp>;
 
-NppStatus nppiAbsDiffC_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                       Npp8u nConstant, NppStreamContext nppStreamCtx) {
-  AbsDiffConstOp<Npp8u> op(nConstant);
-  return ConstOperationExecutor<Npp8u, 1, AbsDiffConstOp<Npp8u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                          nppStreamCtx.hStream, op);
-}
+// ============================================================================
+// Npp8u - Unsigned 8-bit
+// ============================================================================
 
-NppStatus nppiAbsDiffC_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
-                                        Npp16u nConstant, NppStreamContext nppStreamCtx) {
-  AbsDiffConstOp<Npp16u> op(nConstant);
-  return ConstOperationExecutor<Npp16u, 1, AbsDiffConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                            nppStreamCtx.hStream, op);
-}
-
-NppStatus nppiAbsDiffC_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                        Npp32f nConstant, NppStreamContext nppStreamCtx) {
-  AbsDiffConstOp<Npp32f> op(nConstant);
-  return ConstOperationExecutor<Npp32f, 1, AbsDiffConstOp<Npp32f>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
-                                                                            nppStreamCtx.hStream, op);
-}
-
-} // extern "C"
-
-// Public API functions
+// C1R
 NppStatus nppiAbsDiffC_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   Npp8u nConstant, NppStreamContext nppStreamCtx) {
-  return nppiAbsDiffC_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, nppStreamCtx);
+  return AbsDiffC<Npp8u, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbsDiffC_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                               Npp8u nConstant) {
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-  return nppiAbsDiffC_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, nppStreamCtx);
+  return nppiAbsDiffC_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, getDefaultStreamContext());
 }
 
+// ============================================================================
+// Npp16u - Unsigned 16-bit
+// ============================================================================
+
+// C1R
 NppStatus nppiAbsDiffC_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                    Npp16u nConstant, NppStreamContext nppStreamCtx) {
-  return nppiAbsDiffC_16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, nppStreamCtx);
+  return AbsDiffC<Npp16u, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbsDiffC_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                Npp16u nConstant) {
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-  return nppiAbsDiffC_16u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, nppStreamCtx);
+  return nppiAbsDiffC_16u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, getDefaultStreamContext());
 }
 
+// ============================================================================
+// Npp32f - 32-bit Float
+// ============================================================================
+
+// C1R
 NppStatus nppiAbsDiffC_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                    Npp32f nConstant, NppStreamContext nppStreamCtx) {
-  return nppiAbsDiffC_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, nppStreamCtx);
+  return AbsDiffC<Npp32f, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbsDiffC_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                Npp32f nConstant) {
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-  return nppiAbsDiffC_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, nppStreamCtx);
+  return nppiAbsDiffC_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nConstant, getDefaultStreamContext());
 }

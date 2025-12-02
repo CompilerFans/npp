@@ -509,4 +509,112 @@ NppStatus nppiAbsDiffDeviceC_32f_C4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, con
                                                                nppStreamCtx.hStream, pConstants);
 }
 
+// ============================================================================
+// MulDeviceCScale Implementation
+// ============================================================================
+
+// 8u C1
+NppStatus nppiMulDeviceCScale_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstant, Npp8u *pDst,
+                                         int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 1, MulCScaleOp<Npp8u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiMulDeviceCScale_8u_C1IR_Ctx(const Npp8u *pConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                          NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 1, MulCScaleOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstant);
+}
+
+// 8u C3
+NppStatus nppiMulDeviceCScale_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstants, Npp8u *pDst,
+                                         int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 3, MulCScaleOp<Npp8u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiMulDeviceCScale_8u_C3IR_Ctx(const Npp8u *pConstants, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                          NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 3, MulCScaleOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstants);
+}
+
+// 8u AC4
+NppStatus nppiMulDeviceCScale_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstants, Npp8u *pDst,
+                                          int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 4, MulCScaleOp<Npp8u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiMulDeviceCScale_8u_AC4IR_Ctx(const Npp8u *pConstants, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 4, MulCScaleOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstants);
+}
+
+// 8u C4
+NppStatus nppiMulDeviceCScale_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pConstants, Npp8u *pDst,
+                                         int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 4, MulCScaleOp<Npp8u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiMulDeviceCScale_8u_C4IR_Ctx(const Npp8u *pConstants, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                          NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp8u, 4, MulCScaleOp<Npp8u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, pConstants);
+}
+
+// 16u C1
+NppStatus nppiMulDeviceCScale_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u *pConstant, Npp16u *pDst,
+                                          int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 1, MulCScaleOp<Npp16u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstant);
+}
+
+NppStatus nppiMulDeviceCScale_16u_C1IR_Ctx(const Npp16u *pConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 1, MulCScaleOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstant);
+}
+
+// 16u C3
+NppStatus nppiMulDeviceCScale_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u *pConstants, Npp16u *pDst,
+                                          int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 3, MulCScaleOp<Npp16u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiMulDeviceCScale_16u_C3IR_Ctx(const Npp16u *pConstants, Npp16u *pSrcDst, int nSrcDstStep,
+                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 3, MulCScaleOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstants);
+}
+
+// 16u AC4
+NppStatus nppiMulDeviceCScale_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u *pConstants, Npp16u *pDst,
+                                           int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 4, MulCScaleOp<Npp16u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiMulDeviceCScale_16u_AC4IR_Ctx(const Npp16u *pConstants, Npp16u *pSrcDst, int nSrcDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 4, MulCScaleOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstants);
+}
+
+// 16u C4
+NppStatus nppiMulDeviceCScale_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u *pConstants, Npp16u *pDst,
+                                          int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 4, MulCScaleOp<Npp16u>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstants);
+}
+
+NppStatus nppiMulDeviceCScale_16u_C4IR_Ctx(const Npp16u *pConstants, Npp16u *pSrcDst, int nSrcDstStep,
+                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return executeDeviceConst<Npp16u, 4, MulCScaleOp<Npp16u>>(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0,
+                                                            nppStreamCtx.hStream, pConstants);
+}
+
 } // extern "C"

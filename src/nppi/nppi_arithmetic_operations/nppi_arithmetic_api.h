@@ -282,6 +282,27 @@ template <typename T, int C> using LShiftMulti = ShiftMultiOpAPI<T, C, LShiftCon
 template <typename T, int C> using RShiftMulti = ShiftMultiOpAPI<T, C, RShiftConstMultiOp>;
 
 // ============================================================================
+// DivRound Operation API Generator (with rounding mode)
+// ============================================================================
+
+template <typename T, int Channels> class DivRoundOpAPI {
+public:
+  // Standard division with rounding mode
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return DivRoundOperationExecutor<T, Channels>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI,
+                                                           rndMode, nScaleFactor, nppStreamCtx.hStream);
+  }
+
+  // In-place with rounding mode
+  static NppStatus executeInplace(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppRoundMode rndMode, int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
+                   nppStreamCtx);
+  }
+};
+
+// ============================================================================
 // Helper: Get default stream context
 // ============================================================================
 

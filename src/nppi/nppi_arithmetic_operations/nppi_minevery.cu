@@ -1,78 +1,76 @@
-#include "nppi_arithmetic_executor.h"
-#include "nppi_arithmetic_ops.h"
+// MinEvery operation using template-based API
+#include "nppi_arithmetic_api.h"
 
 using namespace nppi::arithmetic;
 
+template <typename T, int C> using MinEvery = BinaryOpAPI<T, C, MinEveryOp>;
+
 // ============================================================================
-// MinEvery Implementation
-// nppiMinEvery: result = min(src1, src2) for each pixel
+// Npp8u - Unsigned 8-bit
 // ============================================================================
 
-extern "C" {
-
-// 8u versions
+// C1IR (in-place only)
 NppStatus nppiMinEvery_8u_C1IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp8u, 1, MinEveryOp<Npp8u>>::execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst,
-                                                                       nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+  return MinEvery<Npp8u, 1>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMinEvery_8u_C1IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
-  NppStreamContext defaultCtx = {};
-  defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiMinEvery_8u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
+  return nppiMinEvery_8u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-// 16u versions
+// ============================================================================
+// Npp16u - Unsigned 16-bit
+// ============================================================================
+
+// C1IR (in-place only)
 NppStatus nppiMinEvery_16u_C1IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp16u, 1, MinEveryOp<Npp16u>>::execute(
-      pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+  return MinEvery<Npp16u, 1>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMinEvery_16u_C1IR(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
-  NppStreamContext defaultCtx = {};
-  defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiMinEvery_16u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
+  return nppiMinEvery_16u_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-// 16s versions
+// ============================================================================
+// Npp16s - Signed 16-bit
+// ============================================================================
+
+// C1IR (in-place only)
 NppStatus nppiMinEvery_16s_C1IR_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp16s, 1, MinEveryOp<Npp16s>>::execute(
-      pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+  return MinEvery<Npp16s, 1>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMinEvery_16s_C1IR(const Npp16s *pSrc, int nSrcStep, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
-  NppStreamContext defaultCtx = {};
-  defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiMinEvery_16s_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
+  return nppiMinEvery_16s_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-// 32s versions
+// ============================================================================
+// Npp32s - Signed 32-bit
+// ============================================================================
+
+// C1IR (in-place only)
 NppStatus nppiMinEvery_32s_C1IR_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp32s, 1, MinEveryOp<Npp32s>>::execute(
-      pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+  return MinEvery<Npp32s, 1>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMinEvery_32s_C1IR(const Npp32s *pSrc, int nSrcStep, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
-  NppStreamContext defaultCtx = {};
-  defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiMinEvery_32s_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
+  return nppiMinEvery_32s_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-// 32f versions
+// ============================================================================
+// Npp32f - 32-bit Float
+// ============================================================================
+
+// C1IR (in-place only)
 NppStatus nppiMinEvery_32f_C1IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return BinaryOperationExecutor<Npp32f, 1, MinEveryOp<Npp32f>>::execute(
-      pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx.hStream);
+  return MinEvery<Npp32f, 1>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiMinEvery_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
-  NppStreamContext defaultCtx = {};
-  defaultCtx.hStream = 0; // Default CUDA stream
-  return nppiMinEvery_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, defaultCtx);
+  return nppiMinEvery_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
-
-} // extern "C"

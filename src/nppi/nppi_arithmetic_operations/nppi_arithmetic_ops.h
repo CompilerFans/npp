@@ -692,6 +692,100 @@ public:
   }
 };
 
+// MulCScaleOp: multiply by constant with scale (result = (src * constant) / max_value)
+template <typename T> class MulCScaleOp {
+private:
+  T constant;
+
+public:
+  __device__ __host__ MulCScaleOp(T c) : constant(c) {}
+
+  __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
+    if constexpr (std::is_same_v<T, Npp8u>) {
+      // For 8-bit: result = (a * constant) / 255
+      double result = (static_cast<double>(a) * static_cast<double>(constant)) / 255.0;
+      return saturate_cast<T>(result);
+    } else if constexpr (std::is_same_v<T, Npp16u>) {
+      // For 16-bit: result = (a * constant) / 65535
+      double result = (static_cast<double>(a) * static_cast<double>(constant)) / 65535.0;
+      return saturate_cast<T>(result);
+    } else {
+      // For other types, fallback to regular multiplication
+      return saturate_cast<T>(static_cast<double>(a) * static_cast<double>(constant));
+    }
+  }
+};
+
+// DivRoundOp: division with rounding mode support
+template <typename T> struct DivRoundOp {
+  __device__ __host__ T operator()(T a, T b, int scaleFactor = 0, NppRoundMode rndMode = NPP_RND_NEAR) const {
+    // NPP Div convention: pSrc2 / pSrc1, so b / a
+    if (a == T(0)) {
+      // Division by zero - saturate to maximum value for integers
+      if constexpr (std::is_same_v<T, Npp8u>)
+        return T(255);
+      else if constexpr (std::is_same_v<T, Npp16u>)
+        return T(65535);
+      else if constexpr (std::is_same_v<T, Npp16s>)
+        return (b >= T(0)) ? T(32767) : T(-32768);
+      else
+        return T(0);
+    }
+
+    double result = static_cast<double>(b) / static_cast<double>(a);
+
+    // Apply scale factor first
+    if (scaleFactor != 0) {
+      if (scaleFactor > 0) {
+        result = result / static_cast<double>(1 << scaleFactor);
+      } else {
+        result = result * static_cast<double>(1 << (-scaleFactor));
+      }
+    }
+
+    // Apply rounding mode
+    // Note: NPP_RND_NEAR == NPP_ROUND_NEAREST_TIES_TO_EVEN (aliases)
+    // Note: NPP_RND_FINANCIAL == NPP_ROUND_NEAREST_TIES_AWAY_FROM_ZERO (aliases)
+    // Note: NPP_RND_ZERO == NPP_ROUND_TOWARD_ZERO (aliases)
+    switch (rndMode) {
+    case NPP_RND_NEAR: {
+      // Round to nearest even (banker's rounding)
+      double floor_val = std::floor(result);
+      double frac = result - floor_val;
+      if (frac > 0.5) {
+        result = floor_val + 1.0;
+      } else if (frac < 0.5) {
+        result = floor_val;
+      } else {
+        // Exactly 0.5 - round to nearest even
+        int floor_int = static_cast<int>(floor_val);
+        result = (floor_int % 2 == 0) ? floor_val : floor_val + 1.0;
+      }
+      break;
+    }
+    case NPP_RND_FINANCIAL:
+      // Round away from zero at 0.5
+      if (result >= 0) {
+        result = std::floor(result + 0.5);
+      } else {
+        result = std::ceil(result - 0.5);
+      }
+      break;
+    case NPP_RND_ZERO:
+    default:
+      // Truncate toward zero
+      if (result >= 0) {
+        result = std::floor(result);
+      } else {
+        result = std::ceil(result);
+      }
+      break;
+    }
+
+    return saturate_cast<T>(result);
+  }
+};
+
 // DivConstOp: division by constant with proper zero handling
 template <typename T> class DivConstOp {
 private:
