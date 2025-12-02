@@ -12,32 +12,14 @@ __constant__ Npp8u d_gamma_fwd_lut[256];
 __constant__ Npp8u d_gamma_inv_lut[256];
 
 // ============================================================================
-// Device Helper Functions: sRGB Standard Gamma Curves
-// ============================================================================
-
-__device__ inline float srgb_forward_float(float linear) {
-    if (linear <= 0.0031308f)
-        return 12.92f * linear;
-    else
-        return 1.055f * powf(linear, 1.0f/2.4f) - 0.055f;
-}
-
-__device__ inline float srgb_inverse_float(float srgb) {
-    if (srgb <= 0.04045f)
-        return srgb / 12.92f;
-    else
-        return powf((srgb + 0.055f) / 1.055f, 2.4f);
-}
-
-// ============================================================================
 // Host Function: Initialize LUT
 // ============================================================================
 
 static std::mutex g_init_mutex;
 
-// NVIDIA NPP uses simple power-law gamma (not standard sRGB)
-// Reverse-engineered from actual NVIDIA NPP behavior: gamma = 1.87
-static constexpr float NPP_GAMMA = 1.87f;
+// NVIDIA NPP Gamma LUT - Extracted directly from NVIDIA NPP library
+// These values provide 100% exact match with NVIDIA's implementation
+// Reverse-engineered using extract_nvidia_gamma_lut tool
 
 static void initGammaLUT() {
     static bool initialized = false;
@@ -46,24 +28,47 @@ static void initGammaLUT() {
     std::lock_guard<std::mutex> lock(g_init_mutex);
     if (initialized) return;
 
-    Npp8u h_gamma_fwd_lut[256];
-    Npp8u h_gamma_inv_lut[256];
+    // Forward Gamma LUT (Linear -> sRGB encoding)
+    // Extracted from NVIDIA NPP - provides exact pixel-perfect matching
+    static const Npp8u h_gamma_fwd_lut[256] = {
+        0, 4, 9, 13, 18, 22, 26, 30, 33, 36, 40, 42, 45, 48, 50, 53,
+        55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 76, 78, 80, 81, 83,
+        84, 86, 87, 89, 90, 92, 93, 95, 96, 97, 99, 100, 101, 103, 104, 105,
+        106, 108, 109, 110, 111, 112, 114, 115, 116, 117, 118, 119, 120, 121, 123, 124,
+        125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140,
+        141, 142, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 151, 152, 153, 154,
+        155, 156, 156, 157, 158, 159, 160, 161, 161, 162, 163, 164, 165, 165, 166, 167,
+        168, 169, 169, 170, 171, 172, 172, 173, 174, 175, 175, 176, 177, 178, 178, 179,
+        180, 180, 181, 182, 183, 183, 184, 185, 185, 186, 187, 188, 188, 189, 190, 190,
+        191, 192, 192, 193, 194, 194, 195, 196, 196, 197, 198, 198, 199, 200, 200, 201,
+        201, 202, 203, 203, 204, 205, 205, 206, 207, 207, 208, 208, 209, 210, 210, 211,
+        211, 212, 213, 213, 214, 214, 215, 216, 216, 217, 217, 218, 219, 219, 220, 220,
+        221, 221, 222, 223, 223, 224, 224, 225, 225, 226, 227, 227, 228, 228, 229, 229,
+        230, 231, 231, 232, 232, 233, 233, 234, 234, 235, 235, 236, 236, 237, 238, 238,
+        239, 239, 240, 240, 241, 241, 242, 242, 243, 243, 244, 244, 245, 245, 246, 246,
+        247, 247, 248, 248, 249, 250, 250, 251, 251, 252, 252, 253, 253, 254, 254, 255,
+    };
 
-    // Precompute Forward Gamma LUT
-    // NVIDIA uses simple power law: output = input^(1/gamma)
-    for (int i = 0; i < 256; i++) {
-        float normalized = i / 255.0f;
-        float gamma_value = powf(normalized, 1.0f / NPP_GAMMA);
-        h_gamma_fwd_lut[i] = (Npp8u)(gamma_value * 255.0f + 0.5f);
-    }
-
-    // Precompute Inverse Gamma LUT
-    // NVIDIA uses simple power law: output = input^gamma
-    for (int i = 0; i < 256; i++) {
-        float normalized = i / 255.0f;
-        float gamma_value = powf(normalized, NPP_GAMMA);
-        h_gamma_inv_lut[i] = (Npp8u)(gamma_value * 255.0f + 0.5f);
-    }
+    // Inverse Gamma LUT (sRGB -> Linear decoding)
+    // Extracted from NVIDIA NPP - provides exact pixel-perfect matching
+    static const Npp8u h_gamma_inv_lut[256] = {
+        0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3,
+        3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7,
+        7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12,
+        12, 13, 13, 14, 14, 15, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19,
+        20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 26, 26, 27, 27, 28,
+        28, 29, 30, 30, 31, 32, 32, 33, 34, 34, 35, 36, 36, 37, 38, 38,
+        39, 40, 41, 41, 42, 43, 44, 44, 45, 46, 47, 48, 48, 49, 50, 51,
+        52, 53, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 62, 63, 64, 65,
+        66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 81, 82,
+        83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 98, 99, 100,
+        101, 102, 104, 105, 106, 107, 109, 110, 111, 113, 114, 115, 116, 118, 119, 120,
+        122, 123, 124, 126, 127, 129, 130, 131, 133, 134, 136, 137, 139, 140, 141, 143,
+        144, 146, 147, 149, 150, 152, 153, 155, 157, 158, 160, 161, 163, 164, 166, 168,
+        169, 171, 172, 174, 176, 177, 179, 181, 182, 184, 186, 187, 189, 191, 193, 194,
+        196, 198, 200, 201, 203, 205, 207, 209, 210, 212, 214, 216, 218, 220, 221, 223,
+        225, 227, 229, 231, 233, 235, 237, 239, 241, 243, 245, 246, 248, 250, 252, 255,
+    };
 
     // Copy to GPU constant memory
     cudaMemcpyToSymbol(d_gamma_fwd_lut, h_gamma_fwd_lut, 256 * sizeof(Npp8u));
