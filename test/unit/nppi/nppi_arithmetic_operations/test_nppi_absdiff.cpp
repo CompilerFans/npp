@@ -211,3 +211,208 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C1R_Ctx) {
   cudaFree(d_src2);
   cudaFree(d_dst);
 }
+
+// Test 16u C1R with context
+TEST_F(NPPIAbsDiffTest, AbsDiff_16u_C1R) {
+  size_t dataSize = width * height;
+  std::vector<Npp16u> src1Data(dataSize), src2Data(dataSize), dstData(dataSize);
+
+  for (size_t i = 0; i < dataSize; i++) {
+    src1Data[i] = static_cast<Npp16u>(rand() % 65536);
+    src2Data[i] = static_cast<Npp16u>(rand() % 65536);
+  }
+
+  Npp16u *d_src1, *d_src2, *d_dst;
+  int srcStep = width * sizeof(Npp16u);
+  int dstStep = width * sizeof(Npp16u);
+
+  cudaMalloc(&d_src1, dataSize * sizeof(Npp16u));
+  cudaMalloc(&d_src2, dataSize * sizeof(Npp16u));
+  cudaMalloc(&d_dst, dataSize * sizeof(Npp16u));
+
+  cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp16u), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp16u), cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiAbsDiff_16u_C1R(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp16u), cudaMemcpyDeviceToHost);
+
+  verifyAbsDiff(src1Data, src2Data, dstData);
+
+  cudaFree(d_src1);
+  cudaFree(d_src2);
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPIAbsDiffTest, AbsDiff_16u_C1R_Ctx) {
+  size_t dataSize = width * height;
+  std::vector<Npp16u> src1Data(dataSize), src2Data(dataSize), dstData(dataSize);
+
+  for (size_t i = 0; i < dataSize; i++) {
+    src1Data[i] = static_cast<Npp16u>(rand() % 65536);
+    src2Data[i] = static_cast<Npp16u>(rand() % 65536);
+  }
+
+  Npp16u *d_src1, *d_src2, *d_dst;
+  int srcStep = width * sizeof(Npp16u);
+  int dstStep = width * sizeof(Npp16u);
+
+  cudaMalloc(&d_src1, dataSize * sizeof(Npp16u));
+  cudaMalloc(&d_src2, dataSize * sizeof(Npp16u));
+  cudaMalloc(&d_dst, dataSize * sizeof(Npp16u));
+
+  cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp16u), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp16u), cudaMemcpyHostToDevice);
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status = nppiAbsDiff_16u_C1R_Ctx(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp16u), cudaMemcpyDeviceToHost);
+
+  verifyAbsDiff(src1Data, src2Data, dstData);
+
+  cudaFree(d_src1);
+  cudaFree(d_src2);
+  cudaFree(d_dst);
+}
+
+// Test 32f with context
+TEST_F(NPPIAbsDiffTest, AbsDiff_32f_C1R_Ctx) {
+  size_t dataSize = width * height;
+  std::vector<Npp32f> src1Data(dataSize), src2Data(dataSize), dstData(dataSize);
+
+  for (size_t i = 0; i < dataSize; i++) {
+    src1Data[i] = static_cast<Npp32f>((rand() / (float)RAND_MAX) * 2.0f - 1.0f);
+    src2Data[i] = static_cast<Npp32f>((rand() / (float)RAND_MAX) * 2.0f - 1.0f);
+  }
+
+  Npp32f *d_src1, *d_src2, *d_dst;
+  int srcStep = width * sizeof(Npp32f);
+  int dstStep = width * sizeof(Npp32f);
+
+  cudaMalloc(&d_src1, dataSize * sizeof(Npp32f));
+  cudaMalloc(&d_src2, dataSize * sizeof(Npp32f));
+  cudaMalloc(&d_dst, dataSize * sizeof(Npp32f));
+
+  cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status = nppiAbsDiff_32f_C1R_Ctx(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+
+  for (size_t i = 0; i < dstData.size(); i++) {
+    float expected = fabs(src1Data[i] - src2Data[i]);
+    EXPECT_NEAR(dstData[i], expected, 1e-6f) << "Mismatch at index " << i;
+  }
+
+  cudaFree(d_src1);
+  cudaFree(d_src2);
+  cudaFree(d_dst);
+}
+
+// Test 8u C3R with context
+TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C3R_Ctx) {
+  size_t dataSize = width * height * 3;
+  std::vector<Npp8u> src1Data(dataSize), src2Data(dataSize), dstData(dataSize);
+
+  generateRandomData(src1Data, dataSize, Npp8u(0), Npp8u(255));
+  generateRandomData(src2Data, dataSize, Npp8u(0), Npp8u(255));
+
+  Npp8u *d_src1, *d_src2, *d_dst;
+  int srcStep = width * 3 * sizeof(Npp8u);
+  int dstStep = width * 3 * sizeof(Npp8u);
+
+  cudaMalloc(&d_src1, dataSize * sizeof(Npp8u));
+  cudaMalloc(&d_src2, dataSize * sizeof(Npp8u));
+  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
+
+  cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status = nppiAbsDiff_8u_C3R_Ctx(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+
+  verifyAbsDiff(src1Data, src2Data, dstData, 3);
+
+  cudaFree(d_src1);
+  cudaFree(d_src2);
+  cudaFree(d_dst);
+}
+
+// Test 8u C4R
+TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C4R) {
+  size_t dataSize = width * height * 4;
+  std::vector<Npp8u> src1Data(dataSize), src2Data(dataSize), dstData(dataSize);
+
+  generateRandomData(src1Data, dataSize, Npp8u(0), Npp8u(255));
+  generateRandomData(src2Data, dataSize, Npp8u(0), Npp8u(255));
+
+  Npp8u *d_src1, *d_src2, *d_dst;
+  int srcStep = width * 4 * sizeof(Npp8u);
+  int dstStep = width * 4 * sizeof(Npp8u);
+
+  cudaMalloc(&d_src1, dataSize * sizeof(Npp8u));
+  cudaMalloc(&d_src2, dataSize * sizeof(Npp8u));
+  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
+
+  cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiAbsDiff_8u_C4R(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+
+  verifyAbsDiff(src1Data, src2Data, dstData, 4);
+
+  cudaFree(d_src1);
+  cudaFree(d_src2);
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C4R_Ctx) {
+  size_t dataSize = width * height * 4;
+  std::vector<Npp8u> src1Data(dataSize), src2Data(dataSize), dstData(dataSize);
+
+  generateRandomData(src1Data, dataSize, Npp8u(0), Npp8u(255));
+  generateRandomData(src2Data, dataSize, Npp8u(0), Npp8u(255));
+
+  Npp8u *d_src1, *d_src2, *d_dst;
+  int srcStep = width * 4 * sizeof(Npp8u);
+  int dstStep = width * 4 * sizeof(Npp8u);
+
+  cudaMalloc(&d_src1, dataSize * sizeof(Npp8u));
+  cudaMalloc(&d_src2, dataSize * sizeof(Npp8u));
+  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
+
+  cudaMemcpy(d_src1, src1Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_src2, src2Data.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
+
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status = nppiAbsDiff_8u_C4R_Ctx(d_src1, srcStep, d_src2, srcStep, d_dst, dstStep, roi, nppStreamCtx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+
+  verifyAbsDiff(src1Data, src2Data, dstData, 4);
+
+  cudaFree(d_src1);
+  cudaFree(d_src2);
+  cudaFree(d_dst);
+}

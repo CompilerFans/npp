@@ -234,3 +234,302 @@ TEST_F(NppiAddWeightedTest, AddWeighted_Alpha_EdgeCases) {
     nppiFree(d_srcDst);
   }
 }
+
+// ============================================================================
+// Context (_Ctx) version tests
+// ============================================================================
+
+TEST_F(NppiAddWeightedTest, AddWeighted_8u32f_C1IR_Ctx_BasicOperation) {
+  const int width = 4;
+  const int height = 2;
+  const int totalPixels = width * height;
+
+  std::vector<Npp8u> hostSrc = {100, 150, 200, 50, 75, 125, 175, 225};
+  std::vector<Npp32f> hostSrcDst = {10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f};
+
+  Npp32f alpha = 0.3f;
+
+  std::vector<Npp32f> expected(totalPixels);
+  for (int i = 0; i < totalPixels; ++i) {
+    expected[i] = static_cast<float>(hostSrc[i]) * alpha + hostSrcDst[i] * (1.0f - alpha);
+  }
+
+  int srcStep, srcDstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  Npp32f *d_srcDst = nppiMalloc_32f_C1(width, height, &srcDstStep);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_srcDst, nullptr);
+
+  int hostSrcStep = width * sizeof(Npp8u);
+  int hostSrcDstStep = width * sizeof(Npp32f);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), hostSrcStep, hostSrcStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_srcDst, srcDstStep, hostSrcDst.data(), hostSrcDstStep, hostSrcDstStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  NppStatus status = nppiAddWeighted_8u32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostSrcDstStep, d_srcDst, srcDstStep, hostSrcDstStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_NEAR(hostResult[i], expected[i], 1e-5f) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_srcDst);
+}
+
+TEST_F(NppiAddWeightedTest, AddWeighted_16u32f_C1IR_Ctx_BasicOperation) {
+  const int width = 3;
+  const int height = 2;
+  const int totalPixels = width * height;
+
+  std::vector<Npp16u> hostSrc = {1000, 2000, 3000, 4000, 5000, 6000};
+  std::vector<Npp32f> hostSrcDst = {100.0f, 200.0f, 300.0f, 400.0f, 500.0f, 600.0f};
+
+  Npp32f alpha = 0.7f;
+
+  std::vector<Npp32f> expected(totalPixels);
+  for (int i = 0; i < totalPixels; ++i) {
+    expected[i] = static_cast<float>(hostSrc[i]) * alpha + hostSrcDst[i] * (1.0f - alpha);
+  }
+
+  int srcStep, srcDstStep;
+  Npp16u *d_src = nppiMalloc_16u_C1(width, height, &srcStep);
+  Npp32f *d_srcDst = nppiMalloc_32f_C1(width, height, &srcDstStep);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_srcDst, nullptr);
+
+  int hostSrcStep = width * sizeof(Npp16u);
+  int hostSrcDstStep = width * sizeof(Npp32f);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), hostSrcStep, hostSrcStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_srcDst, srcDstStep, hostSrcDst.data(), hostSrcDstStep, hostSrcDstStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  NppStatus status = nppiAddWeighted_16u32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostSrcDstStep, d_srcDst, srcDstStep, hostSrcDstStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_NEAR(hostResult[i], expected[i], 1e-3f) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_srcDst);
+}
+
+TEST_F(NppiAddWeightedTest, AddWeighted_32f_C1IR_Ctx_FloatingPoint) {
+  const int width = 3;
+  const int height = 2;
+  const int totalPixels = width * height;
+
+  std::vector<Npp32f> hostSrc = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
+  std::vector<Npp32f> hostSrcDst = {0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f};
+
+  Npp32f alpha = 0.4f;
+
+  std::vector<Npp32f> expected(totalPixels);
+  for (int i = 0; i < totalPixels; ++i) {
+    expected[i] = hostSrc[i] * alpha + hostSrcDst[i] * (1.0f - alpha);
+  }
+
+  int srcStep, srcDstStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  Npp32f *d_srcDst = nppiMalloc_32f_C1(width, height, &srcDstStep);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_srcDst, nullptr);
+
+  int hostStep = width * sizeof(Npp32f);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_srcDst, srcDstStep, hostSrcDst.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  NppStatus status = nppiAddWeighted_32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostStep, d_srcDst, srcDstStep, hostStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_NEAR(hostResult[i], expected[i], 1e-6f) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_srcDst);
+}
+
+// ============================================================================
+// Masked version tests (_C1IMR)
+// ============================================================================
+
+TEST_F(NppiAddWeightedTest, AddWeighted_8u32f_C1IMR_MaskedOperation) {
+  const int width = 4;
+  const int height = 2;
+  const int totalPixels = width * height;
+
+  std::vector<Npp8u> hostSrc = {100, 150, 200, 50, 75, 125, 175, 225};
+  std::vector<Npp32f> hostSrcDst = {10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f};
+  std::vector<Npp8u> hostMask = {255, 0, 255, 0, 0, 255, 0, 255};
+
+  Npp32f alpha = 0.5f;
+
+  // Expected: src * alpha + dst * (1-alpha) only where mask != 0
+  std::vector<Npp32f> expected(totalPixels);
+  for (int i = 0; i < totalPixels; ++i) {
+    if (hostMask[i] != 0) {
+      expected[i] = static_cast<float>(hostSrc[i]) * alpha + hostSrcDst[i] * (1.0f - alpha);
+    } else {
+      expected[i] = hostSrcDst[i];
+    }
+  }
+
+  int srcStep, srcDstStep, maskStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  Npp32f *d_srcDst = nppiMalloc_32f_C1(width, height, &srcDstStep);
+  Npp8u *d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_srcDst, nullptr);
+  ASSERT_NE(d_mask, nullptr);
+
+  int hostSrcStep = width * sizeof(Npp8u);
+  int hostSrcDstStep = width * sizeof(Npp32f);
+  int hostMaskStep = width * sizeof(Npp8u);
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), hostSrcStep, hostSrcStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_srcDst, srcDstStep, hostSrcDst.data(), hostSrcDstStep, hostSrcDstStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_mask, maskStep, hostMask.data(), hostMaskStep, hostMaskStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStatus status = nppiAddWeighted_8u32f_C1IMR(d_src, srcStep, d_mask, maskStep, d_srcDst, srcDstStep, oSizeROI, alpha);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostSrcDstStep, d_srcDst, srcDstStep, hostSrcDstStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_NEAR(hostResult[i], expected[i], 1e-5f) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_srcDst);
+  nppiFree(d_mask);
+}
+
+TEST_F(NppiAddWeightedTest, AddWeighted_16u32f_C1IMR_MaskedOperation) {
+  const int width = 4;
+  const int height = 2;
+  const int totalPixels = width * height;
+
+  std::vector<Npp16u> hostSrc = {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000};
+  std::vector<Npp32f> hostSrcDst = {100.0f, 200.0f, 300.0f, 400.0f, 500.0f, 600.0f, 700.0f, 800.0f};
+  std::vector<Npp8u> hostMask = {255, 0, 255, 0, 0, 255, 0, 255};
+
+  Npp32f alpha = 0.6f;
+
+  std::vector<Npp32f> expected(totalPixels);
+  for (int i = 0; i < totalPixels; ++i) {
+    if (hostMask[i] != 0) {
+      expected[i] = static_cast<float>(hostSrc[i]) * alpha + hostSrcDst[i] * (1.0f - alpha);
+    } else {
+      expected[i] = hostSrcDst[i];
+    }
+  }
+
+  int srcStep, srcDstStep, maskStep;
+  Npp16u *d_src = nppiMalloc_16u_C1(width, height, &srcStep);
+  Npp32f *d_srcDst = nppiMalloc_32f_C1(width, height, &srcDstStep);
+  Npp8u *d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_srcDst, nullptr);
+  ASSERT_NE(d_mask, nullptr);
+
+  int hostSrcStep = width * sizeof(Npp16u);
+  int hostSrcDstStep = width * sizeof(Npp32f);
+  int hostMaskStep = width * sizeof(Npp8u);
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), hostSrcStep, hostSrcStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_srcDst, srcDstStep, hostSrcDst.data(), hostSrcDstStep, hostSrcDstStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_mask, maskStep, hostMask.data(), hostMaskStep, hostMaskStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStatus status =
+      nppiAddWeighted_16u32f_C1IMR(d_src, srcStep, d_mask, maskStep, d_srcDst, srcDstStep, oSizeROI, alpha);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostSrcDstStep, d_srcDst, srcDstStep, hostSrcDstStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_NEAR(hostResult[i], expected[i], 1e-3f) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_srcDst);
+  nppiFree(d_mask);
+}
+
+TEST_F(NppiAddWeightedTest, AddWeighted_32f_C1IMR_MaskedOperation) {
+  const int width = 4;
+  const int height = 2;
+  const int totalPixels = width * height;
+
+  std::vector<Npp32f> hostSrc = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+  std::vector<Npp32f> hostSrcDst = {0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f};
+  std::vector<Npp8u> hostMask = {255, 0, 255, 0, 0, 255, 0, 255};
+
+  Npp32f alpha = 0.4f;
+
+  std::vector<Npp32f> expected(totalPixels);
+  for (int i = 0; i < totalPixels; ++i) {
+    if (hostMask[i] != 0) {
+      expected[i] = hostSrc[i] * alpha + hostSrcDst[i] * (1.0f - alpha);
+    } else {
+      expected[i] = hostSrcDst[i];
+    }
+  }
+
+  int srcStep, srcDstStep, maskStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  Npp32f *d_srcDst = nppiMalloc_32f_C1(width, height, &srcDstStep);
+  Npp8u *d_mask = nppiMalloc_8u_C1(width, height, &maskStep);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_srcDst, nullptr);
+  ASSERT_NE(d_mask, nullptr);
+
+  int hostStep = width * sizeof(Npp32f);
+  int hostMaskStep = width * sizeof(Npp8u);
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_srcDst, srcDstStep, hostSrcDst.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_mask, maskStep, hostMask.data(), hostMaskStep, hostMaskStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStatus status = nppiAddWeighted_32f_C1IMR(d_src, srcStep, d_mask, maskStep, d_srcDst, srcDstStep, oSizeROI, alpha);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostStep, d_srcDst, srcDstStep, hostStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_NEAR(hostResult[i], expected[i], 1e-6f) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_srcDst);
+  nppiFree(d_mask);
+}
