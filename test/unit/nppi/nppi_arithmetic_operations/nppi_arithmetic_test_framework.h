@@ -106,6 +106,144 @@ template <typename T, typename ConstT = T> T add_c_sfs(T x, ConstT c, int scaleF
   }
 }
 
+// SubC: dst = saturate(src - constant)
+template <typename T, typename ConstT = T> T sub_c(T x, ConstT c) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return static_cast<T>(x) - static_cast<T>(c);
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(x) - static_cast<int>(c);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(x) - static_cast<int>(c);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(x) - static_cast<int>(c);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x - c);
+  }
+}
+
+// SubC with scale factor: dst = saturate((src - constant) >> scaleFactor)
+template <typename T, typename ConstT = T> T sub_c_sfs(T x, ConstT c, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(x) - static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(x) - static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(x) - static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x - c);
+  }
+}
+
+// MulC: dst = saturate(src * constant)
+template <typename T, typename ConstT = T> T mul_c(T x, ConstT c) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return static_cast<T>(x) * static_cast<T>(c);
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(x) * static_cast<int>(c);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(x) * static_cast<int>(c);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(x) * static_cast<int>(c);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x * c);
+  }
+}
+
+// MulC with scale factor: dst = saturate((src * constant) >> scaleFactor)
+template <typename T, typename ConstT = T> T mul_c_sfs(T x, ConstT c, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(x) * static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(x) * static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(x) * static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x * c);
+  }
+}
+
+// DivC: dst = saturate(round(src / constant))
+// NPP uses rounding division for integer types
+template <typename T, typename ConstT = T> T div_c(T x, ConstT c) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return static_cast<T>(x) / static_cast<T>(c);
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    if (c == 0) return 0;
+    // NPP uses rounding: (x + c/2) / c
+    int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    if (c == 0) return 0;
+    int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    if (c == 0) return 0;
+    int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x / c);
+  }
+}
+
+// DivC with scale factor: dst = saturate(round(src / constant) >> scaleFactor)
+template <typename T, typename ConstT = T> T div_c_sfs(T x, ConstT c, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    if (c == 0) return 0;
+    // NPP uses rounding division
+    int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    if (c == 0) return 0;
+    int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    if (c == 0) return 0;
+    int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x / c);
+  }
+}
+
 } // namespace expect
 
 // Test parameter structures

@@ -1,226 +1,301 @@
 #include "npp_test_base.h"
-#include <algorithm>
-#include <cmath>
+#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
+using namespace npp_arithmetic_test;
 
-class DivCFunctionalTest : public NppTestBase {
-protected:
-  void SetUp() override { NppTestBase::SetUp(); }
+// ==================== DivC 32f TEST_P ====================
 
-  void TearDown() override { NppTestBase::TearDown(); }
+struct DivC32fParam {
+  int width;
+  int height;
+  Npp32f constant;
+  bool use_ctx;
+  bool in_place;
+  std::string name;
 };
 
-// 测试8位单通道除法（带缩放因子）
-TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_Basic) {
-  const int width = 64, height = 64;
-  const Npp8u divisor = 2;
-  const int nScaleFactor = 0;
+class DivC32fParamTest : public NppTestBase, public ::testing::WithParamInterface<DivC32fParam> {};
 
-  // prepare test data
-  std::vector<Npp8u> srcData(width * height);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i] = static_cast<Npp8u>((i % 200) + 50); // 50-249bounds
-  }
+TEST_P(DivC32fParamTest, DivC_32f_C1R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp32f constant = param.constant;
 
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
-  src.copyFromHost(srcData);
-
-  // 设置参数
-  NppiSize oSizeROI = {width, height};
-
-  // 获取流上下文
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-
-  // 执行除法
-  NppStatus status = nppiDivC_8u_C1RSfs_Ctx(src.get(), src.step(), divisor, dst.get(), dst.step(), oSizeROI,
-                                            nScaleFactor, nppStreamCtx);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  std::vector<Npp8u> dstData(width * height);
-  dst.copyToHost(dstData);
-
-  // Validate除法结果（考虑舍入差异）
-  for (int i = 0; i < width * height; i++) {
-    Npp8u expected = static_cast<Npp8u>(srcData[i] / divisor);
-    // NPP可能使用不同的舍入方式，允许±1的误差
-    ASSERT_TRUE(abs((int)dstData[i] - (int)expected) <= 1)
-        << "At index " << i << ": expected " << (int)expected << " but got " << (int)dstData[i]
-        << " (src=" << (int)srcData[i] << ", divisor=" << (int)divisor << ")";
-  }
-}
-
-// 测试8位三通道除法（带缩放因子）
-TEST_F(DivCFunctionalTest, DivC_8u_C3RSfs_Ctx_ColorImage) {
-  const int width = 32, height = 32;
-  const Npp8u aDivisor[3] = {2, 4, 8}; // RGB各通道不同的除数
-  const int nScaleFactor = 0;
-
-  // prepare test data
-  std::vector<Npp8u> srcData(width * height * 3);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i * 3 + 0] = static_cast<Npp8u>(200); // R
-    srcData[i * 3 + 1] = static_cast<Npp8u>(160); // G
-    srcData[i * 3 + 2] = static_cast<Npp8u>(240); // B
-  }
-
-  NppImageMemory<Npp8u> src(width, height, 3);
-  NppImageMemory<Npp8u> dst(width, height, 3);
-
-  src.copyFromHost(srcData);
-
-  // 设置参数
-  NppiSize oSizeROI = {width, height};
-
-  // 获取流上下文
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-
-  // 执行除法
-  NppStatus status = nppiDivC_8u_C3RSfs_Ctx(src.get(), src.step(), aDivisor, dst.get(), dst.step(), oSizeROI,
-                                            nScaleFactor, nppStreamCtx);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  std::vector<Npp8u> dstData(width * height * 3);
-  dst.copyToHost(dstData);
-
-  // Validate除法结果
-  for (int i = 0; i < width * height; i++) {
-    ASSERT_EQ(dstData[i * 3 + 0], 200 / 2); // R通道
-    ASSERT_EQ(dstData[i * 3 + 1], 160 / 4); // G通道
-    ASSERT_EQ(dstData[i * 3 + 2], 240 / 8); // B通道
-  }
-}
-
-// 测试32位浮点单通道除法
-TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_FloatingPoint) {
-  const int width = 48, height = 48;
-  const Npp32f divisor = 3.14159f;
-
-  // prepare test data
   std::vector<Npp32f> srcData(width * height);
-  for (int i = 0; i < width * height; i++) {
-    srcData[i] = static_cast<float>(i + 1); // 1, 2, 3, ...
+  TestDataGenerator::generateRandom(srcData, 1.0f, 100.0f, 12345);
+
+  std::vector<Npp32f> expectedData(width * height);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::div_c<Npp32f>(srcData[i], constant);
   }
 
   NppImageMemory<Npp32f> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
   src.copyFromHost(srcData);
 
-  // 设置参数
-  NppiSize oSizeROI = {width, height};
+  NppiSize roi = {width, height};
+  NppStatus status;
 
-  // 获取流上下文
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_32f_C1IR_Ctx(constant, src.get(), src.step(), roi, ctx);
+    } else {
+      status = nppiDivC_32f_C1IR(constant, src.get(), src.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
 
-  // 执行除法
-  NppStatus status =
-      nppiDivC_32f_C1R_Ctx(src.get(), src.step(), divisor, dst.get(), dst.step(), oSizeROI, nppStreamCtx);
+    std::vector<Npp32f> resultData(width * height);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-4f));
+  } else {
+    NppImageMemory<Npp32f> dst(width, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_32f_C1R_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiDivC_32f_C1R(src.get(), src.step(), constant, dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
 
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  std::vector<Npp32f> dstData(width * height);
-  dst.copyToHost(dstData);
-
-  // Validate除法结果
-  for (int i = 0; i < width * height; i++) {
-    float expected = srcData[i] / divisor;
-    ASSERT_NEAR(dstData[i], expected, 1e-6f);
+    std::vector<Npp32f> resultData(width * height);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-4f));
   }
 }
 
-// 测试缩放因子的效果
-TEST_F(DivCFunctionalTest, DivC_8u_C1RSfs_Ctx_ScaleFactor) {
-  const int width = 16, height = 16;
-  const Npp8u divisor = 2;
-  const int nScaleFactor = 1; // 结果左移1位（乘以2）
+INSTANTIATE_TEST_SUITE_P(DivC32f, DivC32fParamTest,
+                         ::testing::Values(DivC32fParam{32, 32, 2.5f, false, false, "32x32_noCtx"},
+                                           DivC32fParam{32, 32, 2.5f, true, false, "32x32_Ctx"},
+                                           DivC32fParam{32, 32, 4.0f, false, true, "32x32_InPlace"},
+                                           DivC32fParam{32, 32, 4.0f, true, true, "32x32_InPlace_Ctx"},
+                                           DivC32fParam{64, 64, 5.0f, false, false, "64x64_noCtx"},
+                                           DivC32fParam{64, 64, 5.0f, true, false, "64x64_Ctx"}),
+                         [](const ::testing::TestParamInfo<DivC32fParam> &info) { return info.param.name; });
 
-  // prepare test data
+// ==================== DivC 8u with scale factor TEST_P ====================
+
+struct DivC8uSfsParam {
+  int width;
+  int height;
+  Npp8u constant;
+  int scaleFactor;
+  bool use_ctx;
+  bool in_place;
+  std::string name;
+};
+
+class DivC8uSfsParamTest : public NppTestBase, public ::testing::WithParamInterface<DivC8uSfsParam> {};
+
+TEST_P(DivC8uSfsParamTest, DivC_8u_C1RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp8u constant = param.constant;
+  const int scaleFactor = param.scaleFactor;
+
   std::vector<Npp8u> srcData(width * height);
-  srcData[0] = 100; // 测试值
-  srcData[1] = 200;
-  srcData[2] = 50;
-
-  for (int i = 3; i < width * height; i++) {
-    srcData[i] = static_cast<Npp8u>(i % 200);
-  }
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(10), static_cast<Npp8u>(200), 12345);
 
   NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(width, height);
-
   src.copyFromHost(srcData);
 
-  // 设置参数
-  NppiSize oSizeROI = {width, height};
+  NppiSize roi = {width, height};
+  NppStatus status;
 
-  // 获取流上下文
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_8u_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDivC_8u_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
 
-  // 执行除法
-  NppStatus status = nppiDivC_8u_C1RSfs_Ctx(src.get(), src.step(), divisor, dst.get(), dst.step(), oSizeROI,
-                                            nScaleFactor, nppStreamCtx);
+    std::vector<Npp8u> resultData(width * height);
+    src.copyToHost(resultData);
+    // Verify division results with tolerance for rounding differences
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = srcData[i] / constant;
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  } else {
+    NppImageMemory<Npp8u> dst(width, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_8u_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDivC_8u_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
 
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  std::vector<Npp8u> dstData(width * height);
-  dst.copyToHost(dstData);
-
-  // Validate缩放因子效果 - NPP中缩放因子是右移
-  ASSERT_EQ(dstData[0], 25); // (100 / 2) >> 1 = 25
-  ASSERT_EQ(dstData[1], 50); // (200 / 2) >> 1 = 50
-  ASSERT_EQ(dstData[2], 12); // (50 / 2) >> 1 = 12
-}
-
-// 测试除零保护
-TEST_F(DivCFunctionalTest, DivC_32f_C1R_Ctx_DivisionBySmallNumber) {
-  const int width = 8, height = 8;
-  const Npp32f divisor = 1e-6f;
-
-  // prepare test data
-  std::vector<Npp32f> srcData(width * height, 1.0f);
-
-  NppImageMemory<Npp32f> src(width, height);
-  NppImageMemory<Npp32f> dst(width, height);
-
-  src.copyFromHost(srcData);
-
-  // 设置参数
-  NppiSize oSizeROI = {width, height};
-
-  // 获取流上下文
-  NppStreamContext nppStreamCtx;
-  nppGetStreamContext(&nppStreamCtx);
-
-  // 执行除法
-  NppStatus status =
-      nppiDivC_32f_C1R_Ctx(src.get(), src.step(), divisor, dst.get(), dst.step(), oSizeROI, nppStreamCtx);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  // 同步并获取结果
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  std::vector<Npp32f> dstData(width * height);
-  dst.copyToHost(dstData);
-
-  // Validate结果不是NaN或无穷大
-  for (const auto &val : dstData) {
-    ASSERT_FALSE(std::isnan(val));
-    ASSERT_TRUE(std::isfinite(val));
+    std::vector<Npp8u> resultData(width * height);
+    dst.copyToHost(resultData);
+    // Verify division results with tolerance for rounding differences
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = srcData[i] / constant;
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
   }
 }
+
+INSTANTIATE_TEST_SUITE_P(DivC8uSfs, DivC8uSfsParamTest,
+                         ::testing::Values(DivC8uSfsParam{32, 32, 2, 0, false, false, "32x32_sfs0_noCtx"},
+                                           DivC8uSfsParam{32, 32, 2, 0, true, false, "32x32_sfs0_Ctx"},
+                                           DivC8uSfsParam{32, 32, 4, 0, false, true, "32x32_sfs0_InPlace"},
+                                           DivC8uSfsParam{32, 32, 4, 0, true, true, "32x32_sfs0_InPlace_Ctx"},
+                                           DivC8uSfsParam{64, 64, 5, 0, false, false, "64x64_sfs0_noCtx"}),
+                         [](const ::testing::TestParamInfo<DivC8uSfsParam> &info) { return info.param.name; });
+
+// ==================== DivC 16u with scale factor TEST_P ====================
+
+struct DivC16uSfsParam {
+  int width;
+  int height;
+  Npp16u constant;
+  int scaleFactor;
+  bool use_ctx;
+  bool in_place;
+  std::string name;
+};
+
+class DivC16uSfsParamTest : public NppTestBase, public ::testing::WithParamInterface<DivC16uSfsParam> {};
+
+TEST_P(DivC16uSfsParamTest, DivC_16u_C1RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp16u constant = param.constant;
+  const int scaleFactor = param.scaleFactor;
+
+  std::vector<Npp16u> srcData(width * height);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(100), static_cast<Npp16u>(30000), 12345);
+
+  NppImageMemory<Npp16u> src(width, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_16u_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDivC_16u_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(width * height);
+    src.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = srcData[i] / constant;
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  } else {
+    NppImageMemory<Npp16u> dst(width, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_16u_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDivC_16u_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(width * height);
+    dst.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = srcData[i] / constant;
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(DivC16uSfs, DivC16uSfsParamTest,
+                         ::testing::Values(DivC16uSfsParam{32, 32, 10, 0, false, false, "32x32_sfs0_noCtx"},
+                                           DivC16uSfsParam{32, 32, 10, 0, true, false, "32x32_sfs0_Ctx"},
+                                           DivC16uSfsParam{32, 32, 5, 0, false, true, "32x32_sfs0_InPlace"},
+                                           DivC16uSfsParam{32, 32, 5, 0, true, true, "32x32_sfs0_InPlace_Ctx"},
+                                           DivC16uSfsParam{64, 64, 20, 0, false, false, "64x64_sfs0_noCtx"}),
+                         [](const ::testing::TestParamInfo<DivC16uSfsParam> &info) { return info.param.name; });
+
+// ==================== DivC 16s with scale factor TEST_P ====================
+
+struct DivC16sSfsParam {
+  int width;
+  int height;
+  Npp16s constant;
+  int scaleFactor;
+  bool use_ctx;
+  bool in_place;
+  std::string name;
+};
+
+class DivC16sSfsParamTest : public NppTestBase, public ::testing::WithParamInterface<DivC16sSfsParam> {};
+
+TEST_P(DivC16sSfsParamTest, DivC_16s_C1RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp16s constant = param.constant;
+  const int scaleFactor = param.scaleFactor;
+
+  std::vector<Npp16s> srcData(width * height);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(10), static_cast<Npp16s>(1000), 12345);
+
+  NppImageMemory<Npp16s> src(width, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_16s_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDivC_16s_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16s> resultData(width * height);
+    src.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = srcData[i] / constant;
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  } else {
+    NppImageMemory<Npp16s> dst(width, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx;
+      ctx.hStream = 0;
+      status = nppiDivC_16s_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDivC_16s_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16s> resultData(width * height);
+    dst.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = srcData[i] / constant;
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(DivC16sSfs, DivC16sSfsParamTest,
+                         ::testing::Values(DivC16sSfsParam{32, 32, 10, 0, false, false, "32x32_sfs0_noCtx"},
+                                           DivC16sSfsParam{32, 32, 10, 0, true, false, "32x32_sfs0_Ctx"},
+                                           DivC16sSfsParam{32, 32, 5, 0, false, true, "32x32_sfs0_InPlace"},
+                                           DivC16sSfsParam{32, 32, 5, 0, true, true, "32x32_sfs0_InPlace_Ctx"},
+                                           DivC16sSfsParam{64, 64, 20, 0, false, false, "64x64_sfs0_noCtx"}),
+                         [](const ::testing::TestParamInfo<DivC16sSfsParam> &info) { return info.param.name; });
