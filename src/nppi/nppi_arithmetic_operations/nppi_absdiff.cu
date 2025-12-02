@@ -111,3 +111,18 @@ NppStatus nppiAbsDiff_32f_C1IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pSr
 NppStatus nppiAbsDiff_32f_C1IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
   return nppiAbsDiff_32f_C1IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
+
+// ============================================================================
+// 16-bit float (16f)
+// ============================================================================
+
+// C1
+NppStatus nppiAbsDiff_16f_C1R_Ctx(const Npp16f *pSrc1, int nSrc1Step, const Npp16f *pSrc2, int nSrc2Step, Npp16f *pDst,
+                                  int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AbsDiff<Npp16f, 1>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAbsDiff_16f_C1R(const Npp16f *pSrc1, int nSrc1Step, const Npp16f *pSrc2, int nSrc2Step, Npp16f *pDst,
+                              int nDstStep, NppiSize oSizeROI) {
+  return nppiAbsDiff_16f_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}

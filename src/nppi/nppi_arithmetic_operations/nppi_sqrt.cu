@@ -259,3 +259,61 @@ NppStatus nppiSqrt_32f_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSize
 NppStatus nppiSqrt_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
   return nppiSqrt_32f_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
+
+// ============================================================================
+// 16-bit float (16f)
+// ============================================================================
+
+// C1
+NppStatus nppiSqrt_16f_C1R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                               NppStreamContext nppStreamCtx) {
+  return Sqrt<Npp16f, 1>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSqrt_16f_C1R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI) {
+  return nppiSqrt_16f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiSqrt_16f_C1IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return Sqrt<Npp16f, 1>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSqrt_16f_C1IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiSqrt_16f_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+// C3
+NppStatus nppiSqrt_16f_C3R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                               NppStreamContext nppStreamCtx) {
+  return Sqrt<Npp16f, 3>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSqrt_16f_C3R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI) {
+  return nppiSqrt_16f_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiSqrt_16f_C3IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return Sqrt<Npp16f, 3>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSqrt_16f_C3IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiSqrt_16f_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+// C4
+NppStatus nppiSqrt_16f_C4R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                               NppStreamContext nppStreamCtx) {
+  return Sqrt<Npp16f, 4>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSqrt_16f_C4R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI) {
+  return nppiSqrt_16f_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiSqrt_16f_C4IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return Sqrt<Npp16f, 4>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSqrt_16f_C4IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiSqrt_16f_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}

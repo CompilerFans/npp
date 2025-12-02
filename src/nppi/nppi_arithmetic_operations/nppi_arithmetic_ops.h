@@ -1,6 +1,7 @@
 #pragma once
 
 #include "npp.h"
+#include <cuda_fp16.h>
 #include <cuda_runtime.h>
 #include <limits>
 #include <type_traits>
@@ -17,6 +18,31 @@ template <> struct is_complex<Npp32sc> : std::true_type {};
 template <> struct is_complex<Npp32fc> : std::true_type {};
 
 template <typename T> inline constexpr bool is_complex_v = is_complex<T>::value;
+
+// ============================================================================
+// Type traits for 16f (half precision) type detection
+// ============================================================================
+template <typename T> struct is_16f : std::false_type {};
+template <> struct is_16f<Npp16f> : std::true_type {};
+
+template <typename T> inline constexpr bool is_16f_v = is_16f<T>::value;
+
+// ============================================================================
+// Npp16f conversion utilities
+// ============================================================================
+__device__ __forceinline__ __half npp16f_to_half(Npp16f val) {
+  return __ushort_as_half(static_cast<unsigned short>(val.fp16));
+}
+
+__device__ __forceinline__ Npp16f half_to_npp16f(__half val) {
+  Npp16f result;
+  result.fp16 = static_cast<short>(__half_as_ushort(val));
+  return result;
+}
+
+__device__ __forceinline__ Npp16f float_to_npp16f(float val) { return half_to_npp16f(__float2half(val)); }
+
+__device__ __forceinline__ float npp16f_to_float(Npp16f val) { return __half2float(npp16f_to_half(val)); }
 
 // Get the component type of a complex number
 template <typename T> struct complex_component { using type = T; };
@@ -59,7 +85,11 @@ template <typename T> __device__ __host__ inline T saturate_cast_complex(double 
 
 template <typename T> struct AddOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    if constexpr (is_complex_v<T>) {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      __half hb = npp16f_to_half(b);
+      return half_to_npp16f(__hadd(ha, hb));
+    } else if constexpr (is_complex_v<T>) {
       // Complex addition: (a.re + a.im*i) + (b.re + b.im*i)
       double re = static_cast<double>(a.re) + static_cast<double>(b.re);
       double im = static_cast<double>(a.im) + static_cast<double>(b.im);
@@ -82,7 +112,11 @@ template <typename T> struct AddOp {
 template <typename T> struct SubOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
     // NPP Sub convention: pSrc2 - pSrc1, so b - a
-    if constexpr (is_complex_v<T>) {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      __half hb = npp16f_to_half(b);
+      return half_to_npp16f(__hsub(hb, ha));
+    } else if constexpr (is_complex_v<T>) {
       // Complex subtraction: (b.re + b.im*i) - (a.re + a.im*i)
       double re = static_cast<double>(b.re) - static_cast<double>(a.re);
       double im = static_cast<double>(b.im) - static_cast<double>(a.im);
@@ -104,7 +138,11 @@ template <typename T> struct SubOp {
 
 template <typename T> struct MulOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    if constexpr (is_complex_v<T>) {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      __half hb = npp16f_to_half(b);
+      return half_to_npp16f(__hmul(ha, hb));
+    } else if constexpr (is_complex_v<T>) {
       // Complex multiplication: (a.re + a.im*i) * (b.re + b.im*i)
       // = (a.re*b.re - a.im*b.im) + (a.re*b.im + a.im*b.re)*i
       double re =
@@ -129,7 +167,12 @@ template <typename T> struct MulOp {
 
 template <typename T> struct DivOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    if constexpr (is_complex_v<T>) {
+    // NPP Div convention: pSrc2 / pSrc1, so b / a
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      __half hb = npp16f_to_half(b);
+      return half_to_npp16f(__hdiv(hb, ha));
+    } else if constexpr (is_complex_v<T>) {
       // Complex division: b / a = (b.re + b.im*i) / (a.re + a.im*i)
       // = ((b.re*a.re + b.im*a.im) + (b.im*a.re - b.re*a.im)*i) / (a.re² + a.im²)
       double denom =
@@ -164,7 +207,6 @@ template <typename T> struct DivOp {
         else
           return T(0);
       }
-      // NPP Div convention: pSrc2 / pSrc1, so b / a
       double result = static_cast<double>(b) / static_cast<double>(a);
       if (scaleFactor > 0 && std::is_integral_v<T>) {
         result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
@@ -203,11 +245,20 @@ template <typename T> struct XorOp {
 
 template <typename T> struct AbsDiffOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0) const {
-    double result = std::abs(static_cast<double>(a) - static_cast<double>(b));
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      __half hb = npp16f_to_half(b);
+      __half diff = __hsub(ha, hb);
+      // Use __habs if available, otherwise manual abs
+      __half result = __habs(diff);
+      return half_to_npp16f(result);
+    } else {
+      double result = std::abs(static_cast<double>(a) - static_cast<double>(b));
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
@@ -249,30 +300,47 @@ template <typename T> struct MinEveryOp {
 // ============================================================================
 
 template <typename T> struct AbsOp {
-  __device__ __host__ T operator()(T a, T = T(0), int = 0) const { return std::abs(a); }
+  __device__ __host__ T operator()(T a, T = T{}, int = 0) const {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      return half_to_npp16f(__habs(ha));
+    } else {
+      return std::abs(a);
+    }
+  }
 };
 
 template <typename T> struct SqrOp {
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    double result = static_cast<double>(a) * static_cast<double>(a);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      return half_to_npp16f(__hmul(ha, ha));
+    } else {
+      double result = static_cast<double>(a) * static_cast<double>(a);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
 template <typename T> struct SqrtOp {
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    double result = std::sqrt(static_cast<double>(a));
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      // NVIDIA NPP uses truncation for scale factors
-      result = result / (1 << scaleFactor);
-    } else if (std::is_integral_v<T>) {
-      // For no scaling, use rounding to match NVIDIA NPP behavior
-      result = result + 0.5;
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      return half_to_npp16f(hsqrt(ha));
+    } else {
+      double result = std::sqrt(static_cast<double>(a));
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        // NVIDIA NPP uses truncation for scale factors
+        result = result / (1 << scaleFactor);
+      } else if (std::is_integral_v<T>) {
+        // For no scaling, use rounding to match NVIDIA NPP behavior
+        result = result + 0.5;
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
@@ -287,8 +355,11 @@ template <typename T> struct ExpOp {
 };
 
 template <typename T> struct LnOp {
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    if constexpr (std::is_same_v<T, Npp32f>) {
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_16f_v<T>) {
+      __half ha = npp16f_to_half(a);
+      return half_to_npp16f(hlog(ha));
+    } else if constexpr (std::is_same_v<T, Npp32f>) {
       // Handle special values for floating point to match vendor NPP behavior
       if (a == T(0)) {
         return -std::numeric_limits<T>::infinity();
@@ -362,7 +433,7 @@ public:
 // ============================================================================
 template <typename T> struct LeftShiftStrategy {
   __device__ __host__ static T apply(T value, Npp32u shiftCount) {
-    if constexpr (std::is_same_v<T, Npp8u>) {
+    if constexpr (std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp8s>) {
       return (shiftCount < 8) ? (value << shiftCount) : 0;
     } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
       return (shiftCount < 16) ? (value << shiftCount) : 0;
@@ -376,7 +447,7 @@ template <typename T> struct LeftShiftStrategy {
 
 template <typename T> struct RightShiftStrategy {
   __device__ __host__ static T apply(T value, Npp32u shiftCount) {
-    if constexpr (std::is_same_v<T, Npp8u>) {
+    if constexpr (std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp8s>) {
       return (shiftCount < 8) ? (value >> shiftCount) : 0;
     } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
       return (shiftCount < 16) ? (value >> shiftCount) : 0;
@@ -428,12 +499,23 @@ private:
 public:
   __device__ __host__ AddConstOp(T c) : constant(c) {}
 
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    double result = static_cast<double>(a) + static_cast<double>(constant);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_complex_v<T>) {
+      double re = static_cast<double>(a.re) + static_cast<double>(constant.re);
+      double im = static_cast<double>(a.im) + static_cast<double>(constant.im);
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      double result = static_cast<double>(a) + static_cast<double>(constant);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
@@ -444,12 +526,23 @@ private:
 public:
   __device__ __host__ SubConstOp(T c) : constant(c) {}
 
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    double result = static_cast<double>(a) - static_cast<double>(constant);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_complex_v<T>) {
+      double re = static_cast<double>(a.re) - static_cast<double>(constant.re);
+      double im = static_cast<double>(a.im) - static_cast<double>(constant.im);
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      double result = static_cast<double>(a) - static_cast<double>(constant);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
@@ -460,12 +553,27 @@ private:
 public:
   __device__ __host__ MulConstOp(T c) : constant(c) {}
 
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    double result = static_cast<double>(a) * static_cast<double>(constant);
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_complex_v<T>) {
+      // Complex multiplication: (a.re + a.im*i) * (c.re + c.im*i)
+      // = (a.re*c.re - a.im*c.im) + (a.re*c.im + a.im*c.re)*i
+      double re = static_cast<double>(a.re) * static_cast<double>(constant.re) -
+                  static_cast<double>(a.im) * static_cast<double>(constant.im);
+      double im = static_cast<double>(a.re) * static_cast<double>(constant.im) +
+                  static_cast<double>(a.im) * static_cast<double>(constant.re);
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      double result = static_cast<double>(a) * static_cast<double>(constant);
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      }
+      return saturate_cast<T>(result);
     }
-    return saturate_cast<T>(result);
   }
 };
 
@@ -794,28 +902,180 @@ private:
 public:
   __device__ __host__ DivConstOp(T c) : constant(c) {}
 
-  __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
-    if (constant == T(0)) {
-      // Division by zero: return maximum value for the type
-      if constexpr (std::is_integral_v<T>) {
-        if constexpr (std::is_signed_v<T>) {
-          return (a >= T(0)) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min();
-        } else {
-          return std::numeric_limits<T>::max();
-        }
-      } else {
-        return (a >= T(0)) ? std::numeric_limits<T>::infinity() : -std::numeric_limits<T>::infinity();
+  __device__ __host__ T operator()(T a, T = T{}, int scaleFactor = 0) const {
+    if constexpr (is_complex_v<T>) {
+      // Complex division: (a.re + a.im*i) / (c.re + c.im*i)
+      // = [(a.re*c.re + a.im*c.im) + (a.im*c.re - a.re*c.im)*i] / (c.re^2 + c.im^2)
+      double cre = static_cast<double>(constant.re);
+      double cim = static_cast<double>(constant.im);
+      double denom = cre * cre + cim * cim;
+      if (denom == 0.0) {
+        T result;
+        result.re = 0;
+        result.im = 0;
+        return result;
       }
+      double are = static_cast<double>(a.re);
+      double aim = static_cast<double>(a.im);
+      double re = (are * cre + aim * cim) / denom;
+      double im = (aim * cre - are * cim) / denom;
+      if (scaleFactor > 0) {
+        double scale = 1.0 / (1 << scaleFactor);
+        re = (re + (1 << (scaleFactor - 1))) * scale;
+        im = (im + (1 << (scaleFactor - 1))) * scale;
+      }
+      return saturate_cast_complex<T>(re, im);
+    } else {
+      if (constant == T(0)) {
+        // Division by zero: return maximum value for the type
+        if constexpr (std::is_integral_v<T>) {
+          if constexpr (std::is_signed_v<T>) {
+            return (a >= T(0)) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min();
+          } else {
+            return std::numeric_limits<T>::max();
+          }
+        } else {
+          return (a >= T(0)) ? std::numeric_limits<T>::infinity() : -std::numeric_limits<T>::infinity();
+        }
+      }
+
+      double result = static_cast<double>(a) / static_cast<double>(constant);
+
+      if (scaleFactor > 0 && std::is_integral_v<T>) {
+        // For division, NPP uses right shift (truncation), not rounding division
+        result = result / (1 << scaleFactor);
+      }
+
+      return saturate_cast<T>(result);
     }
+  }
+};
 
-    double result = static_cast<double>(a) / static_cast<double>(constant);
+// ============================================================================
+// 16f Constant Operation Functors
+// Note: For 16f operations, constant is Npp32f type
+// ============================================================================
 
-    if (scaleFactor > 0 && std::is_integral_v<T>) {
-      // For division, NPP uses right shift (truncation), not rounding division
-      result = result / (1 << scaleFactor);
-    }
+class AddConst16fOp {
+private:
+  Npp32f constant_f32; // Store as float, convert to half on device
 
-    return saturate_cast<T>(result);
+public:
+  __device__ __host__ AddConst16fOp(Npp32f c) : constant_f32(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half hc = __float2half(constant_f32);
+    return half_to_npp16f(__hadd(ha, hc));
+  }
+};
+
+class SubConst16fOp {
+private:
+  Npp32f constant_f32;
+
+public:
+  __device__ __host__ SubConst16fOp(Npp32f c) : constant_f32(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half hc = __float2half(constant_f32);
+    return half_to_npp16f(__hsub(ha, hc));
+  }
+};
+
+class MulConst16fOp {
+private:
+  Npp32f constant_f32;
+
+public:
+  __device__ __host__ MulConst16fOp(Npp32f c) : constant_f32(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half hc = __float2half(constant_f32);
+    return half_to_npp16f(__hmul(ha, hc));
+  }
+};
+
+class DivConst16fOp {
+private:
+  Npp32f constant_f32;
+
+public:
+  __device__ __host__ DivConst16fOp(Npp32f c) : constant_f32(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half hc = __float2half(constant_f32);
+    return half_to_npp16f(__hdiv(ha, hc));
+  }
+};
+
+// 16f DeviceC operation functors (constant is on device)
+class AddDeviceConst16fOp {
+private:
+  const Npp32f *pConstant;
+
+public:
+  __device__ __host__ AddDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half c = __float2half(*pConstant);
+    return half_to_npp16f(__hadd(ha, c));
+  }
+};
+
+class SubDeviceConst16fOp {
+private:
+  const Npp32f *pConstant;
+
+public:
+  __device__ __host__ SubDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half c = __float2half(*pConstant);
+    return half_to_npp16f(__hsub(ha, c));
+  }
+};
+
+class MulDeviceConst16fOp {
+private:
+  const Npp32f *pConstant;
+
+public:
+  __device__ __host__ MulDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half c = __float2half(*pConstant);
+    return half_to_npp16f(__hmul(ha, c));
+  }
+};
+
+class DivDeviceConst16fOp {
+private:
+  const Npp32f *pConstant;
+
+public:
+  __device__ __host__ DivDeviceConst16fOp(const Npp32f *c) : pConstant(c) {}
+
+  __device__ Npp16f operator()(Npp16f a, Npp16f = Npp16f{}, int = 0) const {
+    __half ha = npp16f_to_half(a);
+    __half c = __float2half(*pConstant);
+    return half_to_npp16f(__hdiv(ha, c));
+  }
+};
+
+// 16f AddProduct operation: dst = dst + (src1 * src2)
+struct AddProduct16fOp {
+  __device__ Npp16f operator()(Npp16f dst, Npp16f src1, Npp16f src2, int = 0) const {
+    __half hd = npp16f_to_half(dst);
+    __half ha = npp16f_to_half(src1);
+    __half hb = npp16f_to_half(src2);
+    return half_to_npp16f(__hadd(hd, __hmul(ha, hb)));
   }
 };
 

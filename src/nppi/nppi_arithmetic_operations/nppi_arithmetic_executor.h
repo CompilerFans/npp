@@ -85,11 +85,11 @@ __global__ void unaryKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, 
     T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
     if constexpr (Channels == 1) {
-      dstRow[x] = op(srcRow[x], T(0), scaleFactor);
+      dstRow[x] = op(srcRow[x], T{}, scaleFactor);
     } else {
       int idx = x * Channels;
       for (int c = 0; c < Channels; c++) {
-        dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
+        dstRow[idx + c] = op(srcRow[idx + c], T{}, scaleFactor);
       }
     }
   }
@@ -225,12 +225,12 @@ __global__ void multiConstKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstS
 
     if constexpr (Channels == 1) {
       ConstOpType op(constants[0]);
-      dstRow[x] = op(srcRow[x], T(0), scaleFactor);
+      dstRow[x] = op(srcRow[x], T{}, scaleFactor);
     } else {
       int idx = x * Channels;
       for (int c = 0; c < Channels; c++) {
         ConstOpType op(constants[c]);
-        dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
+        dstRow[idx + c] = op(srcRow[idx + c], T{}, scaleFactor);
       }
     }
   }
@@ -558,7 +558,7 @@ public:
 private:
   template <typename U> static NppStatus validateShiftConstants(const Npp32u aConstants[Channels], int channels) {
     for (int i = 0; i < channels; i++) {
-      if constexpr (std::is_same_v<U, Npp8u>) {
+      if constexpr (std::is_same_v<U, Npp8u> || std::is_same_v<U, Npp8s>) {
         if (aConstants[i] > 7)
           return NPP_BAD_ARGUMENT_ERROR;
       } else if constexpr (std::is_same_v<U, Npp16u> || std::is_same_v<U, Npp16s>) {
@@ -623,6 +623,117 @@ public:
 
     divRoundKernel<T, Channels><<<gridSize, blockSize, 0, stream>>>(
         pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, rndMode, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// 16f Multi-Channel Constant Operation Kernels and Executors
+// Note: For 16f operations, constants are Npp32f type
+// ============================================================================
+
+template <int Channels, typename Op16fFactory>
+__global__ void multiConst16fKernel(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, int width, int height,
+                                    const Npp32f *constants) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16f *srcRow = (const Npp16f *)((const char *)pSrc + y * nSrcStep);
+    Npp16f *dstRow = (Npp16f *)((char *)pDst + y * nDstStep);
+
+    int idx = x * Channels;
+    for (int c = 0; c < Channels; c++) {
+      Op16fFactory op(constants[c]);
+      dstRow[idx + c] = op(srcRow[idx + c]);
+    }
+  }
+}
+
+template <int Channels, typename Op16fFactory> class MultiConst16fOperationExecutor {
+public:
+  static NppStatus execute(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                           cudaStream_t stream, const Npp32f *constants) {
+    // Validate parameters
+    if (!pSrc || !pDst || !constants) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Copy constants to device
+    Npp32f *d_constants;
+    cudaError_t err = cudaMalloc(&d_constants, Channels * sizeof(Npp32f));
+    if (err != cudaSuccess)
+      return NPP_MEMORY_ALLOCATION_ERR;
+
+    err = cudaMemcpyAsync(d_constants, constants, Channels * sizeof(Npp32f), cudaMemcpyHostToDevice, stream);
+    if (err != cudaSuccess) {
+      cudaFree(d_constants);
+      return NPP_MEMORY_ALLOCATION_ERR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    multiConst16fKernel<Channels, Op16fFactory>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants);
+
+    cudaStreamSynchronize(stream);
+    cudaError_t kernelResult = cudaGetLastError();
+    cudaFree(d_constants);
+
+    return (kernelResult == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// ============================================================================
+// 16f DeviceC Multi-Channel Operation Kernels and Executors
+// ============================================================================
+
+template <int Channels, typename DeviceOp16fFactory>
+__global__ void multiDeviceConst16fKernel(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, int width,
+                                          int height, const Npp32f *pConstants) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16f *srcRow = (const Npp16f *)((const char *)pSrc + y * nSrcStep);
+    Npp16f *dstRow = (Npp16f *)((char *)pDst + y * nDstStep);
+
+    int idx = x * Channels;
+    for (int c = 0; c < Channels; c++) {
+      DeviceOp16fFactory op(&pConstants[Channels == 1 ? 0 : c]);
+      dstRow[idx + c] = op(srcRow[idx + c]);
+    }
+  }
+}
+
+template <int Channels, typename DeviceOp16fFactory> class MultiDeviceConst16fOperationExecutor {
+public:
+  static NppStatus execute(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                           cudaStream_t stream, const Npp32f *pConstants) {
+    // Validate parameters
+    if (!pSrc || !pDst || !pConstants) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+    if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    multiDeviceConst16fKernel<Channels, DeviceOp16fFactory>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pConstants);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
