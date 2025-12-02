@@ -269,7 +269,8 @@ TEST_F(NppiAddWeightedTest, AddWeighted_8u32f_C1IR_Ctx_BasicOperation) {
   NppiSize oSizeROI = {width, height};
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
-  NppStatus status = nppiAddWeighted_8u32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
+  NppStatus status =
+      nppiAddWeighted_8u32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> hostResult(totalPixels);
@@ -313,7 +314,8 @@ TEST_F(NppiAddWeightedTest, AddWeighted_16u32f_C1IR_Ctx_BasicOperation) {
   NppiSize oSizeROI = {width, height};
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
-  NppStatus status = nppiAddWeighted_16u32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
+  NppStatus status =
+      nppiAddWeighted_16u32f_C1IR_Ctx(d_src, srcStep, d_srcDst, srcDstStep, oSizeROI, alpha, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> hostResult(totalPixels);
@@ -413,7 +415,8 @@ TEST_F(NppiAddWeightedTest, AddWeighted_8u32f_C1IMR_MaskedOperation) {
   cudaMemcpy2D(d_mask, maskStep, hostMask.data(), hostMaskStep, hostMaskStep, height, cudaMemcpyHostToDevice);
 
   NppiSize oSizeROI = {width, height};
-  NppStatus status = nppiAddWeighted_8u32f_C1IMR(d_src, srcStep, d_mask, maskStep, d_srcDst, srcDstStep, oSizeROI, alpha);
+  NppStatus status =
+      nppiAddWeighted_8u32f_C1IMR(d_src, srcStep, d_mask, maskStep, d_srcDst, srcDstStep, oSizeROI, alpha);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> hostResult(totalPixels);
