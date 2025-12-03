@@ -302,3 +302,5 @@ TEST_F(AddFunctionalTest, Add_BoundaryConditions_LargeImage) {
     EXPECT_FLOAT_EQ(sample[i], 3.0f) << "Large image sample check failed";
   }
 }
+
+// NOTE: Add_16f tests are now in test_nppi_arithmetic_16f.cpp using TEST_P

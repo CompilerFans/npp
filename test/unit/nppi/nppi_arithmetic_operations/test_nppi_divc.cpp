@@ -299,3 +299,373 @@ INSTANTIATE_TEST_SUITE_P(DivC16sSfs, DivC16sSfsParamTest,
                                            DivC16sSfsParam{32, 32, 5, 0, true, true, "32x32_sfs0_InPlace_Ctx"},
                                            DivC16sSfsParam{64, 64, 20, 0, false, false, "64x64_sfs0_noCtx"}),
                          [](const ::testing::TestParamInfo<DivC16sSfsParam> &info) { return info.param.name; });
+
+// ==================== DivC 16f Tests ====================
+
+class DivC16fTest : public NppTestBase {};
+
+TEST_F(DivC16fTest, DivC_16f_C1R_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const Npp32f constant = 2.5f;
+
+  std::vector<Npp16f> srcData(width * height);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    float val = npp16f_to_float_host(srcData[i]);
+    float result = val / constant;
+    expectedData[i] = float_to_npp16f_host(result);
+  }
+
+  NppImageMemory<Npp16f> src(width, height);
+  NppImageMemory<Npp16f> dst(width, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiDivC_16f_C1R(src.get(), src.step(), constant, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C1R_Ctx_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const Npp32f constant = 2.5f;
+
+  std::vector<Npp16f> srcData(width * height);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    float val = npp16f_to_float_host(srcData[i]);
+    float result = val / constant;
+    expectedData[i] = float_to_npp16f_host(result);
+  }
+
+  NppImageMemory<Npp16f> src(width, height);
+  NppImageMemory<Npp16f> dst(width, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiDivC_16f_C1R_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C1IR_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const Npp32f constant = 2.5f;
+
+  std::vector<Npp16f> srcData(width * height);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    float val = npp16f_to_float_host(srcData[i]);
+    float result = val / constant;
+    expectedData[i] = float_to_npp16f_host(result);
+  }
+
+  NppImageMemory<Npp16f> src(width, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiDivC_16f_C1IR(constant, src.get(), src.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C1IR_Ctx_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const Npp32f constant = 2.5f;
+
+  std::vector<Npp16f> srcData(width * height);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    float val = npp16f_to_float_host(srcData[i]);
+    float result = val / constant;
+    expectedData[i] = float_to_npp16f_host(result);
+  }
+
+  NppImageMemory<Npp16f> src(width, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiDivC_16f_C1IR_Ctx(constant, src.get(), src.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C3R_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 3;
+  const Npp32f constants[3] = {2.0f, 2.5f, 3.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  NppImageMemory<Npp16f> dst(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiDivC_16f_C3R(src.get(), src.step(), constants, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C3R_Ctx_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 3;
+  const Npp32f constants[3] = {2.0f, 2.5f, 3.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  NppImageMemory<Npp16f> dst(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiDivC_16f_C3R_Ctx(src.get(), src.step(), constants, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C3IR_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 3;
+  const Npp32f constants[3] = {2.0f, 2.5f, 3.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiDivC_16f_C3IR(constants, src.get(), src.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C3IR_Ctx_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 3;
+  const Npp32f constants[3] = {2.0f, 2.5f, 3.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiDivC_16f_C3IR_Ctx(constants, src.get(), src.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C4R_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 4;
+  const Npp32f constants[4] = {2.0f, 2.5f, 3.0f, 4.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  NppImageMemory<Npp16f> dst(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiDivC_16f_C4R(src.get(), src.step(), constants, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C4R_Ctx_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 4;
+  const Npp32f constants[4] = {2.0f, 2.5f, 3.0f, 4.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  NppImageMemory<Npp16f> dst(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiDivC_16f_C4R_Ctx(src.get(), src.step(), constants, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C4IR_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 4;
+  const Npp32f constants[4] = {2.0f, 2.5f, 3.0f, 4.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiDivC_16f_C4IR(constants, src.get(), src.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}
+
+TEST_F(DivC16fTest, DivC_16f_C4IR_Ctx_BasicOperation) {
+  const int width = 32;
+  const int height = 32;
+  const int channels = 4;
+  const Npp32f constants[4] = {2.0f, 2.5f, 3.0f, 4.0f};
+
+  std::vector<Npp16f> srcData(width * height * channels);
+  TestDataGenerator::generateRandom16f(srcData, 1.0f, 50.0f, 12345);
+
+  std::vector<Npp16f> expectedData(width * height * channels);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      float val = npp16f_to_float_host(srcData[i * channels + c]);
+      float result = val / constants[c];
+      expectedData[i * channels + c] = float_to_npp16f_host(result);
+    }
+  }
+
+  NppImageMemory<Npp16f> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  ctx.hStream = 0;
+  NppStatus status = nppiDivC_16f_C4IR_Ctx(constants, src.get(), src.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16f> resultData(width * height * channels);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f));
+}

@@ -2,12 +2,31 @@
 
 #include "npp.h"
 #include "npp_version_compat.h"
+#include <cuda_fp16.h>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <random>
 #include <type_traits>
 #include <vector>
+
+// Helper functions for Npp16f (half-precision float) type
+inline Npp16f float_to_npp16f_host(float val) {
+  Npp16f result;
+  __half h = __float2half(val);
+  result.fp16 = static_cast<short>(__half_as_ushort(h));
+  return result;
+}
+
+inline float npp16f_to_float_host(Npp16f val) {
+  __half h = __ushort_as_half(static_cast<unsigned short>(val.fp16));
+  return __half2float(h);
+}
+
+// Type trait to check if T is Npp16f
+template <typename T> struct is_npp16f : std::false_type {};
+template <> struct is_npp16f<Npp16f> : std::true_type {};
+template <typename T> constexpr bool is_npp16f_v = is_npp16f<T>::value;
 
 #if CUDA_SDK_AT_LEAST(12, 8)
 #define SIZE_TYPE size_t
@@ -185,6 +204,17 @@ public:
       } else {
         throw std::runtime_error("Unsupported channel count for Npp16s");
       }
+    } else if constexpr (std::is_same_v<T, Npp16f>) {
+      // Npp16f has the same size as Npp16u, so we use 16u allocation functions
+      if (channels == 1) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_16u_C1(width, height, &step_));
+      } else if (channels == 3) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_16u_C3(width, height, &step_));
+      } else if (channels == 4) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_16u_C4(width, height, &step_));
+      } else {
+        throw std::runtime_error("Unsupported channel count for Npp16f");
+      }
     } else if constexpr (std::is_same_v<T, Npp32f>) {
       if (channels == 1) {
         ptr_ = nppiMalloc_32f_C1(width, height, &step_);
@@ -271,11 +301,28 @@ public:
       for (auto &val : data) {
         val = dis(gen);
       }
+    } else if constexpr (is_npp16f_v<T>) {
+      float minF = npp16f_to_float_host(minVal);
+      float maxF = npp16f_to_float_host(maxVal);
+      std::uniform_real_distribution<float> dis(minF, maxF);
+      for (auto &val : data) {
+        val = float_to_npp16f_host(dis(gen));
+      }
     } else {
       std::uniform_int_distribution<int> dis(minVal, maxVal);
       for (auto &val : data) {
         val = static_cast<T>(dis(gen));
       }
+    }
+  }
+
+  // Generate random Npp16f data from float range
+  static void generateRandom16f(std::vector<Npp16f> &data, float minVal, float maxVal,
+                                unsigned seed = std::random_device{}()) {
+    std::mt19937 gen(seed);
+    std::uniform_real_distribution<float> dis(minVal, maxVal);
+    for (auto &val : data) {
+      val = float_to_npp16f_host(dis(gen));
     }
   }
 
@@ -321,11 +368,34 @@ public:
           return false;
         }
       }
+    } else if constexpr (is_npp16f_v<T>) {
+      float tolF = npp16f_to_float_host(tolerance);
+      for (size_t i = 0; i < a.size(); i++) {
+        float af = npp16f_to_float_host(a[i]);
+        float bf = npp16f_to_float_host(b[i]);
+        if (std::abs(af - bf) > tolF) {
+          return false;
+        }
+      }
     } else {
       for (size_t i = 0; i < a.size(); i++) {
         if (std::abs(static_cast<long long>(a[i]) - static_cast<long long>(b[i])) > tolerance) {
           return false;
         }
+      }
+    }
+    return true;
+  }
+
+  // Overload for Npp16f with float tolerance
+  static bool arraysEqual16f(const std::vector<Npp16f> &a, const std::vector<Npp16f> &b, float tolerance = 1e-3f) {
+    if (a.size() != b.size())
+      return false;
+    for (size_t i = 0; i < a.size(); i++) {
+      float af = npp16f_to_float_host(a[i]);
+      float bf = npp16f_to_float_host(b[i]);
+      if (std::abs(af - bf) > tolerance) {
+        return false;
       }
     }
     return true;
@@ -343,6 +413,11 @@ public:
       bool match;
       if constexpr (std::is_floating_point_v<T>) {
         match = (std::abs(a[i] - b[i]) <= tolerance);
+      } else if constexpr (is_npp16f_v<T>) {
+        float tolF = npp16f_to_float_host(tolerance);
+        float af = npp16f_to_float_host(a[i]);
+        float bf = npp16f_to_float_host(b[i]);
+        match = (std::abs(af - bf) <= tolF);
       } else {
         match = (std::abs(static_cast<long long>(a[i]) - static_cast<long long>(b[i])) <= tolerance);
       }
