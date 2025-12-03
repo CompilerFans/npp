@@ -34,6 +34,7 @@ target_include_directories(unit_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/framework      # 测试框架
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src      # 源码目录 (头文件依赖)
     ${CMAKE_CURRENT_SOURCE_DIR}                 # 单元测试根目录
+    ${CMAKE_CURRENT_SOURCE_DIR}/nppi/nppi_arithmetic_operations  # 算术测试框架
 )
 
 # Define golden data directory path
