@@ -147,3 +147,135 @@ INSTANTIATE_TEST_SUITE_P(AndC8u, AndC8uParamTest,
                                            AndC8uParam{32, 32, 0x0F, true, true, "32x32_c0F_InPlace_Ctx"},
                                            AndC8uParam{64, 64, 0xAA, false, false, "64x64_cAA_noCtx"}),
                          [](const ::testing::TestParamInfo<AndC8uParam> &info) { return info.param.name; });
+
+// ==================== And 8u C3 TEST_P ====================
+
+class And8uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<And8uParam> {};
+
+TEST_P(And8uC3ParamTest, And_8u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp8u> src1Data(total);
+  std::vector<Npp8u> src2Data(total);
+  TestDataGenerator::generateRandom(src1Data, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 12345);
+  TestDataGenerator::generateRandom(src2Data, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 54321);
+
+  std::vector<Npp8u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::and_val<Npp8u>(src1Data[i], src2Data[i]);
+  }
+
+  NppImageMemory<Npp8u> src1(width * channels, height);
+  NppImageMemory<Npp8u> src2(width * channels, height);
+  src1.copyFromHost(src1Data);
+  src2.copyFromHost(src2Data);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiAnd_8u_C3IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), roi, ctx);
+    } else {
+      status = nppiAnd_8u_C3IR(src1.get(), src1.step(), src2.get(), src2.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    src2.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp8u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiAnd_8u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiAnd_8u_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(And8uC3, And8uC3ParamTest,
+                         ::testing::Values(And8uParam{32, 32, false, false, "32x32_noCtx"},
+                                           And8uParam{32, 32, true, false, "32x32_Ctx"},
+                                           And8uParam{32, 32, false, true, "32x32_InPlace"},
+                                           And8uParam{32, 32, true, true, "32x32_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<And8uParam> &info) { return info.param.name; });
+
+// ==================== And 8u C4 TEST_P ====================
+
+class And8uC4ParamTest : public NppTestBase, public ::testing::WithParamInterface<And8uParam> {};
+
+TEST_P(And8uC4ParamTest, And_8u_C4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int channels = 4;
+  const int total = width * height * channels;
+
+  std::vector<Npp8u> src1Data(total);
+  std::vector<Npp8u> src2Data(total);
+  TestDataGenerator::generateRandom(src1Data, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 12345);
+  TestDataGenerator::generateRandom(src2Data, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 54321);
+
+  std::vector<Npp8u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::and_val<Npp8u>(src1Data[i], src2Data[i]);
+  }
+
+  NppImageMemory<Npp8u> src1(width * channels, height);
+  NppImageMemory<Npp8u> src2(width * channels, height);
+  src1.copyFromHost(src1Data);
+  src2.copyFromHost(src2Data);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiAnd_8u_C4IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), roi, ctx);
+    } else {
+      status = nppiAnd_8u_C4IR(src1.get(), src1.step(), src2.get(), src2.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    src2.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp8u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiAnd_8u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiAnd_8u_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(And8uC4, And8uC4ParamTest,
+                         ::testing::Values(And8uParam{32, 32, false, false, "32x32_noCtx"},
+                                           And8uParam{32, 32, true, false, "32x32_Ctx"},
+                                           And8uParam{32, 32, false, true, "32x32_InPlace"},
+                                           And8uParam{32, 32, true, true, "32x32_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<And8uParam> &info) { return info.param.name; });
