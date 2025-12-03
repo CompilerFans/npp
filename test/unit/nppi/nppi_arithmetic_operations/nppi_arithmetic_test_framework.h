@@ -546,6 +546,17 @@ template <typename T> T rshift_c(T x, Npp32u shift) { return static_cast<T>(x >>
 // Set operation
 template <typename T> T set_val(T val) { return val; }
 
+// Threshold operations (for comparison/threshold tests)
+template <typename T> T threshold_lt(T x, T threshold, T value) { return (x < threshold) ? value : x; }
+
+template <typename T> T threshold_gt(T x, T threshold, T value) { return (x > threshold) ? value : x; }
+
+template <typename T> T threshold_ltgt(T x, T thresholdLT, T valueLT, T thresholdGT, T valueGT) {
+  if (x < thresholdLT) return valueLT;
+  if (x > thresholdGT) return valueGT;
+  return x;
+}
+
 // Convert operation (type conversion with saturation)
 template <typename DstT, typename SrcT> DstT convert(SrcT x) {
   if constexpr (std::is_floating_point_v<DstT> && std::is_floating_point_v<SrcT>) {
