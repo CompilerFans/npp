@@ -145,3 +145,259 @@ INSTANTIATE_TEST_SUITE_P(LShiftC16u, LShiftC16uParamTest,
                                            LShiftC16uParam{64, 64, 6, false, false, "64x64_s6_noCtx"}),
                          [](const ::testing::TestParamInfo<LShiftC16uParam> &info) { return info.param.name; });
 
+// ==================== LShiftC 8u C3 TEST_P ====================
+
+class LShiftC8uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<LShiftC8uParam> {};
+
+TEST_P(LShiftC8uC3ParamTest, LShiftC_8u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp32u shift = param.shift;
+  const int channels = 3;
+  const int total = width * height * channels;
+  const Npp32u aConstants[3] = {shift, shift, shift};
+
+  std::vector<Npp8u> srcData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 12345);
+
+  std::vector<Npp8u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::lshift_c<Npp8u>(srcData[i], shift);
+  }
+
+  NppImageMemory<Npp8u> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_8u_C3IR_Ctx(aConstants, src.get(), src.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_8u_C3IR(aConstants, src.get(), src.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp8u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_8u_C3R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_8u_C3R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(LShiftC8uC3, LShiftC8uC3ParamTest,
+                         ::testing::Values(LShiftC8uParam{32, 32, 2, false, false, "32x32_s2_noCtx"},
+                                           LShiftC8uParam{32, 32, 2, true, false, "32x32_s2_Ctx"},
+                                           LShiftC8uParam{32, 32, 4, false, true, "32x32_s4_InPlace"},
+                                           LShiftC8uParam{32, 32, 4, true, true, "32x32_s4_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<LShiftC8uParam> &info) { return info.param.name; });
+
+// ==================== LShiftC 8u C4 TEST_P ====================
+
+class LShiftC8uC4ParamTest : public NppTestBase, public ::testing::WithParamInterface<LShiftC8uParam> {};
+
+TEST_P(LShiftC8uC4ParamTest, LShiftC_8u_C4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp32u shift = param.shift;
+  const int channels = 4;
+  const int total = width * height * channels;
+  const Npp32u aConstants[4] = {shift, shift, shift, shift};
+
+  std::vector<Npp8u> srcData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 12345);
+
+  std::vector<Npp8u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::lshift_c<Npp8u>(srcData[i], shift);
+  }
+
+  NppImageMemory<Npp8u> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_8u_C4IR_Ctx(aConstants, src.get(), src.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_8u_C4IR(aConstants, src.get(), src.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp8u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_8u_C4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_8u_C4R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(LShiftC8uC4, LShiftC8uC4ParamTest,
+                         ::testing::Values(LShiftC8uParam{32, 32, 2, false, false, "32x32_s2_noCtx"},
+                                           LShiftC8uParam{32, 32, 2, true, false, "32x32_s2_Ctx"},
+                                           LShiftC8uParam{32, 32, 4, false, true, "32x32_s4_InPlace"},
+                                           LShiftC8uParam{32, 32, 4, true, true, "32x32_s4_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<LShiftC8uParam> &info) { return info.param.name; });
+
+// ==================== LShiftC 16u C3 TEST_P ====================
+
+class LShiftC16uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<LShiftC16uParam> {};
+
+TEST_P(LShiftC16uC3ParamTest, LShiftC_16u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp32u shift = param.shift;
+  const int channels = 3;
+  const int total = width * height * channels;
+  const Npp32u aConstants[3] = {shift, shift, shift};
+
+  std::vector<Npp16u> srcData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(0), static_cast<Npp16u>(65535), 12345);
+
+  std::vector<Npp16u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::lshift_c<Npp16u>(srcData[i], shift);
+  }
+
+  NppImageMemory<Npp16u> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_16u_C3IR_Ctx(aConstants, src.get(), src.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_16u_C3IR(aConstants, src.get(), src.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp16u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_16u_C3R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_16u_C3R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(LShiftC16uC3, LShiftC16uC3ParamTest,
+                         ::testing::Values(LShiftC16uParam{32, 32, 4, false, false, "32x32_s4_noCtx"},
+                                           LShiftC16uParam{32, 32, 4, true, false, "32x32_s4_Ctx"},
+                                           LShiftC16uParam{32, 32, 8, false, true, "32x32_s8_InPlace"},
+                                           LShiftC16uParam{32, 32, 8, true, true, "32x32_s8_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<LShiftC16uParam> &info) { return info.param.name; });
+
+// ==================== LShiftC 16u C4 TEST_P ====================
+
+class LShiftC16uC4ParamTest : public NppTestBase, public ::testing::WithParamInterface<LShiftC16uParam> {};
+
+TEST_P(LShiftC16uC4ParamTest, LShiftC_16u_C4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const Npp32u shift = param.shift;
+  const int channels = 4;
+  const int total = width * height * channels;
+  const Npp32u aConstants[4] = {shift, shift, shift, shift};
+
+  std::vector<Npp16u> srcData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(0), static_cast<Npp16u>(65535), 12345);
+
+  std::vector<Npp16u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::lshift_c<Npp16u>(srcData[i], shift);
+  }
+
+  NppImageMemory<Npp16u> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_16u_C4IR_Ctx(aConstants, src.get(), src.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_16u_C4IR(aConstants, src.get(), src.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp16u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiLShiftC_16u_C4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+    } else {
+      status = nppiLShiftC_16u_C4R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(LShiftC16uC4, LShiftC16uC4ParamTest,
+                         ::testing::Values(LShiftC16uParam{32, 32, 4, false, false, "32x32_s4_noCtx"},
+                                           LShiftC16uParam{32, 32, 4, true, false, "32x32_s4_Ctx"},
+                                           LShiftC16uParam{32, 32, 8, false, true, "32x32_s8_InPlace"},
+                                           LShiftC16uParam{32, 32, 8, true, true, "32x32_s8_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<LShiftC16uParam> &info) { return info.param.name; });
+
