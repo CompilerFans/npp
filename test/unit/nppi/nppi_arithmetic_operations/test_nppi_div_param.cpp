@@ -468,3 +468,141 @@ INSTANTIATE_TEST_SUITE_P(Div32fC4, Div32fC4ParamTest,
                                            Div32fC4Param{32, 32, false, true, "32x32_InPlace"},
                                            Div32fC4Param{32, 32, true, true, "32x32_InPlace_Ctx"}),
                          [](const ::testing::TestParamInfo<Div32fC4Param> &info) { return info.param.name; });
+
+// ==================== Div 16u C3 with scale factor TEST_P ====================
+
+class Div16uC3SfsParamTest : public NppTestBase, public ::testing::WithParamInterface<Div16uSfsParam> {};
+
+TEST_P(Div16uC3SfsParamTest, Div_16u_C3RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int scaleFactor = param.scaleFactor;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp16u> src1Data(total);
+  std::vector<Npp16u> src2Data(total);
+  TestDataGenerator::generateRandom(src1Data, static_cast<Npp16u>(100), static_cast<Npp16u>(10000), 12345);
+  TestDataGenerator::generateRandom(src2Data, static_cast<Npp16u>(1), static_cast<Npp16u>(100), 54321);
+
+  NppImageMemory<Npp16u> src1(width * channels, height);
+  NppImageMemory<Npp16u> src2(width * channels, height);
+  src1.copyFromHost(src1Data);
+  src2.copyFromHost(src2Data);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiDiv_16u_C3IRSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDiv_16u_C3IRSfs(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    src2.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = src2Data[i] / src1Data[i];
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  } else {
+    NppImageMemory<Npp16u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiDiv_16u_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                      scaleFactor, ctx);
+    } else {
+      status = nppiDiv_16u_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    dst.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = src2Data[i] / src1Data[i];
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(Div16uC3Sfs, Div16uC3SfsParamTest,
+                         ::testing::Values(Div16uSfsParam{32, 32, 0, false, false, "32x32_sfs0_noCtx"},
+                                           Div16uSfsParam{32, 32, 0, true, false, "32x32_sfs0_Ctx"},
+                                           Div16uSfsParam{32, 32, 0, false, true, "32x32_sfs0_InPlace"},
+                                           Div16uSfsParam{32, 32, 0, true, true, "32x32_sfs0_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<Div16uSfsParam> &info) { return info.param.name; });
+
+// ==================== Div 16s C3 with scale factor TEST_P ====================
+
+class Div16sC3SfsParamTest : public NppTestBase, public ::testing::WithParamInterface<Div16sSfsParam> {};
+
+TEST_P(Div16sC3SfsParamTest, Div_16s_C3RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int scaleFactor = param.scaleFactor;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp16s> src1Data(total);
+  std::vector<Npp16s> src2Data(total);
+  TestDataGenerator::generateRandom(src1Data, static_cast<Npp16s>(10), static_cast<Npp16s>(1000), 12345);
+  TestDataGenerator::generateRandom(src2Data, static_cast<Npp16s>(1), static_cast<Npp16s>(10), 54321);
+
+  NppImageMemory<Npp16s> src1(width * channels, height);
+  NppImageMemory<Npp16s> src2(width * channels, height);
+  src1.copyFromHost(src1Data);
+  src2.copyFromHost(src2Data);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiDiv_16s_C3IRSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiDiv_16s_C3IRSfs(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16s> resultData(total);
+    src2.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = src2Data[i] / src1Data[i];
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  } else {
+    NppImageMemory<Npp16s> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiDiv_16s_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                      scaleFactor, ctx);
+    } else {
+      status = nppiDiv_16s_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16s> resultData(total);
+    dst.copyToHost(resultData);
+    for (size_t i = 0; i < resultData.size(); i++) {
+      int expected = src2Data[i] / src1Data[i];
+      EXPECT_LE(std::abs(static_cast<int>(resultData[i]) - expected), 1);
+    }
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(Div16sC3Sfs, Div16sC3SfsParamTest,
+                         ::testing::Values(Div16sSfsParam{32, 32, 0, false, false, "32x32_sfs0_noCtx"},
+                                           Div16sSfsParam{32, 32, 0, true, false, "32x32_sfs0_Ctx"},
+                                           Div16sSfsParam{32, 32, 0, false, true, "32x32_sfs0_InPlace"},
+                                           Div16sSfsParam{32, 32, 0, true, true, "32x32_sfs0_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<Div16sSfsParam> &info) { return info.param.name; });
