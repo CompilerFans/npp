@@ -557,6 +557,13 @@ template <typename T> T threshold_ltgt(T x, T thresholdLT, T valueLT, T threshol
   return x;
 }
 
+// Compare operations
+template <typename T> Npp8u compare_lt(T a, T b) { return (a < b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_le(T a, T b) { return (a <= b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_eq(T a, T b) { return (a == b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_ge(T a, T b) { return (a >= b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_gt(T a, T b) { return (a > b) ? 0xFF : 0x00; }
+
 // Convert operation (type conversion with saturation)
 template <typename DstT, typename SrcT> DstT convert(SrcT x) {
   if constexpr (std::is_floating_point_v<DstT> && std::is_floating_point_v<SrcT>) {
