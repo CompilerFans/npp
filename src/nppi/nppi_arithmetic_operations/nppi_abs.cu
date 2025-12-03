@@ -4,6 +4,7 @@
 using namespace nppi::arithmetic;
 
 template <typename T, int C> using Abs = UnaryOpAPI<T, C, AbsOp>;
+template <typename T> using AbsAC4 = UnaryOpAC4API<T, AbsOp>;
 
 // ============================================================================
 // Npp8s - Signed 8-bit
@@ -73,7 +74,7 @@ NppStatus nppiAbs_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) 
 // AC4R
 NppStatus nppiAbs_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                NppStreamContext nppStreamCtx) {
-  return Abs<Npp16s, 4>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return AbsAC4<Npp16s>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -82,7 +83,7 @@ NppStatus nppiAbs_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int n
 
 // AC4IR (in-place)
 NppStatus nppiAbs_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Abs<Npp16s, 4>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return AbsAC4<Npp16s>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -176,7 +177,7 @@ NppStatus nppiAbs_32f_C3IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) 
 // AC4R
 NppStatus nppiAbs_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                NppStreamContext nppStreamCtx) {
-  return Abs<Npp32f, 4>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return AbsAC4<Npp32f>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -185,7 +186,7 @@ NppStatus nppiAbs_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int n
 
 // AC4IR (in-place)
 NppStatus nppiAbs_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Abs<Npp32f, 4>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return AbsAC4<Npp32f>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAbs_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

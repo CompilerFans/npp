@@ -95,6 +95,25 @@ __global__ void unaryKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, 
   }
 }
 
+// AC4 Unary kernel: processes only first 3 channels, preserves alpha (4th channel)
+template <typename T, typename UnaryOp>
+__global__ void unaryAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height, UnaryOp op,
+                               int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    int idx = x * 4;
+    dstRow[idx + 0] = op(srcRow[idx + 0], T{}, scaleFactor);
+    dstRow[idx + 1] = op(srcRow[idx + 1], T{}, scaleFactor);
+    dstRow[idx + 2] = op(srcRow[idx + 2], T{}, scaleFactor);
+    dstRow[idx + 3] = srcRow[idx + 3]; // Alpha unchanged
+  }
+}
+
 template <typename T, int Channels, typename CompareOp>
 __global__ void compareKernel(const T *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width, int height,
                               CompareOp op) {
@@ -185,6 +204,30 @@ public:
     OpType op;
     unaryKernel<T, Channels, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                          oSizeROI.height, op, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// AC4 Unary Operation Executor: processes only first 3 channels, preserves alpha
+template <typename T, typename OpType> class UnaryAC4OperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
+                           cudaStream_t stream) {
+    // Validate parameters (use 4 channels for stride validation)
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 4);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    unaryAC4Kernel<T, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
+                                                                   oSizeROI.height, op, scaleFactor);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

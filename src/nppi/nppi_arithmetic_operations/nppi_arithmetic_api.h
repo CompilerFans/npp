@@ -108,6 +108,39 @@ public:
 };
 
 // ============================================================================
+// AC4 Unary Operation API Generator (processes 3 channels, preserves alpha)
+// ============================================================================
+
+template <typename T, template <typename> class OpTemplate> class UnaryOpAC4API {
+public:
+  using Op = OpTemplate<T>;
+
+  // Standard unary operation with scale factor
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
+                           NppStreamContext nppStreamCtx) {
+    return UnaryAC4OperationExecutor<T, Op>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                     nppStreamCtx.hStream);
+  }
+
+  // Without scale factor
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
+                           NppStreamContext nppStreamCtx) {
+    return execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0, nppStreamCtx);
+  }
+
+  // In-place with scale factor
+  static NppStatus executeInplace(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                  NppStreamContext nppStreamCtx) {
+    return execute(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  }
+
+  // In-place without scale factor
+  static NppStatus executeInplace(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return executeInplace(pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx);
+  }
+};
+
+// ============================================================================
 // Constant Operation API Generator (single constant)
 // ============================================================================
 
