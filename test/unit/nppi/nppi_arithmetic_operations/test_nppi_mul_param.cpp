@@ -450,3 +450,139 @@ INSTANTIATE_TEST_SUITE_P(Mul32fC4, Mul32fC4ParamTest,
                                            Mul32fC4Param{32, 32, false, true, "32x32_InPlace"},
                                            Mul32fC4Param{32, 32, true, true, "32x32_InPlace_Ctx"}),
                          [](const ::testing::TestParamInfo<Mul32fC4Param> &info) { return info.param.name; });
+
+// ==================== Mul 16u C3 with scale factor TEST_P ====================
+
+class Mul16uC3SfsParamTest : public NppTestBase, public ::testing::WithParamInterface<Mul16uSfsParam> {};
+
+TEST_P(Mul16uC3SfsParamTest, Mul_16u_C3RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int scaleFactor = param.scaleFactor;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp16u> src1Data(total);
+  std::vector<Npp16u> src2Data(total);
+  TestDataGenerator::generateRandom(src1Data, static_cast<Npp16u>(1), static_cast<Npp16u>(100), 12345);
+  TestDataGenerator::generateRandom(src2Data, static_cast<Npp16u>(1), static_cast<Npp16u>(100), 54321);
+
+  std::vector<Npp16u> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::mul_sfs<Npp16u>(src1Data[i], src2Data[i], scaleFactor);
+  }
+
+  NppImageMemory<Npp16u> src1(width * channels, height);
+  NppImageMemory<Npp16u> src2(width * channels, height);
+  src1.copyFromHost(src1Data);
+  src2.copyFromHost(src2Data);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiMul_16u_C3IRSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiMul_16u_C3IRSfs(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    src2.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp16u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiMul_16u_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                      scaleFactor, ctx);
+    } else {
+      status = nppiMul_16u_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(Mul16uC3Sfs, Mul16uC3SfsParamTest,
+                         ::testing::Values(Mul16uSfsParam{32, 32, 0, false, false, "32x32_sfs0_noCtx"},
+                                           Mul16uSfsParam{32, 32, 0, true, false, "32x32_sfs0_Ctx"},
+                                           Mul16uSfsParam{32, 32, 0, false, true, "32x32_sfs0_InPlace"},
+                                           Mul16uSfsParam{32, 32, 0, true, true, "32x32_sfs0_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<Mul16uSfsParam> &info) { return info.param.name; });
+
+// ==================== Mul 16s C3 with scale factor TEST_P ====================
+
+class Mul16sC3SfsParamTest : public NppTestBase, public ::testing::WithParamInterface<Mul16sSfsParam> {};
+
+TEST_P(Mul16sC3SfsParamTest, Mul_16s_C3RSfs) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int scaleFactor = param.scaleFactor;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp16s> src1Data(total);
+  std::vector<Npp16s> src2Data(total);
+  TestDataGenerator::generateRandom(src1Data, static_cast<Npp16s>(-50), static_cast<Npp16s>(50), 12345);
+  TestDataGenerator::generateRandom(src2Data, static_cast<Npp16s>(-50), static_cast<Npp16s>(50), 54321);
+
+  std::vector<Npp16s> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::mul_sfs<Npp16s>(src1Data[i], src2Data[i], scaleFactor);
+  }
+
+  NppImageMemory<Npp16s> src1(width * channels, height);
+  NppImageMemory<Npp16s> src2(width * channels, height);
+  src1.copyFromHost(src1Data);
+  src2.copyFromHost(src2Data);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiMul_16s_C3IRSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor, ctx);
+    } else {
+      status = nppiMul_16s_C3IRSfs(src1.get(), src1.step(), src2.get(), src2.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16s> resultData(total);
+    src2.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp16s> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiMul_16s_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                      scaleFactor, ctx);
+    } else {
+      status = nppiMul_16s_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp16s> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(Mul16sC3Sfs, Mul16sC3SfsParamTest,
+                         ::testing::Values(Mul16sSfsParam{32, 32, 0, false, false, "32x32_sfs0_noCtx"},
+                                           Mul16sSfsParam{32, 32, 0, true, false, "32x32_sfs0_Ctx"},
+                                           Mul16sSfsParam{32, 32, 0, false, true, "32x32_sfs0_InPlace"},
+                                           Mul16sSfsParam{32, 32, 0, true, true, "32x32_sfs0_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<Mul16sSfsParam> &info) { return info.param.name; });
