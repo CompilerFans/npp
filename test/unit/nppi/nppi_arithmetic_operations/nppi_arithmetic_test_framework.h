@@ -538,6 +538,11 @@ template <typename T> T min_every(T a, T b) { return (a < b) ? a : b; }
 
 template <typename T> T max_every(T a, T b) { return (a > b) ? a : b; }
 
+// Shift operations
+template <typename T> T lshift_c(T x, Npp32u shift) { return static_cast<T>(x << shift); }
+
+template <typename T> T rshift_c(T x, Npp32u shift) { return static_cast<T>(x >> shift); }
+
 } // namespace expect
 
 // Test parameter structures
