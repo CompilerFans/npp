@@ -21,28 +21,6 @@ NppStatus nppiSumWindowRow_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp
 //		Npp16u * pDst,  int nDstStep,  NppiSize oSizeROI){
 //   return NPP_NOT_IMPLEMENTED_ERROR;
 // }
-NppStatus nppiFilterMin_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiFilterMin_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-// NppStatus
-// nppiAndC_8u_C3R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u  aConstants[3],
-//		 Npp8u * pDst,  int nDstStep,  NppiSize oSizeROI){
-//    return NPP_NOT_IMPLEMENTED_ERROR;
-// }
-
-NppStatus nppiFilterMax_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiFilterMax_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 NppStatus nppiRShiftC_8s_C1R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8s *pDst, int nDstStep,
                              NppiSize oSizeROI) {
@@ -71,27 +49,6 @@ NppStatus nppiRShiftC_8s_C4R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiFilterMax_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiFilterMax_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-// NppStatus
-// nppiFilterBox_32f_C1R(const Npp32f * pSrc, Npp32s nSrcStep, Npp32f * pDst, Npp32s nDstStep, NppiSize oSizeROI,
-//                       NppiSize oMaskSize, NppiPoint oAnchor){
-//	 return NPP_NOT_IMPLEMENTED_ERROR;
-// }
-NppStatus nppiFilterMin_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiFilterMin_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
-                               NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 NppStatus nppiSumWindowColumn_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
                                         NppiSize oROI, Npp32s nMaskSize, Npp32s nAnchor) {
   return NPP_NOT_IMPLEMENTED_ERROR;
