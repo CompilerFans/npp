@@ -518,6 +518,21 @@ template <typename T> T ln_val(T x) {
   }
 }
 
+// Logical operations
+template <typename T> T not_val(T x) { return static_cast<T>(~x); }
+
+template <typename T> T and_val(T a, T b) { return static_cast<T>(a & b); }
+
+template <typename T> T or_val(T a, T b) { return static_cast<T>(a | b); }
+
+template <typename T> T xor_val(T a, T b) { return static_cast<T>(a ^ b); }
+
+template <typename T, typename ConstT = T> T and_c(T x, ConstT c) { return static_cast<T>(x & static_cast<T>(c)); }
+
+template <typename T, typename ConstT = T> T or_c(T x, ConstT c) { return static_cast<T>(x | static_cast<T>(c)); }
+
+template <typename T, typename ConstT = T> T xor_c(T x, ConstT c) { return static_cast<T>(x ^ static_cast<T>(c)); }
+
 } // namespace expect
 
 // Test parameter structures
