@@ -543,6 +543,33 @@ template <typename T> T lshift_c(T x, Npp32u shift) { return static_cast<T>(x <<
 
 template <typename T> T rshift_c(T x, Npp32u shift) { return static_cast<T>(x >> shift); }
 
+// Set operation
+template <typename T> T set_val(T val) { return val; }
+
+// Convert operation (type conversion with saturation)
+template <typename DstT, typename SrcT> DstT convert(SrcT x) {
+  if constexpr (std::is_floating_point_v<DstT> && std::is_floating_point_v<SrcT>) {
+    return static_cast<DstT>(x);
+  } else if constexpr (std::is_floating_point_v<DstT>) {
+    return static_cast<DstT>(x);
+  } else if constexpr (std::is_floating_point_v<SrcT>) {
+    if constexpr (std::is_same_v<DstT, Npp8u>) {
+      float rounded = std::round(x);
+      return static_cast<DstT>(std::max(0.0f, std::min(255.0f, rounded)));
+    } else if constexpr (std::is_same_v<DstT, Npp16u>) {
+      float rounded = std::round(x);
+      return static_cast<DstT>(std::max(0.0f, std::min(65535.0f, rounded)));
+    } else if constexpr (std::is_same_v<DstT, Npp16s>) {
+      float rounded = std::round(x);
+      return static_cast<DstT>(std::max(-32768.0f, std::min(32767.0f, rounded)));
+    } else {
+      return static_cast<DstT>(x);
+    }
+  } else {
+    return static_cast<DstT>(x);
+  }
+}
+
 } // namespace expect
 
 // Test parameter structures
