@@ -14,6 +14,22 @@ NppStatus nppiThreshold_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSi
 NppStatus nppiThreshold_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                          NppiSize oSizeROI, const Npp32f nThreshold, NppCmpOp eComparisonOperation,
                                          NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_LTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
+                                               NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_LTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                                Npp8u nThreshold, Npp8u nValue, NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_GTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
+                                               NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_GTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                                Npp8u nThreshold, Npp8u nValue, NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_LTValGTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                    NppiSize oSizeROI, Npp8u nThresholdLT, Npp8u nValueLT,
+                                                    Npp8u nThresholdGT, Npp8u nValueGT, NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_LTVal_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+                                                NppiSize oSizeROI, Npp32f nThreshold, Npp32f nValue,
+                                                NppStreamContext nppStreamCtx);
 }
 
 // Input validation helper
@@ -106,4 +122,137 @@ NppStatus nppiThreshold_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, 
   nppStreamCtx.hStream = 0;
   return nppiThreshold_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
                                    nppStreamCtx);
+}
+
+// Threshold_LTVal validation helper
+static inline NppStatus validateThresholdValInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
+                                                   NppiSize oSizeROI, bool inPlace = false) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (inPlace) {
+    if (nSrcStep <= 0) {
+      return NPP_STEP_ERROR;
+    }
+    if (!pSrc) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+  } else {
+    if (nSrcStep <= 0 || nDstStep <= 0) {
+      return NPP_STEP_ERROR;
+    }
+    if (!pSrc || !pDst) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+  }
+  return NPP_SUCCESS;
+}
+
+// Threshold_LTVal 8u C1R
+NppStatus nppiThreshold_LTVal_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
+                                          NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiThreshold_LTVal_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+// Threshold_LTVal 8u C1IR (inplace)
+NppStatus nppiThreshold_LTVal_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           Npp8u nThreshold, Npp8u nValue, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrcDst, nSrcDstStep, nullptr, 0, oSizeROI, true);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiThreshold_LTVal_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       Npp8u nThreshold, Npp8u nValue) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_8u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+// Threshold_GTVal 8u C1R
+NppStatus nppiThreshold_GTVal_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
+                                          NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiThreshold_GTVal_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_GTVal_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+// Threshold_GTVal 8u C1IR (inplace)
+NppStatus nppiThreshold_GTVal_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           Npp8u nThreshold, Npp8u nValue, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrcDst, nSrcDstStep, nullptr, 0, oSizeROI, true);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiThreshold_GTVal_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       Npp8u nThreshold, Npp8u nValue) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_GTVal_8u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+// Threshold_LTValGTVal 8u C1R
+NppStatus nppiThreshold_LTValGTVal_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, Npp8u nThresholdLT, Npp8u nValueLT,
+                                               Npp8u nThresholdGT, Npp8u nValueGT, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiThreshold_LTValGTVal_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
+                                                   nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTValGTVal_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                           NppiSize oSizeROI, Npp8u nThresholdLT, Npp8u nValueLT,
+                                           Npp8u nThresholdGT, Npp8u nValueGT) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTValGTVal_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
+                                              nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
+}
+
+// Threshold_LTVal 32f C1R
+NppStatus nppiThreshold_LTVal_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+                                           NppiSize oSizeROI, Npp32f nThreshold, Npp32f nValue,
+                                           NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiThreshold_LTVal_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+                                       NppiSize oSizeROI, Npp32f nThreshold, Npp32f nValue) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }

@@ -1,9 +1,9 @@
 # Coverage Summary
 
 - Total API Functions: 12500
-- Implemented: 2570 (20.6%)
-- Tested: 740 (5.9%)
-- Implemented but not tested: 1916
+- Implemented: 2606 (20.8%)
+- Tested: 743 (5.9%)
+- Implemented but not tested: 1915
 
 ## By Module
 
@@ -16,7 +16,7 @@
 - Total: 1040, Impl: 38 (3.7%), Test: 23 (2.2%)
 
 **nppi_data_exchange_and_initialization.h**
-- Total: 966, Impl: 79 (8.2%), Test: 99 (10.2%)
+- Total: 966, Impl: 95 (9.8%), Test: 99 (10.2%)
 
 **nppi_filtering_functions.h**
 - Total: 1895, Impl: 69 (3.6%), Test: 36 (1.9%)
@@ -37,7 +37,7 @@
 - Total: 31, Impl: 0 (0.0%), Test: 14 (45.2%)
 
 **nppi_threshold_and_compare_operations.h**
-- Total: 418, Impl: 12 (2.9%), Test: 26 (6.2%)
+- Total: 418, Impl: 32 (7.7%), Test: 29 (6.9%)
 
 ### NPPS
 

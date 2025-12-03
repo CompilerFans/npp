@@ -24,6 +24,15 @@ NppStatus nppiCompareC_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s
                                                                               nppStreamCtx.hStream, op);
 }
 
+// 16u C1 comparison operations
+NppStatus nppiCompareC_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u nConstant, Npp8u *pDst, int nDstStep,
+                                        NppiSize oSizeROI, NppCmpOp eComparisonOperation,
+                                        NppStreamContext nppStreamCtx) {
+  CompareConstOp<Npp16u> op(nConstant, eComparisonOperation);
+  return CompareOperationExecutor<Npp16u, 1, CompareConstOp<Npp16u>>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
+                                                                              nppStreamCtx.hStream, op);
+}
+
 // 32f C1 comparison operations
 NppStatus nppiCompareC_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f nConstant, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI, NppCmpOp eComparisonOperation,
@@ -94,6 +103,25 @@ NppStatus nppiCompareC_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s nConstan
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   return nppiCompareC_16s_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, eComparisonOperation,
+                                  nppStreamCtx);
+}
+
+NppStatus nppiCompareC_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u nConstant, Npp8u *pDst, int nDstStep,
+                                   NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateCompareCInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eComparisonOperation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiCompareC_16u_C1R_Ctx_impl(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, eComparisonOperation,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiCompareC_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u nConstant, Npp8u *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppCmpOp eComparisonOperation) {
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  return nppiCompareC_16u_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, eComparisonOperation,
                                   nppStreamCtx);
 }
 
