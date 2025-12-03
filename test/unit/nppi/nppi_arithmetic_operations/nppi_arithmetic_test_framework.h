@@ -533,6 +533,11 @@ template <typename T, typename ConstT = T> T or_c(T x, ConstT c) { return static
 
 template <typename T, typename ConstT = T> T xor_c(T x, ConstT c) { return static_cast<T>(x ^ static_cast<T>(c)); }
 
+// Min/Max operations
+template <typename T> T min_every(T a, T b) { return (a < b) ? a : b; }
+
+template <typename T> T max_every(T a, T b) { return (a > b) ? a : b; }
+
 } // namespace expect
 
 // Test parameter structures
