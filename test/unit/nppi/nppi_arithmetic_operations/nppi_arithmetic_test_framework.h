@@ -394,6 +394,91 @@ template <typename T> T div(T a, T b) {
   }
 }
 
+// Sqr: dst = saturate(src * src)
+template <typename T> T sqr(T x) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return x * x;
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(x) * static_cast<int>(x);
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(x) * static_cast<int>(x);
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(x) * static_cast<int>(x);
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x * x);
+  }
+}
+
+// Sqr with scale factor: dst = saturate((src * src) >> scaleFactor)
+template <typename T> T sqr_sfs(T x, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(x) * static_cast<int>(x);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(x) * static_cast<int>(x);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    int result = static_cast<int>(x) * static_cast<int>(x);
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(x * x);
+  }
+}
+
+// Sqrt: dst = sqrt(src)
+template <typename T> T sqrt_val(T x) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return std::sqrt(x);
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    return static_cast<T>(std::sqrt(static_cast<float>(x)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    return static_cast<T>(std::sqrt(static_cast<float>(x)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    if (x < 0) return 0;
+    return static_cast<T>(std::sqrt(static_cast<float>(x)));
+  } else {
+    return static_cast<T>(std::sqrt(static_cast<double>(x)));
+  }
+}
+
+// Sqrt with scale factor: dst = sqrt(src) >> scaleFactor
+template <typename T> T sqrt_sfs(T x, int scaleFactor) {
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    int result = static_cast<int>(std::sqrt(static_cast<float>(x)));
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(255, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    int result = static_cast<int>(std::sqrt(static_cast<float>(x)));
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(0, std::min(65535, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    if (x < 0) return 0;
+    int result = static_cast<int>(std::sqrt(static_cast<float>(x)));
+    if (scaleFactor > 0) {
+      result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
+    }
+    return static_cast<T>(std::max(-32768, std::min(32767, result)));
+  } else {
+    return static_cast<T>(std::sqrt(static_cast<double>(x)));
+  }
+}
+
 } // namespace expect
 
 // Test parameter structures
