@@ -479,6 +479,45 @@ template <typename T> T sqrt_sfs(T x, int scaleFactor) {
   }
 }
 
+// Exp: dst = exp(src)
+template <typename T> T exp_val(T x) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return std::exp(x);
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    float result = std::exp(static_cast<float>(x));
+    return static_cast<T>(std::max(0.0f, std::min(255.0f, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    float result = std::exp(static_cast<float>(x));
+    return static_cast<T>(std::max(0.0f, std::min(65535.0f, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    float result = std::exp(static_cast<float>(x));
+    return static_cast<T>(std::max(-32768.0f, std::min(32767.0f, result)));
+  } else {
+    return static_cast<T>(std::exp(static_cast<double>(x)));
+  }
+}
+
+// Ln: dst = ln(src)
+template <typename T> T ln_val(T x) {
+  if constexpr (std::is_floating_point_v<T>) {
+    return std::log(x);
+  } else if constexpr (std::is_same_v<T, Npp8u>) {
+    if (x == 0) return 0;
+    float result = std::log(static_cast<float>(x));
+    return static_cast<T>(std::max(0.0f, std::min(255.0f, result)));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    if (x == 0) return 0;
+    float result = std::log(static_cast<float>(x));
+    return static_cast<T>(std::max(0.0f, std::min(65535.0f, result)));
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    if (x <= 0) return 0;
+    float result = std::log(static_cast<float>(x));
+    return static_cast<T>(std::max(-32768.0f, std::min(32767.0f, result)));
+  } else {
+    return static_cast<T>(std::log(static_cast<double>(x)));
+  }
+}
+
 } // namespace expect
 
 // Test parameter structures
