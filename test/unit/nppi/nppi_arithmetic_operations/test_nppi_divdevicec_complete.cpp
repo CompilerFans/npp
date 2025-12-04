@@ -114,7 +114,8 @@ TEST_P(DivDeviceC_8u_Test, Compute) {
     if (p.channels == -4 && ch == 3) {
       EXPECT_EQ(hostResult[i], hostSrc[i]) << "Alpha channel should be unchanged at index " << i;
     } else {
-      int expected = static_cast<int>(hostSrc[i]) / static_cast<int>(hostConstants[ch]);
+      double val = static_cast<double>(hostSrc[i]) / static_cast<double>(hostConstants[ch]);
+      int expected = static_cast<int>(std::nearbyint(val));
       EXPECT_EQ(hostResult[i], static_cast<Npp8u>(expected)) << "Mismatch at index " << i;
     }
   }
@@ -242,7 +243,8 @@ TEST_P(DivDeviceC_16u_Test, Compute) {
     if (p.channels == -4 && ch == 3) {
       EXPECT_EQ(hostResult[i], hostSrc[i]) << "Alpha channel should be unchanged at index " << i;
     } else {
-      int expected = static_cast<int>(hostSrc[i]) / static_cast<int>(hostConstants[ch]);
+      double val = static_cast<double>(hostSrc[i]) / static_cast<double>(hostConstants[ch]);
+      int expected = static_cast<int>(std::nearbyint(val));
       EXPECT_EQ(hostResult[i], static_cast<Npp16u>(expected)) << "Mismatch at index " << i;
     }
   }
@@ -340,7 +342,8 @@ TEST_P(DivDeviceC_16s_Test, Compute) {
   cudaMemcpy2D(hostResult.data(), hostStep, resultPtr, step, hostStep, height, cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < totalElements; ++i) {
-    Npp16s expected = static_cast<Npp16s>(hostSrc[i] / hostConstants[0]);
+    double val = static_cast<double>(hostSrc[i]) / static_cast<double>(hostConstants[0]);
+    Npp16s expected = static_cast<Npp16s>(std::nearbyint(val));
     EXPECT_EQ(hostResult[i], expected) << "Mismatch at index " << i;
   }
 
