@@ -2345,25 +2345,3 @@ NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLe
 NppStatus nppiHistogramRangeGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
-
-/**
- * 4 channel 8-bit unsigned integer in place image.
- * \param pSrcDst \ref in_place_image_pointer.
- * \param nSrcDstStep \ref in_place_image_line_step.
- * \param oSizeROI \ref roi_specification.
- * \param aDstOrder Host memory integer array describing how channel values are permutated. The n-th entry
- *      of the array contains the number of the channel that is stored in the n-th channel of
- *      the output image. E.g. Given an ARGB image, aDstOrder = [3,2,1,0] converts this to BGRA
- *      channel order.
- * \param nppStreamCtx \ref application_managed_stream_context.
- * \return \ref image_data_error_codes, \ref roi_error_codes
- */
-NppStatus nppiSwapChannels_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const int aDstOrder[4],
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiSwapChannels_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const int aDstOrder[4]) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
