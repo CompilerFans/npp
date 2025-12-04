@@ -1,20 +1,20 @@
 # Untested Arithmetic APIs
 
-**Status**: 1855/2137 tested (86.8%)
-**Remaining**: 282 functions
+**Status**: 1928/2137 tested (90.2%)
+**Remaining**: 209 functions
 
 ## By Category
-- nppiAdd: 19
+- nppiAdd: 13
 - nppiSub: 17
 - nppiMul: 69
-- nppiDiv: 53
+- nppiDiv: 14
 - nppiAddC: 1
 - nppiSubC: 1
 - nppiMulC: 32
 - nppiDivC: 2
 - nppiRShiftC: 26
-- nppiSqrt: 38
-- nppiSqr: 54
+- nppiSqrt: 10
+- nppiSqr: 26
 - nppiExp: 22
 - nppiLn: 22
 - nppiMulScale: 25

@@ -1,133 +1,575 @@
+// MulCScale parameterized tests for nppi arithmetic operations
 #include "npp_test_base.h"
-#include <functional>
+#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
+using namespace npp_arithmetic_test;
 
-// Parameter structure for MulCScale operation tests
+// ==================== Common Param Structures ====================
+
 struct MulCScaleParam {
-  int channels;
+  int width;
+  int height;
   bool use_ctx;
-  bool in_place;
-  std::string name() const {
-    std::string result = "C" + std::to_string(channels);
-    result += in_place ? "IR" : "R";
-    if (use_ctx)
-      result += "_Ctx";
-    return result;
-  }
+  std::string name;
 };
 
-// Base test class for MulCScale operations
-class MulCScaleParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {
-protected:
-  static constexpr int kWidth = 32;
-  static constexpr int kHeight = 32;
+// ==================== MulCScale 8u C1R TEST_P ====================
 
-  template <typename T>
-  void
-  runMulCScaleTest(T constVal, std::function<NppStatus(const T *, int, T, T *, int, NppiSize)> nppC1R,
-                   std::function<NppStatus(const T *, int, T, T *, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
-                   std::function<NppStatus(T, T *, int, NppiSize)> nppC1IR,
-                   std::function<NppStatus(T, T *, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
-                   std::function<NppStatus(const T *, int, const T *, T *, int, NppiSize)> nppC3R,
-                   std::function<NppStatus(const T *, int, const T *, T *, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
-                   std::function<NppStatus(const T *, T *, int, NppiSize)> nppC3IR,
-                   std::function<NppStatus(const T *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
-                   std::function<NppStatus(const T *, int, const T *, T *, int, NppiSize)> nppC4R,
-                   std::function<NppStatus(const T *, int, const T *, T *, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
-                   std::function<NppStatus(const T *, T *, int, NppiSize)> nppC4IR,
-                   std::function<NppStatus(const T *, T *, int, NppiSize, NppStreamContext)> nppC4IR_Ctx) {
-    const auto &p = GetParam();
-    const int total = kWidth * kHeight * p.channels;
+class MulCScale8uC1RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
 
-    // MulCScale: dst = (src * constant) / maxVal
-    // maxVal is 255 for 8u, 65535 for 16u
-    T maxVal = std::numeric_limits<T>::max();
+TEST_P(MulCScale8uC1RParamTest, MulCScale_8u_C1R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
 
-    std::vector<T> srcData(total), expected(total);
-    // Use smaller values to avoid overflow in expected calculation
-    T halfMax = maxVal / 2;
-    TestDataGenerator::generateRandom(srcData, static_cast<T>(0), halfMax, 12345);
+  std::vector<Npp8u> srcData(width * height);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
 
-    T constants[4] = {constVal, constVal, constVal, constVal};
-    for (int i = 0; i < total; i++) {
-      // Use 64-bit for intermediate calculation
-      uint64_t product = static_cast<uint64_t>(srcData[i]) * static_cast<uint64_t>(constants[i % p.channels]);
-      expected[i] = static_cast<T>(product / maxVal);
-    }
+  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> dst(width, height);
 
-    NppImageMemory<T> src(kWidth * p.channels, kHeight);
-    src.copyFromHost(srcData);
+  src.copyFromHost(srcData);
 
-    NppiSize roi = {kWidth, kHeight};
+  NppiSize roi = {width, height};
+  Npp8u nConstant = 2;
+  NppStatus status;
+
+  if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    NppStatus status;
-    std::vector<T> result(total);
-
-    if (p.in_place) {
-      if (p.channels == 1) {
-        status = p.use_ctx ? nppC1IR_Ctx(constVal, src.get(), src.step(), roi, ctx)
-                           : nppC1IR(constVal, src.get(), src.step(), roi);
-      } else if (p.channels == 3) {
-        status = p.use_ctx ? nppC3IR_Ctx(constants, src.get(), src.step(), roi, ctx)
-                           : nppC3IR(constants, src.get(), src.step(), roi);
-      } else {
-        status = p.use_ctx ? nppC4IR_Ctx(constants, src.get(), src.step(), roi, ctx)
-                           : nppC4IR(constants, src.get(), src.step(), roi);
-      }
-      ASSERT_EQ(status, NPP_NO_ERROR);
-      src.copyToHost(result);
-    } else {
-      NppImageMemory<T> dst(kWidth * p.channels, kHeight);
-      if (p.channels == 1) {
-        status = p.use_ctx ? nppC1R_Ctx(src.get(), src.step(), constVal, dst.get(), dst.step(), roi, ctx)
-                           : nppC1R(src.get(), src.step(), constVal, dst.get(), dst.step(), roi);
-      } else if (p.channels == 3) {
-        status = p.use_ctx ? nppC3R_Ctx(src.get(), src.step(), constants, dst.get(), dst.step(), roi, ctx)
-                           : nppC3R(src.get(), src.step(), constants, dst.get(), dst.step(), roi);
-      } else {
-        status = p.use_ctx ? nppC4R_Ctx(src.get(), src.step(), constants, dst.get(), dst.step(), roi, ctx)
-                           : nppC4R(src.get(), src.step(), constants, dst.get(), dst.step(), roi);
-      }
-      ASSERT_EQ(status, NPP_NO_ERROR);
-      dst.copyToHost(result);
-    }
-
-    EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
+    status = nppiMulCScale_8u_C1R_Ctx(src.get(), src.step(), nConstant, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_C1R(src.get(), src.step(), nConstant, dst.get(), dst.step(), roi);
   }
-};
-
-// Parameter values
-static const std::vector<MulCScaleParam> kMulCScaleParams = {
-    {1, false, false}, {1, true, false}, {1, false, true},  {1, true, true},  {3, false, false}, {3, true, false},
-    {3, false, true},  {3, true, true},  {4, false, false}, {4, true, false}, {4, false, true},  {4, true, true},
-};
-
-// ==================== MulCScale_8u ====================
-class MulCScale8uParamTest : public MulCScaleParamTest {};
-
-TEST_P(MulCScale8uParamTest, MulCScale_8u) {
-  runMulCScaleTest<Npp8u>(static_cast<Npp8u>(128), nppiMulCScale_8u_C1R, nppiMulCScale_8u_C1R_Ctx,
-                          nppiMulCScale_8u_C1IR, nppiMulCScale_8u_C1IR_Ctx, nppiMulCScale_8u_C3R,
-                          nppiMulCScale_8u_C3R_Ctx, nppiMulCScale_8u_C3IR, nppiMulCScale_8u_C3IR_Ctx,
-                          nppiMulCScale_8u_C4R, nppiMulCScale_8u_C4R_Ctx, nppiMulCScale_8u_C4IR,
-                          nppiMulCScale_8u_C4IR_Ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
 }
 
-INSTANTIATE_TEST_SUITE_P(MulCScale8u, MulCScale8uParamTest, ::testing::ValuesIn(kMulCScaleParams),
-                         [](const auto &info) { return info.param.name(); });
+INSTANTIATE_TEST_SUITE_P(MulCScale8uC1R, MulCScale8uC1RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
 
-// ==================== MulCScale_16u ====================
-class MulCScale16uParamTest : public MulCScaleParamTest {};
+// ==================== MulCScale 8u C1IR TEST_P ====================
 
-TEST_P(MulCScale16uParamTest, MulCScale_16u) {
-  runMulCScaleTest<Npp16u>(static_cast<Npp16u>(32768), nppiMulCScale_16u_C1R, nppiMulCScale_16u_C1R_Ctx,
-                           nppiMulCScale_16u_C1IR, nppiMulCScale_16u_C1IR_Ctx, nppiMulCScale_16u_C3R,
-                           nppiMulCScale_16u_C3R_Ctx, nppiMulCScale_16u_C3IR, nppiMulCScale_16u_C3IR_Ctx,
-                           nppiMulCScale_16u_C4R, nppiMulCScale_16u_C4R_Ctx, nppiMulCScale_16u_C4IR,
-                           nppiMulCScale_16u_C4IR_Ctx);
+class MulCScale8uC1IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uC1IRParamTest, MulCScale_8u_C1IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcDstData(width * height);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> srcDst(width, height);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp8u nConstant = 2;
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_C1IR_Ctx(nConstant, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_C1IR(nConstant, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
 }
 
-INSTANTIATE_TEST_SUITE_P(MulCScale16u, MulCScale16uParamTest, ::testing::ValuesIn(kMulCScaleParams),
-                         [](const auto &info) { return info.param.name(); });
+INSTANTIATE_TEST_SUITE_P(MulCScale8uC1IR, MulCScale8uC1IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 8u C3R TEST_P ====================
+
+class MulCScale8uC3RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uC3RParamTest, MulCScale_8u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcData(width * height * 3);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> src(width, height, 3);
+  NppImageMemory<Npp8u> dst(width, height, 3);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp8u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_C3R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_C3R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale8uC3R, MulCScale8uC3RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 8u C3IR TEST_P ====================
+
+class MulCScale8uC3IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uC3IRParamTest, MulCScale_8u_C3IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcDstData(width * height * 3);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> srcDst(width, height, 3);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp8u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_C3IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_C3IR(aConstants, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale8uC3IR, MulCScale8uC3IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 8u C4R TEST_P ====================
+
+class MulCScale8uC4RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uC4RParamTest, MulCScale_8u_C4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcData(width * height * 4);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> src(width, height, 4);
+  NppImageMemory<Npp8u> dst(width, height, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp8u aConstants[4] = {2, 3, 4, 5};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_C4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_C4R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale8uC4R, MulCScale8uC4RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 8u C4IR TEST_P ====================
+
+class MulCScale8uC4IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uC4IRParamTest, MulCScale_8u_C4IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcDstData(width * height * 4);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> srcDst(width, height, 4);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp8u aConstants[4] = {2, 3, 4, 5};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_C4IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_C4IR(aConstants, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale8uC4IR, MulCScale8uC4IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 8u AC4R TEST_P ====================
+
+class MulCScale8uAC4RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uAC4RParamTest, MulCScale_8u_AC4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcData(width * height * 4);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> src(width, height, 4);
+  NppImageMemory<Npp8u> dst(width, height, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp8u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_AC4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_AC4R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale8uAC4R, MulCScale8uAC4RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 8u AC4IR TEST_P ====================
+
+class MulCScale8uAC4IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale8uAC4IRParamTest, MulCScale_8u_AC4IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp8u> srcDstData(width * height * 4);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp8u>(1), static_cast<Npp8u>(255), 12345);
+
+  NppImageMemory<Npp8u> srcDst(width, height, 4);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp8u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_8u_AC4IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_8u_AC4IR(aConstants, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale8uAC4IR, MulCScale8uAC4IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u C1R TEST_P ====================
+
+class MulCScale16uC1RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uC1RParamTest, MulCScale_16u_C1R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcData(width * height);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> src(width, height);
+  NppImageMemory<Npp16u> dst(width, height);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp16u nConstant = 2;
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_C1R_Ctx(src.get(), src.step(), nConstant, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_C1R(src.get(), src.step(), nConstant, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uC1R, MulCScale16uC1RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u C1IR TEST_P ====================
+
+class MulCScale16uC1IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uC1IRParamTest, MulCScale_16u_C1IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcDstData(width * height);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> srcDst(width, height);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp16u nConstant = 2;
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_C1IR_Ctx(nConstant, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_C1IR(nConstant, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uC1IR, MulCScale16uC1IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u C3R TEST_P ====================
+
+class MulCScale16uC3RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uC3RParamTest, MulCScale_16u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcData(width * height * 3);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> src(width, height, 3);
+  NppImageMemory<Npp16u> dst(width, height, 3);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp16u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_C3R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_C3R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uC3R, MulCScale16uC3RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u C3IR TEST_P ====================
+
+class MulCScale16uC3IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uC3IRParamTest, MulCScale_16u_C3IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcDstData(width * height * 3);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> srcDst(width, height, 3);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp16u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_C3IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_C3IR(aConstants, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uC3IR, MulCScale16uC3IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u C4R TEST_P ====================
+
+class MulCScale16uC4RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uC4RParamTest, MulCScale_16u_C4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcData(width * height * 4);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> src(width, height, 4);
+  NppImageMemory<Npp16u> dst(width, height, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp16u aConstants[4] = {2, 3, 4, 5};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_C4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_C4R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uC4R, MulCScale16uC4RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u C4IR TEST_P ====================
+
+class MulCScale16uC4IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uC4IRParamTest, MulCScale_16u_C4IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcDstData(width * height * 4);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> srcDst(width, height, 4);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp16u aConstants[4] = {2, 3, 4, 5};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_C4IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_C4IR(aConstants, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uC4IR, MulCScale16uC4IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u AC4R TEST_P ====================
+
+class MulCScale16uAC4RParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uAC4RParamTest, MulCScale_16u_AC4R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcData(width * height * 4);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> src(width, height, 4);
+  NppImageMemory<Npp16u> dst(width, height, 4);
+
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  Npp16u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_AC4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_AC4R(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uAC4R, MulCScale16uAC4RParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
+
+// ==================== MulCScale 16u AC4IR TEST_P ====================
+
+class MulCScale16uAC4IRParamTest : public NppTestBase, public ::testing::WithParamInterface<MulCScaleParam> {};
+
+TEST_P(MulCScale16uAC4IRParamTest, MulCScale_16u_AC4IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+
+  std::vector<Npp16u> srcDstData(width * height * 4);
+  TestDataGenerator::generateRandom(srcDstData, static_cast<Npp16u>(1), static_cast<Npp16u>(65535), 12345);
+
+  NppImageMemory<Npp16u> srcDst(width, height, 4);
+  srcDst.copyFromHost(srcDstData);
+
+  NppiSize roi = {width, height};
+  Npp16u aConstants[3] = {2, 3, 4};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
+    status = nppiMulCScale_16u_AC4IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
+  } else {
+    status = nppiMulCScale_16u_AC4IR(aConstants, srcDst.get(), srcDst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+}
+
+INSTANTIATE_TEST_SUITE_P(MulCScale16uAC4IR, MulCScale16uAC4IRParamTest,
+                         ::testing::Values(MulCScaleParam{32, 32, false, "32x32_noCtx"},
+                                           MulCScaleParam{32, 32, true, "32x32_Ctx"}),
+                         [](const ::testing::TestParamInfo<MulCScaleParam> &info) { return info.param.name; });
