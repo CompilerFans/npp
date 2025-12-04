@@ -1,5 +1,5 @@
 // MaxEvery operation using template-based API
-#include "nppi_arithmetic_api.h"
+#include "../nppi_arithmetic_operations/nppi_arithmetic_api.h"
 
 using namespace nppi::arithmetic;
 

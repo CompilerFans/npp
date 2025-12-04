@@ -502,3 +502,115 @@ INSTANTIATE_TEST_SUITE_P(MaxEvery32fC4, MaxEvery32fC4ParamTest,
                                            MaxEvery32fC4Param{32, 32, true, "32x32_Ctx"},
                                            MaxEvery32fC4Param{64, 64, false, "64x64_noCtx"}),
                          [](const ::testing::TestParamInfo<MaxEvery32fC4Param> &info) { return info.param.name; });
+
+// ==================== MaxEvery 16s C3 TEST_P ====================
+
+struct MaxEvery16sC3Param {
+  int width;
+  int height;
+  bool use_ctx;
+  std::string name;
+};
+
+class MaxEvery16sC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<MaxEvery16sC3Param> {};
+
+TEST_P(MaxEvery16sC3ParamTest, MaxEvery_16s_C3IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp16s> srcData(total);
+  std::vector<Npp16s> dstData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
+  TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 54321);
+
+  std::vector<Npp16s> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::max_every<Npp16s>(srcData[i], dstData[i]);
+  }
+
+  NppImageMemory<Npp16s> src(width * channels, height);
+  NppImageMemory<Npp16s> dst(width * channels, height);
+  src.copyFromHost(srcData);
+  dst.copyFromHost(dstData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx;
+    ctx.hStream = 0;
+    status = nppiMaxEvery_16s_C3IR_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMaxEvery_16s_C3IR(src.get(), src.step(), dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16s> resultData(total);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+}
+
+INSTANTIATE_TEST_SUITE_P(MaxEvery16sC3, MaxEvery16sC3ParamTest,
+                         ::testing::Values(MaxEvery16sC3Param{32, 32, false, "32x32_noCtx"},
+                                           MaxEvery16sC3Param{32, 32, true, "32x32_Ctx"},
+                                           MaxEvery16sC3Param{64, 64, false, "64x64_noCtx"}),
+                         [](const ::testing::TestParamInfo<MaxEvery16sC3Param> &info) { return info.param.name; });
+
+// ==================== MaxEvery 16s C4 TEST_P ====================
+
+struct MaxEvery16sC4Param {
+  int width;
+  int height;
+  bool use_ctx;
+  std::string name;
+};
+
+class MaxEvery16sC4ParamTest : public NppTestBase, public ::testing::WithParamInterface<MaxEvery16sC4Param> {};
+
+TEST_P(MaxEvery16sC4ParamTest, MaxEvery_16s_C4IR) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int channels = 4;
+  const int total = width * height * channels;
+
+  std::vector<Npp16s> srcData(total);
+  std::vector<Npp16s> dstData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
+  TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 54321);
+
+  std::vector<Npp16s> expectedData(total);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::max_every<Npp16s>(srcData[i], dstData[i]);
+  }
+
+  NppImageMemory<Npp16s> src(width * channels, height);
+  NppImageMemory<Npp16s> dst(width * channels, height);
+  src.copyFromHost(srcData);
+  dst.copyFromHost(dstData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.use_ctx) {
+    NppStreamContext ctx;
+    ctx.hStream = 0;
+    status = nppiMaxEvery_16s_C4IR_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
+  } else {
+    status = nppiMaxEvery_16s_C4IR(src.get(), src.step(), dst.get(), dst.step(), roi);
+  }
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16s> resultData(total);
+  dst.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+}
+
+INSTANTIATE_TEST_SUITE_P(MaxEvery16sC4, MaxEvery16sC4ParamTest,
+                         ::testing::Values(MaxEvery16sC4Param{32, 32, false, "32x32_noCtx"},
+                                           MaxEvery16sC4Param{32, 32, true, "32x32_Ctx"},
+                                           MaxEvery16sC4Param{64, 64, false, "64x64_noCtx"}),
+                         [](const ::testing::TestParamInfo<MaxEvery16sC4Param> &info) { return info.param.name; });
