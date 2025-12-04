@@ -84,13 +84,16 @@ class CoverageAnalyzer:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
 
-            # Look for direct API calls
-            pattern = r'\b(nppi\w+|npps\w+)\s*\('
+            # Look for direct API calls: nppiFunc(
+            pattern1 = r'\b(nppi\w+|npps\w+)\s*\('
+            # Look for function pointer usage: nppiFunc, or nppiFunc)
+            pattern2 = r'\b(nppi\w+|npps\w+)\s*[,\)]'
 
-            for match in re.finditer(pattern, content):
-                func_name = match.group(1)
-                if func_name in self.api_functions:
-                    self.tests[func_name] = str(file_path.relative_to(self.test_dir.parent))
+            for pattern in [pattern1, pattern2]:
+                for match in re.finditer(pattern, content):
+                    func_name = match.group(1)
+                    if func_name in self.api_functions:
+                        self.tests[func_name] = str(file_path.relative_to(self.test_dir.parent))
 
         except Exception as e:
             print(f"Warning: Error scanning {file_path}: {e}")

@@ -34,8 +34,12 @@ EOF
 for op in Add Sub Mul Div AddC SubC MulC DivC And Or Xor Not AndC OrC XorC \
           LShiftC RShiftC Sqrt Sqr Exp Ln MulScale AlphaComp AlphaPremul \
           AddDeviceC SubDeviceC MulDeviceC DivDeviceC; do
-    count=$(grep -c "^nppi${op}" "$API_DIR/untested_arithmetic.txt" 2>/dev/null || echo 0)
-    [ "$count" -gt 0 ] && echo "- nppi${op}: ${count}" >> "$API_DIR/untested_arithmetic_summary.md"
+    count=$(grep -c "^nppi${op}" "$API_DIR/untested_arithmetic.txt" 2>/dev/null || true)
+    count=${count:-0}
+    count=$(echo "$count" | tr -d '[:space:]')
+    if [ -n "$count" ] && [ "$count" -gt 0 ] 2>/dev/null; then
+        echo "- nppi${op}: ${count}" >> "$API_DIR/untested_arithmetic_summary.md"
+    fi
 done
 
 echo "" >> "$API_DIR/untested_arithmetic_summary.md"
