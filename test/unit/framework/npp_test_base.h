@@ -215,6 +215,16 @@ public:
       } else {
         throw std::runtime_error("Unsupported channel count for Npp16f");
       }
+    } else if constexpr (std::is_same_v<T, Npp32s>) {
+      if (channels == 1) {
+        ptr_ = nppiMalloc_32s_C1(width, height, &step_);
+      } else if (channels == 3) {
+        ptr_ = nppiMalloc_32s_C3(width, height, &step_);
+      } else if (channels == 4) {
+        ptr_ = nppiMalloc_32s_C4(width, height, &step_);
+      } else {
+        throw std::runtime_error("Unsupported channel count for Npp32s");
+      }
     } else if constexpr (std::is_same_v<T, Npp32f>) {
       if (channels == 1) {
         ptr_ = nppiMalloc_32f_C1(width, height, &step_);
@@ -226,7 +236,37 @@ public:
         throw std::runtime_error("Unsupported channel count for Npp32f");
       }
     } else if constexpr (std::is_same_v<T, Npp32fc>) {
-      ptr_ = nppiMalloc_32fc_C1(width, height, &step_);
+      if (channels == 1) {
+        ptr_ = nppiMalloc_32fc_C1(width, height, &step_);
+      } else if (channels == 3) {
+        ptr_ = nppiMalloc_32fc_C3(width, height, &step_);
+      } else if (channels == 4) {
+        ptr_ = nppiMalloc_32fc_C4(width, height, &step_);
+      } else {
+        throw std::runtime_error("Unsupported channel count for Npp32fc");
+      }
+    } else if constexpr (std::is_same_v<T, Npp16sc>) {
+      // Npp16sc is complex 16-bit signed, use 32s allocation (same size: 4 bytes)
+      if (channels == 1) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_32s_C1(width, height, &step_));
+      } else if (channels == 3) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_32s_C3(width, height, &step_));
+      } else if (channels == 4) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_32s_C4(width, height, &step_));
+      } else {
+        throw std::runtime_error("Unsupported channel count for Npp16sc");
+      }
+    } else if constexpr (std::is_same_v<T, Npp32sc>) {
+      // Npp32sc is complex 32-bit signed (8 bytes), use 32fc allocation (same size)
+      if (channels == 1) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_32fc_C1(width, height, &step_));
+      } else if (channels == 3) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_32fc_C3(width, height, &step_));
+      } else if (channels == 4) {
+        ptr_ = reinterpret_cast<T *>(nppiMalloc_32fc_C4(width, height, &step_));
+      } else {
+        throw std::runtime_error("Unsupported channel count for Npp32sc");
+      }
     } else {
       static_assert(sizeof(T) == 0, "Unsupported NPP data type");
     }

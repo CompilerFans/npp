@@ -225,3 +225,6 @@ Include from `API/` directory (symlink to current version)
 - Ninja build system (recommended)
 - 测试npp原始闭源库使用 source ./build.sh --use-nvidia-npp ;cd build-nvidia;./unit_tests，测试npp源码实现使用source ./build.sh;cd build-nvidia;./unit_tests
 - 避免使用宏，如果需要请使用模板或类
+- src实现状态和测试状态看api_analysis/coverage.csv和api_analysis/coverage_summary.md，新增实现后调用source update_coverage.sh更新
+- 测试使用TEST_P，简化重复代码，降低测试代码冗余，可通过functor传入测试预期
+- 源码实现和测试实现，需要基于api的名称独立分类
