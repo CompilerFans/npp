@@ -309,7 +309,6 @@ NppStatus nppiWarpAffine_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize,
 }
 }
 
-
 // =============================================
 // WarpAffineBack kernel
 //  2x3 matrix
@@ -401,19 +400,18 @@ __global__ void nppiWarpAffineBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSr
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp8u *p00 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp8u *p01 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp8u *p10 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp8u *p11 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp8u)(interpolated + 0.5f);
         break;
       }
@@ -481,19 +479,18 @@ __global__ void nppiWarpAffineBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSize oSr
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp8u *p00 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp8u *p01 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp8u *p10 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp8u *p11 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp8u)(interpolated + 0.5f);
         break;
       }
@@ -599,19 +596,18 @@ __global__ void nppiWarpAffineBack_16u_C3R_kernel(const Npp16u *pSrc, NppiSize o
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp16u *p00 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp16u *p01 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp16u *p10 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp16u *p11 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp16u)(interpolated + 0.5f);
         break;
       }
@@ -679,19 +675,18 @@ __global__ void nppiWarpAffineBack_16u_C4R_kernel(const Npp16u *pSrc, NppiSize o
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp16u *p00 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp16u *p01 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp16u *p10 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp16u *p11 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp16u)(interpolated + 0.5f);
         break;
       }
@@ -797,17 +792,17 @@ __global__ void nppiWarpAffineBack_32f_C3R_kernel(const Npp32f *pSrc, NppiSize o
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
-                 (*p01) * dx * (1.0f - dy) +
-                 (*p10) * (1.0f - dx) * dy +
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) + (*p10) * (1.0f - dx) * dy +
                  (*p11) * dx * dy;
         break;
       }
@@ -875,17 +870,17 @@ __global__ void nppiWarpAffineBack_32f_C4R_kernel(const Npp32f *pSrc, NppiSize o
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
-                 (*p01) * dx * (1.0f - dy) +
-                 (*p10) * (1.0f - dx) * dy +
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) + (*p10) * (1.0f - dx) * dy +
                  (*p11) * dx * dy;
         break;
       }
@@ -991,19 +986,18 @@ __global__ void nppiWarpAffineBack_32s_C3R_kernel(const Npp32s *pSrc, NppiSize o
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32s *p00 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp32s *p01 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp32s *p10 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp32s *p11 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp32s)(interpolated + 0.5f);
         break;
       }
@@ -1071,19 +1065,18 @@ __global__ void nppiWarpAffineBack_32s_C4R_kernel(const Npp32s *pSrc, NppiSize o
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32s *p00 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp32s *p01 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp32s *p10 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp32s *p11 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp32s)(interpolated + 0.5f);
         break;
       }
@@ -1120,10 +1113,8 @@ NppStatus nppiWarpAffineBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1150,10 +1141,8 @@ NppStatus nppiWarpAffineBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1180,10 +1169,8 @@ NppStatus nppiWarpAffineBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1210,10 +1197,8 @@ NppStatus nppiWarpAffineBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_16u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1240,10 +1225,8 @@ NppStatus nppiWarpAffineBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_16u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1270,10 +1253,8 @@ NppStatus nppiWarpAffineBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_16u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1300,10 +1281,8 @@ NppStatus nppiWarpAffineBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1330,10 +1309,8 @@ NppStatus nppiWarpAffineBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_32f_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1360,10 +1337,8 @@ NppStatus nppiWarpAffineBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_32f_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1390,10 +1365,8 @@ NppStatus nppiWarpAffineBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_32s_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1420,10 +1393,8 @@ NppStatus nppiWarpAffineBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_32s_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -1450,10 +1421,8 @@ NppStatus nppiWarpAffineBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcS
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiWarpAffineBack_32s_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-      aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
-      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2],
-      eInterpolation);
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {

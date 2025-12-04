@@ -137,7 +137,8 @@ TEST_P(Sub8uSfsParamTest, Sub_8u_C1RSfs) {
       status = nppiSub_8u_C1RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                      scaleFactor, ctx);
     } else {
-      status = nppiSub_8u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiSub_8u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -214,7 +215,8 @@ TEST_P(Sub16uSfsParamTest, Sub_16u_C1RSfs) {
       status = nppiSub_16u_C1RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiSub_16u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiSub_16u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -291,7 +293,8 @@ TEST_P(Sub16sSfsParamTest, Sub_16s_C1RSfs) {
       status = nppiSub_16s_C1RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiSub_16s_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiSub_16s_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -509,7 +512,8 @@ TEST_P(Sub16uC3SfsParamTest, Sub_16u_C3RSfs) {
       status = nppiSub_16u_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiSub_16u_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiSub_16u_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -578,7 +582,8 @@ TEST_P(Sub16sC3SfsParamTest, Sub_16s_C3RSfs) {
       status = nppiSub_16s_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiSub_16s_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiSub_16s_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 

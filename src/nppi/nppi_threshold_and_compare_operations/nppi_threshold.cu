@@ -56,8 +56,8 @@ __global__ void nppiThreshold_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, N
 }
 
 // Kernel for 8-bit threshold_ltval (non-inplace)
-__global__ void nppiThreshold_LTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                   int width, int height, Npp8u nThreshold, Npp8u nValue) {
+__global__ void nppiThreshold_LTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                  int height, Npp8u nThreshold, Npp8u nValue) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -71,7 +71,7 @@ __global__ void nppiThreshold_LTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcSte
 
 // Kernel for 8-bit threshold_ltval (inplace)
 __global__ void nppiThreshold_LTVal_8u_C1IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                    Npp8u nThreshold, Npp8u nValue) {
+                                                   Npp8u nThreshold, Npp8u nValue) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -82,8 +82,8 @@ __global__ void nppiThreshold_LTVal_8u_C1IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 }
 
 // Kernel for 8-bit threshold_gtval (non-inplace)
-__global__ void nppiThreshold_GTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                   int width, int height, Npp8u nThreshold, Npp8u nValue) {
+__global__ void nppiThreshold_GTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                  int height, Npp8u nThreshold, Npp8u nValue) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -97,7 +97,7 @@ __global__ void nppiThreshold_GTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcSte
 
 // Kernel for 8-bit threshold_gtval (inplace)
 __global__ void nppiThreshold_GTVal_8u_C1IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                    Npp8u nThreshold, Npp8u nValue) {
+                                                   Npp8u nThreshold, Npp8u nValue) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -109,8 +109,8 @@ __global__ void nppiThreshold_GTVal_8u_C1IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 
 // Kernel for 8-bit threshold_ltvalgtval (non-inplace)
 __global__ void nppiThreshold_LTValGTVal_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                        int width, int height, Npp8u nThresholdLT, Npp8u nValueLT,
-                                                        Npp8u nThresholdGT, Npp8u nValueGT) {
+                                                       int width, int height, Npp8u nThresholdLT, Npp8u nValueLT,
+                                                       Npp8u nThresholdGT, Npp8u nValueGT) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -131,7 +131,7 @@ __global__ void nppiThreshold_LTValGTVal_8u_C1R_kernel(const Npp8u *pSrc, int nS
 
 // Kernel for 32-bit float threshold_ltval (non-inplace)
 __global__ void nppiThreshold_LTVal_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                    int width, int height, Npp32f nThreshold, Npp32f nValue) {
+                                                   int width, int height, Npp32f nThreshold, Npp32f nValue) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -144,8 +144,8 @@ __global__ void nppiThreshold_LTVal_32f_C1R_kernel(const Npp32f *pSrc, int nSrcS
 }
 
 // C3 Threshold_LTVal kernels
-__global__ void nppiThreshold_LTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                   int width, int height, const Npp8u *thresholds, const Npp8u *values) {
+__global__ void nppiThreshold_LTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -161,7 +161,7 @@ __global__ void nppiThreshold_LTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcSte
 }
 
 __global__ void nppiThreshold_LTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                    const Npp8u *thresholds, const Npp8u *values) {
+                                                   const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -176,8 +176,8 @@ __global__ void nppiThreshold_LTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 }
 
 // C4 Threshold_LTVal kernels
-__global__ void nppiThreshold_LTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                   int width, int height, const Npp8u *thresholds, const Npp8u *values) {
+__global__ void nppiThreshold_LTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -193,7 +193,7 @@ __global__ void nppiThreshold_LTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcSte
 }
 
 __global__ void nppiThreshold_LTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                    const Npp8u *thresholds, const Npp8u *values) {
+                                                   const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -208,8 +208,8 @@ __global__ void nppiThreshold_LTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 }
 
 // C3 Threshold_GTVal kernels
-__global__ void nppiThreshold_GTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                   int width, int height, const Npp8u *thresholds, const Npp8u *values) {
+__global__ void nppiThreshold_GTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -225,7 +225,7 @@ __global__ void nppiThreshold_GTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcSte
 }
 
 __global__ void nppiThreshold_GTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                    const Npp8u *thresholds, const Npp8u *values) {
+                                                   const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -240,8 +240,8 @@ __global__ void nppiThreshold_GTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
 }
 
 // C4 Threshold_GTVal kernels
-__global__ void nppiThreshold_GTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                   int width, int height, const Npp8u *thresholds, const Npp8u *values) {
+__global__ void nppiThreshold_GTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -257,7 +257,7 @@ __global__ void nppiThreshold_GTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcSte
 }
 
 __global__ void nppiThreshold_GTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                    const Npp8u *thresholds, const Npp8u *values) {
+                                                   const Npp8u *thresholds, const Npp8u *values) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -328,8 +328,8 @@ NppStatus nppiThreshold_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32
 
 // Threshold_LTVal 8u C1R implementation (non-inplace)
 NppStatus nppiThreshold_LTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
-                                               NppStreamContext nppStreamCtx) {
+                                              NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
+                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -345,8 +345,8 @@ NppStatus nppiThreshold_LTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 }
 
 // Threshold_LTVal 8u C1IR implementation (inplace)
-NppStatus nppiThreshold_LTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                                Npp8u nThreshold, Npp8u nValue, NppStreamContext nppStreamCtx) {
+NppStatus nppiThreshold_LTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp8u nThreshold,
+                                               Npp8u nValue, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -363,8 +363,8 @@ NppStatus nppiThreshold_LTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 
 // Threshold_GTVal 8u C1R implementation (non-inplace)
 NppStatus nppiThreshold_GTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
-                                               NppStreamContext nppStreamCtx) {
+                                              NppiSize oSizeROI, Npp8u nThreshold, Npp8u nValue,
+                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -380,8 +380,8 @@ NppStatus nppiThreshold_GTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 }
 
 // Threshold_GTVal 8u C1IR implementation (inplace)
-NppStatus nppiThreshold_GTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                                Npp8u nThreshold, Npp8u nValue, NppStreamContext nppStreamCtx) {
+NppStatus nppiThreshold_GTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp8u nThreshold,
+                                               Npp8u nValue, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -398,8 +398,8 @@ NppStatus nppiThreshold_GTVal_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 
 // Threshold_LTValGTVal 8u C1R implementation (non-inplace)
 NppStatus nppiThreshold_LTValGTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                    NppiSize oSizeROI, Npp8u nThresholdLT, Npp8u nValueLT,
-                                                    Npp8u nThresholdGT, Npp8u nValueGT, NppStreamContext nppStreamCtx) {
+                                                   NppiSize oSizeROI, Npp8u nThresholdLT, Npp8u nValueLT,
+                                                   Npp8u nThresholdGT, Npp8u nValueGT, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -416,8 +416,8 @@ NppStatus nppiThreshold_LTValGTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcSt
 
 // Threshold_LTVal 32f C1R implementation (non-inplace)
 NppStatus nppiThreshold_LTVal_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                NppiSize oSizeROI, Npp32f nThreshold, Npp32f nValue,
-                                                NppStreamContext nppStreamCtx) {
+                                               NppiSize oSizeROI, Npp32f nThreshold, Npp32f nValue,
+                                               NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -434,8 +434,8 @@ NppStatus nppiThreshold_LTVal_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep,
 
 // C3 Threshold_LTVal implementations
 NppStatus nppiThreshold_LTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
-                                               NppStreamContext nppStreamCtx) {
+                                              NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                              NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
   cudaMalloc(&d_values, 3 * sizeof(Npp8u));
@@ -461,8 +461,8 @@ NppStatus nppiThreshold_LTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 }
 
 NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                                const Npp8u *pThresholds, const Npp8u *pValues,
-                                                NppStreamContext nppStreamCtx) {
+                                               const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
   cudaMalloc(&d_values, 3 * sizeof(Npp8u));
@@ -489,8 +489,8 @@ NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 
 // C4 Threshold_LTVal implementations
 NppStatus nppiThreshold_LTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
-                                               NppStreamContext nppStreamCtx) {
+                                              NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                              NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
   cudaMalloc(&d_values, 4 * sizeof(Npp8u));
@@ -516,8 +516,8 @@ NppStatus nppiThreshold_LTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 }
 
 NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                                const Npp8u *pThresholds, const Npp8u *pValues,
-                                                NppStreamContext nppStreamCtx) {
+                                               const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
   cudaMalloc(&d_values, 4 * sizeof(Npp8u));
@@ -544,8 +544,8 @@ NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 
 // C3 Threshold_GTVal implementations
 NppStatus nppiThreshold_GTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
-                                               NppStreamContext nppStreamCtx) {
+                                              NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                              NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
   cudaMalloc(&d_values, 3 * sizeof(Npp8u));
@@ -571,8 +571,8 @@ NppStatus nppiThreshold_GTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 }
 
 NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                                const Npp8u *pThresholds, const Npp8u *pValues,
-                                                NppStreamContext nppStreamCtx) {
+                                               const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
   cudaMalloc(&d_values, 3 * sizeof(Npp8u));
@@ -599,8 +599,8 @@ NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 
 // C4 Threshold_GTVal implementations
 NppStatus nppiThreshold_GTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
-                                               NppStreamContext nppStreamCtx) {
+                                              NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                              NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
   cudaMalloc(&d_values, 4 * sizeof(Npp8u));
@@ -626,8 +626,8 @@ NppStatus nppiThreshold_GTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 }
 
 NppStatus nppiThreshold_GTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                                const Npp8u *pThresholds, const Npp8u *pValues,
-                                                NppStreamContext nppStreamCtx) {
+                                               const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx) {
   Npp8u *d_thresholds, *d_values;
   cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
   cudaMalloc(&d_values, 4 * sizeof(Npp8u));

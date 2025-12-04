@@ -1,11 +1,11 @@
 #include "npp.h"
 #include <cmath>
+#include <cstring>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
-#include <vector>
-#include <cstring>
-#include <random>
 #include <iostream>
+#include <random>
+#include <vector>
 
 class WarpPerspectiveFunctionalTest : public ::testing::Test {
 protected:
@@ -668,10 +668,10 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C4R_Identity) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 4;
-      srcData[idx + 0] = (float)x / srcWidth;              // R
-      srcData[idx + 1] = (float)y / srcHeight;             // G
+      srcData[idx + 0] = (float)x / srcWidth;                     // R
+      srcData[idx + 1] = (float)y / srcHeight;                    // G
       srcData[idx + 2] = (float)(x + y) / (srcWidth + srcHeight); // B
-      srcData[idx + 3] = 1.0f;                             // A
+      srcData[idx + 3] = 1.0f;                                    // A
     }
   }
 
@@ -700,8 +700,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C4R_Identity) {
 
   for (int i = 0; i < srcWidth * srcHeight * 4; i++) {
     // printf("%d: , resultData[%d]: %f, srcData[%d]: %f\n", i, i, resultData[i], i, srcData[i]);
-    EXPECT_NEAR(resultData[i], srcData[i], 0.001f) << "32f C4R Identity transform failed at channel " << (i % 4)
-                                                   << ", pixel " << (i / 4);
+    EXPECT_NEAR(resultData[i], srcData[i], 0.001f)
+        << "32f C4R Identity transform failed at channel " << (i % 4) << ", pixel " << (i / 4);
   }
 
   nppiFree(d_src);
@@ -1004,7 +1004,6 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_ScalingAllTypes) {
   }
 }
 
-
 class WarpPerspectiveBackTest : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -1068,8 +1067,8 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C1R_Identity) {
     if (resultData[i] != srcData[i]) {
       errorCount++;
       if (errorCount <= 5) {
-        std::cout << "Error at pixel " << i << ": expected " << (int)srcData[i]
-                  << ", got " << (int)resultData[i] << std::endl;
+        std::cout << "Error at pixel " << i << ": expected " << (int)srcData[i] << ", got " << (int)resultData[i]
+                  << std::endl;
       }
     }
   }
@@ -1174,8 +1173,8 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C3R_Identity) {
       if (errorCount <= 3) {
         int pixelIdx = i / 3;
         int channel = i % 3;
-        std::cout << "Error at pixel " << pixelIdx << ", channel " << channel
-                  << ": expected " << (int)srcData[i] << ", got " << (int)resultData[i] << std::endl;
+        std::cout << "Error at pixel " << pixelIdx << ", channel " << channel << ": expected " << (int)srcData[i]
+                  << ", got " << (int)resultData[i] << std::endl;
       }
     }
   }
@@ -1421,8 +1420,7 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_32f_C1R_Identity) {
     if (fabs(resultData[i] - srcData[i]) > tolerance) {
       errorCount++;
       if (errorCount <= 3) {
-        std::cout << "Error at pixel " << i << ": expected " << srcData[i]
-                  << ", got " << resultData[i] << std::endl;
+        std::cout << "Error at pixel " << i << ": expected " << srcData[i] << ", got " << resultData[i] << std::endl;
       }
     }
   }
@@ -1756,8 +1754,8 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_Scaling) {
                cudaMemcpyHostToDevice);
   }
 
-  NppStatus status =
-      nppiWarpPerspectiveBack_32f_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_LINEAR);
+  NppStatus status = nppiWarpPerspectiveBack_32f_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs,
+                                                     NPPI_INTER_LINEAR);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> resultData(dstWidth * dstHeight);
@@ -1788,8 +1786,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Identity) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (float)x / srcWidth;              // R: 水平渐变
-      srcData[idx + 1] = (float)y / srcHeight;             // G: 垂直渐变
+      srcData[idx + 0] = (float)x / srcWidth;                     // R: 水平渐变
+      srcData[idx + 1] = (float)y / srcHeight;                    // G: 垂直渐变
       srcData[idx + 2] = (float)(x + y) / (srcWidth + srcHeight); // B: 对角线渐变
     }
   }
@@ -1806,8 +1804,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Identity) {
 
   // 复制数据到 GPU
   for (int y = 0; y < srcHeight; y++) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3,
-               srcWidth * 3 * sizeof(Npp32f), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
   }
 
   // 使用最近邻插值进行恒等变换测试
@@ -1817,8 +1815,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Identity) {
 
   std::vector<Npp32f> resultData(dstWidth * dstHeight * 3);
   for (int y = 0; y < dstHeight; y++) {
-    cudaMemcpy(resultData.data() + y * dstWidth * 3,
-               (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
                cudaMemcpyDeviceToHost);
   }
 
@@ -1828,16 +1825,14 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Identity) {
 
   for (int i = 0; i < srcWidth * srcHeight * 3; i++) {
     if (fabs(resultData[i] - srcData[i]) > toleranceNN) {
-      if (errorCountNN < 5) {  // 只打印前几个错误
+      if (errorCountNN < 5) { // 只打印前几个错误
         int pixelIdx = i / 3;
         int channel = i % 3;
         int x = pixelIdx % srcWidth;
         int y = pixelIdx / srcWidth;
 
-        std::cout << "NN Error at pixel (" << x << ", " << y << "), channel "
-                  << channel << ": expected " << srcData[i]
-                  << ", got " << resultData[i]
-                  << ", diff = " << fabs(resultData[i] - srcData[i]) << std::endl;
+        std::cout << "NN Error at pixel (" << x << ", " << y << "), channel " << channel << ": expected " << srcData[i]
+                  << ", got " << resultData[i] << ", diff = " << fabs(resultData[i] - srcData[i]) << std::endl;
       }
       errorCountNN++;
     }
@@ -1857,8 +1852,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Ctx) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (float)(x % 10);      // R: 0-9
-      srcData[idx + 1] = (float)(y % 10);      // G: 0-9
+      srcData[idx + 0] = (float)(x % 10);       // R: 0-9
+      srcData[idx + 1] = (float)(y % 10);       // G: 0-9
       srcData[idx + 2] = (float)((x + y) % 10); // B: 0-9
     }
   }
@@ -1872,8 +1867,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Ctx) {
   ASSERT_NE(d_dst, nullptr);
 
   for (int y = 0; y < srcHeight; y++) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3,
-               srcWidth * 3 * sizeof(Npp32f), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
   }
 
   NppStreamContext nppStreamCtx;
@@ -1886,8 +1881,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Ctx) {
 
   std::vector<Npp32f> resultData(dstWidth * dstHeight * 3);
   for (int y = 0; y < dstHeight; y++) {
-    cudaMemcpy(resultData.data() + y * dstWidth * 3,
-               (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
                cudaMemcpyDeviceToHost);
   }
 
@@ -1904,21 +1898,19 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Ctx) {
         int x = pixelIdx % srcWidth;
         int y = pixelIdx / srcWidth;
 
-        std::cout << "Linear Error at pixel (" << x << ", " << y << "), channel "
-                  << channel << ": expected " << srcData[i]
-                  << ", got " << resultData[i]
-                  << ", diff = " << diff << std::endl;
+        std::cout << "Linear Error at pixel (" << x << ", " << y << "), channel " << channel << ": expected "
+                  << srcData[i] << ", got " << resultData[i] << ", diff = " << diff << std::endl;
       }
       errorCount++;
     }
   }
 
   // 对于32位浮点数，可以接受一些微小差异
-  if (errorCount > srcWidth * srcHeight) {  // 如果超过25%的像素有问题
+  if (errorCount > srcWidth * srcHeight) { // 如果超过25%的像素有问题
     ADD_FAILURE() << "Too many errors in linear interpolation: " << errorCount;
   } else {
-    std::cout << "Linear interpolation: " << errorCount << " pixels exceed tolerance of "
-              << toleranceLinear << " (acceptable)" << std::endl;
+    std::cout << "Linear interpolation: " << errorCount << " pixels exceed tolerance of " << toleranceLinear
+              << " (acceptable)" << std::endl;
   }
 
   nppiFree(d_src);
@@ -1936,7 +1928,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Scaling) {
       // 创建棋盘图案
       bool isWhite = ((x / 4) + (y / 4)) % 2 == 0;
       float value = isWhite ? 1.0f : 0.0f;
-      srcData[idx + 0] = value;      // R
+      srcData[idx + 0] = value;        // R
       srcData[idx + 1] = value * 0.8f; // G
       srcData[idx + 2] = value * 0.6f; // B
     }
@@ -1952,8 +1944,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Scaling) {
   ASSERT_NE(d_dst, nullptr);
 
   for (int y = 0; y < srcHeight; y++) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3,
-               srcWidth * 3 * sizeof(Npp32f), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
   }
 
   // 使用双线性插值
@@ -1963,8 +1955,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Scaling) {
 
   std::vector<Npp32f> resultData(dstWidth * dstHeight * 3);
   for (int y = 0; y < dstHeight; y++) {
-    cudaMemcpy(resultData.data() + y * dstWidth * 3,
-               (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
                cudaMemcpyDeviceToHost);
   }
 
@@ -1992,9 +1983,9 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Translation) {
   for (int y = 8; y < 16; y++) {
     for (int x = 8; x < 16; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = 1.0f;  // 红色
-      srcData[idx + 1] = 0.5f;  // 绿色
-      srcData[idx + 2] = 0.2f;  // 蓝色
+      srcData[idx + 0] = 1.0f; // 红色
+      srcData[idx + 1] = 0.5f; // 绿色
+      srcData[idx + 2] = 0.2f; // 蓝色
     }
   }
 
@@ -2008,8 +1999,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Translation) {
   ASSERT_NE(d_dst, nullptr);
 
   for (int y = 0; y < srcHeight; y++) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3,
-               srcWidth * 3 * sizeof(Npp32f), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
   }
 
   // 使用最近邻插值
@@ -2019,8 +2010,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Translation) {
 
   std::vector<Npp32f> resultData(dstWidth * dstHeight * 3);
   for (int y = 0; y < dstHeight; y++) {
-    cudaMemcpy(resultData.data() + y * dstWidth * 3,
-               (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
                cudaMemcpyDeviceToHost);
   }
 
@@ -2048,8 +2038,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Perspective) {
   for (int y = 0; y < srcHeight; y++) {
     for (int x = 0; x < srcWidth; x++) {
       int idx = (y * srcWidth + x) * 3;
-      srcData[idx + 0] = (float)x / srcWidth;          // R: 水平渐变
-      srcData[idx + 1] = (float)y / srcHeight;         // G: 垂直渐变
+      srcData[idx + 0] = (float)x / srcWidth;                     // R: 水平渐变
+      srcData[idx + 1] = (float)y / srcHeight;                    // G: 垂直渐变
       srcData[idx + 2] = (float)(x * y) / (srcWidth * srcHeight); // B: 乘积渐变
     }
   }
@@ -2064,8 +2054,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Perspective) {
   ASSERT_NE(d_dst, nullptr);
 
   for (int y = 0; y < srcHeight; y++) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3,
-               srcWidth * 3 * sizeof(Npp32f), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
   }
 
   // 使用双线性插值
@@ -2075,8 +2065,7 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Perspective) {
 
   std::vector<Npp32f> resultData(dstWidth * dstHeight * 3);
   for (int y = 0; y < dstHeight; y++) {
-    cudaMemcpy(resultData.data() + y * dstWidth * 3,
-               (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp32f),
                cudaMemcpyDeviceToHost);
   }
 
@@ -2094,5 +2083,3 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C3R_Perspective) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
-
-

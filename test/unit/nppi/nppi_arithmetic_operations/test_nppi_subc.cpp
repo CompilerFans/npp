@@ -40,7 +40,7 @@ TEST_P(SubC32fParamTest, SubC_32f_C1R) {
   if (param.in_place) {
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiSubC_32f_C1IR_Ctx(constant, src.get(), src.step(), roi, ctx);
     } else {
       status = nppiSubC_32f_C1IR(constant, src.get(), src.step(), roi);
@@ -54,7 +54,7 @@ TEST_P(SubC32fParamTest, SubC_32f_C1R) {
     NppImageMemory<Npp32f> dst(width, height);
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiSubC_32f_C1R_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, ctx);
     } else {
       status = nppiSubC_32f_C1R(src.get(), src.step(), constant, dst.get(), dst.step(), roi);
@@ -114,7 +114,7 @@ TEST_P(SubC8uSfsParamTest, SubC_8u_C1RSfs) {
   if (param.in_place) {
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiSubC_8u_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiSubC_8u_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
@@ -128,7 +128,7 @@ TEST_P(SubC8uSfsParamTest, SubC_8u_C1RSfs) {
     NppImageMemory<Npp8u> dst(width, height);
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiSubC_8u_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiSubC_8u_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
@@ -187,7 +187,7 @@ TEST_P(SubC16uSfsParamTest, SubC_16u_C1RSfs) {
   if (param.in_place) {
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiSubC_16u_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiSubC_16u_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
@@ -201,7 +201,7 @@ TEST_P(SubC16uSfsParamTest, SubC_16u_C1RSfs) {
     NppImageMemory<Npp16u> dst(width, height);
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiSubC_16u_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiSubC_16u_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
@@ -280,7 +280,7 @@ TEST_F(SubC16fTest, SubC_16f_C1R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiSubC_16f_C1R_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiSubC_16f_C1R_Ctx failed";
@@ -342,7 +342,7 @@ TEST_F(SubC16fTest, SubC_16f_C1IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiSubC_16f_C1IR_Ctx(constant, srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiSubC_16f_C1IR_Ctx failed";
@@ -415,7 +415,7 @@ TEST_F(SubC16fTest, SubC_16f_C3R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiSubC_16f_C3R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiSubC_16f_C3R_Ctx failed";
@@ -483,7 +483,7 @@ TEST_F(SubC16fTest, SubC_16f_C3IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiSubC_16f_C3IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiSubC_16f_C3IR_Ctx failed";
@@ -556,7 +556,7 @@ TEST_F(SubC16fTest, SubC_16f_C4R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiSubC_16f_C4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiSubC_16f_C4R_Ctx failed";
@@ -624,7 +624,7 @@ TEST_F(SubC16fTest, SubC_16f_C4IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiSubC_16f_C4IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiSubC_16f_C4IR_Ctx failed";

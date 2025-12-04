@@ -72,7 +72,8 @@ TEST_P(ThresholdLTVal8uParamTest, Threshold_LTVal_8u_C1R) {
 INSTANTIATE_TEST_SUITE_P(ThresholdLTVal8u, ThresholdLTVal8uParamTest,
                          ::testing::Values(ThresholdLTVal8uParam{32, 32, 128, 0, false, false, "32x32_t128_v0_noCtx"},
                                            ThresholdLTVal8uParam{32, 32, 128, 0, true, false, "32x32_t128_v0_Ctx"},
-                                           ThresholdLTVal8uParam{32, 32, 100, 50, false, true, "32x32_t100_v50_InPlace"},
+                                           ThresholdLTVal8uParam{32, 32, 100, 50, false, true,
+                                                                 "32x32_t100_v50_InPlace"},
                                            ThresholdLTVal8uParam{64, 64, 64, 0, false, false, "64x64_t64_v0_noCtx"}),
                          [](const ::testing::TestParamInfo<ThresholdLTVal8uParam> &info) { return info.param.name; });
 
@@ -141,12 +142,13 @@ TEST_P(ThresholdGTVal8uParamTest, Threshold_GTVal_8u_C1R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(ThresholdGTVal8u, ThresholdGTVal8uParamTest,
-                         ::testing::Values(ThresholdGTVal8uParam{32, 32, 128, 255, false, false, "32x32_t128_v255_noCtx"},
-                                           ThresholdGTVal8uParam{32, 32, 128, 255, true, false, "32x32_t128_v255_Ctx"},
-                                           ThresholdGTVal8uParam{32, 32, 200, 200, false, true, "32x32_t200_v200_InPlace"},
-                                           ThresholdGTVal8uParam{64, 64, 192, 255, false, false, "64x64_t192_v255_noCtx"}),
-                         [](const ::testing::TestParamInfo<ThresholdGTVal8uParam> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    ThresholdGTVal8u, ThresholdGTVal8uParamTest,
+    ::testing::Values(ThresholdGTVal8uParam{32, 32, 128, 255, false, false, "32x32_t128_v255_noCtx"},
+                      ThresholdGTVal8uParam{32, 32, 128, 255, true, false, "32x32_t128_v255_Ctx"},
+                      ThresholdGTVal8uParam{32, 32, 200, 200, false, true, "32x32_t200_v200_InPlace"},
+                      ThresholdGTVal8uParam{64, 64, 192, 255, false, false, "64x64_t192_v255_noCtx"}),
+    [](const ::testing::TestParamInfo<ThresholdGTVal8uParam> &info) { return info.param.name; });
 
 // ==================== Threshold_LTValGTVal 8u C1 TEST_P ====================
 
@@ -161,7 +163,8 @@ struct ThresholdLTValGTVal8uParam {
   std::string name;
 };
 
-class ThresholdLTValGTVal8uParamTest : public NppTestBase, public ::testing::WithParamInterface<ThresholdLTValGTVal8uParam> {};
+class ThresholdLTValGTVal8uParamTest : public NppTestBase,
+                                       public ::testing::WithParamInterface<ThresholdLTValGTVal8uParam> {};
 
 TEST_P(ThresholdLTValGTVal8uParamTest, Threshold_LTValGTVal_8u_C1R) {
   const auto &param = GetParam();
@@ -173,7 +176,8 @@ TEST_P(ThresholdLTValGTVal8uParamTest, Threshold_LTValGTVal_8u_C1R) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::threshold_ltgt<Npp8u>(srcData[i], param.thresholdLT, param.valueLT, param.thresholdGT, param.valueGT);
+    expectedData[i] =
+        expect::threshold_ltgt<Npp8u>(srcData[i], param.thresholdLT, param.valueLT, param.thresholdGT, param.valueGT);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -186,11 +190,11 @@ TEST_P(ThresholdLTValGTVal8uParamTest, Threshold_LTValGTVal_8u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiThreshold_LTValGTVal_8u_C1R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi,
-                                                   param.thresholdLT, param.valueLT, param.thresholdGT, param.valueGT, ctx);
+    status = nppiThreshold_LTValGTVal_8u_C1R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholdLT,
+                                                 param.valueLT, param.thresholdGT, param.valueGT, ctx);
   } else {
-    status = nppiThreshold_LTValGTVal_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi,
-                                               param.thresholdLT, param.valueLT, param.thresholdGT, param.valueGT);
+    status = nppiThreshold_LTValGTVal_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholdLT,
+                                             param.valueLT, param.thresholdGT, param.valueGT);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -203,7 +207,9 @@ INSTANTIATE_TEST_SUITE_P(ThresholdLTValGTVal8u, ThresholdLTValGTVal8uParamTest,
                          ::testing::Values(ThresholdLTValGTVal8uParam{32, 32, 64, 0, 192, 255, false, "32x32_noCtx"},
                                            ThresholdLTValGTVal8uParam{32, 32, 64, 0, 192, 255, true, "32x32_Ctx"},
                                            ThresholdLTValGTVal8uParam{64, 64, 50, 0, 200, 255, false, "64x64_noCtx"}),
-                         [](const ::testing::TestParamInfo<ThresholdLTValGTVal8uParam> &info) { return info.param.name; });
+                         [](const ::testing::TestParamInfo<ThresholdLTValGTVal8uParam> &info) {
+                           return info.param.name;
+                         });
 
 // ==================== Threshold_LTVal 32f C1 TEST_P ====================
 
@@ -257,7 +263,8 @@ TEST_P(ThresholdLTVal32fParamTest, Threshold_LTVal_32f_C1R) {
 INSTANTIATE_TEST_SUITE_P(ThresholdLTVal32f, ThresholdLTVal32fParamTest,
                          ::testing::Values(ThresholdLTVal32fParam{32, 32, 0.0f, -100.0f, false, "32x32_t0_vNeg_noCtx"},
                                            ThresholdLTVal32fParam{32, 32, 0.0f, -100.0f, true, "32x32_t0_vNeg_Ctx"},
-                                           ThresholdLTVal32fParam{64, 64, -50.0f, -100.0f, false, "64x64_tNeg_vNeg_noCtx"}),
+                                           ThresholdLTVal32fParam{64, 64, -50.0f, -100.0f, false,
+                                                                  "64x64_tNeg_vNeg_noCtx"}),
                          [](const ::testing::TestParamInfo<ThresholdLTVal32fParam> &info) { return info.param.name; });
 
 // ==================== Threshold_LTVal 8u C3 TEST_P ====================
@@ -272,7 +279,8 @@ struct ThresholdLTVal8uC3Param {
   std::string name;
 };
 
-class ThresholdLTVal8uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<ThresholdLTVal8uC3Param> {};
+class ThresholdLTVal8uC3ParamTest : public NppTestBase,
+                                    public ::testing::WithParamInterface<ThresholdLTVal8uC3Param> {};
 
 TEST_P(ThresholdLTVal8uC3ParamTest, Threshold_LTVal_8u_C3R) {
   const auto &param = GetParam();
@@ -316,9 +324,11 @@ TEST_P(ThresholdLTVal8uC3ParamTest, Threshold_LTVal_8u_C3R) {
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
-      status = nppiThreshold_LTVal_8u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values, ctx);
+      status = nppiThreshold_LTVal_8u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds,
+                                              param.values, ctx);
     } else {
-      status = nppiThreshold_LTVal_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values);
+      status =
+          nppiThreshold_LTVal_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -328,16 +338,18 @@ TEST_P(ThresholdLTVal8uC3ParamTest, Threshold_LTVal_8u_C3R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(ThresholdLTVal8uC3, ThresholdLTVal8uC3ParamTest,
-                         ::testing::Values(ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {0, 0, 0}, false, false, "32x32_noCtx"},
-                                           ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {0, 0, 0}, true, false, "32x32_Ctx"},
-                                           ThresholdLTVal8uC3Param{32, 32, {100, 100, 100}, {50, 50, 50}, false, true, "32x32_InPlace"},
-                                           ThresholdLTVal8uC3Param{32, 32, {100, 100, 100}, {50, 50, 50}, true, true, "32x32_InPlace_Ctx"}),
-                         [](const ::testing::TestParamInfo<ThresholdLTVal8uC3Param> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    ThresholdLTVal8uC3, ThresholdLTVal8uC3ParamTest,
+    ::testing::Values(ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {0, 0, 0}, false, false, "32x32_noCtx"},
+                      ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {0, 0, 0}, true, false, "32x32_Ctx"},
+                      ThresholdLTVal8uC3Param{32, 32, {100, 100, 100}, {50, 50, 50}, false, true, "32x32_InPlace"},
+                      ThresholdLTVal8uC3Param{32, 32, {100, 100, 100}, {50, 50, 50}, true, true, "32x32_InPlace_Ctx"}),
+    [](const ::testing::TestParamInfo<ThresholdLTVal8uC3Param> &info) { return info.param.name; });
 
 // ==================== Threshold_GTVal 8u C3 TEST_P ====================
 
-class ThresholdGTVal8uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<ThresholdLTVal8uC3Param> {};
+class ThresholdGTVal8uC3ParamTest : public NppTestBase,
+                                    public ::testing::WithParamInterface<ThresholdLTVal8uC3Param> {};
 
 TEST_P(ThresholdGTVal8uC3ParamTest, Threshold_GTVal_8u_C3R) {
   const auto &param = GetParam();
@@ -381,9 +393,11 @@ TEST_P(ThresholdGTVal8uC3ParamTest, Threshold_GTVal_8u_C3R) {
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
-      status = nppiThreshold_GTVal_8u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values, ctx);
+      status = nppiThreshold_GTVal_8u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds,
+                                              param.values, ctx);
     } else {
-      status = nppiThreshold_GTVal_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values);
+      status =
+          nppiThreshold_GTVal_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -393,9 +407,11 @@ TEST_P(ThresholdGTVal8uC3ParamTest, Threshold_GTVal_8u_C3R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(ThresholdGTVal8uC3, ThresholdGTVal8uC3ParamTest,
-                         ::testing::Values(ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {255, 255, 255}, false, false, "32x32_noCtx"},
-                                           ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {255, 255, 255}, true, false, "32x32_Ctx"},
-                                           ThresholdLTVal8uC3Param{32, 32, {200, 200, 200}, {200, 200, 200}, false, true, "32x32_InPlace"},
-                                           ThresholdLTVal8uC3Param{32, 32, {200, 200, 200}, {200, 200, 200}, true, true, "32x32_InPlace_Ctx"}),
-                         [](const ::testing::TestParamInfo<ThresholdLTVal8uC3Param> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    ThresholdGTVal8uC3, ThresholdGTVal8uC3ParamTest,
+    ::testing::Values(ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {255, 255, 255}, false, false, "32x32_noCtx"},
+                      ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {255, 255, 255}, true, false, "32x32_Ctx"},
+                      ThresholdLTVal8uC3Param{32, 32, {200, 200, 200}, {200, 200, 200}, false, true, "32x32_InPlace"},
+                      ThresholdLTVal8uC3Param{
+                          32, 32, {200, 200, 200}, {200, 200, 200}, true, true, "32x32_InPlace_Ctx"}),
+    [](const ::testing::TestParamInfo<ThresholdLTVal8uC3Param> &info) { return info.param.name; });

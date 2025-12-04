@@ -11,7 +11,8 @@ struct ShiftParam {
   std::string name() const {
     std::string result = "C" + std::to_string(channels);
     result += in_place ? "IR" : "R";
-    if (use_ctx) result += "_Ctx";
+    if (use_ctx)
+      result += "_Ctx";
     return result;
   }
 };
@@ -23,20 +24,20 @@ protected:
   static constexpr int kHeight = 32;
 
   template <typename T>
-  void runRShiftCTest(Npp32u shiftVal,
-                      std::function<NppStatus(const T*, int, Npp32u, T*, int, NppiSize)> nppC1R,
-                      std::function<NppStatus(const T*, int, Npp32u, T*, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
-                      std::function<NppStatus(Npp32u, T*, int, NppiSize)> nppC1IR,
-                      std::function<NppStatus(Npp32u, T*, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize)> nppC3R,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize)> nppC3IR,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize)> nppC4R,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize)> nppC4IR,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC4IR_Ctx) {
-    const auto& p = GetParam();
+  void runRShiftCTest(
+      Npp32u shiftVal, std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize)> nppC1R,
+      std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
+      std::function<NppStatus(Npp32u, T *, int, NppiSize)> nppC1IR,
+      std::function<NppStatus(Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC3R,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC3IR,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC4R,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC4IR,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC4IR_Ctx) {
+    const auto &p = GetParam();
     const int total = kWidth * kHeight * p.channels;
 
     std::vector<T> srcData(total), expected(total);
@@ -51,7 +52,8 @@ protected:
     src.copyFromHost(srcData);
 
     NppiSize roi = {kWidth, kHeight};
-    NppStreamContext ctx{}; ctx.hStream = 0;
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
     NppStatus status;
     std::vector<T> result(total);
 
@@ -88,20 +90,20 @@ protected:
   }
 
   template <typename T>
-  void runLShiftCTest(Npp32u shiftVal,
-                      std::function<NppStatus(const T*, int, Npp32u, T*, int, NppiSize)> nppC1R,
-                      std::function<NppStatus(const T*, int, Npp32u, T*, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
-                      std::function<NppStatus(Npp32u, T*, int, NppiSize)> nppC1IR,
-                      std::function<NppStatus(Npp32u, T*, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize)> nppC3R,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize)> nppC3IR,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize)> nppC4R,
-                      std::function<NppStatus(const T*, int, const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize)> nppC4IR,
-                      std::function<NppStatus(const Npp32u*, T*, int, NppiSize, NppStreamContext)> nppC4IR_Ctx) {
-    const auto& p = GetParam();
+  void runLShiftCTest(
+      Npp32u shiftVal, std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize)> nppC1R,
+      std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
+      std::function<NppStatus(Npp32u, T *, int, NppiSize)> nppC1IR,
+      std::function<NppStatus(Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC3R,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC3IR,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC4R,
+      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC4IR,
+      std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC4IR_Ctx) {
+    const auto &p = GetParam();
     const int total = kWidth * kHeight * p.channels;
 
     // Use smaller values to avoid overflow
@@ -118,7 +120,8 @@ protected:
     src.copyFromHost(srcData);
 
     NppiSize roi = {kWidth, kHeight};
-    NppStreamContext ctx{}; ctx.hStream = 0;
+    NppStreamContext ctx{};
+    ctx.hStream = 0;
     NppStatus status;
     std::vector<T> result(total);
 
@@ -157,59 +160,56 @@ protected:
 
 // Parameter values
 static const std::vector<ShiftParam> kShiftParams = {
-    {1, false, false}, {1, true, false}, {1, false, true}, {1, true, true},
-    {3, false, false}, {3, true, false}, {3, false, true}, {3, true, true},
-    {4, false, false}, {4, true, false}, {4, false, true}, {4, true, true},
+    {1, false, false}, {1, true, false}, {1, false, true},  {1, true, true},  {3, false, false}, {3, true, false},
+    {3, false, true},  {3, true, true},  {4, false, false}, {4, true, false}, {4, false, true},  {4, true, true},
 };
 
 // ==================== RShiftC_8u ====================
 class RShiftC8uTest : public ShiftParamTest {};
 
 TEST_P(RShiftC8uTest, RShiftC_8u) {
-  runRShiftCTest<Npp8u>(2,
-      nppiRShiftC_8u_C1R, nppiRShiftC_8u_C1R_Ctx, nppiRShiftC_8u_C1IR, nppiRShiftC_8u_C1IR_Ctx,
-      nppiRShiftC_8u_C3R, nppiRShiftC_8u_C3R_Ctx, nppiRShiftC_8u_C3IR, nppiRShiftC_8u_C3IR_Ctx,
-      nppiRShiftC_8u_C4R, nppiRShiftC_8u_C4R_Ctx, nppiRShiftC_8u_C4IR, nppiRShiftC_8u_C4IR_Ctx);
+  runRShiftCTest<Npp8u>(2, nppiRShiftC_8u_C1R, nppiRShiftC_8u_C1R_Ctx, nppiRShiftC_8u_C1IR, nppiRShiftC_8u_C1IR_Ctx,
+                        nppiRShiftC_8u_C3R, nppiRShiftC_8u_C3R_Ctx, nppiRShiftC_8u_C3IR, nppiRShiftC_8u_C3IR_Ctx,
+                        nppiRShiftC_8u_C4R, nppiRShiftC_8u_C4R_Ctx, nppiRShiftC_8u_C4IR, nppiRShiftC_8u_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(RShiftC8u, RShiftC8uTest, ::testing::ValuesIn(kShiftParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== RShiftC_16u ====================
 class RShiftC16uTest : public ShiftParamTest {};
 
 TEST_P(RShiftC16uTest, RShiftC_16u) {
-  runRShiftCTest<Npp16u>(4,
-      nppiRShiftC_16u_C1R, nppiRShiftC_16u_C1R_Ctx, nppiRShiftC_16u_C1IR, nppiRShiftC_16u_C1IR_Ctx,
-      nppiRShiftC_16u_C3R, nppiRShiftC_16u_C3R_Ctx, nppiRShiftC_16u_C3IR, nppiRShiftC_16u_C3IR_Ctx,
-      nppiRShiftC_16u_C4R, nppiRShiftC_16u_C4R_Ctx, nppiRShiftC_16u_C4IR, nppiRShiftC_16u_C4IR_Ctx);
+  runRShiftCTest<Npp16u>(4, nppiRShiftC_16u_C1R, nppiRShiftC_16u_C1R_Ctx, nppiRShiftC_16u_C1IR,
+                         nppiRShiftC_16u_C1IR_Ctx, nppiRShiftC_16u_C3R, nppiRShiftC_16u_C3R_Ctx, nppiRShiftC_16u_C3IR,
+                         nppiRShiftC_16u_C3IR_Ctx, nppiRShiftC_16u_C4R, nppiRShiftC_16u_C4R_Ctx, nppiRShiftC_16u_C4IR,
+                         nppiRShiftC_16u_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(RShiftC16u, RShiftC16uTest, ::testing::ValuesIn(kShiftParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== LShiftC_8u ====================
 class LShiftC8uTest : public ShiftParamTest {};
 
 TEST_P(LShiftC8uTest, LShiftC_8u) {
-  runLShiftCTest<Npp8u>(2,
-      nppiLShiftC_8u_C1R, nppiLShiftC_8u_C1R_Ctx, nppiLShiftC_8u_C1IR, nppiLShiftC_8u_C1IR_Ctx,
-      nppiLShiftC_8u_C3R, nppiLShiftC_8u_C3R_Ctx, nppiLShiftC_8u_C3IR, nppiLShiftC_8u_C3IR_Ctx,
-      nppiLShiftC_8u_C4R, nppiLShiftC_8u_C4R_Ctx, nppiLShiftC_8u_C4IR, nppiLShiftC_8u_C4IR_Ctx);
+  runLShiftCTest<Npp8u>(2, nppiLShiftC_8u_C1R, nppiLShiftC_8u_C1R_Ctx, nppiLShiftC_8u_C1IR, nppiLShiftC_8u_C1IR_Ctx,
+                        nppiLShiftC_8u_C3R, nppiLShiftC_8u_C3R_Ctx, nppiLShiftC_8u_C3IR, nppiLShiftC_8u_C3IR_Ctx,
+                        nppiLShiftC_8u_C4R, nppiLShiftC_8u_C4R_Ctx, nppiLShiftC_8u_C4IR, nppiLShiftC_8u_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(LShiftC8u, LShiftC8uTest, ::testing::ValuesIn(kShiftParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== LShiftC_16u ====================
 class LShiftC16uTest : public ShiftParamTest {};
 
 TEST_P(LShiftC16uTest, LShiftC_16u) {
-  runLShiftCTest<Npp16u>(4,
-      nppiLShiftC_16u_C1R, nppiLShiftC_16u_C1R_Ctx, nppiLShiftC_16u_C1IR, nppiLShiftC_16u_C1IR_Ctx,
-      nppiLShiftC_16u_C3R, nppiLShiftC_16u_C3R_Ctx, nppiLShiftC_16u_C3IR, nppiLShiftC_16u_C3IR_Ctx,
-      nppiLShiftC_16u_C4R, nppiLShiftC_16u_C4R_Ctx, nppiLShiftC_16u_C4IR, nppiLShiftC_16u_C4IR_Ctx);
+  runLShiftCTest<Npp16u>(4, nppiLShiftC_16u_C1R, nppiLShiftC_16u_C1R_Ctx, nppiLShiftC_16u_C1IR,
+                         nppiLShiftC_16u_C1IR_Ctx, nppiLShiftC_16u_C3R, nppiLShiftC_16u_C3R_Ctx, nppiLShiftC_16u_C3IR,
+                         nppiLShiftC_16u_C3IR_Ctx, nppiLShiftC_16u_C4R, nppiLShiftC_16u_C4R_Ctx, nppiLShiftC_16u_C4IR,
+                         nppiLShiftC_16u_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(LShiftC16u, LShiftC16uTest, ::testing::ValuesIn(kShiftParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });

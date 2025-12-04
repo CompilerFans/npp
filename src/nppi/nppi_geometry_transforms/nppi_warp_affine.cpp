@@ -174,8 +174,8 @@ NppStatus nppiWarpAffineBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcS
 NppStatus nppiWarpAffineBack_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                         int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -184,9 +184,8 @@ NppStatus nppiWarpAffineBack_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, in
                                             eInterpolation, nppStreamCtx);
 }
 
-NppStatus nppiWarpAffineBack_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                    Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
-                                    int eInterpolation) {
+NppStatus nppiWarpAffineBack_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+                                    int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiWarpAffineBack_8u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
@@ -197,8 +196,8 @@ NppStatus nppiWarpAffineBack_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nS
 NppStatus nppiWarpAffineBack_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                         int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -207,9 +206,8 @@ NppStatus nppiWarpAffineBack_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, in
                                             eInterpolation, nppStreamCtx);
 }
 
-NppStatus nppiWarpAffineBack_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                    Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
-                                    int eInterpolation) {
+NppStatus nppiWarpAffineBack_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+                                    int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiWarpAffineBack_8u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
@@ -220,8 +218,8 @@ NppStatus nppiWarpAffineBack_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nS
 NppStatus nppiWarpAffineBack_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                         int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -230,9 +228,8 @@ NppStatus nppiWarpAffineBack_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, in
                                             eInterpolation, nppStreamCtx);
 }
 
-NppStatus nppiWarpAffineBack_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                    Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
-                                    int eInterpolation) {
+NppStatus nppiWarpAffineBack_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+                                    int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiWarpAffineBack_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
@@ -243,8 +240,8 @@ NppStatus nppiWarpAffineBack_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nS
 NppStatus nppiWarpAffineBack_16u_C1R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -266,8 +263,8 @@ NppStatus nppiWarpAffineBack_16u_C1R(const Npp16u *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_16u_C3R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -289,8 +286,8 @@ NppStatus nppiWarpAffineBack_16u_C3R(const Npp16u *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_16u_C4R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -312,8 +309,8 @@ NppStatus nppiWarpAffineBack_16u_C4R(const Npp16u *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_32f_C1R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -335,8 +332,8 @@ NppStatus nppiWarpAffineBack_32f_C1R(const Npp32f *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_32f_C3R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -358,8 +355,8 @@ NppStatus nppiWarpAffineBack_32f_C3R(const Npp32f *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_32f_C4R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -381,8 +378,8 @@ NppStatus nppiWarpAffineBack_32f_C4R(const Npp32f *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_32s_C1R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -404,8 +401,8 @@ NppStatus nppiWarpAffineBack_32s_C1R(const Npp32s *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_32s_C3R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
@@ -427,8 +424,8 @@ NppStatus nppiWarpAffineBack_32s_C3R(const Npp32s *pSrc, NppiSize oSrcSize, int 
 NppStatus nppiWarpAffineBack_32s_C4R_Ctx(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                          Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                          int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                              eInterpolation);
+  NppStatus status =
+      validateWarpAffineInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }

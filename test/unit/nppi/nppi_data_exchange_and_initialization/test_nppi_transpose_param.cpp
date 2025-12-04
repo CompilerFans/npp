@@ -32,7 +32,7 @@ TEST_P(Transpose8uParamTest, Transpose_8u_C1R) {
   }
 
   NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> dst(height, width);  // Note: swapped dimensions
+  NppImageMemory<Npp8u> dst(height, width); // Note: swapped dimensions
   src.copyFromHost(srcData);
 
   NppiSize srcRoi = {width, height};

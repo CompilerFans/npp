@@ -2,8 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-template <typename T>
-__device__ inline Npp8u performCompare(T src1, T src2, NppCmpOp op) {
+template <typename T> __device__ inline Npp8u performCompare(T src1, T src2, NppCmpOp op) {
   bool result = false;
   switch (op) {
   case NPP_CMP_LESS:
@@ -208,8 +207,8 @@ __global__ void nppiCompare_32f_C4R_kernel(const Npp32f *pSrc1, int nSrc1Step, c
 
 extern "C" {
 
-NppStatus nppiCompare_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                      Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp,
+NppStatus nppiCompare_8u_C1R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                      int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp,
                                       NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -260,8 +259,8 @@ NppStatus nppiCompare_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const
 }
 
 // C3 implementations
-NppStatus nppiCompare_8u_C3R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                      Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp,
+NppStatus nppiCompare_8u_C3R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                      int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp,
                                       NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -312,8 +311,8 @@ NppStatus nppiCompare_32f_C3R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const
 }
 
 // C4 implementations
-NppStatus nppiCompare_8u_C4R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                      Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp,
+NppStatus nppiCompare_8u_C4R_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                      int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp,
                                       NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

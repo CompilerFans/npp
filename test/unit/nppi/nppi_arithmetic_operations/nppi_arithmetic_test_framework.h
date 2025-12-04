@@ -198,16 +198,19 @@ template <typename T, typename ConstT = T> T div_c(T x, ConstT c) {
   if constexpr (std::is_floating_point_v<T>) {
     return static_cast<T>(x) / static_cast<T>(c);
   } else if constexpr (std::is_same_v<T, Npp8u>) {
-    if (c == 0) return 0;
+    if (c == 0)
+      return 0;
     // NPP uses rounding: (x + c/2) / c
     int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
     return static_cast<T>(std::max(0, std::min(255, result)));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    if (c == 0) return 0;
+    if (c == 0)
+      return 0;
     int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
     return static_cast<T>(std::max(0, std::min(65535, result)));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    if (c == 0) return 0;
+    if (c == 0)
+      return 0;
     int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
     return static_cast<T>(std::max(-32768, std::min(32767, result)));
   } else {
@@ -218,7 +221,8 @@ template <typename T, typename ConstT = T> T div_c(T x, ConstT c) {
 // DivC with scale factor: dst = saturate(round(src / constant) >> scaleFactor)
 template <typename T, typename ConstT = T> T div_c_sfs(T x, ConstT c, int scaleFactor) {
   if constexpr (std::is_same_v<T, Npp8u>) {
-    if (c == 0) return 0;
+    if (c == 0)
+      return 0;
     // NPP uses rounding division
     int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
     if (scaleFactor > 0) {
@@ -226,14 +230,16 @@ template <typename T, typename ConstT = T> T div_c_sfs(T x, ConstT c, int scaleF
     }
     return static_cast<T>(std::max(0, std::min(255, result)));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    if (c == 0) return 0;
+    if (c == 0)
+      return 0;
     int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
     if (scaleFactor > 0) {
       result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
     }
     return static_cast<T>(std::max(0, std::min(65535, result)));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    if (c == 0) return 0;
+    if (c == 0)
+      return 0;
     int result = (static_cast<int>(x) + static_cast<int>(c) / 2) / static_cast<int>(c);
     if (scaleFactor > 0) {
       result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
@@ -378,15 +384,18 @@ template <typename T> T div(T a, T b) {
   if constexpr (std::is_floating_point_v<T>) {
     return a / b;
   } else if constexpr (std::is_same_v<T, Npp8u>) {
-    if (b == 0) return 0;
+    if (b == 0)
+      return 0;
     int result = static_cast<int>(a) / static_cast<int>(b);
     return static_cast<T>(std::max(0, std::min(255, result)));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    if (b == 0) return 0;
+    if (b == 0)
+      return 0;
     int result = static_cast<int>(a) / static_cast<int>(b);
     return static_cast<T>(std::max(0, std::min(65535, result)));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    if (b == 0) return 0;
+    if (b == 0)
+      return 0;
     int result = static_cast<int>(a) / static_cast<int>(b);
     return static_cast<T>(std::max(-32768, std::min(32767, result)));
   } else {
@@ -446,7 +455,8 @@ template <typename T> T sqrt_val(T x) {
   } else if constexpr (std::is_same_v<T, Npp16u>) {
     return static_cast<T>(std::sqrt(static_cast<float>(x)));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    if (x < 0) return 0;
+    if (x < 0)
+      return 0;
     return static_cast<T>(std::sqrt(static_cast<float>(x)));
   } else {
     return static_cast<T>(std::sqrt(static_cast<double>(x)));
@@ -468,7 +478,8 @@ template <typename T> T sqrt_sfs(T x, int scaleFactor) {
     }
     return static_cast<T>(std::max(0, std::min(65535, result)));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    if (x < 0) return 0;
+    if (x < 0)
+      return 0;
     int result = static_cast<int>(std::sqrt(static_cast<float>(x)));
     if (scaleFactor > 0) {
       result = (result + (1 << (scaleFactor - 1))) >> scaleFactor;
@@ -502,15 +513,18 @@ template <typename T> T ln_val(T x) {
   if constexpr (std::is_floating_point_v<T>) {
     return std::log(x);
   } else if constexpr (std::is_same_v<T, Npp8u>) {
-    if (x == 0) return 0;
+    if (x == 0)
+      return 0;
     float result = std::log(static_cast<float>(x));
     return static_cast<T>(std::max(0.0f, std::min(255.0f, result)));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    if (x == 0) return 0;
+    if (x == 0)
+      return 0;
     float result = std::log(static_cast<float>(x));
     return static_cast<T>(std::max(0.0f, std::min(65535.0f, result)));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    if (x <= 0) return 0;
+    if (x <= 0)
+      return 0;
     float result = std::log(static_cast<float>(x));
     return static_cast<T>(std::max(-32768.0f, std::min(32767.0f, result)));
   } else {
@@ -552,8 +566,10 @@ template <typename T> T threshold_lt(T x, T threshold, T value) { return (x < th
 template <typename T> T threshold_gt(T x, T threshold, T value) { return (x > threshold) ? value : x; }
 
 template <typename T> T threshold_ltgt(T x, T thresholdLT, T valueLT, T thresholdGT, T valueGT) {
-  if (x < thresholdLT) return valueLT;
-  if (x > thresholdGT) return valueGT;
+  if (x < thresholdLT)
+    return valueLT;
+  if (x > thresholdGT)
+    return valueGT;
   return x;
 }
 

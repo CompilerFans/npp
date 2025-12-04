@@ -13,8 +13,8 @@ NppStatus nppiConvert_8u16u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp16u
                                          NppStreamContext nppStreamCtx);
 NppStatus nppiConvert_32f8u_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppRoundMode eRoundMode, NppStreamContext nppStreamCtx);
-NppStatus nppiConvert_16u32f_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                          NppStreamContext nppStreamCtx);
+NppStatus nppiConvert_16u32f_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
+                                          NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 }
 
 static inline NppStatus validateConvertInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,

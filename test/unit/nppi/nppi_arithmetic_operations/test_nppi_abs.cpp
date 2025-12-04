@@ -1126,7 +1126,7 @@ TEST_F(AbsFunctionalTest, Abs_16f_C1R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAbs_16f_C1R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16f_C1R_Ctx failed";
@@ -1186,7 +1186,7 @@ TEST_F(AbsFunctionalTest, Abs_16f_C1IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAbs_16f_C1IR_Ctx(srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16f_C1IR_Ctx failed";
@@ -1253,7 +1253,7 @@ TEST_F(AbsFunctionalTest, Abs_16f_C3R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAbs_16f_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16f_C3R_Ctx failed";
@@ -1315,7 +1315,7 @@ TEST_F(AbsFunctionalTest, Abs_16f_C3IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAbs_16f_C3IR_Ctx(srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16f_C3IR_Ctx failed";
@@ -1382,7 +1382,7 @@ TEST_F(AbsFunctionalTest, Abs_16f_C4R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAbs_16f_C4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16f_C4R_Ctx failed";
@@ -1444,7 +1444,7 @@ TEST_F(AbsFunctionalTest, Abs_16f_C4IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAbs_16f_C4IR_Ctx(srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAbs_16f_C4IR_Ctx failed";

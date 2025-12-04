@@ -227,7 +227,7 @@ public:
 
     OpType op;
     unaryAC4Kernel<T, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                   oSizeROI.height, op, scaleFactor);
+                                                                  oSizeROI.height, op, scaleFactor);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

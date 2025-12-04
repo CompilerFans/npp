@@ -142,11 +142,12 @@ TEST_P(CompareC16uParamTest, CompareC_16u_C1R) {
   EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
 }
 
-INSTANTIATE_TEST_SUITE_P(CompareC16u, CompareC16uParamTest,
-                         ::testing::Values(CompareC16uParam{32, 32, 32768, NPP_CMP_LESS, false, "32x32_c32768_LT_noCtx"},
-                                           CompareC16uParam{32, 32, 32768, NPP_CMP_EQ, false, "32x32_c32768_EQ_noCtx"},
-                                           CompareC16uParam{32, 32, 32768, NPP_CMP_GREATER, false, "32x32_c32768_GT_noCtx"}),
-                         [](const ::testing::TestParamInfo<CompareC16uParam> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    CompareC16u, CompareC16uParamTest,
+    ::testing::Values(CompareC16uParam{32, 32, 32768, NPP_CMP_LESS, false, "32x32_c32768_LT_noCtx"},
+                      CompareC16uParam{32, 32, 32768, NPP_CMP_EQ, false, "32x32_c32768_EQ_noCtx"},
+                      CompareC16uParam{32, 32, 32768, NPP_CMP_GREATER, false, "32x32_c32768_GT_noCtx"}),
+    [](const ::testing::TestParamInfo<CompareC16uParam> &info) { return info.param.name; });
 
 // ==================== CompareC 32f C1 TEST_P ====================
 

@@ -135,7 +135,8 @@ TEST_P(Mul8uSfsParamTest, Mul_8u_C1RSfs) {
       status = nppiMul_8u_C1RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                      scaleFactor, ctx);
     } else {
-      status = nppiMul_8u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiMul_8u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -211,7 +212,8 @@ TEST_P(Mul16uSfsParamTest, Mul_16u_C1RSfs) {
       status = nppiMul_16u_C1RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiMul_16u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiMul_16u_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -287,7 +289,8 @@ TEST_P(Mul16sSfsParamTest, Mul_16s_C1RSfs) {
       status = nppiMul_16s_C1RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiMul_16s_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiMul_16s_C1RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -502,7 +505,8 @@ TEST_P(Mul16uC3SfsParamTest, Mul_16u_C3RSfs) {
       status = nppiMul_16u_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiMul_16u_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiMul_16u_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -570,7 +574,8 @@ TEST_P(Mul16sC3SfsParamTest, Mul_16s_C3RSfs) {
       status = nppiMul_16s_C3RSfs_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
                                       scaleFactor, ctx);
     } else {
-      status = nppiMul_16s_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
+      status =
+          nppiMul_16s_C3RSfs(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 

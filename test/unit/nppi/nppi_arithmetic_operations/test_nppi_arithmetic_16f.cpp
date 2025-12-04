@@ -11,7 +11,8 @@ struct Arith16fParam {
   std::string name() const {
     std::string result = "C" + std::to_string(channels);
     result += in_place ? "IR" : "R";
-    if (use_ctx) result += "_Ctx";
+    if (use_ctx)
+      result += "_Ctx";
     return result;
   }
 };
@@ -23,12 +24,13 @@ protected:
   static constexpr int kHeight = 32;
 
   template <typename BinaryOp>
-  void runBinaryTest(BinaryOp op,
-                     std::function<NppStatus(const Npp16f*, int, const Npp16f*, int, Npp16f*, int, NppiSize)> nppR,
-                     std::function<NppStatus(const Npp16f*, int, const Npp16f*, int, Npp16f*, int, NppiSize, NppStreamContext)> nppR_Ctx,
-                     std::function<NppStatus(const Npp16f*, int, Npp16f*, int, NppiSize)> nppIR,
-                     std::function<NppStatus(const Npp16f*, int, Npp16f*, int, NppiSize, NppStreamContext)> nppIR_Ctx) {
-    const auto& p = GetParam();
+  void runBinaryTest(
+      BinaryOp op, std::function<NppStatus(const Npp16f *, int, const Npp16f *, int, Npp16f *, int, NppiSize)> nppR,
+      std::function<NppStatus(const Npp16f *, int, const Npp16f *, int, Npp16f *, int, NppiSize, NppStreamContext)>
+          nppR_Ctx,
+      std::function<NppStatus(const Npp16f *, int, Npp16f *, int, NppiSize)> nppIR,
+      std::function<NppStatus(const Npp16f *, int, Npp16f *, int, NppiSize, NppStreamContext)> nppIR_Ctx) {
+    const auto &p = GetParam();
     const int total = kWidth * kHeight * p.channels;
 
     std::vector<Npp16f> src1Data(total), src2Data(total), expected(total);
@@ -47,7 +49,8 @@ protected:
     src2.copyFromHost(src2Data);
 
     NppiSize roi = {kWidth, kHeight};
-    NppStreamContext ctx{}; ctx.hStream = 0;
+    NppStreamContext ctx;
+    nppGetStreamContext(&ctx);
     NppStatus status;
     std::vector<Npp16f> result(total);
 
@@ -68,20 +71,23 @@ protected:
   }
 
   template <typename UnaryConstOp>
-  void runConstTest(UnaryConstOp op, const Npp32f* constants,
-                    std::function<NppStatus(const Npp16f*, int, Npp32f, Npp16f*, int, NppiSize)> nppC1R,
-                    std::function<NppStatus(const Npp16f*, int, Npp32f, Npp16f*, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
-                    std::function<NppStatus(Npp32f, Npp16f*, int, NppiSize)> nppC1IR,
-                    std::function<NppStatus(Npp32f, Npp16f*, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
-                    std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize)> nppC3R,
-                    std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
-                    std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize)> nppC3IR,
-                    std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
-                    std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize)> nppC4R = nullptr,
-                    std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC4R_Ctx = nullptr,
-                    std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize)> nppC4IR = nullptr,
-                    std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC4IR_Ctx = nullptr) {
-    const auto& p = GetParam();
+  void runConstTest(
+      UnaryConstOp op, const Npp32f *constants,
+      std::function<NppStatus(const Npp16f *, int, Npp32f, Npp16f *, int, NppiSize)> nppC1R,
+      std::function<NppStatus(const Npp16f *, int, Npp32f, Npp16f *, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
+      std::function<NppStatus(Npp32f, Npp16f *, int, NppiSize)> nppC1IR,
+      std::function<NppStatus(Npp32f, Npp16f *, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize)> nppC3R,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)>
+          nppC3R_Ctx,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize)> nppC3IR,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize)> nppC4R = nullptr,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)>
+          nppC4R_Ctx = nullptr,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize)> nppC4IR = nullptr,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC4IR_Ctx = nullptr) {
+    const auto &p = GetParam();
     const int total = kWidth * kHeight * p.channels;
 
     std::vector<Npp16f> srcData(total), expected(total);
@@ -96,7 +102,8 @@ protected:
     src.copyFromHost(srcData);
 
     NppiSize roi = {kWidth, kHeight};
-    NppStreamContext ctx{}; ctx.hStream = 0;
+    NppStreamContext ctx;
+    nppGetStreamContext(&ctx);
     NppStatus status;
     std::vector<Npp16f> result(total);
 
@@ -148,16 +155,15 @@ protected:
 
 // Parameter values
 static const std::vector<Arith16fParam> kArith16fParams = {
-    {1, false, false}, {1, true, false}, {1, false, true}, {1, true, true},
-    {3, false, false}, {3, true, false}, {3, false, true}, {3, true, true},
-    {4, false, false}, {4, true, false}, {4, false, true}, {4, true, true},
+    {1, false, false}, {1, true, false}, {1, false, true},  {1, true, true},  {3, false, false}, {3, true, false},
+    {3, false, true},  {3, true, true},  {4, false, false}, {4, true, false}, {4, false, true},  {4, true, true},
 };
 
 // ==================== Add_16f ====================
 class Add16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Add16fParamTest, Add_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   auto addOp = [](float a, float b) { return a + b; };
 
   if (p.channels == 1) {
@@ -170,13 +176,13 @@ TEST_P(Add16fParamTest, Add_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Add16f, Add16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== Sub_16f ====================
 class Sub16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Sub16fParamTest, Sub_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   // NPP Sub: dst = src2 - src1
   auto subOp = [](float a, float b) { return b - a; };
 
@@ -190,13 +196,13 @@ TEST_P(Sub16fParamTest, Sub_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Sub16f, Sub16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== Mul_16f ====================
 class Mul16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Mul16fParamTest, Mul_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   auto mulOp = [](float a, float b) { return a * b; };
 
   if (p.channels == 1) {
@@ -209,20 +215,20 @@ TEST_P(Mul16fParamTest, Mul_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Mul16f, Mul16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== Div_16f ====================
 class Div16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Div16fParamTest, Div_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   // NPP Div: dst = src2 / src1
   auto divOp = [](float a, float b) { return (a != 0.0f) ? b / a : 0.0f; };
 
   // Use non-zero values for src1 to avoid division by zero
   const int total = kWidth * kHeight * p.channels;
   std::vector<Npp16f> src1Data(total), src2Data(total), expected(total);
-  TestDataGenerator::generateRandom16f(src1Data, 1.0f, 20.0f, 12345);  // Avoid zero
+  TestDataGenerator::generateRandom16f(src1Data, 1.0f, 20.0f, 12345); // Avoid zero
   TestDataGenerator::generateRandom16f(src2Data, -20.0f, 20.0f, 54321);
 
   for (int i = 0; i < total; i++) {
@@ -237,7 +243,8 @@ TEST_P(Div16fParamTest, Div_16f) {
   src2.copyFromHost(src2Data);
 
   NppiSize roi = {kWidth, kHeight};
-  NppStreamContext ctx{}; ctx.hStream = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
   NppStatus status;
   std::vector<Npp16f> result(total);
 
@@ -257,14 +264,20 @@ TEST_P(Div16fParamTest, Div_16f) {
   } else {
     NppImageMemory<Npp16f> dst(kWidth * p.channels, kHeight);
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiDiv_16f_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
-                         : nppiDiv_16f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
+      status =
+          p.use_ctx
+              ? nppiDiv_16f_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
+              : nppiDiv_16f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiDiv_16f_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
-                         : nppiDiv_16f_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
+      status =
+          p.use_ctx
+              ? nppiDiv_16f_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
+              : nppiDiv_16f_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
     } else {
-      status = p.use_ctx ? nppiDiv_16f_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
-                         : nppiDiv_16f_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
+      status =
+          p.use_ctx
+              ? nppiDiv_16f_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
+              : nppiDiv_16f_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     dst.copyToHost(result);
@@ -274,13 +287,13 @@ TEST_P(Div16fParamTest, Div_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Div16f, Div16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== Sqr_16f ====================
 class Sqr16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Sqr16fParamTest, Sqr_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int total = kWidth * kHeight * p.channels;
 
   std::vector<Npp16f> srcData(total), expected(total);
@@ -295,7 +308,8 @@ TEST_P(Sqr16fParamTest, Sqr_16f) {
   src.copyFromHost(srcData);
 
   NppiSize roi = {kWidth, kHeight};
-  NppStreamContext ctx{}; ctx.hStream = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
   NppStatus status;
   std::vector<Npp16f> result(total);
 
@@ -332,17 +346,17 @@ TEST_P(Sqr16fParamTest, Sqr_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Sqr16f, Sqr16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== Sqrt_16f ====================
 class Sqrt16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Sqrt16fParamTest, Sqrt_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int total = kWidth * kHeight * p.channels;
 
   std::vector<Npp16f> srcData(total), expected(total);
-  TestDataGenerator::generateRandom16f(srcData, 0.1f, 100.0f, 12345);  // Positive values only
+  TestDataGenerator::generateRandom16f(srcData, 0.1f, 100.0f, 12345); // Positive values only
 
   for (int i = 0; i < total; i++) {
     float v = npp16f_to_float_host(srcData[i]);
@@ -353,7 +367,8 @@ TEST_P(Sqrt16fParamTest, Sqrt_16f) {
   src.copyFromHost(srcData);
 
   NppiSize roi = {kWidth, kHeight};
-  NppStreamContext ctx{}; ctx.hStream = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
   NppStatus status;
   std::vector<Npp16f> result(total);
 
@@ -390,14 +405,15 @@ TEST_P(Sqrt16fParamTest, Sqrt_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Sqrt16f, Sqrt16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== AbsDiff_16f ====================
 class AbsDiff16fParamTest : public Arith16fParamTest {};
 
 TEST_P(AbsDiff16fParamTest, AbsDiff_16f) {
-  const auto& p = GetParam();
-  if (p.in_place) return;  // AbsDiff has no in-place variant
+  const auto &p = GetParam();
+  if (p.in_place)
+    return; // AbsDiff has no in-place variant
 
   auto absDiffOp = [](float a, float b) { return std::fabs(a - b); };
 
@@ -419,14 +435,17 @@ TEST_P(AbsDiff16fParamTest, AbsDiff_16f) {
   src2.copyFromHost(src2Data);
 
   NppiSize roi = {kWidth, kHeight};
-  NppStreamContext ctx{}; ctx.hStream = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
   NppStatus status;
 
   if (p.channels == 1) {
-    status = p.use_ctx ? nppiAbsDiff_16f_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
-                       : nppiAbsDiff_16f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
+    status =
+        p.use_ctx
+            ? nppiAbsDiff_16f_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx)
+            : nppiAbsDiff_16f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   } else {
-    return;  // AbsDiff_16f only has C1R variant
+    return; // AbsDiff_16f only has C1R variant
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -437,11 +456,12 @@ TEST_P(AbsDiff16fParamTest, AbsDiff_16f) {
 
 // Only test C1R for AbsDiff_16f (no C3/C4 variants)
 static const std::vector<Arith16fParam> kAbsDiff16fParams = {
-    {1, false, false}, {1, true, false},
+    {1, false, false},
+    {1, true, false},
 };
 
 INSTANTIATE_TEST_SUITE_P(AbsDiff16f, AbsDiff16fParamTest, ::testing::ValuesIn(kAbsDiff16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== Ln_16f ====================
 // C1 and C3 only
@@ -453,11 +473,11 @@ static const std::vector<Arith16fParam> kLn16fParams = {
 class Ln16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Ln16fParamTest, Ln_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int total = kWidth * kHeight * p.channels;
 
   std::vector<Npp16f> srcData(total), expected(total);
-  TestDataGenerator::generateRandom16f(srcData, 0.1f, 100.0f, 12345);  // Positive values only
+  TestDataGenerator::generateRandom16f(srcData, 0.1f, 100.0f, 12345); // Positive values only
 
   for (int i = 0; i < total; i++) {
     float v = npp16f_to_float_host(srcData[i]);
@@ -468,7 +488,8 @@ TEST_P(Ln16fParamTest, Ln_16f) {
   src.copyFromHost(srcData);
 
   NppiSize roi = {kWidth, kHeight};
-  NppStreamContext ctx{}; ctx.hStream = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
   NppStatus status;
   std::vector<Npp16f> result(total);
 
@@ -499,7 +520,7 @@ TEST_P(Ln16fParamTest, Ln_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Ln16f, Ln16fParamTest, ::testing::ValuesIn(kLn16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== AddProduct_16f_C1IR ====================
 class AddProduct16fTest : public NppTestBase {};
@@ -529,8 +550,8 @@ TEST_F(AddProduct16fTest, AddProduct_16f_C1IR_BasicOperation) {
   srcDst.copyFromHost(srcDstData);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiAddProduct_16f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                              srcDst.get(), srcDst.step(), roi);
+  NppStatus status =
+      nppiAddProduct_16f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(), srcDst.get(), srcDst.step(), roi);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp16f> result(total);
@@ -563,9 +584,10 @@ TEST_F(AddProduct16fTest, AddProduct_16f_C1IR_Ctx_BasicOperation) {
   srcDst.copyFromHost(srcDstData);
 
   NppiSize roi = {width, height};
-  NppStreamContext ctx{}; ctx.hStream = 0;
-  NppStatus status = nppiAddProduct_16f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                                  srcDst.get(), srcDst.step(), roi, ctx);
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+  NppStatus status = nppiAddProduct_16f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), srcDst.get(),
+                                                 srcDst.step(), roi, ctx);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp16f> result(total);
@@ -577,7 +599,7 @@ TEST_F(AddProduct16fTest, AddProduct_16f_C1IR_Ctx_BasicOperation) {
 class Abs16fParamTest : public Arith16fParamTest {};
 
 TEST_P(Abs16fParamTest, Abs_16f) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int total = kWidth * kHeight * p.channels;
 
   std::vector<Npp16f> srcData(total), expected(total);
@@ -592,7 +614,8 @@ TEST_P(Abs16fParamTest, Abs_16f) {
   src.copyFromHost(srcData);
 
   NppiSize roi = {kWidth, kHeight};
-  NppStreamContext ctx{}; ctx.hStream = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
   NppStatus status;
   std::vector<Npp16f> result(total);
 
@@ -629,7 +652,7 @@ TEST_P(Abs16fParamTest, Abs_16f) {
 }
 
 INSTANTIATE_TEST_SUITE_P(Abs16f, Abs16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== AddC_16f ====================
 class AddC16fParamTest : public Arith16fParamTest {};
@@ -638,14 +661,13 @@ TEST_P(AddC16fParamTest, AddC_16f) {
   const Npp32f constants[4] = {2.5f, 3.5f, 4.5f, 5.5f};
   auto addCOp = [](float v, float c) { return v + c; };
 
-  runConstTest(addCOp, constants,
-               nppiAddC_16f_C1R, nppiAddC_16f_C1R_Ctx, nppiAddC_16f_C1IR, nppiAddC_16f_C1IR_Ctx,
-               nppiAddC_16f_C3R, nppiAddC_16f_C3R_Ctx, nppiAddC_16f_C3IR, nppiAddC_16f_C3IR_Ctx,
-               nppiAddC_16f_C4R, nppiAddC_16f_C4R_Ctx, nppiAddC_16f_C4IR, nppiAddC_16f_C4IR_Ctx);
+  runConstTest(addCOp, constants, nppiAddC_16f_C1R, nppiAddC_16f_C1R_Ctx, nppiAddC_16f_C1IR, nppiAddC_16f_C1IR_Ctx,
+               nppiAddC_16f_C3R, nppiAddC_16f_C3R_Ctx, nppiAddC_16f_C3IR, nppiAddC_16f_C3IR_Ctx, nppiAddC_16f_C4R,
+               nppiAddC_16f_C4R_Ctx, nppiAddC_16f_C4IR, nppiAddC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(AddC16f, AddC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== SubC_16f ====================
 class SubC16fParamTest : public Arith16fParamTest {};
@@ -654,14 +676,13 @@ TEST_P(SubC16fParamTest, SubC_16f) {
   const Npp32f constants[4] = {2.5f, 3.5f, 4.5f, 5.5f};
   auto subCOp = [](float v, float c) { return v - c; };
 
-  runConstTest(subCOp, constants,
-               nppiSubC_16f_C1R, nppiSubC_16f_C1R_Ctx, nppiSubC_16f_C1IR, nppiSubC_16f_C1IR_Ctx,
-               nppiSubC_16f_C3R, nppiSubC_16f_C3R_Ctx, nppiSubC_16f_C3IR, nppiSubC_16f_C3IR_Ctx,
-               nppiSubC_16f_C4R, nppiSubC_16f_C4R_Ctx, nppiSubC_16f_C4IR, nppiSubC_16f_C4IR_Ctx);
+  runConstTest(subCOp, constants, nppiSubC_16f_C1R, nppiSubC_16f_C1R_Ctx, nppiSubC_16f_C1IR, nppiSubC_16f_C1IR_Ctx,
+               nppiSubC_16f_C3R, nppiSubC_16f_C3R_Ctx, nppiSubC_16f_C3IR, nppiSubC_16f_C3IR_Ctx, nppiSubC_16f_C4R,
+               nppiSubC_16f_C4R_Ctx, nppiSubC_16f_C4IR, nppiSubC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(SubC16f, SubC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== MulC_16f ====================
 class MulC16fParamTest : public Arith16fParamTest {};
@@ -670,14 +691,13 @@ TEST_P(MulC16fParamTest, MulC_16f) {
   const Npp32f constants[4] = {2.0f, 1.5f, 0.5f, 3.0f};
   auto mulCOp = [](float v, float c) { return v * c; };
 
-  runConstTest(mulCOp, constants,
-               nppiMulC_16f_C1R, nppiMulC_16f_C1R_Ctx, nppiMulC_16f_C1IR, nppiMulC_16f_C1IR_Ctx,
-               nppiMulC_16f_C3R, nppiMulC_16f_C3R_Ctx, nppiMulC_16f_C3IR, nppiMulC_16f_C3IR_Ctx,
-               nppiMulC_16f_C4R, nppiMulC_16f_C4R_Ctx, nppiMulC_16f_C4IR, nppiMulC_16f_C4IR_Ctx);
+  runConstTest(mulCOp, constants, nppiMulC_16f_C1R, nppiMulC_16f_C1R_Ctx, nppiMulC_16f_C1IR, nppiMulC_16f_C1IR_Ctx,
+               nppiMulC_16f_C3R, nppiMulC_16f_C3R_Ctx, nppiMulC_16f_C3IR, nppiMulC_16f_C3IR_Ctx, nppiMulC_16f_C4R,
+               nppiMulC_16f_C4R_Ctx, nppiMulC_16f_C4IR, nppiMulC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(MulC16f, MulC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== DivC_16f ====================
 class DivC16fParamTest : public Arith16fParamTest {};
@@ -686,14 +706,13 @@ TEST_P(DivC16fParamTest, DivC_16f) {
   const Npp32f constants[4] = {2.0f, 2.5f, 3.0f, 4.0f};
   auto divCOp = [](float v, float c) { return v / c; };
 
-  runConstTest(divCOp, constants,
-               nppiDivC_16f_C1R, nppiDivC_16f_C1R_Ctx, nppiDivC_16f_C1IR, nppiDivC_16f_C1IR_Ctx,
-               nppiDivC_16f_C3R, nppiDivC_16f_C3R_Ctx, nppiDivC_16f_C3IR, nppiDivC_16f_C3IR_Ctx,
-               nppiDivC_16f_C4R, nppiDivC_16f_C4R_Ctx, nppiDivC_16f_C4IR, nppiDivC_16f_C4IR_Ctx);
+  runConstTest(divCOp, constants, nppiDivC_16f_C1R, nppiDivC_16f_C1R_Ctx, nppiDivC_16f_C1IR, nppiDivC_16f_C1IR_Ctx,
+               nppiDivC_16f_C3R, nppiDivC_16f_C3R_Ctx, nppiDivC_16f_C3IR, nppiDivC_16f_C3IR_Ctx, nppiDivC_16f_C4R,
+               nppiDivC_16f_C4R_Ctx, nppiDivC_16f_C4IR, nppiDivC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(DivC16f, DivC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== DeviceC operations ====================
 // These operations take device pointers for constants instead of host values
@@ -701,14 +720,15 @@ INSTANTIATE_TEST_SUITE_P(DivC16f, DivC16fParamTest, ::testing::ValuesIn(kArith16
 class DeviceC16fParamTest : public Arith16fParamTest {
 protected:
   template <typename OpFunc>
-  void runDeviceCTest(OpFunc op, const Npp32f* hostConstants,
-                      std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC1R,
-                      std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC1IR,
-                      std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC3R,
-                      std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC3IR,
-                      std::function<NppStatus(const Npp16f*, int, const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC4R,
-                      std::function<NppStatus(const Npp32f*, Npp16f*, int, NppiSize, NppStreamContext)> nppC4IR) {
-    const auto& p = GetParam();
+  void runDeviceCTest(
+      OpFunc op, const Npp32f *hostConstants,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC1R,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC1IR,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC3R,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC3IR,
+      std::function<NppStatus(const Npp16f *, int, const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC4R,
+      std::function<NppStatus(const Npp32f *, Npp16f *, int, NppiSize, NppStreamContext)> nppC4IR) {
+    const auto &p = GetParam();
     const int total = kWidth * kHeight * p.channels;
 
     std::vector<Npp16f> srcData(total), expected(total);
@@ -723,12 +743,13 @@ protected:
     src.copyFromHost(srcData);
 
     // Allocate device constant
-    Npp32f* d_constants;
+    Npp32f *d_constants;
     cudaMalloc(&d_constants, p.channels * sizeof(Npp32f));
     cudaMemcpy(d_constants, hostConstants, p.channels * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
     NppiSize roi = {kWidth, kHeight};
-    NppStreamContext ctx{}; ctx.hStream = 0;
+    NppStreamContext ctx;
+    nppGetStreamContext(&ctx);
     NppStatus status;
     std::vector<Npp16f> result(total);
 
@@ -767,14 +788,12 @@ TEST_P(AddDeviceC16fParamTest, AddDeviceC_16f) {
   const Npp32f constants[4] = {2.5f, 3.5f, 4.5f, 5.5f};
   auto addOp = [](float v, float c) { return v + c; };
 
-  runDeviceCTest(addOp, constants,
-                 nppiAddDeviceC_16f_C1R_Ctx, nppiAddDeviceC_16f_C1IR_Ctx,
-                 nppiAddDeviceC_16f_C3R_Ctx, nppiAddDeviceC_16f_C3IR_Ctx,
-                 nppiAddDeviceC_16f_C4R_Ctx, nppiAddDeviceC_16f_C4IR_Ctx);
+  runDeviceCTest(addOp, constants, nppiAddDeviceC_16f_C1R_Ctx, nppiAddDeviceC_16f_C1IR_Ctx, nppiAddDeviceC_16f_C3R_Ctx,
+                 nppiAddDeviceC_16f_C3IR_Ctx, nppiAddDeviceC_16f_C4R_Ctx, nppiAddDeviceC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(AddDeviceC16f, AddDeviceC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== SubDeviceC_16f ====================
 class SubDeviceC16fParamTest : public DeviceC16fParamTest {};
@@ -783,14 +802,12 @@ TEST_P(SubDeviceC16fParamTest, SubDeviceC_16f) {
   const Npp32f constants[4] = {1.5f, 2.5f, 3.5f, 4.5f};
   auto subOp = [](float v, float c) { return v - c; };
 
-  runDeviceCTest(subOp, constants,
-                 nppiSubDeviceC_16f_C1R_Ctx, nppiSubDeviceC_16f_C1IR_Ctx,
-                 nppiSubDeviceC_16f_C3R_Ctx, nppiSubDeviceC_16f_C3IR_Ctx,
-                 nppiSubDeviceC_16f_C4R_Ctx, nppiSubDeviceC_16f_C4IR_Ctx);
+  runDeviceCTest(subOp, constants, nppiSubDeviceC_16f_C1R_Ctx, nppiSubDeviceC_16f_C1IR_Ctx, nppiSubDeviceC_16f_C3R_Ctx,
+                 nppiSubDeviceC_16f_C3IR_Ctx, nppiSubDeviceC_16f_C4R_Ctx, nppiSubDeviceC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(SubDeviceC16f, SubDeviceC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== MulDeviceC_16f ====================
 class MulDeviceC16fParamTest : public DeviceC16fParamTest {};
@@ -799,14 +816,12 @@ TEST_P(MulDeviceC16fParamTest, MulDeviceC_16f) {
   const Npp32f constants[4] = {2.0f, 1.5f, 0.5f, 3.0f};
   auto mulOp = [](float v, float c) { return v * c; };
 
-  runDeviceCTest(mulOp, constants,
-                 nppiMulDeviceC_16f_C1R_Ctx, nppiMulDeviceC_16f_C1IR_Ctx,
-                 nppiMulDeviceC_16f_C3R_Ctx, nppiMulDeviceC_16f_C3IR_Ctx,
-                 nppiMulDeviceC_16f_C4R_Ctx, nppiMulDeviceC_16f_C4IR_Ctx);
+  runDeviceCTest(mulOp, constants, nppiMulDeviceC_16f_C1R_Ctx, nppiMulDeviceC_16f_C1IR_Ctx, nppiMulDeviceC_16f_C3R_Ctx,
+                 nppiMulDeviceC_16f_C3IR_Ctx, nppiMulDeviceC_16f_C4R_Ctx, nppiMulDeviceC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(MulDeviceC16f, MulDeviceC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });
 
 // ==================== DivDeviceC_16f ====================
 class DivDeviceC16fParamTest : public DeviceC16fParamTest {};
@@ -815,11 +830,9 @@ TEST_P(DivDeviceC16fParamTest, DivDeviceC_16f) {
   const Npp32f constants[4] = {2.0f, 2.5f, 3.0f, 4.0f};
   auto divOp = [](float v, float c) { return v / c; };
 
-  runDeviceCTest(divOp, constants,
-                 nppiDivDeviceC_16f_C1R_Ctx, nppiDivDeviceC_16f_C1IR_Ctx,
-                 nppiDivDeviceC_16f_C3R_Ctx, nppiDivDeviceC_16f_C3IR_Ctx,
-                 nppiDivDeviceC_16f_C4R_Ctx, nppiDivDeviceC_16f_C4IR_Ctx);
+  runDeviceCTest(divOp, constants, nppiDivDeviceC_16f_C1R_Ctx, nppiDivDeviceC_16f_C1IR_Ctx, nppiDivDeviceC_16f_C3R_Ctx,
+                 nppiDivDeviceC_16f_C3IR_Ctx, nppiDivDeviceC_16f_C4R_Ctx, nppiDivDeviceC_16f_C4IR_Ctx);
 }
 
 INSTANTIATE_TEST_SUITE_P(DivDeviceC16f, DivDeviceC16fParamTest, ::testing::ValuesIn(kArith16fParams),
-    [](const auto& info) { return info.param.name(); });
+                         [](const auto &info) { return info.param.name(); });

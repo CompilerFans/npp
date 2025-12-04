@@ -611,10 +611,10 @@ __global__ void nppiWarpPerspective_32s_C1R_kernel(const Npp32s *pSrc, NppiSize 
   }
 }
 
-__global__ void nppiWarpPerspective_32f_C3R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                   double c02, double c10, double c11, double c12, double c20,
-                                                   double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspective_32f_C3R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   double c00, double c01, double c02, double c10, double c11,
+                                                   double c12, double c20, double c21, double c22, int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -663,17 +663,17 @@ __global__ void nppiWarpPerspective_32f_C3R_kernel(const Npp32f *pSrc, NppiSize 
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
-                 (*p01) * dx * (1.0f - dy) +
-                 (*p10) * (1.0f - dx) * dy +
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) + (*p10) * (1.0f - dx) * dy +
                  (*p11) * dx * dy;
         break;
       }
@@ -690,17 +690,17 @@ __global__ void nppiWarpPerspective_32f_C3R_kernel(const Npp32f *pSrc, NppiSize 
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
-                 (*p01) * dx * (1.0f - dy) +
-                 (*p10) * (1.0f - dx) * dy +
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) + (*p10) * (1.0f - dx) * dy +
                  (*p11) * dx * dy;
         break;
       }
@@ -1294,16 +1294,16 @@ NppStatus nppiWarpPerspective_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
 }
 }
 
-
 // ============================================================================
 // nppiWarpPerspectiveBack API kernel
 // WarpPerspectiveBack uses a forward transformation matrix
 // ============================================================================
 
-__global__ void nppiWarpPerspectiveBack_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                      Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                      double c02, double c10, double c11, double c12, double c20,
-                                                      double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                      NppiRect oSrcROI, Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                      double c00, double c01, double c02, double c10, double c11,
+                                                      double c12, double c20, double c21, double c22,
+                                                      int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1348,10 +1348,11 @@ __global__ void nppiWarpPerspectiveBack_8u_C1R_kernel(const Npp8u *pSrc, NppiSiz
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                      Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                      double c02, double c10, double c11, double c12, double c20,
-                                                      double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                      NppiRect oSrcROI, Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                      double c00, double c01, double c02, double c10, double c11,
+                                                      double c12, double c20, double c21, double c22,
+                                                      int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1400,19 +1401,18 @@ __global__ void nppiWarpPerspectiveBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSiz
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp8u *p00 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp8u *p01 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp8u *p10 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp8u *p11 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp8u)(interpolated + 0.5f);
         break;
       }
@@ -1436,10 +1436,11 @@ __global__ void nppiWarpPerspectiveBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSiz
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                      Npp8u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                      double c02, double c10, double c11, double c12, double c20,
-                                                      double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                      NppiRect oSrcROI, Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                      double c00, double c01, double c02, double c10, double c11,
+                                                      double c12, double c20, double c21, double c22,
+                                                      int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1488,19 +1489,18 @@ __global__ void nppiWarpPerspectiveBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSiz
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp8u *p00 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp8u *p01 = (const Npp8u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp8u *p10 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp8u *p11 = (const Npp8u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp8u)(interpolated + 0.5f);
         break;
       }
@@ -1524,10 +1524,11 @@ __global__ void nppiWarpPerspectiveBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSiz
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_16u_C1R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp16u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_16u_C1R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1570,10 +1571,11 @@ __global__ void nppiWarpPerspectiveBack_16u_C1R_kernel(const Npp16u *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_16u_C3R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp16u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_16u_C3R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1622,19 +1624,18 @@ __global__ void nppiWarpPerspectiveBack_16u_C3R_kernel(const Npp16u *pSrc, NppiS
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp16u *p00 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp16u *p01 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp16u *p10 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp16u *p11 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp16u)(interpolated + 0.5f);
         break;
       }
@@ -1658,10 +1659,11 @@ __global__ void nppiWarpPerspectiveBack_16u_C3R_kernel(const Npp16u *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_16u_C4R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp16u *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_16u_C4R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1710,19 +1712,18 @@ __global__ void nppiWarpPerspectiveBack_16u_C4R_kernel(const Npp16u *pSrc, NppiS
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp16u *p00 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp16u *p01 = (const Npp16u *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp16u *p10 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp16u *p11 = (const Npp16u *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp16u)(interpolated + 0.5f);
         break;
       }
@@ -1746,10 +1747,11 @@ __global__ void nppiWarpPerspectiveBack_16u_C4R_kernel(const Npp16u *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1792,10 +1794,11 @@ __global__ void nppiWarpPerspectiveBack_32f_C1R_kernel(const Npp32f *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_32f_C3R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_32f_C3R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1844,17 +1847,17 @@ __global__ void nppiWarpPerspectiveBack_32f_C3R_kernel(const Npp32f *pSrc, NppiS
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
-                 (*p01) * dx * (1.0f - dy) +
-                 (*p10) * (1.0f - dx) * dy +
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) + (*p10) * (1.0f - dx) * dy +
                  (*p11) * dx * dy;
         break;
       }
@@ -1878,10 +1881,11 @@ __global__ void nppiWarpPerspectiveBack_32f_C3R_kernel(const Npp32f *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_32f_C4R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp32f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_32f_C4R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1930,17 +1934,17 @@ __global__ void nppiWarpPerspectiveBack_32f_C4R_kernel(const Npp32f *pSrc, NppiS
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32f *p00 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp32f *p01 = (const Npp32f *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp32f *p10 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp32f *p11 = (const Npp32f *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        result = (*p00) * (1.0f - dx) * (1.0f - dy) +
-                 (*p01) * dx * (1.0f - dy) +
-                 (*p10) * (1.0f - dx) * dy +
+        result = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) + (*p10) * (1.0f - dx) * dy +
                  (*p11) * dx * dy;
         break;
       }
@@ -1964,10 +1968,11 @@ __global__ void nppiWarpPerspectiveBack_32f_C4R_kernel(const Npp32f *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_32s_C1R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp32s *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_32s_C1R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -2010,10 +2015,11 @@ __global__ void nppiWarpPerspectiveBack_32s_C1R_kernel(const Npp32s *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_32s_C3R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp32s *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_32s_C3R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -2062,19 +2068,18 @@ __global__ void nppiWarpPerspectiveBack_32s_C3R_kernel(const Npp32s *pSrc, NppiS
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32s *p00 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x0 * 3 + c;
         const Npp32s *p01 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x1 * 3 + c;
         const Npp32s *p10 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x0 * 3 + c;
         const Npp32s *p11 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x1 * 3 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp32s)(interpolated + 0.5f);
         break;
       }
@@ -2098,10 +2103,11 @@ __global__ void nppiWarpPerspectiveBack_32s_C3R_kernel(const Npp32s *pSrc, NppiS
   }
 }
 
-__global__ void nppiWarpPerspectiveBack_32s_C4R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                       Npp32s *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                       double c02, double c10, double c11, double c12, double c20,
-                                                       double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspectiveBack_32s_C4R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                       NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                       double c00, double c01, double c02, double c10, double c11,
+                                                       double c12, double c20, double c21, double c22,
+                                                       int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -2150,19 +2156,18 @@ __global__ void nppiWarpPerspectiveBack_32s_C4R_kernel(const Npp32s *pSrc, NppiS
         float dx = abs_fx - x0;
         float dy = abs_fy - y0;
 
-        if (x0 == x1) dx = 0.0f;
-        if (y0 == y1) dy = 0.0f;
+        if (x0 == x1)
+          dx = 0.0f;
+        if (y0 == y1)
+          dy = 0.0f;
 
         const Npp32s *p00 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x0 * 4 + c;
         const Npp32s *p01 = (const Npp32s *)((const char *)pSrc + y0 * nSrcStep) + x1 * 4 + c;
         const Npp32s *p10 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x0 * 4 + c;
         const Npp32s *p11 = (const Npp32s *)((const char *)pSrc + y1 * nSrcStep) + x1 * 4 + c;
 
-        float interpolated =
-            (*p00) * (1.0f - dx) * (1.0f - dy) +
-            (*p01) * dx * (1.0f - dy) +
-            (*p10) * (1.0f - dx) * dy +
-            (*p11) * dx * dy;
+        float interpolated = (*p00) * (1.0f - dx) * (1.0f - dy) + (*p01) * dx * (1.0f - dy) +
+                             (*p10) * (1.0f - dx) * dy + (*p11) * dx * dy;
         result = (Npp32s)(interpolated + 0.5f);
         break;
       }
@@ -2193,8 +2198,9 @@ __global__ void nppiWarpPerspectiveBack_32s_C4R_kernel(const Npp32s *pSrc, NppiS
 extern "C" {
 // 8u C1R 实现
 NppStatus nppiWarpPerspectiveBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                  int eInterpolation, NppStreamContext nppStreamCtx) {
+                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                  const double aCoeffs[3][3], int eInterpolation,
+                                                  NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2221,8 +2227,9 @@ NppStatus nppiWarpPerspectiveBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oS
 
 // 8u C3R 实现
 NppStatus nppiWarpPerspectiveBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                  int eInterpolation, NppStreamContext nppStreamCtx) {
+                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                  const double aCoeffs[3][3], int eInterpolation,
+                                                  NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2249,8 +2256,9 @@ NppStatus nppiWarpPerspectiveBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oS
 
 // 8u C4R 实现
 NppStatus nppiWarpPerspectiveBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                  int eInterpolation, NppStreamContext nppStreamCtx) {
+                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                  const double aCoeffs[3][3], int eInterpolation,
+                                                  NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2276,9 +2284,10 @@ NppStatus nppiWarpPerspectiveBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oS
 }
 
 // 16u C1R 实现
-NppStatus nppiWarpPerspectiveBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2304,9 +2313,10 @@ NppStatus nppiWarpPerspectiveBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize 
 }
 
 // 16u C3R 实现
-NppStatus nppiWarpPerspectiveBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2332,9 +2342,10 @@ NppStatus nppiWarpPerspectiveBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize 
 }
 
 // 16u C4R 实现
-NppStatus nppiWarpPerspectiveBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2360,9 +2371,10 @@ NppStatus nppiWarpPerspectiveBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize 
 }
 
 // 32f C1R 实现
-NppStatus nppiWarpPerspectiveBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2388,9 +2400,10 @@ NppStatus nppiWarpPerspectiveBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize 
 }
 
 // 32f C3R 实现
-NppStatus nppiWarpPerspectiveBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2416,9 +2429,10 @@ NppStatus nppiWarpPerspectiveBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize 
 }
 
 // 32f C4R 实现
-NppStatus nppiWarpPerspectiveBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2444,9 +2458,10 @@ NppStatus nppiWarpPerspectiveBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize 
 }
 
 // 32s C1R 实现
-NppStatus nppiWarpPerspectiveBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2472,9 +2487,10 @@ NppStatus nppiWarpPerspectiveBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize 
 }
 
 // 32s C3R 实现
-NppStatus nppiWarpPerspectiveBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2500,9 +2516,10 @@ NppStatus nppiWarpPerspectiveBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize 
 }
 
 // 32s C4R 实现
-NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
-                                                   int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -2527,4 +2544,3 @@ NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize 
   return NPP_SUCCESS;
 }
 }
-

@@ -400,4 +400,3 @@ INSTANTIATE_TEST_SUITE_P(LShiftC16uC4, LShiftC16uC4ParamTest,
                                            LShiftC16uParam{32, 32, 8, false, true, "32x32_s8_InPlace"},
                                            LShiftC16uParam{32, 32, 8, true, true, "32x32_s8_InPlace_Ctx"}),
                          [](const ::testing::TestParamInfo<LShiftC16uParam> &info) { return info.param.name; });
-

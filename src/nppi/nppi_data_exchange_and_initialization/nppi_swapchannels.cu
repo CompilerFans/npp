@@ -2,8 +2,8 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-__global__ void nppiSwapChannels_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                int width, int height, int order0, int order1, int order2) {
+__global__ void nppiSwapChannels_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                               int height, int order0, int order1, int order2) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -27,8 +27,8 @@ __global__ void nppiSwapChannels_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, 
   dst_row[dst_idx + 2] = values[order2];
 }
 
-__global__ void nppiSwapChannels_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                int width, int height, int order0, int order1, int order2, int order3) {
+__global__ void nppiSwapChannels_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                               int height, int order0, int order1, int order2, int order3) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -54,8 +54,8 @@ __global__ void nppiSwapChannels_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, 
   dst_row[dst_idx + 3] = values[order3];
 }
 
-__global__ void nppiSwapChannels_32f_C3R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                 int width, int height, int order0, int order1, int order2) {
+__global__ void nppiSwapChannels_32f_C3R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
+                                                int height, int order0, int order1, int order2) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -82,8 +82,7 @@ __global__ void nppiSwapChannels_32f_C3R_kernel(const Npp32f *pSrc, int nSrcStep
 extern "C" {
 
 NppStatus nppiSwapChannels_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                           NppiSize oSizeROI, const int aDstOrder[3],
-                                           NppStreamContext nppStreamCtx) {
+                                           NppiSize oSizeROI, const int aDstOrder[3], NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -99,13 +98,13 @@ NppStatus nppiSwapChannels_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8
 }
 
 NppStatus nppiSwapChannels_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                           NppiSize oSizeROI, const int aDstOrder[4],
-                                           NppStreamContext nppStreamCtx) {
+                                           NppiSize oSizeROI, const int aDstOrder[4], NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiSwapChannels_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, aDstOrder[0], aDstOrder[1], aDstOrder[2], aDstOrder[3]);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, aDstOrder[0], aDstOrder[1], aDstOrder[2],
+      aDstOrder[3]);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -116,8 +115,7 @@ NppStatus nppiSwapChannels_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8
 }
 
 NppStatus nppiSwapChannels_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                            NppiSize oSizeROI, const int aDstOrder[3],
-                                            NppStreamContext nppStreamCtx) {
+                                            NppiSize oSizeROI, const int aDstOrder[3], NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 

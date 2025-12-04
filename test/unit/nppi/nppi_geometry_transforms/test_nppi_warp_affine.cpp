@@ -2,8 +2,8 @@
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 class WarpAffineFunctionalTest : public ::testing::Test {
 protected:
@@ -548,8 +548,8 @@ TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C1R_Identity) {
     if (resultData[i] != srcData[i]) {
       errorCount++;
       if (errorCount <= 5) {
-        std::cout << "Error at pixel " << i << ": expected " << (int)srcData[i]
-                  << ", got " << (int)resultData[i] << std::endl;
+        std::cout << "Error at pixel " << i << ": expected " << (int)srcData[i] << ", got " << (int)resultData[i]
+                  << std::endl;
       }
     }
   }
@@ -654,8 +654,8 @@ TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C3R_Identity) {
       if (errorCount <= 3) {
         int pixelIdx = i / 3;
         int channel = i % 3;
-        std::cout << "Error at pixel " << pixelIdx << ", channel " << channel
-                  << ": expected " << (int)srcData[i] << ", got " << (int)resultData[i] << std::endl;
+        std::cout << "Error at pixel " << pixelIdx << ", channel " << channel << ": expected " << (int)srcData[i]
+                  << ", got " << (int)resultData[i] << std::endl;
       }
     }
   }
@@ -901,8 +901,7 @@ TEST_F(WarpAffineBackTest, WarpAffineBack_32f_C1R_Identity) {
     if (fabs(resultData[i] - srcData[i]) > tolerance) {
       errorCount++;
       if (errorCount <= 3) {
-        std::cout << "Error at pixel " << i << ": expected " << srcData[i]
-                  << ", got " << resultData[i] << std::endl;
+        std::cout << "Error at pixel " << i << ": expected " << srcData[i] << ", got " << resultData[i] << std::endl;
       }
     }
   }
@@ -1258,4 +1257,3 @@ TEST_F(WarpAffineBackTest, WarpAffineBack_Scaling) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
-

@@ -159,7 +159,7 @@ NppStatus nppiSet_16u_C1R_Ctx_impl(Npp16u nValue, Npp16u *pDst, int nDstStep, Np
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiSet_16u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
-                                                                            oSizeROI.height);
+                                                                           oSizeROI.height);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -188,7 +188,7 @@ NppStatus nppiSet_8u_C4R_Ctx_impl(const Npp8u aValue[4], Npp8u *pDst, int nDstSt
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiSet_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(d_aValue, pDst, nDstStep, oSizeROI.width,
-                                                                           oSizeROI.height);
+                                                                          oSizeROI.height);
 
   cudaStatus = cudaGetLastError();
 

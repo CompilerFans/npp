@@ -62,7 +62,8 @@ TEST_P(Compare8uParamTest, Compare_8u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_8u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_8u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp,
+                                    ctx);
   } else {
     status = nppiCompare_8u_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -141,7 +142,8 @@ TEST_P(Compare16uParamTest, Compare_16u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_16u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_16u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                     cmpOp, ctx);
   } else {
     status = nppiCompare_16u_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -216,7 +218,8 @@ TEST_P(Compare32fParamTest, Compare_32f_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_32f_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_32f_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                     cmpOp, ctx);
   } else {
     status = nppiCompare_32f_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -291,7 +294,8 @@ TEST_P(Compare8uC3ParamTest, Compare_8u_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_8u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_8u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp,
+                                    ctx);
   } else {
     status = nppiCompare_8u_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -367,7 +371,8 @@ TEST_P(Compare8uC4ParamTest, Compare_8u_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_8u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_8u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp,
+                                    ctx);
   } else {
     status = nppiCompare_8u_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -443,7 +448,8 @@ TEST_P(Compare16uC3ParamTest, Compare_16u_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_16u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_16u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                     cmpOp, ctx);
   } else {
     status = nppiCompare_16u_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -518,7 +524,8 @@ TEST_P(Compare16uC4ParamTest, Compare_16u_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_16u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_16u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                     cmpOp, ctx);
   } else {
     status = nppiCompare_16u_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -593,7 +600,8 @@ TEST_P(Compare32fC3ParamTest, Compare_32f_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_32f_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_32f_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                     cmpOp, ctx);
   } else {
     status = nppiCompare_32f_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }
@@ -668,7 +676,8 @@ TEST_P(Compare32fC4ParamTest, Compare_32f_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx;
     ctx.hStream = 0;
-    status = nppiCompare_32f_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp, ctx);
+    status = nppiCompare_32f_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                     cmpOp, ctx);
   } else {
     status = nppiCompare_32f_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, cmpOp);
   }

@@ -75,7 +75,9 @@ class AddCSfsTest : public ConstOpParamTest<Npp8u, Npp8u> {};
 TEST_F(AddCSfsTest, AddC_8u_C1RSfs_Framework) {
   const Npp8u constant = 30;
   const int scaleFactor = 0;
-  auto expectFunc = [constant, scaleFactor](Npp8u x, Npp8u) { return expect::add_c_sfs<Npp8u>(x, constant, scaleFactor); };
+  auto expectFunc = [constant, scaleFactor](Npp8u x, Npp8u) {
+    return expect::add_c_sfs<Npp8u>(x, constant, scaleFactor);
+  };
 
   ConstOpTestConfig config = {32, 32, 1, false, "AddC_8u_C1RSfs_Framework"};
   auto nppFunc = [scaleFactor](const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, Npp8u c) {
@@ -87,7 +89,9 @@ TEST_F(AddCSfsTest, AddC_8u_C1RSfs_Framework) {
 TEST_F(AddCSfsTest, AddC_8u_C1RSfs_Ctx_Framework) {
   const Npp8u constant = 30;
   const int scaleFactor = 0;
-  auto expectFunc = [constant, scaleFactor](Npp8u x, Npp8u) { return expect::add_c_sfs<Npp8u>(x, constant, scaleFactor); };
+  auto expectFunc = [constant, scaleFactor](Npp8u x, Npp8u) {
+    return expect::add_c_sfs<Npp8u>(x, constant, scaleFactor);
+  };
 
   ConstOpTestConfig config = {32, 32, 1, true, "AddC_8u_C1RSfs_Ctx_Framework"};
   auto nppFunc = [scaleFactor](const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, Npp8u c) {
@@ -411,7 +415,7 @@ TEST_P(AddC32fParamTest, AddC_32f_Parameterized) {
   if (param.in_place) {
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiAddC_32f_C1IR_Ctx(constant, src.get(), src.step(), roi, ctx);
     } else {
       status = nppiAddC_32f_C1IR(constant, src.get(), src.step(), roi);
@@ -425,7 +429,7 @@ TEST_P(AddC32fParamTest, AddC_32f_Parameterized) {
     NppImageMemory<Npp32f> dst(width, height);
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiAddC_32f_C1R_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, ctx);
     } else {
       status = nppiAddC_32f_C1R(src.get(), src.step(), constant, dst.get(), dst.step(), roi);
@@ -484,7 +488,7 @@ TEST_P(AddC8uSfsParamTest, AddC_8u_Sfs_Parameterized) {
   if (param.in_place) {
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiAddC_8u_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiAddC_8u_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
@@ -498,7 +502,7 @@ TEST_P(AddC8uSfsParamTest, AddC_8u_Sfs_Parameterized) {
     NppImageMemory<Npp8u> dst(width, height);
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiAddC_8u_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiAddC_8u_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
@@ -556,7 +560,7 @@ TEST_P(AddC16uSfsParamTest, AddC_16u_Sfs_Parameterized) {
   if (param.in_place) {
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiAddC_16u_C1IRSfs_Ctx(constant, src.get(), src.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiAddC_16u_C1IRSfs(constant, src.get(), src.step(), roi, scaleFactor);
@@ -570,7 +574,7 @@ TEST_P(AddC16uSfsParamTest, AddC_16u_Sfs_Parameterized) {
     NppImageMemory<Npp16u> dst(width, height);
     if (param.use_ctx) {
       NppStreamContext ctx;
-      ctx.hStream = 0;
+      nppGetStreamContext(&ctx);
       status = nppiAddC_16u_C1RSfs_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor, ctx);
     } else {
       status = nppiAddC_16u_C1RSfs(src.get(), src.step(), constant, dst.get(), dst.step(), roi, scaleFactor);
@@ -649,7 +653,7 @@ TEST_F(AddC16fTest, AddC_16f_C1R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAddC_16f_C1R_Ctx(src.get(), src.step(), constant, dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAddC_16f_C1R_Ctx failed";
@@ -711,7 +715,7 @@ TEST_F(AddC16fTest, AddC_16f_C1IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAddC_16f_C1IR_Ctx(constant, srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAddC_16f_C1IR_Ctx failed";
@@ -784,7 +788,7 @@ TEST_F(AddC16fTest, AddC_16f_C3R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAddC_16f_C3R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAddC_16f_C3R_Ctx failed";
@@ -852,7 +856,7 @@ TEST_F(AddC16fTest, AddC_16f_C3IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAddC_16f_C3IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAddC_16f_C3IR_Ctx failed";
@@ -925,7 +929,7 @@ TEST_F(AddC16fTest, AddC_16f_C4R_Ctx_BasicOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAddC_16f_C4R_Ctx(src.get(), src.step(), aConstants, dst.get(), dst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAddC_16f_C4R_Ctx failed";
@@ -993,7 +997,7 @@ TEST_F(AddC16fTest, AddC_16f_C4IR_Ctx_InPlaceOperation) {
 
   NppiSize roi = {width, height};
   NppStreamContext ctx;
-  ctx.hStream = 0;
+  nppGetStreamContext(&ctx);
   NppStatus status = nppiAddC_16f_C4IR_Ctx(aConstants, srcDst.get(), srcDst.step(), roi, ctx);
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAddC_16f_C4IR_Ctx failed";
