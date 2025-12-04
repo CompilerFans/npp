@@ -1087,31 +1087,6 @@ NppStatus nppiMirrorBatch_32f_AC4IR(NppiSize oSizeROI, NppiAxis flip, NppiMirror
 }
 
 /**
- * One-channel 32-bit signed image RectStdDev.
- *
- * \param pSrc \ref source_image_pointer.
- * \param nSrcStep \ref source_image_line_step.
- * \param pSqr \ref destination_image_pointer.
- * \param nSqrStep \ref destination_image_line_step.
- * \param pDst \ref destination_image_pointer.
- * \param nDstStep \ref destination_image_line_step.
- * \param oSizeROI \ref roi_specification.
- * \param oRect rectangular window
- * \param nppStreamCtx \ref application_managed_stream_context.
- * \return \ref image_data_error_codes, \ref roi_error_codes
- */
-NppStatus nppiRectStdDev_32s32f_C1R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr, int nSqrStep,
-                                        Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiRect oRect,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRectStdDev_32s32f_C1R(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr, int nSqrStep, Npp32f *pDst,
-                                    int nDstStep, NppiSize oSizeROI, NppiRect oRect) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
  * Four-channel 8-bit unsigned integer backwards affine warp, ignoring alpha channel.
  *
  * For common parameter descriptions, see <a href="#CommonWarpAffineBackPackedPixelParameters">Common parameters for
