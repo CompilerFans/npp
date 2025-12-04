@@ -30,6 +30,32 @@ NppStatus nppiThreshold_LTValGTVal_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcSt
 NppStatus nppiThreshold_LTVal_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                                 NppiSize oSizeROI, Npp32f nThreshold, Npp32f nValue,
                                                 NppStreamContext nppStreamCtx);
+// C3 declarations
+NppStatus nppiThreshold_LTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                                const Npp8u *pThresholds, const Npp8u *pValues,
+                                                NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_GTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                                const Npp8u *pThresholds, const Npp8u *pValues,
+                                                NppStreamContext nppStreamCtx);
+// C4 declarations
+NppStatus nppiThreshold_LTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                                const Npp8u *pThresholds, const Npp8u *pValues,
+                                                NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_GTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
+                                               NppStreamContext nppStreamCtx);
+NppStatus nppiThreshold_GTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                                const Npp8u *pThresholds, const Npp8u *pValues,
+                                                NppStreamContext nppStreamCtx);
 }
 
 // Input validation helper
@@ -255,4 +281,128 @@ NppStatus nppiThreshold_LTVal_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiThreshold_LTVal_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
+}
+
+// C3 Threshold_LTVal wrappers
+NppStatus nppiThreshold_LTVal_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI, const Npp8u pThresholds[3], const Npp8u pValues[3],
+                                          NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_LTVal_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, const Npp8u pThresholds[3], const Npp8u pValues[3]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           const Npp8u pThresholds[3], const Npp8u pValues[3],
+                                           NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrcDst, nSrcDstStep, nullptr, 0, oSizeROI, true);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_LTVal_8u_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       const Npp8u pThresholds[3], const Npp8u pValues[3]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_8u_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+// C3 Threshold_GTVal wrappers
+NppStatus nppiThreshold_GTVal_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI, const Npp8u pThresholds[3], const Npp8u pValues[3],
+                                          NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_GTVal_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, const Npp8u pThresholds[3], const Npp8u pValues[3]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_GTVal_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           const Npp8u pThresholds[3], const Npp8u pValues[3],
+                                           NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrcDst, nSrcDstStep, nullptr, 0, oSizeROI, true);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_GTVal_8u_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       const Npp8u pThresholds[3], const Npp8u pValues[3]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_GTVal_8u_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+// C4 Threshold_LTVal wrappers
+NppStatus nppiThreshold_LTVal_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI, const Npp8u pThresholds[4], const Npp8u pValues[4],
+                                          NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_LTVal_8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, const Npp8u pThresholds[4], const Npp8u pValues[4]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           const Npp8u pThresholds[4], const Npp8u pValues[4],
+                                           NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrcDst, nSrcDstStep, nullptr, 0, oSizeROI, true);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_LTVal_8u_C4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_LTVal_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       const Npp8u pThresholds[4], const Npp8u pValues[4]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_LTVal_8u_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+// C4 Threshold_GTVal wrappers
+NppStatus nppiThreshold_GTVal_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI, const Npp8u pThresholds[4], const Npp8u pValues[4],
+                                          NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_GTVal_8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, const Npp8u pThresholds[4], const Npp8u pValues[4]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_GTVal_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                           const Npp8u pThresholds[4], const Npp8u pValues[4],
+                                           NppStreamContext nppStreamCtx) {
+  NppStatus status = validateThresholdValInputs(pSrcDst, nSrcDstStep, nullptr, 0, oSizeROI, true);
+  if (status != NPP_SUCCESS) return status;
+  return nppiThreshold_GTVal_8u_C4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
+}
+
+NppStatus nppiThreshold_GTVal_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       const Npp8u pThresholds[4], const Npp8u pValues[4]) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiThreshold_GTVal_8u_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }

@@ -259,3 +259,143 @@ INSTANTIATE_TEST_SUITE_P(ThresholdLTVal32f, ThresholdLTVal32fParamTest,
                                            ThresholdLTVal32fParam{32, 32, 0.0f, -100.0f, true, "32x32_t0_vNeg_Ctx"},
                                            ThresholdLTVal32fParam{64, 64, -50.0f, -100.0f, false, "64x64_tNeg_vNeg_noCtx"}),
                          [](const ::testing::TestParamInfo<ThresholdLTVal32fParam> &info) { return info.param.name; });
+
+// ==================== Threshold_LTVal 8u C3 TEST_P ====================
+
+struct ThresholdLTVal8uC3Param {
+  int width;
+  int height;
+  Npp8u thresholds[3];
+  Npp8u values[3];
+  bool use_ctx;
+  bool in_place;
+  std::string name;
+};
+
+class ThresholdLTVal8uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<ThresholdLTVal8uC3Param> {};
+
+TEST_P(ThresholdLTVal8uC3ParamTest, Threshold_LTVal_8u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp8u> srcData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 12345);
+
+  std::vector<Npp8u> expectedData(total);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      int idx = i * channels + c;
+      expectedData[idx] = (srcData[idx] < param.thresholds[c]) ? param.values[c] : srcData[idx];
+    }
+  }
+
+  NppImageMemory<Npp8u> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiThreshold_LTVal_8u_C3IR_Ctx(src.get(), src.step(), roi, param.thresholds, param.values, ctx);
+    } else {
+      status = nppiThreshold_LTVal_8u_C3IR(src.get(), src.step(), roi, param.thresholds, param.values);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp8u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiThreshold_LTVal_8u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values, ctx);
+    } else {
+      status = nppiThreshold_LTVal_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(ThresholdLTVal8uC3, ThresholdLTVal8uC3ParamTest,
+                         ::testing::Values(ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {0, 0, 0}, false, false, "32x32_noCtx"},
+                                           ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {0, 0, 0}, true, false, "32x32_Ctx"},
+                                           ThresholdLTVal8uC3Param{32, 32, {100, 100, 100}, {50, 50, 50}, false, true, "32x32_InPlace"},
+                                           ThresholdLTVal8uC3Param{32, 32, {100, 100, 100}, {50, 50, 50}, true, true, "32x32_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<ThresholdLTVal8uC3Param> &info) { return info.param.name; });
+
+// ==================== Threshold_GTVal 8u C3 TEST_P ====================
+
+class ThresholdGTVal8uC3ParamTest : public NppTestBase, public ::testing::WithParamInterface<ThresholdLTVal8uC3Param> {};
+
+TEST_P(ThresholdGTVal8uC3ParamTest, Threshold_GTVal_8u_C3R) {
+  const auto &param = GetParam();
+  const int width = param.width;
+  const int height = param.height;
+  const int channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp8u> srcData(total);
+  TestDataGenerator::generateRandom(srcData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), 12345);
+
+  std::vector<Npp8u> expectedData(total);
+  for (int i = 0; i < width * height; i++) {
+    for (int c = 0; c < channels; c++) {
+      int idx = i * channels + c;
+      expectedData[idx] = (srcData[idx] > param.thresholds[c]) ? param.values[c] : srcData[idx];
+    }
+  }
+
+  NppImageMemory<Npp8u> src(width * channels, height);
+  src.copyFromHost(srcData);
+
+  NppiSize roi = {width, height};
+  NppStatus status;
+
+  if (param.in_place) {
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiThreshold_GTVal_8u_C3IR_Ctx(src.get(), src.step(), roi, param.thresholds, param.values, ctx);
+    } else {
+      status = nppiThreshold_GTVal_8u_C3IR(src.get(), src.step(), roi, param.thresholds, param.values);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    src.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  } else {
+    NppImageMemory<Npp8u> dst(width * channels, height);
+    if (param.use_ctx) {
+      NppStreamContext ctx{};
+      ctx.hStream = 0;
+      status = nppiThreshold_GTVal_8u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values, ctx);
+    } else {
+      status = nppiThreshold_GTVal_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, param.thresholds, param.values);
+    }
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    std::vector<Npp8u> resultData(total);
+    dst.copyToHost(resultData);
+    EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(ThresholdGTVal8uC3, ThresholdGTVal8uC3ParamTest,
+                         ::testing::Values(ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {255, 255, 255}, false, false, "32x32_noCtx"},
+                                           ThresholdLTVal8uC3Param{32, 32, {128, 64, 192}, {255, 255, 255}, true, false, "32x32_Ctx"},
+                                           ThresholdLTVal8uC3Param{32, 32, {200, 200, 200}, {200, 200, 200}, false, true, "32x32_InPlace"},
+                                           ThresholdLTVal8uC3Param{32, 32, {200, 200, 200}, {200, 200, 200}, true, true, "32x32_InPlace_Ctx"}),
+                         [](const ::testing::TestParamInfo<ThresholdLTVal8uC3Param> &info) { return info.param.name; });
