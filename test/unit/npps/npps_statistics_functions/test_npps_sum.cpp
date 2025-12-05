@@ -37,7 +37,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_BasicOperation) {
   cudaMalloc(&d_sum, sizeof(Npp32f));
 
   // 获取所需缓冲区大小
-  size_t bufferSize;
+  int bufferSize;
   NppStatus status = nppsSumGetBufferSize_32f(nLength, &bufferSize);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSumGetBufferSize_32f failed";
 

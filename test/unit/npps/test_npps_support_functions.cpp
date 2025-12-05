@@ -219,3 +219,203 @@ TEST(NppsSupportLargeMemoryTest, LargeAllocation) {
     GTEST_SKIP() << "Large memory allocation failed - possibly due to insufficient GPU memory";
   }
 }
+
+// Test 8-bit signed signal memory allocation
+TEST_F(NppsSupportTest, Malloc_8s) {
+  Npp8s *signal = nppsMalloc_8s(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 8s signal memory";
+
+  std::vector<Npp8s> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i] = static_cast<Npp8s>((i % 256) - 128);
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp8s), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp8s> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp8s), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i], host_data[i]);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 16-bit unsigned signal memory allocation
+TEST_F(NppsSupportTest, Malloc_16u) {
+  Npp16u *signal = nppsMalloc_16u(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 16u signal memory";
+
+  std::vector<Npp16u> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i] = static_cast<Npp16u>(i % 65536);
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp16u), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp16u> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp16u), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i], host_data[i]);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 16-bit signed complex signal memory allocation
+TEST_F(NppsSupportTest, Malloc_16sc) {
+  Npp16sc *signal = nppsMalloc_16sc(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 16sc signal memory";
+
+  std::vector<Npp16sc> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i].re = static_cast<Npp16s>(i - 512);
+    host_data[i].im = static_cast<Npp16s>(512 - i);
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp16sc), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp16sc> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp16sc), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i].re, host_data[i].re);
+    EXPECT_EQ(result[i].im, host_data[i].im);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 32-bit unsigned signal memory allocation
+TEST_F(NppsSupportTest, Malloc_32u) {
+  Npp32u *signal = nppsMalloc_32u(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 32u signal memory";
+
+  std::vector<Npp32u> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i] = static_cast<Npp32u>(i * 1000);
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp32u), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp32u> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp32u), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i], host_data[i]);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 32-bit signed complex signal memory allocation
+TEST_F(NppsSupportTest, Malloc_32sc) {
+  Npp32sc *signal = nppsMalloc_32sc(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 32sc signal memory";
+
+  std::vector<Npp32sc> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i].re = static_cast<Npp32s>(i);
+    host_data[i].im = static_cast<Npp32s>(-static_cast<int>(i));
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp32sc), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp32sc> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp32sc), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i].re, host_data[i].re);
+    EXPECT_EQ(result[i].im, host_data[i].im);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 64-bit signed signal memory allocation
+TEST_F(NppsSupportTest, Malloc_64s) {
+  Npp64s *signal = nppsMalloc_64s(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 64s signal memory";
+
+  std::vector<Npp64s> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i] = static_cast<Npp64s>(i) * 1000000LL;
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp64s), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp64s> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp64s), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i], host_data[i]);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 64-bit signed complex signal memory allocation
+TEST_F(NppsSupportTest, Malloc_64sc) {
+  Npp64sc *signal = nppsMalloc_64sc(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 64sc signal memory";
+
+  std::vector<Npp64sc> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i].re = static_cast<Npp64s>(i) * 1000LL;
+    host_data[i].im = static_cast<Npp64s>(-static_cast<long long>(i)) * 1000LL;
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp64sc), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp64sc> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp64sc), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_EQ(result[i].re, host_data[i].re);
+    EXPECT_EQ(result[i].im, host_data[i].im);
+  }
+
+  nppsFree(signal);
+}
+
+// Test 64-bit float complex signal memory allocation
+TEST_F(NppsSupportTest, Malloc_64fc) {
+  Npp64fc *signal = nppsMalloc_64fc(signal_size);
+  ASSERT_NE(signal, nullptr) << "Failed to allocate 64fc signal memory";
+
+  std::vector<Npp64fc> host_data(signal_size);
+  for (size_t i = 0; i < signal_size; ++i) {
+    host_data[i].re = static_cast<Npp64f>(i) * 0.123456789;
+    host_data[i].im = static_cast<Npp64f>(i) * 0.987654321;
+  }
+
+  cudaError_t err = cudaMemcpy(signal, host_data.data(), signal_size * sizeof(Npp64fc), cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data to device";
+
+  std::vector<Npp64fc> result(signal_size);
+  err = cudaMemcpy(result.data(), signal, signal_size * sizeof(Npp64fc), cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess) << "Failed to copy data from device";
+
+  for (size_t i = 0; i < signal_size; ++i) {
+    EXPECT_DOUBLE_EQ(result[i].re, host_data[i].re);
+    EXPECT_DOUBLE_EQ(result[i].im, host_data[i].im);
+  }
+
+  nppsFree(signal);
+}

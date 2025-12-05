@@ -465,3 +465,309 @@ TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_AlignmentVerification) {
     }
   }
 }
+
+// Test 11: 16-bit signed 2-channel allocation
+TEST_F(NppiMemoryManagementTest, nppiMalloc_16s_C2_BasicAllocation) {
+  const int width = 256;
+  const int height = 256;
+  int step;
+
+  Npp16s *ptr = nppiMalloc_16s_C2(width, height, &step);
+  ASSERT_NE(ptr, nullptr);
+  EXPECT_GT(step, 0);
+  EXPECT_GE(step, width * 2 * sizeof(Npp16s));
+
+  EXPECT_TRUE(isAligned(ptr, 256)) << "Memory not properly aligned";
+
+  std::vector<Npp16s> testData(width * 2);
+  for (int i = 0; i < width; i++) {
+    testData[i * 2] = static_cast<Npp16s>(i);
+    testData[i * 2 + 1] = static_cast<Npp16s>(-i);
+  }
+
+  cudaError_t err = cudaMemcpy(ptr, testData.data(), width * 2 * sizeof(Npp16s), cudaMemcpyHostToDevice);
+  EXPECT_EQ(err, cudaSuccess);
+
+  std::vector<Npp16s> readBack(width * 2);
+  err = cudaMemcpy(readBack.data(), ptr, width * 2 * sizeof(Npp16s), cudaMemcpyDeviceToHost);
+  EXPECT_EQ(err, cudaSuccess);
+
+  for (int i = 0; i < width * 2; i++) {
+    EXPECT_EQ(readBack[i], testData[i]);
+  }
+
+  nppiFree(ptr);
+}
+
+// Test 12: 16-bit signed complex allocations (C1, C2, C3, C4)
+TEST_F(NppiMemoryManagementTest, nppiMalloc_16sc_AllChannels) {
+  const int width = 128;
+  const int height = 128;
+  int step;
+
+  // Test C1
+  {
+    Npp16sc *ptr = nppiMalloc_16sc_C1(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * sizeof(Npp16sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C2
+  {
+    Npp16sc *ptr = nppiMalloc_16sc_C2(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 2 * sizeof(Npp16sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C3
+  {
+    Npp16sc *ptr = nppiMalloc_16sc_C3(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 3 * sizeof(Npp16sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C4
+  {
+    Npp16sc *ptr = nppiMalloc_16sc_C4(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 4 * sizeof(Npp16sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+}
+
+// Test 13: 16-bit unsigned 2-channel allocation
+TEST_F(NppiMemoryManagementTest, nppiMalloc_16u_C2_BasicAllocation) {
+  const int width = 256;
+  const int height = 256;
+  int step;
+
+  Npp16u *ptr = nppiMalloc_16u_C2(width, height, &step);
+  ASSERT_NE(ptr, nullptr);
+  EXPECT_GT(step, 0);
+  EXPECT_GE(step, width * 2 * sizeof(Npp16u));
+
+  EXPECT_TRUE(isAligned(ptr, 256)) << "Memory not properly aligned";
+
+  std::vector<Npp16u> testData(width * 2);
+  for (int i = 0; i < width; i++) {
+    testData[i * 2] = static_cast<Npp16u>(i);
+    testData[i * 2 + 1] = static_cast<Npp16u>(i + 1000);
+  }
+
+  cudaError_t err = cudaMemcpy(ptr, testData.data(), width * 2 * sizeof(Npp16u), cudaMemcpyHostToDevice);
+  EXPECT_EQ(err, cudaSuccess);
+
+  std::vector<Npp16u> readBack(width * 2);
+  err = cudaMemcpy(readBack.data(), ptr, width * 2 * sizeof(Npp16u), cudaMemcpyDeviceToHost);
+  EXPECT_EQ(err, cudaSuccess);
+
+  for (int i = 0; i < width * 2; i++) {
+    EXPECT_EQ(readBack[i], testData[i]);
+  }
+
+  nppiFree(ptr);
+}
+
+// Test 14: 32-bit float 2-channel allocation
+TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_C2_BasicAllocation) {
+  const int width = 256;
+  const int height = 256;
+  int step;
+
+  Npp32f *ptr = nppiMalloc_32f_C2(width, height, &step);
+  ASSERT_NE(ptr, nullptr);
+  EXPECT_GT(step, 0);
+  EXPECT_GE(step, width * 2 * sizeof(Npp32f));
+
+  EXPECT_TRUE(isAligned(ptr, 256)) << "Memory not properly aligned";
+
+  std::vector<Npp32f> testData(width * 2);
+  for (int i = 0; i < width; i++) {
+    testData[i * 2] = static_cast<Npp32f>(i) * 0.5f;
+    testData[i * 2 + 1] = static_cast<Npp32f>(i) * 1.5f;
+  }
+
+  cudaError_t err = cudaMemcpy(ptr, testData.data(), width * 2 * sizeof(Npp32f), cudaMemcpyHostToDevice);
+  EXPECT_EQ(err, cudaSuccess);
+
+  std::vector<Npp32f> readBack(width * 2);
+  err = cudaMemcpy(readBack.data(), ptr, width * 2 * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+  EXPECT_EQ(err, cudaSuccess);
+
+  for (int i = 0; i < width * 2; i++) {
+    EXPECT_FLOAT_EQ(readBack[i], testData[i]);
+  }
+
+  nppiFree(ptr);
+}
+
+// Test 15: 32-bit float complex allocations (C1, C2, C3, C4)
+TEST_F(NppiMemoryManagementTest, nppiMalloc_32fc_AllChannels) {
+  const int width = 128;
+  const int height = 128;
+  int step;
+
+  // Test C1
+  {
+    Npp32fc *ptr = nppiMalloc_32fc_C1(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * sizeof(Npp32fc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    std::vector<Npp32fc> testData(width);
+    for (int i = 0; i < width; i++) {
+      testData[i].re = static_cast<Npp32f>(i) * 0.5f;
+      testData[i].im = static_cast<Npp32f>(i) * 0.3f;
+    }
+
+    cudaError_t err = cudaMemcpy(ptr, testData.data(), width * sizeof(Npp32fc), cudaMemcpyHostToDevice);
+    EXPECT_EQ(err, cudaSuccess);
+
+    std::vector<Npp32fc> readBack(width);
+    err = cudaMemcpy(readBack.data(), ptr, width * sizeof(Npp32fc), cudaMemcpyDeviceToHost);
+    EXPECT_EQ(err, cudaSuccess);
+
+    for (int i = 0; i < width; i++) {
+      EXPECT_FLOAT_EQ(readBack[i].re, testData[i].re);
+      EXPECT_FLOAT_EQ(readBack[i].im, testData[i].im);
+    }
+
+    nppiFree(ptr);
+  }
+
+  // Test C2
+  {
+    Npp32fc *ptr = nppiMalloc_32fc_C2(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 2 * sizeof(Npp32fc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C3
+  {
+    Npp32fc *ptr = nppiMalloc_32fc_C3(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 3 * sizeof(Npp32fc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C4
+  {
+    Npp32fc *ptr = nppiMalloc_32fc_C4(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 4 * sizeof(Npp32fc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+}
+
+// Test 16: 32-bit signed complex allocations (C1, C2, C3, C4)
+TEST_F(NppiMemoryManagementTest, nppiMalloc_32sc_AllChannels) {
+  const int width = 128;
+  const int height = 128;
+  int step;
+
+  // Test C1
+  {
+    Npp32sc *ptr = nppiMalloc_32sc_C1(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * sizeof(Npp32sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    std::vector<Npp32sc> testData(width);
+    for (int i = 0; i < width; i++) {
+      testData[i].re = static_cast<Npp32s>(i);
+      testData[i].im = static_cast<Npp32s>(-i);
+    }
+
+    cudaError_t err = cudaMemcpy(ptr, testData.data(), width * sizeof(Npp32sc), cudaMemcpyHostToDevice);
+    EXPECT_EQ(err, cudaSuccess);
+
+    std::vector<Npp32sc> readBack(width);
+    err = cudaMemcpy(readBack.data(), ptr, width * sizeof(Npp32sc), cudaMemcpyDeviceToHost);
+    EXPECT_EQ(err, cudaSuccess);
+
+    for (int i = 0; i < width; i++) {
+      EXPECT_EQ(readBack[i].re, testData[i].re);
+      EXPECT_EQ(readBack[i].im, testData[i].im);
+    }
+
+    nppiFree(ptr);
+  }
+
+  // Test C2
+  {
+    Npp32sc *ptr = nppiMalloc_32sc_C2(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 2 * sizeof(Npp32sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C3
+  {
+    Npp32sc *ptr = nppiMalloc_32sc_C3(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 3 * sizeof(Npp32sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+
+  // Test C4
+  {
+    Npp32sc *ptr = nppiMalloc_32sc_C4(width, height, &step);
+    ASSERT_NE(ptr, nullptr);
+    EXPECT_GE(step, width * 4 * sizeof(Npp32sc));
+    EXPECT_TRUE(isAligned(ptr, 256));
+
+    cudaError_t err = cudaMemset(ptr, 0, step * height);
+    EXPECT_EQ(err, cudaSuccess);
+
+    nppiFree(ptr);
+  }
+}
