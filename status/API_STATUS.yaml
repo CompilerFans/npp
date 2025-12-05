@@ -1,10 +1,10 @@
 # NPP API实现状态报告
-# 生成时间: 2025-09-11 09:50:27
+# 生成时间: 2025-12-05 21:17:16
 
 metadata:
-  generated_time: '2025-09-11 09:50:27'
+  generated_time: '2025-12-05 21:17:16'
   generator_version: 1.0.0
-  project_root: /home/cjxu/npp
+  project_root: /home/easyai/npp/npp
 modules:
   nppcore:
     description: NPP核心功能
@@ -40,14 +40,13 @@ modules:
       nppGetGpuName:
         description: 获取GPU设备名称
         implementation:
-          source_files:
-          - src/nppcore/nppcore.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
           - test/unit/nppi/test_nppi_support_functions.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
             details: []
             failed: 0
@@ -61,8 +60,8 @@ modules:
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
           - test/unit/nppi/test_nppi_support_functions.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
             details: []
             failed: 0
@@ -70,14 +69,13 @@ modules:
       nppGetLibVersion:
         description: 获取NPP库版本
         implementation:
-          source_files:
-          - src/nppcore/nppcore.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
           - test/unit/nppi/test_nppi_support_functions.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
             details: []
             failed: 0
@@ -91,8 +89,54 @@ modules:
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
           - test/unit/nppi/test_nppi_support_functions.cpp
+          - test/unit/nppi/nppi_threshold_and_compare_operations/test_nppi_threshold.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_convert.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_set.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_16bit.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev_mask.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_range.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_multichannel.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_twist.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_cfa_to_rgb.cpp
+          - test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_rotate.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_resize.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_remap.cpp
+          - test/unit/nppi/nppi_morphological_operations/test_nppi_morphology.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_or_32s_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_accumulator_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_andc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_orc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xor_32s_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_and_32s_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xorc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
             details: []
             failed: 0
@@ -112,8 +156,8 @@ modules:
             failed: 0
             passed: 0
     statistics:
-      implementation_rate: 100.0
-      implemented_functions: 7
+      implementation_rate: 71.4
+      implemented_functions: 5
       test_coverage_rate: 100.0
       tested_functions: 7
       total_functions: 7
@@ -148,13 +192,14 @@ modules:
         description: 32位浮点单通道绝对差值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff_param.cpp
           test_results:
             details: []
             failed: 0
@@ -163,13 +208,15 @@ modules:
         description: 32位浮点单通道绝对差值(带上下文)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff_param.cpp
           test_results:
             details: []
             failed: 0
@@ -178,13 +225,14 @@ modules:
         description: 8位无符号单通道绝对差值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff_param.cpp
           test_results:
             details: []
             failed: 0
@@ -193,14 +241,15 @@ modules:
         description: 8位无符号单通道绝对差值(带上下文)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff_param.cpp
           test_results:
             details: []
             failed: 0
@@ -209,13 +258,14 @@ modules:
         description: 8位无符号三通道绝对差值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff_param.cpp
           test_results:
             details: []
             failed: 0
@@ -224,13 +274,15 @@ modules:
         description: 8位无符号三通道绝对差值(带上下文)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_absdiff.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiff_param.cpp
           test_results:
             details: []
             failed: 0
@@ -239,12 +291,14 @@ modules:
         description: 16位浮点单通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -253,12 +307,14 @@ modules:
         description: 16位浮点单通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -267,12 +323,14 @@ modules:
         description: 16位浮点三通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -281,12 +339,14 @@ modules:
         description: 16位浮点三通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -295,12 +355,14 @@ modules:
         description: 16位浮点四通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -309,12 +371,14 @@ modules:
         description: 16位浮点四通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arithmetic_16f.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -323,12 +387,13 @@ modules:
         description: 16位有符号四通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -337,12 +402,13 @@ modules:
         description: 16位有符号四通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -351,12 +417,14 @@ modules:
         description: 16位有符号单通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -365,12 +433,14 @@ modules:
         description: 16位有符号单通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -379,12 +449,14 @@ modules:
         description: 16位有符号三通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -393,12 +465,14 @@ modules:
         description: 16位有符号三通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -407,12 +481,14 @@ modules:
         description: 16位有符号四通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -421,12 +497,14 @@ modules:
         description: 16位有符号四通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -435,12 +513,13 @@ modules:
         description: 32位浮点四通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -449,12 +528,13 @@ modules:
         description: 32位浮点四通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -463,13 +543,14 @@ modules:
         description: 32位浮点单通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -478,13 +559,14 @@ modules:
         description: 32位浮点单通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_abs.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -493,12 +575,14 @@ modules:
         description: 32位浮点三通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -507,12 +591,14 @@ modules:
         description: 32位浮点三通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -521,12 +607,14 @@ modules:
         description: 32位浮点四通道绝对值(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -535,12 +623,14 @@ modules:
         description: 32位浮点四通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_abs.cpp
           test_results:
             details: []
             failed: 0
@@ -549,8 +639,8 @@ modules:
         description: 8位有符号单通道绝对值
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_abs.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_abs.cu
           status: implemented
         testing:
           status: not_tested
@@ -563,12 +653,13 @@ modules:
         description: 16位有符号单通道加法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_complete.cpp
           test_results:
             details: []
             failed: 0
@@ -577,12 +668,13 @@ modules:
         description: 16位有符号单通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_subc_16s_param.cpp
           test_results:
             details: []
             failed: 0
@@ -591,12 +683,13 @@ modules:
         description: 16位无符号单通道加法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
           test_results:
             details: []
             failed: 0
@@ -605,12 +698,13 @@ modules:
         description: 16位无符号单通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
           test_results:
             details: []
             failed: 0
@@ -619,12 +713,14 @@ modules:
         description: 32位浮点单通道加法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -633,13 +729,13 @@ modules:
         description: 32位浮点单通道加法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_addc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
           test_results:
             details: []
             failed: 0
@@ -648,12 +744,14 @@ modules:
         description: 8位无符号单通道加法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -662,13 +760,13 @@ modules:
         description: 8位无符号单通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_addc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc.cpp
           test_results:
             details: []
             failed: 0
@@ -677,12 +775,13 @@ modules:
         description: 8位无符号三通道加法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -691,12 +790,13 @@ modules:
         description: 8位无符号三通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_addc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_addc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -705,12 +805,13 @@ modules:
         description: 16位无符号单通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_param.cpp
           test_results:
             details: []
             failed: 0
@@ -719,13 +820,14 @@ modules:
         description: 32位浮点单通道加法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_add.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_param.cpp
           test_results:
             details: []
             failed: 0
@@ -734,13 +836,15 @@ modules:
         description: 32位浮点单通道加法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_add.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
           test_results:
             details: []
             failed: 0
@@ -749,12 +853,15 @@ modules:
         description: 32位浮点三通道加法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
           test_results:
             details: []
             failed: 0
@@ -763,12 +870,13 @@ modules:
         description: 8位无符号单通道加法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_param.cpp
           test_results:
             details: []
             failed: 0
@@ -777,13 +885,15 @@ modules:
         description: 8位无符号单通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_add.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
           test_results:
             details: []
             failed: 0
@@ -792,12 +902,15 @@ modules:
         description: 8位无符号三通道加法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_add.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_add.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
           test_results:
             details: []
             failed: 0
@@ -806,8 +919,8 @@ modules:
         description: 16位有符号单通道与常数比较
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
           status: implemented
         testing:
           status: partially_tested
@@ -821,9 +934,9 @@ modules:
         description: 16位有符号单通道与常数比较(带上下文)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
           status: implemented
         testing:
           status: not_tested
@@ -836,13 +949,14 @@ modules:
         description: 32位浮点单通道与常数比较
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec_param.cpp
           test_results:
             details: []
             failed: 0
@@ -851,13 +965,14 @@ modules:
         description: 32位浮点单通道与常数比较(带上下文)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec_param.cpp
           test_results:
             details: []
             failed: 0
@@ -866,13 +981,14 @@ modules:
         description: 8位无符号单通道与常数比较
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec_param.cpp
           test_results:
             details: []
             failed: 0
@@ -881,14 +997,15 @@ modules:
         description: 8位无符号单通道与常数比较(带上下文)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_comparec.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_comparec_param.cpp
           test_results:
             details: []
             failed: 0
@@ -897,12 +1014,14 @@ modules:
         description: 16位有符号单通道除法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -911,12 +1030,13 @@ modules:
         description: 16位有符号单通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -925,12 +1045,13 @@ modules:
         description: 16位无符号单通道除法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -939,12 +1060,13 @@ modules:
         description: 16位无符号单通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -953,12 +1075,14 @@ modules:
         description: 32位浮点单通道除法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -967,12 +1091,13 @@ modules:
         description: 32位浮点单通道除法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -981,12 +1106,14 @@ modules:
         description: 8位无符号单通道除法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -995,12 +1122,13 @@ modules:
         description: 8位无符号单通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_divc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_divc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc.cpp
           test_results:
             details: []
             failed: 0
@@ -1009,12 +1137,13 @@ modules:
         description: 16位有符号单通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1023,12 +1152,13 @@ modules:
         description: 16位无符号单通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1037,12 +1167,13 @@ modules:
         description: 32位浮点单通道除法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1051,13 +1182,14 @@ modules:
         description: 32位浮点单通道除法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_div.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div.cpp
           test_results:
             details: []
             failed: 0
@@ -1066,12 +1198,14 @@ modules:
         description: 32位浮点三通道除法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1080,12 +1214,13 @@ modules:
         description: 8位无符号单通道除法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1094,13 +1229,14 @@ modules:
         description: 8位无符号单通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_div.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div.cpp
           test_results:
             details: []
             failed: 0
@@ -1109,12 +1245,14 @@ modules:
         description: 8位无符号三通道除法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_div.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_div.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_complete.cpp
           test_results:
             details: []
             failed: 0
@@ -1123,12 +1261,14 @@ modules:
         description: 16位有符号单通道乘法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc_complete.cpp
           test_results:
             details: []
             failed: 0
@@ -1137,12 +1277,13 @@ modules:
         description: 16位有符号单通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
           test_results:
             details: []
             failed: 0
@@ -1151,12 +1292,13 @@ modules:
         description: 16位无符号单通道乘法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
           test_results:
             details: []
             failed: 0
@@ -1165,12 +1307,13 @@ modules:
         description: 16位无符号单通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
           test_results:
             details: []
             failed: 0
@@ -1179,12 +1322,14 @@ modules:
         description: 32位浮点单通道乘法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1193,12 +1338,13 @@ modules:
         description: 32位浮点单通道乘法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
           test_results:
             details: []
             failed: 0
@@ -1207,12 +1353,14 @@ modules:
         description: 8位无符号单通道乘法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1221,12 +1369,13 @@ modules:
         description: 8位无符号单通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mulc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulc.cpp
           test_results:
             details: []
             failed: 0
@@ -1235,12 +1384,13 @@ modules:
         description: 16位有符号单通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1249,12 +1399,13 @@ modules:
         description: 16位无符号单通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1263,12 +1414,13 @@ modules:
         description: 32位浮点单通道乘法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1277,13 +1429,14 @@ modules:
         description: 32位浮点单通道乘法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_mul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1292,12 +1445,14 @@ modules:
         description: 32位浮点三通道乘法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1306,12 +1461,13 @@ modules:
         description: 8位无符号单通道乘法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1320,13 +1476,14 @@ modules:
         description: 8位无符号单通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_mul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1335,12 +1492,14 @@ modules:
         description: 8位无符号三通道乘法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_mul.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_mul.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mul_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1349,12 +1508,13 @@ modules:
         description: 16位有符号单通道减法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_complete.cpp
           test_results:
             details: []
             failed: 0
@@ -1363,12 +1523,13 @@ modules:
         description: 16位有符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_subc_16s_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1377,12 +1538,13 @@ modules:
         description: 16位无符号单通道减法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
           test_results:
             details: []
             failed: 0
@@ -1391,12 +1553,13 @@ modules:
         description: 16位无符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
           test_results:
             details: []
             failed: 0
@@ -1405,12 +1568,13 @@ modules:
         description: 16位无符号三通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1419,12 +1583,14 @@ modules:
         description: 32位浮点单通道减法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
           test_results:
             details: []
             failed: 0
@@ -1433,12 +1599,13 @@ modules:
         description: 32位浮点单通道减法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
           test_results:
             details: []
             failed: 0
@@ -1447,12 +1614,13 @@ modules:
         description: 32位浮点三通道减法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1461,12 +1629,13 @@ modules:
         description: 32位有符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1475,12 +1644,14 @@ modules:
         description: 8位无符号单通道减法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
           test_results:
             details: []
             failed: 0
@@ -1489,12 +1660,13 @@ modules:
         description: 8位无符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc.cpp
           test_results:
             details: []
             failed: 0
@@ -1503,12 +1675,13 @@ modules:
         description: 8位无符号三通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1517,12 +1690,13 @@ modules:
         description: 8位无符号四通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_subc.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_subc.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subc_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1531,12 +1705,13 @@ modules:
         description: 16位有符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1545,12 +1720,13 @@ modules:
         description: 16位无符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1559,12 +1735,13 @@ modules:
         description: 32位浮点单通道减法(原地操作)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1573,13 +1750,14 @@ modules:
         description: 32位浮点单通道减法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_sub.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1588,12 +1766,14 @@ modules:
         description: 32位浮点三通道减法
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1602,12 +1782,13 @@ modules:
         description: 8位无符号单通道减法(原地操作)(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1616,13 +1797,15 @@ modules:
         description: 8位无符号单通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/arithmetic_operations/test_nppi_sub.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1631,12 +1814,14 @@ modules:
         description: 8位无符号三通道减法(饱和)
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_sub.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_sub.cu
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_extended.cpp
           test_results:
             details: []
             failed: 0
@@ -1644,8 +1829,8 @@ modules:
     statistics:
       implementation_rate: 98.1
       implemented_functions: 105
-      test_coverage_rate: 19.6
-      tested_functions: 21
+      test_coverage_rate: 96.3
+      tested_functions: 103
       total_functions: 107
   nppi_color_conversion:
     description: NPPI颜色空间转换
@@ -1885,8 +2070,8 @@ modules:
         description: 16位有符号单通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -1899,8 +2084,8 @@ modules:
         description: 16位有符号三通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -1913,8 +2098,8 @@ modules:
         description: 16位有符号四通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -1927,13 +2112,14 @@ modules:
         description: 16位无符号单通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_transpose.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_transpose_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1942,8 +2128,8 @@ modules:
         description: 16位无符号三通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -1956,8 +2142,8 @@ modules:
         description: 16位无符号四通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -1970,13 +2156,14 @@ modules:
         description: 32位浮点单通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_transpose.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_transpose_param.cpp
           test_results:
             details: []
             failed: 0
@@ -1985,8 +2172,8 @@ modules:
         description: 32位浮点三通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -1999,8 +2186,8 @@ modules:
         description: 32位浮点四通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -2013,8 +2200,8 @@ modules:
         description: 32位有符号单通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -2027,8 +2214,8 @@ modules:
         description: 32位有符号三通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -2041,8 +2228,8 @@ modules:
         description: 32位有符号四通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -2055,13 +2242,14 @@ modules:
         description: 8位无符号单通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/data_exchange_operations/test_nppi_transpose.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_transpose.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_transpose_param.cpp
           test_results:
             details: []
             failed: 0
@@ -2070,8 +2258,8 @@ modules:
         description: 8位无符号三通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -2084,8 +2272,8 @@ modules:
         description: 8位无符号四通道转置
         implementation:
           source_files:
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
-          - src/nppi/nppi_data_exchange_operations/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
+          - src/nppi/nppi_data_exchange_and_initialization/nppi_transpose.cpp
           status: implemented
         testing:
           status: not_tested
@@ -2143,6 +2331,7 @@ modules:
         testing:
           status: partially_tested
           test_files:
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterbox_border_comparison.cpp
           - test/unit/nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
           test_results:
             details: []
@@ -2173,6 +2362,7 @@ modules:
         testing:
           status: partially_tested
           test_files:
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterbox_border_comparison.cpp
           - test/unit/nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
           test_results:
             details: []
@@ -2234,7 +2424,9 @@ modules:
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterbox_border_comparison.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nvidia_boundary_analysis.cpp
           test_results:
             details: []
             failed: 0
@@ -2526,6 +2718,8 @@ modules:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_mirror_param.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_mirror.cpp
           test_results:
             details: []
             failed: 0
@@ -2547,8 +2741,9 @@ modules:
           - src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
           test_results:
             details: []
             failed: 0
@@ -2577,7 +2772,7 @@ modules:
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/linear_transform_operations/test_nppi_magnitude.cpp
+          - test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
           test_results:
             details: []
             failed: 0
@@ -2585,8 +2780,8 @@ modules:
     statistics:
       implementation_rate: 100.0
       implemented_functions: 3
-      test_coverage_rate: 33.3
-      tested_functions: 1
+      test_coverage_rate: 66.7
+      tested_functions: 2
       total_functions: 3
   nppi_logical_operations:
     description: NPPI逻辑运算
@@ -2595,13 +2790,14 @@ modules:
         description: 8位无符号单通道按位与
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_and.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_and.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_andc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_andc.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_and_param.cpp
           test_results:
             details: []
             failed: 0
@@ -2610,13 +2806,14 @@ modules:
         description: 8位无符号单通道按位与
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_and.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_and.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_and.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_and.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_and_param.cpp
           test_results:
             details: []
             failed: 0
@@ -2625,13 +2822,14 @@ modules:
         description: 8位无符号单通道按位或
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_or.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_or.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_orc.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_orc.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_or_param.cpp
           test_results:
             details: []
             failed: 0
@@ -2640,13 +2838,14 @@ modules:
         description: 8位无符号单通道按位或
         implementation:
           source_files:
-          - src/nppi/nppi_arithmetic_operations/nppi_or.cpp
-          - src/nppi/nppi_arithmetic_operations/nppi_or.cpp
+          - src/nppi/nppi_arithmetic_operations/nppi_or.cu
+          - src/nppi/nppi_arithmetic_operations/nppi_or.cu
           status: implemented
         testing:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_or_param.cpp
           test_results:
             details: []
             failed: 0
@@ -2664,6 +2863,8 @@ modules:
         description: 获取8位Watershed分割所需缓冲区大小
         implementation:
           source_files:
+          - src/nppi/nppi_segmentation/nppi_watershed.cpp
+          - src/nppi/nppi_segmentation/nppi_watershed.cpp
           - src/nppi/nppi_segmentation/nppi_watershed.cpp
           - src/nppi/nppi_segmentation/nppi_watershed.cpp
           status: implemented
@@ -2728,10 +2929,8 @@ modules:
       nppiEvenLevelsHost_32f:
         description: 主机端生成32位浮点均匀直方图等级
         implementation:
-          source_files:
-          - src/nppi/nppi_statistics_functions/nppi_histogram.cpp
-          - src/nppi/nppi_statistics_functions/nppi_histogram.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: not_tested
           test_files: []
@@ -2765,6 +2964,7 @@ modules:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_buffersize.cpp
           test_results:
             details: []
             failed: 0
@@ -2775,11 +2975,11 @@ modules:
           source_files:
           - src/nppi/nppi_statistics_functions/nppi_histogram.cpp
           - src/nppi/nppi_statistics_functions/nppi_histogram.cpp
-          - src/nppi/nppi_statistics_functions/nppi_histogram.cpp
           status: implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_buffersize.cpp
           test_results:
             details: []
             failed: 0
@@ -2795,6 +2995,7 @@ modules:
           status: partially_tested
           test_files:
           - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_buffersize.cpp
           test_results:
             details: []
             failed: 0
@@ -2815,10 +3016,10 @@ modules:
             failed: 0
             passed: 0
     statistics:
-      implementation_rate: 100.0
-      implemented_functions: 6
-      test_coverage_rate: 50.0
-      tested_functions: 3
+      implementation_rate: 83.3
+      implemented_functions: 5
+      test_coverage_rate: 66.7
+      tested_functions: 4
       total_functions: 6
   nppi_support_functions:
     description: NPPI支持函数
@@ -2831,63 +3032,150 @@ modules:
           - src/nppi/nppi_support_functions.cpp
           status: implemented
         testing:
-          status: partially_tested
+          status: fully_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
+          - test/unit/nppi/test_nppi_support_functions.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_convert.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_lut.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_maxevery.cpp
           - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_log.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arctan.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_pow.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulscale.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_minevery.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev_mask.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_buffersize.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_bgr.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_convolution.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterbox_border_comparison.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nvidia_boundary_analysis.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterMinMax.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
-          - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
+          - test/unit/nppi/nppi_morphological_operations/test_nppi_morphology.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addc_subc_16s_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphapremul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacomp.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacompc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacomp_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp_ln_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_devicec_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divc_32s_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addsquare.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addproduct.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacompc_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_orc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_div_round_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_lshiftc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addproduct_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulscale.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xor.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr_mc_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_not.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_rshiftc_8s_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xorc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_rshiftc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addweighted.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
-            details: []
+            details:
+            - name: NppiMemoryManagementTest.nppiMalloc_nppiFree_MemoryReusePatterns
+              status: PASSED
+              time: 0.014
+            - name: NppiMemoryManagementTest.nppiMalloc_nppiFree_StressTest
+              status: PASSED
+              time: 0.065
+            - name: NppiMemoryManagementTest.nppiMalloc_nppiFree_FragmentationTest
+              status: PASSED
+              time: 0.007
             failed: 0
-            passed: 0
+            passed: 3
       nppiMalloc_32f_C1:
         description: 32位浮点单通道内存分配
         implementation:
-          source_files:
-          - src/nppi/nppi_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
-          status: partially_tested
+          status: fully_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
+          - test/unit/nppi/test_nppi_support_functions.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_convert.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_maxevery.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_minevery.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev_mask.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev.cpp
           - test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_log.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_arctan.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_pow.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterMinMax.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
+          - test/unit/nppi/nppi_morphological_operations/test_nppi_morphology.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacompc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacomp_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addsquare.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addproduct.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addweighted.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
-            details: []
+            details:
+            - name: NppiMemoryManagementTest.nppiMalloc_32f_C1_VariousDimensions
+              status: PASSED
+              time: 0.002
             failed: 0
-            passed: 0
+            passed: 1
       nppiMalloc_32fc_C1:
         description: 32位复数单通道内存分配
         implementation:
-          source_files:
-          - src/nppi/nppi_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
-          status: not_tested
-          test_files: []
+          status: partially_tested
+          test_files:
+          - test/unit/nppi/test_nppi_support_functions.cpp
           test_results:
             details: []
             failed: 0
@@ -2895,26 +3183,58 @@ modules:
       nppiMalloc_8u_C1:
         description: 8位无符号单通道内存分配
         implementation:
-          source_files:
-          - src/nppi/nppi_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppcore/test_nppcore.cpp
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter.cpp
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_convert.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_lut.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_maxevery.cpp
           - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_pow.cpp
-          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulscale.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_minevery.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev_mask.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram_buffersize.cpp
+          - test/unit/nppi/nppi_statistics_functions/test_nppi_mean_stddev.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterMinMax.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
-          - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_geometry.cpp
+          - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
+          - test/unit/nppi/nppi_morphological_operations/test_nppi_morphology.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphapremul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacompc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_exp.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqr.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addsquare.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_ln.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addproduct.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_logical.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sqrt.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacompc_param.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_lshiftc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_mulscale.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xor.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_not.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_rshiftc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_addweighted.cpp
+          - test/unit/nppcore/test_nppcore.cpp
           test_results:
             details: []
             failed: 0
@@ -2922,26 +3242,49 @@ modules:
       nppiMalloc_8u_C3:
         description: 8位无符号三通道内存分配
         implementation:
-          source_files:
-          - src/nppi/nppi_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
+          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_convert.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_bgr.cpp
           - test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_color_conversion.cpp
           - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_convolution.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterBoxBorder.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterMinMax.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_perspective.cpp
           - test/unit/nppi/nppi_geometry_transforms/test_nppi_warp_affine.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphapremul.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_alphacompc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_divdevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_subdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_sub_templated.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_muldevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_orc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_lshiftc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_adddevicec_complete.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xor.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_not.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_absdiffdevicec.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_xorc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_rshiftc.cpp
+          - test/unit/nppi/nppi_arithmetic_operations/test_nppi_add_templated.cpp
           test_results:
             details: []
             failed: 0
             passed: 0
     statistics:
-      implementation_rate: 100.0
-      implemented_functions: 5
-      test_coverage_rate: 80.0
-      tested_functions: 4
+      implementation_rate: 20.0
+      implemented_functions: 1
+      test_coverage_rate: 100.0
+      tested_functions: 5
       total_functions: 5
   npps_arithmetic_operations:
     description: NPPS信号算术运算
@@ -3149,12 +3492,11 @@ modules:
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_convolution.cpp
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterGauss.cpp
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
           - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram.cpp
-          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
-          - test/unit/npps/test_npps_support.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_bgr.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterGauss.cpp
+          - test/unit/npps/test_npps_support_functions.cpp
           test_results:
             details: []
             failed: 0
@@ -3162,13 +3504,12 @@ modules:
       nppsMalloc_16s:
         description: 16位有符号信号内存分配
         implementation:
-          source_files:
-          - src/npps/npps_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/npps/test_npps_support.cpp
+          - test/unit/npps/test_npps_support_functions.cpp
           test_results:
             details: []
             failed: 0
@@ -3176,13 +3517,14 @@ modules:
       nppsMalloc_32f:
         description: 32位浮点信号内存分配
         implementation:
-          source_files:
-          - src/npps/npps_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/npps/test_npps_support.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterbox_border_comparison.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
+          - test/unit/npps/test_npps_support_functions.cpp
           test_results:
             details: []
             failed: 0
@@ -3190,13 +3532,12 @@ modules:
       nppsMalloc_32fc:
         description: 32位复数信号内存分配
         implementation:
-          source_files:
-          - src/npps/npps_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/npps/test_npps_support.cpp
+          - test/unit/npps/test_npps_support_functions.cpp
           test_results:
             details: []
             failed: 0
@@ -3204,13 +3545,12 @@ modules:
       nppsMalloc_64f:
         description: 64位浮点信号内存分配
         implementation:
-          source_files:
-          - src/npps/npps_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/npps/test_npps_support.cpp
+          - test/unit/npps/test_npps_support_functions.cpp
           test_results:
             details: []
             failed: 0
@@ -3218,34 +3558,35 @@ modules:
       nppsMalloc_8u:
         description: 8位无符号信号内存分配
         implementation:
-          source_files:
-          - src/npps/npps_support_functions.cpp
-          status: implemented
+          source_files: []
+          status: not_implemented
         testing:
           status: partially_tested
           test_files:
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_convolution.cpp
-          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterGauss.cpp
-          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
           - test/unit/nppi/nppi_statistics_functions/test_nppi_histogram.cpp
-          - test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy.cpp
-          - test/unit/npps/test_npps_support.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_bgr.cpp
+          - test/unit/nppi/nppi_color_conversion_operations/test_nppi_nv12_rgb.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterbox_border_comparison.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filter_box.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nppi_filterGauss.cpp
+          - test/unit/nppi/nppi_filtering_functions/test_nvidia_boundary_analysis.cpp
+          - test/unit/npps/test_npps_support_functions.cpp
           test_results:
             details: []
             failed: 0
             passed: 0
     statistics:
-      implementation_rate: 100.0
-      implemented_functions: 6
+      implementation_rate: 16.7
+      implemented_functions: 1
       test_coverage_rate: 100.0
       tested_functions: 6
       total_functions: 6
 summary:
   failed_tests: 0
-  implementation_rate: 98.6
-  implemented_apis: 208
-  passed_tests: 0
-  test_coverage_rate: 39.8
-  tested_apis: 84
+  implementation_rate: 92.9
+  implemented_apis: 196
+  passed_tests: 4303
+  test_coverage_rate: 80.1
+  tested_apis: 169
   total_apis: 211
-  total_tests: 0
+  total_tests: 4303

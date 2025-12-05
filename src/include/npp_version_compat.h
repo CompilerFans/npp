@@ -35,4 +35,12 @@
 #define CUDA_SDK_AT_LEAST(major, minor)                                                                                \
   ((CUDA_SDK_VERSION_MAJOR > (major)) || (CUDA_SDK_VERSION_MAJOR == (major) && CUDA_SDK_VERSION_MINOR >= (minor)))
 
+// Signal length type for npps functions
+// CUDA SDK 12.8+ uses size_t, earlier versions use int
+#if CUDA_SDK_AT_LEAST(12, 8)
+using NppSignalLength = size_t;
+#else
+using NppSignalLength = int;
+#endif
+
 #endif // NPP_VERSION_COMPAT_H

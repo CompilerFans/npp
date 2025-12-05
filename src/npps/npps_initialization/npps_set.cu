@@ -35,7 +35,7 @@ extern "C" {
 
 cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u *pDst, size_t nLength, cudaStream_t stream) {
   const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
 
   nppsSet_8u_kernel_impl<<<gridSize, blockSize, 0, stream>>>(nValue, pDst, nLength);
 
@@ -44,7 +44,7 @@ cudaError_t nppsSet_8u_kernel(Npp8u nValue, Npp8u *pDst, size_t nLength, cudaStr
 
 cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f *pDst, size_t nLength, cudaStream_t stream) {
   const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
 
   nppsSet_32f_kernel_impl<<<gridSize, blockSize, 0, stream>>>(nValue, pDst, nLength);
 
@@ -53,7 +53,7 @@ cudaError_t nppsSet_32f_kernel(Npp32f nValue, Npp32f *pDst, size_t nLength, cuda
 
 cudaError_t nppsSet_32fc_kernel(Npp32fc nValue, Npp32fc *pDst, size_t nLength, cudaStream_t stream) {
   const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
 
   nppsSet_32fc_kernel_impl<<<gridSize, blockSize, 0, stream>>>(nValue, pDst, nLength);
 

@@ -11645,9 +11645,9 @@ nppsThreshold_LT_64fc,npps_conversion_functions.h,no,,no,
 nppsThreshold_LT_64fc_Ctx,npps_conversion_functions.h,no,,no,
 nppsThreshold_LT_64fc_I,npps_conversion_functions.h,no,,no,
 nppsThreshold_LT_64fc_I_Ctx,npps_conversion_functions.h,no,,no,
-nppsIntegralGetBufferSize_32s,npps_filtering_functions.h,no,,no,
-nppsIntegral_32s,npps_filtering_functions.h,no,,no,
-nppsIntegral_32s_Ctx,npps_filtering_functions.h,no,,no,
+nppsIntegralGetBufferSize_32s,npps_filtering_functions.h,yes,src/npps/npps_filtering_functions/npps_integral.cpp,yes,test/unit/npps/npps_filtering_functions/test_npps_integral.cpp
+nppsIntegral_32s,npps_filtering_functions.h,yes,src/npps/npps_filtering_functions/npps_integral.cpp,yes,test/unit/npps/npps_filtering_functions/test_npps_integral.cpp
+nppsIntegral_32s_Ctx,npps_filtering_functions.h,yes,src/npps/npps_filtering_functions/npps_integral.cpp,yes,test/unit/npps/npps_filtering_functions/test_npps_integral.cpp
 nppsCopy_16s,npps_initialization.h,no,,no,
 nppsCopy_16s_Ctx,npps_initialization.h,no,,no,
 nppsCopy_16sc,npps_initialization.h,no,,no,

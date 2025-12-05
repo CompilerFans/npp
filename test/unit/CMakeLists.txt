@@ -4,8 +4,7 @@
 # 递归查找所有测试文件
 file(GLOB_RECURSE UNIT_TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_*.cpp
-    # disable npps temp
-    #    ${CMAKE_CURRENT_SOURCE_DIR}/npps/test_*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/npps/test_*.cpp
 )
 
 # 显示找到的测试文件 (按模块分组)
@@ -28,11 +27,11 @@ else()
 endif()
 
 # 为单元测试添加特定的包含路径
-# 注意：src目录始终需要包含，因为测试框架依赖于src中的一些头文件(如npp_version_compat.h)
+# 注意：src/include目录始终需要包含，因为测试框架依赖于其中的头文件(如npp_version_compat.h)
 target_include_directories(unit_tests
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/framework      # 测试框架
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src      # 源码目录 (头文件依赖)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/include  # 源码include目录 (npp_version_compat.h等)
     ${CMAKE_CURRENT_SOURCE_DIR}                 # 单元测试根目录
     ${CMAKE_CURRENT_SOURCE_DIR}/nppi/nppi_arithmetic_operations  # 算术测试框架
 )

@@ -228,3 +228,4 @@ Include from `API/` directory (symlink to current version)
 - src实现状态和测试状态看api_analysis/coverage.csv和api_analysis/coverage_summary.md，新增实现后调用source update_coverage.sh更新
 - 测试使用TEST_P，简化重复代码，降低测试代码冗余，可通过functor传入测试预期
 - 源码实现和测试实现，需要基于api的名称独立分类
+- 针对函数签名中size_t和int数据类型上的区别，本工程目标是src源码中两个版本均支持，使用复用的函数实现。测试基于cuda版本，选择不同的测试调用

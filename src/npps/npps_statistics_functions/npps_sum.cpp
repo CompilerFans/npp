@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 #include <algorithm>
 #include <cstring>
 #include <cuda_runtime.h>
@@ -13,119 +14,111 @@ cudaError_t nppsSum_32fc_kernel(const Npp32fc *pSrc, size_t nLength, Npp32fc *pS
 }
 
 // ==============================================================================
+// Internal implementation functions
+// ==============================================================================
+
+namespace {
+
+template <typename T> NppStatus nppsSumGetBufferSizeImpl(size_t nLength, NppSignalLength *hpBufferSize) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nLength == 0) {
+    return NPP_SIZE_ERROR;
+  }
+
+  const int blockSize = 256;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
+  *hpBufferSize = static_cast<NppSignalLength>(gridSize * sizeof(T));
+
+  return NPP_NO_ERROR;
+}
+
+template <typename T>
+NppStatus nppsSumImpl(const T *pSrc, size_t nLength, T *pSum, Npp8u *pDeviceBuffer, cudaStream_t stream);
+
+template <>
+NppStatus nppsSumImpl<Npp32f>(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
+                              cudaStream_t stream) {
+  if (!pSrc || !pSum || !pDeviceBuffer) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nLength == 0) {
+    return NPP_SIZE_ERROR;
+  }
+
+  cudaError_t cudaStatus = nppsSum_32f_kernel(pSrc, nLength, pSum, pDeviceBuffer, stream);
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+template <>
+NppStatus nppsSumImpl<Npp32fc>(const Npp32fc *pSrc, size_t nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer,
+                               cudaStream_t stream) {
+  if (!pSrc || !pSum || !pDeviceBuffer) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nLength == 0) {
+    return NPP_SIZE_ERROR;
+  }
+
+  cudaError_t cudaStatus = nppsSum_32fc_kernel(pSrc, nLength, pSum, pDeviceBuffer, stream);
+  return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+} // namespace
+
+// ==============================================================================
 // Buffer Size Functions - Required for reduction operations
 // ==============================================================================
 
-NppStatus nppsSumGetBufferSize_32f_Ctx(size_t nLength, size_t *hpBufferSize, NppStreamContext nppStreamCtx) {
-  if (!hpBufferSize) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (nLength == 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Use stream context parameter to avoid unused warning
-  if (nppStreamCtx.nCudaDeviceId < -1) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
-  // Calculate required buffer size for reduction
-  // We need space for partial sums from each block
-  const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
-  *hpBufferSize = gridSize * sizeof(Npp32f);
-
-  return NPP_NO_ERROR;
+NppStatus nppsSumGetBufferSize_32f_Ctx(NppSignalLength nLength, NppSignalLength *hpBufferSize,
+                                       NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppsSumGetBufferSizeImpl<Npp32f>(static_cast<size_t>(nLength), hpBufferSize);
 }
 
-NppStatus nppsSumGetBufferSize_32f(size_t nLength, size_t *hpBufferSize) {
+NppStatus nppsSumGetBufferSize_32f(NppSignalLength nLength, NppSignalLength *hpBufferSize) {
   return nppsSumGetBufferSize_32f_Ctx(nLength, hpBufferSize, {});
 }
 
-NppStatus nppsSumGetBufferSize_32fc_Ctx(size_t nLength, size_t *hpBufferSize, NppStreamContext nppStreamCtx) {
-  if (!hpBufferSize) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
-  // Use stream context parameter to avoid unused warning
-  if (nppStreamCtx.nCudaDeviceId < -1) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-  if (nLength == 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Buffer size for complex reduction (2x floats per complex number)
-  const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
-  *hpBufferSize = gridSize * sizeof(Npp32fc);
-
-  return NPP_NO_ERROR;
+NppStatus nppsSumGetBufferSize_32fc_Ctx(NppSignalLength nLength, NppSignalLength *hpBufferSize,
+                                        NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppsSumGetBufferSizeImpl<Npp32fc>(static_cast<size_t>(nLength), hpBufferSize);
 }
 
-NppStatus nppsSumGetBufferSize_32fc(size_t nLength, size_t *hpBufferSize) {
+NppStatus nppsSumGetBufferSize_32fc(NppSignalLength nLength, NppSignalLength *hpBufferSize) {
   return nppsSumGetBufferSize_32fc_Ctx(nLength, hpBufferSize, {});
 }
 
 // ==============================================================================
 // Sum Operations - Element-wise summation of signal values
 // ==============================================================================
-NppStatus nppsSum_32f_Ctx(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
+
+NppStatus nppsSum_32f_Ctx(const Npp32f *pSrc, NppSignalLength nLength, Npp32f *pSum, Npp8u *pDeviceBuffer,
                           NppStreamContext nppStreamCtx) {
-  // Parameter validation
-  if (!pSrc || !pSum || !pDeviceBuffer) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (nLength == 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Launch kernel for sum reduction
-  cudaError_t cudaStatus = nppsSum_32f_kernel(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream);
-
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+  return nppsSumImpl<Npp32f>(pSrc, static_cast<size_t>(nLength), pSum, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
-NppStatus nppsSum_32f(const Npp32f *pSrc, size_t nLength, Npp32f *pSum, Npp8u *pDeviceBuffer) {
+NppStatus nppsSum_32f(const Npp32f *pSrc, NppSignalLength nLength, Npp32f *pSum, Npp8u *pDeviceBuffer) {
   NppStreamContext defaultContext;
   NppStatus status = nppGetStreamContext(&defaultContext);
   if (status != NPP_NO_ERROR) {
     return status;
   }
-
   return nppsSum_32f_Ctx(pSrc, nLength, pSum, pDeviceBuffer, defaultContext);
 }
 
-NppStatus nppsSum_32fc_Ctx(const Npp32fc *pSrc, size_t nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer,
+NppStatus nppsSum_32fc_Ctx(const Npp32fc *pSrc, NppSignalLength nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer,
                            NppStreamContext nppStreamCtx) {
-  // Parameter validation
-  if (!pSrc || !pSum || !pDeviceBuffer) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (nLength == 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Launch kernel for complex sum reduction
-  cudaError_t cudaStatus = nppsSum_32fc_kernel(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream);
-
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+  return nppsSumImpl<Npp32fc>(pSrc, static_cast<size_t>(nLength), pSum, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
-NppStatus nppsSum_32fc(const Npp32fc *pSrc, size_t nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer) {
+NppStatus nppsSum_32fc(const Npp32fc *pSrc, NppSignalLength nLength, Npp32fc *pSum, Npp8u *pDeviceBuffer) {
   NppStreamContext defaultContext;
   NppStatus status = nppGetStreamContext(&defaultContext);
   if (status != NPP_NO_ERROR) {
     return status;
   }
-
   return nppsSum_32fc_Ctx(pSrc, nLength, pSum, pDeviceBuffer, defaultContext);
 }

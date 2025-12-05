@@ -42,7 +42,7 @@ extern "C" {
 cudaError_t nppsAdd_32f_kernel(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f *pDst, size_t nLength,
                                cudaStream_t stream) {
   const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
 
   nppsAdd_32f_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc1, pSrc2, pDst, nLength);
 
@@ -52,7 +52,7 @@ cudaError_t nppsAdd_32f_kernel(const Npp32f *pSrc1, const Npp32f *pSrc2, Npp32f 
 cudaError_t nppsAdd_16s_kernel(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s *pDst, size_t nLength,
                                cudaStream_t stream) {
   const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
 
   nppsAdd_16s_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc1, pSrc2, pDst, nLength);
 
@@ -62,7 +62,7 @@ cudaError_t nppsAdd_16s_kernel(const Npp16s *pSrc1, const Npp16s *pSrc2, Npp16s 
 cudaError_t nppsAdd_32fc_kernel(const Npp32fc *pSrc1, const Npp32fc *pSrc2, Npp32fc *pDst, size_t nLength,
                                 cudaStream_t stream) {
   const int blockSize = 256;
-  const int gridSize = (nLength + blockSize - 1) / blockSize;
+  const size_t gridSize = (nLength + blockSize - 1) / blockSize;
 
   nppsAdd_32fc_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc1, pSrc2, pDst, nLength);
 

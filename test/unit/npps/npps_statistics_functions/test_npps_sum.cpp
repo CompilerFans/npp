@@ -1,5 +1,6 @@
 #include "npp.h"
 #include "npp_test_base.h"
+#include "npp_version_compat.h"
 
 #include <algorithm>
 #include <cmath>
@@ -18,12 +19,12 @@ protected:
 // ==============================================================================
 
 TEST_F(NPPSSumFunctionalTest, Sum_32f_BasicOperation) {
-  const size_t nLength = 1024;
+  const NppSignalLength nLength = 1024;
 
   // prepare test data
   std::vector<Npp32f> src(nLength);
   float expectedSum = 0.0f;
-  for (size_t i = 0; i < nLength; i++) {
+  for (NppSignalLength i = 0; i < nLength; i++) {
     src[i] = static_cast<float>(i + 1);
     expectedSum += src[i];
   }
@@ -37,7 +38,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_BasicOperation) {
   cudaMalloc(&d_sum, sizeof(Npp32f));
 
   // 获取所需缓冲区大小
-  int bufferSize;
+  NppSignalLength bufferSize;
   NppStatus status = nppsSumGetBufferSize_32f(nLength, &bufferSize);
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSumGetBufferSize_32f failed";
 
@@ -65,11 +66,11 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_BasicOperation) {
 }
 
 TEST_F(NPPSSumFunctionalTest, Sum_32f_SequentialPattern) {
-  const size_t nLength = 10;
+  const NppSignalLength nLength = 10;
 
   // 使用简单的序列: [1, 2, 3, ..., 10]
   std::vector<Npp32f> src(nLength);
-  for (size_t i = 0; i < nLength; i++) {
+  for (NppSignalLength i = 0; i < nLength; i++) {
     src[i] = static_cast<float>(i + 1);
   }
   float expectedSum = 55.0f; // 1+2+...+10 = 55
@@ -82,7 +83,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_SequentialPattern) {
   cudaMalloc(&d_src, nLength * sizeof(Npp32f));
   cudaMalloc(&d_sum, sizeof(Npp32f));
 
-  size_t bufferSize;
+  NppSignalLength bufferSize;
   NppStatus status = nppsSumGetBufferSize_32f(nLength, &bufferSize);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -106,7 +107,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_SequentialPattern) {
 }
 
 TEST_F(NPPSSumFunctionalTest, Sum_32f_LargeSignal) {
-  const size_t nLength = 1024 * 1024; // 1M elements
+  const NppSignalLength nLength = 1024 * 1024; // 1M elements
 
   // 使用常数值以便Validate结果
   std::vector<Npp32f> src(nLength, 2.5f);
@@ -120,7 +121,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_LargeSignal) {
   cudaMalloc(&d_src, nLength * sizeof(Npp32f));
   cudaMalloc(&d_sum, sizeof(Npp32f));
 
-  size_t bufferSize;
+  NppSignalLength bufferSize;
   NppStatus status = nppsSumGetBufferSize_32f(nLength, &bufferSize);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -148,12 +149,12 @@ TEST_F(NPPSSumFunctionalTest, Sum_32f_LargeSignal) {
 // ==============================================================================
 
 TEST_F(NPPSSumFunctionalTest, Sum_32fc_BasicOperation) {
-  const size_t nLength = 100;
+  const NppSignalLength nLength = 100;
 
   // 准备复数测试数据
   std::vector<Npp32fc> src(nLength);
   Npp32fc expectedSum = {0.0f, 0.0f};
-  for (size_t i = 0; i < nLength; i++) {
+  for (NppSignalLength i = 0; i < nLength; i++) {
     src[i].re = static_cast<float>(i + 1);
     src[i].im = static_cast<float>(i * 0.5f);
     expectedSum.re += src[i].re;
@@ -168,7 +169,7 @@ TEST_F(NPPSSumFunctionalTest, Sum_32fc_BasicOperation) {
   cudaMalloc(&d_src, nLength * sizeof(Npp32fc));
   cudaMalloc(&d_sum, sizeof(Npp32fc));
 
-  size_t bufferSize;
+  NppSignalLength bufferSize;
   NppStatus status = nppsSumGetBufferSize_32fc(nLength, &bufferSize);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -198,10 +199,10 @@ TEST_F(NPPSSumFunctionalTest, Sum_32fc_BasicOperation) {
 // ==============================================================================
 
 TEST_F(NPPSSumFunctionalTest, GetBufferSize_32f) {
-  size_t bufferSize;
+  NppSignalLength bufferSize;
 
   // 测试不同长度的缓冲区大小计算
-  for (size_t nLength : {1, 100, 1000, 10000, 100000}) {
+  for (NppSignalLength nLength : {1, 100, 1000, 10000, 100000}) {
     NppStatus status = nppsSumGetBufferSize_32f(nLength, &bufferSize);
     ASSERT_EQ(status, NPP_NO_ERROR) << "Failed for length " << nLength;
     EXPECT_GT(bufferSize, 0) << "Buffer size should be > 0 for length " << nLength;
