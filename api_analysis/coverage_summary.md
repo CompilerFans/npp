@@ -2,8 +2,8 @@
 
 - Total API Functions: 12500
 - Implemented: 2770 (22.2%)
-- Tested: 2594 (20.8%)
-- Implemented but not tested: 207
+- Tested: 2597 (20.8%)
+- Implemented but not tested: 204
 
 ## By Module
 
@@ -25,7 +25,7 @@
 - Total: 705, Impl: 154 (21.8%), Test: 97 (13.8%)
 
 **nppi_linear_transforms.h**
-- Total: 4, Impl: 4 (100.0%), Test: 1 (25.0%)
+- Total: 4, Impl: 4 (100.0%), Test: 4 (100.0%)
 
 **nppi_morphological_operations.h**
 - Total: 292, Impl: 24 (8.2%), Test: 20 (6.8%)

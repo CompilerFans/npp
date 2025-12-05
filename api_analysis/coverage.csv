@@ -6742,10 +6742,10 @@ nppiWarpPerspective_8u_P3R,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_8u_P3R_Ctx,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_8u_P4R,nppi_geometry_transforms.h,no,,no,
 nppiWarpPerspective_8u_P4R_Ctx,nppi_geometry_transforms.h,no,,no,
-nppiMagnitudeSqr_32fc32f_C1R,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,no,
-nppiMagnitudeSqr_32fc32f_C1R_Ctx,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,no,
+nppiMagnitudeSqr_32fc32f_C1R,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,yes,test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
+nppiMagnitudeSqr_32fc32f_C1R_Ctx,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,yes,test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
 nppiMagnitude_32fc32f_C1R,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,yes,test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
-nppiMagnitude_32fc32f_C1R_Ctx,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,no,
+nppiMagnitude_32fc32f_C1R_Ctx,nppi_linear_transforms.h,yes,src/nppi/nppi_linear_transform_operations/nppi_magnitude.cpp,yes,test/unit/nppi/nppi_linear_transform_operations/test_nppi_magnitude.cpp
 nppiDilate3x3Border_16u_AC4R,nppi_morphological_operations.h,no,,no,
 nppiDilate3x3Border_16u_AC4R_Ctx,nppi_morphological_operations.h,no,,no,
 nppiDilate3x3Border_16u_C1R,nppi_morphological_operations.h,no,,no,
