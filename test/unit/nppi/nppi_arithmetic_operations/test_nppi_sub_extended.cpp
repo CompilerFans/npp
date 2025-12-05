@@ -26,8 +26,9 @@ TEST_F(Sub8uMultiChannelTest, Sub_8u_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_8u_C3RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                              d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_8u_C3RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                              scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -55,8 +56,9 @@ TEST_F(Sub8uMultiChannelTest, Sub_8u_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_8u_C4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                              d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_8u_C4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                              scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -89,8 +91,9 @@ TEST_F(Sub8uMultiChannelTest, Sub_8u_AC4RSfs) {
   d_dst.copyFromHost(src1);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_8u_AC4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_8u_AC4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -121,8 +124,9 @@ TEST_F(Sub16uMultiChannelTest, Sub_16u_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_16u_C4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_16u_C4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -155,8 +159,9 @@ TEST_F(Sub16uMultiChannelTest, Sub_16u_AC4RSfs) {
   d_dst.copyFromHost(src1);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_16u_AC4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_16u_AC4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(),
+                                roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -187,8 +192,9 @@ TEST_F(Sub16sMultiChannelTest, Sub_16s_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_16s_C4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_16s_C4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
@@ -221,8 +227,9 @@ TEST_F(Sub16sMultiChannelTest, Sub_16s_AC4RSfs) {
   d_dst.copyFromHost(src1);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_16s_AC4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_16s_AC4RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(),
+                                roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
@@ -251,8 +258,8 @@ TEST_F(Sub32fMultiChannelTest, Sub_32f_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_32f_C3R(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_32f_C3R(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -278,8 +285,8 @@ TEST_F(Sub32fMultiChannelTest, Sub_32f_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_32f_C4R(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_32f_C4R(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -310,8 +317,8 @@ TEST_F(Sub32fMultiChannelTest, Sub_32f_AC4R) {
   d_dst.copyFromHost(src1);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_32f_AC4R(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                             d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_32f_AC4R(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -342,8 +349,9 @@ TEST_F(Sub32sTest, Sub_32s_C1RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_32s_C1RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_32s_C1RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp32s> result(total);
   d_dst.copyToHost(result);
@@ -373,8 +381,9 @@ TEST_F(Sub32sTest, Sub_32s_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiSub_32s_C3RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiSub_32s_C3RSfs(d_src2.get(), d_src2.step(), d_src1.get(), d_src1.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp32s> result(total);
   d_dst.copyToHost(result);

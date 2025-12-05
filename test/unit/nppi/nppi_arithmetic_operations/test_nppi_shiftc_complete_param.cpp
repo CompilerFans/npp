@@ -60,8 +60,8 @@ TEST_P(LShiftC8uAC4ParamTest, LShiftC_8u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -129,8 +129,8 @@ TEST_P(LShiftC16uAC4ParamTest, LShiftC_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -387,8 +387,8 @@ TEST_P(LShiftC32sAC4ParamTest, LShiftC_32s_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp32s> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp32s), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp32s), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -456,8 +456,8 @@ TEST_P(RShiftC8uAC4ParamTest, RShiftC_8u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -591,8 +591,8 @@ TEST_P(RShiftC16uAC4ParamTest, RShiftC_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -849,8 +849,8 @@ TEST_P(RShiftC32sAC4ParamTest, RShiftC_32s_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp32s> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp32s), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp32s), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;

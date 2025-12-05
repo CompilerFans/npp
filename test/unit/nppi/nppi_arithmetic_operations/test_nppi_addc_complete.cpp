@@ -1,10 +1,10 @@
+#include "npp_test_base.h"
+#include <cmath>
+#include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <npp.h>
-#include <cuda_runtime.h>
-#include <vector>
 #include <random>
-#include <cmath>
-#include "npp_test_base.h"
+#include <vector>
 
 using namespace npp_functional_test;
 
@@ -13,17 +13,16 @@ using namespace npp_functional_test;
 // Test parameters for complex AddC operations
 struct AddCComplexParam {
   std::string name;
-  int channels;  // 1, 3, 4, or -4 for AC4
+  int channels; // 1, 3, 4, or -4 for AC4
   bool inplace;
   bool useCtx;
 };
 
 // 16sc (16-bit signed complex) tests
-class AddC16scTest : public NppTestBase,
-                     public ::testing::WithParamInterface<AddCComplexParam> {};
+class AddC16scTest : public NppTestBase, public ::testing::WithParamInterface<AddCComplexParam> {};
 
 TEST_P(AddC16scTest, ComplexAdd) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
   const int total = width * height * actualChannels;
@@ -63,7 +62,7 @@ TEST_P(AddC16scTest, ComplexAdd) {
   NppImageMemory<Npp16sc> d_dst(width * actualChannels, height);
   d_src.copyFromHost(src);
   if (p.channels == -4) {
-    d_dst.copyFromHost(src);  // For AC4, init dst with src for alpha preservation
+    d_dst.copyFromHost(src); // For AC4, init dst with src for alpha preservation
   }
 
   NppiSize roi = {width, height};
@@ -82,19 +81,26 @@ TEST_P(AddC16scTest, ComplexAdd) {
       status = p.useCtx ? nppiAddC_16sc_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
                         : nppiAddC_16sc_C3IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiAddC_16sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_16sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx
+                   ? nppiAddC_16sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
+                   : nppiAddC_16sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     }
   } else {
     if (p.channels == 1) {
-      status = p.useCtx ? nppiAddC_16sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_16sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiAddC_16sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(),
+                                                   roi, scaleFactor, ctx)
+                        : nppiAddC_16sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                               scaleFactor);
     } else if (p.channels == 3) {
-      status = p.useCtx ? nppiAddC_16sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_16sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiAddC_16sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                   d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiAddC_16sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                               roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiAddC_16sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_16sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiAddC_16sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                    d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiAddC_16sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                                roi, scaleFactor);
     }
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
@@ -110,31 +116,19 @@ TEST_P(AddC16scTest, ComplexAdd) {
 
 INSTANTIATE_TEST_SUITE_P(
     AddC16scSuite, AddC16scTest,
-    ::testing::Values(
-        AddCComplexParam{"C1R", 1, false, false},
-        AddCComplexParam{"C1R_Ctx", 1, false, true},
-        AddCComplexParam{"C1IR", 1, true, false},
-        AddCComplexParam{"C1IR_Ctx", 1, true, true},
-        AddCComplexParam{"C3R", 3, false, false},
-        AddCComplexParam{"C3R_Ctx", 3, false, true},
-        AddCComplexParam{"C3IR", 3, true, false},
-        AddCComplexParam{"C3IR_Ctx", 3, true, true},
-        AddCComplexParam{"AC4R", -4, false, false},
-        AddCComplexParam{"AC4R_Ctx", -4, false, true},
-        AddCComplexParam{"AC4IR", -4, true, false},
-        AddCComplexParam{"AC4IR_Ctx", -4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<AddCComplexParam>& info) {
-      return info.param.name;
-    }
-);
+    ::testing::Values(AddCComplexParam{"C1R", 1, false, false}, AddCComplexParam{"C1R_Ctx", 1, false, true},
+                      AddCComplexParam{"C1IR", 1, true, false}, AddCComplexParam{"C1IR_Ctx", 1, true, true},
+                      AddCComplexParam{"C3R", 3, false, false}, AddCComplexParam{"C3R_Ctx", 3, false, true},
+                      AddCComplexParam{"C3IR", 3, true, false}, AddCComplexParam{"C3IR_Ctx", 3, true, true},
+                      AddCComplexParam{"AC4R", -4, false, false}, AddCComplexParam{"AC4R_Ctx", -4, false, true},
+                      AddCComplexParam{"AC4IR", -4, true, false}, AddCComplexParam{"AC4IR_Ctx", -4, true, true}),
+    [](const ::testing::TestParamInfo<AddCComplexParam> &info) { return info.param.name; });
 
 // 32sc (32-bit signed complex) tests
-class AddC32scTest : public NppTestBase,
-                     public ::testing::WithParamInterface<AddCComplexParam> {};
+class AddC32scTest : public NppTestBase, public ::testing::WithParamInterface<AddCComplexParam> {};
 
 TEST_P(AddC32scTest, ComplexAdd) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
   const int total = width * height * actualChannels;
@@ -191,19 +185,26 @@ TEST_P(AddC32scTest, ComplexAdd) {
       status = p.useCtx ? nppiAddC_32sc_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
                         : nppiAddC_32sc_C3IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiAddC_32sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_32sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx
+                   ? nppiAddC_32sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
+                   : nppiAddC_32sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     }
   } else {
     if (p.channels == 1) {
-      status = p.useCtx ? nppiAddC_32sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_32sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiAddC_32sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(),
+                                                   roi, scaleFactor, ctx)
+                        : nppiAddC_32sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                               scaleFactor);
     } else if (p.channels == 3) {
-      status = p.useCtx ? nppiAddC_32sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_32sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiAddC_32sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                   d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiAddC_32sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                               roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiAddC_32sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiAddC_32sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiAddC_32sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                    d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiAddC_32sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                                roi, scaleFactor);
     }
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
@@ -219,31 +220,19 @@ TEST_P(AddC32scTest, ComplexAdd) {
 
 INSTANTIATE_TEST_SUITE_P(
     AddC32scSuite, AddC32scTest,
-    ::testing::Values(
-        AddCComplexParam{"C1R", 1, false, false},
-        AddCComplexParam{"C1R_Ctx", 1, false, true},
-        AddCComplexParam{"C1IR", 1, true, false},
-        AddCComplexParam{"C1IR_Ctx", 1, true, true},
-        AddCComplexParam{"C3R", 3, false, false},
-        AddCComplexParam{"C3R_Ctx", 3, false, true},
-        AddCComplexParam{"C3IR", 3, true, false},
-        AddCComplexParam{"C3IR_Ctx", 3, true, true},
-        AddCComplexParam{"AC4R", -4, false, false},
-        AddCComplexParam{"AC4R_Ctx", -4, false, true},
-        AddCComplexParam{"AC4IR", -4, true, false},
-        AddCComplexParam{"AC4IR_Ctx", -4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<AddCComplexParam>& info) {
-      return info.param.name;
-    }
-);
+    ::testing::Values(AddCComplexParam{"C1R", 1, false, false}, AddCComplexParam{"C1R_Ctx", 1, false, true},
+                      AddCComplexParam{"C1IR", 1, true, false}, AddCComplexParam{"C1IR_Ctx", 1, true, true},
+                      AddCComplexParam{"C3R", 3, false, false}, AddCComplexParam{"C3R_Ctx", 3, false, true},
+                      AddCComplexParam{"C3IR", 3, true, false}, AddCComplexParam{"C3IR_Ctx", 3, true, true},
+                      AddCComplexParam{"AC4R", -4, false, false}, AddCComplexParam{"AC4R_Ctx", -4, false, true},
+                      AddCComplexParam{"AC4IR", -4, true, false}, AddCComplexParam{"AC4IR_Ctx", -4, true, true}),
+    [](const ::testing::TestParamInfo<AddCComplexParam> &info) { return info.param.name; });
 
 // 32fc (32-bit float complex) tests
-class AddC32fcTest : public NppTestBase,
-                     public ::testing::WithParamInterface<AddCComplexParam> {};
+class AddC32fcTest : public NppTestBase, public ::testing::WithParamInterface<AddCComplexParam> {};
 
 TEST_P(AddC32fcTest, ComplexAdd) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
   const int total = width * height * actualChannels;
@@ -305,17 +294,24 @@ TEST_P(AddC32fcTest, ComplexAdd) {
     }
   } else {
     if (p.channels == 1) {
-      status = p.useCtx ? nppiAddC_32fc_C1R_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, ctx)
+      status = p.useCtx ? nppiAddC_32fc_C1R_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(),
+                                                roi, ctx)
                         : nppiAddC_32fc_C1R(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi);
     } else if (p.channels == 3) {
-      status = p.useCtx ? nppiAddC_32fc_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
-                        : nppiAddC_32fc_C3R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
+      status =
+          p.useCtx
+              ? nppiAddC_32fc_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
+              : nppiAddC_32fc_C3R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
     } else if (p.channels == 4) {
-      status = p.useCtx ? nppiAddC_32fc_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
-                        : nppiAddC_32fc_C4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
+      status =
+          p.useCtx
+              ? nppiAddC_32fc_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
+              : nppiAddC_32fc_C4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiAddC_32fc_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
-                        : nppiAddC_32fc_AC4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
+      status = p.useCtx
+                   ? nppiAddC_32fc_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                            roi, ctx)
+                   : nppiAddC_32fc_AC4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
     }
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
@@ -331,43 +327,29 @@ TEST_P(AddC32fcTest, ComplexAdd) {
 
 INSTANTIATE_TEST_SUITE_P(
     AddC32fcSuite, AddC32fcTest,
-    ::testing::Values(
-        AddCComplexParam{"C1R", 1, false, false},
-        AddCComplexParam{"C1R_Ctx", 1, false, true},
-        AddCComplexParam{"C1IR", 1, true, false},
-        AddCComplexParam{"C1IR_Ctx", 1, true, true},
-        AddCComplexParam{"C3R", 3, false, false},
-        AddCComplexParam{"C3R_Ctx", 3, false, true},
-        AddCComplexParam{"C3IR", 3, true, false},
-        AddCComplexParam{"C3IR_Ctx", 3, true, true},
-        AddCComplexParam{"C4R", 4, false, false},
-        AddCComplexParam{"C4R_Ctx", 4, false, true},
-        AddCComplexParam{"C4IR", 4, true, false},
-        AddCComplexParam{"C4IR_Ctx", 4, true, true},
-        AddCComplexParam{"AC4R", -4, false, false},
-        AddCComplexParam{"AC4R_Ctx", -4, false, true},
-        AddCComplexParam{"AC4IR", -4, true, false},
-        AddCComplexParam{"AC4IR_Ctx", -4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<AddCComplexParam>& info) {
-      return info.param.name;
-    }
-);
+    ::testing::Values(AddCComplexParam{"C1R", 1, false, false}, AddCComplexParam{"C1R_Ctx", 1, false, true},
+                      AddCComplexParam{"C1IR", 1, true, false}, AddCComplexParam{"C1IR_Ctx", 1, true, true},
+                      AddCComplexParam{"C3R", 3, false, false}, AddCComplexParam{"C3R_Ctx", 3, false, true},
+                      AddCComplexParam{"C3IR", 3, true, false}, AddCComplexParam{"C3IR_Ctx", 3, true, true},
+                      AddCComplexParam{"C4R", 4, false, false}, AddCComplexParam{"C4R_Ctx", 4, false, true},
+                      AddCComplexParam{"C4IR", 4, true, false}, AddCComplexParam{"C4IR_Ctx", 4, true, true},
+                      AddCComplexParam{"AC4R", -4, false, false}, AddCComplexParam{"AC4R_Ctx", -4, false, true},
+                      AddCComplexParam{"AC4IR", -4, true, false}, AddCComplexParam{"AC4IR_Ctx", -4, true, true}),
+    [](const ::testing::TestParamInfo<AddCComplexParam> &info) { return info.param.name; });
 
 // ==================== AddC Ctx variants for integer types ====================
 
 struct AddCIntCtxParam {
   std::string name;
-  std::string dtype;  // "8u", "16u", "16s", "32s", "32f"
-  int channels;       // 1, 3, 4, or -4 for AC4
+  std::string dtype; // "8u", "16u", "16s", "32s", "32f"
+  int channels;      // 1, 3, 4, or -4 for AC4
   bool inplace;
 };
 
-class AddCIntCtxTest : public NppTestBase,
-                       public ::testing::WithParamInterface<AddCIntCtxParam> {};
+class AddCIntCtxTest : public NppTestBase, public ::testing::WithParamInterface<AddCIntCtxParam> {};
 
 TEST_P(AddCIntCtxTest, CtxVariant) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
 
@@ -402,7 +384,8 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp8u> d_src(width * actualChannels, height);
     NppImageMemory<Npp8u> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
@@ -415,11 +398,14 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
       }
     } else {
       if (p.channels == 3) {
-        status = nppiAddC_8u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_8u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                        scaleFactor, ctx);
       } else if (p.channels == 4) {
-        status = nppiAddC_8u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_8u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                        scaleFactor, ctx);
       } else if (p.channels == -4) {
-        status = nppiAddC_8u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_8u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       }
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
@@ -427,8 +413,7 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     std::vector<Npp8u> result(total);
     d_dst.copyToHost(result);
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
-  }
-  else if (p.dtype == "16u") {
+  } else if (p.dtype == "16u") {
     const int total = width * height * actualChannels;
     std::vector<Npp16u> src(total), expected(total);
     TestDataGenerator::generateRandom(src, (Npp16u)0, (Npp16u)60000, 12345);
@@ -454,7 +439,8 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp16u> d_src(width * actualChannels, height);
     NppImageMemory<Npp16u> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
@@ -467,11 +453,14 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
       }
     } else {
       if (p.channels == 3) {
-        status = nppiAddC_16u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       } else if (p.channels == 4) {
-        status = nppiAddC_16u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       } else if (p.channels == -4) {
-        status = nppiAddC_16u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                          scaleFactor, ctx);
       }
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
@@ -479,8 +468,7 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     std::vector<Npp16u> result(total);
     d_dst.copyToHost(result);
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
-  }
-  else if (p.dtype == "16s") {
+  } else if (p.dtype == "16s") {
     const int total = width * height * actualChannels;
     std::vector<Npp16s> src(total), expected(total);
     TestDataGenerator::generateRandom(src, (Npp16s)-10000, (Npp16s)10000, 12345);
@@ -506,7 +494,8 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp16s> d_src(width * actualChannels, height);
     NppImageMemory<Npp16s> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
@@ -521,13 +510,17 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
       }
     } else {
       if (p.channels == 1) {
-        status = nppiAddC_16s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       } else if (p.channels == 3) {
-        status = nppiAddC_16s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       } else if (p.channels == 4) {
-        status = nppiAddC_16s_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16s_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       } else if (p.channels == -4) {
-        status = nppiAddC_16s_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_16s_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                          scaleFactor, ctx);
       }
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
@@ -535,8 +528,7 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     std::vector<Npp16s> result(total);
     d_dst.copyToHost(result);
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
-  }
-  else if (p.dtype == "32s") {
+  } else if (p.dtype == "32s") {
     const int total = width * height * actualChannels;
     std::vector<Npp32s> src(total), expected(total);
     TestDataGenerator::generateRandom(src, (Npp32s)-100000, (Npp32s)100000, 12345);
@@ -562,7 +554,8 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp32s> d_src(width * actualChannels, height);
     NppImageMemory<Npp32s> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
@@ -573,9 +566,11 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
       }
     } else {
       if (p.channels == 1) {
-        status = nppiAddC_32s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_32s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       } else if (p.channels == 3) {
-        status = nppiAddC_32s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+        status = nppiAddC_32s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
       }
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
@@ -583,8 +578,7 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     std::vector<Npp32s> result(total);
     d_dst.copyToHost(result);
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
-  }
-  else if (p.dtype == "32f") {
+  } else if (p.dtype == "32f") {
     const int total = width * height * actualChannels;
     std::vector<Npp32f> src(total), expected(total);
     TestDataGenerator::generateRandom(src, -100.0f, 100.0f, 12345);
@@ -608,7 +602,8 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp32f> d_src(width * actualChannels, height);
     NppImageMemory<Npp32f> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
@@ -621,11 +616,14 @@ TEST_P(AddCIntCtxTest, CtxVariant) {
       }
     } else {
       if (p.channels == 3) {
-        status = nppiAddC_32f_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+        status =
+            nppiAddC_32f_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
       } else if (p.channels == 4) {
-        status = nppiAddC_32f_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+        status =
+            nppiAddC_32f_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
       } else if (p.channels == -4) {
-        status = nppiAddC_32f_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+        status =
+            nppiAddC_32f_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
       }
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
@@ -640,45 +638,26 @@ INSTANTIATE_TEST_SUITE_P(
     AddCIntCtxSuite, AddCIntCtxTest,
     ::testing::Values(
         // 8u Ctx variants
-        AddCIntCtxParam{"8u_C3RSfs_Ctx", "8u", 3, false},
-        AddCIntCtxParam{"8u_C4RSfs_Ctx", "8u", 4, false},
-        AddCIntCtxParam{"8u_AC4RSfs_Ctx", "8u", -4, false},
-        AddCIntCtxParam{"8u_C3IRSfs_Ctx", "8u", 3, true},
-        AddCIntCtxParam{"8u_C4IRSfs_Ctx", "8u", 4, true},
-        AddCIntCtxParam{"8u_AC4IRSfs_Ctx", "8u", -4, true},
+        AddCIntCtxParam{"8u_C3RSfs_Ctx", "8u", 3, false}, AddCIntCtxParam{"8u_C4RSfs_Ctx", "8u", 4, false},
+        AddCIntCtxParam{"8u_AC4RSfs_Ctx", "8u", -4, false}, AddCIntCtxParam{"8u_C3IRSfs_Ctx", "8u", 3, true},
+        AddCIntCtxParam{"8u_C4IRSfs_Ctx", "8u", 4, true}, AddCIntCtxParam{"8u_AC4IRSfs_Ctx", "8u", -4, true},
         // 16u Ctx variants
-        AddCIntCtxParam{"16u_C3RSfs_Ctx", "16u", 3, false},
-        AddCIntCtxParam{"16u_C4RSfs_Ctx", "16u", 4, false},
-        AddCIntCtxParam{"16u_AC4RSfs_Ctx", "16u", -4, false},
-        AddCIntCtxParam{"16u_C3IRSfs_Ctx", "16u", 3, true},
-        AddCIntCtxParam{"16u_C4IRSfs_Ctx", "16u", 4, true},
-        AddCIntCtxParam{"16u_AC4IRSfs_Ctx", "16u", -4, true},
+        AddCIntCtxParam{"16u_C3RSfs_Ctx", "16u", 3, false}, AddCIntCtxParam{"16u_C4RSfs_Ctx", "16u", 4, false},
+        AddCIntCtxParam{"16u_AC4RSfs_Ctx", "16u", -4, false}, AddCIntCtxParam{"16u_C3IRSfs_Ctx", "16u", 3, true},
+        AddCIntCtxParam{"16u_C4IRSfs_Ctx", "16u", 4, true}, AddCIntCtxParam{"16u_AC4IRSfs_Ctx", "16u", -4, true},
         // 16s Ctx variants
-        AddCIntCtxParam{"16s_C1RSfs_Ctx", "16s", 1, false},
-        AddCIntCtxParam{"16s_C3RSfs_Ctx", "16s", 3, false},
-        AddCIntCtxParam{"16s_C4RSfs_Ctx", "16s", 4, false},
-        AddCIntCtxParam{"16s_AC4RSfs_Ctx", "16s", -4, false},
-        AddCIntCtxParam{"16s_C1IRSfs_Ctx", "16s", 1, true},
-        AddCIntCtxParam{"16s_C3IRSfs_Ctx", "16s", 3, true},
-        AddCIntCtxParam{"16s_C4IRSfs_Ctx", "16s", 4, true},
-        AddCIntCtxParam{"16s_AC4IRSfs_Ctx", "16s", -4, true},
+        AddCIntCtxParam{"16s_C1RSfs_Ctx", "16s", 1, false}, AddCIntCtxParam{"16s_C3RSfs_Ctx", "16s", 3, false},
+        AddCIntCtxParam{"16s_C4RSfs_Ctx", "16s", 4, false}, AddCIntCtxParam{"16s_AC4RSfs_Ctx", "16s", -4, false},
+        AddCIntCtxParam{"16s_C1IRSfs_Ctx", "16s", 1, true}, AddCIntCtxParam{"16s_C3IRSfs_Ctx", "16s", 3, true},
+        AddCIntCtxParam{"16s_C4IRSfs_Ctx", "16s", 4, true}, AddCIntCtxParam{"16s_AC4IRSfs_Ctx", "16s", -4, true},
         // 32s Ctx variants
-        AddCIntCtxParam{"32s_C1RSfs_Ctx", "32s", 1, false},
-        AddCIntCtxParam{"32s_C3RSfs_Ctx", "32s", 3, false},
-        AddCIntCtxParam{"32s_C1IRSfs_Ctx", "32s", 1, true},
-        AddCIntCtxParam{"32s_C3IRSfs_Ctx", "32s", 3, true},
+        AddCIntCtxParam{"32s_C1RSfs_Ctx", "32s", 1, false}, AddCIntCtxParam{"32s_C3RSfs_Ctx", "32s", 3, false},
+        AddCIntCtxParam{"32s_C1IRSfs_Ctx", "32s", 1, true}, AddCIntCtxParam{"32s_C3IRSfs_Ctx", "32s", 3, true},
         // 32f Ctx variants
-        AddCIntCtxParam{"32f_C3R_Ctx", "32f", 3, false},
-        AddCIntCtxParam{"32f_C4R_Ctx", "32f", 4, false},
-        AddCIntCtxParam{"32f_AC4R_Ctx", "32f", -4, false},
-        AddCIntCtxParam{"32f_C3IR_Ctx", "32f", 3, true},
-        AddCIntCtxParam{"32f_C4IR_Ctx", "32f", 4, true},
-        AddCIntCtxParam{"32f_AC4IR_Ctx", "32f", -4, true}
-    ),
-    [](const ::testing::TestParamInfo<AddCIntCtxParam>& info) {
-      return info.param.name;
-    }
-);
+        AddCIntCtxParam{"32f_C3R_Ctx", "32f", 3, false}, AddCIntCtxParam{"32f_C4R_Ctx", "32f", 4, false},
+        AddCIntCtxParam{"32f_AC4R_Ctx", "32f", -4, false}, AddCIntCtxParam{"32f_C3IR_Ctx", "32f", 3, true},
+        AddCIntCtxParam{"32f_C4IR_Ctx", "32f", 4, true}, AddCIntCtxParam{"32f_AC4IR_Ctx", "32f", -4, true}),
+    [](const ::testing::TestParamInfo<AddCIntCtxParam> &info) { return info.param.name; });
 
 // ==================== AddC Non-Ctx integer inplace variants (not yet tested) ====================
 

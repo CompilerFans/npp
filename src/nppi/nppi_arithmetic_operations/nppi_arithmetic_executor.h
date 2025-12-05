@@ -274,8 +274,8 @@ public:
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
     OpType op;
-    binaryAC4Kernel<T, OpType><<<gridSize, blockSize, 0, stream>>>(
-        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    binaryAC4Kernel<T, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
+                                                                   oSizeROI.width, oSizeROI.height, op, scaleFactor);
 
     return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

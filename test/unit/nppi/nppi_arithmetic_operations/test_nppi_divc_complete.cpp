@@ -1,10 +1,10 @@
+#include "npp_test_base.h"
+#include <cmath>
+#include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <npp.h>
-#include <cuda_runtime.h>
-#include <vector>
 #include <random>
-#include <cmath>
-#include "npp_test_base.h"
+#include <vector>
 
 using namespace npp_functional_test;
 
@@ -18,11 +18,10 @@ struct DivCComplexParam {
 };
 
 // 16sc tests - complex division: (a+bi)/(c+di) = ((ac+bd) + (bc-ad)i) / (c^2+d^2)
-class DivC16scTest : public NppTestBase,
-                     public ::testing::WithParamInterface<DivCComplexParam> {};
+class DivC16scTest : public NppTestBase, public ::testing::WithParamInterface<DivCComplexParam> {};
 
 TEST_P(DivC16scTest, ComplexDiv) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
   const int total = width * height * actualChannels;
@@ -65,12 +64,14 @@ TEST_P(DivC16scTest, ComplexDiv) {
   NppImageMemory<Npp16sc> d_src(width * actualChannels, height);
   NppImageMemory<Npp16sc> d_dst(width * actualChannels, height);
   d_src.copyFromHost(src);
-  if (p.channels == -4) d_dst.copyFromHost(src);
+  if (p.channels == -4)
+    d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
   NppStatus status;
   NppStreamContext ctx;
-  if (p.useCtx) nppGetStreamContext(&ctx);
+  if (p.useCtx)
+    nppGetStreamContext(&ctx);
 
   if (p.inplace) {
     d_dst.copyFromHost(src);
@@ -81,19 +82,26 @@ TEST_P(DivC16scTest, ComplexDiv) {
       status = p.useCtx ? nppiDivC_16sc_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
                         : nppiDivC_16sc_C3IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiDivC_16sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_16sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx
+                   ? nppiDivC_16sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
+                   : nppiDivC_16sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     }
   } else {
     if (p.channels == 1) {
-      status = p.useCtx ? nppiDivC_16sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_16sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiDivC_16sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(),
+                                                   roi, scaleFactor, ctx)
+                        : nppiDivC_16sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                               scaleFactor);
     } else if (p.channels == 3) {
-      status = p.useCtx ? nppiDivC_16sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_16sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiDivC_16sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                   d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiDivC_16sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                               roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiDivC_16sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_16sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiDivC_16sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                    d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiDivC_16sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                                roi, scaleFactor);
     }
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
@@ -109,29 +117,19 @@ TEST_P(DivC16scTest, ComplexDiv) {
 
 INSTANTIATE_TEST_SUITE_P(
     DivC16scSuite, DivC16scTest,
-    ::testing::Values(
-        DivCComplexParam{"C1R", 1, false, false},
-        DivCComplexParam{"C1R_Ctx", 1, false, true},
-        DivCComplexParam{"C1IR", 1, true, false},
-        DivCComplexParam{"C1IR_Ctx", 1, true, true},
-        DivCComplexParam{"C3R", 3, false, false},
-        DivCComplexParam{"C3R_Ctx", 3, false, true},
-        DivCComplexParam{"C3IR", 3, true, false},
-        DivCComplexParam{"C3IR_Ctx", 3, true, true},
-        DivCComplexParam{"AC4R", -4, false, false},
-        DivCComplexParam{"AC4R_Ctx", -4, false, true},
-        DivCComplexParam{"AC4IR", -4, true, false},
-        DivCComplexParam{"AC4IR_Ctx", -4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<DivCComplexParam>& info) { return info.param.name; }
-);
+    ::testing::Values(DivCComplexParam{"C1R", 1, false, false}, DivCComplexParam{"C1R_Ctx", 1, false, true},
+                      DivCComplexParam{"C1IR", 1, true, false}, DivCComplexParam{"C1IR_Ctx", 1, true, true},
+                      DivCComplexParam{"C3R", 3, false, false}, DivCComplexParam{"C3R_Ctx", 3, false, true},
+                      DivCComplexParam{"C3IR", 3, true, false}, DivCComplexParam{"C3IR_Ctx", 3, true, true},
+                      DivCComplexParam{"AC4R", -4, false, false}, DivCComplexParam{"AC4R_Ctx", -4, false, true},
+                      DivCComplexParam{"AC4IR", -4, true, false}, DivCComplexParam{"AC4IR_Ctx", -4, true, true}),
+    [](const ::testing::TestParamInfo<DivCComplexParam> &info) { return info.param.name; });
 
 // 32sc tests
-class DivC32scTest : public NppTestBase,
-                     public ::testing::WithParamInterface<DivCComplexParam> {};
+class DivC32scTest : public NppTestBase, public ::testing::WithParamInterface<DivCComplexParam> {};
 
 TEST_P(DivC32scTest, ComplexDiv) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
   const int total = width * height * actualChannels;
@@ -173,12 +171,14 @@ TEST_P(DivC32scTest, ComplexDiv) {
   NppImageMemory<Npp32sc> d_src(width * actualChannels, height);
   NppImageMemory<Npp32sc> d_dst(width * actualChannels, height);
   d_src.copyFromHost(src);
-  if (p.channels == -4) d_dst.copyFromHost(src);
+  if (p.channels == -4)
+    d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
   NppStatus status;
   NppStreamContext ctx;
-  if (p.useCtx) nppGetStreamContext(&ctx);
+  if (p.useCtx)
+    nppGetStreamContext(&ctx);
 
   if (p.inplace) {
     d_dst.copyFromHost(src);
@@ -189,19 +189,26 @@ TEST_P(DivC32scTest, ComplexDiv) {
       status = p.useCtx ? nppiDivC_32sc_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
                         : nppiDivC_32sc_C3IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiDivC_32sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_32sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx
+                   ? nppiDivC_32sc_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
+                   : nppiDivC_32sc_AC4IRSfs(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
     }
   } else {
     if (p.channels == 1) {
-      status = p.useCtx ? nppiDivC_32sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_32sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiDivC_32sc_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(),
+                                                   roi, scaleFactor, ctx)
+                        : nppiDivC_32sc_C1RSfs(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                               scaleFactor);
     } else if (p.channels == 3) {
-      status = p.useCtx ? nppiDivC_32sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_32sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiDivC_32sc_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                   d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiDivC_32sc_C3RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                               roi, scaleFactor);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiDivC_32sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx)
-                        : nppiDivC_32sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor);
+      status = p.useCtx ? nppiDivC_32sc_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(),
+                                                    d_dst.step(), roi, scaleFactor, ctx)
+                        : nppiDivC_32sc_AC4RSfs(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                                roi, scaleFactor);
     }
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
@@ -217,29 +224,19 @@ TEST_P(DivC32scTest, ComplexDiv) {
 
 INSTANTIATE_TEST_SUITE_P(
     DivC32scSuite, DivC32scTest,
-    ::testing::Values(
-        DivCComplexParam{"C1R", 1, false, false},
-        DivCComplexParam{"C1R_Ctx", 1, false, true},
-        DivCComplexParam{"C1IR", 1, true, false},
-        DivCComplexParam{"C1IR_Ctx", 1, true, true},
-        DivCComplexParam{"C3R", 3, false, false},
-        DivCComplexParam{"C3R_Ctx", 3, false, true},
-        DivCComplexParam{"C3IR", 3, true, false},
-        DivCComplexParam{"C3IR_Ctx", 3, true, true},
-        DivCComplexParam{"AC4R", -4, false, false},
-        DivCComplexParam{"AC4R_Ctx", -4, false, true},
-        DivCComplexParam{"AC4IR", -4, true, false},
-        DivCComplexParam{"AC4IR_Ctx", -4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<DivCComplexParam>& info) { return info.param.name; }
-);
+    ::testing::Values(DivCComplexParam{"C1R", 1, false, false}, DivCComplexParam{"C1R_Ctx", 1, false, true},
+                      DivCComplexParam{"C1IR", 1, true, false}, DivCComplexParam{"C1IR_Ctx", 1, true, true},
+                      DivCComplexParam{"C3R", 3, false, false}, DivCComplexParam{"C3R_Ctx", 3, false, true},
+                      DivCComplexParam{"C3IR", 3, true, false}, DivCComplexParam{"C3IR_Ctx", 3, true, true},
+                      DivCComplexParam{"AC4R", -4, false, false}, DivCComplexParam{"AC4R_Ctx", -4, false, true},
+                      DivCComplexParam{"AC4IR", -4, true, false}, DivCComplexParam{"AC4IR_Ctx", -4, true, true}),
+    [](const ::testing::TestParamInfo<DivCComplexParam> &info) { return info.param.name; });
 
 // 32fc tests
-class DivC32fcTest : public NppTestBase,
-                     public ::testing::WithParamInterface<DivCComplexParam> {};
+class DivC32fcTest : public NppTestBase, public ::testing::WithParamInterface<DivCComplexParam> {};
 
 TEST_P(DivC32fcTest, ComplexDiv) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
   const int total = width * height * actualChannels;
@@ -273,12 +270,14 @@ TEST_P(DivC32fcTest, ComplexDiv) {
   NppImageMemory<Npp32fc> d_src(width * actualChannels, height);
   NppImageMemory<Npp32fc> d_dst(width * actualChannels, height);
   d_src.copyFromHost(src);
-  if (p.channels == -4) d_dst.copyFromHost(src);
+  if (p.channels == -4)
+    d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
   NppStatus status;
   NppStreamContext ctx;
-  if (p.useCtx) nppGetStreamContext(&ctx);
+  if (p.useCtx)
+    nppGetStreamContext(&ctx);
 
   if (p.inplace) {
     d_dst.copyFromHost(src);
@@ -297,17 +296,24 @@ TEST_P(DivC32fcTest, ComplexDiv) {
     }
   } else {
     if (p.channels == 1) {
-      status = p.useCtx ? nppiDivC_32fc_C1R_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, ctx)
+      status = p.useCtx ? nppiDivC_32fc_C1R_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(),
+                                                roi, ctx)
                         : nppiDivC_32fc_C1R(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi);
     } else if (p.channels == 3) {
-      status = p.useCtx ? nppiDivC_32fc_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
-                        : nppiDivC_32fc_C3R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
+      status =
+          p.useCtx
+              ? nppiDivC_32fc_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
+              : nppiDivC_32fc_C3R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
     } else if (p.channels == 4) {
-      status = p.useCtx ? nppiDivC_32fc_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
-                        : nppiDivC_32fc_C4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
+      status =
+          p.useCtx
+              ? nppiDivC_32fc_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
+              : nppiDivC_32fc_C4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
     } else if (p.channels == -4) {
-      status = p.useCtx ? nppiDivC_32fc_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx)
-                        : nppiDivC_32fc_AC4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
+      status = p.useCtx
+                   ? nppiDivC_32fc_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(),
+                                            roi, ctx)
+                   : nppiDivC_32fc_AC4R(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi);
     }
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
@@ -323,26 +329,15 @@ TEST_P(DivC32fcTest, ComplexDiv) {
 
 INSTANTIATE_TEST_SUITE_P(
     DivC32fcSuite, DivC32fcTest,
-    ::testing::Values(
-        DivCComplexParam{"C1R", 1, false, false},
-        DivCComplexParam{"C1R_Ctx", 1, false, true},
-        DivCComplexParam{"C1IR", 1, true, false},
-        DivCComplexParam{"C1IR_Ctx", 1, true, true},
-        DivCComplexParam{"C3R", 3, false, false},
-        DivCComplexParam{"C3R_Ctx", 3, false, true},
-        DivCComplexParam{"C3IR", 3, true, false},
-        DivCComplexParam{"C3IR_Ctx", 3, true, true},
-        DivCComplexParam{"C4R", 4, false, false},
-        DivCComplexParam{"C4R_Ctx", 4, false, true},
-        DivCComplexParam{"C4IR", 4, true, false},
-        DivCComplexParam{"C4IR_Ctx", 4, true, true},
-        DivCComplexParam{"AC4R", -4, false, false},
-        DivCComplexParam{"AC4R_Ctx", -4, false, true},
-        DivCComplexParam{"AC4IR", -4, true, false},
-        DivCComplexParam{"AC4IR_Ctx", -4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<DivCComplexParam>& info) { return info.param.name; }
-);
+    ::testing::Values(DivCComplexParam{"C1R", 1, false, false}, DivCComplexParam{"C1R_Ctx", 1, false, true},
+                      DivCComplexParam{"C1IR", 1, true, false}, DivCComplexParam{"C1IR_Ctx", 1, true, true},
+                      DivCComplexParam{"C3R", 3, false, false}, DivCComplexParam{"C3R_Ctx", 3, false, true},
+                      DivCComplexParam{"C3IR", 3, true, false}, DivCComplexParam{"C3IR_Ctx", 3, true, true},
+                      DivCComplexParam{"C4R", 4, false, false}, DivCComplexParam{"C4R_Ctx", 4, false, true},
+                      DivCComplexParam{"C4IR", 4, true, false}, DivCComplexParam{"C4IR_Ctx", 4, true, true},
+                      DivCComplexParam{"AC4R", -4, false, false}, DivCComplexParam{"AC4R_Ctx", -4, false, true},
+                      DivCComplexParam{"AC4IR", -4, true, false}, DivCComplexParam{"AC4IR_Ctx", -4, true, true}),
+    [](const ::testing::TestParamInfo<DivCComplexParam> &info) { return info.param.name; });
 
 // ==================== DivC Ctx variants for integer types ====================
 
@@ -353,11 +348,10 @@ struct DivCIntCtxParam {
   bool inplace;
 };
 
-class DivCIntCtxTest : public NppTestBase,
-                       public ::testing::WithParamInterface<DivCIntCtxParam> {};
+class DivCIntCtxTest : public NppTestBase, public ::testing::WithParamInterface<DivCIntCtxParam> {};
 
 TEST_P(DivCIntCtxTest, CtxVariant) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 32, height = 32;
   const int actualChannels = (p.channels == -4) ? 4 : p.channels;
 
@@ -373,7 +367,8 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
 
     const int constCount = (p.channels == -4) ? 3 : actualChannels;
     std::vector<Npp8u> aConstants(constCount);
-    for (int i = 0; i < constCount; i++) aConstants[i] = static_cast<Npp8u>(2 + i);
+    for (int i = 0; i < constCount; i++)
+      aConstants[i] = static_cast<Npp8u>(2 + i);
 
     int scaleFactor = 0;
     for (int i = 0; i < total; i++) {
@@ -389,35 +384,44 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp8u> d_src(width * actualChannels, height);
     NppImageMemory<Npp8u> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
-      if (p.channels == 3) status = nppiDivC_8u_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 4) status = nppiDivC_8u_C4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == -4) status = nppiDivC_8u_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 3)
+        status = nppiDivC_8u_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_8u_C4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_8u_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
     } else {
-      if (p.channels == 3) status = nppiDivC_8u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 4) status = nppiDivC_8u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == -4) status = nppiDivC_8u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 3)
+        status = nppiDivC_8u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                        scaleFactor, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_8u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                        scaleFactor, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_8u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
     std::vector<Npp8u> result(total);
     d_dst.copyToHost(result);
     for (size_t i = 0; i < result.size(); i++) {
-      EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-        << "Mismatch at index " << i;
+      EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1) << "Mismatch at index " << i;
     }
-  }
-  else if (p.dtype == "16u") {
+  } else if (p.dtype == "16u") {
     const int total = width * height * actualChannels;
     std::vector<Npp16u> src(total), expected(total);
     TestDataGenerator::generateRandom(src, (Npp16u)0, (Npp16u)65000, 12345);
 
     const int constCount = (p.channels == -4) ? 3 : actualChannels;
     std::vector<Npp16u> aConstants(constCount);
-    for (int i = 0; i < constCount; i++) aConstants[i] = static_cast<Npp16u>(10 + i * 10);
+    for (int i = 0; i < constCount; i++)
+      aConstants[i] = static_cast<Npp16u>(10 + i * 10);
 
     int scaleFactor = 0;
     for (int i = 0; i < total; i++) {
@@ -433,35 +437,44 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp16u> d_src(width * actualChannels, height);
     NppImageMemory<Npp16u> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
-      if (p.channels == 3) status = nppiDivC_16u_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 4) status = nppiDivC_16u_C4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == -4) status = nppiDivC_16u_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 3)
+        status = nppiDivC_16u_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_16u_C4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_16u_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
     } else {
-      if (p.channels == 3) status = nppiDivC_16u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 4) status = nppiDivC_16u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == -4) status = nppiDivC_16u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 3)
+        status = nppiDivC_16u_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_16u_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_16u_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                          scaleFactor, ctx);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
     std::vector<Npp16u> result(total);
     d_dst.copyToHost(result);
     for (size_t i = 0; i < result.size(); i++) {
-      EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-        << "Mismatch at index " << i;
+      EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1) << "Mismatch at index " << i;
     }
-  }
-  else if (p.dtype == "16s") {
+  } else if (p.dtype == "16s") {
     const int total = width * height * actualChannels;
     std::vector<Npp16s> src(total), expected(total);
     TestDataGenerator::generateRandom(src, (Npp16s)-10000, (Npp16s)10000, 12345);
 
     const int constCount = (p.channels == -4) ? 3 : actualChannels;
     std::vector<Npp16s> aConstants(constCount);
-    for (int i = 0; i < constCount; i++) aConstants[i] = static_cast<Npp16s>(10 * (i + 1) * ((i % 2 == 0) ? 1 : -1));
+    for (int i = 0; i < constCount; i++)
+      aConstants[i] = static_cast<Npp16s>(10 * (i + 1) * ((i % 2 == 0) ? 1 : -1));
 
     int scaleFactor = 0;
     for (int i = 0; i < total; i++) {
@@ -477,37 +490,49 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp16s> d_src(width * actualChannels, height);
     NppImageMemory<Npp16s> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
-      if (p.channels == 1) status = nppiDivC_16s_C1IRSfs_Ctx(aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 3) status = nppiDivC_16s_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 4) status = nppiDivC_16s_C4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == -4) status = nppiDivC_16s_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 1)
+        status = nppiDivC_16s_C1IRSfs_Ctx(aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == 3)
+        status = nppiDivC_16s_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_16s_C4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_16s_AC4IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
     } else {
-      if (p.channels == 1) status = nppiDivC_16s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 3) status = nppiDivC_16s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 4) status = nppiDivC_16s_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == -4) status = nppiDivC_16s_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 1)
+        status = nppiDivC_16s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
+      else if (p.channels == 3)
+        status = nppiDivC_16s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_16s_C4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_16s_AC4RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                          scaleFactor, ctx);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
     std::vector<Npp16s> result(total);
     d_dst.copyToHost(result);
     for (size_t i = 0; i < result.size(); i++) {
-      EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-        << "Mismatch at index " << i;
+      EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1) << "Mismatch at index " << i;
     }
-  }
-  else if (p.dtype == "32s") {
+  } else if (p.dtype == "32s") {
     const int total = width * height * actualChannels;
     std::vector<Npp32s> src(total), expected(total);
     TestDataGenerator::generateRandom(src, (Npp32s)-100000, (Npp32s)100000, 12345);
 
     const int constCount = (p.channels == -4) ? 3 : actualChannels;
     std::vector<Npp32s> aConstants(constCount);
-    for (int i = 0; i < constCount; i++) aConstants[i] = 10 * (i + 1) * ((i % 2 == 0) ? 1 : -1);
+    for (int i = 0; i < constCount; i++)
+      aConstants[i] = 10 * (i + 1) * ((i % 2 == 0) ? 1 : -1);
 
     int scaleFactor = 0;
     for (int i = 0; i < total; i++) {
@@ -526,26 +551,32 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
-      if (p.channels == 1) status = nppiDivC_32s_C1IRSfs_Ctx(aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 3) status = nppiDivC_32s_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 1)
+        status = nppiDivC_32s_C1IRSfs_Ctx(aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      else if (p.channels == 3)
+        status = nppiDivC_32s_C3IRSfs_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
     } else {
-      if (p.channels == 1) status = nppiDivC_32s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
-      else if (p.channels == 3) status = nppiDivC_32s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, scaleFactor, ctx);
+      if (p.channels == 1)
+        status = nppiDivC_32s_C1RSfs_Ctx(d_src.get(), d_src.step(), aConstants[0], d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
+      else if (p.channels == 3)
+        status = nppiDivC_32s_C3RSfs_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi,
+                                         scaleFactor, ctx);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
     std::vector<Npp32s> result(total);
     d_dst.copyToHost(result);
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
-  }
-  else if (p.dtype == "32f") {
+  } else if (p.dtype == "32f") {
     const int total = width * height * actualChannels;
     std::vector<Npp32f> src(total), expected(total);
     TestDataGenerator::generateRandom(src, -100.0f, 100.0f, 12345);
 
     const int constCount = (p.channels == -4) ? 3 : actualChannels;
     std::vector<Npp32f> aConstants(constCount);
-    for (int i = 0; i < constCount; i++) aConstants[i] = 2.0f * (i + 1) * ((i % 2 == 0) ? 1 : -1);
+    for (int i = 0; i < constCount; i++)
+      aConstants[i] = 2.0f * (i + 1) * ((i % 2 == 0) ? 1 : -1);
 
     for (int i = 0; i < total; i++) {
       int ch = i % actualChannels;
@@ -559,17 +590,27 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
     NppImageMemory<Npp32f> d_src(width * actualChannels, height);
     NppImageMemory<Npp32f> d_dst(width * actualChannels, height);
     d_src.copyFromHost(src);
-    if (p.channels == -4) d_dst.copyFromHost(src);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src);
 
     if (p.inplace) {
       d_dst.copyFromHost(src);
-      if (p.channels == 3) status = nppiDivC_32f_C3IR_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
-      else if (p.channels == 4) status = nppiDivC_32f_C4IR_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
-      else if (p.channels == -4) status = nppiDivC_32f_AC4IR_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+      if (p.channels == 3)
+        status = nppiDivC_32f_C3IR_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+      else if (p.channels == 4)
+        status = nppiDivC_32f_C4IR_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+      else if (p.channels == -4)
+        status = nppiDivC_32f_AC4IR_Ctx(aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
     } else {
-      if (p.channels == 3) status = nppiDivC_32f_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
-      else if (p.channels == 4) status = nppiDivC_32f_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
-      else if (p.channels == -4) status = nppiDivC_32f_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+      if (p.channels == 3)
+        status =
+            nppiDivC_32f_C3R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+      else if (p.channels == 4)
+        status =
+            nppiDivC_32f_C4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
+      else if (p.channels == -4)
+        status =
+            nppiDivC_32f_AC4R_Ctx(d_src.get(), d_src.step(), aConstants.data(), d_dst.get(), d_dst.step(), roi, ctx);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -582,39 +623,22 @@ TEST_P(DivCIntCtxTest, CtxVariant) {
 INSTANTIATE_TEST_SUITE_P(
     DivCIntCtxSuite, DivCIntCtxTest,
     ::testing::Values(
-        DivCIntCtxParam{"8u_C3RSfs_Ctx", "8u", 3, false},
-        DivCIntCtxParam{"8u_C4RSfs_Ctx", "8u", 4, false},
-        DivCIntCtxParam{"8u_AC4RSfs_Ctx", "8u", -4, false},
-        DivCIntCtxParam{"8u_C3IRSfs_Ctx", "8u", 3, true},
-        DivCIntCtxParam{"8u_C4IRSfs_Ctx", "8u", 4, true},
-        DivCIntCtxParam{"8u_AC4IRSfs_Ctx", "8u", -4, true},
-        DivCIntCtxParam{"16u_C3RSfs_Ctx", "16u", 3, false},
-        DivCIntCtxParam{"16u_C4RSfs_Ctx", "16u", 4, false},
-        DivCIntCtxParam{"16u_AC4RSfs_Ctx", "16u", -4, false},
-        DivCIntCtxParam{"16u_C3IRSfs_Ctx", "16u", 3, true},
-        DivCIntCtxParam{"16u_C4IRSfs_Ctx", "16u", 4, true},
-        DivCIntCtxParam{"16u_AC4IRSfs_Ctx", "16u", -4, true},
-        DivCIntCtxParam{"16s_C1RSfs_Ctx", "16s", 1, false},
-        DivCIntCtxParam{"16s_C3RSfs_Ctx", "16s", 3, false},
-        DivCIntCtxParam{"16s_C4RSfs_Ctx", "16s", 4, false},
-        DivCIntCtxParam{"16s_AC4RSfs_Ctx", "16s", -4, false},
-        DivCIntCtxParam{"16s_C1IRSfs_Ctx", "16s", 1, true},
-        DivCIntCtxParam{"16s_C3IRSfs_Ctx", "16s", 3, true},
-        DivCIntCtxParam{"16s_C4IRSfs_Ctx", "16s", 4, true},
-        DivCIntCtxParam{"16s_AC4IRSfs_Ctx", "16s", -4, true},
-        DivCIntCtxParam{"32s_C1RSfs_Ctx", "32s", 1, false},
-        DivCIntCtxParam{"32s_C3RSfs_Ctx", "32s", 3, false},
-        DivCIntCtxParam{"32s_C1IRSfs_Ctx", "32s", 1, true},
-        DivCIntCtxParam{"32s_C3IRSfs_Ctx", "32s", 3, true},
-        DivCIntCtxParam{"32f_C3R_Ctx", "32f", 3, false},
-        DivCIntCtxParam{"32f_C4R_Ctx", "32f", 4, false},
-        DivCIntCtxParam{"32f_AC4R_Ctx", "32f", -4, false},
-        DivCIntCtxParam{"32f_C3IR_Ctx", "32f", 3, true},
-        DivCIntCtxParam{"32f_C4IR_Ctx", "32f", 4, true},
-        DivCIntCtxParam{"32f_AC4IR_Ctx", "32f", -4, true}
-    ),
-    [](const ::testing::TestParamInfo<DivCIntCtxParam>& info) { return info.param.name; }
-);
+        DivCIntCtxParam{"8u_C3RSfs_Ctx", "8u", 3, false}, DivCIntCtxParam{"8u_C4RSfs_Ctx", "8u", 4, false},
+        DivCIntCtxParam{"8u_AC4RSfs_Ctx", "8u", -4, false}, DivCIntCtxParam{"8u_C3IRSfs_Ctx", "8u", 3, true},
+        DivCIntCtxParam{"8u_C4IRSfs_Ctx", "8u", 4, true}, DivCIntCtxParam{"8u_AC4IRSfs_Ctx", "8u", -4, true},
+        DivCIntCtxParam{"16u_C3RSfs_Ctx", "16u", 3, false}, DivCIntCtxParam{"16u_C4RSfs_Ctx", "16u", 4, false},
+        DivCIntCtxParam{"16u_AC4RSfs_Ctx", "16u", -4, false}, DivCIntCtxParam{"16u_C3IRSfs_Ctx", "16u", 3, true},
+        DivCIntCtxParam{"16u_C4IRSfs_Ctx", "16u", 4, true}, DivCIntCtxParam{"16u_AC4IRSfs_Ctx", "16u", -4, true},
+        DivCIntCtxParam{"16s_C1RSfs_Ctx", "16s", 1, false}, DivCIntCtxParam{"16s_C3RSfs_Ctx", "16s", 3, false},
+        DivCIntCtxParam{"16s_C4RSfs_Ctx", "16s", 4, false}, DivCIntCtxParam{"16s_AC4RSfs_Ctx", "16s", -4, false},
+        DivCIntCtxParam{"16s_C1IRSfs_Ctx", "16s", 1, true}, DivCIntCtxParam{"16s_C3IRSfs_Ctx", "16s", 3, true},
+        DivCIntCtxParam{"16s_C4IRSfs_Ctx", "16s", 4, true}, DivCIntCtxParam{"16s_AC4IRSfs_Ctx", "16s", -4, true},
+        DivCIntCtxParam{"32s_C1RSfs_Ctx", "32s", 1, false}, DivCIntCtxParam{"32s_C3RSfs_Ctx", "32s", 3, false},
+        DivCIntCtxParam{"32s_C1IRSfs_Ctx", "32s", 1, true}, DivCIntCtxParam{"32s_C3IRSfs_Ctx", "32s", 3, true},
+        DivCIntCtxParam{"32f_C3R_Ctx", "32f", 3, false}, DivCIntCtxParam{"32f_C4R_Ctx", "32f", 4, false},
+        DivCIntCtxParam{"32f_AC4R_Ctx", "32f", -4, false}, DivCIntCtxParam{"32f_C3IR_Ctx", "32f", 3, true},
+        DivCIntCtxParam{"32f_C4IR_Ctx", "32f", 4, true}, DivCIntCtxParam{"32f_AC4IR_Ctx", "32f", -4, true}),
+    [](const ::testing::TestParamInfo<DivCIntCtxParam> &info) { return info.param.name; });
 
 // ==================== DivC Non-Ctx integer inplace variants ====================
 

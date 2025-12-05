@@ -19,7 +19,7 @@ struct Sub16fCompleteParam {
 class Sub16fCompleteParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub16fCompleteParam> {};
 
 TEST_P(Sub16fCompleteParamTest, Sub_16f_Complete) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int total = p.width * p.height * p.channels;
 
   std::vector<Npp32f> src1_f(total), src2_f(total);
@@ -61,14 +61,20 @@ TEST_P(Sub16fCompleteParamTest, Sub_16f_Complete) {
   } else {
     NppImageMemory<Npp16f> d_dst(p.width * p.channels, p.height);
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_16f_C1R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_16f_C1R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_16f_C1R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, ctx)
+                         : nppiSub_16f_C1R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                           d_dst.step(), roi);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_16f_C3R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_16f_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_16f_C3R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, ctx)
+                         : nppiSub_16f_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                           d_dst.step(), roi);
     } else if (p.channels == 4) {
-      status = p.use_ctx ? nppiSub_16f_C4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_16f_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_16f_C4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, ctx)
+                         : nppiSub_16f_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                           d_dst.step(), roi);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp16f> result(total);
@@ -77,20 +83,16 @@ TEST_P(Sub16fCompleteParamTest, Sub_16f_Complete) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub16fComplete, Sub16fCompleteParamTest, ::testing::Values(
-  Sub16fCompleteParam{32, 32, 1, false, false, "C1R"},
-  Sub16fCompleteParam{32, 32, 1, true, false, "C1R_Ctx"},
-  Sub16fCompleteParam{32, 32, 1, false, true, "C1IR"},
-  Sub16fCompleteParam{32, 32, 1, true, true, "C1IR_Ctx"},
-  Sub16fCompleteParam{32, 32, 3, false, false, "C3R"},
-  Sub16fCompleteParam{32, 32, 3, true, false, "C3R_Ctx"},
-  Sub16fCompleteParam{32, 32, 3, false, true, "C3IR"},
-  Sub16fCompleteParam{32, 32, 3, true, true, "C3IR_Ctx"},
-  Sub16fCompleteParam{32, 32, 4, false, false, "C4R"},
-  Sub16fCompleteParam{32, 32, 4, true, false, "C4R_Ctx"},
-  Sub16fCompleteParam{32, 32, 4, false, true, "C4IR"},
-  Sub16fCompleteParam{32, 32, 4, true, true, "C4IR_Ctx"}
-), [](const ::testing::TestParamInfo<Sub16fCompleteParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    Sub16fComplete, Sub16fCompleteParamTest,
+    ::testing::Values(
+        Sub16fCompleteParam{32, 32, 1, false, false, "C1R"}, Sub16fCompleteParam{32, 32, 1, true, false, "C1R_Ctx"},
+        Sub16fCompleteParam{32, 32, 1, false, true, "C1IR"}, Sub16fCompleteParam{32, 32, 1, true, true, "C1IR_Ctx"},
+        Sub16fCompleteParam{32, 32, 3, false, false, "C3R"}, Sub16fCompleteParam{32, 32, 3, true, false, "C3R_Ctx"},
+        Sub16fCompleteParam{32, 32, 3, false, true, "C3IR"}, Sub16fCompleteParam{32, 32, 3, true, true, "C3IR_Ctx"},
+        Sub16fCompleteParam{32, 32, 4, false, false, "C4R"}, Sub16fCompleteParam{32, 32, 4, true, false, "C4R_Ctx"},
+        Sub16fCompleteParam{32, 32, 4, false, true, "C4IR"}, Sub16fCompleteParam{32, 32, 4, true, true, "C4IR_Ctx"}),
+    [](const ::testing::TestParamInfo<Sub16fCompleteParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub 32fc (complex float) - C1/C3/C4/AC4 channels
@@ -108,7 +110,7 @@ struct Sub32fcParam {
 class Sub32fcParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub32fcParam> {};
 
 TEST_P(Sub32fcParamTest, Sub_32fc) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int ch = (p.channels < 0) ? 4 : p.channels;
   const int total = p.width * p.height * ch;
 
@@ -158,19 +160,28 @@ TEST_P(Sub32fcParamTest, Sub_32fc) {
     }
   } else {
     NppImageMemory<Npp32fc> d_dst(p.width * ch, p.height);
-    if (p.channels == -4) d_dst.copyFromHost(src2);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src2);
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_32fc_C1R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_32fc_C1R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_32fc_C1R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, ctx)
+                         : nppiSub_32fc_C1R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                            d_dst.step(), roi);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_32fc_C3R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_32fc_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_32fc_C3R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, ctx)
+                         : nppiSub_32fc_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                            d_dst.step(), roi);
     } else if (p.channels == 4) {
-      status = p.use_ctx ? nppiSub_32fc_C4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_32fc_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_32fc_C4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, ctx)
+                         : nppiSub_32fc_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                            d_dst.step(), roi);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_32fc_AC4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                         : nppiSub_32fc_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+      status = p.use_ctx ? nppiSub_32fc_AC4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                 d_dst.step(), roi, ctx)
+                         : nppiSub_32fc_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                             d_dst.step(), roi);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp32fc> result(total);
@@ -182,24 +193,18 @@ TEST_P(Sub32fcParamTest, Sub_32fc) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub32fc, Sub32fcParamTest, ::testing::Values(
-  Sub32fcParam{32, 32, 1, false, false, "C1R"},
-  Sub32fcParam{32, 32, 1, true, false, "C1R_Ctx"},
-  Sub32fcParam{32, 32, 1, false, true, "C1IR"},
-  Sub32fcParam{32, 32, 1, true, true, "C1IR_Ctx"},
-  Sub32fcParam{32, 32, 3, false, false, "C3R"},
-  Sub32fcParam{32, 32, 3, true, false, "C3R_Ctx"},
-  Sub32fcParam{32, 32, 3, false, true, "C3IR"},
-  Sub32fcParam{32, 32, 3, true, true, "C3IR_Ctx"},
-  Sub32fcParam{32, 32, 4, false, false, "C4R"},
-  Sub32fcParam{32, 32, 4, true, false, "C4R_Ctx"},
-  Sub32fcParam{32, 32, 4, false, true, "C4IR"},
-  Sub32fcParam{32, 32, 4, true, true, "C4IR_Ctx"},
-  Sub32fcParam{32, 32, -4, false, false, "AC4R"},
-  Sub32fcParam{32, 32, -4, true, false, "AC4R_Ctx"},
-  Sub32fcParam{32, 32, -4, false, true, "AC4IR"},
-  Sub32fcParam{32, 32, -4, true, true, "AC4IR_Ctx"}
-), [](const ::testing::TestParamInfo<Sub32fcParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    Sub32fc, Sub32fcParamTest,
+    ::testing::Values(Sub32fcParam{32, 32, 1, false, false, "C1R"}, Sub32fcParam{32, 32, 1, true, false, "C1R_Ctx"},
+                      Sub32fcParam{32, 32, 1, false, true, "C1IR"}, Sub32fcParam{32, 32, 1, true, true, "C1IR_Ctx"},
+                      Sub32fcParam{32, 32, 3, false, false, "C3R"}, Sub32fcParam{32, 32, 3, true, false, "C3R_Ctx"},
+                      Sub32fcParam{32, 32, 3, false, true, "C3IR"}, Sub32fcParam{32, 32, 3, true, true, "C3IR_Ctx"},
+                      Sub32fcParam{32, 32, 4, false, false, "C4R"}, Sub32fcParam{32, 32, 4, true, false, "C4R_Ctx"},
+                      Sub32fcParam{32, 32, 4, false, true, "C4IR"}, Sub32fcParam{32, 32, 4, true, true, "C4IR_Ctx"},
+                      Sub32fcParam{32, 32, -4, false, false, "AC4R"}, Sub32fcParam{32, 32, -4, true, false, "AC4R_Ctx"},
+                      Sub32fcParam{32, 32, -4, false, true, "AC4IR"},
+                      Sub32fcParam{32, 32, -4, true, true, "AC4IR_Ctx"}),
+    [](const ::testing::TestParamInfo<Sub32fcParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub 16sc/32sc (complex integer with scale) - C1/C3/AC4 channels
@@ -218,7 +223,7 @@ struct Sub16scParam {
 class Sub16scParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub16scParam> {};
 
 TEST_P(Sub16scParamTest, Sub_16sc) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int ch = (p.channels < 0) ? 4 : p.channels;
   const int total = p.width * p.height * ch;
 
@@ -253,14 +258,20 @@ TEST_P(Sub16scParamTest, Sub_16sc) {
 
   if (p.in_place) {
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_16sc_C1IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_16sc_C1IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_16sc_C1IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                              p.scaleFactor, ctx)
+                   : nppiSub_16sc_C1IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_16sc_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_16sc_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_16sc_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                              p.scaleFactor, ctx)
+                   : nppiSub_16sc_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_16sc_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_16sc_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_16sc_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                     p.scaleFactor, ctx)
+                         : nppiSub_16sc_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                 p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp16sc> result(total);
@@ -271,16 +282,23 @@ TEST_P(Sub16scParamTest, Sub_16sc) {
     }
   } else {
     NppImageMemory<Npp16sc> d_dst(p.width * ch, p.height);
-    if (p.channels == -4) d_dst.copyFromHost(src2);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src2);
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_16sc_C1RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_16sc_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_16sc_C1RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                   d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_16sc_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_16sc_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_16sc_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_16sc_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                   d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_16sc_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_16sc_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_16sc_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_16sc_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                    d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_16sc_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp16sc> result(total);
@@ -292,20 +310,16 @@ TEST_P(Sub16scParamTest, Sub_16sc) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub16sc, Sub16scParamTest, ::testing::Values(
-  Sub16scParam{32, 32, 1, 0, false, false, "C1RSfs"},
-  Sub16scParam{32, 32, 1, 0, true, false, "C1RSfs_Ctx"},
-  Sub16scParam{32, 32, 1, 0, false, true, "C1IRSfs"},
-  Sub16scParam{32, 32, 1, 0, true, true, "C1IRSfs_Ctx"},
-  Sub16scParam{32, 32, 3, 0, false, false, "C3RSfs"},
-  Sub16scParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
-  Sub16scParam{32, 32, 3, 0, false, true, "C3IRSfs"},
-  Sub16scParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"},
-  Sub16scParam{32, 32, -4, 0, false, false, "AC4RSfs"},
-  Sub16scParam{32, 32, -4, 0, true, false, "AC4RSfs_Ctx"},
-  Sub16scParam{32, 32, -4, 0, false, true, "AC4IRSfs"},
-  Sub16scParam{32, 32, -4, 0, true, true, "AC4IRSfs_Ctx"}
-), [](const ::testing::TestParamInfo<Sub16scParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    Sub16sc, Sub16scParamTest,
+    ::testing::Values(
+        Sub16scParam{32, 32, 1, 0, false, false, "C1RSfs"}, Sub16scParam{32, 32, 1, 0, true, false, "C1RSfs_Ctx"},
+        Sub16scParam{32, 32, 1, 0, false, true, "C1IRSfs"}, Sub16scParam{32, 32, 1, 0, true, true, "C1IRSfs_Ctx"},
+        Sub16scParam{32, 32, 3, 0, false, false, "C3RSfs"}, Sub16scParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
+        Sub16scParam{32, 32, 3, 0, false, true, "C3IRSfs"}, Sub16scParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"},
+        Sub16scParam{32, 32, -4, 0, false, false, "AC4RSfs"}, Sub16scParam{32, 32, -4, 0, true, false, "AC4RSfs_Ctx"},
+        Sub16scParam{32, 32, -4, 0, false, true, "AC4IRSfs"}, Sub16scParam{32, 32, -4, 0, true, true, "AC4IRSfs_Ctx"}),
+    [](const ::testing::TestParamInfo<Sub16scParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub 32sc (complex 32-bit integer with scale)
@@ -324,7 +338,7 @@ struct Sub32scParam {
 class Sub32scParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub32scParam> {};
 
 TEST_P(Sub32scParamTest, Sub_32sc) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int ch = (p.channels < 0) ? 4 : p.channels;
   const int total = p.width * p.height * ch;
 
@@ -359,14 +373,20 @@ TEST_P(Sub32scParamTest, Sub_32sc) {
 
   if (p.in_place) {
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_32sc_C1IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32sc_C1IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_32sc_C1IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                              p.scaleFactor, ctx)
+                   : nppiSub_32sc_C1IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_32sc_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32sc_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_32sc_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                              p.scaleFactor, ctx)
+                   : nppiSub_32sc_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_32sc_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32sc_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_32sc_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                     p.scaleFactor, ctx)
+                         : nppiSub_32sc_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                 p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp32sc> result(total);
@@ -377,16 +397,23 @@ TEST_P(Sub32scParamTest, Sub_32sc) {
     }
   } else {
     NppImageMemory<Npp32sc> d_dst(p.width * ch, p.height);
-    if (p.channels == -4) d_dst.copyFromHost(src2);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src2);
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_32sc_C1RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32sc_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_32sc_C1RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                   d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_32sc_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_32sc_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32sc_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_32sc_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                   d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_32sc_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                               d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_32sc_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32sc_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_32sc_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                    d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_32sc_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp32sc> result(total);
@@ -398,20 +425,16 @@ TEST_P(Sub32scParamTest, Sub_32sc) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub32sc, Sub32scParamTest, ::testing::Values(
-  Sub32scParam{32, 32, 1, 0, false, false, "C1RSfs"},
-  Sub32scParam{32, 32, 1, 0, true, false, "C1RSfs_Ctx"},
-  Sub32scParam{32, 32, 1, 0, false, true, "C1IRSfs"},
-  Sub32scParam{32, 32, 1, 0, true, true, "C1IRSfs_Ctx"},
-  Sub32scParam{32, 32, 3, 0, false, false, "C3RSfs"},
-  Sub32scParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
-  Sub32scParam{32, 32, 3, 0, false, true, "C3IRSfs"},
-  Sub32scParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"},
-  Sub32scParam{32, 32, -4, 0, false, false, "AC4RSfs"},
-  Sub32scParam{32, 32, -4, 0, true, false, "AC4RSfs_Ctx"},
-  Sub32scParam{32, 32, -4, 0, false, true, "AC4IRSfs"},
-  Sub32scParam{32, 32, -4, 0, true, true, "AC4IRSfs_Ctx"}
-), [](const ::testing::TestParamInfo<Sub32scParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    Sub32sc, Sub32scParamTest,
+    ::testing::Values(
+        Sub32scParam{32, 32, 1, 0, false, false, "C1RSfs"}, Sub32scParam{32, 32, 1, 0, true, false, "C1RSfs_Ctx"},
+        Sub32scParam{32, 32, 1, 0, false, true, "C1IRSfs"}, Sub32scParam{32, 32, 1, 0, true, true, "C1IRSfs_Ctx"},
+        Sub32scParam{32, 32, 3, 0, false, false, "C3RSfs"}, Sub32scParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
+        Sub32scParam{32, 32, 3, 0, false, true, "C3IRSfs"}, Sub32scParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"},
+        Sub32scParam{32, 32, -4, 0, false, false, "AC4RSfs"}, Sub32scParam{32, 32, -4, 0, true, false, "AC4RSfs_Ctx"},
+        Sub32scParam{32, 32, -4, 0, false, true, "AC4IRSfs"}, Sub32scParam{32, 32, -4, 0, true, true, "AC4IRSfs_Ctx"}),
+    [](const ::testing::TestParamInfo<Sub32scParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub remaining integer variants (16u/16s) with Ctx and C4/AC4
@@ -431,7 +454,7 @@ struct SubIntSfsParam {
 class SubIntSfsParamTest : public NppTestBase, public ::testing::WithParamInterface<SubIntSfsParam> {};
 
 TEST_P(SubIntSfsParamTest, Sub_IntSfs) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int ch = (p.channels < 0) ? 4 : p.channels;
   const int total = p.width * p.height * ch;
 
@@ -457,11 +480,15 @@ TEST_P(SubIntSfsParamTest, Sub_IntSfs) {
 
     if (p.in_place) {
       if (p.channels == 4) {
-        status = p.use_ctx ? nppiSub_16u_C4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16u_C4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16u_C4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                     p.scaleFactor, ctx)
+                           : nppiSub_16u_C4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                 p.scaleFactor);
       } else if (p.channels == -4) {
-        status = p.use_ctx ? nppiSub_16u_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16u_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16u_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                      p.scaleFactor, ctx)
+                           : nppiSub_16u_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                  p.scaleFactor);
       }
       ASSERT_EQ(status, NPP_NO_ERROR);
       std::vector<Npp16u> result(total);
@@ -469,13 +496,18 @@ TEST_P(SubIntSfsParamTest, Sub_IntSfs) {
       EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
     } else {
       NppImageMemory<Npp16u> d_dst(p.width * ch, p.height);
-      if (p.channels == -4) d_dst.copyFromHost(src2);
+      if (p.channels == -4)
+        d_dst.copyFromHost(src2);
       if (p.channels == 4) {
-        status = p.use_ctx ? nppiSub_16u_C4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16u_C4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                    d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                           : nppiSub_16u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, p.scaleFactor);
       } else if (p.channels == -4) {
-        status = p.use_ctx ? nppiSub_16u_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16u_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                     d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                           : nppiSub_16u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                 d_dst.step(), roi, p.scaleFactor);
       }
       ASSERT_EQ(status, NPP_NO_ERROR);
       std::vector<Npp16u> result(total);
@@ -500,11 +532,15 @@ TEST_P(SubIntSfsParamTest, Sub_IntSfs) {
 
     if (p.in_place) {
       if (p.channels == 4) {
-        status = p.use_ctx ? nppiSub_16s_C4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16s_C4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16s_C4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                     p.scaleFactor, ctx)
+                           : nppiSub_16s_C4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                 p.scaleFactor);
       } else if (p.channels == -4) {
-        status = p.use_ctx ? nppiSub_16s_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16s_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16s_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                      p.scaleFactor, ctx)
+                           : nppiSub_16s_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                                  p.scaleFactor);
       }
       ASSERT_EQ(status, NPP_NO_ERROR);
       std::vector<Npp16s> result(total);
@@ -512,13 +548,18 @@ TEST_P(SubIntSfsParamTest, Sub_IntSfs) {
       EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
     } else {
       NppImageMemory<Npp16s> d_dst(p.width * ch, p.height);
-      if (p.channels == -4) d_dst.copyFromHost(src2);
+      if (p.channels == -4)
+        d_dst.copyFromHost(src2);
       if (p.channels == 4) {
-        status = p.use_ctx ? nppiSub_16s_C4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16s_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16s_C4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                    d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                           : nppiSub_16s_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                d_dst.step(), roi, p.scaleFactor);
       } else if (p.channels == -4) {
-        status = p.use_ctx ? nppiSub_16s_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                           : nppiSub_16s_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+        status = p.use_ctx ? nppiSub_16s_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
+                                                     d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
+                           : nppiSub_16s_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                 d_dst.step(), roi, p.scaleFactor);
       }
       ASSERT_EQ(status, NPP_NO_ERROR);
       std::vector<Npp16s> result(total);
@@ -528,24 +569,25 @@ TEST_P(SubIntSfsParamTest, Sub_IntSfs) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(SubIntSfs, SubIntSfsParamTest, ::testing::Values(
-  // 16u variants
-  SubIntSfsParam{32, 32, 4, 0, false, false, "16u", "16u_C4RSfs"},
-  SubIntSfsParam{32, 32, 4, 0, true, false, "16u", "16u_C4RSfs_Ctx"},
-  SubIntSfsParam{32, 32, 4, 0, false, true, "16u", "16u_C4IRSfs"},
-  SubIntSfsParam{32, 32, 4, 0, true, true, "16u", "16u_C4IRSfs_Ctx"},
-  SubIntSfsParam{32, 32, -4, 0, true, false, "16u", "16u_AC4RSfs_Ctx"},
-  SubIntSfsParam{32, 32, -4, 0, false, true, "16u", "16u_AC4IRSfs"},
-  SubIntSfsParam{32, 32, -4, 0, true, true, "16u", "16u_AC4IRSfs_Ctx"},
-  // 16s variants
-  SubIntSfsParam{32, 32, 4, 0, false, false, "16s", "16s_C4RSfs"},
-  SubIntSfsParam{32, 32, 4, 0, true, false, "16s", "16s_C4RSfs_Ctx"},
-  SubIntSfsParam{32, 32, 4, 0, false, true, "16s", "16s_C4IRSfs"},
-  SubIntSfsParam{32, 32, 4, 0, true, true, "16s", "16s_C4IRSfs_Ctx"},
-  SubIntSfsParam{32, 32, -4, 0, true, false, "16s", "16s_AC4RSfs_Ctx"},
-  SubIntSfsParam{32, 32, -4, 0, false, true, "16s", "16s_AC4IRSfs"},
-  SubIntSfsParam{32, 32, -4, 0, true, true, "16s", "16s_AC4IRSfs_Ctx"}
-), [](const ::testing::TestParamInfo<SubIntSfsParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(SubIntSfs, SubIntSfsParamTest,
+                         ::testing::Values(
+                             // 16u variants
+                             SubIntSfsParam{32, 32, 4, 0, false, false, "16u", "16u_C4RSfs"},
+                             SubIntSfsParam{32, 32, 4, 0, true, false, "16u", "16u_C4RSfs_Ctx"},
+                             SubIntSfsParam{32, 32, 4, 0, false, true, "16u", "16u_C4IRSfs"},
+                             SubIntSfsParam{32, 32, 4, 0, true, true, "16u", "16u_C4IRSfs_Ctx"},
+                             SubIntSfsParam{32, 32, -4, 0, true, false, "16u", "16u_AC4RSfs_Ctx"},
+                             SubIntSfsParam{32, 32, -4, 0, false, true, "16u", "16u_AC4IRSfs"},
+                             SubIntSfsParam{32, 32, -4, 0, true, true, "16u", "16u_AC4IRSfs_Ctx"},
+                             // 16s variants
+                             SubIntSfsParam{32, 32, 4, 0, false, false, "16s", "16s_C4RSfs"},
+                             SubIntSfsParam{32, 32, 4, 0, true, false, "16s", "16s_C4RSfs_Ctx"},
+                             SubIntSfsParam{32, 32, 4, 0, false, true, "16s", "16s_C4IRSfs"},
+                             SubIntSfsParam{32, 32, 4, 0, true, true, "16s", "16s_C4IRSfs_Ctx"},
+                             SubIntSfsParam{32, 32, -4, 0, true, false, "16s", "16s_AC4RSfs_Ctx"},
+                             SubIntSfsParam{32, 32, -4, 0, false, true, "16s", "16s_AC4IRSfs"},
+                             SubIntSfsParam{32, 32, -4, 0, true, true, "16s", "16s_AC4IRSfs_Ctx"}),
+                         [](const ::testing::TestParamInfo<SubIntSfsParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub 8u variants (C3/C4/AC4)
@@ -564,7 +606,7 @@ struct Sub8uSfsCompleteParam {
 class Sub8uSfsCompleteParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub8uSfsCompleteParam> {};
 
 TEST_P(Sub8uSfsCompleteParamTest, Sub_8u_Sfs_Complete) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int ch = (p.channels < 0) ? 4 : p.channels;
   const int total = p.width * p.height * ch;
 
@@ -590,14 +632,20 @@ TEST_P(Sub8uSfsCompleteParamTest, Sub_8u_Sfs_Complete) {
 
   if (p.in_place) {
     if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_8u_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_8u_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_8u_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                            p.scaleFactor, ctx)
+                   : nppiSub_8u_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == 4) {
-      status = p.use_ctx ? nppiSub_8u_C4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_8u_C4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_8u_C4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                            p.scaleFactor, ctx)
+                   : nppiSub_8u_C4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_8u_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_8u_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_8u_AC4IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                             p.scaleFactor, ctx)
+                   : nppiSub_8u_AC4IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp8u> result(total);
@@ -605,16 +653,23 @@ TEST_P(Sub8uSfsCompleteParamTest, Sub_8u_Sfs_Complete) {
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
   } else {
     NppImageMemory<Npp8u> d_dst(p.width * ch, p.height);
-    if (p.channels == -4) d_dst.copyFromHost(src2);
+    if (p.channels == -4)
+      d_dst.copyFromHost(src2);
     if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_8u_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_8u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_8u_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                 d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_8u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                             d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == 4) {
-      status = p.use_ctx ? nppiSub_8u_C4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_8u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_8u_C4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                 d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_8u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                             d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == -4) {
-      status = p.use_ctx ? nppiSub_8u_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_8u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_8u_AC4RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                  d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_8u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                              d_dst.step(), roi, p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp8u> result(total);
@@ -623,18 +678,18 @@ TEST_P(Sub8uSfsCompleteParamTest, Sub_8u_Sfs_Complete) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub8uSfsComplete, Sub8uSfsCompleteParamTest, ::testing::Values(
-  Sub8uSfsCompleteParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
-  Sub8uSfsCompleteParam{32, 32, 3, 0, false, true, "C3IRSfs"},
-  Sub8uSfsCompleteParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"},
-  Sub8uSfsCompleteParam{32, 32, 4, 0, false, false, "C4RSfs"},
-  Sub8uSfsCompleteParam{32, 32, 4, 0, true, false, "C4RSfs_Ctx"},
-  Sub8uSfsCompleteParam{32, 32, 4, 0, false, true, "C4IRSfs"},
-  Sub8uSfsCompleteParam{32, 32, 4, 0, true, true, "C4IRSfs_Ctx"},
-  Sub8uSfsCompleteParam{32, 32, -4, 0, true, false, "AC4RSfs_Ctx"},
-  Sub8uSfsCompleteParam{32, 32, -4, 0, false, true, "AC4IRSfs"},
-  Sub8uSfsCompleteParam{32, 32, -4, 0, true, true, "AC4IRSfs_Ctx"}
-), [](const ::testing::TestParamInfo<Sub8uSfsCompleteParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(Sub8uSfsComplete, Sub8uSfsCompleteParamTest,
+                         ::testing::Values(Sub8uSfsCompleteParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
+                                           Sub8uSfsCompleteParam{32, 32, 3, 0, false, true, "C3IRSfs"},
+                                           Sub8uSfsCompleteParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"},
+                                           Sub8uSfsCompleteParam{32, 32, 4, 0, false, false, "C4RSfs"},
+                                           Sub8uSfsCompleteParam{32, 32, 4, 0, true, false, "C4RSfs_Ctx"},
+                                           Sub8uSfsCompleteParam{32, 32, 4, 0, false, true, "C4IRSfs"},
+                                           Sub8uSfsCompleteParam{32, 32, 4, 0, true, true, "C4IRSfs_Ctx"},
+                                           Sub8uSfsCompleteParam{32, 32, -4, 0, true, false, "AC4RSfs_Ctx"},
+                                           Sub8uSfsCompleteParam{32, 32, -4, 0, false, true, "AC4IRSfs"},
+                                           Sub8uSfsCompleteParam{32, 32, -4, 0, true, true, "AC4IRSfs_Ctx"}),
+                         [](const ::testing::TestParamInfo<Sub8uSfsCompleteParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub 32s variants (C1/C3/C4)
@@ -653,7 +708,7 @@ struct Sub32sSfsParam {
 class Sub32sSfsParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub32sSfsParam> {};
 
 TEST_P(Sub32sSfsParamTest, Sub_32s_Sfs) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int ch = (p.channels < 0) ? 4 : p.channels;
   const int total = p.width * p.height * ch;
 
@@ -675,11 +730,15 @@ TEST_P(Sub32sSfsParamTest, Sub_32s_Sfs) {
 
   if (p.in_place) {
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_32s_C1IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32s_C1IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_32s_C1IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                             p.scaleFactor, ctx)
+                   : nppiSub_32s_C1IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_32s_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32s_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
+      status = p.use_ctx
+                   ? nppiSub_32s_C3IRSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi,
+                                             p.scaleFactor, ctx)
+                   : nppiSub_32s_C3IRSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), roi, p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp32s> result(total);
@@ -690,11 +749,15 @@ TEST_P(Sub32sSfsParamTest, Sub_32s_Sfs) {
   } else {
     NppImageMemory<Npp32s> d_dst(p.width * ch, p.height);
     if (p.channels == 1) {
-      status = p.use_ctx ? nppiSub_32s_C1RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32s_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_32s_C1RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                  d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_32s_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                              d_dst.step(), roi, p.scaleFactor);
     } else if (p.channels == 3) {
-      status = p.use_ctx ? nppiSub_32s_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor, ctx)
-                         : nppiSub_32s_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, p.scaleFactor);
+      status = p.use_ctx ? nppiSub_32s_C3RSfs_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                                  d_dst.step(), roi, p.scaleFactor, ctx)
+                         : nppiSub_32s_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                              d_dst.step(), roi, p.scaleFactor);
     }
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp32s> result(total);
@@ -705,14 +768,14 @@ TEST_P(Sub32sSfsParamTest, Sub_32s_Sfs) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub32sSfs, Sub32sSfsParamTest, ::testing::Values(
-  Sub32sSfsParam{32, 32, 1, 0, true, false, "C1RSfs_Ctx"},
-  Sub32sSfsParam{32, 32, 1, 0, false, true, "C1IRSfs"},
-  Sub32sSfsParam{32, 32, 1, 0, true, true, "C1IRSfs_Ctx"},
-  Sub32sSfsParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
-  Sub32sSfsParam{32, 32, 3, 0, false, true, "C3IRSfs"},
-  Sub32sSfsParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"}
-), [](const ::testing::TestParamInfo<Sub32sSfsParam>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(Sub32sSfs, Sub32sSfsParamTest,
+                         ::testing::Values(Sub32sSfsParam{32, 32, 1, 0, true, false, "C1RSfs_Ctx"},
+                                           Sub32sSfsParam{32, 32, 1, 0, false, true, "C1IRSfs"},
+                                           Sub32sSfsParam{32, 32, 1, 0, true, true, "C1IRSfs_Ctx"},
+                                           Sub32sSfsParam{32, 32, 3, 0, true, false, "C3RSfs_Ctx"},
+                                           Sub32sSfsParam{32, 32, 3, 0, false, true, "C3IRSfs"},
+                                           Sub32sSfsParam{32, 32, 3, 0, true, true, "C3IRSfs_Ctx"}),
+                         [](const ::testing::TestParamInfo<Sub32sSfsParam> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub_32s_C1R (non-Sfs version)
@@ -736,11 +799,8 @@ TEST(Sub32sC1RTest, Basic) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiSub_32s_C1R(
-      d_src1.get(), d_src1.step(),
-      d_src2.get(), d_src2.step(),
-      d_dst.get(), d_dst.step(),
-      roi);
+  NppStatus status =
+      nppiSub_32s_C1R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp32s> result(total);
@@ -765,7 +825,7 @@ struct Sub32fAC4Param {
 class Sub32fAC4ParamTest : public NppTestBase, public ::testing::WithParamInterface<Sub32fAC4Param> {};
 
 TEST_P(Sub32fAC4ParamTest, Sub_32f_AC4) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int channels = 4;
   const int total = p.width * p.height * channels;
 
@@ -799,8 +859,10 @@ TEST_P(Sub32fAC4ParamTest, Sub_32f_AC4) {
   } else {
     NppImageMemory<Npp32f> d_dst(p.width * channels, p.height);
     d_dst.copyFromHost(src2);
-    status = p.use_ctx ? nppiSub_32f_AC4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi, ctx)
-                       : nppiSub_32f_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi);
+    status = p.use_ctx ? nppiSub_32f_AC4R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                              d_dst.step(), roi, ctx)
+                       : nppiSub_32f_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                          d_dst.step(), roi);
     ASSERT_EQ(status, NPP_NO_ERROR);
     std::vector<Npp32f> result(total);
     d_dst.copyToHost(result);
@@ -808,12 +870,12 @@ TEST_P(Sub32fAC4ParamTest, Sub_32f_AC4) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(Sub32fAC4, Sub32fAC4ParamTest, ::testing::Values(
-  Sub32fAC4Param{32, 32, false, false, "AC4R"},
-  Sub32fAC4Param{32, 32, true, false, "AC4R_Ctx"},
-  Sub32fAC4Param{32, 32, false, true, "AC4IR"},
-  Sub32fAC4Param{32, 32, true, true, "AC4IR_Ctx"}
-), [](const ::testing::TestParamInfo<Sub32fAC4Param>& info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(Sub32fAC4, Sub32fAC4ParamTest,
+                         ::testing::Values(Sub32fAC4Param{32, 32, false, false, "AC4R"},
+                                           Sub32fAC4Param{32, 32, true, false, "AC4R_Ctx"},
+                                           Sub32fAC4Param{32, 32, false, true, "AC4IR"},
+                                           Sub32fAC4Param{32, 32, true, true, "AC4IR_Ctx"}),
+                         [](const ::testing::TestParamInfo<Sub32fAC4Param> &info) { return info.param.name; });
 
 // ============================================================================
 // Sub_32s_C1R_Ctx
@@ -839,11 +901,8 @@ TEST(Sub32sC1RCtxTest, Basic) {
   NppiSize roi = {width, height};
   NppStreamContext ctx{};
 
-  NppStatus status = nppiSub_32s_C1R_Ctx(
-      d_src1.get(), d_src1.step(),
-      d_src2.get(), d_src2.step(),
-      d_dst.get(), d_dst.step(),
-      roi, ctx);
+  NppStatus status = nppiSub_32s_C1R_Ctx(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                         d_dst.step(), roi, ctx);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp32s> result(total);

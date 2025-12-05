@@ -1,14 +1,14 @@
+#include <cmath>
+#include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <npp.h>
-#include <cuda_runtime.h>
 #include <vector>
-#include <cmath>
 
 // Test for nppiAbsDiffDeviceC_8u_C1R_Ctx, nppiAbsDiffDeviceC_16u_C1R_Ctx, nppiAbsDiffDeviceC_32f_C1R_Ctx
 
 struct AbsDiffDeviceCParam {
   std::string name;
-  int dataType;  // 0=8u, 1=16u, 2=32f
+  int dataType; // 0=8u, 1=16u, 2=32f
 };
 
 // ============================================================================
@@ -33,9 +33,9 @@ TEST_F(AbsDiffDeviceC_8u_Test, C1R_BasicOperation) {
   Npp8u hostConstant = 75;
 
   int step;
-  Npp8u* d_src = nppiMalloc_8u_C1(width, height, &step);
-  Npp8u* d_dst = nppiMalloc_8u_C1(width, height, &step);
-  Npp8u* d_constant;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &step);
+  Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &step);
+  Npp8u *d_constant;
   cudaMalloc(&d_constant, sizeof(Npp8u));
 
   ASSERT_NE(d_src, nullptr);
@@ -87,9 +87,9 @@ TEST_F(AbsDiffDeviceC_16u_Test, C1R_BasicOperation) {
   Npp16u hostConstant = 750;
 
   int step;
-  Npp16u* d_src = nppiMalloc_16u_C1(width, height, &step);
-  Npp16u* d_dst = nppiMalloc_16u_C1(width, height, &step);
-  Npp16u* d_constant;
+  Npp16u *d_src = nppiMalloc_16u_C1(width, height, &step);
+  Npp16u *d_dst = nppiMalloc_16u_C1(width, height, &step);
+  Npp16u *d_constant;
   cudaMalloc(&d_constant, sizeof(Npp16u));
 
   ASSERT_NE(d_src, nullptr);
@@ -141,9 +141,9 @@ TEST_F(AbsDiffDeviceC_32f_Test, C1R_BasicOperation) {
   Npp32f hostConstant = 3.5f;
 
   int step;
-  Npp32f* d_src = nppiMalloc_32f_C1(width, height, &step);
-  Npp32f* d_dst = nppiMalloc_32f_C1(width, height, &step);
-  Npp32f* d_constant;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &step);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &step);
+  Npp32f *d_constant;
   cudaMalloc(&d_constant, sizeof(Npp32f));
 
   ASSERT_NE(d_src, nullptr);

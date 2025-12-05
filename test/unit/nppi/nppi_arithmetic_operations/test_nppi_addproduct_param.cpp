@@ -44,11 +44,11 @@ TEST_P(AddProduct8u32fC1IRParamTest, AddProduct_8u32f_C1IR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_8u32f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                            accum.get(), accum.step(), roi, ctx);
+    status = nppiAddProduct_8u32f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), accum.get(), accum.step(),
+                                           roi, ctx);
   } else {
-    status = nppiAddProduct_8u32f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                        accum.get(), accum.step(), roi);
+    status =
+        nppiAddProduct_8u32f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(), accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -93,11 +93,11 @@ TEST_P(AddProduct8u32fC1IMRParamTest, AddProduct_8u32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_8u32f_C1IMR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                             mask.get(), mask.step(), accum.get(), accum.step(), roi, ctx);
+    status = nppiAddProduct_8u32f_C1IMR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), mask.get(), mask.step(),
+                                            accum.get(), accum.step(), roi, ctx);
   } else {
-    status = nppiAddProduct_8u32f_C1IMR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                         mask.get(), mask.step(), accum.get(), accum.step(), roi);
+    status = nppiAddProduct_8u32f_C1IMR(src1.get(), src1.step(), src2.get(), src2.step(), mask.get(), mask.step(),
+                                        accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -138,11 +138,11 @@ TEST_P(AddProduct16u32fC1IRParamTest, AddProduct_16u32f_C1IR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_16u32f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                             accum.get(), accum.step(), roi, ctx);
+    status = nppiAddProduct_16u32f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), accum.get(), accum.step(),
+                                            roi, ctx);
   } else {
-    status = nppiAddProduct_16u32f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                         accum.get(), accum.step(), roi);
+    status =
+        nppiAddProduct_16u32f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(), accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -187,11 +187,11 @@ TEST_P(AddProduct16u32fC1IMRParamTest, AddProduct_16u32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_16u32f_C1IMR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                              mask.get(), mask.step(), accum.get(), accum.step(), roi, ctx);
+    status = nppiAddProduct_16u32f_C1IMR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), mask.get(), mask.step(),
+                                             accum.get(), accum.step(), roi, ctx);
   } else {
-    status = nppiAddProduct_16u32f_C1IMR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                          mask.get(), mask.step(), accum.get(), accum.step(), roi);
+    status = nppiAddProduct_16u32f_C1IMR(src1.get(), src1.step(), src2.get(), src2.step(), mask.get(), mask.step(),
+                                         accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -220,9 +220,9 @@ TEST_P(AddProduct16fC1IRParamTest, AddProduct_16f_C1IR) {
   Npp16f *d_accum = nullptr;
   int src1Step, src2Step, accumStep;
 
-  d_src1 = reinterpret_cast<Npp16f*>(nppiMalloc_16u_C1(width, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp16f*>(nppiMalloc_16u_C1(width, height, &src2Step));
-  d_accum = reinterpret_cast<Npp16f*>(nppiMalloc_16u_C1(width, height, &accumStep));
+  d_src1 = reinterpret_cast<Npp16f *>(nppiMalloc_16u_C1(width, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp16f *>(nppiMalloc_16u_C1(width, height, &src2Step));
+  d_accum = reinterpret_cast<Npp16f *>(nppiMalloc_16u_C1(width, height, &accumStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -234,11 +234,9 @@ TEST_P(AddProduct16fC1IRParamTest, AddProduct_16f_C1IR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_16f_C1IR_Ctx(d_src1, src1Step, d_src2, src2Step,
-                                          d_accum, accumStep, roi, ctx);
+    status = nppiAddProduct_16f_C1IR_Ctx(d_src1, src1Step, d_src2, src2Step, d_accum, accumStep, roi, ctx);
   } else {
-    status = nppiAddProduct_16f_C1IR(d_src1, src1Step, d_src2, src2Step,
-                                      d_accum, accumStep, roi);
+    status = nppiAddProduct_16f_C1IR(d_src1, src1Step, d_src2, src2Step, d_accum, accumStep, roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -283,11 +281,10 @@ TEST_P(AddProduct32fC1IRParamTest, AddProduct_32f_C1IR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_32f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                          accum.get(), accum.step(), roi, ctx);
+    status = nppiAddProduct_32f_C1IR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), accum.get(), accum.step(),
+                                         roi, ctx);
   } else {
-    status = nppiAddProduct_32f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                      accum.get(), accum.step(), roi);
+    status = nppiAddProduct_32f_C1IR(src1.get(), src1.step(), src2.get(), src2.step(), accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -332,11 +329,11 @@ TEST_P(AddProduct32fC1IMRParamTest, AddProduct_32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddProduct_32f_C1IMR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                           mask.get(), mask.step(), accum.get(), accum.step(), roi, ctx);
+    status = nppiAddProduct_32f_C1IMR_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), mask.get(), mask.step(),
+                                          accum.get(), accum.step(), roi, ctx);
   } else {
-    status = nppiAddProduct_32f_C1IMR(src1.get(), src1.step(), src2.get(), src2.step(),
-                                       mask.get(), mask.step(), accum.get(), accum.step(), roi);
+    status = nppiAddProduct_32f_C1IMR(src1.get(), src1.step(), src2.get(), src2.step(), mask.get(), mask.step(),
+                                      accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -416,11 +413,10 @@ TEST_P(AddSquare8u32fC1IMRParamTest, AddSquare_8u32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddSquare_8u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(),
-                                            accum.get(), accum.step(), roi, ctx);
+    status = nppiAddSquare_8u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(),
+                                           roi, ctx);
   } else {
-    status = nppiAddSquare_8u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(),
-                                        accum.get(), accum.step(), roi);
+    status = nppiAddSquare_8u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -500,11 +496,10 @@ TEST_P(AddSquare16u32fC1IMRParamTest, AddSquare_16u32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddSquare_16u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(),
-                                             accum.get(), accum.step(), roi, ctx);
+    status = nppiAddSquare_16u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(),
+                                            roi, ctx);
   } else {
-    status = nppiAddSquare_16u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(),
-                                         accum.get(), accum.step(), roi);
+    status = nppiAddSquare_16u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -584,11 +579,10 @@ TEST_P(AddSquare32fC1IMRParamTest, AddSquare_32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddSquare_32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(),
-                                          accum.get(), accum.step(), roi, ctx);
+    status = nppiAddSquare_32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(), roi,
+                                         ctx);
   } else {
-    status = nppiAddSquare_32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(),
-                                      accum.get(), accum.step(), roi);
+    status = nppiAddSquare_32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -679,11 +673,11 @@ TEST_P(AddWeighted8u32fC1IMRParamTest, AddWeighted_8u32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddWeighted_8u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(),
-                                              accum.get(), accum.step(), roi, param.alpha, ctx);
+    status = nppiAddWeighted_8u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(),
+                                             roi, param.alpha, ctx);
   } else {
-    status = nppiAddWeighted_8u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(),
-                                          accum.get(), accum.step(), roi, param.alpha);
+    status = nppiAddWeighted_8u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(), roi,
+                                         param.alpha);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -763,11 +757,11 @@ TEST_P(AddWeighted16u32fC1IMRParamTest, AddWeighted_16u32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddWeighted_16u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(),
-                                               accum.get(), accum.step(), roi, param.alpha, ctx);
+    status = nppiAddWeighted_16u32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(),
+                                              roi, param.alpha, ctx);
   } else {
-    status = nppiAddWeighted_16u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(),
-                                           accum.get(), accum.step(), roi, param.alpha);
+    status = nppiAddWeighted_16u32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(),
+                                          roi, param.alpha);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -847,11 +841,11 @@ TEST_P(AddWeighted32fC1IMRParamTest, AddWeighted_32f_C1IMR) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAddWeighted_32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(),
-                                            accum.get(), accum.step(), roi, param.alpha, ctx);
+    status = nppiAddWeighted_32f_C1IMR_Ctx(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(),
+                                           roi, param.alpha, ctx);
   } else {
-    status = nppiAddWeighted_32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(),
-                                        accum.get(), accum.step(), roi, param.alpha);
+    status = nppiAddWeighted_32f_C1IMR(src.get(), src.step(), mask.get(), mask.step(), accum.get(), accum.step(), roi,
+                                       param.alpha);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }

@@ -25,14 +25,14 @@ TEST_F(DivC8uMultiChannelTest, DivC_8u_C3RSfs) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_8u_C3RSfs(d_src.get(), d_src.step(), aConstants,
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_8u_C3RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -56,14 +56,14 @@ TEST_F(DivC8uMultiChannelTest, DivC_8u_C4RSfs) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_8u_C4RSfs(d_src.get(), d_src.step(), aConstants,
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_8u_C4RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -92,14 +92,14 @@ TEST_F(DivC8uMultiChannelTest, DivC_8u_AC4RSfs) {
   d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_8u_AC4RSfs(d_src.get(), d_src.step(), aConstants,
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_8u_AC4RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -126,14 +126,14 @@ TEST_F(DivC16uMultiChannelTest, DivC_16u_C3RSfs) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_16u_C3RSfs(d_src.get(), d_src.step(), aConstants,
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_16u_C3RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -157,14 +157,14 @@ TEST_F(DivC16uMultiChannelTest, DivC_16u_C4RSfs) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_16u_C4RSfs(d_src.get(), d_src.step(), aConstants,
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_16u_C4RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -193,14 +193,14 @@ TEST_F(DivC16uMultiChannelTest, DivC_16u_AC4RSfs) {
   d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_16u_AC4RSfs(d_src.get(), d_src.step(), aConstants,
-                                 d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_16u_AC4RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -227,14 +227,14 @@ TEST_F(DivC16sMultiChannelTest, DivC_16s_C3RSfs) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_16s_C3RSfs(d_src.get(), d_src.step(), aConstants,
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_16s_C3RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -258,14 +258,14 @@ TEST_F(DivC16sMultiChannelTest, DivC_16s_C4RSfs) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_16s_C4RSfs(d_src.get(), d_src.step(), aConstants,
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_16s_C4RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -294,14 +294,14 @@ TEST_F(DivC16sMultiChannelTest, DivC_16s_AC4RSfs) {
   d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_16s_AC4RSfs(d_src.get(), d_src.step(), aConstants,
-                                 d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_16s_AC4RSfs(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -326,8 +326,7 @@ TEST_F(DivC32fMultiChannelTest, DivC_32f_C3R) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_32f_C3R(d_src.get(), d_src.step(), aConstants,
-                             d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_32f_C3R(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -352,8 +351,7 @@ TEST_F(DivC32fMultiChannelTest, DivC_32f_C4R) {
   d_src.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_32f_C4R(d_src.get(), d_src.step(), aConstants,
-                             d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_32f_C4R(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -383,8 +381,7 @@ TEST_F(DivC32fMultiChannelTest, DivC_32f_AC4R) {
   d_dst.copyFromHost(src);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDivC_32f_AC4R(d_src.get(), d_src.step(), aConstants,
-                              d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDivC_32f_AC4R(d_src.get(), d_src.step(), aConstants, d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -418,7 +415,7 @@ TEST_F(DivC8uInplaceTest, DivC_8u_C1IRSfs) {
   d_srcdst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -447,7 +444,7 @@ TEST_F(DivC8uInplaceTest, DivC_8u_C3IRSfs) {
   d_srcdst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -476,7 +473,7 @@ TEST_F(DivC8uInplaceTest, DivC_8u_C4IRSfs) {
   d_srcdst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 
@@ -509,7 +506,7 @@ TEST_F(DivC8uInplaceTest, DivC_8u_AC4IRSfs) {
   d_srcdst.copyToHost(result);
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "DivC mismatch at index " << i;
+        << "DivC mismatch at index " << i;
   }
 }
 

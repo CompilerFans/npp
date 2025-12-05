@@ -76,8 +76,8 @@ NppStatus executeDeviceConst(const T *pSrc1, int nSrc1Step, T *pDst, int nDstSte
 
 // AC4 execution function - preserves alpha channel
 template <typename T, typename OpType>
-NppStatus executeDeviceConstAC4(const T *pSrc1, int nSrc1Step, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
-                                cudaStream_t stream, const T *pDeviceConstants) {
+NppStatus executeDeviceConstAC4(const T *pSrc1, int nSrc1Step, T *pDst, int nDstStep, NppiSize oSizeROI,
+                                int scaleFactor, cudaStream_t stream, const T *pDeviceConstants) {
   // Parameter validation
   NppStatus status = validateUnaryParameters(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI, 4);
   if (status != NPP_NO_ERROR)
@@ -93,8 +93,8 @@ NppStatus executeDeviceConstAC4(const T *pSrc1, int nSrc1Step, T *pDst, int nDst
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  deviceConstKernelAC4<T, OpType><<<gridSize, blockSize, 0, stream>>>(
-      pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pDeviceConstants, scaleFactor);
+  deviceConstKernelAC4<T, OpType><<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, pDst, nDstStep, oSizeROI.width,
+                                                                      oSizeROI.height, pDeviceConstants, scaleFactor);
 
   return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }

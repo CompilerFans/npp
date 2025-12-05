@@ -430,7 +430,7 @@ public:
   static NppStatus execute(const T *pSrc, int nSrcStep, const Npp32u *aConstants, T *pDst, int nDstStep,
                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
     return ShiftMultiAC4OperationExecutor<T, MultiOpTemplate<T, 4>>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep,
-                                                                              oSizeROI, nppStreamCtx.hStream);
+                                                                             oSizeROI, nppStreamCtx.hStream);
   }
 
   // In-place multi-channel shift counts

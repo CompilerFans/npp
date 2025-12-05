@@ -64,8 +64,8 @@ TEST_P(And8uAC4ParamTest, And_8u_AC4R) {
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
     // Pre-copy src1 to dst to initialize alpha channel
-    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -135,8 +135,8 @@ TEST_P(And16uAC4ParamTest, And_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -272,8 +272,8 @@ TEST_P(Or8uAC4ParamTest, Or_8u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -343,8 +343,8 @@ TEST_P(Or16uAC4ParamTest, Or_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -480,8 +480,8 @@ TEST_P(Xor8uAC4ParamTest, Xor_8u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -551,8 +551,8 @@ TEST_P(Xor16uAC4ParamTest, Xor_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src1.get(), src1.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -685,8 +685,8 @@ TEST_P(Not8uAC4ParamTest, Not_8u_AC4R) {
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
     // Pre-copy src to dst to initialize alpha channel
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;

@@ -26,15 +26,16 @@ TEST_F(Div8uMultiChannelTest, Div_8u_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_8u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                              d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_8u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                              scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -59,15 +60,16 @@ TEST_F(Div8uMultiChannelTest, Div_8u_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_8u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                              d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_8u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                              scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -97,15 +99,16 @@ TEST_F(Div8uMultiChannelTest, Div_8u_AC4RSfs) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_8u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_8u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -133,15 +136,16 @@ TEST_F(Div16uMultiChannelTest, Div_16u_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_16u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_16u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -166,15 +170,16 @@ TEST_F(Div16uMultiChannelTest, Div_16u_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_16u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_16u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -204,15 +209,16 @@ TEST_F(Div16uMultiChannelTest, Div_16u_AC4RSfs) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_16u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_16u_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(),
+                                roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -240,15 +246,16 @@ TEST_F(Div16sMultiChannelTest, Div_16s_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_16s_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_16s_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -273,15 +280,16 @@ TEST_F(Div16sMultiChannelTest, Div_16s_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_16s_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                               d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_16s_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi,
+                               scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -311,15 +319,16 @@ TEST_F(Div16sMultiChannelTest, Div_16s_AC4RSfs) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_16s_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                d_dst.get(), d_dst.step(), roi, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_16s_AC4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(),
+                                roi, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -345,8 +354,8 @@ TEST_F(Div32fMultiChannelTest, Div_32f_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_32f_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_32f_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -372,8 +381,8 @@ TEST_F(Div32fMultiChannelTest, Div_32f_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_32f_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_32f_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -404,8 +413,8 @@ TEST_F(Div32fMultiChannelTest, Div_32f_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_32f_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                             d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_32f_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp32f> result(total);
   d_dst.copyToHost(result);
@@ -436,15 +445,16 @@ TEST_F(DivRound8uTest, Div_Round_8u_C1RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_8u_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                     d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, scaleFactor), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_8u_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(),
+                                    roi, NPP_RND_NEAR, scaleFactor),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -468,15 +478,16 @@ TEST_F(DivRound8uTest, Div_Round_8u_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_8u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                     d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_8u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(),
+                                    roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -500,15 +511,16 @@ TEST_F(DivRound8uTest, Div_Round_8u_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_8u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                     d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_8u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(),
+                                    roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -535,15 +547,16 @@ TEST_F(DivRound16uTest, Div_Round_16u_C1RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_16u_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                      d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_16u_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                     d_dst.step(), roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -567,15 +580,16 @@ TEST_F(DivRound16uTest, Div_Round_16u_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_16u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                      d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_16u_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                     d_dst.step(), roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -599,15 +613,16 @@ TEST_F(DivRound16uTest, Div_Round_16u_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_16u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                      d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_16u_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                     d_dst.step(), roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -634,15 +649,16 @@ TEST_F(DivRound16sTest, Div_Round_16s_C1RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_16s_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                      d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_16s_C1RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                     d_dst.step(), roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -666,15 +682,16 @@ TEST_F(DivRound16sTest, Div_Round_16s_C3RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_16s_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                      d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_16s_C3RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                     d_dst.step(), roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }
 
@@ -698,14 +715,15 @@ TEST_F(DivRound16sTest, Div_Round_16s_C4RSfs) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiDiv_Round_16s_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                                      d_dst.get(), d_dst.step(), roi, NPP_RND_NEAR, 0), NPP_NO_ERROR);
+  ASSERT_EQ(nppiDiv_Round_16s_C4RSfs(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(),
+                                     d_dst.step(), roi, NPP_RND_NEAR, 0),
+            NPP_NO_ERROR);
 
   std::vector<Npp16s> result(total);
   d_dst.copyToHost(result);
   // NPP Div operations may have precision variance
   for (size_t i = 0; i < result.size(); i++) {
     EXPECT_LE(std::abs(static_cast<int>(result[i]) - static_cast<int>(expected[i])), 1)
-      << "Div mismatch at index " << i;
+        << "Div mismatch at index " << i;
   }
 }

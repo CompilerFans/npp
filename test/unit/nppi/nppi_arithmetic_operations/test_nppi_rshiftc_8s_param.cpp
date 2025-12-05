@@ -15,9 +15,9 @@ struct RShiftCParam {
 };
 
 // Helper to allocate 8s memory with step
-static Npp8s* allocate8s(int width, int height, int channels, int& step) {
+static Npp8s *allocate8s(int width, int height, int channels, int &step) {
   size_t pitch;
-  Npp8s* ptr;
+  Npp8s *ptr;
   cudaMallocPitch(&ptr, &pitch, width * channels * sizeof(Npp8s), height);
   step = static_cast<int>(pitch);
   return ptr;
@@ -33,15 +33,15 @@ TEST_P(RShiftC8sC1RParamTest, RShiftC_8s_C1R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp8s* d_src = allocate8s(width, height, 1, srcStep);
-  Npp8s* d_dst = allocate8s(width, height, 1, dstStep);
+  Npp8s *d_src = allocate8s(width, height, 1, srcStep);
+  Npp8s *d_dst = allocate8s(width, height, 1, dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> srcData(width * height);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp8s),
-               width * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp8s), width * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u nConstant = 2;
   NppiSize roi = {width, height};
@@ -74,13 +74,13 @@ TEST_P(RShiftC8sC1IRParamTest, RShiftC_8s_C1IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp8s* d_dst = allocate8s(width, height, 1, dstStep);
+  Npp8s *d_dst = allocate8s(width, height, 1, dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> dstData(width * height);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * sizeof(Npp8s),
-               width * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * sizeof(Npp8s), width * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u nConstant = 2;
   NppiSize roi = {width, height};
@@ -112,15 +112,15 @@ TEST_P(RShiftC8sC3RParamTest, RShiftC_8s_C3R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp8s* d_src = allocate8s(width, height, 3, srcStep);
-  Npp8s* d_dst = allocate8s(width, height, 3, dstStep);
+  Npp8s *d_src = allocate8s(width, height, 3, srcStep);
+  Npp8s *d_dst = allocate8s(width, height, 3, dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> srcData(width * height * 3);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp8s),
-               width * 3 * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp8s), width * 3 * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -153,13 +153,13 @@ TEST_P(RShiftC8sC3IRParamTest, RShiftC_8s_C3IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp8s* d_dst = allocate8s(width, height, 3, dstStep);
+  Npp8s *d_dst = allocate8s(width, height, 3, dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> dstData(width * height * 3);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp8s),
-               width * 3 * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp8s), width * 3 * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -191,15 +191,15 @@ TEST_P(RShiftC8sC4RParamTest, RShiftC_8s_C4R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp8s* d_src = allocate8s(width, height, 4, srcStep);
-  Npp8s* d_dst = allocate8s(width, height, 4, dstStep);
+  Npp8s *d_src = allocate8s(width, height, 4, srcStep);
+  Npp8s *d_dst = allocate8s(width, height, 4, dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> srcData(width * height * 4);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp8s),
-               width * 4 * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp8s), width * 4 * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[4] = {1, 2, 3, 4};
   NppiSize roi = {width, height};
@@ -232,13 +232,13 @@ TEST_P(RShiftC8sC4IRParamTest, RShiftC_8s_C4IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp8s* d_dst = allocate8s(width, height, 4, dstStep);
+  Npp8s *d_dst = allocate8s(width, height, 4, dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> dstData(width * height * 4);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp8s),
-               width * 4 * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp8s), width * 4 * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[4] = {1, 2, 3, 4};
   NppiSize roi = {width, height};
@@ -270,15 +270,15 @@ TEST_P(RShiftC8sAC4RParamTest, RShiftC_8s_AC4R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp8s* d_src = allocate8s(width, height, 4, srcStep);
-  Npp8s* d_dst = allocate8s(width, height, 4, dstStep);
+  Npp8s *d_src = allocate8s(width, height, 4, srcStep);
+  Npp8s *d_dst = allocate8s(width, height, 4, dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> srcData(width * height * 4);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp8s),
-               width * 4 * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp8s), width * 4 * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -311,13 +311,13 @@ TEST_P(RShiftC8sAC4IRParamTest, RShiftC_8s_AC4IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp8s* d_dst = allocate8s(width, height, 4, dstStep);
+  Npp8s *d_dst = allocate8s(width, height, 4, dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp8s> dstData(width * height * 4);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp8s>(-128), static_cast<Npp8s>(127), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp8s),
-               width * 4 * sizeof(Npp8s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp8s), width * 4 * sizeof(Npp8s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -349,15 +349,15 @@ TEST_P(RShiftC16sC3RParamTest, RShiftC_16s_C3R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C1(width * 3, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C1(width * 3, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height * 3);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp16s),
-               width * 3 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp16s), width * 3 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -390,13 +390,13 @@ TEST_P(RShiftC16sC3IRParamTest, RShiftC_16s_C3IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height * 3);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp16s),
-               width * 3 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp16s), width * 3 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -428,15 +428,15 @@ TEST_P(RShiftC16sC4RParamTest, RShiftC_16s_C4R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C4(width, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C4(width, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height * 4);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp16s),
-               width * 4 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp16s), width * 4 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[4] = {1, 2, 3, 4};
   NppiSize roi = {width, height};
@@ -469,13 +469,13 @@ TEST_P(RShiftC16sC4IRParamTest, RShiftC_16s_C4IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height * 4);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp16s),
-               width * 4 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp16s), width * 4 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[4] = {1, 2, 3, 4};
   NppiSize roi = {width, height};
@@ -507,15 +507,15 @@ TEST_P(RShiftC16sAC4RParamTest, RShiftC_16s_AC4R) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C4(width, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C4(width, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height * 4);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp16s),
-               width * 4 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp16s), width * 4 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};
@@ -548,13 +548,13 @@ TEST_P(RShiftC16sAC4IRParamTest, RShiftC_16s_AC4IR) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C4(width, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height * 4);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(-32768), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp16s),
-               width * 4 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp16s), width * 4 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   Npp32u aConstants[3] = {1, 2, 3};
   NppiSize roi = {width, height};

@@ -38,11 +38,9 @@ TEST_P(Exp8uC1RSfsParamTest, Exp_8u_C1RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiExp_8u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                    roi, param.scaleFactor, ctx);
+    status = nppiExp_8u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiExp_8u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                roi, param.scaleFactor);
+    status = nppiExp_8u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -108,11 +106,9 @@ TEST_P(Exp8uC3RSfsParamTest, Exp_8u_C3RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiExp_8u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                    roi, param.scaleFactor, ctx);
+    status = nppiExp_8u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiExp_8u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                roi, param.scaleFactor);
+    status = nppiExp_8u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -178,11 +174,9 @@ TEST_P(Exp16uC1RSfsParamTest, Exp_16u_C1RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiExp_16u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                     roi, param.scaleFactor, ctx);
+    status = nppiExp_16u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiExp_16u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                 roi, param.scaleFactor);
+    status = nppiExp_16u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -248,11 +242,9 @@ TEST_P(Exp16uC3RSfsParamTest, Exp_16u_C3RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiExp_16u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                     roi, param.scaleFactor, ctx);
+    status = nppiExp_16u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiExp_16u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                 roi, param.scaleFactor);
+    status = nppiExp_16u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -305,15 +297,15 @@ TEST_P(Exp16sC1RSfsParamTest, Exp_16s_C1RSfs) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C1(width, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C1(width, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(0), static_cast<Npp16s>(10), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16s),
-               width * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16s), width * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -321,11 +313,9 @@ TEST_P(Exp16sC1RSfsParamTest, Exp_16s_C1RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiExp_16s_C1RSfs_Ctx(d_src, srcStep, d_dst, dstStep,
-                                     roi, param.scaleFactor, ctx);
+    status = nppiExp_16s_C1RSfs_Ctx(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor, ctx);
   } else {
-    status = nppiExp_16s_C1RSfs(d_src, srcStep, d_dst, dstStep,
-                                 roi, param.scaleFactor);
+    status = nppiExp_16s_C1RSfs(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
   nppiFree(d_src);
@@ -347,13 +337,13 @@ TEST_P(Exp16sC1IRSfsParamTest, Exp_16s_C1IRSfs) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(0), static_cast<Npp16s>(10), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * sizeof(Npp16s),
-               width * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * sizeof(Npp16s), width * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -384,15 +374,15 @@ TEST_P(Exp16sC3RSfsParamTest, Exp_16s_C3RSfs) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C1(width * 3, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C1(width * 3, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height * 3);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(0), static_cast<Npp16s>(10), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp16s),
-               width * 3 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp16s), width * 3 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -400,11 +390,9 @@ TEST_P(Exp16sC3RSfsParamTest, Exp_16s_C3RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiExp_16s_C3RSfs_Ctx(d_src, srcStep, d_dst, dstStep,
-                                     roi, param.scaleFactor, ctx);
+    status = nppiExp_16s_C3RSfs_Ctx(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor, ctx);
   } else {
-    status = nppiExp_16s_C3RSfs(d_src, srcStep, d_dst, dstStep,
-                                 roi, param.scaleFactor);
+    status = nppiExp_16s_C3RSfs(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
   nppiFree(d_src);
@@ -426,13 +414,13 @@ TEST_P(Exp16sC3IRSfsParamTest, Exp_16s_C3IRSfs) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height * 3);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(0), static_cast<Npp16s>(10), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp16s),
-               width * 3 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp16s), width * 3 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -476,11 +464,9 @@ TEST_P(Ln8uC1RSfsParamTest, Ln_8u_C1RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiLn_8u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                   roi, param.scaleFactor, ctx);
+    status = nppiLn_8u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiLn_8u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                               roi, param.scaleFactor);
+    status = nppiLn_8u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -546,11 +532,9 @@ TEST_P(Ln8uC3RSfsParamTest, Ln_8u_C3RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiLn_8u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                   roi, param.scaleFactor, ctx);
+    status = nppiLn_8u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiLn_8u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                               roi, param.scaleFactor);
+    status = nppiLn_8u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -616,11 +600,9 @@ TEST_P(Ln16uC1RSfsParamTest, Ln_16u_C1RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiLn_16u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                    roi, param.scaleFactor, ctx);
+    status = nppiLn_16u_C1RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiLn_16u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                roi, param.scaleFactor);
+    status = nppiLn_16u_C1RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -686,11 +668,9 @@ TEST_P(Ln16uC3RSfsParamTest, Ln_16u_C3RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiLn_16u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                    roi, param.scaleFactor, ctx);
+    status = nppiLn_16u_C3RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiLn_16u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                roi, param.scaleFactor);
+    status = nppiLn_16u_C3RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -743,15 +723,15 @@ TEST_P(Ln16sC1RSfsParamTest, Ln_16s_C1RSfs) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C1(width, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C1(width, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(1), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16s),
-               width * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16s), width * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -759,11 +739,9 @@ TEST_P(Ln16sC1RSfsParamTest, Ln_16s_C1RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiLn_16s_C1RSfs_Ctx(d_src, srcStep, d_dst, dstStep,
-                                    roi, param.scaleFactor, ctx);
+    status = nppiLn_16s_C1RSfs_Ctx(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor, ctx);
   } else {
-    status = nppiLn_16s_C1RSfs(d_src, srcStep, d_dst, dstStep,
-                                roi, param.scaleFactor);
+    status = nppiLn_16s_C1RSfs(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
   nppiFree(d_src);
@@ -785,13 +763,13 @@ TEST_P(Ln16sC1IRSfsParamTest, Ln_16s_C1IRSfs) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(1), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * sizeof(Npp16s),
-               width * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * sizeof(Npp16s), width * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -822,15 +800,15 @@ TEST_P(Ln16sC3RSfsParamTest, Ln_16s_C3RSfs) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C1(width * 3, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C1(width * 3, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height * 3);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(1), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp16s),
-               width * 3 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3 * sizeof(Npp16s), width * 3 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -838,11 +816,9 @@ TEST_P(Ln16sC3RSfsParamTest, Ln_16s_C3RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiLn_16s_C3RSfs_Ctx(d_src, srcStep, d_dst, dstStep,
-                                    roi, param.scaleFactor, ctx);
+    status = nppiLn_16s_C3RSfs_Ctx(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor, ctx);
   } else {
-    status = nppiLn_16s_C3RSfs(d_src, srcStep, d_dst, dstStep,
-                                roi, param.scaleFactor);
+    status = nppiLn_16s_C3RSfs(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
   nppiFree(d_src);
@@ -864,13 +840,13 @@ TEST_P(Ln16sC3IRSfsParamTest, Ln_16s_C3IRSfs) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 3, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height * 3);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(1), static_cast<Npp16s>(32767), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp16s),
-               width * 3 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 3 * sizeof(Npp16s), width * 3 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;

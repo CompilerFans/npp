@@ -38,11 +38,9 @@ TEST_P(Sqr8uAC4RSfsParamTest, Sqr_8u_AC4RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiSqr_8u_AC4RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                     roi, param.scaleFactor, ctx);
+    status = nppiSqr_8u_AC4RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiSqr_8u_AC4RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                 roi, param.scaleFactor);
+    status = nppiSqr_8u_AC4RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -108,11 +106,9 @@ TEST_P(Sqr16uAC4RSfsParamTest, Sqr_16u_AC4RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiSqr_16u_AC4RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(),
-                                      roi, param.scaleFactor, ctx);
+    status = nppiSqr_16u_AC4RSfs_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor, ctx);
   } else {
-    status = nppiSqr_16u_AC4RSfs(src.get(), src.step(), dst.get(), dst.step(),
-                                  roi, param.scaleFactor);
+    status = nppiSqr_16u_AC4RSfs(src.get(), src.step(), dst.get(), dst.step(), roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -165,15 +161,15 @@ TEST_P(Sqr16sAC4RSfsParamTest, Sqr_16s_AC4RSfs) {
   const int height = param.height;
 
   int srcStep, dstStep;
-  Npp16s* d_src = nppiMalloc_16s_C1(width * 4, height, &srcStep);
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 4, height, &dstStep);
+  Npp16s *d_src = nppiMalloc_16s_C1(width * 4, height, &srcStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 4, height, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> srcData(width * height * 4);
   TestDataGenerator::generateRandom(srcData, static_cast<Npp16s>(1), static_cast<Npp16s>(180), 12345);
-  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp16s),
-               width * 4 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 4 * sizeof(Npp16s), width * 4 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;
@@ -181,11 +177,9 @@ TEST_P(Sqr16sAC4RSfsParamTest, Sqr_16s_AC4RSfs) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiSqr_16s_AC4RSfs_Ctx(d_src, srcStep, d_dst, dstStep,
-                                      roi, param.scaleFactor, ctx);
+    status = nppiSqr_16s_AC4RSfs_Ctx(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor, ctx);
   } else {
-    status = nppiSqr_16s_AC4RSfs(d_src, srcStep, d_dst, dstStep,
-                                  roi, param.scaleFactor);
+    status = nppiSqr_16s_AC4RSfs(d_src, srcStep, d_dst, dstStep, roi, param.scaleFactor);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
   nppiFree(d_src);
@@ -207,13 +201,13 @@ TEST_P(Sqr16sAC4IRSfsParamTest, Sqr_16s_AC4IRSfs) {
   const int height = param.height;
 
   int dstStep;
-  Npp16s* d_dst = nppiMalloc_16s_C1(width * 4, height, &dstStep);
+  Npp16s *d_dst = nppiMalloc_16s_C1(width * 4, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);
 
   std::vector<Npp16s> dstData(width * height * 4);
   TestDataGenerator::generateRandom(dstData, static_cast<Npp16s>(1), static_cast<Npp16s>(180), 12345);
-  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp16s),
-               width * 4 * sizeof(Npp16s), height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_dst, dstStep, dstData.data(), width * 4 * sizeof(Npp16s), width * 4 * sizeof(Npp16s), height,
+               cudaMemcpyHostToDevice);
 
   NppiSize roi = {width, height};
   NppStatus status;

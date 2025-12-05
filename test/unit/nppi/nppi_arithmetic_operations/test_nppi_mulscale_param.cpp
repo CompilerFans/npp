@@ -41,11 +41,9 @@ TEST_P(MulScale8uC1RParamTest, MulScale_8u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_8u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                      dst.get(), dst.step(), roi, ctx);
+    status = nppiMulScale_8u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_8u_C1R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                  dst.get(), dst.step(), roi);
+    status = nppiMulScale_8u_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -120,11 +118,9 @@ TEST_P(MulScale8uC3RParamTest, MulScale_8u_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_8u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                      dst.get(), dst.step(), roi, ctx);
+    status = nppiMulScale_8u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_8u_C3R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                  dst.get(), dst.step(), roi);
+    status = nppiMulScale_8u_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -199,11 +195,9 @@ TEST_P(MulScale8uC4RParamTest, MulScale_8u_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_8u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                      dst.get(), dst.step(), roi, ctx);
+    status = nppiMulScale_8u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_8u_C4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                  dst.get(), dst.step(), roi);
+    status = nppiMulScale_8u_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -278,11 +272,10 @@ TEST_P(MulScale8uAC4RParamTest, MulScale_8u_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_8u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                       dst.get(), dst.step(), roi, ctx);
+    status =
+        nppiMulScale_8u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_8u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                   dst.get(), dst.step(), roi);
+    status = nppiMulScale_8u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -357,11 +350,10 @@ TEST_P(MulScale16uC1RParamTest, MulScale_16u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_16u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                       dst.get(), dst.step(), roi, ctx);
+    status =
+        nppiMulScale_16u_C1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_16u_C1R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                   dst.get(), dst.step(), roi);
+    status = nppiMulScale_16u_C1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -436,11 +428,10 @@ TEST_P(MulScale16uC3RParamTest, MulScale_16u_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_16u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                       dst.get(), dst.step(), roi, ctx);
+    status =
+        nppiMulScale_16u_C3R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_16u_C3R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                   dst.get(), dst.step(), roi);
+    status = nppiMulScale_16u_C3R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -515,11 +506,10 @@ TEST_P(MulScale16uC4RParamTest, MulScale_16u_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_16u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                       dst.get(), dst.step(), roi, ctx);
+    status =
+        nppiMulScale_16u_C4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_16u_C4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                   dst.get(), dst.step(), roi);
+    status = nppiMulScale_16u_C4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -594,11 +584,10 @@ TEST_P(MulScale16uAC4RParamTest, MulScale_16u_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiMulScale_16u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                        dst.get(), dst.step(), roi, ctx);
+    status =
+        nppiMulScale_16u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi, ctx);
   } else {
-    status = nppiMulScale_16u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                    dst.get(), dst.step(), roi);
+    status = nppiMulScale_16u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }

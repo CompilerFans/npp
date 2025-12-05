@@ -91,9 +91,9 @@ TEST_P(AlphaComp16uAC1RParamTest, AlphaComp_16u_AC1R) {
   int src1Step, src2Step, dstStep;
 
   // Use C3 allocation for width * 2 channels (treating 2 channels as if part of C3)
-  d_src1 = reinterpret_cast<Npp16u*>(nppiMalloc_16u_C1(width * channels, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp16u*>(nppiMalloc_16u_C1(width * channels, height, &src2Step));
-  d_dst = reinterpret_cast<Npp16u*>(nppiMalloc_16u_C1(width * channels, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp16u *>(nppiMalloc_16u_C1(width * channels, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp16u *>(nppiMalloc_16u_C1(width * channels, height, &src2Step));
+  d_dst = reinterpret_cast<Npp16u *>(nppiMalloc_16u_C1(width * channels, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -147,9 +147,9 @@ TEST_P(AlphaComp32fAC1RParamTest, AlphaComp_32f_AC1R) {
   Npp32f *d_dst = nullptr;
   int src1Step, src2Step, dstStep;
 
-  d_src1 = reinterpret_cast<Npp32f*>(nppiMalloc_32f_C1(width * channels, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp32f*>(nppiMalloc_32f_C1(width * channels, height, &src2Step));
-  d_dst = reinterpret_cast<Npp32f*>(nppiMalloc_32f_C1(width * channels, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp32f *>(nppiMalloc_32f_C1(width * channels, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp32f *>(nppiMalloc_32f_C1(width * channels, height, &src2Step));
+  d_dst = reinterpret_cast<Npp32f *>(nppiMalloc_32f_C1(width * channels, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -203,9 +203,9 @@ TEST_P(AlphaComp32sAC1RParamTest, AlphaComp_32s_AC1R) {
   Npp32s *d_dst = nullptr;
   int src1Step, src2Step, dstStep;
 
-  d_src1 = reinterpret_cast<Npp32s*>(nppiMalloc_32s_C1(width * channels, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp32s*>(nppiMalloc_32s_C1(width * channels, height, &src2Step));
-  d_dst = reinterpret_cast<Npp32s*>(nppiMalloc_32s_C1(width * channels, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp32s *>(nppiMalloc_32s_C1(width * channels, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp32s *>(nppiMalloc_32s_C1(width * channels, height, &src2Step));
+  d_dst = reinterpret_cast<Npp32s *>(nppiMalloc_32s_C1(width * channels, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -260,9 +260,9 @@ TEST_P(AlphaComp32uAC1RParamTest, AlphaComp_32u_AC1R) {
   int src1Step, src2Step, dstStep;
 
   // Use 32s allocation for 32u
-  d_src1 = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C1(width * channels, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C1(width * channels, height, &src2Step));
-  d_dst = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C1(width * channels, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C1(width * channels, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C1(width * channels, height, &src2Step));
+  d_dst = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C1(width * channels, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -316,9 +316,9 @@ TEST_P(AlphaComp32uAC4RParamTest, AlphaComp_32u_AC4R) {
   Npp32u *d_dst = nullptr;
   int src1Step, src2Step, dstStep;
 
-  d_src1 = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C4(width, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C4(width, height, &src2Step));
-  d_dst = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C4(width, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C4(width, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C4(width, height, &src2Step));
+  d_dst = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C4(width, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -380,11 +380,11 @@ TEST_P(AlphaComp16sAC1RParamTest, AlphaComp_16s_AC1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaComp_16s_AC1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                         dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaComp_16s_AC1R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                        param.alphaOp, ctx);
   } else {
-    status = nppiAlphaComp_16s_AC1R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                     dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaComp_16s_AC1R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                    param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -417,9 +417,9 @@ TEST_P(AlphaComp8sAC1RParamTest, AlphaComp_8s_AC1R) {
   Npp8s *d_dst = nullptr;
   int src1Step, src2Step, dstStep;
 
-  d_src1 = reinterpret_cast<Npp8s*>(nppiMalloc_8u_C2(width, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp8s*>(nppiMalloc_8u_C2(width, height, &src2Step));
-  d_dst = reinterpret_cast<Npp8s*>(nppiMalloc_8u_C2(width, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp8s *>(nppiMalloc_8u_C2(width, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp8s *>(nppiMalloc_8u_C2(width, height, &src2Step));
+  d_dst = reinterpret_cast<Npp8s *>(nppiMalloc_8u_C2(width, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -481,11 +481,11 @@ TEST_P(AlphaComp8uAC4RParamTest, AlphaComp_8u_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaComp_8u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                        dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaComp_8u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                       param.alphaOp, ctx);
   } else {
-    status = nppiAlphaComp_8u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                    dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaComp_8u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                   param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -525,11 +525,11 @@ TEST_P(AlphaComp16uAC4RParamTest, AlphaComp_16u_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaComp_16u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                         dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaComp_16u_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                        param.alphaOp, ctx);
   } else {
-    status = nppiAlphaComp_16u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                     dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaComp_16u_AC4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                    param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -569,11 +569,11 @@ TEST_P(AlphaComp32fAC4RParamTest, AlphaComp_32f_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaComp_32f_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                         dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaComp_32f_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                        param.alphaOp, ctx);
   } else {
-    status = nppiAlphaComp_32f_AC4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                     dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaComp_32f_AC4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                    param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -613,11 +613,11 @@ TEST_P(AlphaComp32sAC4RParamTest, AlphaComp_32s_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaComp_32s_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(),
-                                         dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaComp_32s_AC4R_Ctx(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                        param.alphaOp, ctx);
   } else {
-    status = nppiAlphaComp_32s_AC4R(src1.get(), src1.step(), src2.get(), src2.step(),
-                                     dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaComp_32s_AC4R(src1.get(), src1.step(), src2.get(), src2.step(), dst.get(), dst.step(), roi,
+                                    param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }

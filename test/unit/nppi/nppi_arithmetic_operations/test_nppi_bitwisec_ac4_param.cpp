@@ -70,8 +70,8 @@ TEST_P(AndC8uAC4ParamTest, AndC_8u_AC4R) {
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
     // Pre-copy src to dst to initialize alpha channel
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -328,8 +328,8 @@ TEST_P(AndC16uAC4ParamTest, AndC_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -397,8 +397,8 @@ TEST_P(OrC8uAC4ParamTest, OrC_8u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -655,8 +655,8 @@ TEST_P(OrC16uAC4ParamTest, OrC_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -724,8 +724,8 @@ TEST_P(XorC8uAC4ParamTest, XorC_8u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp8u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp8u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp8u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;
@@ -982,8 +982,8 @@ TEST_P(XorC16uAC4ParamTest, XorC_16u_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp16u> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp16u), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp16u), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       ctx.hStream = 0;

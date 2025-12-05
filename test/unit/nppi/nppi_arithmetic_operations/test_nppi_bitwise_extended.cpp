@@ -24,8 +24,8 @@ TEST_F(And8uMultiChannelTest, And_8u_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiAnd_8u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiAnd_8u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -51,8 +51,8 @@ TEST_F(And8uMultiChannelTest, And_8u_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiAnd_8u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiAnd_8u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -83,8 +83,8 @@ TEST_F(And8uMultiChannelTest, And_8u_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiAnd_8u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiAnd_8u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -113,8 +113,8 @@ TEST_F(And16uMultiChannelTest, And_16u_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiAnd_16u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiAnd_16u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -140,8 +140,8 @@ TEST_F(And16uMultiChannelTest, And_16u_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiAnd_16u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiAnd_16u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -172,8 +172,8 @@ TEST_F(And16uMultiChannelTest, And_16u_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiAnd_16u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                             d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiAnd_16u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -202,8 +202,8 @@ TEST_F(Or8uMultiChannelTest, Or_8u_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiOr_8u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                          d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiOr_8u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -229,8 +229,8 @@ TEST_F(Or8uMultiChannelTest, Or_8u_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiOr_8u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                          d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiOr_8u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -261,8 +261,8 @@ TEST_F(Or8uMultiChannelTest, Or_8u_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiOr_8u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiOr_8u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -291,8 +291,8 @@ TEST_F(Or16uMultiChannelTest, Or_16u_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiOr_16u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiOr_16u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -318,8 +318,8 @@ TEST_F(Or16uMultiChannelTest, Or_16u_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiOr_16u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiOr_16u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -350,8 +350,8 @@ TEST_F(Or16uMultiChannelTest, Or_16u_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiOr_16u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiOr_16u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -380,8 +380,8 @@ TEST_F(Xor8uMultiChannelTest, Xor_8u_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiXor_8u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiXor_8u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -407,8 +407,8 @@ TEST_F(Xor8uMultiChannelTest, Xor_8u_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiXor_8u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                           d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiXor_8u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -439,8 +439,8 @@ TEST_F(Xor8uMultiChannelTest, Xor_8u_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiXor_8u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiXor_8u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp8u> result(total);
   d_dst.copyToHost(result);
@@ -469,8 +469,8 @@ TEST_F(Xor16uMultiChannelTest, Xor_16u_C3R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiXor_16u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiXor_16u_C3R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -496,8 +496,8 @@ TEST_F(Xor16uMultiChannelTest, Xor_16u_C4R) {
   d_src2.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiXor_16u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                            d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiXor_16u_C4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);
@@ -528,8 +528,8 @@ TEST_F(Xor16uMultiChannelTest, Xor_16u_AC4R) {
   d_dst.copyFromHost(src2);
 
   NppiSize roi = {width, height};
-  ASSERT_EQ(nppiXor_16u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(),
-                             d_dst.get(), d_dst.step(), roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiXor_16u_AC4R(d_src1.get(), d_src1.step(), d_src2.get(), d_src2.step(), d_dst.get(), d_dst.step(), roi),
+            NPP_NO_ERROR);
 
   std::vector<Npp16u> result(total);
   d_dst.copyToHost(result);

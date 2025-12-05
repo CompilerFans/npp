@@ -44,11 +44,11 @@ TEST_P(AlphaCompC8uC1RParamTest, AlphaCompC_8u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_8u_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                        alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_8u_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                       dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_8u_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                    alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_8u_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                   dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -91,11 +91,11 @@ TEST_P(AlphaCompC8uC3RParamTest, AlphaCompC_8u_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_8u_C3R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                        alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_8u_C3R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                       dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_8u_C3R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                    alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_8u_C3R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                   dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -138,11 +138,11 @@ TEST_P(AlphaCompC8uC4RParamTest, AlphaCompC_8u_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_8u_C4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                        alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_8u_C4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                       dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_8u_C4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                    alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_8u_C4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                   dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -185,11 +185,11 @@ TEST_P(AlphaCompC8uAC4RParamTest, AlphaCompC_8u_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_8u_AC4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_8u_AC4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_8u_AC4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_8u_AC4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -231,11 +231,11 @@ TEST_P(AlphaCompC16uC1RParamTest, AlphaCompC_16u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_16u_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_16u_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_16u_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_16u_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -278,11 +278,11 @@ TEST_P(AlphaCompC16uC3RParamTest, AlphaCompC_16u_C3R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_16u_C3R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_16u_C3R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_16u_C3R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_16u_C3R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -325,11 +325,11 @@ TEST_P(AlphaCompC16uC4RParamTest, AlphaCompC_16u_C4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_16u_C4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_16u_C4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_16u_C4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_16u_C4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -372,11 +372,11 @@ TEST_P(AlphaCompC16uAC4RParamTest, AlphaCompC_16u_AC4R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_16u_AC4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                          alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_16u_AC4R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                         dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_16u_AC4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                      alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_16u_AC4R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                     dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -418,11 +418,11 @@ TEST_P(AlphaCompC32fC1RParamTest, AlphaCompC_32f_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_32f_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_32f_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_32f_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_32f_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -464,11 +464,11 @@ TEST_P(AlphaCompC16sC1RParamTest, AlphaCompC_16s_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_16s_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_16s_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_16s_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_16s_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -499,9 +499,9 @@ TEST_P(AlphaCompC8sC1RParamTest, AlphaCompC_8s_C1R) {
   Npp8s *d_dst = nullptr;
   int src1Step, src2Step, dstStep;
 
-  d_src1 = reinterpret_cast<Npp8s*>(nppiMalloc_8u_C1(width, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp8s*>(nppiMalloc_8u_C1(width, height, &src2Step));
-  d_dst = reinterpret_cast<Npp8s*>(nppiMalloc_8u_C1(width, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp8s *>(nppiMalloc_8u_C1(width, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp8s *>(nppiMalloc_8u_C1(width, height, &src2Step));
+  d_dst = reinterpret_cast<Npp8s *>(nppiMalloc_8u_C1(width, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -520,11 +520,11 @@ TEST_P(AlphaCompC8sC1RParamTest, AlphaCompC_8s_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_8s_C1R_Ctx(d_src1, src1Step, alpha1, d_src2, src2Step,
-                                        alpha2, d_dst, dstStep, roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_8s_C1R_Ctx(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, roi,
+                                       param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_8s_C1R(d_src1, src1Step, alpha1, d_src2, src2Step,
-                                    alpha2, d_dst, dstStep, roi, param.alphaOp);
+    status =
+        nppiAlphaCompC_8s_C1R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 
@@ -570,11 +570,11 @@ TEST_P(AlphaCompC32sC1RParamTest, AlphaCompC_32s_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_32s_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                         alpha2, dst.get(), dst.step(), roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_32s_C1R_Ctx(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                        dst.step(), roi, param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_32s_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(),
-                                     alpha2, dst.get(), dst.step(), roi, param.alphaOp);
+    status = nppiAlphaCompC_32s_C1R(src1.get(), src1.step(), alpha1, src2.get(), src2.step(), alpha2, dst.get(),
+                                    dst.step(), roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 }
@@ -605,9 +605,9 @@ TEST_P(AlphaCompC32uC1RParamTest, AlphaCompC_32u_C1R) {
   Npp32u *d_dst = nullptr;
   int src1Step, src2Step, dstStep;
 
-  d_src1 = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C1(width, height, &src1Step));
-  d_src2 = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C1(width, height, &src2Step));
-  d_dst = reinterpret_cast<Npp32u*>(nppiMalloc_32s_C1(width, height, &dstStep));
+  d_src1 = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C1(width, height, &src1Step));
+  d_src2 = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C1(width, height, &src2Step));
+  d_dst = reinterpret_cast<Npp32u *>(nppiMalloc_32s_C1(width, height, &dstStep));
 
   ASSERT_NE(d_src1, nullptr);
   ASSERT_NE(d_src2, nullptr);
@@ -626,11 +626,11 @@ TEST_P(AlphaCompC32uC1RParamTest, AlphaCompC_32u_C1R) {
   if (param.use_ctx) {
     NppStreamContext ctx{};
     ctx.hStream = 0;
-    status = nppiAlphaCompC_32u_C1R_Ctx(d_src1, src1Step, alpha1, d_src2, src2Step,
-                                         alpha2, d_dst, dstStep, roi, param.alphaOp, ctx);
+    status = nppiAlphaCompC_32u_C1R_Ctx(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, roi,
+                                        param.alphaOp, ctx);
   } else {
-    status = nppiAlphaCompC_32u_C1R(d_src1, src1Step, alpha1, d_src2, src2Step,
-                                     alpha2, d_dst, dstStep, roi, param.alphaOp);
+    status =
+        nppiAlphaCompC_32u_C1R(d_src1, src1Step, alpha1, d_src2, src2Step, alpha2, d_dst, dstStep, roi, param.alphaOp);
   }
   ASSERT_EQ(status, NPP_NO_ERROR);
 

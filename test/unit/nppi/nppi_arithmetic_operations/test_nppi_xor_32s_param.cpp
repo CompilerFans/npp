@@ -229,7 +229,7 @@ TEST_P(Xor32sAC4ParamTest, Xor_32s_AC4R) {
   std::vector<Npp32s> expectedData(total);
   for (int i = 0; i < total; i++) {
     if (i % 4 == 3) {
-      expectedData[i] = src2Data[i];  // Alpha unchanged
+      expectedData[i] = src2Data[i]; // Alpha unchanged
     } else {
       expectedData[i] = src1Data[i] ^ src2Data[i];
     }
@@ -258,8 +258,8 @@ TEST_P(Xor32sAC4ParamTest, Xor_32s_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp32s> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src2.get(), src2.step(),
-                 width * channels * sizeof(Npp32s), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src2.get(), src2.step(), width * channels * sizeof(Npp32s), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       nppGetStreamContext(&ctx);
@@ -345,12 +345,13 @@ TEST_P(XorC32sC1ParamTest, XorC_32s_C1R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(XorC32sC1, XorC32sC1ParamTest,
-                         ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
-                         [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    XorC32sC1, XorC32sC1ParamTest,
+    ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
+    [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
 
 // ==================== XorC 32s C3 TEST_P ====================
 
@@ -410,12 +411,13 @@ TEST_P(XorC32sC3ParamTest, XorC_32s_C3R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(XorC32sC3, XorC32sC3ParamTest,
-                         ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
-                         [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    XorC32sC3, XorC32sC3ParamTest,
+    ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
+    [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
 
 // ==================== XorC 32s C4 TEST_P ====================
 
@@ -475,12 +477,13 @@ TEST_P(XorC32sC4ParamTest, XorC_32s_C4R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(XorC32sC4, XorC32sC4ParamTest,
-                         ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
-                         [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    XorC32sC4, XorC32sC4ParamTest,
+    ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
+    [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
 
 // ==================== XorC 32s AC4 TEST_P ====================
 
@@ -503,7 +506,7 @@ TEST_P(XorC32sAC4ParamTest, XorC_32s_AC4R) {
   for (int i = 0; i < total; i++) {
     int ch = i % 4;
     if (ch == 3) {
-      expectedData[i] = srcData[i];  // Alpha unchanged
+      expectedData[i] = srcData[i]; // Alpha unchanged
     } else {
       expectedData[i] = srcData[i] ^ aConstants[ch];
     }
@@ -530,8 +533,8 @@ TEST_P(XorC32sAC4ParamTest, XorC_32s_AC4R) {
     EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData));
   } else {
     NppImageMemory<Npp32s> dst(width * channels, height);
-    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(),
-                 width * channels * sizeof(Npp32s), height, cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(dst.get(), dst.step(), src.get(), src.step(), width * channels * sizeof(Npp32s), height,
+                 cudaMemcpyDeviceToDevice);
     if (param.use_ctx) {
       NppStreamContext ctx{};
       nppGetStreamContext(&ctx);
@@ -547,9 +550,10 @@ TEST_P(XorC32sAC4ParamTest, XorC_32s_AC4R) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(XorC32sAC4, XorC32sAC4ParamTest,
-                         ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
-                                           XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
-                         [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });
+INSTANTIATE_TEST_SUITE_P(
+    XorC32sAC4, XorC32sAC4ParamTest,
+    ::testing::Values(XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), false, false, "32x32_cAAAAAAAA_noCtx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0xAAAAAAAA), true, false, "32x32_cAAAAAAAA_Ctx"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), false, true, "32x32_c55555555_InPlace"},
+                      XorC32sParam{32, 32, static_cast<Npp32s>(0x55555555), true, true, "32x32_c55555555_InPlace_Ctx"}),
+    [](const ::testing::TestParamInfo<XorC32sParam> &info) { return info.param.name; });

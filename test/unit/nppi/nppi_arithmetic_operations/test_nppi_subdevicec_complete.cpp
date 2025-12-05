@@ -1,8 +1,8 @@
+#include <cmath>
+#include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <npp.h>
-#include <cuda_runtime.h>
 #include <vector>
-#include <cmath>
 
 struct SubDeviceCParam {
   std::string name;
@@ -12,9 +12,7 @@ struct SubDeviceCParam {
   bool hasScale;
 };
 
-static int getChannelCount(int channels) {
-  return (channels == -4) ? 4 : channels;
-}
+static int getChannelCount(int channels) { return (channels == -4) ? 4 : channels; }
 
 // ============================================================================
 // 8u Tests
@@ -27,7 +25,7 @@ protected:
 };
 
 TEST_P(SubDeviceC_8u_Test, Compute) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 4;
   const int height = 3;
   const int channelCount = getChannelCount(p.channels);
@@ -44,19 +42,22 @@ TEST_P(SubDeviceC_8u_Test, Compute) {
   }
 
   int step;
-  Npp8u* d_src = nullptr;
-  Npp8u* d_dst = nullptr;
-  Npp8u* d_constants = nullptr;
+  Npp8u *d_src = nullptr;
+  Npp8u *d_dst = nullptr;
+  Npp8u *d_constants = nullptr;
 
   if (channelCount == 1) {
     d_src = nppiMalloc_8u_C1(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_8u_C1(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_8u_C1(width, height, &step);
   } else if (channelCount == 3) {
     d_src = nppiMalloc_8u_C3(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_8u_C3(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_8u_C3(width, height, &step);
   } else {
     d_src = nppiMalloc_8u_C4(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_8u_C4(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_8u_C4(width, height, &step);
   }
 
   cudaMalloc(&d_constants, channelCount * sizeof(Npp8u));
@@ -106,7 +107,7 @@ TEST_P(SubDeviceC_8u_Test, Compute) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> hostResult(totalElements);
-  Npp8u* resultPtr = p.inplace ? d_src : d_dst;
+  Npp8u *resultPtr = p.inplace ? d_src : d_dst;
   cudaMemcpy2D(hostResult.data(), hostStep, resultPtr, step, hostStep, height, cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < totalElements; ++i) {
@@ -127,22 +128,13 @@ TEST_P(SubDeviceC_8u_Test, Compute) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    SubDeviceC_8u,
-    SubDeviceC_8u_Test,
-    ::testing::Values(
-        SubDeviceCParam{"8u_C1RSfs", 0, 1, false, true},
-        SubDeviceCParam{"8u_C1IRSfs", 0, 1, true, true},
-        SubDeviceCParam{"8u_C3RSfs", 0, 3, false, true},
-        SubDeviceCParam{"8u_C3IRSfs", 0, 3, true, true},
-        SubDeviceCParam{"8u_AC4RSfs", 0, -4, false, true},
-        SubDeviceCParam{"8u_AC4IRSfs", 0, -4, true, true},
-        SubDeviceCParam{"8u_C4RSfs", 0, 4, false, true},
-        SubDeviceCParam{"8u_C4IRSfs", 0, 4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<SubDeviceCParam>& info) {
-      return info.param.name;
-    }
-);
+    SubDeviceC_8u, SubDeviceC_8u_Test,
+    ::testing::Values(SubDeviceCParam{"8u_C1RSfs", 0, 1, false, true}, SubDeviceCParam{"8u_C1IRSfs", 0, 1, true, true},
+                      SubDeviceCParam{"8u_C3RSfs", 0, 3, false, true}, SubDeviceCParam{"8u_C3IRSfs", 0, 3, true, true},
+                      SubDeviceCParam{"8u_AC4RSfs", 0, -4, false, true},
+                      SubDeviceCParam{"8u_AC4IRSfs", 0, -4, true, true},
+                      SubDeviceCParam{"8u_C4RSfs", 0, 4, false, true}, SubDeviceCParam{"8u_C4IRSfs", 0, 4, true, true}),
+    [](const ::testing::TestParamInfo<SubDeviceCParam> &info) { return info.param.name; });
 
 // ============================================================================
 // 16u Tests
@@ -155,7 +147,7 @@ protected:
 };
 
 TEST_P(SubDeviceC_16u_Test, Compute) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 4;
   const int height = 3;
   const int channelCount = getChannelCount(p.channels);
@@ -172,19 +164,22 @@ TEST_P(SubDeviceC_16u_Test, Compute) {
   }
 
   int step;
-  Npp16u* d_src = nullptr;
-  Npp16u* d_dst = nullptr;
-  Npp16u* d_constants = nullptr;
+  Npp16u *d_src = nullptr;
+  Npp16u *d_dst = nullptr;
+  Npp16u *d_constants = nullptr;
 
   if (channelCount == 1) {
     d_src = nppiMalloc_16u_C1(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_16u_C1(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_16u_C1(width, height, &step);
   } else if (channelCount == 3) {
     d_src = nppiMalloc_16u_C3(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_16u_C3(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_16u_C3(width, height, &step);
   } else {
     d_src = nppiMalloc_16u_C4(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_16u_C4(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_16u_C4(width, height, &step);
   }
 
   cudaMalloc(&d_constants, channelCount * sizeof(Npp16u));
@@ -234,7 +229,7 @@ TEST_P(SubDeviceC_16u_Test, Compute) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp16u> hostResult(totalElements);
-  Npp16u* resultPtr = p.inplace ? d_src : d_dst;
+  Npp16u *resultPtr = p.inplace ? d_src : d_dst;
   cudaMemcpy2D(hostResult.data(), hostStep, resultPtr, step, hostStep, height, cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < totalElements; ++i) {
@@ -254,23 +249,16 @@ TEST_P(SubDeviceC_16u_Test, Compute) {
   cudaFree(d_constants);
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    SubDeviceC_16u,
-    SubDeviceC_16u_Test,
-    ::testing::Values(
-        SubDeviceCParam{"16u_C1RSfs", 1, 1, false, true},
-        SubDeviceCParam{"16u_C1IRSfs", 1, 1, true, true},
-        SubDeviceCParam{"16u_C3RSfs", 1, 3, false, true},
-        SubDeviceCParam{"16u_C3IRSfs", 1, 3, true, true},
-        SubDeviceCParam{"16u_AC4RSfs", 1, -4, false, true},
-        SubDeviceCParam{"16u_AC4IRSfs", 1, -4, true, true},
-        SubDeviceCParam{"16u_C4RSfs", 1, 4, false, true},
-        SubDeviceCParam{"16u_C4IRSfs", 1, 4, true, true}
-    ),
-    [](const ::testing::TestParamInfo<SubDeviceCParam>& info) {
-      return info.param.name;
-    }
-);
+INSTANTIATE_TEST_SUITE_P(SubDeviceC_16u, SubDeviceC_16u_Test,
+                         ::testing::Values(SubDeviceCParam{"16u_C1RSfs", 1, 1, false, true},
+                                           SubDeviceCParam{"16u_C1IRSfs", 1, 1, true, true},
+                                           SubDeviceCParam{"16u_C3RSfs", 1, 3, false, true},
+                                           SubDeviceCParam{"16u_C3IRSfs", 1, 3, true, true},
+                                           SubDeviceCParam{"16u_AC4RSfs", 1, -4, false, true},
+                                           SubDeviceCParam{"16u_AC4IRSfs", 1, -4, true, true},
+                                           SubDeviceCParam{"16u_C4RSfs", 1, 4, false, true},
+                                           SubDeviceCParam{"16u_C4IRSfs", 1, 4, true, true}),
+                         [](const ::testing::TestParamInfo<SubDeviceCParam> &info) { return info.param.name; });
 
 // ============================================================================
 // 16s Tests
@@ -283,7 +271,7 @@ protected:
 };
 
 TEST_P(SubDeviceC_16s_Test, Compute) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 4;
   const int height = 3;
   const int channelCount = getChannelCount(p.channels);
@@ -300,9 +288,9 @@ TEST_P(SubDeviceC_16s_Test, Compute) {
   }
 
   int step;
-  Npp16s* d_src = nullptr;
-  Npp16s* d_dst = nullptr;
-  Npp16s* d_constants = nullptr;
+  Npp16s *d_src = nullptr;
+  Npp16s *d_dst = nullptr;
+  Npp16s *d_constants = nullptr;
 
   // Only C1 is supported for 16s (nppiMalloc_16s_C3/C4 don't exist)
   d_src = nppiMalloc_16s_C1(width, height, &step);
@@ -336,7 +324,7 @@ TEST_P(SubDeviceC_16s_Test, Compute) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp16s> hostResult(totalElements);
-  Npp16s* resultPtr = p.inplace ? d_src : d_dst;
+  Npp16s *resultPtr = p.inplace ? d_src : d_dst;
   cudaMemcpy2D(hostResult.data(), hostStep, resultPtr, step, hostStep, height, cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < totalElements; ++i) {
@@ -351,17 +339,10 @@ TEST_P(SubDeviceC_16s_Test, Compute) {
   cudaFree(d_constants);
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    SubDeviceC_16s,
-    SubDeviceC_16s_Test,
-    ::testing::Values(
-        SubDeviceCParam{"16s_C1RSfs", 2, 1, false, true},
-        SubDeviceCParam{"16s_C1IRSfs", 2, 1, true, true}
-    ),
-    [](const ::testing::TestParamInfo<SubDeviceCParam>& info) {
-      return info.param.name;
-    }
-);
+INSTANTIATE_TEST_SUITE_P(SubDeviceC_16s, SubDeviceC_16s_Test,
+                         ::testing::Values(SubDeviceCParam{"16s_C1RSfs", 2, 1, false, true},
+                                           SubDeviceCParam{"16s_C1IRSfs", 2, 1, true, true}),
+                         [](const ::testing::TestParamInfo<SubDeviceCParam> &info) { return info.param.name; });
 
 // ============================================================================
 // 32s Tests
@@ -374,7 +355,7 @@ protected:
 };
 
 TEST_P(SubDeviceC_32s_Test, Compute) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 4;
   const int height = 3;
   const int channelCount = getChannelCount(p.channels);
@@ -391,19 +372,22 @@ TEST_P(SubDeviceC_32s_Test, Compute) {
   }
 
   int step;
-  Npp32s* d_src = nullptr;
-  Npp32s* d_dst = nullptr;
-  Npp32s* d_constants = nullptr;
+  Npp32s *d_src = nullptr;
+  Npp32s *d_dst = nullptr;
+  Npp32s *d_constants = nullptr;
 
   if (channelCount == 1) {
     d_src = nppiMalloc_32s_C1(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_32s_C1(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_32s_C1(width, height, &step);
   } else if (channelCount == 3) {
     d_src = nppiMalloc_32s_C3(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_32s_C3(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_32s_C3(width, height, &step);
   } else {
     d_src = nppiMalloc_32s_C4(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_32s_C4(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_32s_C4(width, height, &step);
   }
 
   cudaMalloc(&d_constants, channelCount * sizeof(Npp32s));
@@ -440,7 +424,7 @@ TEST_P(SubDeviceC_32s_Test, Compute) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32s> hostResult(totalElements);
-  Npp32s* resultPtr = p.inplace ? d_src : d_dst;
+  Npp32s *resultPtr = p.inplace ? d_src : d_dst;
   cudaMemcpy2D(hostResult.data(), hostStep, resultPtr, step, hostStep, height, cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < totalElements; ++i) {
@@ -456,19 +440,12 @@ TEST_P(SubDeviceC_32s_Test, Compute) {
   cudaFree(d_constants);
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    SubDeviceC_32s,
-    SubDeviceC_32s_Test,
-    ::testing::Values(
-        SubDeviceCParam{"32s_C1RSfs", 3, 1, false, true},
-        SubDeviceCParam{"32s_C1IRSfs", 3, 1, true, true},
-        SubDeviceCParam{"32s_C3RSfs", 3, 3, false, true},
-        SubDeviceCParam{"32s_C3IRSfs", 3, 3, true, true}
-    ),
-    [](const ::testing::TestParamInfo<SubDeviceCParam>& info) {
-      return info.param.name;
-    }
-);
+INSTANTIATE_TEST_SUITE_P(SubDeviceC_32s, SubDeviceC_32s_Test,
+                         ::testing::Values(SubDeviceCParam{"32s_C1RSfs", 3, 1, false, true},
+                                           SubDeviceCParam{"32s_C1IRSfs", 3, 1, true, true},
+                                           SubDeviceCParam{"32s_C3RSfs", 3, 3, false, true},
+                                           SubDeviceCParam{"32s_C3IRSfs", 3, 3, true, true}),
+                         [](const ::testing::TestParamInfo<SubDeviceCParam> &info) { return info.param.name; });
 
 // ============================================================================
 // 32f Tests
@@ -481,7 +458,7 @@ protected:
 };
 
 TEST_P(SubDeviceC_32f_Test, Compute) {
-  const auto& p = GetParam();
+  const auto &p = GetParam();
   const int width = 4;
   const int height = 3;
   const int channelCount = getChannelCount(p.channels);
@@ -498,19 +475,22 @@ TEST_P(SubDeviceC_32f_Test, Compute) {
   }
 
   int step;
-  Npp32f* d_src = nullptr;
-  Npp32f* d_dst = nullptr;
-  Npp32f* d_constants = nullptr;
+  Npp32f *d_src = nullptr;
+  Npp32f *d_dst = nullptr;
+  Npp32f *d_constants = nullptr;
 
   if (channelCount == 1) {
     d_src = nppiMalloc_32f_C1(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_32f_C1(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_32f_C1(width, height, &step);
   } else if (channelCount == 3) {
     d_src = nppiMalloc_32f_C3(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_32f_C3(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_32f_C3(width, height, &step);
   } else {
     d_src = nppiMalloc_32f_C4(width, height, &step);
-    if (!p.inplace) d_dst = nppiMalloc_32f_C4(width, height, &step);
+    if (!p.inplace)
+      d_dst = nppiMalloc_32f_C4(width, height, &step);
   }
 
   cudaMalloc(&d_constants, channelCount * sizeof(Npp32f));
@@ -559,7 +539,7 @@ TEST_P(SubDeviceC_32f_Test, Compute) {
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> hostResult(totalElements);
-  Npp32f* resultPtr = p.inplace ? d_src : d_dst;
+  Npp32f *resultPtr = p.inplace ? d_src : d_dst;
   cudaMemcpy2D(hostResult.data(), hostStep, resultPtr, step, hostStep, height, cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < totalElements; ++i) {
@@ -580,19 +560,10 @@ TEST_P(SubDeviceC_32f_Test, Compute) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    SubDeviceC_32f,
-    SubDeviceC_32f_Test,
-    ::testing::Values(
-        SubDeviceCParam{"32f_C1R", 5, 1, false, false},
-        SubDeviceCParam{"32f_C1IR", 5, 1, true, false},
-        SubDeviceCParam{"32f_C3R", 5, 3, false, false},
-        SubDeviceCParam{"32f_C3IR", 5, 3, true, false},
-        SubDeviceCParam{"32f_AC4R", 5, -4, false, false},
-        SubDeviceCParam{"32f_AC4IR", 5, -4, true, false},
-        SubDeviceCParam{"32f_C4R", 5, 4, false, false},
-        SubDeviceCParam{"32f_C4IR", 5, 4, true, false}
-    ),
-    [](const ::testing::TestParamInfo<SubDeviceCParam>& info) {
-      return info.param.name;
-    }
-);
+    SubDeviceC_32f, SubDeviceC_32f_Test,
+    ::testing::Values(SubDeviceCParam{"32f_C1R", 5, 1, false, false}, SubDeviceCParam{"32f_C1IR", 5, 1, true, false},
+                      SubDeviceCParam{"32f_C3R", 5, 3, false, false}, SubDeviceCParam{"32f_C3IR", 5, 3, true, false},
+                      SubDeviceCParam{"32f_AC4R", 5, -4, false, false},
+                      SubDeviceCParam{"32f_AC4IR", 5, -4, true, false}, SubDeviceCParam{"32f_C4R", 5, 4, false, false},
+                      SubDeviceCParam{"32f_C4IR", 5, 4, true, false}),
+    [](const ::testing::TestParamInfo<SubDeviceCParam> &info) { return info.param.name; });
