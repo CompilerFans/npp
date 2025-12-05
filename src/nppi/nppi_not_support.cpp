@@ -2,15 +2,6 @@
 #include <cstdio>
 #include <cuda_runtime.h>
 
-NppStatus nppiSumWindowRow_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oROI,
-                                     Npp32s nMaskSize, Npp32s nAnchor) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiSumWindowRow_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oROI,
-                                     Npp32s nMaskSize, Npp32s nAnchor, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 // NppStatus
 // nppiAndC_32s_C3R(const Npp32s * pSrc1, int nSrc1Step, const Npp32s  aConstants[3],
 //		 Npp32s * pDst,  int nDstStep,  NppiSize oSizeROI){
@@ -46,15 +37,6 @@ NppStatus nppiRShiftC_8s_C4R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aCo
 }
 NppStatus nppiRShiftC_8s_C4R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8s *pDst, int nDstStep,
                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiSumWindowColumn_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                        NppiSize oROI, Npp32s nMaskSize, Npp32s nAnchor) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiSumWindowColumn_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                        NppiSize oROI, Npp32s nMaskSize, Npp32s nAnchor, NppStreamContext nppStreamCtx) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 // NppStatus nppiCopy_32f_P3C3R(const Npp32f * const aSrc[3], int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize
