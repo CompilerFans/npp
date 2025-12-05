@@ -60,7 +60,14 @@ class CoverageAnalyzer:
             # Pattern 2: Direct wrapper: NppStatus nppiFunc(...)
             wrapper_pattern = r'NppStatus\s+(nppi\w+|npps\w+)\s*\('
 
-            for pattern in [impl_pattern, wrapper_pattern]:
+            # Pattern 3: Memory allocation functions returning pointer types (Npp8u*, etc.)
+            # Format: Npp8u *nppiMalloc_8u_C1(...) or Npp8u* nppiMalloc_8u_C1(...)
+            malloc_pattern = r'Npp\w+\s*\*\s*(nppiMalloc_\w+|nppsMalloc_\w+)\s*\('
+
+            # Pattern 4: Free functions returning void
+            free_pattern = r'void\s+(nppiFree|nppsFree)\s*\('
+
+            for pattern in [impl_pattern, wrapper_pattern, malloc_pattern, free_pattern]:
                 for match in re.finditer(pattern, content):
                     func_base = match.group(1)
 
