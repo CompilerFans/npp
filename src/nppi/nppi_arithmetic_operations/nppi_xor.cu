@@ -8,6 +8,7 @@ using namespace nppi::arithmetic;
 
 // Type alias for cleaner code
 template <typename T, int C> using Xor = LogicalOpAPI<T, C, XorOp>;
+template <typename T> using XorAC4 = LogicalOpAC4API<T, XorOp>;
 
 // ============================================================================
 // 8-bit unsigned (8u)
@@ -76,7 +77,7 @@ NppStatus nppiXor_8u_C4IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int n
 // AC4
 NppStatus nppiXor_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Xor<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return XorAC4<Npp8u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXor_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -86,7 +87,7 @@ NppStatus nppiXor_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2,
 
 NppStatus nppiXor_8u_AC4IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                NppStreamContext nppStreamCtx) {
-  return Xor<Npp8u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return XorAC4<Npp8u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXor_8u_AC4IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -160,7 +161,7 @@ NppStatus nppiXor_16u_C4IR(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, in
 // AC4
 NppStatus nppiXor_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
                                int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Xor<Npp16u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return XorAC4<Npp16u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXor_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
@@ -170,7 +171,7 @@ NppStatus nppiXor_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSr
 
 NppStatus nppiXor_16u_AC4IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                 NppStreamContext nppStreamCtx) {
-  return Xor<Npp16u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return XorAC4<Npp16u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXor_16u_AC4IR(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -244,7 +245,7 @@ NppStatus nppiXor_32s_C4IR(const Npp32s *pSrc, int nSrcStep, Npp32s *pSrcDst, in
 // AC4
 NppStatus nppiXor_32s_AC4R_Ctx(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSrc2, int nSrc2Step, Npp32s *pDst,
                                int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Xor<Npp32s, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return XorAC4<Npp32s>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXor_32s_AC4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSrc2, int nSrc2Step, Npp32s *pDst,
@@ -254,7 +255,7 @@ NppStatus nppiXor_32s_AC4R(const Npp32s *pSrc1, int nSrc1Step, const Npp32s *pSr
 
 NppStatus nppiXor_32s_AC4IR_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                 NppStreamContext nppStreamCtx) {
-  return Xor<Npp32s, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return XorAC4<Npp32s>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXor_32s_AC4IR(const Npp32s *pSrc, int nSrcStep, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

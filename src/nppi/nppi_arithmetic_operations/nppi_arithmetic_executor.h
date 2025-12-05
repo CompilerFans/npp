@@ -96,6 +96,7 @@ __global__ void unaryKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, 
 }
 
 // AC4 Unary kernel: processes only first 3 channels, preserves alpha (4th channel)
+// Alpha in dst is left unchanged (matches NVIDIA NPP behavior)
 template <typename T, typename UnaryOp>
 __global__ void unaryAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height, UnaryOp op,
                                int scaleFactor) {
@@ -107,10 +108,33 @@ __global__ void unaryAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstSte
     T *dstRow = (T *)((char *)pDst + y * nDstStep);
 
     int idx = x * 4;
+    // Process first 3 channels only, leave alpha (4th channel) unchanged
     dstRow[idx + 0] = op(srcRow[idx + 0], T{}, scaleFactor);
     dstRow[idx + 1] = op(srcRow[idx + 1], T{}, scaleFactor);
     dstRow[idx + 2] = op(srcRow[idx + 2], T{}, scaleFactor);
-    dstRow[idx + 3] = srcRow[idx + 3]; // Alpha unchanged
+    // Alpha channel (idx + 3) is NOT modified
+  }
+}
+
+// AC4 Binary kernel: processes only first 3 channels, preserves alpha (4th channel)
+// Alpha in dst is left unchanged (matches NVIDIA NPP behavior)
+template <typename T, typename BinaryOp>
+__global__ void binaryAC4Kernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                                int width, int height, BinaryOp op, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *src1Row = (const T *)((const char *)pSrc1 + y * nSrc1Step);
+    const T *src2Row = (const T *)((const char *)pSrc2 + y * nSrc2Step);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    int idx = x * 4;
+    // Process first 3 channels only, leave alpha (4th channel) unchanged
+    dstRow[idx + 0] = op(src1Row[idx + 0], src2Row[idx + 0], scaleFactor);
+    dstRow[idx + 1] = op(src1Row[idx + 1], src2Row[idx + 1], scaleFactor);
+    dstRow[idx + 2] = op(src1Row[idx + 2], src2Row[idx + 2], scaleFactor);
+    // Alpha channel (idx + 3) is NOT modified
   }
 }
 
@@ -233,6 +257,30 @@ public:
   }
 };
 
+// AC4 Binary Operation Executor: processes only first 3 channels, preserves alpha
+template <typename T, typename OpType> class BinaryAC4OperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, int scaleFactor, cudaStream_t stream) {
+    // Validate parameters (use 4 channels for stride validation)
+    NppStatus status = validateBinaryParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 4);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    OpType op;
+    binaryAC4Kernel<T, OpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
 template <typename T, int Channels, typename ConstOpType> class ConstOperationExecutor {
 public:
   static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
@@ -279,6 +327,28 @@ __global__ void multiConstKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstS
   }
 }
 
+// AC4 Multi-channel constant kernel: processes only first 3 channels, preserves alpha
+// Alpha in dst is left unchanged (matches NVIDIA NPP behavior)
+template <typename T, typename ConstOpType>
+__global__ void multiConstAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                    const T *constants, int scaleFactor) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    int idx = x * 4;
+    // Process only first 3 channels, leave alpha (4th channel) unchanged
+    for (int c = 0; c < 3; c++) {
+      ConstOpType op(constants[c]);
+      dstRow[idx + c] = op(srcRow[idx + c], T{}, scaleFactor);
+    }
+    // Alpha channel (idx + 3) is NOT modified
+  }
+}
+
 // Multi-channel constant operation executor
 template <typename T, int Channels, typename ConstOpType> class MultiConstOperationExecutor {
 public:
@@ -308,6 +378,44 @@ public:
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
     multiConstKernel<T, Channels, ConstOpType><<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants, scaleFactor);
+
+    cudaError_t kernelResult = cudaGetLastError();
+    cudaFree(d_constants);
+
+    return (kernelResult == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+};
+
+// AC4 Multi-channel constant operation executor: processes only first 3 channels, preserves alpha
+template <typename T, typename ConstOpType> class MultiConstAC4OperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
+                           cudaStream_t stream, const T *constants) {
+    // Validate parameters (use 4 channels for stride validation)
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 4);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    // Copy 3 constants to device
+    T *d_constants;
+    cudaError_t err = cudaMalloc(&d_constants, 3 * sizeof(T));
+    if (err != cudaSuccess)
+      return NPP_MEMORY_ALLOCATION_ERR;
+
+    err = cudaMemcpy(d_constants, constants, 3 * sizeof(T), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+      cudaFree(d_constants);
+      return NPP_MEMORY_ALLOCATION_ERR;
+    }
+
+    // Launch kernel
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    multiConstAC4Kernel<T, ConstOpType><<<gridSize, blockSize, 0, stream>>>(
         pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants, scaleFactor);
 
     cudaError_t kernelResult = cudaGetLastError();
@@ -621,6 +729,78 @@ using LShiftMultiOperationExecutor = ShiftMultiOperationExecutor<T, Channels, LS
 
 template <typename T, int Channels>
 using RShiftMultiOperationExecutor = ShiftMultiOperationExecutor<T, Channels, RShiftConstMultiOp<T, Channels>>;
+
+// AC4 Multi-Channel Shift kernel: processes only first 3 channels, preserves alpha (4th channel)
+// Alpha in dst is left unchanged (matches NVIDIA NPP behavior)
+template <typename T, typename ShiftOp>
+__global__ void shiftMultiAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                    ShiftOp op) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const T *srcRow = (const T *)((const char *)pSrc + y * nSrcStep);
+    T *dstRow = (T *)((char *)pDst + y * nDstStep);
+
+    int idx = x * 4;
+    // Process only first 3 channels, leave alpha (4th channel) unchanged
+    dstRow[idx + 0] = op.applyShift(srcRow[idx + 0], 0);
+    dstRow[idx + 1] = op.applyShift(srcRow[idx + 1], 1);
+    dstRow[idx + 2] = op.applyShift(srcRow[idx + 2], 2);
+    // Alpha channel (idx + 3) is NOT modified
+  }
+}
+
+template <typename T, typename ShiftOpType> class ShiftMultiAC4OperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc, int nSrcStep, const Npp32u aConstants[3], T *pDst, int nDstStep,
+                           NppiSize oSizeROI, cudaStream_t stream) {
+
+    NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 4);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+
+    NppStatus shiftStatus = validateShiftConstants<T>(aConstants, 3);
+    if (shiftStatus != NPP_NO_ERROR)
+      return shiftStatus;
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+    // Create a 4-channel op but only use first 3 constants
+    Npp32u extConstants[4] = {aConstants[0], aConstants[1], aConstants[2], 0};
+    ShiftOpType op(extConstants);
+    shiftMultiAC4Kernel<T, ShiftOpType>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+
+    return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+private:
+  template <typename U> static NppStatus validateShiftConstants(const Npp32u aConstants[3], int channels) {
+    for (int i = 0; i < channels; i++) {
+      if constexpr (std::is_same_v<U, Npp8u> || std::is_same_v<U, Npp8s>) {
+        if (aConstants[i] > 7)
+          return NPP_BAD_ARGUMENT_ERROR;
+      } else if constexpr (std::is_same_v<U, Npp16u> || std::is_same_v<U, Npp16s>) {
+        if (aConstants[i] > 15)
+          return NPP_BAD_ARGUMENT_ERROR;
+      } else if constexpr (std::is_same_v<U, Npp32u> || std::is_same_v<U, Npp32s>) {
+        if (aConstants[i] > 31)
+          return NPP_BAD_ARGUMENT_ERROR;
+      }
+    }
+    return NPP_NO_ERROR;
+  }
+};
+
+template <typename T>
+using LShiftMultiAC4OperationExecutor = ShiftMultiAC4OperationExecutor<T, LShiftConstMultiOp<T, 4>>;
+
+template <typename T>
+using RShiftMultiAC4OperationExecutor = ShiftMultiAC4OperationExecutor<T, RShiftConstMultiOp<T, 4>>;
 
 // ============================================================================
 // DivRound Operation Kernel and Executor (with rounding mode)

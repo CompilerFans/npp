@@ -54,15 +54,20 @@ template <typename T> using complex_component_t = typename complex_component<T>:
 
 // ============================================================================
 // Type-specific saturating cast utility
+// Uses rint() for round-to-nearest-even (banker's rounding) to match NVIDIA NPP behavior
 // ============================================================================
 template <typename T> __device__ __host__ inline T saturate_cast(double value) {
   if constexpr (std::is_same_v<T, Npp8u>) {
-    return static_cast<T>(value < 0.0 ? 0.0 : (value > 255.0 ? 255.0 : value));
+    double rounded = rint(value);
+    return static_cast<T>(rounded < 0.0 ? 0.0 : (rounded > 255.0 ? 255.0 : rounded));
   } else if constexpr (std::is_same_v<T, Npp16u>) {
-    return static_cast<T>(value < 0.0 ? 0.0 : (value > 65535.0 ? 65535.0 : value));
+    double rounded = rint(value);
+    return static_cast<T>(rounded < 0.0 ? 0.0 : (rounded > 65535.0 ? 65535.0 : rounded));
   } else if constexpr (std::is_same_v<T, Npp16s>) {
-    return static_cast<T>(value < -32768.0 ? -32768.0 : (value > 32767.0 ? 32767.0 : value));
+    double rounded = rint(value);
+    return static_cast<T>(rounded < -32768.0 ? -32768.0 : (rounded > 32767.0 ? 32767.0 : rounded));
   } else if constexpr (std::is_same_v<T, Npp32s>) {
+    // 32s uses truncation, not rounding (matches NVIDIA behavior)
     return static_cast<T>(value < -2147483648.0 ? -2147483648.0 : (value > 2147483647.0 ? 2147483647.0 : value));
   } else if constexpr (std::is_same_v<T, Npp32f>) {
     return static_cast<T>(value);
@@ -265,13 +270,13 @@ template <typename T> struct AbsDiffOp {
 template <typename T> struct MulScaleOp {
   __device__ __host__ T operator()(T a, T b, int = 0) const {
     if constexpr (std::is_same_v<T, Npp8u>) {
-      // For 8-bit: result = (a * b) / 255
-      double result = (static_cast<double>(a) * static_cast<double>(b)) / 255.0;
-      return saturate_cast<T>(result);
+      // For 8-bit: result = (a * b) / 255, using truncation (floor)
+      unsigned int product = static_cast<unsigned int>(a) * static_cast<unsigned int>(b);
+      return static_cast<T>(product / 255);
     } else if constexpr (std::is_same_v<T, Npp16u>) {
-      // For 16-bit: result = (a * b) / 65535
-      double result = (static_cast<double>(a) * static_cast<double>(b)) / 65535.0;
-      return saturate_cast<T>(result);
+      // For 16-bit: result = (a * b) / 65535, using truncation (floor)
+      unsigned long long product = static_cast<unsigned long long>(a) * static_cast<unsigned long long>(b);
+      return static_cast<T>(product / 65535);
     } else {
       // For other types, fallback to regular multiplication
       return saturate_cast<T>(static_cast<double>(a) * static_cast<double>(b));
@@ -336,8 +341,8 @@ template <typename T> struct SqrtOp {
         // NVIDIA NPP uses truncation for scale factors
         result = result / (1 << scaleFactor);
       } else if (std::is_integral_v<T>) {
-        // For no scaling, use rounding to match NVIDIA NPP behavior
-        result = result + 0.5;
+        // For no scaling, use floor(result + 0.5) for round-half-up
+        result = floor(result + 0.5);
       }
       return saturate_cast<T>(result);
     }
@@ -632,7 +637,8 @@ public:
   __device__ __host__ T operator()(T a, T = T(0), int scaleFactor = 0) const {
     double result = std::abs(static_cast<double>(a) - static_cast<double>(constant));
     if (scaleFactor > 0 && std::is_integral_v<T>) {
-      result = (result + (1 << (scaleFactor - 1))) / (1 << scaleFactor);
+      // Use floor after adding 0.5 for rounding (round-half-up), then saturate
+      result = floor((result + (1 << (scaleFactor - 1))) / (1 << scaleFactor));
     }
     return saturate_cast<T>(result);
   }

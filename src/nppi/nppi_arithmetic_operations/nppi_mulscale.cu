@@ -4,6 +4,7 @@
 using namespace nppi::arithmetic;
 
 template <typename T, int C> using MulScale = BinaryOpAPI<T, C, MulScaleOp>;
+template <typename T> using MulScaleAC4 = BinaryOpAC4API<T, MulScaleOp>;
 
 // ============================================================================
 // Npp8u - Unsigned 8-bit
@@ -56,7 +57,7 @@ NppStatus nppiMulScale_8u_C3IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, 
 // AC4R
 NppStatus nppiMulScale_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return MulScale<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return MulScaleAC4<Npp8u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 0, nppStreamCtx);
 }
 
 NppStatus nppiMulScale_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
@@ -68,7 +69,7 @@ NppStatus nppiMulScale_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *p
 // AC4IR (in-place)
 NppStatus nppiMulScale_8u_AC4IR_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                     NppStreamContext nppStreamCtx) {
-  return MulScale<Npp8u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return MulScaleAC4<Npp8u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx);
 }
 
 NppStatus nppiMulScale_8u_AC4IR(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -148,7 +149,7 @@ NppStatus nppiMulScale_16u_C3IR(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDs
 // AC4R
 NppStatus nppiMulScale_16u_AC4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                     Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return MulScale<Npp16u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return MulScaleAC4<Npp16u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 0, nppStreamCtx);
 }
 
 NppStatus nppiMulScale_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
@@ -160,7 +161,7 @@ NppStatus nppiMulScale_16u_AC4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u
 // AC4IR (in-place)
 NppStatus nppiMulScale_16u_AC4IR_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return MulScale<Npp16u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return MulScaleAC4<Npp16u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx);
 }
 
 NppStatus nppiMulScale_16u_AC4IR(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,

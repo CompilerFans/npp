@@ -4,6 +4,7 @@
 using namespace nppi::arithmetic;
 
 template <typename T, int C> using XorC = LogicalConstOpAPI<T, C, XorConstOp>;
+template <typename T> using XorCAC4 = LogicalConstOpAC4API<T, XorConstOp>;
 
 // ============================================================================
 // 8u variants
@@ -49,7 +50,7 @@ NppStatus nppiXorC_8u_C3IR(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDs
 
 NppStatus nppiXorC_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return XorC<Npp8u, 4>::executeMulti(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return XorCAC4<Npp8u>::executeMulti(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXorC_8u_AC4R(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
@@ -59,7 +60,7 @@ NppStatus nppiXorC_8u_AC4R(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstan
 
 NppStatus nppiXorC_8u_AC4IR_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                 NppStreamContext nppStreamCtx) {
-  return XorC<Npp8u, 4>::executeMultiInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return XorCAC4<Npp8u>::executeMultiInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXorC_8u_AC4IR(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -129,7 +130,7 @@ NppStatus nppiXorC_16u_C3IR(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSr
 
 NppStatus nppiXorC_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
                                 int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return XorC<Npp16u, 4>::executeMulti(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return XorCAC4<Npp16u>::executeMulti(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXorC_16u_AC4R(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
@@ -139,7 +140,7 @@ NppStatus nppiXorC_16u_AC4R(const Npp16u *pSrc, int nSrcStep, const Npp16u aCons
 
 NppStatus nppiXorC_16u_AC4IR_Ctx(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                  NppStreamContext nppStreamCtx) {
-  return XorC<Npp16u, 4>::executeMultiInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return XorCAC4<Npp16u>::executeMultiInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXorC_16u_AC4IR(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -209,7 +210,7 @@ NppStatus nppiXorC_32s_C3IR(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSr
 
 NppStatus nppiXorC_32s_AC4R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
                                 int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return XorC<Npp32s, 4>::executeMulti(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return XorCAC4<Npp32s>::executeMulti(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXorC_32s_AC4R(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
@@ -219,7 +220,7 @@ NppStatus nppiXorC_32s_AC4R(const Npp32s *pSrc, int nSrcStep, const Npp32s aCons
 
 NppStatus nppiXorC_32s_AC4IR_Ctx(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                  NppStreamContext nppStreamCtx) {
-  return XorC<Npp32s, 4>::executeMultiInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return XorCAC4<Npp32s>::executeMultiInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiXorC_32s_AC4IR(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

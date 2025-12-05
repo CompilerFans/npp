@@ -4,6 +4,7 @@
 using namespace nppi::arithmetic;
 
 template <typename T, int C> using Not = UnaryOpAPI<T, C, NotOp>;
+template <typename T> using NotAC4 = UnaryOpAC4API<T, NotOp>;
 
 // ============================================================================
 // Npp8u - Unsigned 8-bit
@@ -50,7 +51,7 @@ NppStatus nppiNot_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
 // AC4R
 NppStatus nppiNot_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
-  return Not<Npp8u, 4>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return NotAC4<Npp8u>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiNot_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
@@ -59,7 +60,7 @@ NppStatus nppiNot_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDst
 
 // AC4IR (in-place)
 NppStatus nppiNot_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Not<Npp8u, 4>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return NotAC4<Npp8u>::executeInplace(pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiNot_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

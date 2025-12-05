@@ -5,6 +5,7 @@ using namespace nppi::arithmetic;
 
 template <typename T, int C> using DivC = ConstOpAPI<T, C, DivConstOp>;
 template <typename T, int C> using DivCMulti = MultiConstOpAPI<T, C, DivConstOp>;
+template <typename T> using DivCMultiAC4 = MultiConstOpAC4API<T, DivConstOp>;
 
 // ============================================================================
 // 8u variants
@@ -53,7 +54,7 @@ NppStatus nppiDivC_8u_C3IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSr
 
 NppStatus nppiDivC_8u_AC4RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
                                   NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp8u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return DivCMultiAC4<Npp8u>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDivC_8u_AC4RSfs(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
@@ -64,7 +65,7 @@ NppStatus nppiDivC_8u_AC4RSfs(const Npp8u *pSrc, int nSrcStep, const Npp8u aCons
 
 NppStatus nppiDivC_8u_AC4IRSfs_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp8u, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return DivCMultiAC4<Npp8u>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDivC_8u_AC4IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -142,7 +143,7 @@ NppStatus nppiDivC_16u_C3IRSfs(const Npp16u aConstants[3], Npp16u *pSrcDst, int 
 
 NppStatus nppiDivC_16u_AC4RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
                                    int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp16u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return DivCMultiAC4<Npp16u>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
                                        nppStreamCtx);
 }
 
@@ -154,7 +155,7 @@ NppStatus nppiDivC_16u_AC4RSfs(const Npp16u *pSrc, int nSrcStep, const Npp16u aC
 
 NppStatus nppiDivC_16u_AC4IRSfs_Ctx(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                     int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp16u, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return DivCMultiAC4<Npp16u>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDivC_16u_AC4IRSfs(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -233,7 +234,7 @@ NppStatus nppiDivC_16s_C3IRSfs(const Npp16s aConstants[3], Npp16s *pSrcDst, int 
 
 NppStatus nppiDivC_16s_AC4RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[3], Npp16s *pDst,
                                    int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp16s, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return DivCMultiAC4<Npp16s>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
                                        nppStreamCtx);
 }
 
@@ -245,7 +246,7 @@ NppStatus nppiDivC_16s_AC4RSfs(const Npp16s *pSrc, int nSrcStep, const Npp16s aC
 
 NppStatus nppiDivC_16s_AC4IRSfs_Ctx(const Npp16s aConstants[3], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                     int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp16s, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return DivCMultiAC4<Npp16s>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDivC_16s_AC4IRSfs(const Npp16s aConstants[3], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -319,7 +320,7 @@ NppStatus nppiDivC_32f_C3IR(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSr
 
 NppStatus nppiDivC_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp32f *pDst,
                                 int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp32f, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return DivCMultiAC4<Npp32f>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiDivC_32f_AC4R(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp32f *pDst, int nDstStep,
@@ -329,7 +330,7 @@ NppStatus nppiDivC_32f_AC4R(const Npp32f *pSrc, int nSrcStep, const Npp32f aCons
 
 NppStatus nppiDivC_32f_AC4IR_Ctx(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                  NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp32f, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return DivCMultiAC4<Npp32f>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiDivC_32f_AC4IR(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -451,7 +452,7 @@ NppStatus nppiDivC_16sc_C3IRSfs(const Npp16sc aConstants[3], Npp16sc *pSrcDst, i
 
 NppStatus nppiDivC_16sc_AC4RSfs_Ctx(const Npp16sc *pSrc, int nSrcStep, const Npp16sc aConstants[3], Npp16sc *pDst,
                                     int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp16sc, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return DivCMultiAC4<Npp16sc>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
                                         nppStreamCtx);
 }
 
@@ -463,7 +464,7 @@ NppStatus nppiDivC_16sc_AC4RSfs(const Npp16sc *pSrc, int nSrcStep, const Npp16sc
 
 NppStatus nppiDivC_16sc_AC4IRSfs_Ctx(const Npp16sc aConstants[3], Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp16sc, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return DivCMultiAC4<Npp16sc>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDivC_16sc_AC4IRSfs(const Npp16sc aConstants[3], Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -521,7 +522,7 @@ NppStatus nppiDivC_32sc_C3IRSfs(const Npp32sc aConstants[3], Npp32sc *pSrcDst, i
 
 NppStatus nppiDivC_32sc_AC4RSfs_Ctx(const Npp32sc *pSrc, int nSrcStep, const Npp32sc aConstants[3], Npp32sc *pDst,
                                     int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp32sc, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return DivCMultiAC4<Npp32sc>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
                                         nppStreamCtx);
 }
 
@@ -533,7 +534,7 @@ NppStatus nppiDivC_32sc_AC4RSfs(const Npp32sc *pSrc, int nSrcStep, const Npp32sc
 
 NppStatus nppiDivC_32sc_AC4IRSfs_Ctx(const Npp32sc aConstants[3], Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                      int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp32sc, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return DivCMultiAC4<Npp32sc>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiDivC_32sc_AC4IRSfs(const Npp32sc aConstants[3], Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -586,7 +587,7 @@ NppStatus nppiDivC_32fc_C3IR(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int 
 
 NppStatus nppiDivC_32fc_AC4R_Ctx(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp32fc, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return DivCMultiAC4<Npp32fc>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiDivC_32fc_AC4R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst,
@@ -596,7 +597,7 @@ NppStatus nppiDivC_32fc_AC4R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aC
 
 NppStatus nppiDivC_32fc_AC4IR_Ctx(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
-  return DivCMulti<Npp32fc, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return DivCMultiAC4<Npp32fc>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiDivC_32fc_AC4IR(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {

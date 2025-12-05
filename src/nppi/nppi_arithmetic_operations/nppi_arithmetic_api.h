@@ -141,6 +141,40 @@ public:
 };
 
 // ============================================================================
+// AC4 Binary Operation API Generator (processes 3 channels, preserves alpha)
+// ============================================================================
+
+template <typename T, template <typename> class OpTemplate> class BinaryOpAC4API {
+public:
+  using Op = OpTemplate<T>;
+
+  // Standard binary operation
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return BinaryAC4OperationExecutor<T, Op>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI,
+                                                      nScaleFactor, nppStreamCtx.hStream);
+  }
+
+  // Without scale factor (for float types)
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 0, nppStreamCtx);
+  }
+
+  // In-place with scale factor
+  static NppStatus executeInplace(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  }
+
+  // In-place without scale factor
+  static NppStatus executeInplace(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+    return executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx);
+  }
+};
+
+// ============================================================================
 // Constant Operation API Generator (single constant)
 // ============================================================================
 
@@ -210,6 +244,40 @@ public:
 };
 
 // ============================================================================
+// AC4 Multi-channel Constant Operation API Generator (processes 3 channels, preserves alpha)
+// ============================================================================
+
+template <typename T, template <typename> class OpTemplate> class MultiConstOpAC4API {
+public:
+  using Op = OpTemplate<T>;
+
+  // With scale factor - array of constants (3 constants for RGB channels)
+  static NppStatus execute(const T *pSrc, int nSrcStep, const T *aConstants, T *pDst, int nDstStep, NppiSize oSizeROI,
+                           int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return MultiConstAC4OperationExecutor<T, Op>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                                          nppStreamCtx.hStream, aConstants);
+  }
+
+  // Without scale factor
+  static NppStatus execute(const T *pSrc, int nSrcStep, const T *aConstants, T *pDst, int nDstStep, NppiSize oSizeROI,
+                           NppStreamContext nppStreamCtx) {
+    return execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, 0, nppStreamCtx);
+  }
+
+  // In-place with scale factor
+  static NppStatus executeInplace(const T *aConstants, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                  NppStreamContext nppStreamCtx) {
+    return execute(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  }
+
+  // In-place without scale factor
+  static NppStatus executeInplace(const T *aConstants, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+    return executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, 0, nppStreamCtx);
+  }
+};
+
+// ============================================================================
 // Logical Operation API Generator
 // ============================================================================
 
@@ -222,6 +290,28 @@ public:
                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
     return BinaryOperationExecutor<T, Channels, Op>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
                                                              oSizeROI, 0, nppStreamCtx.hStream);
+  }
+
+  // In-place
+  static NppStatus executeInplace(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+    return execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  }
+};
+
+// ============================================================================
+// AC4 Logical Operation API Generator (processes 3 channels, preserves alpha)
+// ============================================================================
+
+template <typename T, template <typename> class OpTemplate> class LogicalOpAC4API {
+public:
+  using Op = OpTemplate<T>;
+
+  // Standard logical operation (no scale factor)
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return BinaryAC4OperationExecutor<T, Op>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 0,
+                                                      nppStreamCtx.hStream);
   }
 
   // In-place
@@ -258,6 +348,28 @@ public:
                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
     return MultiConstOperationExecutor<T, Channels, Op>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
                                                                  nppStreamCtx.hStream, aConstants);
+  }
+
+  // In-place multi-channel constants
+  static NppStatus executeMultiInplace(const T *aConstants, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                       NppStreamContext nppStreamCtx) {
+    return executeMulti(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  }
+};
+
+// ============================================================================
+// AC4 Logical Constant Operation API Generator (processes 3 channels, preserves alpha)
+// ============================================================================
+
+template <typename T, template <typename> class OpTemplate> class LogicalConstOpAC4API {
+public:
+  using Op = OpTemplate<T>;
+
+  // Multi-channel constants (3 constants for RGB channels)
+  static NppStatus executeMulti(const T *pSrc, int nSrcStep, const T *aConstants, T *pDst, int nDstStep,
+                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return MultiConstAC4OperationExecutor<T, Op>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                          nppStreamCtx.hStream, aConstants);
   }
 
   // In-place multi-channel constants
@@ -308,11 +420,33 @@ public:
   }
 };
 
+// ============================================================================
+// AC4 Multi-Channel Shift Operation API Generator (processes 3 channels, preserves alpha)
+// ============================================================================
+
+template <typename T, template <typename, int> class MultiOpTemplate> class ShiftMultiOpAC4API {
+public:
+  // Multi-channel shift counts (3 constants for RGB channels)
+  static NppStatus execute(const T *pSrc, int nSrcStep, const Npp32u *aConstants, T *pDst, int nDstStep,
+                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+    return ShiftMultiAC4OperationExecutor<T, MultiOpTemplate<T, 4>>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep,
+                                                                              oSizeROI, nppStreamCtx.hStream);
+  }
+
+  // In-place multi-channel shift counts
+  static NppStatus executeInplace(const Npp32u *aConstants, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+    return execute(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  }
+};
+
 // Convenience aliases for shift operations
 template <typename T, int C> using LShift = ShiftOpAPI<T, C, LShiftConstOp>;
 template <typename T, int C> using RShift = ShiftOpAPI<T, C, RShiftConstOp>;
 template <typename T, int C> using LShiftMulti = ShiftMultiOpAPI<T, C, LShiftConstMultiOp>;
 template <typename T, int C> using RShiftMulti = ShiftMultiOpAPI<T, C, RShiftConstMultiOp>;
+template <typename T> using LShiftMultiAC4 = ShiftMultiOpAC4API<T, LShiftConstMultiOp>;
+template <typename T> using RShiftMultiAC4 = ShiftMultiOpAC4API<T, RShiftConstMultiOp>;
 
 // ============================================================================
 // DivRound Operation API Generator (with rounding mode)

@@ -13,6 +13,7 @@ using namespace nppi::arithmetic;
 // Type aliases for cleaner code
 // ============================================================================
 template <typename T, int C> using Add = BinaryOpAPI<T, C, AddOp>;
+template <typename T> using AddAC4 = BinaryOpAC4API<T, AddOp>;
 
 // ============================================================================
 // 8-bit unsigned (8u) - with scale factor
@@ -93,7 +94,7 @@ NppStatus nppiAdd_8u_C4IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, in
 // AC4
 NppStatus nppiAdd_8u_AC4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return AddAC4<Npp8u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                 nppStreamCtx);
 }
 
@@ -105,7 +106,7 @@ NppStatus nppiAdd_8u_AC4RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSr
 
 NppStatus nppiAdd_8u_AC4IRSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp8u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return AddAC4<Npp8u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiAdd_8u_AC4IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -193,7 +194,7 @@ NppStatus nppiAdd_16u_C4IRSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst,
 // AC4
 NppStatus nppiAdd_16u_AC4RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp16u *pDst,
                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp16u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return AddAC4<Npp16u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                  nppStreamCtx);
 }
 
@@ -205,7 +206,7 @@ NppStatus nppiAdd_16u_AC4RSfs(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *
 
 NppStatus nppiAdd_16u_AC4IRSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,
                                    NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp16u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return AddAC4<Npp16u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiAdd_16u_AC4IRSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -293,7 +294,7 @@ NppStatus nppiAdd_16s_C4IRSfs(const Npp16s *pSrc, int nSrcStep, Npp16s *pSrcDst,
 // AC4
 NppStatus nppiAdd_16s_AC4RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step, Npp16s *pDst,
                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp16s, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return AddAC4<Npp16s>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                  nppStreamCtx);
 }
 
@@ -305,7 +306,7 @@ NppStatus nppiAdd_16s_AC4RSfs(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *
 
 NppStatus nppiAdd_16s_AC4IRSfs_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pSrcDst, int nSrcDstStep,
                                    NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp16s, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return AddAC4<Npp16s>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiAdd_16s_AC4IRSfs(const Npp16s *pSrc, int nSrcStep, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -381,7 +382,7 @@ NppStatus nppiAdd_32f_C4IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, in
 // AC4
 NppStatus nppiAdd_32f_AC4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
                                int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Add<Npp32f, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return AddAC4<Npp32f>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32f_AC4R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp32f *pDst,
@@ -391,7 +392,7 @@ NppStatus nppiAdd_32f_AC4R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSr
 
 NppStatus nppiAdd_32f_AC4IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                 NppStreamContext nppStreamCtx) {
-  return Add<Npp32f, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return AddAC4<Npp32f>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32f_AC4IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
@@ -548,7 +549,7 @@ NppStatus nppiAdd_16sc_C3IRSfs(const Npp16sc *pSrc, int nSrcStep, Npp16sc *pSrcD
 NppStatus nppiAdd_16sc_AC4RSfs_Ctx(const Npp16sc *pSrc1, int nSrc1Step, const Npp16sc *pSrc2, int nSrc2Step,
                                    Npp16sc *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                    NppStreamContext nppStreamCtx) {
-  return Add<Npp16sc, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return AddAC4<Npp16sc>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                   nppStreamCtx);
 }
 
@@ -560,7 +561,7 @@ NppStatus nppiAdd_16sc_AC4RSfs(const Npp16sc *pSrc1, int nSrc1Step, const Npp16s
 
 NppStatus nppiAdd_16sc_AC4IRSfs_Ctx(const Npp16sc *pSrc, int nSrcStep, Npp16sc *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp16sc, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return AddAC4<Npp16sc>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiAdd_16sc_AC4IRSfs(const Npp16sc *pSrc, int nSrcStep, Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -627,7 +628,7 @@ NppStatus nppiAdd_32sc_C3IRSfs(const Npp32sc *pSrc, int nSrcStep, Npp32sc *pSrcD
 NppStatus nppiAdd_32sc_AC4RSfs_Ctx(const Npp32sc *pSrc1, int nSrc1Step, const Npp32sc *pSrc2, int nSrc2Step,
                                    Npp32sc *pDst, int nDstStep, NppiSize oSizeROI, int nScaleFactor,
                                    NppStreamContext nppStreamCtx) {
-  return Add<Npp32sc, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
+  return AddAC4<Npp32sc>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nScaleFactor,
                                   nppStreamCtx);
 }
 
@@ -639,7 +640,7 @@ NppStatus nppiAdd_32sc_AC4RSfs(const Npp32sc *pSrc1, int nSrc1Step, const Npp32s
 
 NppStatus nppiAdd_32sc_AC4IRSfs_Ctx(const Npp32sc *pSrc, int nSrcStep, Npp32sc *pSrcDst, int nSrcDstStep,
                                     NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return Add<Npp32sc, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+  return AddAC4<Npp32sc>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32sc_AC4IRSfs(const Npp32sc *pSrc, int nSrcStep, Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -695,7 +696,7 @@ NppStatus nppiAdd_32fc_C3IR(const Npp32fc *pSrc, int nSrcStep, Npp32fc *pSrcDst,
 // AC4
 NppStatus nppiAdd_32fc_AC4R_Ctx(const Npp32fc *pSrc1, int nSrc1Step, const Npp32fc *pSrc2, int nSrc2Step, Npp32fc *pDst,
                                 int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Add<Npp32fc, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
+  return AddAC4<Npp32fc>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32fc_AC4R(const Npp32fc *pSrc1, int nSrc1Step, const Npp32fc *pSrc2, int nSrc2Step, Npp32fc *pDst,
@@ -705,7 +706,7 @@ NppStatus nppiAdd_32fc_AC4R(const Npp32fc *pSrc1, int nSrc1Step, const Npp32fc *
 
 NppStatus nppiAdd_32fc_AC4IR_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32fc *pSrcDst, int nSrcDstStep,
                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return Add<Npp32fc, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+  return AddAC4<Npp32fc>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiAdd_32fc_AC4IR(const Npp32fc *pSrc, int nSrcStep, Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
