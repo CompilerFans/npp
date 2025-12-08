@@ -1941,22 +1941,6 @@ NppStatus nppiHistogramEven_16u_C3R(const Npp16u *pSrc, int nSrcStep, NppiSize o
 }
 
 /**
- * Four-channel 16-bit unsigned HistogramEven.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramEven_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                        int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4], Npp8u *pBuffer,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEven_16u_C4R(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                    int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
  * Four-channel 16-bit unsigned HistogramEven ignoring alpha channel.
  * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
  * nppiHistogramEven functions</a>.
@@ -1985,22 +1969,6 @@ NppStatus nppiHistogramEven_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSi
 
 NppStatus nppiHistogramEven_16s_C3R(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[3],
                                     int nLevels[3], Npp32s nLowerLevel[3], Npp32s nUpperLevel[3], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Four-channel 16-bit signed HistogramEven.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramEven_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                        int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4], Npp8u *pBuffer,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramEven_16s_C4R(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                    int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4], Npp8u *pBuffer) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
