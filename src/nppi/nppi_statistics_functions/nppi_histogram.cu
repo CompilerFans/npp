@@ -657,7 +657,7 @@ NppStatus nppiHistogramRange_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, 
 }
 
 //=============================================================================
-// 16-bit unsigned 4-channel HistogramEven kernels (merged from nppi_histogram_even.cu)
+// 16-bit unsigned 4-channel HistogramEven kernels
 //=============================================================================
 
 __global__ void nppiHistogramEven_16u_C4R_kernel_shared(const Npp16u *pSrc, int nSrcStep, int width, int height,
@@ -909,24 +909,6 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_global(const Npp16s *pSrc, int 
 //=============================================================================
 // 16-bit 4-channel HistogramEven impl functions
 //=============================================================================
-
-NppStatus nppiHistogramEvenGetBufferSize_16u_C4R_Ctx_impl(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize) {
-  size_t totalHistogramSize = 0;
-  for (int c = 0; c < 4; c++) {
-    totalHistogramSize += (size_t)(nLevels[c] - 1) * sizeof(Npp32s);
-  }
-  *hpBufferSize = totalHistogramSize + 1024;
-  return NPP_SUCCESS;
-}
-
-NppStatus nppiHistogramEvenGetBufferSize_16s_C4R_Ctx_impl(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize) {
-  size_t totalHistogramSize = 0;
-  for (int c = 0; c < 4; c++) {
-    totalHistogramSize += (size_t)(nLevels[c] - 1) * sizeof(Npp32s);
-  }
-  *hpBufferSize = totalHistogramSize + 1024;
-  return NPP_SUCCESS;
-}
 
 NppStatus nppiHistogramEven_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
                                              int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4],

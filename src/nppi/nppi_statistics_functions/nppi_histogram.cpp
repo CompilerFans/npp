@@ -26,8 +26,6 @@ NppStatus nppiHistogramEven_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, N
 NppStatus nppiHistogramEven_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
                                              int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4],
                                              Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx);
-NppStatus nppiHistogramEvenGetBufferSize_16u_C4R_Ctx_impl(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize);
-NppStatus nppiHistogramEvenGetBufferSize_16s_C4R_Ctx_impl(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize);
 NppStatus nppiHistogramRange_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
                                              const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
                                              NppStreamContext nppStreamCtx);
@@ -174,6 +172,70 @@ NppStatus nppiHistogramRangeGetBufferSize_32f_C1R_Ctx(NppiSize oSizeROI, int nLe
                                                       NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
   return nppiHistogramRangeGetBufferSize_32f_C1R(oSizeROI, nLevels, hpBufferSize);
+}
+
+// 16-bit unsigned single channel - int* version
+NppStatus nppiHistogramRangeGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_internal(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16u_C1R(oSizeROI, nLevels, hpBufferSize);
+}
+
+// 16-bit signed single channel - int* version
+NppStatus nppiHistogramRangeGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_internal(oSizeROI, nLevels, hpBufferSize);
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppiHistogramRangeGetBufferSize_16s_C1R(oSizeROI, nLevels, hpBufferSize);
+}
+
+// 16-bit unsigned single channel - size_t* version (CUDA 12.8+)
+NppStatus nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  size_t histogramSize = (size_t)(nLevels - 1) * sizeof(Npp32s);
+  *hpBufferSize = histogramSize + 1024;
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
+}
+
+// 16-bit signed single channel - size_t* version (CUDA 12.8+)
+NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  size_t histogramSize = (size_t)(nLevels - 1) * sizeof(Npp32s);
+  *hpBufferSize = histogramSize + 1024;
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRangeGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels, size_t *hpBufferSize) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(oSizeROI, nLevels, hpBufferSize, nppStreamCtx);
 }
 
 //=============================================================================
@@ -697,15 +759,15 @@ static inline NppStatus validateHistogramEven4ChannelInputs(const void *pSrc, in
 NppStatus nppiHistogramEvenGetBufferSize_16u_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize,
                                                      NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  if (!hpBufferSize || !nLevels) {
+  if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
-    return NPP_SIZE_ERROR;
+  int size = 0;
+  NppStatus ret = nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, &size);
+  if (ret == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<size_t>(size);
   }
-
-  return nppiHistogramEvenGetBufferSize_16u_C4R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
+  return ret;
 }
 
 NppStatus nppiHistogramEvenGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize) {
@@ -717,15 +779,15 @@ NppStatus nppiHistogramEvenGetBufferSize_16u_C4R(NppiSize oSizeROI, int nLevels[
 NppStatus nppiHistogramEvenGetBufferSize_16s_C4R_Ctx(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize,
                                                      NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  if (!hpBufferSize || !nLevels) {
+  if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
-    return NPP_SIZE_ERROR;
+  int size = 0;
+  NppStatus ret = nppiHistogramEvenGetBufferSize_8u_C4R(oSizeROI, nLevels, &size);
+  if (ret == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<size_t>(size);
   }
-
-  return nppiHistogramEvenGetBufferSize_16s_C4R_Ctx_impl(oSizeROI, nLevels, hpBufferSize);
+  return ret;
 }
 
 NppStatus nppiHistogramEvenGetBufferSize_16s_C4R(NppiSize oSizeROI, int nLevels[4], size_t *hpBufferSize) {

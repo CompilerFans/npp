@@ -2242,31 +2242,3 @@ NppStatus nppiHistogramRange_32f_AC4R(const Npp32f *pSrc, int nSrcStep, NppiSize
                                       const Npp32f *pLevels[3], int nLevels[3], Npp8u *pBuffer) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16u_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16u_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Scratch-buffer size for nppiHistogramRange_16s_C1R.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenGetBufferSizeParameters">Common parameters for
- * nppiHistogramEvenGetBufferSize functions</a>.
- */
-NppStatus nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize,
-                                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRangeGetBufferSize_16s_C1R(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
