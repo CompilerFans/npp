@@ -2035,21 +2035,6 @@ NppStatus nppiHistogramRange_8u_C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * Four-channel 8-bit unsigned HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                        const Npp32s *pLevels[4], int nLevels[4], Npp8u *pBuffer,
-                                        NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_8u_C4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                    const Npp32s *pLevels[4], int nLevels[4], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Four-channel 8-bit unsigned HistogramRange ignoring alpha channel.
@@ -2064,22 +2049,6 @@ NppStatus nppiHistogramRange_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
 
 NppStatus nppiHistogramRange_8u_AC4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[3],
                                      const Npp32s *pLevels[3], int nLevels[3], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * One-channel 16-bit unsigned HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                         const Npp32s *pLevels, int nLevels, Npp8u *pBuffer,
-                                         NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_16u_C1R(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                     const Npp32s *pLevels, int nLevels, Npp8u *pBuffer) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -2100,22 +2069,6 @@ NppStatus nppiHistogramRange_16u_C3R(const Npp16u *pSrc, int nSrcStep, NppiSize 
 }
 
 /**
- * Four-channel 16-bit unsigned HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                         const Npp32s *pLevels[4], int nLevels[4], Npp8u *pBuffer,
-                                         NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_16u_C4R(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                     const Npp32s *pLevels[4], int nLevels[4], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
  * Four-channel 16-bit unsigned HistogramRange ignoring alpha channel.
  * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
  * nppiHistogramEven functions</a>.
@@ -2131,21 +2084,6 @@ NppStatus nppiHistogramRange_16u_AC4R(const Npp16u *pSrc, int nSrcStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * One-channel 16-bit signed HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                         const Npp32s *pLevels, int nLevels, Npp8u *pBuffer,
-                                         NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_16s_C1R(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
-                                     const Npp32s *pLevels, int nLevels, Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Three-channel 16-bit signed HistogramRange.
@@ -2160,22 +2098,6 @@ NppStatus nppiHistogramRange_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiS
 
 NppStatus nppiHistogramRange_16s_C3R(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[3],
                                      const Npp32s *pLevels[3], int nLevels[3], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * Four-channel 16-bit signed HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                         const Npp32s *pLevels[4], int nLevels[4], Npp8u *pBuffer,
-                                         NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_16s_C4R(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                     const Npp32s *pLevels[4], int nLevels[4], Npp8u *pBuffer) {
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
@@ -2211,21 +2133,6 @@ NppStatus nppiHistogramRange_32f_C3R(const Npp32f *pSrc, int nSrcStep, NppiSize 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * Four-channel 32-bit floating point HistogramRange.
- * For common parameter descriptions, see <a href="#CommonHistogramEvenParameters">Common parameters for
- * nppiHistogramEven functions</a>.
- */
-NppStatus nppiHistogramRange_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                         const Npp32f *pLevels[4], int nLevels[4], Npp8u *pBuffer,
-                                         NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiHistogramRange_32f_C4R(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
-                                     const Npp32f *pLevels[4], int nLevels[4], Npp8u *pBuffer) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Four-channel 32-bit floating point HistogramRange ignoring alpha channel.
