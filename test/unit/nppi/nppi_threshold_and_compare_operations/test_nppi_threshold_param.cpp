@@ -1,8 +1,20 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
+
+namespace {
+
+template <typename T> T threshold_lt(T x, T threshold, T value) { return (x < threshold) ? value : x; }
+template <typename T> T threshold_gt(T x, T threshold, T value) { return (x > threshold) ? value : x; }
+template <typename T> T threshold_ltgt(T x, T thresholdLT, T valueLT, T thresholdGT, T valueGT) {
+  if (x < thresholdLT)
+    return valueLT;
+  if (x > thresholdGT)
+    return valueGT;
+  return x;
+}
+
+} // namespace
 
 // ==================== Threshold_LTVal 8u C1 TEST_P ====================
 
@@ -30,7 +42,7 @@ TEST_P(ThresholdLTVal8uParamTest, Threshold_LTVal_8u_C1R) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::threshold_lt<Npp8u>(srcData[i], threshold, value);
+    expectedData[i] = threshold_lt<Npp8u>(srcData[i], threshold, value);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -103,7 +115,7 @@ TEST_P(ThresholdGTVal8uParamTest, Threshold_GTVal_8u_C1R) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::threshold_gt<Npp8u>(srcData[i], threshold, value);
+    expectedData[i] = threshold_gt<Npp8u>(srcData[i], threshold, value);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -177,7 +189,7 @@ TEST_P(ThresholdLTValGTVal8uParamTest, Threshold_LTValGTVal_8u_C1R) {
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
     expectedData[i] =
-        expect::threshold_ltgt<Npp8u>(srcData[i], param.thresholdLT, param.valueLT, param.thresholdGT, param.valueGT);
+        threshold_ltgt<Npp8u>(srcData[i], param.thresholdLT, param.valueLT, param.thresholdGT, param.valueGT);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -236,7 +248,7 @@ TEST_P(ThresholdLTVal32fParamTest, Threshold_LTVal_32f_C1R) {
 
   std::vector<Npp32f> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::threshold_lt<Npp32f>(srcData[i], threshold, value);
+    expectedData[i] = threshold_lt<Npp32f>(srcData[i], threshold, value);
   }
 
   NppImageMemory<Npp32f> src(width, height);

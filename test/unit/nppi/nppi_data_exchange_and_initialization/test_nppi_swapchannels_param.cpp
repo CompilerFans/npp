@@ -1,8 +1,6 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
 
 // ==================== SwapChannels 8u C3 TEST_P ====================
 

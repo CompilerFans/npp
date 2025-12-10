@@ -1,8 +1,16 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
+
+namespace {
+
+template <typename T> Npp8u compare_lt(T a, T b) { return (a < b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_le(T a, T b) { return (a <= b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_eq(T a, T b) { return (a == b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_ge(T a, T b) { return (a >= b) ? 0xFF : 0x00; }
+template <typename T> Npp8u compare_gt(T a, T b) { return (a > b) ? 0xFF : 0x00; }
+
+} // namespace
 
 // ==================== Compare 8u C1 TEST_P ====================
 
@@ -31,19 +39,19 @@ TEST_P(Compare8uParamTest, Compare_8u_C1R) {
   for (size_t i = 0; i < expectedData.size(); i++) {
     switch (cmpOp) {
     case NPP_CMP_LESS:
-      expectedData[i] = expect::compare_lt<Npp8u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_lt<Npp8u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_LESS_EQ:
-      expectedData[i] = expect::compare_le<Npp8u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_le<Npp8u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_EQ:
-      expectedData[i] = expect::compare_eq<Npp8u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_eq<Npp8u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_GREATER_EQ:
-      expectedData[i] = expect::compare_ge<Npp8u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_ge<Npp8u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_GREATER:
-      expectedData[i] = expect::compare_gt<Npp8u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_gt<Npp8u>(src1Data[i], src2Data[i]);
       break;
     default:
       FAIL() << "Unknown comparison operator";
@@ -111,19 +119,19 @@ TEST_P(Compare16uParamTest, Compare_16u_C1R) {
   for (size_t i = 0; i < expectedData.size(); i++) {
     switch (cmpOp) {
     case NPP_CMP_LESS:
-      expectedData[i] = expect::compare_lt<Npp16u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_lt<Npp16u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_LESS_EQ:
-      expectedData[i] = expect::compare_le<Npp16u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_le<Npp16u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_EQ:
-      expectedData[i] = expect::compare_eq<Npp16u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_eq<Npp16u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_GREATER_EQ:
-      expectedData[i] = expect::compare_ge<Npp16u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_ge<Npp16u>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_GREATER:
-      expectedData[i] = expect::compare_gt<Npp16u>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_gt<Npp16u>(src1Data[i], src2Data[i]);
       break;
     default:
       FAIL() << "Unknown comparison operator";
@@ -187,19 +195,19 @@ TEST_P(Compare32fParamTest, Compare_32f_C1R) {
   for (size_t i = 0; i < expectedData.size(); i++) {
     switch (cmpOp) {
     case NPP_CMP_LESS:
-      expectedData[i] = expect::compare_lt<Npp32f>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_lt<Npp32f>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_LESS_EQ:
-      expectedData[i] = expect::compare_le<Npp32f>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_le<Npp32f>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_EQ:
-      expectedData[i] = expect::compare_eq<Npp32f>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_eq<Npp32f>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_GREATER_EQ:
-      expectedData[i] = expect::compare_ge<Npp32f>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_ge<Npp32f>(src1Data[i], src2Data[i]);
       break;
     case NPP_CMP_GREATER:
-      expectedData[i] = expect::compare_gt<Npp32f>(src1Data[i], src2Data[i]);
+      expectedData[i] = compare_gt<Npp32f>(src1Data[i], src2Data[i]);
       break;
     default:
       FAIL() << "Unknown comparison operator";

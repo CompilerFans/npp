@@ -1,8 +1,6 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
 
 // ==================== Copy 8u C1 TEST_P ====================
 

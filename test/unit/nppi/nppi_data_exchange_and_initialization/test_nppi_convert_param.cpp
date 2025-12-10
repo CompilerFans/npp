@@ -1,8 +1,33 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
+
+namespace {
+
+template <typename DstT, typename SrcT> DstT convert(SrcT x) {
+  if constexpr (std::is_floating_point_v<DstT> && std::is_floating_point_v<SrcT>) {
+    return static_cast<DstT>(x);
+  } else if constexpr (std::is_floating_point_v<DstT>) {
+    return static_cast<DstT>(x);
+  } else if constexpr (std::is_floating_point_v<SrcT>) {
+    if constexpr (std::is_same_v<DstT, Npp8u>) {
+      float rounded = std::round(x);
+      return static_cast<DstT>(std::max(0.0f, std::min(255.0f, rounded)));
+    } else if constexpr (std::is_same_v<DstT, Npp16u>) {
+      float rounded = std::round(x);
+      return static_cast<DstT>(std::max(0.0f, std::min(65535.0f, rounded)));
+    } else if constexpr (std::is_same_v<DstT, Npp16s>) {
+      float rounded = std::round(x);
+      return static_cast<DstT>(std::max(-32768.0f, std::min(32767.0f, rounded)));
+    } else {
+      return static_cast<DstT>(x);
+    }
+  } else {
+    return static_cast<DstT>(x);
+  }
+}
+
+} // namespace
 
 // ==================== Convert 8u to 16u TEST_P ====================
 
@@ -25,7 +50,7 @@ TEST_P(Convert8u16uParamTest, Convert_8u16u_C1R) {
 
   std::vector<Npp16u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::convert<Npp16u, Npp8u>(srcData[i]);
+    expectedData[i] = convert<Npp16u, Npp8u>(srcData[i]);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -76,7 +101,7 @@ TEST_P(Convert8u32fParamTest, Convert_8u32f_C1R) {
 
   std::vector<Npp32f> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::convert<Npp32f, Npp8u>(srcData[i]);
+    expectedData[i] = convert<Npp32f, Npp8u>(srcData[i]);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -128,7 +153,7 @@ TEST_P(Convert32f8uParamTest, Convert_32f8u_C1R) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::convert<Npp8u, Npp32f>(srcData[i]);
+    expectedData[i] = convert<Npp8u, Npp32f>(srcData[i]);
   }
 
   NppImageMemory<Npp32f> src(width, height);
@@ -179,7 +204,7 @@ TEST_P(Convert16u32fParamTest, Convert_16u32f_C1R) {
 
   std::vector<Npp32f> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::convert<Npp32f, Npp16u>(srcData[i]);
+    expectedData[i] = convert<Npp32f, Npp16u>(srcData[i]);
   }
 
   NppImageMemory<Npp16u> src(width, height);
