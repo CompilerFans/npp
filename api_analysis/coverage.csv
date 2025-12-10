@@ -5951,11 +5951,11 @@ nppiLabelMarkersUF_32u_C1R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiLabelMarkersUF_8u32u_C1R,nppi_filtering_functions.h,no,,no,
 nppiLabelMarkersUF_8u32u_C1R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiSegmentWatershedGetBufferSize_16u_C1R,nppi_filtering_functions.h,no,,no,
-nppiSegmentWatershedGetBufferSize_8u_C1R,nppi_filtering_functions.h,yes,src/nppi/nppi_segmentation/nppi_watershed.cpp,yes,test/unit/nppi/nppi_segmentation/test_nppi_watershed.cpp
+nppiSegmentWatershedGetBufferSize_8u_C1R,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_watershed.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_watershed.cpp
 nppiSegmentWatershed_16u_C1IR,nppi_filtering_functions.h,no,,no,
 nppiSegmentWatershed_16u_C1IR_Ctx,nppi_filtering_functions.h,no,,no,
-nppiSegmentWatershed_8u_C1IR,nppi_filtering_functions.h,yes,src/nppi/nppi_segmentation/nppi_watershed.cpp,yes,test/unit/nppi/nppi_segmentation/test_nppi_watershed.cpp
-nppiSegmentWatershed_8u_C1IR_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_segmentation/nppi_watershed.cpp,no,
+nppiSegmentWatershed_8u_C1IR,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_watershed.cpp,yes,test/unit/nppi/nppi_filtering_functions/test_nppi_watershed.cpp
+nppiSegmentWatershed_8u_C1IR_Ctx,nppi_filtering_functions.h,yes,src/nppi/nppi_filtering_functions/nppi_watershed.cpp,no,
 nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiSignedDistanceTransformAbsPBA_32f_C1R_Ctx,nppi_filtering_functions.h,no,,no,
 nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx,nppi_filtering_functions.h,no,,no,
