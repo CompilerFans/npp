@@ -1,8 +1,10 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
+
+namespace {
+template <typename T> T min_every(T a, T b) { return (a < b) ? a : b; }
+} // namespace
 
 // ==================== MinEvery 8u C1 TEST_P ====================
 
@@ -27,7 +29,7 @@ TEST_P(MinEvery8uParamTest, MinEvery_8u_C1IR) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp8u>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp8u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -82,7 +84,7 @@ TEST_P(MinEvery16uParamTest, MinEvery_16u_C1IR) {
 
   std::vector<Npp16u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp16u>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp16u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16u> src(width, height);
@@ -136,7 +138,7 @@ TEST_P(MinEvery32fParamTest, MinEvery_32f_C1IR) {
 
   std::vector<Npp32f> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp32f>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp32f>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp32f> src(width, height);
@@ -192,7 +194,7 @@ TEST_P(MinEvery8uC3ParamTest, MinEvery_8u_C3IR) {
 
   std::vector<Npp8u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp8u>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp8u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp8u> src(width * channels, height);
@@ -248,7 +250,7 @@ TEST_P(MinEvery8uC4ParamTest, MinEvery_8u_C4IR) {
 
   std::vector<Npp8u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp8u>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp8u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp8u> src(width * channels, height);
@@ -304,7 +306,7 @@ TEST_P(MinEvery16uC3ParamTest, MinEvery_16u_C3IR) {
 
   std::vector<Npp16u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp16u>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp16u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16u> src(width * channels, height);
@@ -360,7 +362,7 @@ TEST_P(MinEvery16uC4ParamTest, MinEvery_16u_C4IR) {
 
   std::vector<Npp16u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp16u>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp16u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16u> src(width * channels, height);
@@ -416,7 +418,7 @@ TEST_P(MinEvery32fC3ParamTest, MinEvery_32f_C3IR) {
 
   std::vector<Npp32f> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp32f>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp32f>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp32f> src(width * channels, height);
@@ -472,7 +474,7 @@ TEST_P(MinEvery32fC4ParamTest, MinEvery_32f_C4IR) {
 
   std::vector<Npp32f> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::min_every<Npp32f>(srcData[i], dstData[i]);
+    expectedData[i] = min_every<Npp32f>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp32f> src(width * channels, height);

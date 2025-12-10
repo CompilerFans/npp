@@ -1,8 +1,10 @@
 #include "npp_test_base.h"
-#include "nppi_arithmetic_test_framework.h"
 
 using namespace npp_functional_test;
-using namespace npp_arithmetic_test;
+
+namespace {
+template <typename T> T max_every(T a, T b) { return (a > b) ? a : b; }
+} // namespace
 
 // ==================== MaxEvery 8u C1 TEST_P ====================
 
@@ -27,7 +29,7 @@ TEST_P(MaxEvery8uParamTest, MaxEvery_8u_C1IR) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp8u>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp8u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp8u> src(width, height);
@@ -82,7 +84,7 @@ TEST_P(MaxEvery16uParamTest, MaxEvery_16u_C1IR) {
 
   std::vector<Npp16u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp16u>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp16u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16u> src(width, height);
@@ -136,7 +138,7 @@ TEST_P(MaxEvery32fParamTest, MaxEvery_32f_C1IR) {
 
   std::vector<Npp32f> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp32f>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp32f>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp32f> src(width, height);
@@ -192,7 +194,7 @@ TEST_P(MaxEvery8uC3ParamTest, MaxEvery_8u_C3IR) {
 
   std::vector<Npp8u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp8u>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp8u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp8u> src(width * channels, height);
@@ -248,7 +250,7 @@ TEST_P(MaxEvery8uC4ParamTest, MaxEvery_8u_C4IR) {
 
   std::vector<Npp8u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp8u>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp8u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp8u> src(width * channels, height);
@@ -304,7 +306,7 @@ TEST_P(MaxEvery16uC3ParamTest, MaxEvery_16u_C3IR) {
 
   std::vector<Npp16u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp16u>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp16u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16u> src(width * channels, height);
@@ -360,7 +362,7 @@ TEST_P(MaxEvery16uC4ParamTest, MaxEvery_16u_C4IR) {
 
   std::vector<Npp16u> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp16u>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp16u>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16u> src(width * channels, height);
@@ -416,7 +418,7 @@ TEST_P(MaxEvery32fC3ParamTest, MaxEvery_32f_C3IR) {
 
   std::vector<Npp32f> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp32f>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp32f>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp32f> src(width * channels, height);
@@ -472,7 +474,7 @@ TEST_P(MaxEvery32fC4ParamTest, MaxEvery_32f_C4IR) {
 
   std::vector<Npp32f> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp32f>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp32f>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp32f> src(width * channels, height);
@@ -528,7 +530,7 @@ TEST_P(MaxEvery16sC3ParamTest, MaxEvery_16s_C3IR) {
 
   std::vector<Npp16s> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp16s>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp16s>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16s> src(width * channels, height);
@@ -584,7 +586,7 @@ TEST_P(MaxEvery16sC4ParamTest, MaxEvery_16s_C4IR) {
 
   std::vector<Npp16s> expectedData(total);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = expect::max_every<Npp16s>(srcData[i], dstData[i]);
+    expectedData[i] = max_every<Npp16s>(srcData[i], dstData[i]);
   }
 
   NppImageMemory<Npp16s> src(width * channels, height);
