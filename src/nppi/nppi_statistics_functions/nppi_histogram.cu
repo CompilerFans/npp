@@ -655,4 +655,1173 @@ NppStatus nppiHistogramRange_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, 
 
   return NPP_SUCCESS;
 }
+
+//=============================================================================
+// 16-bit unsigned 4-channel HistogramEven kernels
+//=============================================================================
+
+__global__ void nppiHistogramEven_16u_C4R_kernel_shared(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3,
+                                                        Npp32s nLowerLevel0, Npp32s nLowerLevel1, Npp32s nLowerLevel2,
+                                                        Npp32s nLowerLevel3, Npp32s nUpperLevel0, Npp32s nUpperLevel1,
+                                                        Npp32s nUpperLevel2, Npp32s nUpperLevel3) {
+  extern __shared__ int shared_hist_16u_c4[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  int totalBins = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + (nLevels3 - 1);
+
+  for (int i = tid; i < totalBins; i += threads_per_block) {
+    shared_hist_16u_c4[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+
+    // Channel 0
+    int pixel_value = src_row[x * 4 + 0];
+    if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
+      int range = nUpperLevel0 - nLowerLevel0;
+      long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
+      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      atomicAdd(&shared_hist_16u_c4[bin], 1);
+    }
+
+    // Channel 1
+    pixel_value = src_row[x * 4 + 1];
+    if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
+      int range = nUpperLevel1 - nLowerLevel1;
+      long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
+      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      atomicAdd(&shared_hist_16u_c4[(nLevels0 - 1) + bin], 1);
+    }
+
+    // Channel 2
+    pixel_value = src_row[x * 4 + 2];
+    if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
+      int range = nUpperLevel2 - nLowerLevel2;
+      long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
+      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      atomicAdd(&shared_hist_16u_c4[(nLevels0 - 1) + (nLevels1 - 1) + bin], 1);
+    }
+
+    // Channel 3
+    pixel_value = src_row[x * 4 + 3];
+    if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
+      int range = nUpperLevel3 - nLowerLevel3;
+      long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
+      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      atomicAdd(&shared_hist_16u_c4[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels0 - 1; i += threads_per_block) {
+    atomicAdd(&pHist0[i], shared_hist_16u_c4[i]);
+  }
+  for (int i = tid; i < nLevels1 - 1; i += threads_per_block) {
+    atomicAdd(&pHist1[i], shared_hist_16u_c4[(nLevels0 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels2 - 1; i += threads_per_block) {
+    atomicAdd(&pHist2[i], shared_hist_16u_c4[(nLevels0 - 1) + (nLevels1 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels3 - 1; i += threads_per_block) {
+    atomicAdd(&pHist3[i], shared_hist_16u_c4[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i]);
+  }
+}
+
+__global__ void nppiHistogramEven_16u_C4R_kernel_global(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3,
+                                                        Npp32s nLowerLevel0, Npp32s nLowerLevel1, Npp32s nLowerLevel2,
+                                                        Npp32s nLowerLevel3, Npp32s nUpperLevel0, Npp32s nUpperLevel1,
+                                                        Npp32s nUpperLevel2, Npp32s nUpperLevel3) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+
+    int pixel_value = src_row[x * 4 + 0];
+    if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
+      int range = nUpperLevel0 - nLowerLevel0;
+      long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
+      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      atomicAdd(&pHist0[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 1];
+    if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
+      int range = nUpperLevel1 - nLowerLevel1;
+      long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
+      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      atomicAdd(&pHist1[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 2];
+    if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
+      int range = nUpperLevel2 - nLowerLevel2;
+      long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
+      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      atomicAdd(&pHist2[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 3];
+    if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
+      int range = nUpperLevel3 - nLowerLevel3;
+      long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
+      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      atomicAdd(&pHist3[bin], 1);
+    }
+  }
+}
+
+//=============================================================================
+// 16-bit signed 4-channel HistogramEven kernels
+//=============================================================================
+
+__global__ void nppiHistogramEven_16s_C4R_kernel_shared(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3,
+                                                        Npp32s nLowerLevel0, Npp32s nLowerLevel1, Npp32s nLowerLevel2,
+                                                        Npp32s nLowerLevel3, Npp32s nUpperLevel0, Npp32s nUpperLevel1,
+                                                        Npp32s nUpperLevel2, Npp32s nUpperLevel3) {
+  extern __shared__ int shared_hist_16s_c4[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  int totalBins = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + (nLevels3 - 1);
+
+  for (int i = tid; i < totalBins; i += threads_per_block) {
+    shared_hist_16s_c4[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+
+    int pixel_value = src_row[x * 4 + 0];
+    if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
+      int range = nUpperLevel0 - nLowerLevel0;
+      long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
+      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      atomicAdd(&shared_hist_16s_c4[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 1];
+    if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
+      int range = nUpperLevel1 - nLowerLevel1;
+      long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
+      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      atomicAdd(&shared_hist_16s_c4[(nLevels0 - 1) + bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 2];
+    if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
+      int range = nUpperLevel2 - nLowerLevel2;
+      long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
+      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      atomicAdd(&shared_hist_16s_c4[(nLevels0 - 1) + (nLevels1 - 1) + bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 3];
+    if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
+      int range = nUpperLevel3 - nLowerLevel3;
+      long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
+      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      atomicAdd(&shared_hist_16s_c4[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels0 - 1; i += threads_per_block) {
+    atomicAdd(&pHist0[i], shared_hist_16s_c4[i]);
+  }
+  for (int i = tid; i < nLevels1 - 1; i += threads_per_block) {
+    atomicAdd(&pHist1[i], shared_hist_16s_c4[(nLevels0 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels2 - 1; i += threads_per_block) {
+    atomicAdd(&pHist2[i], shared_hist_16s_c4[(nLevels0 - 1) + (nLevels1 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels3 - 1; i += threads_per_block) {
+    atomicAdd(&pHist3[i], shared_hist_16s_c4[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i]);
+  }
+}
+
+__global__ void nppiHistogramEven_16s_C4R_kernel_global(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3,
+                                                        Npp32s nLowerLevel0, Npp32s nLowerLevel1, Npp32s nLowerLevel2,
+                                                        Npp32s nLowerLevel3, Npp32s nUpperLevel0, Npp32s nUpperLevel1,
+                                                        Npp32s nUpperLevel2, Npp32s nUpperLevel3) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+
+    int pixel_value = src_row[x * 4 + 0];
+    if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
+      int range = nUpperLevel0 - nLowerLevel0;
+      long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
+      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      atomicAdd(&pHist0[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 1];
+    if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
+      int range = nUpperLevel1 - nLowerLevel1;
+      long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
+      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      atomicAdd(&pHist1[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 2];
+    if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
+      int range = nUpperLevel2 - nLowerLevel2;
+      long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
+      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      atomicAdd(&pHist2[bin], 1);
+    }
+
+    pixel_value = src_row[x * 4 + 3];
+    if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
+      int range = nUpperLevel3 - nLowerLevel3;
+      long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
+      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      atomicAdd(&pHist3[bin], 1);
+    }
+  }
+}
+
+//=============================================================================
+// 16-bit 4-channel HistogramEven impl functions
+//=============================================================================
+
+NppStatus nppiHistogramEven_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
+                                             int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4],
+                                             Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
+  for (int c = 0; c < 4; c++) {
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int totalBins = (nLevels[0] - 1) + (nLevels[1] - 1) + (nLevels[2] - 1) + (nLevels[3] - 1);
+
+  if (totalBins <= 512 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = totalBins * sizeof(int);
+    nppiHistogramEven_16u_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], nLevels[0], nLevels[1],
+        nLevels[2], nLevels[3], nLowerLevel[0], nLowerLevel[1], nLowerLevel[2], nLowerLevel[3], nUpperLevel[0],
+        nUpperLevel[1], nUpperLevel[2], nUpperLevel[3]);
+  } else {
+    nppiHistogramEven_16u_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], nLevels[0], nLevels[1],
+        nLevels[2], nLevels[3], nLowerLevel[0], nLowerLevel[1], nLowerLevel[2], nLowerLevel[3], nUpperLevel[0],
+        nUpperLevel[1], nUpperLevel[2], nUpperLevel[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramEven_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
+                                             int nLevels[4], Npp32s nLowerLevel[4], Npp32s nUpperLevel[4],
+                                             Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
+  for (int c = 0; c < 4; c++) {
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int totalBins = (nLevels[0] - 1) + (nLevels[1] - 1) + (nLevels[2] - 1) + (nLevels[3] - 1);
+
+  if (totalBins <= 512 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = totalBins * sizeof(int);
+    nppiHistogramEven_16s_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], nLevels[0], nLevels[1],
+        nLevels[2], nLevels[3], nLowerLevel[0], nLowerLevel[1], nLowerLevel[2], nLowerLevel[3], nUpperLevel[0],
+        nUpperLevel[1], nUpperLevel[2], nUpperLevel[3]);
+  } else {
+    nppiHistogramEven_16s_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], nLevels[0], nLevels[1],
+        nLevels[2], nLevels[3], nLowerLevel[0], nLowerLevel[1], nLowerLevel[2], nLowerLevel[3], nUpperLevel[0],
+        nUpperLevel[1], nUpperLevel[2], nUpperLevel[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+//=============================================================================
+// 16-bit unsigned HistogramRange kernels (C1R)
+//=============================================================================
+
+__global__ void nppiHistogramRange_16u_C1R_kernel_shared(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist, const Npp32s *pLevels, int nLevels) {
+  extern __shared__ int shared_hist_16u_c1r[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    shared_hist_16u_c1r[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&shared_hist_16u_c1r[bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    atomicAdd(&pHist[i], shared_hist_16u_c1r[i]);
+  }
+}
+
+__global__ void nppiHistogramRange_16u_C1R_kernel_global(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist, const Npp32s *pLevels, int nLevels) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&pHist[bin], 1);
+    }
+  }
+}
+
+//=============================================================================
+// 16-bit signed HistogramRange kernels (C1R)
+//=============================================================================
+
+__global__ void nppiHistogramRange_16s_C1R_kernel_shared(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist, const Npp32s *pLevels, int nLevels) {
+  extern __shared__ int shared_hist_16s_c1r[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    shared_hist_16s_c1r[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&shared_hist_16s_c1r[bin], 1);
+    }
+  }
+
+  __syncthreads();
+
+  for (int i = tid; i < nLevels - 1; i += threads_per_block) {
+    atomicAdd(&pHist[i], shared_hist_16s_c1r[i]);
+  }
+}
+
+__global__ void nppiHistogramRange_16s_C1R_kernel_global(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist, const Npp32s *pLevels, int nLevels) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+    int pixel_value = src_row[x];
+
+    int bin = -1;
+    for (int i = 0; i < nLevels - 1; i++) {
+      if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+        bin = i;
+        break;
+      }
+    }
+
+    if (bin >= 0 && bin < (nLevels - 1)) {
+      atomicAdd(&pHist[bin], 1);
+    }
+  }
+}
+
+//=============================================================================
+// 8-bit unsigned 4-channel HistogramRange kernels
+//=============================================================================
+
+__global__ void nppiHistogramRange_8u_C4R_kernel_shared(const Npp8u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                        const Npp32s *pLevels0, const Npp32s *pLevels1,
+                                                        const Npp32s *pLevels2, const Npp32s *pLevels3,
+                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  extern __shared__ int shared_hist_8u_c4r[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  int totalBins = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + (nLevels3 - 1);
+
+  for (int i = tid; i < totalBins; i += threads_per_block) {
+    shared_hist_8u_c4r[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+
+    // Process channel 0
+    int pixel_value = src_row[x * 4 + 0];
+    for (int i = 0; i < nLevels0 - 1; i++) {
+      if (pixel_value >= pLevels0[i] && pixel_value < pLevels0[i + 1]) {
+        atomicAdd(&shared_hist_8u_c4r[i], 1);
+        break;
+      }
+    }
+
+    // Process channel 1
+    pixel_value = src_row[x * 4 + 1];
+    for (int i = 0; i < nLevels1 - 1; i++) {
+      if (pixel_value >= pLevels1[i] && pixel_value < pLevels1[i + 1]) {
+        atomicAdd(&shared_hist_8u_c4r[(nLevels0 - 1) + i], 1);
+        break;
+      }
+    }
+
+    // Process channel 2
+    pixel_value = src_row[x * 4 + 2];
+    for (int i = 0; i < nLevels2 - 1; i++) {
+      if (pixel_value >= pLevels2[i] && pixel_value < pLevels2[i + 1]) {
+        atomicAdd(&shared_hist_8u_c4r[(nLevels0 - 1) + (nLevels1 - 1) + i], 1);
+        break;
+      }
+    }
+
+    // Process channel 3
+    pixel_value = src_row[x * 4 + 3];
+    for (int i = 0; i < nLevels3 - 1; i++) {
+      if (pixel_value >= pLevels3[i] && pixel_value < pLevels3[i + 1]) {
+        atomicAdd(&shared_hist_8u_c4r[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i], 1);
+        break;
+      }
+    }
+  }
+
+  __syncthreads();
+
+  // Copy to global memory
+  for (int i = tid; i < nLevels0 - 1; i += threads_per_block) {
+    atomicAdd(&pHist0[i], shared_hist_8u_c4r[i]);
+  }
+  for (int i = tid; i < nLevels1 - 1; i += threads_per_block) {
+    atomicAdd(&pHist1[i], shared_hist_8u_c4r[(nLevels0 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels2 - 1; i += threads_per_block) {
+    atomicAdd(&pHist2[i], shared_hist_8u_c4r[(nLevels0 - 1) + (nLevels1 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels3 - 1; i += threads_per_block) {
+    atomicAdd(&pHist3[i], shared_hist_8u_c4r[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i]);
+  }
+}
+
+__global__ void nppiHistogramRange_8u_C4R_kernel_global(const Npp8u *pSrc, int nSrcStep, int width, int height,
+                                                        Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                        const Npp32s *pLevels0, const Npp32s *pLevels1,
+                                                        const Npp32s *pLevels2, const Npp32s *pLevels3,
+                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+
+    // Channel 0
+    int pixel_value = src_row[x * 4 + 0];
+    for (int i = 0; i < nLevels0 - 1; i++) {
+      if (pixel_value >= pLevels0[i] && pixel_value < pLevels0[i + 1]) {
+        atomicAdd(&pHist0[i], 1);
+        break;
+      }
+    }
+
+    // Channel 1
+    pixel_value = src_row[x * 4 + 1];
+    for (int i = 0; i < nLevels1 - 1; i++) {
+      if (pixel_value >= pLevels1[i] && pixel_value < pLevels1[i + 1]) {
+        atomicAdd(&pHist1[i], 1);
+        break;
+      }
+    }
+
+    // Channel 2
+    pixel_value = src_row[x * 4 + 2];
+    for (int i = 0; i < nLevels2 - 1; i++) {
+      if (pixel_value >= pLevels2[i] && pixel_value < pLevels2[i + 1]) {
+        atomicAdd(&pHist2[i], 1);
+        break;
+      }
+    }
+
+    // Channel 3
+    pixel_value = src_row[x * 4 + 3];
+    for (int i = 0; i < nLevels3 - 1; i++) {
+      if (pixel_value >= pLevels3[i] && pixel_value < pLevels3[i + 1]) {
+        atomicAdd(&pHist3[i], 1);
+        break;
+      }
+    }
+  }
+}
+
+//=============================================================================
+// 16-bit unsigned 4-channel HistogramRange kernels
+//=============================================================================
+
+__global__ void nppiHistogramRange_16u_C4R_kernel_shared(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                         const Npp32s *pLevels0, const Npp32s *pLevels1,
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
+                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  extern __shared__ int shared_hist_16u_c4r[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  int totalBins = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + (nLevels3 - 1);
+
+  for (int i = tid; i < totalBins; i += threads_per_block) {
+    shared_hist_16u_c4r[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+
+    // Process all 4 channels
+    for (int c = 0; c < 4; c++) {
+      int pixel_value = src_row[x * 4 + c];
+      const Npp32s *pLevels;
+      int nLevels;
+      int offset = 0;
+
+      switch (c) {
+      case 0:
+        pLevels = pLevels0;
+        nLevels = nLevels0;
+        offset = 0;
+        break;
+      case 1:
+        pLevels = pLevels1;
+        nLevels = nLevels1;
+        offset = (nLevels0 - 1);
+        break;
+      case 2:
+        pLevels = pLevels2;
+        nLevels = nLevels2;
+        offset = (nLevels0 - 1) + (nLevels1 - 1);
+        break;
+      default: // case 3
+        pLevels = pLevels3;
+        nLevels = nLevels3;
+        offset = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1);
+        break;
+      }
+
+      for (int i = 0; i < nLevels - 1; i++) {
+        if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+          atomicAdd(&shared_hist_16u_c4r[offset + i], 1);
+          break;
+        }
+      }
+    }
+  }
+
+  __syncthreads();
+
+  // Copy to global memory
+  for (int i = tid; i < nLevels0 - 1; i += threads_per_block) {
+    atomicAdd(&pHist0[i], shared_hist_16u_c4r[i]);
+  }
+  for (int i = tid; i < nLevels1 - 1; i += threads_per_block) {
+    atomicAdd(&pHist1[i], shared_hist_16u_c4r[(nLevels0 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels2 - 1; i += threads_per_block) {
+    atomicAdd(&pHist2[i], shared_hist_16u_c4r[(nLevels0 - 1) + (nLevels1 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels3 - 1; i += threads_per_block) {
+    atomicAdd(&pHist3[i], shared_hist_16u_c4r[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i]);
+  }
+}
+
+__global__ void nppiHistogramRange_16u_C4R_kernel_global(const Npp16u *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                         const Npp32s *pLevels0, const Npp32s *pLevels1,
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
+                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_row = (const Npp16u *)((const char *)pSrc + y * nSrcStep);
+
+    // Channel 0
+    int pixel_value = src_row[x * 4 + 0];
+    for (int i = 0; i < nLevels0 - 1; i++) {
+      if (pixel_value >= pLevels0[i] && pixel_value < pLevels0[i + 1]) {
+        atomicAdd(&pHist0[i], 1);
+        break;
+      }
+    }
+
+    // Channel 1
+    pixel_value = src_row[x * 4 + 1];
+    for (int i = 0; i < nLevels1 - 1; i++) {
+      if (pixel_value >= pLevels1[i] && pixel_value < pLevels1[i + 1]) {
+        atomicAdd(&pHist1[i], 1);
+        break;
+      }
+    }
+
+    // Channel 2
+    pixel_value = src_row[x * 4 + 2];
+    for (int i = 0; i < nLevels2 - 1; i++) {
+      if (pixel_value >= pLevels2[i] && pixel_value < pLevels2[i + 1]) {
+        atomicAdd(&pHist2[i], 1);
+        break;
+      }
+    }
+
+    // Channel 3
+    pixel_value = src_row[x * 4 + 3];
+    for (int i = 0; i < nLevels3 - 1; i++) {
+      if (pixel_value >= pLevels3[i] && pixel_value < pLevels3[i + 1]) {
+        atomicAdd(&pHist3[i], 1);
+        break;
+      }
+    }
+  }
+}
+
+//=============================================================================
+// 16-bit signed 4-channel HistogramRange kernels
+//=============================================================================
+
+__global__ void nppiHistogramRange_16s_C4R_kernel_shared(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                         const Npp32s *pLevels0, const Npp32s *pLevels1,
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
+                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  extern __shared__ int shared_hist_16s_c4r[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  int totalBins = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + (nLevels3 - 1);
+
+  for (int i = tid; i < totalBins; i += threads_per_block) {
+    shared_hist_16s_c4r[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+
+    // Process all 4 channels
+    for (int c = 0; c < 4; c++) {
+      int pixel_value = src_row[x * 4 + c];
+      const Npp32s *pLevels;
+      int nLevels;
+      int offset = 0;
+
+      switch (c) {
+      case 0:
+        pLevels = pLevels0;
+        nLevels = nLevels0;
+        offset = 0;
+        break;
+      case 1:
+        pLevels = pLevels1;
+        nLevels = nLevels1;
+        offset = (nLevels0 - 1);
+        break;
+      case 2:
+        pLevels = pLevels2;
+        nLevels = nLevels2;
+        offset = (nLevels0 - 1) + (nLevels1 - 1);
+        break;
+      default: // case 3
+        pLevels = pLevels3;
+        nLevels = nLevels3;
+        offset = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1);
+        break;
+      }
+
+      for (int i = 0; i < nLevels - 1; i++) {
+        if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+          atomicAdd(&shared_hist_16s_c4r[offset + i], 1);
+          break;
+        }
+      }
+    }
+  }
+
+  __syncthreads();
+
+  // Copy to global memory
+  for (int i = tid; i < nLevels0 - 1; i += threads_per_block) {
+    atomicAdd(&pHist0[i], shared_hist_16s_c4r[i]);
+  }
+  for (int i = tid; i < nLevels1 - 1; i += threads_per_block) {
+    atomicAdd(&pHist1[i], shared_hist_16s_c4r[(nLevels0 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels2 - 1; i += threads_per_block) {
+    atomicAdd(&pHist2[i], shared_hist_16s_c4r[(nLevels0 - 1) + (nLevels1 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels3 - 1; i += threads_per_block) {
+    atomicAdd(&pHist3[i], shared_hist_16s_c4r[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i]);
+  }
+}
+
+__global__ void nppiHistogramRange_16s_C4R_kernel_global(const Npp16s *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                         const Npp32s *pLevels0, const Npp32s *pLevels1,
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
+                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_row = (const Npp16s *)((const char *)pSrc + y * nSrcStep);
+
+    // Channel 0
+    int pixel_value = src_row[x * 4 + 0];
+    for (int i = 0; i < nLevels0 - 1; i++) {
+      if (pixel_value >= pLevels0[i] && pixel_value < pLevels0[i + 1]) {
+        atomicAdd(&pHist0[i], 1);
+        break;
+      }
+    }
+
+    // Channel 1
+    pixel_value = src_row[x * 4 + 1];
+    for (int i = 0; i < nLevels1 - 1; i++) {
+      if (pixel_value >= pLevels1[i] && pixel_value < pLevels1[i + 1]) {
+        atomicAdd(&pHist1[i], 1);
+        break;
+      }
+    }
+
+    // Channel 2
+    pixel_value = src_row[x * 4 + 2];
+    for (int i = 0; i < nLevels2 - 1; i++) {
+      if (pixel_value >= pLevels2[i] && pixel_value < pLevels2[i + 1]) {
+        atomicAdd(&pHist2[i], 1);
+        break;
+      }
+    }
+
+    // Channel 3
+    pixel_value = src_row[x * 4 + 3];
+    for (int i = 0; i < nLevels3 - 1; i++) {
+      if (pixel_value >= pLevels3[i] && pixel_value < pLevels3[i + 1]) {
+        atomicAdd(&pHist3[i], 1);
+        break;
+      }
+    }
+  }
+}
+
+//=============================================================================
+// 32-bit floating point 4-channel HistogramRange kernels
+//=============================================================================
+
+__global__ void nppiHistogramRange_32f_C4R_kernel_shared(const Npp32f *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                         const Npp32f *pLevels0, const Npp32f *pLevels1,
+                                                         const Npp32f *pLevels2, const Npp32f *pLevels3,
+                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  extern __shared__ int shared_hist_32f_c4r[];
+
+  int tid = threadIdx.x + threadIdx.y * blockDim.x;
+  int threads_per_block = blockDim.x * blockDim.y;
+
+  int totalBins = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + (nLevels3 - 1);
+
+  for (int i = tid; i < totalBins; i += threads_per_block) {
+    shared_hist_32f_c4r[i] = 0;
+  }
+  __syncthreads();
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
+
+    // Process all 4 channels
+    for (int c = 0; c < 4; c++) {
+      float pixel_value = src_row[x * 4 + c];
+      const Npp32f *pLevels;
+      int nLevels;
+      int offset = 0;
+
+      switch (c) {
+      case 0:
+        pLevels = pLevels0;
+        nLevels = nLevels0;
+        offset = 0;
+        break;
+      case 1:
+        pLevels = pLevels1;
+        nLevels = nLevels1;
+        offset = (nLevels0 - 1);
+        break;
+      case 2:
+        pLevels = pLevels2;
+        nLevels = nLevels2;
+        offset = (nLevels0 - 1) + (nLevels1 - 1);
+        break;
+      default: // case 3
+        pLevels = pLevels3;
+        nLevels = nLevels3;
+        offset = (nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1);
+        break;
+      }
+
+      for (int i = 0; i < nLevels - 1; i++) {
+        if (pixel_value >= pLevels[i] && pixel_value < pLevels[i + 1]) {
+          atomicAdd(&shared_hist_32f_c4r[offset + i], 1);
+          break;
+        }
+      }
+    }
+  }
+
+  __syncthreads();
+
+  // Copy to global memory
+  for (int i = tid; i < nLevels0 - 1; i += threads_per_block) {
+    atomicAdd(&pHist0[i], shared_hist_32f_c4r[i]);
+  }
+  for (int i = tid; i < nLevels1 - 1; i += threads_per_block) {
+    atomicAdd(&pHist1[i], shared_hist_32f_c4r[(nLevels0 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels2 - 1; i += threads_per_block) {
+    atomicAdd(&pHist2[i], shared_hist_32f_c4r[(nLevels0 - 1) + (nLevels1 - 1) + i]);
+  }
+  for (int i = tid; i < nLevels3 - 1; i += threads_per_block) {
+    atomicAdd(&pHist3[i], shared_hist_32f_c4r[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + i]);
+  }
+}
+
+__global__ void nppiHistogramRange_32f_C4R_kernel_global(const Npp32f *pSrc, int nSrcStep, int width, int height,
+                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
+                                                         const Npp32f *pLevels0, const Npp32f *pLevels1,
+                                                         const Npp32f *pLevels2, const Npp32f *pLevels3,
+                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp32f *src_row = (const Npp32f *)((const char *)pSrc + y * nSrcStep);
+
+    // Channel 0
+    float pixel_value = src_row[x * 4 + 0];
+    for (int i = 0; i < nLevels0 - 1; i++) {
+      if (pixel_value >= pLevels0[i] && pixel_value < pLevels0[i + 1]) {
+        atomicAdd(&pHist0[i], 1);
+        break;
+      }
+    }
+
+    // Channel 1
+    pixel_value = src_row[x * 4 + 1];
+    for (int i = 0; i < nLevels1 - 1; i++) {
+      if (pixel_value >= pLevels1[i] && pixel_value < pLevels1[i + 1]) {
+        atomicAdd(&pHist1[i], 1);
+        break;
+      }
+    }
+
+    // Channel 2
+    pixel_value = src_row[x * 4 + 2];
+    for (int i = 0; i < nLevels2 - 1; i++) {
+      if (pixel_value >= pLevels2[i] && pixel_value < pLevels2[i + 1]) {
+        atomicAdd(&pHist2[i], 1);
+        break;
+      }
+    }
+
+    // Channel 3
+    pixel_value = src_row[x * 4 + 3];
+    for (int i = 0; i < nLevels3 - 1; i++) {
+      if (pixel_value >= pLevels3[i] && pixel_value < pLevels3[i + 1]) {
+        atomicAdd(&pHist3[i], 1);
+        break;
+      }
+    }
+  }
+}
+
+//=============================================================================
+// HistogramRange implementation functions
+//=============================================================================
+
+NppStatus nppiHistogramRange_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                              const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx) {
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int histBins = nLevels - 1;
+
+  if (histBins <= 256 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = histBins * sizeof(int);
+    nppiHistogramRange_16u_C1R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  } else {
+    nppiHistogramRange_16u_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRange_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
+                                              const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx) {
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int histBins = nLevels - 1;
+
+  if (histBins <= 256 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = histBins * sizeof(int);
+    nppiHistogramRange_16s_C1R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  } else {
+    nppiHistogramRange_16s_C1R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist, pLevels, nLevels);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRange_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
+                                             const Npp32s *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
+                                             NppStreamContext nppStreamCtx) {
+  for (int c = 0; c < 4; c++) {
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int totalBins = (nLevels[0] - 1) + (nLevels[1] - 1) + (nLevels[2] - 1) + (nLevels[3] - 1);
+
+  if (totalBins <= 512 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = totalBins * sizeof(int);
+    nppiHistogramRange_8u_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  } else {
+    nppiHistogramRange_8u_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRange_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
+                                              const Npp32s *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx) {
+  for (int c = 0; c < 4; c++) {
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int totalBins = (nLevels[0] - 1) + (nLevels[1] - 1) + (nLevels[2] - 1) + (nLevels[3] - 1);
+
+  if (totalBins <= 512 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = totalBins * sizeof(int);
+    nppiHistogramRange_16u_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  } else {
+    nppiHistogramRange_16u_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRange_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
+                                              const Npp32s *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx) {
+  for (int c = 0; c < 4; c++) {
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int totalBins = (nLevels[0] - 1) + (nLevels[1] - 1) + (nLevels[2] - 1) + (nLevels[3] - 1);
+
+  if (totalBins <= 512 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = totalBins * sizeof(int);
+    nppiHistogramRange_16s_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  } else {
+    nppiHistogramRange_16s_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiHistogramRange_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
+                                              const Npp32f *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
+                                              NppStreamContext nppStreamCtx) {
+  for (int c = 0; c < 4; c++) {
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  size_t imageSize = (size_t)oSizeROI.width * oSizeROI.height;
+  int totalBins = (nLevels[0] - 1) + (nLevels[1] - 1) + (nLevels[2] - 1) + (nLevels[3] - 1);
+
+  if (totalBins <= 512 && imageSize < 1024 * 1024) {
+    size_t sharedMemSize = totalBins * sizeof(int);
+    nppiHistogramRange_32f_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  } else {
+    nppiHistogramRange_32f_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
+        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+  }
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
 }
