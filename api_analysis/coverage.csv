@@ -9965,8 +9965,8 @@ nppiQualityIndex_8u32f_C3R,nppi_statistics_functions.h,no,,no,
 nppiQualityIndex_8u32f_C3R_Ctx,nppi_statistics_functions.h,no,,no,
 nppiRectStdDev_32f_C1R,nppi_statistics_functions.h,no,,no,
 nppiRectStdDev_32f_C1R_Ctx,nppi_statistics_functions.h,no,,no,
-nppiRectStdDev_32s32f_C1R,nppi_statistics_functions.h,no,,no,
-nppiRectStdDev_32s32f_C1R_Ctx,nppi_statistics_functions.h,no,,no,
+nppiRectStdDev_32s32f_C1R,nppi_statistics_functions.h,yes,src/nppi/nppi_statistics_functions/nppi_rect_stddev.cpp,yes,test/unit/nppi/nppi_statistics_functions/test_nppi_rect_stddev.cpp
+nppiRectStdDev_32s32f_C1R_Ctx,nppi_statistics_functions.h,yes,src/nppi/nppi_statistics_functions/nppi_rect_stddev.cpp,yes,test/unit/nppi/nppi_statistics_functions/test_nppi_rect_stddev.cpp
 nppiRectStdDev_32s_C1RSfs,nppi_statistics_functions.h,no,,no,
 nppiRectStdDev_32s_C1RSfs_Ctx,nppi_statistics_functions.h,no,,no,
 nppiSSIMBatchGetBufferHostSize_8u_C1R,nppi_statistics_functions.h,no,,no,
