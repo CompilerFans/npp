@@ -3392,8 +3392,13 @@ nppiConvert_8u8s_C1RSfs,nppi_data_exchange_and_initialization.h,no,,no,
 nppiConvert_8u8s_C1RSfs_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_16s_AC4R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_16s_AC4R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
+<<<<<<< HEAD
 nppiCopyConstBorder_16s_C1R,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copyConstBorder.cpp
 nppiCopyConstBorder_16s_C1R_Ctx,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,no,
+=======
+nppiCopyConstBorder_16s_C1R,nppi_data_exchange_and_initialization.h,no,,no,
+nppiCopyConstBorder_16s_C1R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
+>>>>>>> 6840a6a (support nppiCopyConstBorder_8u_C1R APIs)
 nppiCopyConstBorder_16s_C3R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_16s_C3R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_16s_C4R,nppi_data_exchange_and_initialization.h,no,,no,
@@ -3408,8 +3413,13 @@ nppiCopyConstBorder_16u_C4R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_16u_C4R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_32f_AC4R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_32f_AC4R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
+<<<<<<< HEAD
 nppiCopyConstBorder_32f_C1R,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copyConstBorder.cpp
 nppiCopyConstBorder_32f_C1R_Ctx,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,no,
+=======
+nppiCopyConstBorder_32f_C1R,nppi_data_exchange_and_initialization.h,no,,no,
+nppiCopyConstBorder_32f_C1R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
+>>>>>>> 6840a6a (support nppiCopyConstBorder_8u_C1R APIs)
 nppiCopyConstBorder_32f_C3R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_32f_C3R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_32f_C4R,nppi_data_exchange_and_initialization.h,no,,no,
@@ -3424,10 +3434,17 @@ nppiCopyConstBorder_32s_C4R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_32s_C4R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_8u_AC4R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_8u_AC4R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
+<<<<<<< HEAD
 nppiCopyConstBorder_8u_C1R,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copyConstBorder.cpp
 nppiCopyConstBorder_8u_C1R_Ctx,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copyConstBorder.cpp
 nppiCopyConstBorder_8u_C3R,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copyConstBorder.cpp
 nppiCopyConstBorder_8u_C3R_Ctx,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copyConstBorder.cpp,no,
+=======
+nppiCopyConstBorder_8u_C1R,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copy_const_border.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy_const_border.cpp
+nppiCopyConstBorder_8u_C1R_Ctx,nppi_data_exchange_and_initialization.h,yes,src/nppi/nppi_data_exchange_and_initialization/nppi_copy_const_border.cpp,yes,test/unit/nppi/nppi_data_exchange_and_initialization/test_nppi_copy_const_border.cpp
+nppiCopyConstBorder_8u_C3R,nppi_data_exchange_and_initialization.h,no,,no,
+nppiCopyConstBorder_8u_C3R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
+>>>>>>> 6840a6a (support nppiCopyConstBorder_8u_C1R APIs)
 nppiCopyConstBorder_8u_C4R,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyConstBorder_8u_C4R_Ctx,nppi_data_exchange_and_initialization.h,no,,no,
 nppiCopyReplicateBorder_16s_AC4R,nppi_data_exchange_and_initialization.h,no,,no,
