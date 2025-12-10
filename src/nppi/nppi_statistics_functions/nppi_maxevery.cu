@@ -1,9 +1,9 @@
 // MaxEvery operation using template-based API
-#include "../nppi_arithmetic_operations/nppi_arithmetic_api.h"
+#include "nppi_statistics_api.h"
 
-using namespace nppi::arithmetic;
+using namespace nppi::statistics;
 
-template <typename T, int C> using MaxEvery = BinaryOpAPI<T, C, MaxEveryOp>;
+template <typename T, int C> using MaxEvery = BinaryInplaceOpAPI<T, C, MaxEveryOp>;
 
 // ============================================================================
 // Npp8u - Unsigned 8-bit
