@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 
         NppiSize oSizeROI = {(int)oDeviceSrc.width(), (int)oDeviceSrc.height()}; // full image
         // create device scratch buffer for nppiHistogram
-        size_t nDeviceBufferSize;
+        int nDeviceBufferSize;
         nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(oSizeROI, levelCount, &nDeviceBufferSize, nppStreamCtx);
         Npp8u *pDeviceBuffer;
         NPP_CHECK_CUDA(cudaMalloc((void **)&pDeviceBuffer, nDeviceBufferSize));
