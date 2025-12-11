@@ -192,3 +192,59 @@ TEST_F(NppiHistogramBufferSizeTest, HistogramEvenGetBufferSize_Integration) {
   cudaFree(d_hist);
   nppiFree(d_src);
 }
+
+// Test nppiHistogramRangeGetBufferSize_16u_C1R
+TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_16u_C1R_BasicOperation) {
+  BufferSizeType bufferSize = 0;
+  int nLevels16u = 512;
+
+  NppStatus status = nppiHistogramRangeGetBufferSize_16u_C1R(smallSize, nLevels16u, &bufferSize);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0) << "Buffer size should be positive for 16u histogram range";
+}
+
+TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_16u_C1R_Ctx_BasicOperation) {
+  NppStreamContext nppStreamCtx = {};
+  nppStreamCtx.hStream = 0;
+  BufferSizeType bufferSize = 0;
+  int nLevels16u = 512;
+
+  NppStatus status = nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(smallSize, nLevels16u, &bufferSize, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0) << "Buffer size should be positive for 16u histogram range with context";
+}
+
+// Test nppiHistogramRangeGetBufferSize_16s_C1R
+TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_16s_C1R_BasicOperation) {
+  BufferSizeType bufferSize = 0;
+  int nLevels16s = 512;
+
+  NppStatus status = nppiHistogramRangeGetBufferSize_16s_C1R(smallSize, nLevels16s, &bufferSize);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0) << "Buffer size should be positive for 16s histogram range";
+}
+
+TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_16s_C1R_Ctx_BasicOperation) {
+  NppStreamContext nppStreamCtx = {};
+  nppStreamCtx.hStream = 0;
+  BufferSizeType bufferSize = 0;
+  int nLevels16s = 512;
+
+  NppStatus status = nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(smallSize, nLevels16s, &bufferSize, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0) << "Buffer size should be positive for 16s histogram range with context";
+}
+
+// Test consistency between 16u and 16s buffer sizes
+TEST_F(NppiHistogramBufferSizeTest, HistogramRangeGetBufferSize_16u_16s_Consistency) {
+  BufferSizeType bufferSize16u = 0, bufferSize16s = 0;
+  int nLevels16 = 512;
+
+  NppStatus status16u = nppiHistogramRangeGetBufferSize_16u_C1R(smallSize, nLevels16, &bufferSize16u);
+  NppStatus status16s = nppiHistogramRangeGetBufferSize_16s_C1R(smallSize, nLevels16, &bufferSize16s);
+
+  ASSERT_EQ(status16u, NPP_SUCCESS);
+  ASSERT_EQ(status16s, NPP_SUCCESS);
+  // Buffer sizes should be similar for same nLevels
+  EXPECT_EQ(bufferSize16u, bufferSize16s) << "16u and 16s should have same buffer size for same nLevels";
+}
