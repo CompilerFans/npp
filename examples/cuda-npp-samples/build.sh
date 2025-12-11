@@ -2,17 +2,14 @@
 
 echo "开始构建MPP和样本程序..."
 
-# 首先构建MPP库（不编译测试）
+# 首先构建MPP库（使用主项目的build.sh）
 echo "1. 构建MPP库..."
 cd ../../
-mkdir -p build
-cd build
-cmake -DBUILD_TESTING=OFF ..
-make npp -j$(nproc)
+./build.sh --lib-only
 
 # 构建样本程序
 echo "2. 构建NPP样本..."
-cd ../examples/cuda-npp-samples
+cd examples/cuda-npp-samples
 mkdir -p build
 cd build
 cmake ..
