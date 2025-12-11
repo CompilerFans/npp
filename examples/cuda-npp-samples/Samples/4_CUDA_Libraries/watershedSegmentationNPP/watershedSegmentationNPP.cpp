@@ -165,8 +165,8 @@ int loadRaw8BitImage(Npp8u *pImage, int nWidth, int nHeight, int nImage)
 int main(int argc, char **argv)
 {
 
-    size_t aSegmentationScratchBufferSize[NUMBER_OF_IMAGES];
-    int    aSegmentLabelsOutputBufferSize[NUMBER_OF_IMAGES];
+    int aSegmentationScratchBufferSize[NUMBER_OF_IMAGES];
+    int aSegmentLabelsOutputBufferSize[NUMBER_OF_IMAGES];
 
     cudaError_t      cudaError;
     NppStatus        nppStatus;
@@ -374,7 +374,7 @@ int main(int argc, char **argv)
 
             if (bmpFile == NULL)
                 return -1;
-            size_t nSize = 0;
+            int nSize = 0;
             for (int j = 0; j < oSizeROI[nImage].height; j++) {
                 nSize += fwrite(
                     &pSegmentsHost[nImage][j * oSizeROI[nImage].width], sizeof(Npp8u), oSizeROI[nImage].width, bmpFile);
