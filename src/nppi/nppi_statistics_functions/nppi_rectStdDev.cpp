@@ -1,4 +1,4 @@
-#include "../../npp_version_compat.h"
+#include "npp_version_compat.h"
 #include "npp.h"
 #include <cuda_runtime.h>
 
