@@ -1,41 +1,22 @@
 #include "npp.h"
-#include <cstdlib>
-#include <ctime>
-#include <cuda_runtime.h>
-#include <gtest/gtest.h>
+#include "framework/npp_test_base.h"
 #include <vector>
 
-class NPPICompareCTest : public ::testing::Test {
+using namespace npp_functional_test;
+
+class NPPICompareCTest : public NppTestBase {
 protected:
   void SetUp() override {
-    // 设置随机种子
-    srand(time(nullptr));
-
-    // 初始化测试图像尺寸
-    width = 32;
-    height = 24;
-    roi.width = width;
-    roi.height = height;
+    NppTestBase::SetUp();
+    width_ = 32;
+    height_ = 24;
+    roi_ = {width_, height_};
   }
 
-  void TearDown() override {
-    // 清理会在各测试函数中处理
-  }
-
-  int width, height;
-  NppiSize roi;
-
-  // 辅助函数：生成随机数据
-  template <typename T> void generateRandomData(std::vector<T> &data, size_t size, T minVal, T maxVal) {
-    data.resize(size);
-    for (size_t i = 0; i < size; i++) {
-      data[i] = static_cast<T>(rand() % (maxVal - minVal + 1) + minVal);
-    }
-  }
-
-  // 辅助函数：ValidateCompareC结果
+  // Helper: verify compare result
   template <typename T>
   void verifyCompareC(const std::vector<T> &src, const std::vector<Npp8u> &result, T constant, NppCmpOp operation) {
+    ASSERT_EQ(src.size(), result.size());
     for (size_t i = 0; i < result.size(); i++) {
       bool expected = false;
       switch (operation) {
@@ -57,271 +38,256 @@ protected:
       }
       Npp8u expectedValue = expected ? 255 : 0;
       EXPECT_EQ(result[i], expectedValue)
-          << "Mismatch at index " << i << " src=" << (int)src[i] << " const=" << (int)constant << " op=" << operation;
+          << "Mismatch at index " << i << " src=" << static_cast<int>(src[i]) << " const=" << static_cast<int>(constant)
+          << " op=" << operation;
     }
   }
+
+  // Helper: create stream context
+  NppStreamContext createStreamContext() {
+    NppStreamContext ctx;
+    ctx.hStream = 0;
+    cudaGetDevice(&ctx.nCudaDeviceId);
+    cudaDeviceGetAttribute(&ctx.nCudaDevAttrComputeCapabilityMajor, cudaDevAttrComputeCapabilityMajor,
+                           ctx.nCudaDeviceId);
+    cudaDeviceGetAttribute(&ctx.nCudaDevAttrComputeCapabilityMinor, cudaDevAttrComputeCapabilityMinor,
+                           ctx.nCudaDeviceId);
+    cudaStreamGetFlags(ctx.hStream, &ctx.nStreamFlags);
+    cudaDeviceProp prop;
+    cudaGetDeviceProperties(&prop, ctx.nCudaDeviceId);
+    ctx.nMultiProcessorCount = prop.multiProcessorCount;
+    ctx.nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
+    ctx.nMaxThreadsPerBlock = prop.maxThreadsPerBlock;
+    ctx.nSharedMemPerBlock = prop.sharedMemPerBlock;
+    return ctx;
+  }
+
+  int width_, height_;
+  NppiSize roi_;
 };
 
-// 测试8位无符号单通道与常数比较 - 小于
-TEST_F(NPPICompareCTest, CompareC_8u_C1R_Less) {
-  size_t dataSize = width * height;
-  std::vector<Npp8u> srcData(dataSize), dstData(dataSize);
-
-  // 生成测试数据
-  generateRandomData(srcData, dataSize, Npp8u(0), Npp8u(255));
-  Npp8u constant = 128;
-
-  // 分配GPU内存
-  Npp8u *d_src, *d_dst;
-  int srcStep = width * sizeof(Npp8u);
-  int dstStep = width * sizeof(Npp8u);
-
-  cudaMalloc(&d_src, dataSize * sizeof(Npp8u));
-  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  // CallNPP函数
-  NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_LESS);
-  EXPECT_EQ(status, NPP_SUCCESS);
-
-  // 拷贝结果回主机
-  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  // Validate结果
-  verifyCompareC(srcData, dstData, constant, NPP_CMP_LESS);
-
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
-// 测试8位无符号单通道与常数比较 - 等于
-TEST_F(NPPICompareCTest, CompareC_8u_C1R_Equal) {
-  size_t dataSize = width * height;
-  std::vector<Npp8u> srcData(dataSize), dstData(dataSize);
-
-  // 生成测试数据并确保有相等值
-  generateRandomData(srcData, dataSize, Npp8u(0), Npp8u(255));
-  Npp8u constant = 100;
-
-  // 确保至少有一些等于常数的值
-  for (size_t i = 0; i < dataSize; i += 10) {
-    srcData[i] = constant;
-  }
-
-  // 分配GPU内存
-  Npp8u *d_src, *d_dst;
-  int srcStep = width * sizeof(Npp8u);
-  int dstStep = width * sizeof(Npp8u);
-
-  cudaMalloc(&d_src, dataSize * sizeof(Npp8u));
-  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  // CallNPP函数
-  NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_EQ);
-  EXPECT_EQ(status, NPP_SUCCESS);
-
-  // 拷贝结果回主机
-  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  // Validate结果
-  verifyCompareC(srcData, dstData, constant, NPP_CMP_EQ);
-
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
-// 测试8位无符号单通道与常数比较 - 大于
-TEST_F(NPPICompareCTest, CompareC_8u_C1R_Greater) {
-  size_t dataSize = width * height;
-  std::vector<Npp8u> srcData(dataSize), dstData(dataSize);
-
-  // 生成测试数据
-  generateRandomData(srcData, dataSize, Npp8u(0), Npp8u(255));
-  Npp8u constant = 128;
-
-  // 分配GPU内存
-  Npp8u *d_src, *d_dst;
-  int srcStep = width * sizeof(Npp8u);
-  int dstStep = width * sizeof(Npp8u);
-
-  cudaMalloc(&d_src, dataSize * sizeof(Npp8u));
-  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  // CallNPP函数
-  NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_GREATER);
-  EXPECT_EQ(status, NPP_SUCCESS);
-
-  // 拷贝结果回主机
-  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  // Validate结果
-  verifyCompareC(srcData, dstData, constant, NPP_CMP_GREATER);
-
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
-// 测试16位有符号单通道与常数比较
-TEST_F(NPPICompareCTest, CompareC_16s_C1R) {
-  size_t dataSize = width * height;
-  std::vector<Npp16s> srcData(dataSize);
+// Test nppiCompareC_8u_C1R and nppiCompareC_8u_C1R_Ctx
+TEST_F(NPPICompareCTest, nppiCompareC_8u_C1R) {
+  size_t dataSize = width_ * height_;
+  std::vector<Npp8u> srcData(dataSize);
   std::vector<Npp8u> dstData(dataSize);
 
-  // 生成测试数据（包括负数）
-  generateRandomData(srcData, dataSize, Npp16s(-1000), Npp16s(1000));
-  Npp16s constant = 0;
+  TestDataGenerator::generateRandom(srcData, Npp8u(0), Npp8u(255), 42);
+  Npp8u constant = 128;
 
-  // 分配GPU内存
-  Npp16s *d_src;
-  Npp8u *d_dst;
-  int srcStep = width * sizeof(Npp16s);
-  int dstStep = width * sizeof(Npp8u);
+  NppImageMemory<Npp8u> d_src(width_, height_);
+  NppImageMemory<Npp8u> d_dst(width_, height_);
+  d_src.copyFromHost(srcData);
 
-  cudaMalloc(&d_src, dataSize * sizeof(Npp16s));
-  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp16s), cudaMemcpyHostToDevice);
-
-  // CallNPP函数 - 测试小于等于
-  NppStatus status = nppiCompareC_16s_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_LESS_EQ);
-  EXPECT_EQ(status, NPP_SUCCESS);
-
-  // 拷贝结果回主机
-  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  // Validate结果
-  verifyCompareC(srcData, dstData, constant, NPP_CMP_LESS_EQ);
-
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
-// 测试32位浮点单通道与常数比较
-TEST_F(NPPICompareCTest, CompareC_32f_C1R) {
-  size_t dataSize = width * height;
-  std::vector<Npp32f> srcData(dataSize);
-  std::vector<Npp8u> dstData(dataSize);
-
-  // 生成浮点测试数据
-  for (size_t i = 0; i < dataSize; i++) {
-    srcData[i] = static_cast<Npp32f>((rand() / (float)RAND_MAX) * 2.0f - 1.0f); // [-1, 1]
-  }
-  Npp32f constant = 0.0f;
-
-  // 分配GPU内存
-  Npp32f *d_src;
-  Npp8u *d_dst;
-  int srcStep = width * sizeof(Npp32f);
-  int dstStep = width * sizeof(Npp8u);
-
-  cudaMalloc(&d_src, dataSize * sizeof(Npp32f));
-  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp32f), cudaMemcpyHostToDevice);
-
-  // CallNPP函数 - 测试大于等于
-  NppStatus status = nppiCompareC_32f_C1R(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_GREATER_EQ);
-  EXPECT_EQ(status, NPP_SUCCESS);
-
-  // 拷贝结果回主机
-  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  // Validate结果
-  verifyCompareC(srcData, dstData, constant, NPP_CMP_GREATER_EQ);
-
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
-// 测试带上下文的版本
-TEST_F(NPPICompareCTest, CompareC_8u_C1R_Ctx) {
-  size_t dataSize = width * height;
-  std::vector<Npp8u> srcData(dataSize), dstData(dataSize);
-
-  // 生成测试数据
-  generateRandomData(srcData, dataSize, Npp8u(0), Npp8u(255));
-  Npp8u constant = 200;
-
-  // 分配GPU内存
-  Npp8u *d_src, *d_dst;
-  int srcStep = width * sizeof(Npp8u);
-  int dstStep = width * sizeof(Npp8u);
-
-  cudaMalloc(&d_src, dataSize * sizeof(Npp8u));
-  cudaMalloc(&d_dst, dataSize * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), dataSize * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  // 创建流上下文
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0; // 使用Default stream
-
-  // CallNPP函数
-  NppStatus status = nppiCompareC_8u_C1R_Ctx(d_src, srcStep, constant, d_dst, dstStep, roi, NPP_CMP_LESS, nppStreamCtx);
-  EXPECT_EQ(status, NPP_SUCCESS);
-
-  // 拷贝结果回主机
-  cudaMemcpy(dstData.data(), d_dst, dataSize * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-  // Validate结果
-  verifyCompareC(srcData, dstData, constant, NPP_CMP_LESS);
-
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
-}
-
-// 测试所有比较操作
-TEST_F(NPPICompareCTest, CompareC_AllOperations) {
-  std::vector<Npp8u> srcData = {50, 100, 150, 200, 100}; // 简单测试数据
-  std::vector<Npp8u> dstData(5);
-  Npp8u constant = 100;
-
-  // 创建小尺寸测试
-  NppiSize smallRoi = {5, 1};
-
-  // 分配GPU内存
-  Npp8u *d_src, *d_dst;
-  int srcStep = 5 * sizeof(Npp8u);
-  int dstStep = 5 * sizeof(Npp8u);
-
-  cudaMalloc(&d_src, 5 * sizeof(Npp8u));
-  cudaMalloc(&d_dst, 5 * sizeof(Npp8u));
-
-  // 拷贝数据到GPU
-  cudaMemcpy(d_src, srcData.data(), 5 * sizeof(Npp8u), cudaMemcpyHostToDevice);
-
-  // 测试所有比较操作
+  // Test all comparison operations with non-Ctx version
   NppCmpOp operations[] = {NPP_CMP_LESS, NPP_CMP_LESS_EQ, NPP_CMP_EQ, NPP_CMP_GREATER_EQ, NPP_CMP_GREATER};
 
   for (NppCmpOp op : operations) {
-    NppStatus status = nppiCompareC_8u_C1R(d_src, srcStep, constant, d_dst, dstStep, smallRoi, op);
-    EXPECT_EQ(status, NPP_SUCCESS) << "Operation " << op << " failed";
+    NppStatus status = nppiCompareC_8u_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Non-Ctx version failed for op=" << op;
 
-    // 拷贝结果回主机
-    cudaMemcpy(dstData.data(), d_dst, 5 * sizeof(Npp8u), cudaMemcpyDeviceToHost);
-
-    // Validate结果
+    d_dst.copyToHost(dstData);
     verifyCompareC(srcData, dstData, constant, op);
   }
 
-  // 清理GPU内存
-  cudaFree(d_src);
-  cudaFree(d_dst);
+  // Test Ctx version
+  NppStreamContext ctx = createStreamContext();
+  for (NppCmpOp op : operations) {
+    NppStatus status =
+        nppiCompareC_8u_C1R_Ctx(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op, ctx);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+}
+
+// Test nppiCompareC_16s_C1R and nppiCompareC_16s_C1R_Ctx
+TEST_F(NPPICompareCTest, nppiCompareC_16s_C1R) {
+  size_t dataSize = width_ * height_;
+  std::vector<Npp16s> srcData(dataSize);
+  std::vector<Npp8u> dstData(dataSize);
+
+  TestDataGenerator::generateRandom(srcData, Npp16s(-1000), Npp16s(1000), 42);
+  Npp16s constant = 0;
+
+  NppImageMemory<Npp16s> d_src(width_, height_);
+  NppImageMemory<Npp8u> d_dst(width_, height_);
+  d_src.copyFromHost(srcData);
+
+  NppCmpOp operations[] = {NPP_CMP_LESS, NPP_CMP_LESS_EQ, NPP_CMP_EQ, NPP_CMP_GREATER_EQ, NPP_CMP_GREATER};
+
+  // Test non-Ctx version
+  for (NppCmpOp op : operations) {
+    NppStatus status = nppiCompareC_16s_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Non-Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+
+  // Test Ctx version
+  NppStreamContext ctx = createStreamContext();
+  for (NppCmpOp op : operations) {
+    NppStatus status =
+        nppiCompareC_16s_C1R_Ctx(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op, ctx);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+}
+
+// Test nppiCompareC_16u_C1R and nppiCompareC_16u_C1R_Ctx
+TEST_F(NPPICompareCTest, nppiCompareC_16u_C1R) {
+  size_t dataSize = width_ * height_;
+  std::vector<Npp16u> srcData(dataSize);
+  std::vector<Npp8u> dstData(dataSize);
+
+  TestDataGenerator::generateRandom(srcData, Npp16u(0), Npp16u(65535), 42);
+  Npp16u constant = 32768;
+
+  NppImageMemory<Npp16u> d_src(width_, height_);
+  NppImageMemory<Npp8u> d_dst(width_, height_);
+  d_src.copyFromHost(srcData);
+
+  NppCmpOp operations[] = {NPP_CMP_LESS, NPP_CMP_LESS_EQ, NPP_CMP_EQ, NPP_CMP_GREATER_EQ, NPP_CMP_GREATER};
+
+  // Test non-Ctx version
+  for (NppCmpOp op : operations) {
+    NppStatus status = nppiCompareC_16u_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Non-Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+
+  // Test Ctx version
+  NppStreamContext ctx = createStreamContext();
+  for (NppCmpOp op : operations) {
+    NppStatus status =
+        nppiCompareC_16u_C1R_Ctx(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op, ctx);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+}
+
+// Test nppiCompareC_32f_C1R and nppiCompareC_32f_C1R_Ctx
+TEST_F(NPPICompareCTest, nppiCompareC_32f_C1R) {
+  size_t dataSize = width_ * height_;
+  std::vector<Npp32f> srcData(dataSize);
+  std::vector<Npp8u> dstData(dataSize);
+
+  TestDataGenerator::generateRandom(srcData, Npp32f(-1.0f), Npp32f(1.0f), 42);
+  Npp32f constant = 0.0f;
+
+  NppImageMemory<Npp32f> d_src(width_, height_);
+  NppImageMemory<Npp8u> d_dst(width_, height_);
+  d_src.copyFromHost(srcData);
+
+  NppCmpOp operations[] = {NPP_CMP_LESS, NPP_CMP_LESS_EQ, NPP_CMP_EQ, NPP_CMP_GREATER_EQ, NPP_CMP_GREATER};
+
+  // Test non-Ctx version
+  for (NppCmpOp op : operations) {
+    NppStatus status = nppiCompareC_32f_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Non-Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+
+  // Test Ctx version
+  NppStreamContext ctx = createStreamContext();
+  for (NppCmpOp op : operations) {
+    NppStatus status =
+        nppiCompareC_32f_C1R_Ctx(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), roi_, op, ctx);
+    EXPECT_EQ(status, NPP_SUCCESS) << "Ctx version failed for op=" << op;
+
+    d_dst.copyToHost(dstData);
+    verifyCompareC(srcData, dstData, constant, op);
+  }
+}
+
+// Test with specific values to ensure correctness
+TEST_F(NPPICompareCTest, nppiCompareC_8u_C1R_SpecificValues) {
+  // Use small size for easy verification
+  std::vector<Npp8u> srcData = {50, 100, 150, 200, 100};
+  std::vector<Npp8u> dstData(5);
+  Npp8u constant = 100;
+
+  NppiSize smallRoi = {5, 1};
+
+  NppImageMemory<Npp8u> d_src(5, 1);
+  NppImageMemory<Npp8u> d_dst(5, 1);
+  d_src.copyFromHost(srcData);
+
+  // Test NPP_CMP_LESS: 50<100=true, 100<100=false, 150<100=false, 200<100=false, 100<100=false
+  NppStatus status =
+      nppiCompareC_8u_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), smallRoi, NPP_CMP_LESS);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  d_dst.copyToHost(dstData);
+  EXPECT_EQ(dstData[0], 255); // 50 < 100
+  EXPECT_EQ(dstData[1], 0);   // 100 < 100
+  EXPECT_EQ(dstData[2], 0);   // 150 < 100
+  EXPECT_EQ(dstData[3], 0);   // 200 < 100
+  EXPECT_EQ(dstData[4], 0);   // 100 < 100
+
+  // Test NPP_CMP_EQ: only index 1 and 4 should be true
+  status =
+      nppiCompareC_8u_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), smallRoi, NPP_CMP_EQ);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  d_dst.copyToHost(dstData);
+  EXPECT_EQ(dstData[0], 0);   // 50 == 100
+  EXPECT_EQ(dstData[1], 255); // 100 == 100
+  EXPECT_EQ(dstData[2], 0);   // 150 == 100
+  EXPECT_EQ(dstData[3], 0);   // 200 == 100
+  EXPECT_EQ(dstData[4], 255); // 100 == 100
+
+  // Test NPP_CMP_GREATER: 150>100=true, 200>100=true
+  status =
+      nppiCompareC_8u_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), smallRoi, NPP_CMP_GREATER);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  d_dst.copyToHost(dstData);
+  EXPECT_EQ(dstData[0], 0);   // 50 > 100
+  EXPECT_EQ(dstData[1], 0);   // 100 > 100
+  EXPECT_EQ(dstData[2], 255); // 150 > 100
+  EXPECT_EQ(dstData[3], 255); // 200 > 100
+  EXPECT_EQ(dstData[4], 0);   // 100 > 100
+}
+
+// Test 16s with negative values
+TEST_F(NPPICompareCTest, nppiCompareC_16s_C1R_NegativeValues) {
+  std::vector<Npp16s> srcData = {-500, -100, 0, 100, 500};
+  std::vector<Npp8u> dstData(5);
+  Npp16s constant = 0;
+
+  NppiSize smallRoi = {5, 1};
+
+  NppImageMemory<Npp16s> d_src(5, 1);
+  NppImageMemory<Npp8u> d_dst(5, 1);
+  d_src.copyFromHost(srcData);
+
+  // Test NPP_CMP_LESS: -500<0=true, -100<0=true, 0<0=false, 100<0=false, 500<0=false
+  NppStatus status =
+      nppiCompareC_16s_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), smallRoi, NPP_CMP_LESS);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  d_dst.copyToHost(dstData);
+  EXPECT_EQ(dstData[0], 255); // -500 < 0
+  EXPECT_EQ(dstData[1], 255); // -100 < 0
+  EXPECT_EQ(dstData[2], 0);   // 0 < 0
+  EXPECT_EQ(dstData[3], 0);   // 100 < 0
+  EXPECT_EQ(dstData[4], 0);   // 500 < 0
+
+  // Test NPP_CMP_GREATER_EQ
+  status = nppiCompareC_16s_C1R(d_src.get(), d_src.step(), constant, d_dst.get(), d_dst.step(), smallRoi,
+                                 NPP_CMP_GREATER_EQ);
+  EXPECT_EQ(status, NPP_SUCCESS);
+  d_dst.copyToHost(dstData);
+  EXPECT_EQ(dstData[0], 0);   // -500 >= 0
+  EXPECT_EQ(dstData[1], 0);   // -100 >= 0
+  EXPECT_EQ(dstData[2], 255); // 0 >= 0
+  EXPECT_EQ(dstData[3], 255); // 100 >= 0
+  EXPECT_EQ(dstData[4], 255); // 500 >= 0
 }
