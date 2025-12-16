@@ -316,7 +316,7 @@ public:
         ptr_ = nppiMalloc_16u_C4(width, height, &step_);
     } else if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
       size_t pitch;
-      cudaError_t err = cudaMallocPitch(&ptr_, &pitch, width * channels * sizeof(T), height);
+      cudaError_t err = cudaMallocPitch(reinterpret_cast<void**>(&ptr_), &pitch, width * channels * sizeof(T), height);
       if (err == cudaSuccess) {
         step_ = static_cast<int>(pitch);
       }
