@@ -45,7 +45,7 @@ PROCESS_DIRS = ['src', 'test', 'cmake', 'examples']
 API_DIR = 'API'
 API_VERSION_DIRS = ['API-11.4', 'API-12.2', 'API-12.8']
 SKIP_DIRS = ['build', 'build-nvidia', '.git', 'third_party', 'wrapper', '.npp_backup', '.cuda_backup', 'maca_test'] + API_VERSION_DIRS
-ROOT_FILES = ['CMakeLists.txt', 'build.sh']
+ROOT_FILES = ['CMakeLists.txt', 'build.sh', 'build_maca.sh']
 CODE_EXTENSIONS = {'.cpp', '.cu', '.h', '.hpp', '.cuh', '.c'}
 BUILD_EXTENSIONS = {'.cmake', '.txt', '.sh', '.md'}
 ALL_EXTENSIONS = CODE_EXTENSIONS | BUILD_EXTENSIONS
@@ -109,8 +109,9 @@ class GenericNppReplacer:
         content = self._replace_pattern(content, r'\bNpps([A-Z][a-zA-Z0-9_]*)\b', 'Mpps', 'Type')
         content = self._replace_pattern(content, r'\bNpp([A-Z][a-zA-Z0-9_]*)\b', 'Mpp', 'Type')
 
-        # 3. Basic Npp types (Npp8u, Npp16s, etc.)
-        content = self._replace_pattern(content, r'\bNpp(\d+[usf]c?)\b', 'Mpp', 'Type')
+        # 3. Basic Npp types (Npp8u, Npp16s, Npp16f_2, etc.)
+        # Extended pattern to handle variants like Npp16f_2
+        content = self._replace_pattern(content, r'\bNpp(\d+[usfUFS]c?(?:_\d+)?)\b', 'Mpp', 'Type')
 
         # 4. Lowercase functions (nppi*, npps*, npp*)
         content = self._replace_pattern(content, r'\bnppi([A-Z0-9][a-zA-Z0-9_]*)\b', 'mppi', 'Function')
@@ -165,14 +166,79 @@ class GenericNppReplacer:
         content = re.sub(r'/npps/', '/mpps/', content)
         content = re.sub(r'/nppcore/', '/mppcore/', content)
 
-        # 9. Header guards
-        content = re.sub(r'\bNV_NPP_H\b', 'MV_MPP_H', content)
-        content = re.sub(r'\bNV_NPPDEFS_H\b', 'MV_MPPDEFS_H', content)
-        content = re.sub(r'\bNV_NPPCORE_H\b', 'MV_MPPCORE_H', content)
-        content = re.sub(r'\bNV_NPPI_H\b', 'MV_MPPI_H', content)
-        content = re.sub(r'\bNV_NPPS_H\b', 'MV_MPPS_H', content)
+        # 9. Header guards - handle all NV_NPP* patterns
+        content = re.sub(r'\bNV_NPP([A-Z_]*_H)\b', r'MV_MPP\1', content)
         content = re.sub(r'\b_NPP_H_\b', '_MPP_H_', content)
         content = re.sub(r'\b_NPPDEFS_H_\b', '_MPPDEFS_H_', content)
+
+        # 10. Uppercase NPP followed by digits (NPP16F, NPP32F, etc.)
+        # Also handle cases inside macro names like MPP_HALF_TO_NPP16F -> MPP_HALF_TO_MPP16F
+        content = re.sub(r'\bNPP(\d+[A-Z])\b', r'MPP\1', content)
+        content = re.sub(r'_NPP(\d+[A-Z])\b', r'_MPP\1', content)
+
+        # 11. Filenames in comments (\file nppdefs.h, \file nppcore.h, \file npp.h, etc.)
+        content = re.sub(r'(\\file\s+)npp([a-z_]*)\.h', r'\1mpp\2.h', content)
+        content = re.sub(r'\bnppdefs\.h\b', 'mppdefs.h', content)
+        content = re.sub(r'\bnppcore\.h\b', 'mppcore.h', content)
+        content = re.sub(r'\bnpp\.h\b', 'mpp.h', content)
+
+        # 12. Doxygen group names (@ingroup nppi, @defgroup core_npp, etc.)
+        content = re.sub(r'@ingroup\s+nppi\b', '@ingroup mppi', content)
+        content = re.sub(r'@ingroup\s+npps\b', '@ingroup mpps', content)
+        content = re.sub(r'@ingroup\s+npp\b', '@ingroup mpp', content)
+        content = re.sub(r'\\defgroup\s+([a-z_]*)npp([a-z_]*)\s', r'\\defgroup \1mpp\2 ', content)
+        content = re.sub(r'Module LabelCoreNPP', 'Module LabelCoreMPP', content)
+
+        # 13. NPP in documentation/comments - comprehensive patterns
+        # Patterns that should be converted
+        npp_doc_patterns = [
+            (r'\bNPP library\b', 'MPP library'),
+            (r'\bNPP function\b', 'MPP function'),
+            (r'\bNPP functionality\b', 'MPP functionality'),
+            (r'\bNPP primitives\b', 'MPP primitives'),
+            (r'\bNPP release\b', 'MPP release'),
+            (r'\bNPP releases\b', 'MPP releases'),
+            (r'\bNPP stream\b', 'MPP stream'),
+            (r'\bNPP Type\b', 'MPP Type'),
+            (r'\bNPP Data\b', 'MPP Data'),
+            (r'\bNPP Batch\b', 'MPP Batch'),
+            (r'\bNPP version\b', 'MPP version'),
+            (r'\bNPP CUDA\b', 'MPP MACA'),
+            (r'\bNPP managed\b', 'MPP managed'),
+            (r'\bNPP enables\b', 'MPP enables'),
+            (r'\bNPP maintained\b', 'MPP maintained'),
+            (r'\bNPP supports\b', 'MPP supports'),
+            (r'\bNPP computes\b', 'MPP computes'),
+            (r'\bNPP Image\b', 'MPP Image'),
+            (r'\bNPP Signal\b', 'MPP Signal'),
+            (r'\bNPP Core\b', 'MPP Core'),
+            (r'\bthe NPP\b', 'the MPP'),
+            (r'\bby NPP\b', 'by MPP'),
+            (r'\bto NPP\b', 'to MPP'),
+            (r'\bfor NPP\b', 'for MPP'),
+            (r'\bof NPP\b', 'of MPP'),
+            (r'\bfrom NPP\b', 'from MPP'),
+            (r'\ban NPP\b', 'an MPP'),
+            (r'NPP converts', 'MPP converts'),
+            (r'NPP only', 'MPP only'),
+            (r'NPP does', 'MPP does'),
+            (r', NPP ', ', MPP '),
+            (r'Basic NPP', 'Basic MPP'),
+        ]
+        for pattern, replacement in npp_doc_patterns:
+            content = re.sub(pattern, replacement, content)
+
+        # 14. Doxygen @defgroup with nppi/npps
+        content = re.sub(r'@defgroup\s+nppi\s+NPP\s+Image', '@defgroup mppi MPP Image', content)
+        content = re.sub(r'@defgroup\s+nppi\s+MPP\s+Image', '@defgroup mppi MPP Image', content)
+        content = re.sub(r'@defgroup\s+mpps\s+NPP\s+Signal', '@defgroup mpps MPP Signal', content)
+
+        # 15. Parameter names containing Npp (pNppStreamContext -> pMppStreamContext)
+        content = re.sub(r'\bpNpp([A-Z][a-zA-Z]*)\b', r'pMpp\1', content)
+
+        # 16. Internal include paths
+        content = re.sub(r'#include\s*"internal/nppi_', r'#include "internal/mppi_', content)
+        content = re.sub(r'#include\s*"internal/npps_', r'#include "internal/mpps_', content)
 
         return content
 
