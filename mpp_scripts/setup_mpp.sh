@@ -35,9 +35,9 @@
 # Individual Scripts (can be used standalone)
 # ============================================================================
 #
-# 1. convert_npp2mpp.py - Convert NPP naming to MPP naming
-#    Converts source files, directories, content, and API headers.
-#    Scope: src/, test/, cmake/, examples/, API/ directories and root files (CMakeLists.txt, build.sh, build_maca.sh)
+# 1. convert_npp2mpp.py - Convert NPP naming to MPP naming (Generic Rules)
+#    Uses generic prefix replacement rules (npp*->mpp*, Npp*->Mpp*, NPP_*->MPP_*)
+#    Scope: src/, test/, cmake/, examples/, API/ directories and root files
 #    Usage:
 #      python3 mpp_scripts/convert_npp2mpp.py --preview  # Preview changes
 #      python3 mpp_scripts/convert_npp2mpp.py --backup   # Create backup in .npp_backup/
@@ -60,13 +60,13 @@
 #      wrapper/user_include/*.h   - User-facing NPP headers
 #
 # 4. deploy_mpp.sh - Deploy MPP to MACA SDK and cu-bridge
-#    Copies built library and headers to target directories.
+#    Copies built libraries (libmppc + stubs) and headers to target directories.
 #    Usage:
 #      ./mpp_scripts/deploy_mpp.sh --maca <maca_sdk_path> --cu-bridge <cu_bridge_path>
 #      ./mpp_scripts/deploy_mpp.sh --maca /opt/maca-3.3.0 --cu-bridge ~/cu-bridge --dry-run
 #
-# 5. convert_cuda2maca.py - Convert CUDA Runtime API to MACA Runtime API
-#    Converts cuda* functions/types to mc* equivalents (e.g., cudaMalloc -> mcMalloc).
+# 5. convert_cuda2maca.py - Convert CUDA Runtime API to MACA Runtime API (Generic Rules)
+#    Uses generic prefix replacement (cuda*->mc*) with exceptions for special cases.
 #    Scope: src/, test/, examples/, API/ directories (wrapper/ excluded for compatibility)
 #    Usage:
 #      python3 mpp_scripts/convert_cuda2maca.py --check    # Preview changes
@@ -341,12 +341,15 @@ echo "  │   ├── include/                 # MPP headers"
 echo "  │   ├── user_include/            # NPP compatibility headers"
 echo "  │   ├── *_wrapper.h              # NPP->MPP bridge"
 echo "  │   └── npp2mpp_functions.h      # Function mappings"
-echo "  └── build/src/libmpp.{so,a}      # Built library"
+echo "  └── build/src/"
+echo "      ├── libmppc.{so,a}           # Main library (all implementations)"
+echo "      └── libmpp*.{so,a}           # Stub libraries (link to libmppc)"
 echo ""
 
 if [ "$SKIP_DEPLOY" = false ] && [ -n "$MACA_SDK" ] && [ -n "$CU_BRIDGE" ]; then
     echo "Deployed to:"
     echo "  MACA SDK:  $MACA_SDK/include/mcmpp/"
+    echo "  Libraries: $MACA_SDK/lib/libmppc.{so,a} + stubs"
     echo "  cu-bridge: $CU_BRIDGE/include/"
     echo ""
     echo "User code example:"
@@ -354,7 +357,7 @@ if [ "$SKIP_DEPLOY" = false ] && [ -n "$MACA_SDK" ] && [ -n "$CU_BRIDGE" ]; then
     echo "  nppiMalloc_8u_C1(width, height, &step);"
     echo ""
     echo "Compile command:"
-    echo "  mxcc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmpp user_code.cu"
+    echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmppc user_code.cu"
     echo ""
 else
     echo "To deploy later, run:"

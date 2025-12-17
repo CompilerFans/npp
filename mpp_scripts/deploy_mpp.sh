@@ -4,14 +4,14 @@
 #
 # Usage:
 #   ./deploy_mpp.sh [options]
-#   ./deploy_mpp.sh --maca <maca_sdk_dir> --cu-bridge <cu_bridge_dir> [--dry-run]
 #
-# If MACA_PATH and CUCC_PATH environment variables are set, the script will
-# prompt to use them. Otherwise, you must provide --maca and --cu-bridge options.
+# Environment Variables:
+#   MACA_PATH    Default MACA SDK path if --maca not specified
+#   CUCC_PATH    Default cu-bridge path if --cu-bridge not specified
 #
-# Example:
-#   ./deploy_mpp.sh                                    # Use env vars if set
-#   ./deploy_mpp.sh --maca ./maca-sdk/opt/maca-3.3.0 --cu-bridge ./cu-bridge
+# Examples:
+#   ./deploy_mpp.sh                                    # Use $MACA_PATH and $CUCC_PATH
+#   ./deploy_mpp.sh --maca /opt/maca-3.3.0 --cu-bridge ~/cu-bridge
 #
 
 set -e
@@ -20,11 +20,10 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Default values
-MACA_SDK=""
-CU_BRIDGE=""
+# Default values (use environment variables if set)
+MACA_SDK="${MACA_PATH:-}"
+CU_BRIDGE="${CUCC_PATH:-}"
 DRY_RUN=false
-YES_TO_ALL=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -41,23 +40,18 @@ while [[ $# -gt 0 ]]; do
             DRY_RUN=true
             shift
             ;;
-        -y|--yes)
-            YES_TO_ALL=true
-            shift
-            ;;
         -h|--help)
             echo "Usage: $0 [options]"
             echo ""
             echo "Options:"
-            echo "  --maca       Path to MACA SDK directory (e.g., maca-sdk/opt/maca-3.3.0)"
-            echo "  --cu-bridge  Path to cu-bridge directory"
+            echo "  --maca       Path to MACA SDK directory (default: \$MACA_PATH)"
+            echo "  --cu-bridge  Path to cu-bridge directory (default: \$CUCC_PATH)"
             echo "  --dry-run    Preview changes without applying"
-            echo "  -y, --yes    Auto-confirm using environment variables"
             echo "  -h, --help   Show this help message"
             echo ""
             echo "Environment Variables:"
-            echo "  MACA_PATH    If set, will be used as default MACA SDK path"
-            echo "  CUCC_PATH    If set, will be used as default cu-bridge path"
+            echo "  MACA_PATH    Default MACA SDK path if --maca not specified"
+            echo "  CUCC_PATH    Default cu-bridge path if --cu-bridge not specified"
             exit 0
             ;;
         *)
@@ -68,56 +62,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check environment variables if paths not provided via arguments
-if [ -z "$MACA_SDK" ]; then
-    if [ -n "$MACA_PATH" ]; then
-        echo "Detected MACA_PATH environment variable: $MACA_PATH"
-        if [ "$YES_TO_ALL" = true ]; then
-            MACA_SDK="$MACA_PATH"
-        else
-            echo -n "  Use this path for MACA SDK? [Y/n/custom path]: "
-            read response
-            case "$response" in
-                ""|[Yy]|[Yy][Ee][Ss])
-                    MACA_SDK="$MACA_PATH"
-                    ;;
-                [Nn]|[Nn][Oo])
-                    echo -n "  Enter MACA SDK path: "
-                    read MACA_SDK
-                    ;;
-                *)
-                    MACA_SDK="$response"
-                    ;;
-            esac
-        fi
-    fi
-fi
-
-if [ -z "$CU_BRIDGE" ]; then
-    if [ -n "$CUCC_PATH" ]; then
-        echo "Detected CUCC_PATH environment variable: $CUCC_PATH"
-        if [ "$YES_TO_ALL" = true ]; then
-            CU_BRIDGE="$CUCC_PATH"
-        else
-            echo -n "  Use this path for cu-bridge? [Y/n/custom path]: "
-            read response
-            case "$response" in
-                ""|[Yy]|[Yy][Ee][Ss])
-                    CU_BRIDGE="$CUCC_PATH"
-                    ;;
-                [Nn]|[Nn][Oo])
-                    echo -n "  Enter cu-bridge path: "
-                    read CU_BRIDGE
-                    ;;
-                *)
-                    CU_BRIDGE="$response"
-                    ;;
-            esac
-        fi
-    fi
-fi
-
-# Prompt for paths if still not set
+# Prompt for paths if not set (via args or env vars)
 if [ -z "$MACA_SDK" ]; then
     echo -n "Enter MACA SDK path (e.g., /path/to/maca-sdk/opt/maca-3.3.0): "
     read MACA_SDK
@@ -253,19 +198,23 @@ echo ""
 echo "Step 3: Check MPP library build status"
 NEED_BUILD=false
 
-# Check if library exists
-if [ -f "$PROJECT_DIR/build/src/libmpp.a" ] || [ -f "$PROJECT_DIR/build/src/libmpp.so" ]; then
+# Library structure: libmppc contains all implementations, others are stubs
+# Libraries: libmppc, libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps
+MAIN_LIB="libmppc"
+
+# Check if main library exists
+if [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.a" ] || [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.so" ]; then
     # Determine which library file to check (prefer .a over .so for symbol checking)
-    if [ -f "$PROJECT_DIR/build/src/libmpp.a" ]; then
-        LIB_FILE="$PROJECT_DIR/build/src/libmpp.a"
+    if [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.a" ]; then
+        LIB_FILE="$PROJECT_DIR/build/src/${MAIN_LIB}.a"
     else
-        LIB_FILE="$PROJECT_DIR/build/src/libmpp.so"
+        LIB_FILE="$PROJECT_DIR/build/src/${MAIN_LIB}.so"
     fi
 
 	# Check if library exports mpp symbols (not npp)
-    if nm "$PROJECT_DIR/build/src/libmpp.a" 2>/dev/null | grep -q " T mppGetLibVersion"; then
+    if nm "$LIB_FILE" 2>/dev/null | grep -q " T mppGetLibVersion"; then
         echo "  MPP library already built with mpp*** symbols, skip build"
-    elif nm "$PROJECT_DIR/build/src/libmpp.a" 2>/dev/null | grep -q " T nppGetLibVersion"; then
+    elif nm "$LIB_FILE" 2>/dev/null | grep -q " T nppGetLibVersion"; then
         echo "  Library exists but has npp*** symbols, need rebuild"
         NEED_BUILD=true
     else
@@ -281,7 +230,7 @@ if [ "$NEED_BUILD" = true ]; then
     if [ "$DRY_RUN" = false ]; then
         echo "  Building MPP library..."
         cd "$PROJECT_DIR"
-        ./build_maca.sh --shared
+        ./build.sh
     else
         echo "  [DRY-RUN] Would build MPP library"
     fi
@@ -317,19 +266,27 @@ else
     echo "  [DRY-RUN] Would copy headers to $MACA_SDK/include/mcmpp/"
 fi
 
-# Copy library
-echo "  Copying MPP library..."
+# Copy libraries (main + stubs)
+# Main library: libmppc (contains all implementations)
+# Stub libraries: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps
+MPP_LIBS="mppc mppial mppicc mppidei mppif mppig mppim mppist mppisu mppitc mpps"
+
+echo "  Copying MPP libraries..."
 if [ "$DRY_RUN" = false ]; then
-    if [ -f "$PROJECT_DIR/build/src/libmpp.so" ]; then
-        cp "$PROJECT_DIR/build/src/libmpp.so"* "$MACA_SDK/lib/"
-        echo "    Copied: libmpp.so"
-    fi
-    if [ -f "$PROJECT_DIR/build/src/libmpp.a" ]; then
-        cp "$PROJECT_DIR/build/src/libmpp.a" "$MACA_SDK/lib/"
-        echo "    Copied: libmpp.a"
-    fi
+    for lib in $MPP_LIBS; do
+        if [ -f "$PROJECT_DIR/build/src/lib${lib}.so" ]; then
+            cp "$PROJECT_DIR/build/src/lib${lib}.so"* "$MACA_SDK/lib/"
+            echo "    Copied: lib${lib}.so"
+        fi
+        if [ -f "$PROJECT_DIR/build/src/lib${lib}.a" ]; then
+            cp "$PROJECT_DIR/build/src/lib${lib}.a" "$MACA_SDK/lib/"
+            echo "    Copied: lib${lib}.a"
+        fi
+    done
 else
-    echo "  [DRY-RUN] Would copy library to $MACA_SDK/lib/"
+    echo "  [DRY-RUN] Would copy libraries to $MACA_SDK/lib/:"
+    echo "    Main: libmppc.{so,a}"
+    echo "    Stubs: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps"
 fi
 echo ""
 
@@ -387,7 +344,9 @@ echo "========================================"
 echo ""
 echo "MACA SDK:"
 echo "  Headers: $MACA_SDK/include/mcmpp/"
-echo "  Library: $MACA_SDK/lib/libmpp.{so,a}"
+echo "  Libraries: $MACA_SDK/lib/"
+echo "    Main:  libmppc.{so,a} (contains all implementations)"
+echo "    Stubs: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps"
 echo ""
 echo "cu-bridge:"
 echo "  Top-level: $CU_BRIDGE/include/npp*.h"
@@ -398,6 +357,9 @@ echo "  #include <npp.h>"
 echo "  nppiMalloc_8u_C1(width, height, &step);"
 echo "  nppiSet_8u_C1R(value, dst, step, roi);"
 echo ""
-echo "Compile command:"
-echo "  mxcc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmpp user_code.cu"
+echo "Compile command (link to appropriate stub library):"
+echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmppial user_code.cu"
+echo ""
+echo "Or link to main library directly:"
+echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmppc user_code.cu"
 echo ""
