@@ -1,265 +1,257 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include <thrust/device_vector.h>
-#include <thrust/sequence.h>
-#include <thrust/sort.h>
-#include <thrust/unique.h>
+#include <vector>
 
-// Union-Find data structure
-struct UnionFind {
-  Npp32u *parent;
-  int *rank;
-  int size;
+// Kernel: Collect all unique labels from the image
+// Note: label 0 is valid (foreground pixels), so we collect all labels including 0
+__global__ void collectLabels_kernel(const Npp32u *pMarkerLabels, int nStep, int width, int height,
+                                     Npp32u *labelFlags, int maxLabels) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  __device__ UnionFind(Npp32u *p, int *r, int s) : parent(p), rank(r), size(s) {}
+  if (x >= width || y >= height)
+    return;
 
-  __device__ Npp32u find(Npp32u x) {
-    if (x >= size)
-      return x;
+  const Npp32u *row = (const Npp32u *)((const char *)pMarkerLabels + y * nStep);
+  Npp32u label = row[x];
 
-    // Iterative path compression to avoid recursive calls
-    Npp32u root = x;
-    while (parent[root] != root) {
-      root = parent[root];
-    }
-
-    // Path compression: point all nodes on path directly to root
-    while (parent[x] != x) {
-      Npp32u next = parent[x];
-      parent[x] = root;
-      x = next;
-    }
-
-    return root;
+  // Collect all labels (including 0) that are within range
+  if (label < (Npp32u)maxLabels) {
+    labelFlags[label] = 1;
   }
+}
 
-  __device__ void unite(Npp32u x, Npp32u y) {
-    if (x >= size || y >= size)
-      return;
-
-    Npp32u rootX = find(x);
-    Npp32u rootY = find(y);
-
-    if (rootX != rootY) {
-      // Union by rank
-      if (rank[rootX] < rank[rootY]) {
-        parent[rootX] = rootY;
-      } else if (rank[rootX] > rank[rootY]) {
-        parent[rootY] = rootX;
-      } else {
-        parent[rootY] = rootX;
-        rank[rootX]++;
-      }
-    }
-  }
-};
-
-// Initialize Union-Find structure
-
-__global__ void initUnionFind_kernel(Npp32u *parent, int *rank, int maxLabels) {
+// Kernel: Build compressed label mapping using prefix sum results
+__global__ void buildMapping_kernel(const Npp32u *labelFlags, const Npp32u *prefixSum,
+                                    Npp32u *labelMapping, int maxLabels) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (idx < maxLabels) {
-    parent[idx] = idx;
-    rank[idx] = 0;
+  if (idx >= maxLabels)
+    return;
+
+  if (labelFlags[idx] == 1) {
+    // This label exists, map it to its compressed value
+    // prefixSum[idx] gives the count of labels before this one
+    labelMapping[idx] = prefixSum[idx];
+  } else {
+    labelMapping[idx] = 0;
   }
 }
 
-// First pass: establish connectivity
-__global__ void buildConnectivity_kernel(const Npp32u *pMarkerLabels, int nMarkerLabelsStep, int width, int height,
-                                         Npp32u *parent, int *rank) {
+// Kernel: Apply the compressed label mapping to the image
+// Note: label 0 is valid, so we apply mapping to all labels including 0
+__global__ void applyMapping_kernel(Npp32u *pMarkerLabels, int nStep, int width, int height,
+                                    const Npp32u *labelMapping, int maxLabels) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x >= width || y >= height)
     return;
 
-  const Npp32u *current_row = (const Npp32u *)((const char *)pMarkerLabels + y * nMarkerLabelsStep);
-  Npp32u currentLabel = current_row[x];
+  Npp32u *row = (Npp32u *)((char *)pMarkerLabels + y * nStep);
+  Npp32u label = row[x];
 
-  if (currentLabel == 0)
-    return; // Skip background
+  if (label < (Npp32u)maxLabels) {
+    row[x] = labelMapping[label];
+  }
+}
 
-  UnionFind uf(parent, rank, 65536); // Assume max label count is 65536
+// Simple prefix sum kernel (for small arrays, run on single block)
+__global__ void prefixSum_kernel(const Npp32u *input, Npp32u *output, int n) {
+  extern __shared__ Npp32u temp[];
 
-  // Check 4-connected neighborhood
-  int dx[] = {-1, 1, 0, 0};
-  int dy[] = {0, 0, -1, 1};
+  int tid = threadIdx.x;
+  int offset = 1;
 
-  for (int i = 0; i < 4; i++) {
-    int nx = x + dx[i];
-    int ny = y + dy[i];
+  // Load input into shared memory
+  if (tid < n)
+    temp[tid] = input[tid];
+  else
+    temp[tid] = 0;
 
-    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-      const Npp32u *neighbor_row = (const Npp32u *)((const char *)pMarkerLabels + ny * nMarkerLabelsStep);
-      Npp32u neighborLabel = neighbor_row[nx];
+  // Build sum in place up the tree
+  for (int d = n >> 1; d > 0; d >>= 1) {
+    __syncthreads();
+    if (tid < d) {
+      int ai = offset * (2 * tid + 1) - 1;
+      int bi = offset * (2 * tid + 2) - 1;
+      if (bi < n)
+        temp[bi] += temp[ai];
+    }
+    offset *= 2;
+  }
 
-      if (neighborLabel != 0 && neighborLabel == currentLabel) {
-        uf.unite(currentLabel, neighborLabel);
+  // Clear the last element
+  if (tid == 0)
+    temp[n - 1] = 0;
+
+  // Traverse down tree & build scan
+  for (int d = 1; d < n; d *= 2) {
+    offset >>= 1;
+    __syncthreads();
+    if (tid < d) {
+      int ai = offset * (2 * tid + 1) - 1;
+      int bi = offset * (2 * tid + 2) - 1;
+      if (bi < n) {
+        Npp32u t = temp[ai];
+        temp[ai] = temp[bi];
+        temp[bi] += t;
       }
     }
   }
+
+  __syncthreads();
+
+  // Write results to output (exclusive scan, so add 1 for 1-based labels)
+  if (tid < n)
+    output[tid] = temp[tid] + 1;
 }
 
-// Path compression optimization
+// Large array prefix sum using multiple blocks
+__global__ void blockPrefixSum_kernel(const Npp32u *input, Npp32u *output, Npp32u *blockSums,
+                                       int n, int blockSize) {
+  extern __shared__ Npp32u sdata[];
 
-__global__ void pathCompression_kernel(Npp32u *parent, int maxLabels) {
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  int tid = threadIdx.x;
+  int blockId = blockIdx.x;
+  int globalIdx = blockId * blockSize + tid;
 
-  if (idx < maxLabels) {
-    UnionFind uf(parent, nullptr, maxLabels);
-    parent[idx] = uf.find(idx);
+  // Load data
+  sdata[tid] = (globalIdx < n) ? input[globalIdx] : 0;
+  __syncthreads();
+
+  // Reduce within block
+  for (int stride = 1; stride < blockSize; stride *= 2) {
+    int index = (tid + 1) * stride * 2 - 1;
+    if (index < blockSize) {
+      sdata[index] += sdata[index - stride];
+    }
+    __syncthreads();
+  }
+
+  // Store block sum and clear last element
+  if (tid == blockSize - 1) {
+    if (blockSums) blockSums[blockId] = sdata[tid];
+    sdata[tid] = 0;
+  }
+  __syncthreads();
+
+  // Down-sweep
+  for (int stride = blockSize / 2; stride > 0; stride /= 2) {
+    int index = (tid + 1) * stride * 2 - 1;
+    if (index < blockSize) {
+      Npp32u temp = sdata[index - stride];
+      sdata[index - stride] = sdata[index];
+      sdata[index] += temp;
+    }
+    __syncthreads();
+  }
+
+  // Write output
+  if (globalIdx < n) {
+    output[globalIdx] = sdata[tid] + 1; // 1-based labels
   }
 }
 
-// Collect unique root labels
-__global__ void collectUniqueRoots_kernel(const Npp32u *pMarkerLabels, int nMarkerLabelsStep, int width, int height,
-                                          const Npp32u *parent, Npp32u *uniqueLabels, bool *labelUsed) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+__global__ void addBlockOffsets_kernel(Npp32u *data, const Npp32u *blockOffsets, int n, int blockSize) {
+  int blockId = blockIdx.x;
+  int globalIdx = blockId * blockSize + threadIdx.x;
 
-  if (x >= width || y >= height)
-    return;
-
-  const Npp32u *current_row = (const Npp32u *)((const char *)pMarkerLabels + y * nMarkerLabelsStep);
-  Npp32u label = current_row[x];
-
-  if (label != 0) {
-    Npp32u root = parent[label];
-    if (root < 65536 && !labelUsed[root]) {
-      labelUsed[root] = true;
-    }
-  }
-}
-
-// Relabel
-__global__ void relabelImage_kernel(Npp32u *pMarkerLabels, int nMarkerLabelsStep, int width, int height,
-                                    const Npp32u *parent, const Npp32u *labelMapping, int startingNumber) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  Npp32u *current_row = (Npp32u *)((char *)pMarkerLabels + y * nMarkerLabelsStep);
-  Npp32u label = current_row[x];
-
-  if (label != 0) {
-    Npp32u root = parent[label];
-    if (root < 65536) {
-      // Find new label through labelMapping
-      for (int i = 0; i < 65536; i++) {
-        if (labelMapping[i] == root) {
-          current_row[x] = startingNumber + i;
-          return;
-        }
-      }
-    }
+  if (globalIdx < n && blockId > 0) {
+    data[globalIdx] += blockOffsets[blockId];
   }
 }
 
 extern "C" {
 
 // Get required buffer size
+NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nStartingNumber, int *hpBufferSize) {
+  // Buffer layout:
+  // 1. labelFlags array (Npp32u * maxLabels) - marks which labels exist
+  // 2. labelMapping array (Npp32u * maxLabels) - compressed label mapping
 
-NppStatus nppiCompressMarkerLabelsGetBufferSize_32u_C1R_Ctx_impl(int nMarkerLabels, int *hpBufferSize) {
-  // Space required for Union-Find:
-  // 1. parent array (Npp32u * maxLabels)
-  // 2. rank array (int * maxLabels)
-  // 3. temporary label array (Npp32u * maxLabels)
-  // 4. label usage markers (bool * maxLabels)
+  size_t maxLabels = (size_t)nStartingNumber + 1; // +1 for safety
 
-  int maxLabels = 65536; // Assume max label count
-  size_t parentSize = maxLabels * sizeof(Npp32u);
-  size_t rankSize = maxLabels * sizeof(int);
-  size_t tempLabelSize = maxLabels * sizeof(Npp32u);
-  size_t usedSize = maxLabels * sizeof(bool);
+  size_t flagsSize = maxLabels * sizeof(Npp32u);
+  size_t mappingSize = maxLabels * sizeof(Npp32u);
 
-  size_t totalSize = parentSize + rankSize + tempLabelSize + usedSize;
-  size_t alignedSize = (totalSize + 511) & ~511; // 512byte alignment
+  size_t totalSize = flagsSize + mappingSize;
+  size_t alignedSize = (totalSize + 511) & ~511; // 512-byte alignment
 
   *hpBufferSize = (int)alignedSize;
   return NPP_SUCCESS;
 }
 
-// Union-Find标签压缩implementation
+// Compress marker labels implementation
 NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
                                                        NppiSize oMarkerLabelsROI, int nStartingNumber,
                                                        int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer,
                                                        NppStreamContext nppStreamCtx) {
   int width = oMarkerLabelsROI.width;
   int height = oMarkerLabelsROI.height;
-  int maxLabels = 65536;
+  int maxLabels = nStartingNumber + 1; // nStartingNumber = width * height
 
-  // Setup buffers
-  Npp32u *parent = (Npp32u *)pDeviceBuffer;
-  int *rank = (int *)(parent + maxLabels);
-  Npp32u *labelMapping = (Npp32u *)(rank + maxLabels);
-  bool *labelUsed = (bool *)(labelMapping + maxLabels);
+  // Setup buffer pointers
+  Npp32u *labelFlags = (Npp32u *)pDeviceBuffer;
+  Npp32u *labelMapping = labelFlags + maxLabels;
 
+  cudaStream_t stream = nppStreamCtx.hStream;
+
+  // Step 1: Initialize labelFlags to 0
+  cudaMemsetAsync(labelFlags, 0, maxLabels * sizeof(Npp32u), stream);
+
+  // Step 2: Collect all unique labels from the image
   dim3 blockSize(16, 16);
-  dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
+                (height + blockSize.y - 1) / blockSize.y);
 
-  dim3 linearBlockSize(256);
-  dim3 linearGridSize((maxLabels + linearBlockSize.x - 1) / linearBlockSize.x);
+  collectLabels_kernel<<<gridSize, blockSize, 0, stream>>>(
+      pMarkerLabels, nMarkerLabelsStep, width, height, labelFlags, maxLabels);
 
-  // 第一步：初始化Union-Find
-  initUnionFind_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(parent, rank, maxLabels);
+  // Step 3: Compute prefix sum to create compressed label mapping
+  // For simplicity, use CPU-based approach for large arrays
+  // Copy labelFlags to host, compute prefix sum, copy back
 
-  // 第二步：建立连通性
-  buildConnectivity_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pMarkerLabels, nMarkerLabelsStep, width,
-                                                                             height, parent, rank);
+  std::vector<Npp32u> h_flags(maxLabels);
+  std::vector<Npp32u> h_prefixSum(maxLabels);
 
-  // 第三步：路径压缩
-  for (int iter = 0; iter < 10; iter++) { // 多次迭代确保完全压缩
-    pathCompression_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(parent, maxLabels);
-  }
+  cudaMemcpyAsync(h_flags.data(), labelFlags, maxLabels * sizeof(Npp32u),
+                  cudaMemcpyDeviceToHost, stream);
+  cudaStreamSynchronize(stream);
 
-  // 第四步：初始化label usage markers
-  cudaMemsetAsync(labelUsed, 0, maxLabels * sizeof(bool), nppStreamCtx.hStream);
-
-  // 第五步：Collect unique root labels
-  collectUniqueRoots_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pMarkerLabels, nMarkerLabelsStep, width,
-                                                                              height, parent, labelMapping, labelUsed);
-
-  // 第六步：在CPU上处理标签映射（简化版）
-  std::vector<bool> h_labelUsed(maxLabels);
-  std::vector<char> h_labelUsedChar(maxLabels); // 使用char而非bool避免vector<bool>问题
-  cudaMemcpyAsync(h_labelUsedChar.data(), labelUsed, maxLabels * sizeof(bool), cudaMemcpyDeviceToHost,
-                  nppStreamCtx.hStream);
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-
-  std::vector<Npp32u> h_labelMapping(maxLabels, 0);
-  int newLabelCount = 0;
-
-  // 转换char到bool
+  // Compute exclusive prefix sum on CPU
+  Npp32u count = 0;
   for (int i = 0; i < maxLabels; i++) {
-    h_labelUsed[i] = (h_labelUsedChar[i] != 0);
-  }
-
-  for (int i = 1; i < maxLabels; i++) { // 跳过0（背景）
-    if (h_labelUsed[i]) {
-      h_labelMapping[newLabelCount] = i;
-      newLabelCount++;
+    if (h_flags[i] == 1) {
+      count++;
+      h_prefixSum[i] = count; // 1-based label
+    } else {
+      h_prefixSum[i] = 0;
     }
   }
 
-  *pNewMarkerLabelsNumber = newLabelCount;
+  *pNewMarkerLabelsNumber = count;
 
-  // 第七步：将映射拷贝回GPU
-  cudaMemcpyAsync(labelMapping, h_labelMapping.data(), maxLabels * sizeof(Npp32u), cudaMemcpyHostToDevice,
-                  nppStreamCtx.hStream);
+  // Copy prefix sum back to device as labelMapping
+  cudaMemcpyAsync(labelMapping, h_prefixSum.data(), maxLabels * sizeof(Npp32u),
+                  cudaMemcpyHostToDevice, stream);
 
-  // 第八步：Relabel图像
-  relabelImage_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pMarkerLabels, nMarkerLabelsStep, width, height,
-                                                                        parent, labelMapping, nStartingNumber);
+  // Step 4: Apply the mapping to relabel the image
+  applyMapping_kernel<<<gridSize, blockSize, 0, stream>>>(
+      pMarkerLabels, nMarkerLabelsStep, width, height, labelMapping, maxLabels);
 
-  cudaError_t cudaStatus = cudaGetLastError();
+  cudaError_t cudaStatus = cudaStreamSynchronize(stream);
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
   return NPP_SUCCESS;
 }
-}
+
+} // extern "C"
