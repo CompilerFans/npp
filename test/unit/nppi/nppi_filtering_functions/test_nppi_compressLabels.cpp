@@ -32,20 +32,21 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
   std::vector<Npp32u> markerData(dataSize);
 
   // 生成测试数据：创建一些连通组件
+  // 标签值必须在 [1, width*height] 范围内
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       if (x < width / 3) {
-        markerData[y * width + x] = 100; // 第一个区域
+        markerData[y * width + x] = 10; // 第一个区域
       } else if (x < 2 * width / 3) {
         markerData[y * width + x] = 0; // 背景
       } else {
-        markerData[y * width + x] = 200; // 第二个区域
+        markerData[y * width + x] = 50; // 第二个区域
       }
     }
   }
 
-  // 获取缓冲区大小
-  int nMarkerLabels = 300;
+  // 获取缓冲区大小 - nMarkerLabels must match nStartingNumber (width * height)
+  int nMarkerLabels = width * height;
   int bufferSize = 0;
   NppStatus status = nppiCompressMarkerLabelsGetBufferSize_32u_C1R(nMarkerLabels, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
@@ -77,9 +78,11 @@ TEST_F(NPPICompressLabelsTest, CompressMarkerLabelsUF_32u_C1IR_Basic) {
   cudaMemcpy(d_markers, markerData.data(), dataSize * sizeof(Npp32u), cudaMemcpyHostToDevice);
 
   // Call标签压缩
+  // nStartingNumber must be width * height for nppiLabelMarkersUF generated images
+  int nStartingNumber = width * height;
   int newMarkerLabelsNumber = 0;
-  status = nppiCompressMarkerLabelsUF_32u_C1IR(d_markers, markersStep, oMarkerLabelsROI, 1, &newMarkerLabelsNumber,
-                                               d_buffer);
+  status = nppiCompressMarkerLabelsUF_32u_C1IR(d_markers, markersStep, oMarkerLabelsROI, nStartingNumber,
+                                               &newMarkerLabelsNumber, d_buffer);
   EXPECT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(newMarkerLabelsNumber, 0); // 应该有压缩后的标签
 
