@@ -4,14 +4,15 @@
 
 // GPU-based Union-Find for Connected Component Labeling
 // This implementation uses the label image itself as the Union-Find structure
-// Each pixel stores its parent's linear index (y * width + x + 1, with 0 for background)
+// Each pixel stores its parent's linear index (y * width + x)
+// Foreground pixels keep their initial label; only background pixels are merged
 
-// Helper: convert linear index to 2D coordinates
+// Helper: convert 1-based linear index to 2D coordinates
 __device__ void linearTo2D(Npp32u linearIdx, int width, int &x, int &y) {
-  // linearIdx is 1-based (0 is background)
-  Npp32u idx = linearIdx - 1;
-  y = idx / width;
-  x = idx % width;
+  // linearIdx is 1-based (y * width + x + 1), so subtract 1 first
+  Npp32u idx0 = linearIdx - 1;
+  y = idx0 / width;
+  x = idx0 % width;
 }
 
 // Helper: get label value at 2D position
@@ -83,7 +84,12 @@ __device__ void union2D(Npp32u *pLabels, int nLabelsStep, int width, Npp32u labe
   }
 }
 
-// Initialize labels: each foreground pixel gets its linear index as initial label
+// Initialize labels:
+// ALL pixels get their 1-based linear index as initial label (y * width + x + 1)
+// Using 1-based indexing so that label 0 can be used as "no label" sentinel
+// Only BACKGROUND pixels (value == 0) will be merged via Union-Find
+// FOREGROUND pixels keep their initial linear index unchanged
+// This matches NVIDIA NPP behavior
 __global__ void initLabels_kernel(const Npp8u *pSrc, int nSrcStep,
                                    Npp32u *pLabels, int nLabelsStep,
                                    int width, int height) {
@@ -92,98 +98,95 @@ __global__ void initLabels_kernel(const Npp8u *pSrc, int nSrcStep,
 
   if (x >= width || y >= height) return;
 
+  Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
+
+  // All pixels get their 1-based linear index as initial label
+  // Background pixels will be merged later; foreground pixels keep this value
+  labels_row[x] = y * width + x + 1;
+}
+
+// Local merge: merge neighboring pixels with SAME VALUE (4-way connectivity)
+// Pixels are merged only if they have the exact same source value
+// This matches NVIDIA NPP behavior
+__global__ void localMerge4Way_kernel(const Npp8u *pSrc, int nSrcStep,
+                                       Npp32u *pLabels, int nLabelsStep,
+                                       int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) return;
+
   const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
-
-  if (src_row[x] != 0) {
-    // Foreground pixel: assign linear index + 1 (to avoid 0 which is background)
-    labels_row[x] = y * width + x + 1;
-  } else {
-    // Background pixel
-    labels_row[x] = 0;
-  }
-}
-
-// Local merge: merge neighboring pixels (4-way connectivity)
-__global__ void localMerge4Way_kernel(Npp32u *pLabels, int nLabelsStep,
-                                       int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height) return;
+  Npp8u myValue = src_row[x];
 
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
 
-  if (label == 0) return; // Skip background
-
-  // Check right neighbor
-  if (x + 1 < width) {
+  // Check right neighbor (merge only if same value)
+  if (x + 1 < width && src_row[x + 1] == myValue) {
     Npp32u rightLabel = labels_row[x + 1];
-    if (rightLabel != 0) {
-      union2D(pLabels, nLabelsStep, width, label, rightLabel);
-    }
+    union2D(pLabels, nLabelsStep, width, label, rightLabel);
   }
 
-  // Check bottom neighbor
+  // Check bottom neighbor (merge only if same value)
   if (y + 1 < height) {
-    Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
-    Npp32u bottomLabel = next_row[x];
-    if (bottomLabel != 0) {
+    const Npp8u *next_src_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
+    if (next_src_row[x] == myValue) {
+      Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
+      Npp32u bottomLabel = next_row[x];
       union2D(pLabels, nLabelsStep, width, label, bottomLabel);
     }
   }
 }
 
-// Local merge: merge neighboring pixels (8-way connectivity)
-__global__ void localMerge8Way_kernel(Npp32u *pLabels, int nLabelsStep,
+// Local merge: merge neighboring pixels with SAME VALUE (8-way connectivity)
+// Pixels are merged only if they have the exact same source value
+// Only check forward directions (right, bottom-left, bottom, bottom-right) to avoid redundant work
+__global__ void localMerge8Way_kernel(const Npp8u *pSrc, int nSrcStep,
+                                       Npp32u *pLabels, int nLabelsStep,
                                        int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x >= width || y >= height) return;
 
+  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+  Npp8u myValue = src_row[x];
+
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
 
-  if (label == 0) return; // Skip background
-
-  // Right neighbor
-  if (x + 1 < width) {
+  // Right neighbor (merge only if same value)
+  if (x + 1 < width && src_row[x + 1] == myValue) {
     Npp32u rightLabel = labels_row[x + 1];
-    if (rightLabel != 0) {
-      union2D(pLabels, nLabelsStep, width, label, rightLabel);
-    }
+    union2D(pLabels, nLabelsStep, width, label, rightLabel);
   }
 
   if (y + 1 < height) {
+    const Npp8u *next_src_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
     Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
 
-    // Bottom-left neighbor
-    if (x > 0) {
+    // Bottom-left neighbor (merge only if same value)
+    if (x > 0 && next_src_row[x - 1] == myValue) {
       Npp32u blLabel = next_row[x - 1];
-      if (blLabel != 0) {
-        union2D(pLabels, nLabelsStep, width, label, blLabel);
-      }
+      union2D(pLabels, nLabelsStep, width, label, blLabel);
     }
 
-    // Bottom neighbor
-    Npp32u bottomLabel = next_row[x];
-    if (bottomLabel != 0) {
+    // Bottom neighbor (merge only if same value)
+    if (next_src_row[x] == myValue) {
+      Npp32u bottomLabel = next_row[x];
       union2D(pLabels, nLabelsStep, width, label, bottomLabel);
     }
 
-    // Bottom-right neighbor
-    if (x + 1 < width) {
+    // Bottom-right neighbor (merge only if same value)
+    if (x + 1 < width && next_src_row[x + 1] == myValue) {
       Npp32u brLabel = next_row[x + 1];
-      if (brLabel != 0) {
-        union2D(pLabels, nLabelsStep, width, label, brLabel);
-      }
+      union2D(pLabels, nLabelsStep, width, label, brLabel);
     }
   }
 }
 
-// Path compression: flatten the label tree
+// Path compression: flatten the label tree for ALL pixels
 __global__ void pathCompression_kernel(Npp32u *pLabels, int nLabelsStep,
                                         int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -194,14 +197,25 @@ __global__ void pathCompression_kernel(Npp32u *pLabels, int nLabelsStep,
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
 
-  if (label == 0) return; // Skip background
-
   // Find root and update
   Npp32u root = find2D(pLabels, nLabelsStep, width, label);
   labels_row[x] = root;
 }
 
+// Final pass: convert 1-based labels to 0-based (subtract 1 from all labels)
+__global__ void convertTo0Based_kernel(Npp32u *pLabels, int nLabelsStep,
+                                        int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) return;
+
+  Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
+  labels_row[x] = labels_row[x] - 1;
+}
+
 // Batch processing kernel: initialize labels for multiple images
+// ALL pixels get their 1-based linear index; only background pixels will be merged later
 __global__ void batchInitLabels_kernel(const NppiImageDescriptor *pSrcBatchList,
                                         NppiImageDescriptor *pDstBatchList,
                                         int batchSize, int maxWidth, int maxHeight) {
@@ -214,23 +228,19 @@ __global__ void batchInitLabels_kernel(const NppiImageDescriptor *pSrcBatchList,
   NppiSize imgSize = pDstBatchList[imgIdx].oSize;
   if (x >= imgSize.width || y >= imgSize.height) return;
 
-  const Npp8u *pSrc = (const Npp8u *)pSrcBatchList[imgIdx].pData;
-  int nSrcStep = pSrcBatchList[imgIdx].nStep;
   Npp32u *pDst = (Npp32u *)pDstBatchList[imgIdx].pData;
   int nDstStep = pDstBatchList[imgIdx].nStep;
 
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
   Npp32u *dst_row = (Npp32u *)((char *)pDst + y * nDstStep);
 
-  if (src_row[x] != 0) {
-    dst_row[x] = y * imgSize.width + x + 1;
-  } else {
-    dst_row[x] = 0;
-  }
+  // All pixels get their 1-based linear index as initial label
+  dst_row[x] = y * imgSize.width + x + 1;
 }
 
 // Batch processing kernel: local merge for multiple images (8-way)
-__global__ void batchLocalMerge8Way_kernel(NppiImageDescriptor *pDstBatchList,
+// Only check forward directions (right, bottom-left, bottom, bottom-right) to avoid redundant work
+__global__ void batchLocalMerge8Way_kernel(const NppiImageDescriptor *pSrcBatchList,
+                                            NppiImageDescriptor *pDstBatchList,
                                             int batchSize, int maxWidth, int maxHeight) {
   int imgIdx = blockIdx.z;
   if (imgIdx >= batchSize) return;
@@ -241,49 +251,51 @@ __global__ void batchLocalMerge8Way_kernel(NppiImageDescriptor *pDstBatchList,
   NppiSize imgSize = pDstBatchList[imgIdx].oSize;
   if (x >= imgSize.width || y >= imgSize.height) return;
 
+  const Npp8u *pSrc = (const Npp8u *)pSrcBatchList[imgIdx].pData;
+  int nSrcStep = pSrcBatchList[imgIdx].nStep;
   Npp32u *pLabels = (Npp32u *)pDstBatchList[imgIdx].pData;
   int nLabelsStep = pDstBatchList[imgIdx].nStep;
   int width = imgSize.width;
   int height = imgSize.height;
 
+  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+  Npp8u myValue = src_row[x];
+
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
 
-  if (label == 0) return;
-
-  // Right neighbor
-  if (x + 1 < width) {
+  // Right neighbor (merge only if same value)
+  if (x + 1 < width && src_row[x + 1] == myValue) {
     Npp32u rightLabel = labels_row[x + 1];
-    if (rightLabel != 0) {
-      union2D(pLabels, nLabelsStep, width, label, rightLabel);
-    }
+    union2D(pLabels, nLabelsStep, width, label, rightLabel);
   }
 
   if (y + 1 < height) {
+    const Npp8u *next_src_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
     Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
 
-    if (x > 0) {
+    // Bottom-left neighbor (merge only if same value)
+    if (x > 0 && next_src_row[x - 1] == myValue) {
       Npp32u blLabel = next_row[x - 1];
-      if (blLabel != 0) {
-        union2D(pLabels, nLabelsStep, width, label, blLabel);
-      }
+      union2D(pLabels, nLabelsStep, width, label, blLabel);
     }
 
-    Npp32u bottomLabel = next_row[x];
-    if (bottomLabel != 0) {
+    // Bottom neighbor (merge only if same value)
+    if (next_src_row[x] == myValue) {
+      Npp32u bottomLabel = next_row[x];
       union2D(pLabels, nLabelsStep, width, label, bottomLabel);
     }
 
-    if (x + 1 < width) {
+    // Bottom-right neighbor (merge only if same value)
+    if (x + 1 < width && next_src_row[x + 1] == myValue) {
       Npp32u brLabel = next_row[x + 1];
-      if (brLabel != 0) {
-        union2D(pLabels, nLabelsStep, width, label, brLabel);
-      }
+      union2D(pLabels, nLabelsStep, width, label, brLabel);
     }
   }
 }
 
 // Batch processing kernel: path compression for multiple images
+// Compresses ALL pixels
 __global__ void batchPathCompression_kernel(NppiImageDescriptor *pDstBatchList,
                                              int batchSize, int maxWidth, int maxHeight) {
   int imgIdx = blockIdx.z;
@@ -302,10 +314,27 @@ __global__ void batchPathCompression_kernel(NppiImageDescriptor *pDstBatchList,
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
 
-  if (label == 0) return;
-
   Npp32u root = find2D(pLabels, nLabelsStep, width, label);
   labels_row[x] = root;
+}
+
+// Batch processing kernel: convert 1-based labels to 0-based
+__global__ void batchConvertTo0Based_kernel(NppiImageDescriptor *pDstBatchList,
+                                             int batchSize, int maxWidth, int maxHeight) {
+  int imgIdx = blockIdx.z;
+  if (imgIdx >= batchSize) return;
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  NppiSize imgSize = pDstBatchList[imgIdx].oSize;
+  if (x >= imgSize.width || y >= imgSize.height) return;
+
+  Npp32u *pLabels = (Npp32u *)pDstBatchList[imgIdx].pData;
+  int nLabelsStep = pDstBatchList[imgIdx].nStep;
+
+  Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
+  labels_row[x] = labels_row[x] - 1;
 }
 
 extern "C" {
@@ -341,24 +370,34 @@ NppStatus nppiLabelMarkersUF_8u32u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
       pSrc, nSrcStep, pDst, nDstStep, width, height);
 
   // Step 2: Local merge based on connectivity
-  int numIterations = 10; // Multiple iterations for convergence
+  // Use more iterations for larger images to ensure convergence
+  int numIterations = 20; // Increased iterations for better convergence
   for (int i = 0; i < numIterations; i++) {
     if (eNorm == nppiNormInf) {
       // 8-way connectivity
       localMerge8Way_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-          pDst, nDstStep, width, height);
+          pSrc, nSrcStep, pDst, nDstStep, width, height);
     } else {
       // 4-way connectivity (nppiNormL1)
       localMerge4Way_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, width, height);
+    }
+    // Interleave path compression for faster convergence
+    if (i % 4 == 3) {
+      pathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
           pDst, nDstStep, width, height);
     }
   }
 
-  // Step 3: Path compression
-  for (int i = 0; i < 5; i++) {
+  // Step 3: Final path compression (for all pixels)
+  for (int i = 0; i < 10; i++) {
     pathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pDst, nDstStep, width, height);
   }
+
+  // Step 4: Convert from 1-based to 0-based labels
+  convertTo0Based_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pDst, nDstStep, width, height);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -388,17 +427,27 @@ NppStatus nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx_impl(
       pSrcBatchList, pDstBatchList, nBatchSize, maxWidth, maxHeight);
 
   // Step 2: Local merge (currently only 8-way supported for batch)
-  int numIterations = 10;
+  // Use more iterations for better convergence
+  int numIterations = 20;
   for (int i = 0; i < numIterations; i++) {
     batchLocalMerge8Way_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pDstBatchList, nBatchSize, maxWidth, maxHeight);
+        pSrcBatchList, pDstBatchList, nBatchSize, maxWidth, maxHeight);
+    // Interleave path compression for faster convergence
+    if (i % 4 == 3) {
+      batchPathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+          pDstBatchList, nBatchSize, maxWidth, maxHeight);
+    }
   }
 
-  // Step 3: Path compression
-  for (int i = 0; i < 5; i++) {
+  // Step 3: Final path compression (for all pixels)
+  for (int i = 0; i < 10; i++) {
     batchPathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pDstBatchList, nBatchSize, maxWidth, maxHeight);
   }
+
+  // Step 4: Convert from 1-based to 0-based labels
+  batchConvertTo0Based_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pDstBatchList, nBatchSize, maxWidth, maxHeight);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
