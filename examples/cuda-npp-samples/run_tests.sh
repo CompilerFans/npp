@@ -89,6 +89,7 @@ run_test "histEqualizationNPP" "./histEqualizationNPP"
 run_test "FilterBorderControlNPP" "./FilterBorderControlNPP"
 run_test "freeImageInteropNPP" "./freeImageInteropNPP"
 run_test "watershedSegmentationNPP" "./watershedSegmentationNPP"
+run_test "batchedLabelMarkersAndLabelCompressionNPP" "./batchedLabelMarkersAndLabelCompressionNPP"
 
 cd ../..
 
@@ -165,6 +166,42 @@ for mapping in "${watershed_mapping[@]}"; do
 done
 print_pass "Watershed: $watershed_count/12"
 
+# BatchedLabelMarkers结果
+mkdir -p mpp_results/batchedLabelMarkers
+batch_count=0
+
+# 定义batch输出文件列表 (MPP输出文件名)
+batch_files=(
+    "teapot_LabelMarkersUF_8Way_512x512_32u.raw"
+    "teapot_LabelMarkersUFBatch_8Way_512x512_32u.raw"
+    "teapot_CompressedMarkerLabelsUF_8Way_512x512_32u.raw"
+    "teapot_CompressedMarkerLabelsUFBatch_8Way_512x512_32u.raw"
+    "CT_skull_LabelMarkersUF_8Way_512x512_32u.raw"
+    "CT_skull_LabelMarkersUFBatch_8Way_512x512_32u.raw"
+    "CT_skull_CompressedMarkerLabelsUF_8Way_512x512_32u.raw"
+    "CT_skull_CompressedMarkerLabelsUFBatch_8Way_512x512_32u.raw"
+    "PCB_METAL_LabelMarkersUF_8Way_509x335_32u.raw"
+    "PCB_METAL_LabelMarkersUFBatch_8Way_509x335_32u.raw"
+    "PCB_METAL_CompressedMarkerLabelsUF_8Way_509x335_32u.raw"
+    "PCB_METAL_CompressedMarkerLabelsUFBatch_8Way_509x335_32u.raw"
+    "PCB_LabelMarkersUF_8Way_1280x720_32u.raw"
+    "PCB_LabelMarkersUFBatch_8Way_1280x720_32u.raw"
+    "PCB_CompressedMarkerLabelsUF_8Way_1280x720_32u.raw"
+    "PCB_CompressedMarkerLabelsUFBatch_8Way_1280x720_32u.raw"
+    "PCB2_LabelMarkersUF_8Way_1024x683_32u.raw"
+    "PCB2_LabelMarkersUFBatch_8Way_1024x683_32u.raw"
+    "PCB2_CompressedMarkerLabelsUF_8Way_1024x683_32u.raw"
+    "PCB2_CompressedMarkerLabelsUFBatch_8Way_1024x683_32u.raw"
+)
+
+for file in "${batch_files[@]}"; do
+    if [ -f "build/bin/$file" ]; then
+        cp "build/bin/$file" "mpp_results/batchedLabelMarkers/"
+        ((batch_count++))
+    fi
+done
+print_pass "BatchedLabelMarkers: $batch_count/${#batch_files[@]}"
+
 echo ""
 print_header "=== 第三阶段：功能验证（文件存在+大小匹配）==="
 
@@ -229,6 +266,13 @@ for mapping in "${watershed_mapping[@]}"; do
 done
 
 echo ""
+echo "BatchedLabelMarkers:"
+for file in "${batch_files[@]}"; do
+    short_name=$(echo "$file" | sed 's/_8Way_[0-9]*x[0-9]*_32u.raw//g')
+    verify_file "$short_name" "mpp_results/batchedLabelMarkers/$file" "reference_nvidia_npp/batchedLabelMarkers/$file"
+done
+
+echo ""
 print_header "=== 第四阶段：质量参考（像素级对比）==="
 print_info "此阶段仅供参考，不影响测试通过/失败"
 echo ""
@@ -241,6 +285,10 @@ cat > pixel_compare.cpp << 'CPPEOF'
 #include <fstream>
 #include <iomanip>
 #include <ctime>
+#include <cstdint>
+#include <set>
+#include <map>
+#include <cstring>
 
 std::ofstream report;
 
@@ -270,6 +318,32 @@ bool readPGM(const char* filename, std::vector<unsigned char>& data, int& width,
     return file.good() || file.eof();
 }
 
+// 读取32u raw文件 (从文件名解析尺寸)
+bool readRaw32u(const char* filename, std::vector<uint32_t>& data, int& width, int& height) {
+    // 从文件名解析尺寸，格式: xxx_WIDTHxHEIGHT_32u.raw
+    std::string fname(filename);
+    size_t pos = fname.rfind('_');
+    if (pos == std::string::npos) return false;
+
+    size_t pos2 = fname.rfind('_', pos - 1);
+    if (pos2 == std::string::npos) return false;
+
+    std::string sizeStr = fname.substr(pos2 + 1, pos - pos2 - 1);
+    size_t xpos = sizeStr.find('x');
+    if (xpos == std::string::npos) return false;
+
+    width = std::stoi(sizeStr.substr(0, xpos));
+    height = std::stoi(sizeStr.substr(xpos + 1));
+
+    std::ifstream file(filename, std::ios::binary);
+    if (!file.is_open()) return false;
+
+    size_t numPixels = (size_t)width * height;
+    data.resize(numPixels);
+    file.read(reinterpret_cast<char*>(data.data()), numPixels * sizeof(uint32_t));
+    return file.good() || file.eof();
+}
+
 struct CompareResult {
     std::string name;
     int total_pixels = 0;
@@ -278,7 +352,87 @@ struct CompareResult {
     double diff_percent = 0.0;
     double psnr = 0.0;
     std::string status;
+    // 标签图像专用
+    int ref_unique_labels = 0;
+    int mpp_unique_labels = 0;
 };
+
+// 比较32u标签图像 (对于标签图像，我们比较标签数量和像素差异)
+CompareResult compareLabels32u(const char* ref_file, const char* mpp_file, const char* name) {
+    CompareResult result;
+    result.name = name;
+
+    std::vector<uint32_t> ref_data, mpp_data;
+    int ref_w, ref_h, mpp_w, mpp_h;
+
+    if (!readRaw32u(ref_file, ref_data, ref_w, ref_h)) {
+        result.status = "参考文件读取失败";
+        return result;
+    }
+
+    if (!readRaw32u(mpp_file, mpp_data, mpp_w, mpp_h)) {
+        result.status = "MPP文件读取失败";
+        return result;
+    }
+
+    if (ref_w != mpp_w || ref_h != mpp_h) {
+        result.status = "尺寸不匹配";
+        return result;
+    }
+
+    result.total_pixels = ref_w * ref_h;
+
+    // 统计唯一标签数
+    std::set<uint32_t> ref_labels, mpp_labels;
+    for (size_t i = 0; i < ref_data.size(); i++) {
+        ref_labels.insert(ref_data[i]);
+        mpp_labels.insert(mpp_data[i]);
+        if (ref_data[i] != mpp_data[i]) {
+            result.diff_pixels++;
+        }
+    }
+
+    result.ref_unique_labels = ref_labels.size();
+    result.mpp_unique_labels = mpp_labels.size();
+    result.diff_percent = 100.0 * result.diff_pixels / result.total_pixels;
+
+    if (result.diff_pixels == 0) {
+        result.status = "完全匹配";
+    } else if (result.ref_unique_labels == result.mpp_unique_labels) {
+        result.status = "标签数一致 (" + std::to_string(result.mpp_unique_labels) + ")";
+    } else {
+        result.status = "标签数: REF=" + std::to_string(result.ref_unique_labels) +
+                       " MPP=" + std::to_string(result.mpp_unique_labels);
+    }
+
+    return result;
+}
+
+void printLabelResult(const CompareResult& r) {
+    std::cout << std::left << std::setw(40) << r.name << " | ";
+
+    if (r.total_pixels == 0) {
+        std::cout << r.status << std::endl;
+        return;
+    }
+
+    std::cout << std::right << std::setw(6) << std::fixed << std::setprecision(2)
+              << r.diff_percent << "% diff | "
+              << r.status << std::endl;
+}
+
+void writeReportLabelRow(const CompareResult& r, const char* sample, const char* file) {
+    std::string icon = (r.status == "完全匹配") ? "[PASS]" :
+                       (r.status.find("标签数一致") != std::string::npos) ? "[OK]" : "[DIFF]";
+
+    report << "| " << sample << " | " << file << " | " << icon << " " << r.status << " | ";
+
+    if (r.total_pixels == 0) {
+        report << "N/A |\n";
+    } else {
+        report << std::fixed << std::setprecision(2) << r.diff_percent << "% |\n";
+    }
+}
 
 CompareResult compareImages(const char* ref_file, const char* mpp_file, const char* name) {
     CompareResult result;
@@ -438,18 +592,74 @@ int main() {
     }
     report << "\n";
 
+    // BatchedLabelMarkers对比 (32u标签图像) - 动态生成测试列表
+    struct LabelTest { const char* image; const char* size; };
+    LabelTest images[] = {
+        {"teapot", "512x512"},
+        {"CT_skull", "512x512"},
+        {"PCB_METAL", "509x335"},
+        {"PCB", "1280x720"},
+        {"PCB2", "1024x683"},
+    };
+    const char* types[] = {"LabelMarkersUF", "LabelMarkersUFBatch", "CompressedMarkerLabelsUF", "CompressedMarkerLabelsUFBatch"};
+
+    std::vector<Test> label_tests;
+    for (const auto& img : images) {
+        for (const auto& type : types) {
+            char ref[256], mpp[256], name[128];
+            snprintf(ref, sizeof(ref), "reference_nvidia_npp/batchedLabelMarkers/%s_%s_8Way_%s_32u.raw", img.image, type, img.size);
+            snprintf(mpp, sizeof(mpp), "mpp_results/batchedLabelMarkers/%s_%s_8Way_%s_32u.raw", img.image, type, img.size);
+            snprintf(name, sizeof(name), "%s_%s", img.image, type);
+            label_tests.push_back({strdup(ref), strdup(mpp), strdup(name), "batchedLabelMarkersNPP", strdup(name)});
+        }
+    }
+
+    int label_perfect = 0;
+    int label_same_count = 0;
+    int label_total = 0;
+
+    std::cout << "\nBatchedLabelMarkers (32u标签图像):\n";
+    std::cout << std::string(70, '-') << "\n";
+    report << "## BatchedLabelMarkers\n\n";
+    report << "| 图像 | 类型 | 状态 | 差异比例 |\n";
+    report << "|------|------|------|----------|\n";
+
+    for (const auto& t : label_tests) {
+        auto r = compareLabels32u(t.ref, t.mpp, t.name);
+        printLabelResult(r);
+        writeReportLabelRow(r, t.sample, t.file);
+
+        if (r.total_pixels > 0) {
+            label_total++;
+            if (r.status == "完全匹配") label_perfect++;
+            else if (r.status.find("标签数一致") != std::string::npos) label_same_count++;
+        }
+    }
+    report << "\n";
+
     // 总结
-    std::cout << "\n----------------------------------------\n";
-    std::cout << "像素级对比总结: " << perfect_match << "/" << total << " 完全匹配, "
+    std::cout << "\n" << std::string(70, '=') << "\n";
+    std::cout << "                    像素级对比总结\n";
+    std::cout << std::string(70, '=') << "\n";
+    std::cout << "基础图像处理:     " << perfect_match << "/" << total << " 完全匹配, "
               << high_quality << "/" << total << " 高质量\n";
+    std::cout << "BatchedLabelMarkers: " << label_perfect << "/" << label_total << " 完全匹配, "
+              << label_same_count << "/" << label_total << " 标签数一致\n";
+    std::cout << std::string(70, '=') << "\n";
 
     report << "---\n\n";
     report << "## 总结\n\n";
+    report << "### 基础图像处理\n\n";
     report << "| 指标 | 结果 |\n";
     report << "|------|------|\n";
     report << "| 完全匹配 | " << perfect_match << "/" << total << " |\n";
-    report << "| 高质量 (PSNR>=40dB) | " << high_quality << "/" << total << " |\n";
-    report << "| 总测试数 | " << total << " |\n\n";
+    report << "| 高质量 (PSNR>=40dB) | " << high_quality << "/" << total << " |\n\n";
+    report << "### BatchedLabelMarkers\n\n";
+    report << "| 指标 | 结果 |\n";
+    report << "|------|------|\n";
+    report << "| 完全匹配 | " << label_perfect << "/" << label_total << " |\n";
+    report << "| 标签数一致 | " << label_same_count << "/" << label_total << " |\n";
+    report << "| 总测试数 | " << label_total << " |\n\n";
 
     report << "### 说明\n\n";
     report << "- **完全匹配**: 所有像素值完全相同，实现正确\n";

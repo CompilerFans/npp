@@ -91,6 +91,7 @@ function(add_npp_sample SAMPLE_NAME)
 endfunction()
 
 # Add all NPP samples
+add_npp_sample(batchedLabelMarkersAndLabelCompressionNPP)
 add_npp_sample(FilterBorderControlNPP)
 add_npp_sample(boxFilterNPP)
 add_npp_sample(cannyEdgeDetectorNPP)
