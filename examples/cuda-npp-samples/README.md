@@ -217,6 +217,28 @@ cuda-npp-samples/
 └── VERIFICATION_REPORT.md         # 验证报告
 ```
 
+## 内部 mcMPP 仓库适配说明
+
+在内部 mcMPP 仓库（MACA 平台）中使用时，需要进行以下修改：
+
+### 1. 构建脚本
+
+使用 `build_maca.sh` 替代 `build.sh`：
+```bash
+./build_maca.sh
+```
+
+### 2. CMakeLists.txt 修改
+
+修改第 74 行，将链接库名从 `mpp` 改为 `mppc`：
+```cmake
+# 原始（NVIDIA 平台）
+target_link_libraries(${SAMPLE_NAME} mpp CUDA::cudart CUDA::cudart_static)
+
+# 修改为（MACA 平台）
+target_link_libraries(${SAMPLE_NAME} mppc CUDA::cudart CUDA::cudart_static)
+```
+
 ## 开发说明
 
 本项目展示了 MPP 作为 NVIDIA NPP 开源替代方案的可行性，为 GPU 加速的图像和信号处理应用提供了完整的解决方案。
