@@ -112,12 +112,9 @@ message(STATUS "FreeImage Found:     ${FREEIMAGE_FOUND}")
 message(STATUS "CUDA Version:        ${CUDA_VERSION}")
 message(STATUS "========================================")
 
-# 添加验证程序
+# 添加验证程序 (纯C++程序，不依赖CUDA/NPP)
 add_executable(verify_results verify_results.cpp)
-set_property(TARGET verify_results PROPERTY CUDA_SEPARABLE_COMPILATION ON)
-set_property(TARGET verify_results PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
-set_target_properties(verify_results PROPERTIES CUDA_ARCHITECTURES "89")
-target_link_libraries(verify_results mpp CUDA::cudart CUDA::cudart_static)
 set_target_properties(verify_results PROPERTIES
+    CXX_STANDARD 11
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
