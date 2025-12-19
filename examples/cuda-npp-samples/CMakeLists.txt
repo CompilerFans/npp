@@ -112,9 +112,9 @@ message(STATUS "FreeImage Found:     ${FREEIMAGE_FOUND}")
 message(STATUS "CUDA Version:        ${CUDA_VERSION}")
 message(STATUS "========================================")
 
-# 添加验证程序 (纯C++程序，不依赖CUDA/NPP)
+# Add verification tool (pure C++ program, no CUDA/NPP dependency)
 add_executable(verify_results verify_results.cpp)
 set_target_properties(verify_results PROPERTIES
-    CXX_STANDARD 11
+    CXX_STANDARD 14
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
