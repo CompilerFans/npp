@@ -239,6 +239,42 @@ target_link_libraries(${SAMPLE_NAME} mpp CUDA::cudart CUDA::cudart_static)
 target_link_libraries(${SAMPLE_NAME} mppc CUDA::cudart CUDA::cudart_static)
 ```
 
+## CI 集成
+
+测试脚本支持 CI/CD 集成（如 Jenkins），通过退出码反映测试结果：
+
+```bash
+./run_tests.sh
+echo $?  # 0=全部通过, 非0=失败数量
+```
+
+**退出码说明**：
+| 退出码 | 含义 |
+|--------|------|
+| 0 | 所有测试通过 |
+| N (N>0) | N 个测试失败 |
+
+**Jenkins 集成示例**：
+```groovy
+stage('Samples Tests') {
+    steps {
+        dir('examples/cuda-npp-samples') {
+            sh './build.sh'
+            sh './run_tests.sh'
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'examples/cuda-npp-samples/VERIFICATION_REPORT.md'
+        }
+    }
+}
+```
+
+**当前测试状态**：
+- 非确定性算法测试（LabelMarkers、Watershed）已暂时屏蔽
+- 仅运行确定性算法的像素级验证
+
 ## 开发说明
 
 本项目展示了 MPP 作为 NVIDIA NPP 开源替代方案的可行性，为 GPU 加速的图像和信号处理应用提供了完整的解决方案。
