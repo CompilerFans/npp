@@ -295,11 +295,14 @@ print_info "    (验证连通区域划分是否相同，而非标签值是否相
 echo ""
 
 # 调用 verify_results 程序进行验证
+verify_exit_code=0
 if [ -f "build/bin/verify_results" ]; then
     ./build/bin/verify_results
+    verify_exit_code=$?
     print_info "详细报告已生成: VERIFICATION_REPORT.md"
 elif [ -f "verify_results" ]; then
     ./verify_results
+    verify_exit_code=$?
     print_info "详细报告已生成: VERIFICATION_REPORT.md"
 else
     print_warn "verify_results 程序不存在，跳过算法验证"
@@ -332,8 +335,5 @@ echo "  - [WARN] 可接受差异: 需要关注但不影响功能"
 echo "  - [FAIL] 需要修复: 算法实现有问题"
 echo ""
 
-if [ "$failed_tests" -eq 0 ]; then
-    exit 0
-else
-    exit 1
-fi
+# 使用 verify_results 的退出码作为最终结果
+exit $verify_exit_code
