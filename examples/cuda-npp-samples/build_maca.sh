@@ -1,29 +1,147 @@
 #!/bin/bash
 
-echo "开始构建MPP和样本程序 (MACA)..."
+# CUDA NPP Samples - Build Script for mcMPP (MACA)
 
-# 保存当前目录
-SAMPLES_DIR=$(pwd)
+echo "=== NPP Samples Build Script (MACA) ==="
 
-# 首先构建MPP库（使用主项目的build_maca.sh）
-echo "1. 构建MPP库..."
-cd ../../
-source build_maca.sh --lib-only
+# Default values
+BUILD_TYPE="Release"
+JOBS=$(nproc)
+BUILD_SHARED_LIBS="OFF"
+USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
+WARNINGS_AS_ERRORS="ON"
+BUILD_DIR="build"
+CUDA_ARCH="89"
+MPP_ROOT_DIR=""
+MPP_INCLUDE_DIR=""
+MPP_LIBRARY_DIR=""
 
-# 构建样本程序
-echo "2. 构建NPP样本..."
-cd "$SAMPLES_DIR"
-mkdir -p build
-cd build
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d|--debug)
+            BUILD_TYPE="Debug"
+            shift
+            ;;
+        -j)
+            JOBS="$2"
+            shift 2
+            ;;
+        --shared)
+            BUILD_SHARED_LIBS="ON"
+            shift
+            ;;
+        --use-nvidia-npp)
+            USE_NVIDIA_NPP="ON"
+            BUILD_DIR="build-nvidia"
+            shift
+            ;;
+        --no-werror)
+            WARNINGS_AS_ERRORS="OFF"
+            shift
+            ;;
+        --mpp-root)
+            MPP_ROOT_DIR="$2"
+            shift 2
+            ;;
+        --mpp-include)
+            MPP_INCLUDE_DIR="$2"
+            shift 2
+            ;;
+        --mpp-lib)
+            MPP_LIBRARY_DIR="$2"
+            shift 2
+            ;;
+        --arch)
+            CUDA_ARCH="$2"
+            shift 2
+            ;;
+        clean)
+            echo "Cleaning build directories..."
+            rm -rf build/ build-nvidia/
+            echo "Clean completed"
+            exit 0
+            ;;
+        -h|--help)
+            echo "Usage: $0 [options]"
+            echo "Options:"
+            echo "  -d, --debug         Debug build"
+            echo "  -j N                Use N parallel jobs"
+            echo "  --shared            Link shared libraries (.so)"
+            echo "  --use-nvidia-npp    Use NVIDIA NPP instead of MPP"
+            echo "  --no-werror         Disable warnings as errors"
+            echo "  --mpp-root DIR      Set MPP root directory"
+            echo "  --mpp-include DIR   Set MPP include directory"
+            echo "  --mpp-lib DIR       Set MPP library directory"
+            echo "  --arch ARCH         Set CUDA architecture (default: 88)"
+            echo "  clean               Clean build directories"
+            echo "  -h, --help          Show this help"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
-# 使用 cmake_maca 配置
-cmake_maca -S .. \
-    -B . \
-    -DCMAKE_BUILD_TYPE="Release" \
-    -DCMAKE_CUDA_ARCHITECTURES="89" \
+# Set library name for display
+if [ "$USE_NVIDIA_NPP" = "ON" ]; then
+    NPP_LIB_NAME="NVIDIA NPP"
+else
+    NPP_LIB_NAME="MPP"
+fi
+
+echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
+
+# Build CMake arguments
+CMAKE_ARGS=(
+    -B "$BUILD_DIR"
+    -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+    -DCUDA_ARCH="$CUDA_ARCH"
+    -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS"
+    -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS"
+    -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP"
     -G Ninja
+)
 
-# 使用 cmake_maca 构建
-cmake_maca --build .
+# Add optional MPP paths
+if [ -n "$MPP_ROOT_DIR" ]; then
+    CMAKE_ARGS+=(-DMPP_ROOT_DIR="$MPP_ROOT_DIR")
+fi
+if [ -n "$MPP_INCLUDE_DIR" ]; then
+    CMAKE_ARGS+=(-DMPP_INCLUDE_DIR="$MPP_INCLUDE_DIR")
+fi
+if [ -n "$MPP_LIBRARY_DIR" ]; then
+    CMAKE_ARGS+=(-DMPP_LIBRARY_DIR="$MPP_LIBRARY_DIR")
+fi
 
-echo "构建完成！"
+# Configure CMake (use cmake_maca for MACA environment)
+echo "Configuring CMake ($BUILD_TYPE mode)..."
+echo "CUDA_ARCH=$CUDA_ARCH, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
+
+# Try cmake_maca first, fallback to cmake
+if command -v cmake_maca &> /dev/null; then
+    CMAKE_CMD="cmake_maca"
+else
+    CMAKE_CMD="cmake"
+fi
+
+$CMAKE_CMD -S . "${CMAKE_ARGS[@]}"
+
+if [ $? -ne 0 ]; then
+    echo "CMake configuration failed!"
+    exit 1
+fi
+
+# Build
+echo "Building with $JOBS jobs..."
+$CMAKE_CMD --build "$BUILD_DIR" -j "$JOBS"
+
+if [ $? -ne 0 ]; then
+    echo "Build failed!"
+    exit 1
+fi
+
+echo "Build completed successfully!"
+echo "Executables are in: $BUILD_DIR/bin/"

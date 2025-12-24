@@ -39,7 +39,7 @@ PROJECT_DIR = SCRIPT_DIR.parent
 PROCESS_DIRS = ['src', 'test', 'examples']
 API_DIR = 'API'
 API_VERSION_DIRS = ['API-11.4', 'API-12.2', 'API-12.8']
-SKIP_DIRS = ['.git', 'build', 'build-nvidia', '.npp_backup', '.cuda_backup', 'wrapper', 'maca_test'] + API_VERSION_DIRS
+SKIP_DIRS = ['.git', 'build', 'build-nvidia', '.npp_backup', '.cuda_backup', 'wrapper', 'maca_test', 'cuda-npp-samples'] + API_VERSION_DIRS
 FILE_EXTENSIONS = ['.cu', '.cpp', '.c', '.h', '.hpp', '.cuh']
 BACKUP_DIR = PROJECT_DIR / '.cuda_backup'
 
