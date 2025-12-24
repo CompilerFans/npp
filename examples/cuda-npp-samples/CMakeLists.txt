@@ -8,22 +8,52 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# =============================================================================
+# Build Options
+# =============================================================================
+option(BUILD_SHARED_LIBS "Link against shared libraries (.so) instead of static (.a)" OFF)
+option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
+option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+
 # Find required packages
 find_package(CUDAToolkit REQUIRED)
 find_package(PkgConfig QUIET)
 
-# MPP library
-set(MPP_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(MPP_INCLUDE_DIR ${MPP_ROOT_DIR}/API)
-set(MPP_LIBRARY_DIR ${MPP_ROOT_DIR}/build/src)
+# =============================================================================
+# MPP Library Configuration
+# =============================================================================
+if(NOT DEFINED MPP_ROOT_DIR)
+    set(MPP_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+endif()
 
-# Add MPP includes
-include_directories(${MPP_INCLUDE_DIR})
+if(NOT DEFINED MPP_INCLUDE_DIR)
+    set(MPP_INCLUDE_DIR ${MPP_ROOT_DIR}/API)
+endif()
+
+if(NOT DEFINED MPP_LIBRARY_DIR)
+    set(MPP_LIBRARY_DIR ${MPP_ROOT_DIR}/build/src)
+endif()
+
+# =============================================================================
+# NPP Library Selection
+# =============================================================================
+if(USE_NVIDIA_NPP)
+    message(STATUS "Using NVIDIA NPP library")
+    set(NPP_LIBRARIES
+        CUDA::nppc CUDA::nppial CUDA::nppicc CUDA::nppidei
+        CUDA::nppif CUDA::nppig CUDA::nppim CUDA::nppist
+        CUDA::nppisu CUDA::nppitc CUDA::npps
+    )
+else()
+    message(STATUS "Using MPP library")
+    include_directories(${MPP_INCLUDE_DIR})
+    link_directories(${MPP_LIBRARY_DIR})
+    set(NPP_LIBRARIES mpp)
+endif()
+
+# Common includes
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Common)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Common/UtilNPP)
-
-# Link directories
-link_directories(${MPP_LIBRARY_DIR})
 
 # Common sources
 set(COMMON_SOURCES
@@ -70,8 +100,8 @@ function(add_npp_sample SAMPLE_NAME)
             set_property(TARGET ${SAMPLE_NAME} PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
             set_target_properties(${SAMPLE_NAME} PROPERTIES CUDA_ARCHITECTURES "89")
             
-            # Link MPP and CUDA runtime
-            target_link_libraries(${SAMPLE_NAME} mpp CUDA::cudart CUDA::cudart_static)
+            # Link NPP/MPP and CUDA runtime
+            target_link_libraries(${SAMPLE_NAME} ${NPP_LIBRARIES} CUDA::cudart)
             
             # Add FreeImage if available and needed
             if(FREEIMAGE_FOUND)
@@ -106,10 +136,15 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Common/data DESTINATION ${CMAKE_BINARY_DIR
 message(STATUS "========================================")
 message(STATUS "CUDA NPP Samples Configuration Summary")
 message(STATUS "========================================")
-message(STATUS "MPP Include Dir: ${MPP_INCLUDE_DIR}")
-message(STATUS "MPP Library Dir: ${MPP_LIBRARY_DIR}")
+if(USE_NVIDIA_NPP)
+    message(STATUS "NPP Library:         NVIDIA NPP (from CUDA Toolkit)")
+else()
+    message(STATUS "NPP Library:         MPP")
+    message(STATUS "MPP Include Dir:     ${MPP_INCLUDE_DIR}")
+    message(STATUS "MPP Library Dir:     ${MPP_LIBRARY_DIR}")
+endif()
 message(STATUS "FreeImage Found:     ${FREEIMAGE_FOUND}")
-message(STATUS "CUDA Version:        ${CUDA_VERSION}")
+message(STATUS "CUDA Version:        ${CUDAToolkit_VERSION}")
 message(STATUS "========================================")
 
 # Add verification tool (pure C++ program, no CUDA/NPP dependency)
