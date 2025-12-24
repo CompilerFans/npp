@@ -1,28 +1,28 @@
 # Coverage Summary
 
 - Total API Functions: 12456
-- Implemented: 353 (2.8%)
-- Tested: 123 (1.0%)
-- Implemented but not tested: 248
+- Implemented: 1116 (9.0%)
+- Tested: 419 (3.4%)
+- Implemented but not tested: 714
 
 ## By Module
 
 ### NPPI
 
 **nppi_arithmetic_and_logical_operations.h**
-- Total: 2137, Impl: 202 (9.5%), Test: 19 (0.9%)
+- Total: 2137, Impl: 377 (17.6%), Test: 77 (3.6%)
 
 **nppi_color_conversion.h**
-- Total: 1040, Impl: 24 (2.3%), Test: 18 (1.7%)
+- Total: 1040, Impl: 50 (4.8%), Test: 36 (3.5%)
 
 **nppi_data_exchange_and_initialization.h**
-- Total: 966, Impl: 65 (6.7%), Test: 38 (3.9%)
+- Total: 966, Impl: 82 (8.5%), Test: 53 (5.5%)
 
 **nppi_filtering_functions.h**
-- Total: 1895, Impl: 6 (0.3%), Test: 3 (0.2%)
+- Total: 1895, Impl: 80 (4.2%), Test: 47 (2.5%)
 
 **nppi_geometry_transforms.h**
-- Total: 705, Impl: 0 (0.0%), Test: 0 (0.0%)
+- Total: 705, Impl: 348 (49.4%), Test: 104 (14.8%)
 
 **nppi_linear_transforms.h**
 - Total: 4, Impl: 4 (100.0%), Test: 0 (0.0%)
@@ -31,13 +31,13 @@
 - Total: 292, Impl: 24 (8.2%), Test: 20 (6.8%)
 
 **nppi_statistics_functions.h**
-- Total: 3244, Impl: 16 (0.5%), Test: 16 (0.5%)
+- Total: 3244, Impl: 131 (4.0%), Test: 65 (2.0%)
 
 **nppi_support_functions.h**
 - Total: 1, Impl: 0 (0.0%), Test: 1 (100.0%)
 
 **nppi_threshold_and_compare_operations.h**
-- Total: 418, Impl: 6 (1.4%), Test: 4 (1.0%)
+- Total: 418, Impl: 14 (3.3%), Test: 12 (2.9%)
 
 ### NPPS
 
