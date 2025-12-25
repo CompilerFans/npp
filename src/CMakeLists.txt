@@ -116,6 +116,7 @@ foreach(stub_name ${MPP_STUB_LIBS})
     install(TARGETS ${stub_name}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        COMPONENT libs
     )
 endforeach()
 
