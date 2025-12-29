@@ -2,49 +2,6 @@
 #include <cstdio>
 #include <cuda_runtime.h>
 
-// NppStatus
-// nppiAndC_32s_C3R(const Npp32s * pSrc1, int nSrc1Step, const Npp32s  aConstants[3],
-//		 Npp32s * pDst,  int nDstStep,  NppiSize oSizeROI){
-//    return NPP_NOT_IMPLEMENTED_ERROR;
-// }
-// NppStatus
-// nppiAndC_16u_C3R(const Npp16u * pSrc1, int nSrc1Step, const Npp16u  aConstants[3],
-//		Npp16u * pDst,  int nDstStep,  NppiSize oSizeROI){
-//   return NPP_NOT_IMPLEMENTED_ERROR;
-// }
-
-NppStatus nppiRShiftC_8s_C1R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8s *pDst, int nDstStep,
-                             NppiSize oSizeROI) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiRShiftC_8s_C1R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u nConstant, Npp8s *pDst, int nDstStep,
-                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRShiftC_8s_C3R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8s *pDst, int nDstStep,
-                             NppiSize oSizeROI) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiRShiftC_8s_C3R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[3], Npp8s *pDst, int nDstStep,
-                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRShiftC_8s_C4R(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8s *pDst, int nDstStep,
-                             NppiSize oSizeROI) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-NppStatus nppiRShiftC_8s_C4R_Ctx(const Npp8s *pSrc1, int nSrc1Step, const Npp32u aConstants[4], Npp8s *pDst, int nDstStep,
-                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-// NppStatus nppiCopy_32f_P3C3R(const Npp32f * const aSrc[3], int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize
-// oSizeROI){
-//
-//	return NPP_NOT_IMPLEMENTED_ERROR;
-// }
-
 /**
  * Four-channel 8-bit unsigned affine warp.
  *

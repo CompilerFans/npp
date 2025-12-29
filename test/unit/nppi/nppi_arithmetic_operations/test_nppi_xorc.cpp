@@ -24,13 +24,13 @@ TEST_F(NppiXorCTest, XorC_8u_C3R_BasicOperation) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp8u> hostSrc = {
-    0xFF, 0x00, 0xAA,  // pixel 0
-    0x55, 0x33, 0xCC   // pixel 1
+      0xFF, 0x00, 0xAA, // pixel 0
+      0x55, 0x33, 0xCC  // pixel 1
   };
   Npp8u constants[3] = {0x0F, 0xF0, 0x55};
   std::vector<Npp8u> expected = {
-    0xFF ^ 0x0F, 0x00 ^ 0xF0, 0xAA ^ 0x55,  // pixel 0
-    0x55 ^ 0x0F, 0x33 ^ 0xF0, 0xCC ^ 0x55   // pixel 1
+      0xFF ^ 0x0F, 0x00 ^ 0xF0, 0xAA ^ 0x55, // pixel 0
+      0x55 ^ 0x0F, 0x33 ^ 0xF0, 0xCC ^ 0x55  // pixel 1
   };
 
   // Allocate GPU memory
@@ -71,13 +71,13 @@ TEST_F(NppiXorCTest, XorC_8u_C3R_Ctx_WithStreamContext) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp8u> hostSrc = {
-    0xFF, 0x00, 0xAA,  // pixel 0
-    0x55, 0x33, 0xCC   // pixel 1
+      0xFF, 0x00, 0xAA, // pixel 0
+      0x55, 0x33, 0xCC  // pixel 1
   };
   Npp8u constants[3] = {0x0F, 0xF0, 0x55};
   std::vector<Npp8u> expected = {
-    0xFF ^ 0x0F, 0x00 ^ 0xF0, 0xAA ^ 0x55,  // pixel 0
-    0x55 ^ 0x0F, 0x33 ^ 0xF0, 0xCC ^ 0x55   // pixel 1
+      0xFF ^ 0x0F, 0x00 ^ 0xF0, 0xAA ^ 0x55, // pixel 0
+      0x55 ^ 0x0F, 0x33 ^ 0xF0, 0xCC ^ 0x55  // pixel 1
   };
 
   // Allocate GPU memory
@@ -122,13 +122,13 @@ TEST_F(NppiXorCTest, XorC_16u_C3R_16BitData) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp16u> hostSrc = {
-    0xFFFF, 0x0000, 0xAAAA,  // pixel 0
-    0x5555, 0x3333, 0xCCCC   // pixel 1
+      0xFFFF, 0x0000, 0xAAAA, // pixel 0
+      0x5555, 0x3333, 0xCCCC  // pixel 1
   };
   Npp16u constants[3] = {0x0F0F, 0xF0F0, 0x5555};
   std::vector<Npp16u> expected = {
-    0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555,  // pixel 0
-    0x5555 ^ 0x0F0F, 0x3333 ^ 0xF0F0, 0xCCCC ^ 0x5555   // pixel 1
+      0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555, // pixel 0
+      0x5555 ^ 0x0F0F, 0x3333 ^ 0xF0F0, 0xCCCC ^ 0x5555  // pixel 1
   };
 
   // Allocate GPU memory
@@ -169,13 +169,13 @@ TEST_F(NppiXorCTest, XorC_16u_C3R_Ctx_WithStreamContext) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp16u> hostSrc = {
-    0xFFFF, 0x0000, 0xAAAA,  // pixel 0
-    0x5555, 0x3333, 0xCCCC   // pixel 1
+      0xFFFF, 0x0000, 0xAAAA, // pixel 0
+      0x5555, 0x3333, 0xCCCC  // pixel 1
   };
   Npp16u constants[3] = {0x0F0F, 0xF0F0, 0x5555};
   std::vector<Npp16u> expected = {
-    0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555,  // pixel 0
-    0x5555 ^ 0x0F0F, 0x3333 ^ 0xF0F0, 0xCCCC ^ 0x5555   // pixel 1
+      0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555, // pixel 0
+      0x5555 ^ 0x0F0F, 0x3333 ^ 0xF0F0, 0xCCCC ^ 0x5555  // pixel 1
   };
 
   // Allocate GPU memory
@@ -220,13 +220,13 @@ TEST_F(NppiXorCTest, XorC_16u_C4R_FourChannel) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp16u> hostSrc = {
-    0xFFFF, 0x0000, 0xAAAA, 0x5555,  // pixel 0
-    0x3333, 0xCCCC, 0x0F0F, 0xF0F0   // pixel 1
+      0xFFFF, 0x0000, 0xAAAA, 0x5555, // pixel 0
+      0x3333, 0xCCCC, 0x0F0F, 0xF0F0  // pixel 1
   };
   Npp16u constants[4] = {0x0F0F, 0xF0F0, 0x5555, 0xAAAA};
   std::vector<Npp16u> expected = {
-    0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555, 0x5555 ^ 0xAAAA,  // pixel 0
-    0x3333 ^ 0x0F0F, 0xCCCC ^ 0xF0F0, 0x0F0F ^ 0x5555, 0xF0F0 ^ 0xAAAA   // pixel 1
+      0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555, 0x5555 ^ 0xAAAA, // pixel 0
+      0x3333 ^ 0x0F0F, 0xCCCC ^ 0xF0F0, 0x0F0F ^ 0x5555, 0xF0F0 ^ 0xAAAA  // pixel 1
   };
 
   // Allocate GPU memory
@@ -267,13 +267,13 @@ TEST_F(NppiXorCTest, XorC_16u_C4R_Ctx_WithStreamContext) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp16u> hostSrc = {
-    0xFFFF, 0x0000, 0xAAAA, 0x5555,  // pixel 0
-    0x3333, 0xCCCC, 0x0F0F, 0xF0F0   // pixel 1
+      0xFFFF, 0x0000, 0xAAAA, 0x5555, // pixel 0
+      0x3333, 0xCCCC, 0x0F0F, 0xF0F0  // pixel 1
   };
   Npp16u constants[4] = {0x0F0F, 0xF0F0, 0x5555, 0xAAAA};
   std::vector<Npp16u> expected = {
-    0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555, 0x5555 ^ 0xAAAA,  // pixel 0
-    0x3333 ^ 0x0F0F, 0xCCCC ^ 0xF0F0, 0x0F0F ^ 0x5555, 0xF0F0 ^ 0xAAAA   // pixel 1
+      0xFFFF ^ 0x0F0F, 0x0000 ^ 0xF0F0, 0xAAAA ^ 0x5555, 0x5555 ^ 0xAAAA, // pixel 0
+      0x3333 ^ 0x0F0F, 0xCCCC ^ 0xF0F0, 0x0F0F ^ 0x5555, 0xF0F0 ^ 0xAAAA  // pixel 1
   };
 
   // Allocate GPU memory
@@ -318,13 +318,13 @@ TEST_F(NppiXorCTest, XorC_32s_C3R_32BitData) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp32s> hostSrc = {
-    (Npp32s)0xFFFFFFFF, 0x00000000, (Npp32s)0xAAAAAAAA,  // pixel 0
-    0x55555555,         0x33333333, (Npp32s)0xCCCCCCCC   // pixel 1
+      (Npp32s)0xFFFFFFFF, 0x00000000, (Npp32s)0xAAAAAAAA, // pixel 0
+      0x55555555,         0x33333333, (Npp32s)0xCCCCCCCC  // pixel 1
   };
   Npp32s constants[3] = {0x0F0F0F0F, (Npp32s)0xF0F0F0F0, 0x55555555};
   std::vector<Npp32s> expected = {
-    (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xAAAAAAAA ^ 0x55555555,  // pixel 0
-    0x55555555 ^ 0x0F0F0F0F,         0x33333333 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xCCCCCCCC ^ 0x55555555   // pixel 1
+      (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xAAAAAAAA ^ 0x55555555, // pixel 0
+      0x55555555 ^ 0x0F0F0F0F,         0x33333333 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xCCCCCCCC ^ 0x55555555  // pixel 1
   };
 
   // Allocate GPU memory
@@ -365,13 +365,13 @@ TEST_F(NppiXorCTest, XorC_32s_C3R_Ctx_WithStreamContext) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp32s> hostSrc = {
-    (Npp32s)0xFFFFFFFF, 0x00000000, (Npp32s)0xAAAAAAAA,  // pixel 0
-    0x55555555,         0x33333333, (Npp32s)0xCCCCCCCC   // pixel 1
+      (Npp32s)0xFFFFFFFF, 0x00000000, (Npp32s)0xAAAAAAAA, // pixel 0
+      0x55555555,         0x33333333, (Npp32s)0xCCCCCCCC  // pixel 1
   };
   Npp32s constants[3] = {0x0F0F0F0F, (Npp32s)0xF0F0F0F0, 0x55555555};
   std::vector<Npp32s> expected = {
-    (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xAAAAAAAA ^ 0x55555555,  // pixel 0
-    0x55555555 ^ 0x0F0F0F0F,         0x33333333 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xCCCCCCCC ^ 0x55555555   // pixel 1
+      (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xAAAAAAAA ^ 0x55555555, // pixel 0
+      0x55555555 ^ 0x0F0F0F0F,         0x33333333 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xCCCCCCCC ^ 0x55555555  // pixel 1
   };
 
   // Allocate GPU memory
@@ -416,13 +416,15 @@ TEST_F(NppiXorCTest, XorC_32s_C4R_FourChannel32Bit) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp32s> hostSrc = {
-    (Npp32s)0xFFFFFFFF, 0x00000000, (Npp32s)0xAAAAAAAA, 0x55555555,  // pixel 0
-    0x33333333,         (Npp32s)0xCCCCCCCC, 0x0F0F0F0F, (Npp32s)0xF0F0F0F0  // pixel 1
+      (Npp32s)0xFFFFFFFF, 0x00000000,         (Npp32s)0xAAAAAAAA, 0x55555555,        // pixel 0
+      0x33333333,         (Npp32s)0xCCCCCCCC, 0x0F0F0F0F,         (Npp32s)0xF0F0F0F0 // pixel 1
   };
   Npp32s constants[4] = {0x0F0F0F0F, (Npp32s)0xF0F0F0F0, 0x55555555, (Npp32s)0xAAAAAAAA};
   std::vector<Npp32s> expected = {
-    (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xAAAAAAAA ^ 0x55555555, 0x55555555 ^ (Npp32s)0xAAAAAAAA,  // pixel 0
-    0x33333333 ^ 0x0F0F0F0F,         (Npp32s)0xCCCCCCCC ^ (Npp32s)0xF0F0F0F0, 0x0F0F0F0F ^ 0x55555555, (Npp32s)0xF0F0F0F0 ^ (Npp32s)0xAAAAAAAA  // pixel 1
+      (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0,
+      (Npp32s)0xAAAAAAAA ^ 0x55555555, 0x55555555 ^ (Npp32s)0xAAAAAAAA, // pixel 0
+      0x33333333 ^ 0x0F0F0F0F,         (Npp32s)0xCCCCCCCC ^ (Npp32s)0xF0F0F0F0,
+      0x0F0F0F0F ^ 0x55555555,         (Npp32s)0xF0F0F0F0 ^ (Npp32s)0xAAAAAAAA // pixel 1
   };
 
   // Allocate GPU memory
@@ -463,13 +465,15 @@ TEST_F(NppiXorCTest, XorC_32s_C4R_Ctx_WithStreamContext) {
   const int totalElements = width * height * channels;
 
   std::vector<Npp32s> hostSrc = {
-    (Npp32s)0xFFFFFFFF, 0x00000000, (Npp32s)0xAAAAAAAA, 0x55555555,  // pixel 0
-    0x33333333,         (Npp32s)0xCCCCCCCC, 0x0F0F0F0F, (Npp32s)0xF0F0F0F0  // pixel 1
+      (Npp32s)0xFFFFFFFF, 0x00000000,         (Npp32s)0xAAAAAAAA, 0x55555555,        // pixel 0
+      0x33333333,         (Npp32s)0xCCCCCCCC, 0x0F0F0F0F,         (Npp32s)0xF0F0F0F0 // pixel 1
   };
   Npp32s constants[4] = {0x0F0F0F0F, (Npp32s)0xF0F0F0F0, 0x55555555, (Npp32s)0xAAAAAAAA};
   std::vector<Npp32s> expected = {
-    (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0, (Npp32s)0xAAAAAAAA ^ 0x55555555, 0x55555555 ^ (Npp32s)0xAAAAAAAA,  // pixel 0
-    0x33333333 ^ 0x0F0F0F0F,         (Npp32s)0xCCCCCCCC ^ (Npp32s)0xF0F0F0F0, 0x0F0F0F0F ^ 0x55555555, (Npp32s)0xF0F0F0F0 ^ (Npp32s)0xAAAAAAAA  // pixel 1
+      (Npp32s)0xFFFFFFFF ^ 0x0F0F0F0F, 0x00000000 ^ (Npp32s)0xF0F0F0F0,
+      (Npp32s)0xAAAAAAAA ^ 0x55555555, 0x55555555 ^ (Npp32s)0xAAAAAAAA, // pixel 0
+      0x33333333 ^ 0x0F0F0F0F,         (Npp32s)0xCCCCCCCC ^ (Npp32s)0xF0F0F0F0,
+      0x0F0F0F0F ^ 0x55555555,         (Npp32s)0xF0F0F0F0 ^ (Npp32s)0xAAAAAAAA // pixel 1
   };
 
   // Allocate GPU memory

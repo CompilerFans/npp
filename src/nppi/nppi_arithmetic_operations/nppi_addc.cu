@@ -1,464 +1,766 @@
-#include "npp.h"
-#include <cstdio>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+// Add constant operation using template-based API
+#include "nppi_arithmetic_api.h"
 
-/**
- * CUDA kernels for NPP Image Add Constant operations
- */
+using namespace nppi::arithmetic;
 
-/**
- * CUDA kernel for adding constant to 8-bit unsigned 1-channel image
- */
-__global__ void addC_8u_C1RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant,
-                                      Npp8u *__restrict__ pDst, int nDstStep, int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+template <typename T, int C> using AddC = ConstOpAPI<T, C, AddConstOp>;
+template <typename T, int C> using AddCMulti = MultiConstOpAPI<T, C, AddConstOp>;
+template <typename T> using AddCMultiAC4 = MultiConstOpAC4API<T, AddConstOp>;
 
-  if (x >= width || y >= height)
-    return;
+// ============================================================================
+// 8u variants
+// ============================================================================
 
-  // Calculate memory addresses
-  const Npp8u *srcPixel = pSrc + y * nSrcStep + x;
-  Npp8u *dstPixel = pDst + y * nDstStep + x;
-
-  // Load source pixel
-  Npp8u srcValue = *srcPixel;
-
-  // Add constant and scale - NVIDIA NPP uses round-to-nearest-even for 8u
-  int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
-  if (nScaleFactor > 0) {
-    // Standard rounding: add 0.5 equivalent before right shift
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-
-  // Clamp to 8-bit range
-  result = max(0, min(255, result));
-
-  // Store result
-  *dstPixel = static_cast<Npp8u>(result);
+NppStatus nppiAddC_8u_C1RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                                 NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp8u, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * CUDA kernel for adding constants to 8-bit unsigned 3-channel image
- */
-__global__ void addC_8u_C3RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
-                                      Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
-                                      int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  // Calculate memory addresses for 3-channel data
-  const Npp8u *srcPixel = pSrc + y * nSrcStep + x * 3;
-  Npp8u *dstPixel = pDst + y * nDstStep + x * 3;
-
-  // Process each channel
-  int result;
-
-  // Channel 0
-  result = static_cast<int>(srcPixel[0]) + static_cast<int>(nConstant0);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[0] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  // Channel 1
-  result = static_cast<int>(srcPixel[1]) + static_cast<int>(nConstant1);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[1] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  // Channel 2
-  result = static_cast<int>(srcPixel[2]) + static_cast<int>(nConstant2);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
+NppStatus nppiAddC_8u_C1RSfs(const Npp8u *pSrc, int nSrcStep, Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_8u_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                getDefaultStreamContext());
 }
 
-/**
- * CUDA kernel for adding constants to 8-bit unsigned 4-channel image with alpha
- */
-__global__ void addC_8u_C4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
-                                      Npp8u nConstant2, Npp8u nConstant3, Npp8u *__restrict__ pDst, int nDstStep,
-                                      int width, int height, int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  // Calculate memory addresses for 4-channel data
-  const Npp8u *srcPixel = pSrc + y * nSrcStep + x * 4;
-  Npp8u *dstPixel = pDst + y * nDstStep + x * 4;
-
-  // Process each channel
-  int result;
-
-  // Channels 0-3
-  result = static_cast<int>(srcPixel[0]) + static_cast<int>(nConstant0);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[0] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  result = static_cast<int>(srcPixel[1]) + static_cast<int>(nConstant1);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[1] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  result = static_cast<int>(srcPixel[2]) + static_cast<int>(nConstant2);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  result = static_cast<int>(srcPixel[3]) + static_cast<int>(nConstant3);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[3] = static_cast<Npp8u>(max(0, min(255, result)));
+NppStatus nppiAddC_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddC<Npp8u, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * CUDA kernel for adding constants to 8-bit unsigned 4-channel image (AC4 - alpha unchanged)
- */
-__global__ void addC_8u_AC4RSfs_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u nConstant0, Npp8u nConstant1,
-                                       Npp8u nConstant2, Npp8u *__restrict__ pDst, int nDstStep, int width, int height,
-                                       int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  // Calculate memory addresses for 4-channel data
-  const Npp8u *srcPixel = pSrc + y * nSrcStep + x * 4;
-  Npp8u *dstPixel = pDst + y * nDstStep + x * 4;
-
-  // Process RGB channels only
-  int result;
-
-  // Channel 0 (R)
-  result = static_cast<int>(srcPixel[0]) + static_cast<int>(nConstant0);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[0] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  // Channel 1 (G)
-  result = static_cast<int>(srcPixel[1]) + static_cast<int>(nConstant1);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[1] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  // Channel 2 (B)
-  result = static_cast<int>(srcPixel[2]) + static_cast<int>(nConstant2);
-  if (nScaleFactor > 0) {
-    result += (1 << (nScaleFactor - 1));
-    result = result >> nScaleFactor;
-  }
-  dstPixel[2] = static_cast<Npp8u>(max(0, min(255, result)));
-
-  // Channel 3 (Alpha) - copy unchanged
-  dstPixel[3] = srcPixel[3];
+NppStatus nppiAddC_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u nConstant, Npp8u *pDst, int nDstStep,
+                          NppiSize oSizeROI) {
+  return nppiAddC_8u_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-/**
- * CUDA kernel for adding constant to 16-bit unsigned 1-channel image
- */
-__global__ void addC_16u_C1RSfs_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp16u nConstant,
-                                       Npp16u *__restrict__ pDst, int nDstStep, int width, int height,
-                                       int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  // Calculate memory addresses (16-bit addressing)
-  const Npp16u *srcPixel = (const Npp16u *)((const char *)pSrc + y * nSrcStep) + x;
-  Npp16u *dstPixel = (Npp16u *)((char *)pDst + y * nDstStep) + x;
-
-  // Load source pixel
-  Npp16u srcValue = *srcPixel;
-
-  // Add constant and scale with rounding
-  int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
-  if (nScaleFactor > 0) {
-    // Add rounding bias before right shift to match NVIDIA NPP behavior
-    result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
-  }
-
-  // Clamp to 16-bit unsigned range
-  result = max(0, min(65535, result));
-
-  // Store result
-  *dstPixel = static_cast<Npp16u>(result);
+NppStatus nppiAddC_8u_C1IRSfs_Ctx(Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, int nScaleFactor,
+                                  NppStreamContext nppStreamCtx) {
+  return AddC<Npp8u, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * CUDA kernel for adding constant to 16-bit signed 1-channel image
- */
-__global__ void addC_16s_C1RSfs_kernel(const Npp16s *__restrict__ pSrc, int nSrcStep, Npp16s nConstant,
-                                       Npp16s *__restrict__ pDst, int nDstStep, int width, int height,
-                                       int nScaleFactor) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  // Calculate memory addresses (16-bit addressing)
-  const Npp16s *srcPixel = (const Npp16s *)((const char *)pSrc + y * nSrcStep) + x;
-  Npp16s *dstPixel = (Npp16s *)((char *)pDst + y * nDstStep) + x;
-
-  // Load source pixel
-  Npp16s srcValue = *srcPixel;
-
-  // Add constant and scale with rounding
-  int result = static_cast<int>(srcValue) + static_cast<int>(nConstant);
-  if (nScaleFactor > 0) {
-    // Add rounding bias before right shift to match NVIDIA NPP behavior
-    result = (result + (1 << (nScaleFactor - 1))) >> nScaleFactor;
-  }
-
-  // Clamp to 16-bit signed range
-  result = max(-32768, min(32767, result));
-
-  // Store result
-  *dstPixel = static_cast<Npp16s>(result);
+NppStatus nppiAddC_8u_C1IRSfs(Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_8u_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
 }
 
-/**
- * CUDA kernel for adding constant to 32-bit float 1-channel image
- */
-__global__ void addC_32f_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp32f nConstant,
-                                    Npp32f *__restrict__ pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  // Calculate memory addresses (32-bit addressing)
-  const Npp32f *srcPixel = (const Npp32f *)((const char *)pSrc + y * nSrcStep) + x;
-  Npp32f *dstPixel = (Npp32f *)((char *)pDst + y * nDstStep) + x;
-
-  // Load source pixel
-  Npp32f srcValue = *srcPixel;
-
-  // Add constant (no scaling for float)
-  Npp32f result = srcValue + nConstant;
-
-  // Store result
-  *dstPixel = result;
+NppStatus nppiAddC_8u_C1IR_Ctx(Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               NppStreamContext nppStreamCtx) {
+  return AddC<Npp8u, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
 }
 
-extern "C" {
-
-/**
- * CUDA implementation of nppiAddC_8u_C1RSfs_Ctx
- */
-NppStatus nppiAddC_8u_C1RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u nConstant, Npp8u *pDst,
-                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                      NppStreamContext nppStreamCtx) {
-  // Early return for zero-size ROI to avoid invalid kernel configurations
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_NO_ERROR;
-  }
-
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Ensure CUDA context is active before kernel launch
-  cudaError_t ctxErr = cudaSetDevice(nppStreamCtx.nCudaDeviceId);
-  if (ctxErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  // For null stream, directly use nullptr which is valid for default stream
-  cudaStream_t stream = nppStreamCtx.hStream;
-
-  // Validate grid configuration before kernel launch
-  if (gridSize.x == 0 || gridSize.y == 0 || blockSize.x == 0 || blockSize.y == 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Launch kernel - nullptr is valid for default stream in CUDA
-  addC_8u_C1RSfs_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width,
-                                                            oSizeROI.height, nScaleFactor);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  // Synchronize to catch runtime errors
-  cudaErr = cudaStreamSynchronize(stream);
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C1IR(Npp8u nConstant, Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_8u_C1IR_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-/**
- * CUDA implementation of nppiAddC_8u_C3RSfs_Ctx
- */
-NppStatus nppiAddC_8u_C3RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
-                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                      NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Launch kernel with the specified CUDA stream
-  addC_8u_C3RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      nScaleFactor);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C3RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                                 NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * CUDA implementation of nppiAddC_8u_C4RSfs_Ctx
- */
-NppStatus nppiAddC_8u_C4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[4], Npp8u *pDst,
-                                      int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                      NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Launch kernel with the specified CUDA stream
-  addC_8u_C4RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, aConstants[0], aConstants[1], aConstants[2], aConstants[3], pDst, nDstStep, oSizeROI.width,
-      oSizeROI.height, nScaleFactor);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C3RSfs(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_8u_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                getDefaultStreamContext());
 }
 
-/**
- * CUDA implementation of nppiAddC_8u_AC4RSfs_Ctx
- */
-NppStatus nppiAddC_8u_AC4RSfs_Ctx_impl(const Npp8u *pSrc1, int nSrc1Step, const Npp8u aConstants[3], Npp8u *pDst,
-                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                       NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Launch kernel with the specified CUDA stream
-  addC_8u_AC4RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, aConstants[0], aConstants[1], aConstants[2], pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      nScaleFactor);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-/**
- * CUDA implementation of nppiAddC_16u_C1RSfs_Ctx
- */
-NppStatus nppiAddC_16u_C1RSfs_Ctx_impl(const Npp16u *pSrc1, int nSrc1Step, const Npp16u nConstant, Npp16u *pDst,
-                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                       NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Launch kernel with the specified CUDA stream
-  addC_16u_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C3R(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                          NppiSize oSizeROI) {
+  return nppiAddC_8u_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
 }
 
-/**
- * CUDA implementation of nppiAddC_16s_C1RSfs_Ctx
- */
-NppStatus nppiAddC_16s_C1RSfs_Ctx_impl(const Npp16s *pSrc1, int nSrc1Step, const Npp16s nConstant, Npp16s *pDst,
-                                       int nDstStep, NppiSize oSizeROI, int nScaleFactor,
-                                       NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Launch kernel with the specified CUDA stream
-  addC_16s_C1RSfs_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc1, nSrc1Step, nConstant, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nScaleFactor);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C3IRSfs_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
 }
 
-/**
- * CUDA implementation of nppiAddC_32f_C1R_Ctx
- */
-NppStatus nppiAddC_32f_C1R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const Npp32f nConstant, Npp32f *pDst,
-                                    int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  // Set up CUDA grid and block dimensions
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  // Launch kernel with the specified CUDA stream
-  addC_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc1, nSrc1Step, nConstant, pDst, nDstStep,
-                                                                        oSizeROI.width, oSizeROI.height);
-
-  // Check for kernel launch errors
-  cudaError_t cudaErr = cudaGetLastError();
-  if (cudaErr != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_NO_ERROR;
+NppStatus nppiAddC_8u_C3IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                              int nScaleFactor) {
+  return nppiAddC_8u_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
 }
 
-} // extern "C"
+NppStatus nppiAddC_8u_C3IR_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_C3IR(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_8u_C3IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_AC4RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp8u>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_AC4RSfs(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_8u_AC4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp8u>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_AC4R(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[3], Npp8u *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_8u_AC4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_AC4IRSfs_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp8u>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_AC4IRSfs(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_8u_AC4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_AC4IR_Ctx(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp8u>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_AC4IR(const Npp8u aConstants[3], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_8u_AC4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_C4RSfs_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[4], Npp8u *pDst, int nDstStep,
+                                 NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_C4RSfs(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[4], Npp8u *pDst, int nDstStep,
+                             NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_8u_C4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[4], Npp8u *pDst, int nDstStep,
+                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_C4R(const Npp8u *pSrc, int nSrcStep, const Npp8u aConstants[4], Npp8u *pDst, int nDstStep,
+                          NppiSize oSizeROI) {
+  return nppiAddC_8u_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_C4IRSfs_Ctx(const Npp8u aConstants[4], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_C4IRSfs(const Npp8u aConstants[4], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                              int nScaleFactor) {
+  return nppiAddC_8u_C4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_8u_C4IR_Ctx(const Npp8u aConstants[4], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp8u, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_8u_C4IR(const Npp8u aConstants[4], Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_8u_C4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+// ============================================================================
+// 16u variants
+// ============================================================================
+
+NppStatus nppiAddC_16u_C1RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u nConstant, Npp16u *pDst, int nDstStep,
+                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp16u, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_C1RSfs(const Npp16u *pSrc, int nSrcStep, Npp16u nConstant, Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16u_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_C1IRSfs_Ctx(Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp16u, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_C1IRSfs(Npp16u nConstant, Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_16u_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_C3RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16u, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_C3RSfs(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16u_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_C3IRSfs_Ctx(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16u, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_C3IRSfs(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_16u_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_AC4RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst,
+                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp16u>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_AC4RSfs(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[3], Npp16u *pDst, int nDstStep,
+                               NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16u_AC4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                  getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_AC4IRSfs_Ctx(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp16u>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_AC4IRSfs(const Npp16u aConstants[3], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                int nScaleFactor) {
+  return nppiAddC_16u_AC4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_C4RSfs_Ctx(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16u, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_C4RSfs(const Npp16u *pSrc, int nSrcStep, const Npp16u aConstants[4], Npp16u *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16u_C4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16u_C4IRSfs_Ctx(const Npp16u aConstants[4], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16u, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16u_C4IRSfs(const Npp16u aConstants[4], Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_16u_C4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+// ============================================================================
+// 16s variants
+// ============================================================================
+
+NppStatus nppiAddC_16s_C1RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s nConstant, Npp16s *pDst, int nDstStep,
+                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp16s, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_C1RSfs(const Npp16s *pSrc, int nSrcStep, Npp16s nConstant, Npp16s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16s_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_C1IRSfs_Ctx(Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp16s, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_C1IRSfs(Npp16s nConstant, Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_16s_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_C3RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[3], Npp16s *pDst,
+                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16s, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_C3RSfs(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[3], Npp16s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16s_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_C3IRSfs_Ctx(const Npp16s aConstants[3], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16s, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_C3IRSfs(const Npp16s aConstants[3], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_16s_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_AC4RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[3], Npp16s *pDst,
+                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp16s>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_AC4RSfs(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[3], Npp16s *pDst, int nDstStep,
+                               NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16s_AC4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                  getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_AC4IRSfs_Ctx(const Npp16s aConstants[3], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp16s>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_AC4IRSfs(const Npp16s aConstants[3], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                int nScaleFactor) {
+  return nppiAddC_16s_AC4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_C4RSfs_Ctx(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[4], Npp16s *pDst,
+                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16s, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_C4RSfs(const Npp16s *pSrc, int nSrcStep, const Npp16s aConstants[4], Npp16s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16s_C4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16s_C4IRSfs_Ctx(const Npp16s aConstants[4], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16s, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16s_C4IRSfs(const Npp16s aConstants[4], Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_16s_C4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+// ============================================================================
+// 32f variants (no scale factor)
+// ============================================================================
+
+NppStatus nppiAddC_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f nConstant, Npp32f *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32f, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f nConstant, Npp32f *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_32f_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_C1IR_Ctx(Npp32f nConstant, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return AddC<Npp32f, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_C1IR(Npp32f nConstant, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32f_C1IR_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp32f *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32f, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_C3R(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp32f *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_32f_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_C3IR_Ctx(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32f, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_C3IR(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32f_C3IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp32f *pDst,
+                                int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp32f>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_AC4R(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp32f *pDst, int nDstStep,
+                            NppiSize oSizeROI) {
+  return nppiAddC_32f_AC4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_AC4IR_Ctx(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp32f>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_AC4IR(const Npp32f aConstants[3], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32f_AC4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[4], Npp32f *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32f, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_C4R(const Npp32f *pSrc, int nSrcStep, const Npp32f aConstants[4], Npp32f *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_32f_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32f_C4IR_Ctx(const Npp32f aConstants[4], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32f, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32f_C4IR(const Npp32f aConstants[4], Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32f_C4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+// ============================================================================
+// 32s variants (with scale factor)
+// ============================================================================
+
+NppStatus nppiAddC_32s_C1RSfs_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s nConstant, Npp32s *pDst, int nDstStep,
+                                  NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32s, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C1RSfs(const Npp32s *pSrc, int nSrcStep, Npp32s nConstant, Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32s_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32s_C1IRSfs_Ctx(Npp32s nConstant, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32s, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C1IRSfs(Npp32s nConstant, Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_32s_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32s_C3RSfs_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst,
+                                  int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32s, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C3RSfs(const Npp32s *pSrc, int nSrcStep, const Npp32s aConstants[3], Npp32s *pDst, int nDstStep,
+                              NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32s_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                 getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32s_C3IRSfs_Ctx(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                   int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32s, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32s_C3IRSfs(const Npp32s aConstants[3], Npp32s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                               int nScaleFactor) {
+  return nppiAddC_32s_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+// ============================================================================
+// 16sc variants (16-bit signed complex)
+// ============================================================================
+
+NppStatus nppiAddC_16sc_C1RSfs_Ctx(const Npp16sc *pSrc, int nSrcStep, Npp16sc nConstant, Npp16sc *pDst, int nDstStep,
+                                   NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp16sc, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16sc_C1RSfs(const Npp16sc *pSrc, int nSrcStep, Npp16sc nConstant, Npp16sc *pDst, int nDstStep,
+                               NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16sc_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                  getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16sc_C1IRSfs_Ctx(Npp16sc nConstant, Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp16sc, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16sc_C1IRSfs(Npp16sc nConstant, Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                int nScaleFactor) {
+  return nppiAddC_16sc_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16sc_C3RSfs_Ctx(const Npp16sc *pSrc, int nSrcStep, const Npp16sc aConstants[3], Npp16sc *pDst,
+                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16sc, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                        nppStreamCtx);
+}
+
+NppStatus nppiAddC_16sc_C3RSfs(const Npp16sc *pSrc, int nSrcStep, const Npp16sc aConstants[3], Npp16sc *pDst,
+                               int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16sc_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                  getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16sc_C3IRSfs_Ctx(const Npp16sc aConstants[3], Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp16sc, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16sc_C3IRSfs(const Npp16sc aConstants[3], Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                int nScaleFactor) {
+  return nppiAddC_16sc_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16sc_AC4RSfs_Ctx(const Npp16sc *pSrc, int nSrcStep, const Npp16sc aConstants[3], Npp16sc *pDst,
+                                    int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp16sc>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                        nppStreamCtx);
+}
+
+NppStatus nppiAddC_16sc_AC4RSfs(const Npp16sc *pSrc, int nSrcStep, const Npp16sc aConstants[3], Npp16sc *pDst,
+                                int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_16sc_AC4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                   getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16sc_AC4IRSfs_Ctx(const Npp16sc aConstants[3], Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                     int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp16sc>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16sc_AC4IRSfs(const Npp16sc aConstants[3], Npp16sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                 int nScaleFactor) {
+  return nppiAddC_16sc_AC4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor,
+                                    getDefaultStreamContext());
+}
+
+// ============================================================================
+// 32sc variants (32-bit signed complex)
+// ============================================================================
+
+NppStatus nppiAddC_32sc_C1RSfs_Ctx(const Npp32sc *pSrc, int nSrcStep, Npp32sc nConstant, Npp32sc *pDst, int nDstStep,
+                                   NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32sc, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32sc_C1RSfs(const Npp32sc *pSrc, int nSrcStep, Npp32sc nConstant, Npp32sc *pDst, int nDstStep,
+                               NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32sc_C1RSfs_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                  getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32sc_C1IRSfs_Ctx(Npp32sc nConstant, Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32sc, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32sc_C1IRSfs(Npp32sc nConstant, Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                int nScaleFactor) {
+  return nppiAddC_32sc_C1IRSfs_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32sc_C3RSfs_Ctx(const Npp32sc *pSrc, int nSrcStep, const Npp32sc aConstants[3], Npp32sc *pDst,
+                                   int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32sc, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                        nppStreamCtx);
+}
+
+NppStatus nppiAddC_32sc_C3RSfs(const Npp32sc *pSrc, int nSrcStep, const Npp32sc aConstants[3], Npp32sc *pDst,
+                               int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32sc_C3RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                  getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32sc_C3IRSfs_Ctx(const Npp32sc aConstants[3], Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                    int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32sc, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32sc_C3IRSfs(const Npp32sc aConstants[3], Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                int nScaleFactor) {
+  return nppiAddC_32sc_C3IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32sc_AC4RSfs_Ctx(const Npp32sc *pSrc, int nSrcStep, const Npp32sc aConstants[3], Npp32sc *pDst,
+                                    int nDstStep, NppiSize oSizeROI, int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp32sc>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                        nppStreamCtx);
+}
+
+NppStatus nppiAddC_32sc_AC4RSfs(const Npp32sc *pSrc, int nSrcStep, const Npp32sc aConstants[3], Npp32sc *pDst,
+                                int nDstStep, NppiSize oSizeROI, int nScaleFactor) {
+  return nppiAddC_32sc_AC4RSfs_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nScaleFactor,
+                                   getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32sc_AC4IRSfs_Ctx(const Npp32sc aConstants[3], Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                     int nScaleFactor, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp32sc>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32sc_AC4IRSfs(const Npp32sc aConstants[3], Npp32sc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                 int nScaleFactor) {
+  return nppiAddC_32sc_AC4IRSfs_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nScaleFactor,
+                                    getDefaultStreamContext());
+}
+
+// ============================================================================
+// 32fc variants (32-bit float complex, no scale factor)
+// ============================================================================
+
+NppStatus nppiAddC_32fc_C1R_Ctx(const Npp32fc *pSrc, int nSrcStep, Npp32fc nConstant, Npp32fc *pDst, int nDstStep,
+                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddC<Npp32fc, 1>::execute(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_C1R(const Npp32fc *pSrc, int nSrcStep, Npp32fc nConstant, Npp32fc *pDst, int nDstStep,
+                            NppiSize oSizeROI) {
+  return nppiAddC_32fc_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_C1IR_Ctx(Npp32fc nConstant, Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return AddC<Npp32fc, 1>::executeInplace(nConstant, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_C1IR(Npp32fc nConstant, Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32fc_C1IR_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_C3R_Ctx(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst,
+                                int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32fc, 3>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_C3R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst, int nDstStep,
+                            NppiSize oSizeROI) {
+  return nppiAddC_32fc_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_C3IR_Ctx(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32fc, 3>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_C3IR(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32fc_C3IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_AC4R_Ctx(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst,
+                                 int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp32fc>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_AC4R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[3], Npp32fc *pDst,
+                             int nDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32fc_AC4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_AC4IR_Ctx(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+  return AddCMultiAC4<Npp32fc>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_AC4IR(const Npp32fc aConstants[3], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32fc_AC4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_C4R_Ctx(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[4], Npp32fc *pDst,
+                                int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32fc, 4>::execute(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_C4R(const Npp32fc *pSrc, int nSrcStep, const Npp32fc aConstants[4], Npp32fc *pDst, int nDstStep,
+                            NppiSize oSizeROI) {
+  return nppiAddC_32fc_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_32fc_C4IR_Ctx(const Npp32fc aConstants[4], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return AddCMulti<Npp32fc, 4>::executeInplace(aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_32fc_C4IR(const Npp32fc aConstants[4], Npp32fc *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_32fc_C4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+// ============================================================================
+// 16f variants
+// Note: 16f constant operations use Npp32f as constant type
+// ============================================================================
+
+NppStatus nppiAddC_16f_C1R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp32f nConstant, Npp16f *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  AddConst16fOp op(nConstant);
+  return ConstOperationExecutor<Npp16f, 1, AddConst16fOp>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 0,
+                                                                   nppStreamCtx.hStream, op);
+}
+
+NppStatus nppiAddC_16f_C1R(const Npp16f *pSrc, int nSrcStep, Npp32f nConstant, Npp16f *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_16f_C1R_Ctx(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16f_C1IR_Ctx(Npp32f nConstant, Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return nppiAddC_16f_C1R_Ctx(pSrcDst, nSrcDstStep, nConstant, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16f_C1IR(Npp32f nConstant, Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_16f_C1IR_Ctx(nConstant, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16f_C3R_Ctx(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp16f *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return MultiConst16fOperationExecutor<3, AddConst16fOp>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
+                                                                   nppStreamCtx.hStream, aConstants);
+}
+
+NppStatus nppiAddC_16f_C3R(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[3], Npp16f *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_16f_C3R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16f_C3IR_Ctx(const Npp32f aConstants[3], Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return nppiAddC_16f_C3R_Ctx(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16f_C3IR(const Npp32f aConstants[3], Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_16f_C3IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16f_C4R_Ctx(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[4], Npp16f *pDst, int nDstStep,
+                               NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return MultiConst16fOperationExecutor<4, AddConst16fOp>::execute(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
+                                                                   nppStreamCtx.hStream, aConstants);
+}
+
+NppStatus nppiAddC_16f_C4R(const Npp16f *pSrc, int nSrcStep, const Npp32f aConstants[4], Npp16f *pDst, int nDstStep,
+                           NppiSize oSizeROI) {
+  return nppiAddC_16f_C4R_Ctx(pSrc, nSrcStep, aConstants, pDst, nDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiAddC_16f_C4IR_Ctx(const Npp32f aConstants[4], Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return nppiAddC_16f_C4R_Ctx(pSrcDst, nSrcDstStep, aConstants, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiAddC_16f_C4IR(const Npp32f aConstants[4], Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiAddC_16f_C4IR_Ctx(aConstants, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}

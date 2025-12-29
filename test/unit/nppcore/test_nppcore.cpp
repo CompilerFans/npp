@@ -15,7 +15,7 @@ TEST_F(NppCoreFunctionalTest, GetLibraryVersion) {
   const NppLibraryVersion *version = nppGetLibVersion();
   ASSERT_NE(version, nullptr) << "Failed to get library version";
 
-  // 验证版本号合理性
+  // Validate版本号合理性
   EXPECT_GE(version->major, 1) << "Major version should be >= 1";
   EXPECT_GE(version->minor, 0) << "Minor version should be >= 0";
   EXPECT_GE(version->build, 0) << "Build number should be >= 0";
@@ -61,8 +61,8 @@ TEST_F(NppCoreFunctionalTest, StreamContext_DefaultContext) {
   NppStreamContext default_ctx;
   nppGetStreamContext(&default_ctx);
 
-  // 验证默认context的有效性
-  // 默认流通常是0 (nullptr)，这是合法的CUDA默认流
+  // Validate默认context的有效性
+  // Default stream通常是0 (nullptr)，这是合法的GPUDefault stream
   // EXPECT_NE(default_ctx.hStream, nullptr) << "Default stream should be valid";
   EXPECT_GE(default_ctx.nCudaDeviceId, 0) << "Device ID should be valid";
   EXPECT_GT(default_ctx.nMultiProcessorCount, 0) << "Should have positive number of SMs";
@@ -88,8 +88,8 @@ TEST_F(NppCoreFunctionalTest, StreamContext_CustomStream) {
   NppStatus status = nppSetStream(custom_stream);
   EXPECT_EQ(status, NPP_SUCCESS) << "Failed to set custom stream";
 
-  // 验证可以设置默认stream
-  status = nppSetStream(nullptr); // CUDA default stream
+  // Validate可以设置默认stream
+  status = nppSetStream(nullptr); // GPU default stream
   EXPECT_EQ(status, NPP_SUCCESS) << "Failed to set default stream";
 
   // 清理
@@ -100,7 +100,7 @@ TEST_F(NppCoreFunctionalTest, StreamContext_GetStream) {
   // 在简化实现中，nppGetStream应该返回一致的值
   cudaStream_t retrieved_stream = nppGetStream();
 
-  // 验证返回值的一致性
+  // Validate返回值的一致性
   cudaStream_t retrieved_stream2 = nppGetStream();
   EXPECT_EQ(retrieved_stream, retrieved_stream2) << "nppGetStream should return consistent values";
 }
@@ -168,12 +168,12 @@ TEST_F(NppCoreFunctionalTest, Memory_AllocationStep) {
   ASSERT_NE(ptr16u, nullptr);
   ASSERT_NE(ptr32f, nullptr);
 
-  // 验证step的合理性
+  // Validatestep的合理性
   EXPECT_GE(step8u, width * sizeof(Npp8u)) << "8u step too small";
   EXPECT_GE(step16u, width * sizeof(Npp16u)) << "16u step too small";
   EXPECT_GE(step32f, width * sizeof(Npp32f)) << "32f step too small";
 
-  // 验证对齐（通常step应该是某个值的倍数）
+  // Validate对齐（通常step应该是某个值的倍数）
   EXPECT_EQ(step8u % sizeof(Npp8u), 0) << "8u step not aligned";
   EXPECT_EQ(step16u % sizeof(Npp16u), 0) << "16u step not aligned";
   EXPECT_EQ(step32f % sizeof(Npp32f), 0) << "32f step not aligned";
@@ -210,7 +210,7 @@ TEST_F(NppCoreFunctionalTest, Memory_AllocationLimits) {
 // ==================== 计算能力测试 ====================
 
 TEST_F(NppCoreFunctionalTest, ComputeCapability_Detection) {
-  // 验证我们能正确检测到合适的计算能力
+  // Validate我们能正确检测到合适的计算能力
   EXPECT_TRUE(hasComputeCapability(3, 0)) << "Should support at least compute capability 3.0";
   EXPECT_TRUE(hasComputeCapability(3, 5)) << "Should support at least compute capability 3.5";
 
@@ -254,13 +254,13 @@ TEST_F(NppCoreFunctionalTest, Integration_CompleteWorkflow) {
                                  height, cudaMemcpyHostToDevice);
   EXPECT_EQ(err, cudaSuccess);
 
-  // 5. 读回数据验证
+  // 5. 读回数据Validate
   std::vector<Npp32f> result_data(width * height);
   err = cudaMemcpy2D(result_data.data(), width * sizeof(Npp32f), test_ptr, step, width * sizeof(Npp32f), height,
                      cudaMemcpyDeviceToHost);
   EXPECT_EQ(err, cudaSuccess);
 
-  // 验证数据一致性
+  // Validate数据一致性
   for (size_t i = 0; i < result_data.size(); i++) {
     EXPECT_FLOAT_EQ(result_data[i], 42.0f) << "Data mismatch at index " << i;
   }

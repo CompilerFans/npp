@@ -41,7 +41,7 @@ TEST_F(AddFunctionalTest, Add_8u_C1RSfs_BasicOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_8u_C1RSfs failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -79,7 +79,7 @@ TEST_F(AddFunctionalTest, Add_8u_C1RSfs_WithScaling) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_8u_C1RSfs with scaling failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -118,7 +118,7 @@ TEST_F(AddFunctionalTest, Add_8u_C1RSfs_SaturationHandling) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_8u_C1RSfs saturation test failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp8u> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -155,7 +155,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1R_BasicOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_32f_C1R failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -196,7 +196,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1R_RandomData) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_32f_C1R with random data failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   dst.copyToHost(resultData);
 
@@ -234,7 +234,7 @@ TEST_F(AddFunctionalTest, Add_32f_C1IR_InPlaceOperation) {
 
   ASSERT_EQ(status, NPP_NO_ERROR) << "nppiAdd_32f_C1IR failed";
 
-  // 验证结果
+  // Validate结果
   std::vector<Npp32f> resultData(width * height);
   srcDst.copyToHost(resultData);
 
@@ -293,7 +293,7 @@ TEST_F(AddFunctionalTest, Add_BoundaryConditions_LargeImage) {
 
   EXPECT_EQ(status, NPP_NO_ERROR) << "Large image addition should work";
 
-  // 仅检查一小部分结果以验证正确性
+  // 仅检查一小部分结果以Validate正确性
   std::vector<Npp32f> sample(100);
   cudaMemcpy2D(sample.data(), 10 * sizeof(Npp32f), dst.get(), dst.step(), 10 * sizeof(Npp32f), 10,
                cudaMemcpyDeviceToHost);
@@ -302,3 +302,5 @@ TEST_F(AddFunctionalTest, Add_BoundaryConditions_LargeImage) {
     EXPECT_FLOAT_EQ(sample[i], 3.0f) << "Large image sample check failed";
   }
 }
+
+// NOTE: Add_16f tests are now in test_nppi_arithmetic_16f.cpp using TEST_P
