@@ -2,6 +2,9 @@
 
 include(GNUInstallDirs)
 
+# Default all untagged installs to libs (CPack component install relies on this)
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME libs)
+
 # 设置默认安装前缀到build目录下的install子目录
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
@@ -10,7 +13,7 @@ endif()
 # 定义安装路径
 set(INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
-set(INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/mpp)
+set(INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/mcmpp)
 set(INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/MPP)
 set(INSTALL_SAMPLEDIR ${CMAKE_INSTALL_DOCDIR}/examples)
 
@@ -18,17 +21,19 @@ set(INSTALL_SAMPLEDIR ${CMAKE_INSTALL_DOCDIR}/examples)
 function(npp_install_headers)
     # 安装所有API头文件
     file(GLOB_RECURSE API_HEADERS "${CMAKE_SOURCE_DIR}/API/*.h")
-    
+
     foreach(header ${API_HEADERS})
         file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/API ${header})
         get_filename_component(header_dir ${rel_path} DIRECTORY)
-        
+
         if(header_dir)
             install(FILES ${header}
-                DESTINATION ${INSTALL_INCLUDEDIR}/${header_dir})
+                DESTINATION ${INSTALL_INCLUDEDIR}/${header_dir}
+                COMPONENT headers)
         else()
             install(FILES ${header}
-                DESTINATION ${INSTALL_INCLUDEDIR})
+                DESTINATION ${INSTALL_INCLUDEDIR}
+                COMPONENT headers)
         endif()
     endforeach()
 endfunction()
@@ -42,6 +47,7 @@ function(npp_install_library target)
         LIBRARY DESTINATION ${INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${INSTALL_LIBDIR}
         INCLUDES DESTINATION ${INSTALL_INCLUDEDIR}
+        COMPONENT libs
     )
 endfunction()
 
@@ -53,7 +59,7 @@ function(npp_install_cmake_config)
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY AnyNewerVersion
     )
-    
+
     # 生成配置文件
     configure_package_config_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MPPConfig.cmake.in"
@@ -61,19 +67,22 @@ function(npp_install_cmake_config)
         INSTALL_DESTINATION ${INSTALL_CMAKEDIR}
         PATH_VARS INSTALL_INCLUDEDIR INSTALL_LIBDIR
     )
-    
+
     # 安装导出文件
     install(EXPORT MPPTargets
         FILE MPPTargets.cmake
         NAMESPACE MPP::
         DESTINATION ${INSTALL_CMAKEDIR}
+	    # Set the dev COMPONENT to be distinguished from libs COMPONENT
+        COMPONENT dev
     )
-    
+
     # 安装配置文件
     install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/MPPConfig.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/MPPConfigVersion.cmake"
         DESTINATION ${INSTALL_CMAKEDIR}
+        COMPONENT dev
     )
 endfunction()
 
@@ -85,15 +94,15 @@ function(npp_install_docs_examples)
             DESTINATION ${CMAKE_INSTALL_DOCDIR}
         )
     endif()
-    
+
     # 安装examples源码
     if(EXISTS "${CMAKE_SOURCE_DIR}/examples")
         install(DIRECTORY "${CMAKE_SOURCE_DIR}/examples/"
             DESTINATION ${INSTALL_SAMPLEDIR}
-            FILES_MATCHING 
-                PATTERN "*.cpp" 
-                PATTERN "*.cu" 
-                PATTERN "*.h" 
+            FILES_MATCHING
+                PATTERN "*.cpp"
+                PATTERN "*.cu"
+                PATTERN "*.h"
                 PATTERN "CMakeLists.txt"
             PATTERN "build*" EXCLUDE
         )
@@ -115,30 +124,30 @@ endfunction()
 function(npp_configure_install)
     # 安装头文件
     npp_install_headers()
-    
+
     # 安装库文件 - 这会在src/CMakeLists.txt中调用
     # npp_install_library()
-    
+
     # 安装CMake配置
     npp_install_cmake_config()
-    
+
     # 安装文档和示例
     # npp_install_docs_examples()
-    
+
     # 安装示例可执行文件
     npp_install_samples()
-    
+
     # 生成卸载脚本
     if(NOT TARGET uninstall)
         configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
             "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
             IMMEDIATE @ONLY)
-        
+
         add_custom_target(uninstall
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
     endif()
-    
+
     # 添加install目标的打印信息
     message(STATUS "MPP will be installed to: ${CMAKE_INSTALL_PREFIX}")
     message(STATUS "  - Headers: ${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDEDIR}")

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
 
-# 包含模块化cmake配置
+# Include modular CMake configuration
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CommonConfig)
 include(CudaConfig)
@@ -9,23 +9,24 @@ include(FindSources)
 include(TestConfig)
 include(InstallConfig)
 
-# 需要的cmake模块
 include(CMakePackageConfigHelpers)
 
-# 配置CUDA环境
+
+# Configure CUDA
 npp_configure_cuda()
 
-# 构建src目录 - 核心库
+# build src folder --- core lib
 add_subdirectory(src)
 
-# 构建选项
+
+# Build options
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
 
-# 显示配置选项
+# Show selected options
 if(BUILD_SHARED_LIBS)
     message(STATUS "Building shared libraries (.so/.dll)")
 else()
@@ -47,5 +48,10 @@ if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-# 配置安装
+# Install configuration only for MPP build
 npp_configure_install()
+
+# Packaging configuration
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Cpack.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Cpack.cmake")
+endif()
