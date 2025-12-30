@@ -1,5 +1,5 @@
-#include "../../framework/npp_test_base.h"
 #include "npp.h"
+#include "npp_test_base.h"
 #include <algorithm>
 #include <cmath>
 #include <gtest/gtest.h>
