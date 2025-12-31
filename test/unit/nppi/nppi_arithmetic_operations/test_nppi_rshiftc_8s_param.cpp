@@ -18,7 +18,7 @@ struct RShiftCParam {
 static Npp8s *allocate8s(int width, int height, int channels, int &step) {
   size_t pitch;
   Npp8s *ptr;
-  cudaMallocPitch(&ptr, &pitch, width * channels * sizeof(Npp8s), height);
+  cudaMallocPitch(reinterpret_cast<void**>(&ptr), &pitch, width * channels * sizeof(Npp8s), height);
   step = static_cast<int>(pitch);
   return ptr;
 }
