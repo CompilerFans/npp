@@ -162,6 +162,41 @@ TEST_F(NppiLShiftCTest, LShiftC_8u_C3R_MultiChannel) {
   nppiFree(d_dst);
 }
 
+TEST_F(NppiLShiftCTest, LShiftC_8u_C3R_Shift8ProducesZero) {
+  const int width = 2;
+  const int height = 1;
+  const int channels = 3;
+  const int totalPixels = width * height * channels;
+
+  std::vector<Npp8u> hostSrc = {255, 128, 64, 32, 16, 8};
+  Npp32u shiftConstants[3] = {8, 8, 8};
+  std::vector<Npp8u> expected(totalPixels, 0);
+
+  int step;
+  Npp8u *d_src = nppiMalloc_8u_C3(width, height, &step);
+  Npp8u *d_dst = nppiMalloc_8u_C3(width, height, &step);
+
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  int hostStep = width * channels * sizeof(Npp8u);
+  cudaMemcpy2D(d_src, step, hostSrc.data(), hostStep, hostStep, height, cudaMemcpyHostToDevice);
+
+  NppiSize oSizeROI = {width, height};
+  NppStatus status = nppiLShiftC_8u_C3R(d_src, step, shiftConstants, d_dst, step, oSizeROI);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> hostResult(totalPixels);
+  cudaMemcpy2D(hostResult.data(), hostStep, d_dst, step, hostStep, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < totalPixels; ++i) {
+    EXPECT_EQ(hostResult[i], expected[i]) << "Mismatch at index " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
 TEST_F(NppiLShiftCTest, LShiftC_8u_C4R_FourChannels) {
   const int width = 2;
   const int height = 1;

@@ -49,7 +49,9 @@ inline NppStatus checkCudaKernelError() {
 
 // Validate shift constants based on type bit width
 template <typename T> inline NppStatus validateShiftConstants(const Npp32u *aConstants, int channels) {
-  constexpr Npp32u maxShift = sizeof(T) * 8 - 1;
+  // constexpr Npp32u maxShift = sizeof(T) * 8 - 1;
+  constexpr Npp32u typeBits = sizeof(T) * 8;
+  constexpr Npp32u maxShift = (typeBits >= 32) ? 31 : typeBits;
   for (int i = 0; i < channels; i++) {
     if (aConstants[i] > maxShift)
       return NPP_BAD_ARGUMENT_ERROR;
