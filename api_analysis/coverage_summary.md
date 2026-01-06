@@ -1,9 +1,9 @@
 # Coverage Summary
 
 - Total API Functions: 12456
-- Implemented: 2970 (23.8%)
-- Tested: 2545 (20.4%)
-- Implemented but not tested: 458
+- Implemented: 3018 (24.2%)
+- Tested: 2587 (20.8%)
+- Implemented but not tested: 464
 
 ## By Module
 
@@ -31,7 +31,7 @@
 - Total: 292, Impl: 24 (8.2%), Test: 20 (6.8%)
 
 **nppi_statistics_functions.h**
-- Total: 3244, Impl: 131 (4.0%), Test: 65 (2.0%)
+- Total: 3244, Impl: 179 (5.5%), Test: 107 (3.3%)
 
 **nppi_support_functions.h**
 - Total: 1, Impl: 0 (0.0%), Test: 1 (100.0%)
