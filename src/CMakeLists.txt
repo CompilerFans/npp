@@ -60,7 +60,7 @@ if(BUILD_SHARED_LIBS)
     # Set runtime path for dynamic library
     if(NOT WIN32)
         set_target_properties(npp PROPERTIES
-            INSTALL_RPATH "$ORIGIN"
+            INSTALL_RPATH "$ORIGIN:$ORIGIN/../../lib:$ORIGIN/../../lib64:$ORIGIN/../lib64:/opt/maca-${PACK_VERSION}/lib"
             INSTALL_RPATH_USE_LINK_PATH TRUE
         )
     endif()
@@ -107,7 +107,7 @@ foreach(stub_name ${MPP_STUB_LIBS})
     # Add shared library specific properties
     if(BUILD_SHARED_LIBS)
         set_target_properties(${stub_name} PROPERTIES
-            INSTALL_RPATH "$ORIGIN"
+            INSTALL_RPATH "$ORIGIN:$ORIGIN/../../lib:$ORIGIN/../../lib64:$ORIGIN/../lib64:/opt/maca-${PACK_VERSION}/lib"
             INSTALL_RPATH_USE_LINK_PATH TRUE
         )
     endif()
