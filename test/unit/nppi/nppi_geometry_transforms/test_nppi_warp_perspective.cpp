@@ -25,6 +25,104 @@ protected:
   NppiRect srcROI, dstROI;
 };
 
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C1R_ForwardMatrixTranslation) {
+  const int dx = 5;
+  const int dy = 4;
+  const int srcX = 2;
+  const int srcY = 3;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight, 0);
+  srcData[srcY * srcWidth + srcX] = 255;
+
+  double coeffs[3][3] = {{1.0, 0.0, (double)dx}, {0.0, 1.0, (double)dy}, {0.0, 0.0, 1.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpPerspective_8u_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  const int dstX = srcX + dx;
+  const int dstY = srcY + dy;
+  ASSERT_LT(dstX, dstWidth);
+  ASSERT_LT(dstY, dstHeight);
+
+  EXPECT_EQ(resultData[dstY * dstWidth + dstX], 255);
+  EXPECT_EQ(resultData[srcY * dstWidth + srcX], 0);
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C3R_ForwardMatrixTranslation) {
+  const int dx = 4;
+  const int dy = 6;
+  const int srcX = 1;
+  const int srcY = 2;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3, 0);
+  int srcIdx = (srcY * srcWidth + srcX) * 3;
+  srcData[srcIdx + 0] = 10;
+  srcData[srcIdx + 1] = 20;
+  srcData[srcIdx + 2] = 30;
+
+  double coeffs[3][3] = {{1.0, 0.0, (double)dx}, {0.0, 1.0, (double)dy}, {0.0, 0.0, 1.0}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C3(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpPerspective_8u_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  const int dstX = srcX + dx;
+  const int dstY = srcY + dy;
+  ASSERT_LT(dstX, dstWidth);
+  ASSERT_LT(dstY, dstHeight);
+
+  int dstIdx = (dstY * dstWidth + dstX) * 3;
+  EXPECT_EQ(resultData[dstIdx + 0], 10);
+  EXPECT_EQ(resultData[dstIdx + 1], 20);
+  EXPECT_EQ(resultData[dstIdx + 2], 30);
+
+  int origIdx = (srcY * dstWidth + srcX) * 3;
+  EXPECT_EQ(resultData[origIdx + 0], 0);
+  EXPECT_EQ(resultData[origIdx + 1], 0);
+  EXPECT_EQ(resultData[origIdx + 2], 0);
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
 // 测试恒等透视变换（无变换）
 TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C1R_Identity) {
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
