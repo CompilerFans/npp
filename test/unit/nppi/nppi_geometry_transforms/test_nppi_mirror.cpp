@@ -1152,3 +1152,161 @@ TEST_F(NppiMirrorTest, 8u_C3R_LargeImage) {
   auto result = copyFromGpu(d_dst, dstData.size());
   verifyVerticalMirror(srcData, result, width, height, channels);
 }
+
+// In-place vertical flip on submatrix with padding to mimic OpenCV sub-ROI cases
+TEST_F(NppiMirrorTest, 8u_C3IR_SubmatrixVerticalWithPadding) {
+  const int width = 64;
+  const int height = 64;
+  const int channels = 3;
+
+  const int padBytes = 16; // ensure pitch larger than tight width*channels
+  const int tightStepBytes = width * channels * static_cast<int>(sizeof(Npp8u));
+  const int paddedStepBytes = tightStepBytes + padBytes;
+  const int paddedStepElems = paddedStepBytes / static_cast<int>(sizeof(Npp8u));
+
+  // place ROI at an offset inside a larger buffer to mimic sub-matrix
+  const int offsetY = 2;
+  const int offsetX = 3;
+  const int totalRows = height + offsetY + 2;
+
+  std::vector<Npp8u> srcData = createTestPattern<Npp8u>(width, height, channels);
+  std::vector<Npp8u> paddedHost(totalRows * paddedStepElems, 0);
+
+  // copy ROI into padded buffer at offset
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        paddedHost[(offsetY + y) * paddedStepElems + offsetX * channels + x * channels + c] =
+            srcData[(y * width + x) * channels + c];
+      }
+    }
+  }
+
+  // expected after vertical flip
+  std::vector<Npp8u> expected = paddedHost;
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int srcX = width - 1 - x;
+      for (int c = 0; c < channels; ++c) {
+        expected[(offsetY + y) * paddedStepElems + offsetX * channels + x * channels + c] =
+            srcData[(y * width + srcX) * channels + c];
+      }
+    }
+  }
+
+  Npp8u *d_buffer = allocateGpuMemory<Npp8u>(paddedHost.size());
+  copyToGpu(paddedHost, d_buffer);
+
+  Npp8u *d_submatrix = d_buffer + offsetY * paddedStepElems + offsetX * channels;
+  NppiSize roi = {width, height};
+  NppStatus status = nppiMirror_8u_C3IR(d_submatrix, paddedStepBytes, roi, NPP_VERTICAL_AXIS);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  auto resultPadded = copyFromGpu(d_buffer, paddedHost.size());
+  for (size_t idx = 0; idx < expected.size(); ++idx) {
+    EXPECT_EQ(resultPadded[idx], expected[idx]);
+  }
+}
+
+TEST_F(NppiMirrorTest, 8u_C3IR_SubmatrixHorizontalWithPadding) {
+  const int width = 64;
+  const int height = 64;
+  const int channels = 3;
+
+  const int padBytes = 16;
+  const int tightStepBytes = width * channels * static_cast<int>(sizeof(Npp8u));
+  const int paddedStepBytes = tightStepBytes + padBytes;
+  const int paddedStepElems = paddedStepBytes / static_cast<int>(sizeof(Npp8u));
+
+  const int offsetY = 4;
+  const int offsetX = 1;
+  const int totalRows = height + offsetY + 2;
+
+  std::vector<Npp8u> srcData = createTestPattern<Npp8u>(width, height, channels);
+  std::vector<Npp8u> paddedHost(totalRows * paddedStepElems, 0);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        paddedHost[(offsetY + y) * paddedStepElems + offsetX * channels + x * channels + c] =
+            srcData[(y * width + x) * channels + c];
+      }
+    }
+  }
+
+  std::vector<Npp8u> expected = paddedHost;
+  for (int y = 0; y < height; ++y) {
+    int srcY = height - 1 - y;
+    for (int x = 0; x < width; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        expected[(offsetY + y) * paddedStepElems + offsetX * channels + x * channels + c] =
+            srcData[(srcY * width + x) * channels + c];
+      }
+    }
+  }
+
+  Npp8u *d_buffer = allocateGpuMemory<Npp8u>(paddedHost.size());
+  copyToGpu(paddedHost, d_buffer);
+
+  Npp8u *d_submatrix = d_buffer + offsetY * paddedStepElems + offsetX * channels;
+  NppiSize roi = {width, height};
+  NppStatus status = nppiMirror_8u_C3IR(d_submatrix, paddedStepBytes, roi, NPP_HORIZONTAL_AXIS);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  auto resultPadded = copyFromGpu(d_buffer, paddedHost.size());
+  for (size_t idx = 0; idx < expected.size(); ++idx) {
+    EXPECT_EQ(resultPadded[idx], expected[idx]);
+  }
+}
+
+TEST_F(NppiMirrorTest, 8u_C3IR_SubmatrixBothWithPadding) {
+  const int width = 64;
+  const int height = 64;
+  const int channels = 3;
+
+  const int padBytes = 24;
+  const int tightStepBytes = width * channels * static_cast<int>(sizeof(Npp8u));
+  const int paddedStepBytes = tightStepBytes + padBytes;
+  const int paddedStepElems = paddedStepBytes / static_cast<int>(sizeof(Npp8u));
+
+  const int offsetY = 3;
+  const int offsetX = 5;
+  const int totalRows = height + offsetY + 3;
+
+  std::vector<Npp8u> srcData = createTestPattern<Npp8u>(width, height, channels);
+  std::vector<Npp8u> paddedHost(totalRows * paddedStepElems, 0);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        paddedHost[(offsetY + y) * paddedStepElems + offsetX * channels + x * channels + c] =
+            srcData[(y * width + x) * channels + c];
+      }
+    }
+  }
+
+  std::vector<Npp8u> expected = paddedHost;
+  for (int y = 0; y < height; ++y) {
+    int srcY = height - 1 - y;
+    for (int x = 0; x < width; ++x) {
+      int srcX = width - 1 - x;
+      for (int c = 0; c < channels; ++c) {
+        expected[(offsetY + y) * paddedStepElems + offsetX * channels + x * channels + c] =
+            srcData[(srcY * width + srcX) * channels + c];
+      }
+    }
+  }
+
+  Npp8u *d_buffer = allocateGpuMemory<Npp8u>(paddedHost.size());
+  copyToGpu(paddedHost, d_buffer);
+
+  Npp8u *d_submatrix = d_buffer + offsetY * paddedStepElems + offsetX * channels;
+  NppiSize roi = {width, height};
+  NppStatus status = nppiMirror_8u_C3IR(d_submatrix, paddedStepBytes, roi, NPP_BOTH_AXIS);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  auto resultPadded = copyFromGpu(d_buffer, paddedHost.size());
+  for (size_t idx = 0; idx < expected.size(); ++idx) {
+    EXPECT_EQ(resultPadded[idx], expected[idx]);
+  }
+}
