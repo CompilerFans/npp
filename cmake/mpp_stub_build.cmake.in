@@ -1,0 +1,11 @@
+set(_mpp_dir "$<TARGET_FILE_DIR:npp>")
+set(_mpp_soname "$<TARGET_SONAME_FILE_NAME:npp>")
+set(_stubs "@MPP_STUB_LIBS@")
+
+foreach(_stub ${_stubs})
+  set(_stub_path "${_mpp_dir}/@CMAKE_SHARED_LIBRARY_PREFIX@${_stub}@CMAKE_SHARED_LIBRARY_SUFFIX@")
+  if(EXISTS "${_stub_path}")
+    file(REMOVE "${_stub_path}")
+  endif()
+  file(CREATE_LINK "${_mpp_soname}" "${_stub_path}" SYMBOLIC)
+endforeach()
