@@ -442,7 +442,7 @@ public:
     } else if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
       size_t pitch;
       for (int i = 0; i < NumPlanes; i++) {
-        cudaError_t err = cudaMallocPitch(&planes_[i], &pitch, width * sizeof(T), height);
+        cudaError_t err = cudaMallocPitch(reinterpret_cast<void**>(&planes_[i]), &pitch, width * sizeof(T), height);
         if (err != cudaSuccess)
           return false;
         step_ = static_cast<int>(pitch);
