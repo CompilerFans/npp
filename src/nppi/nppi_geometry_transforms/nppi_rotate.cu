@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 #define M_PI 3.14159265358979323846
 __global__ void rotate_8u_C1R_kernel(const Npp8u *__restrict__ pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,

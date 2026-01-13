@@ -1,7 +1,7 @@
 #include "nppdefs.h"
 #include <climits>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // ============ general mirror kernel ============
 template <typename T, int channels>

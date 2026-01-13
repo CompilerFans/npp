@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // GPU-based Union-Find for Connected Component Labeling
 // This implementation uses the label image itself as the Union-Find structure

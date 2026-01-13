@@ -1,6 +1,6 @@
 #include "nppdefs.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // RGB到YUV转换的内核实现
 // 使用ITU-R BT.601标准转换公式

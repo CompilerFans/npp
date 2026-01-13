@@ -1,7 +1,7 @@
 #include "../../nppcore/logger.h"
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // Control which super sampling algorithm to use
 // 0: Use SuperSamplingInterpolator (simple box filter, compatible with existing tests)

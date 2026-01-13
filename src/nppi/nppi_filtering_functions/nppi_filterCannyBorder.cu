@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // Sobel X and Y direction kernels
 __constant__ float c_sobelX[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};

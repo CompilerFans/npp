@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cstdint>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // SwapChannels kernel for 4-channel images (C4R and C4IR)
 __global__ void nppiSwapChannels_8u_C4_kernel(const Npp8u *pSrc, int nSrcStep,

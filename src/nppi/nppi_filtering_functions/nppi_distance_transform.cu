@@ -2,7 +2,7 @@
 #include <cfloat>
 #include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // PBA (Parallel Banding Algorithm) for Euclidean Distance Transform
 // Reference: Cao et al. "Parallel Banding Algorithm to compute exact distance transform with the GPU"

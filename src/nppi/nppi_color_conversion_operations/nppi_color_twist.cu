@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // Color twist kernel for 3-channel 8-bit images
 __global__ void nppiColorTwist32f_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,

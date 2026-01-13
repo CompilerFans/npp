@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 template <typename T> __device__ inline Npp8u performCompare(T src1, T src2, NppCmpOp op) {
   bool result = false;

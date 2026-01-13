@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cstdint>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // CopyConstBorder kernel for single channel 8u images
 __global__ void nppiCopyConstBorder_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep,

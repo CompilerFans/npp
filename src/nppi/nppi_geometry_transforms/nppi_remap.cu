@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // Generic remap kernel template for different data types
 template <typename T>

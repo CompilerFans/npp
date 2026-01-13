@@ -4,7 +4,7 @@
 
 #include "nppdefs.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 #include <limits>
 
 // Enable zero padding for boundary handling

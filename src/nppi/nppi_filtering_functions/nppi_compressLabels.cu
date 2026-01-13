@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 #include <vector>
 
 // Kernel: Collect all unique labels from the image

@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 __global__ void sumWindowRowKernel_8u32f(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                          int height, int nMaskSize, int nAnchor) {

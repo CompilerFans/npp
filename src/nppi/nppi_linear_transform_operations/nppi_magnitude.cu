@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 /**
  * CUDA kernels for NPP Image Magnitude operations

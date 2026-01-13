@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 template <typename T>
 __device__ T nearestInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {

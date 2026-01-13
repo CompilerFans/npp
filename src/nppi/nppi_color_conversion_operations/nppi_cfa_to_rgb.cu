@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // Simple bilinear demosaicing kernel for CFA data
 template <typename T>

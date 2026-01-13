@@ -1,6 +1,6 @@
 #include "nppdefs.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,

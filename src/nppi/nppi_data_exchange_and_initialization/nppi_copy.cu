@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cstdint>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // Generic multi-channel copy kernel template
 template <typename T, int CHANNELS>

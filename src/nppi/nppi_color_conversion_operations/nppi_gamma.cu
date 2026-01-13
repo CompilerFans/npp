@@ -1,6 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 // ============================================================================
 // Constant Memory Lookup Tables (LUT) - Initialized at compile time

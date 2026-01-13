@@ -1,7 +1,7 @@
 #include "npp.h"
 #include <cmath>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+
 
 __device__ __forceinline__ float bicubicCoeff(float x_) {
   float x = fabsf(x_);
