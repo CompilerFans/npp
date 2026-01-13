@@ -13,6 +13,7 @@ BUILD_SHARED_LIBS="OFF"
 WARNINGS_AS_ERRORS="ON"
 # Check environment variable first, then use default
 USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
+USE_MACA_SDK="OFF"
 BUILD_DIR="build"  # Default build directory
 
 # Parse arguments
@@ -47,6 +48,10 @@ while [[ $# -gt 0 ]]; do
             USE_NVIDIA_NPP="ON"
             shift
             ;;
+        --maca)
+            USE_MACA_SDK="ON"
+            shift
+            ;;
         --shared)
             BUILD_SHARED_LIBS="ON"
             shift
@@ -68,6 +73,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --shared        Build shared libraries (.so/.dll) instead of static (.a/.lib)"
             echo "  --no-werror     Disable warnings as errors"
             echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
+            echo "  --maca          Build with MACA SDK (no CUDA Toolkit dependency)"
             echo "  clean           Clean build directory"
             echo "  -h, --help      Show help"
             exit 0
@@ -102,6 +108,7 @@ cmake_maca -S .\
     -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
+    -DUSE_MACA_SDK="$USE_MACA_SDK" \
     -G Ninja
 
 # Build

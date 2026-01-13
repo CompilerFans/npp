@@ -6,7 +6,17 @@ set(MPP_VERSION "@PROJECT_VERSION@")
 
 # 检查依赖项
 include(CMakeFindDependencyMacro)
-find_dependency(CUDAToolkit REQUIRED)
+# find_dependency(CUDAToolkit REQUIRED)
+if(NOT @USE_MACA_SDK@)
+  find_dependency(CUDAToolkit REQUIRED)
+else()
+  if(DEFINED ENV{MACA_PATH})
+    set(MACA_PATH "$ENV{MACA_PATH}")
+  endif()
+  if(NOT MACA_PATH)
+    message(WARNING "MACA_PATH not set; MACA libraries may not be found at configure time.")
+  endif()
+endif()
 
 # 包含导出的目标
 include("${CMAKE_CURRENT_LIST_DIR}/MPPTargets.cmake")

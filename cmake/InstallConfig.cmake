@@ -1,14 +1,15 @@
 # NPP安装配置
 
+# 设置默认安装前缀到build目录下的install子目录
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
+endif()
+
 include(GNUInstallDirs)
 
 # Default all untagged installs to libs (CPack component install relies on this)
 set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME libs)
 
-# 设置默认安装前缀到build目录下的install子目录
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
-endif()
 
 # 定义安装路径
 set(INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})

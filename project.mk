@@ -3,19 +3,9 @@
 BUILD_TYPE ?= Release
 BUILD_SHARED_LIBS ?= ON
 BUILD_EXAMPLES ?= OFF
+USE_MACA_SDK="ON"
 # default use Ninja, otherwise CMake can choose (usually cmake).
-CMAKE_GENERATOR ?=
-ifeq ($(CMAKE_GENERATOR),)
-  ifneq ($(shell command -v ninja 2>/dev/null),)
-    CMAKE_GENERATOR := Ninja
-  endif
-endif
-PACK_ARCH ?= $(ARCH)
-PACK_EXT ?=
-# Default to DEB; CPack config is DEB-only for this project.
-PACKAGE_GENERATOR ?= DEB
-# Defaults: build/install under current workspace unless overridden
-# BUILD_DIR ?= $(abspath build-local/mcMPP)
+CMAKE_GENERATOR ?= Ninja
 
 .PHONY: convertMpp
 convertMpp: PRIVATE_PROJ_DIR ?= $(CURDIR)/library/mcMPP
@@ -28,6 +18,8 @@ convertMpp:
 	  bash "$(PRIVATE_PROJ_DIR)/mpp_scripts/setup_mpp.sh" --skip-build --skip-deploy; \
 	fi
 
+# -DCMAKE_CXX_COMPILER=$(MACA_PATH)/mxgpu_llvm/bin/mxcc \
+
 .PHONY: mcMPP
 mcMPP: convertMpp
 mcMPP: PRIVATE_BUILD_DIR ?= $(BUILDDIR)/library/mcMPP
@@ -35,10 +27,12 @@ mcMPP: PRIVATE_MK_FILE := $(abspath $(lastword $(MAKEFILE_LIST)))
 mcMPP: PRIVATE_MK_PATH := $(patsubst %/, %, $(dir $(PRIVATE_MK_FILE)))
 mcMPP:
 	@echo "Configuring + building + installing + packaging mcMPP..."
-	cmake_maca -S $(PRIVATE_MK_PATH) \
+	cmake -S $(PRIVATE_MK_PATH) \
 	  -B $(PRIVATE_BUILD_DIR) \
 	  $(if $(CMAKE_GENERATOR),-G "$(CMAKE_GENERATOR)") \
+	  -DCMAKE_CXX_COMPILER=$(MACA_CLANG_PATH)/mxcc \
 	  -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+	  -DUSE_MACA_SDK=$(USE_MACA_SDK) \
 	  -DBUILD_TESTS=OFF \
 	  -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) \
 	  -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) \
@@ -47,10 +41,10 @@ mcMPP:
 	  -DCMAKE_PACKAGE_DIR=$(PRIVATE_BUILD_DIR) -DPACKAGE_ARCH=$(PACK_ARCH) -DPACKAGE_EXT=$(PACK_EXT) \
 	  -DCMAKE_TARGET_ARCH=$(ARCH) -DMACA_VERSION=$(MACA_VERSION) -DPACK_VERSION=$(PACK_VERSION) \
 	  -DDISTRO_CODE=$(DISTRO_CODE) -DPACKAGE_GENERATOR="$(PACKAGE_GENERATOR)" \
-	  -DDEB_PACKAGE_ARCH=$(DEB_PACK_ARCH) -DRPM_PACKAGE_ARCH=$(RPM_PACK_ARCH) -DPACKAGE_LOCATION=$(PACK_LOCATION) \
-	cmake_maca --build $(PRIVATE_BUILD_DIR)
-	cmake_maca --build $(PRIVATE_BUILD_DIR) --target install
-	cmake_maca --build $(PRIVATE_BUILD_DIR) --target package
+	  -DDEB_PACKAGE_ARCH=$(DEB_PACK_ARCH) -DRPM_PACKAGE_ARCH=$(RPM_PACK_ARCH) -DPACKAGE_LOCATION=$(PACK_LOCATION)
+	ninja -C $(PRIVATE_BUILD_DIR)
+	ninja -C $(PRIVATE_BUILD_DIR) install
+	ninja -C $(PRIVATE_BUILD_DIR) package
 
 .PHONY: clean
 clean: PRIVATE_BUILD_DIR ?= $(BUILDDIR)/library/mcMPP

@@ -23,6 +23,10 @@
 # Find source files
 npp_find_all_sources(CPU_SOURCES CUDA_SOURCES ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Set .cu files as cxx files to avoid separate CUDA compilation
+if(USE_MACA_SDK)
+    set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
+endif()
 # =============================================================================
 # Main library: libmppc (contains all implementations)
 # Target name "npp" is kept for internal CMake references (tests depend on it)
