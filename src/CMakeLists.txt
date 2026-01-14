@@ -24,9 +24,10 @@
 npp_find_all_sources(CPU_SOURCES CUDA_SOURCES ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Set .cu files as cxx files to avoid separate CUDA compilation
-if(USE_MACA_SDK)
+if(WITHOUT_CU_BRIDGE)
     set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
 endif()
+
 # =============================================================================
 # Main library: libmppc (contains all implementations)
 # Target name "npp" is kept for internal CMake references (tests depend on it)
@@ -43,17 +44,13 @@ npp_setup_target(npp)
 # Add NPP specific include directories
 npp_add_common_includes(npp)
 
-# Set library output name to mppc (generates libmppc.so/libmppc.a)
+# Set library output name to mpp (generates libmpp.so/libmpp.a)
 set_target_properties(npp PROPERTIES
     OUTPUT_NAME "mpp"
     EXPORT_NAME "npp"
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
-
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} \
-    -use-dim-intrinsic \
-    -mllvm -metaxgpu-new-streg-abi=true")
 
 # Add dynamic library specific configuration if shared
 if(BUILD_SHARED_LIBS)

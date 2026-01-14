@@ -6,49 +6,35 @@ else()
     project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
 endif()
 
-# Include modular CMake configuration
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(CommonConfig)
-include(MacaConfig)
-include(CudaConfig)
-include(FindSources)
-include(TestConfig)
-include(InstallConfig)
-
-include(CMakePackageConfigHelpers)
-
-
-# Configure compiler sdk
-if(USE_MACA_SDK)
-    npp_configure_maca()
-else()
-    npp_configure_cuda()
-endif()
-
-# build src folder --- core lib
-add_subdirectory(src)
-
-
 # Build options
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
+
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
-option(USE_MACA_SDK "Build with MACA SDK (no CUDA Toolkit dependency)" OFF)
+option(WITHOUT_CU_BRIDGE "Build with MACA SDK (no CUDA Toolkit dependency)" OFF)
 
-# Show selected options
-if(BUILD_SHARED_LIBS)
-    message(STATUS "Building shared libraries (.so/.dll)")
+# Include modular CMake configuration
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+if(WITHOUT_CU_BRIDGE)
+    include(MacaConfig)
+    npp_configure_maca()
 else()
-    message(STATUS "Building static libraries (.a/.lib)")
+    include(CudaConfig)
+    npp_configure_cuda()
 endif()
 
-if(NPP_WARNINGS_AS_ERRORS)
-    message(STATUS "Warnings will be treated as errors")
-else()
-    message(STATUS "Warnings will not be treated as errors")
-endif()
+include(FindSources)
+include(CommonConfig)
+include(OptConfig)
+include(TestConfig)
+include(InstallConfig)
+include(CMakePackageConfigHelpers)
+
+# build src folder --- core lib
+add_subdirectory(src)
 
 if(BUILD_TESTS)
     enable_testing()

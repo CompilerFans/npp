@@ -12,15 +12,15 @@ function(npp_configure_maca)
 
     set(MACA_INCLUDE_DIR "${MACA_PATH}/include" CACHE PATH "MACA include dir")
     set(MACA_LIB_DIR "${MACA_PATH}/lib" CACHE PATH "MACA lib dir")
-
-    if(NOT CMAKE_CXX_COMPILER AND EXISTS "${MACA_PATH}/mxgpu_llvm/bin/mxcc")
-        set(CMAKE_CXX_COMPILER "${MACA_PATH}/mxgpu_llvm/bin/mxcc" CACHE FILEPATH "MACA CXX compiler (mxcc)")
-    endif()
+    set(MACA_COMPILER "${MACA_PATH}/mxgpu_llvm/bin/mxcc" CACHE FILEPATH "MACA compiler")
 
     message(STATUS "MACA_PATH: ${MACA_PATH}")
     message(STATUS "MACA Include Dir: ${MACA_INCLUDE_DIR}")
     message(STATUS "MACA Library Dir: ${MACA_LIB_DIR}")
-    if(CMAKE_CXX_COMPILER)
-        message(STATUS "MACA Compiler: ${CMAKE_CXX_COMPILER}")
-    endif()
+    message(STATUS "MACA Compiler: ${MACA_COMPILER}")
+
+    set(NPP_SDK_INCLUDE_DIR ${MACA_INCLUDE_DIR} CACHE PATH "MACA include dir")
+    set(NPP_SDK_LIB_DIR ${MACA_LIB_DIR} CACHE PATH "MACA library dirs")
+    set(NPP_COMPILER ${MACA_COMPILER} CACHE FILEPATH "MACA compiler")
+    #set(NPP_SDK_LINK_LIBS xxx CACHE STRING "MACA link libraries")
 endfunction()

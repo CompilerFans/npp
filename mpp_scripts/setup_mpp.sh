@@ -290,11 +290,11 @@ if [ "$SKIP_BUILD" = true ]; then
     echo "  Skipped (--skip-build)"
 elif [ "$DRY_RUN" = false ]; then
     cd "$PROJECT_DIR"
-    if [ -f "./build_maca.sh" ]; then
-        ./build_maca.sh --shared
+    if [ -f "./build.sh" ]; then
+        ./build.sh --shared --maca --without-cu-bridge
         echo "  Build complete"
     else
-        echo "  Warning: build_maca.sh not found, skipping build"
+        echo "  Warning: build.sh not found, skipping build"
     fi
 else
     echo "  [DRY-RUN] Would build MPP library"

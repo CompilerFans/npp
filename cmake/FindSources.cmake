@@ -2,13 +2,13 @@
 
 # 递归查找C++源文件
 function(npp_find_cpp_sources output_var search_dir)
-    file(GLOB_RECURSE ${output_var} 
+    file(GLOB_RECURSE ${output_var}
         "${search_dir}/*.cpp"
     )
     set(${output_var} ${${output_var}} PARENT_SCOPE)
 endfunction()
 
-# 递归查找CUDA源文件  
+# 递归查找CUDA源文件
 function(npp_find_cuda_sources output_var search_dir)
     file(GLOB_RECURSE ${output_var}
         "${search_dir}/*.cu"

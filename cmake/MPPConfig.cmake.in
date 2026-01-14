@@ -7,7 +7,7 @@ set(MPP_VERSION "@PROJECT_VERSION@")
 # 检查依赖项
 include(CMakeFindDependencyMacro)
 # find_dependency(CUDAToolkit REQUIRED)
-if(NOT @USE_MACA_SDK@)
+if(NOT @WITHOUT_CU_BRIDGE@)
   find_dependency(CUDAToolkit REQUIRED)
 else()
   if(DEFINED ENV{MACA_PATH})

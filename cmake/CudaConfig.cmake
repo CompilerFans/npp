@@ -13,7 +13,7 @@ endfunction()
 # 检查CUDA环境
 function(npp_check_cuda_environment)
     find_package(CUDAToolkit REQUIRED)
-    
+
     if(CUDAToolkit_FOUND)
         message(STATUS "Found CUDA Toolkit: ${CUDAToolkit_VERSION}")
         message(STATUS "CUDA Include Dirs: ${CUDAToolkit_INCLUDE_DIRS}")
@@ -28,4 +28,9 @@ endfunction()
 function(npp_configure_cuda)
     npp_check_cuda_environment()
     npp_setup_cuda_architectures()
+
+    set(NPP_SDK_INCLUDE_DIR ${CUDAToolkit_INCLUDE_DIRS}CACHE PATH "CUDA include dirs")
+    set(NPP_SDK_LIB_DIR ${CUDAToolkit_LIBRARY_DIR}CACHE PATH "CUDA library dir")
+    set(NPP_COMPILER ${CUDAToolkit_COMPILER} CACHE FILEPATH "CUDA compiler")
+    set(NPP_SDK_LINK_LIBS CUDA::cudart CACHE STRING "CUDA link libraries")
 endfunction()

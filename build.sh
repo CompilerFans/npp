@@ -5,15 +5,22 @@
 echo "=== NPP Library Build Script ==="
 
 # Default values
-BUILD_TYPE="Release"
 JOBS=$(nproc)
+
+BUILD_TYPE="Release"
+BUILD_DIR="build"  # Default build directory
+
 BUILD_TESTS="ON"
 BUILD_EXAMPLES="ON"
-BUILD_SHARED_LIBS="OFF"
+BUILD_SHARED_LIBS="ON"
 WARNINGS_AS_ERRORS="ON"
+
+# CUDA/MACA SDK Relative
 # Check environment variable first, then use default
 USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
-BUILD_DIR="build"  # Default build directory
+GPU_TYPE="METAX_GPU"
+WITHOUT_CU_BRIDGE="OFF"
+CMAKE_NAME="cmake"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -43,10 +50,25 @@ while [[ $# -gt 0 ]]; do
             WARNINGS_AS_ERRORS="OFF"
             shift
             ;;
+        --cuda)
+            GPU_TYPE="NVIDIA_GPU"
+            shift
+            ;;
         --use-nvidia-npp)
             USE_NVIDIA_NPP="ON"
             shift
             ;;
+        --maca)
+            GPU_TYPE="METAX_GPU"
+            CMAKE_NAME="cmake_maca"
+            shift
+            ;;
+        --without-cu-bridge)
+            WITHOUT_CU_BRIDGE="ON"
+            CMAKE_NAME="cmake"
+            shift
+            ;;
+
         --shared)
             BUILD_SHARED_LIBS="ON"
             shift
@@ -68,6 +90,9 @@ while [[ $# -gt 0 ]]; do
             echo "  --shared        Build shared libraries (.so/.dll) instead of static (.a/.lib)"
             echo "  --no-werror     Disable warnings as errors"
             echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
+            echo "  --cuda          Build with CUDA SDK"
+            echo "  --maca          Build with MACA SDK"
+            echo "  --without-cu-bridge          Build with MACA SDK and no CU-BRIDGE dependency"
             echo "  clean           Clean build directory"
             echo "  -h, --help      Show help"
             exit 0
@@ -88,24 +113,30 @@ else
     NPP_LIB_NAME="MPP"
 fi
 
+# TODO check combine logic, such as --cuda & --use-nvidia-npp, --maca & --without-cu-bridge
+
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
 
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
-echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
-cmake -S .\
-    -B $BUILD_DIR\
+echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS"
+echo "USE_NVIDIA_NPP=$USE_NVIDIA_NPP, GPU_TYPE=$GPU_TYPE, WITHOUT_CU_BRIDGE=$WITHOUT_CU_BRIDGE, CMAKE_NAME=$CMAKE_NAME"
+
+
+$CMAKE_NAME -S .\
+    -B $BUILD_DIR \
+    -G Ninja      \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_CUDA_ARCHITECTURES="89" \
     -DBUILD_TESTS="$BUILD_TESTS" \
     -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
     -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
-    -G Ninja
+    -DGPU_TYPE="$GPU_TYPE" \
+    -DWITHOUT_CU_BRIDGE="$WITHOUT_CU_BRIDGE"
 
 # Build
 echo "Building ..."
-cmake --build $BUILD_DIR
+$CMAKE_NAME --build $BUILD_DIR
 
 echo "Build completed successfully!"
