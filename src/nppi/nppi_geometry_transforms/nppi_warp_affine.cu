@@ -465,8 +465,11 @@ NppStatus nppiWarpAffine_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize,
 
 // =============================================
 // WarpAffineBack kernel
-// WarpAffineBack use 2x3 matrix
+//  2x3 matrix
+// WarpAffineBack
 // =============================================
+
+// 8u C1R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -507,6 +510,7 @@ __global__ void nppiWarpAffineBack_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSr
   }
 }
 
+// 8u C3R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -547,6 +551,7 @@ __global__ void nppiWarpAffineBack_8u_C3R_kernel(const Npp8u *pSrc, NppiSize oSr
   }
 }
 
+// 8u C4R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                  Npp8u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                  double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -587,6 +592,7 @@ __global__ void nppiWarpAffineBack_8u_C4R_kernel(const Npp8u *pSrc, NppiSize oSr
   }
 }
 
+// 16u C1R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_16u_C1R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp16u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -624,6 +630,7 @@ __global__ void nppiWarpAffineBack_16u_C1R_kernel(const Npp16u *pSrc, NppiSize o
   }
 }
 
+// 16u C3R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_16u_C3R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp16u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -702,6 +709,7 @@ __global__ void nppiWarpAffineBack_16u_C3R_kernel(const Npp16u *pSrc, NppiSize o
   }
 }
 
+// 16u C4R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_16u_C4R_kernel(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp16u *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -780,6 +788,7 @@ __global__ void nppiWarpAffineBack_16u_C4R_kernel(const Npp16u *pSrc, NppiSize o
   }
 }
 
+// 32f C1R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_32f_C1R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -817,6 +826,7 @@ __global__ void nppiWarpAffineBack_32f_C1R_kernel(const Npp32f *pSrc, NppiSize o
   }
 }
 
+// 32f C3R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_32f_C3R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -863,6 +873,7 @@ __global__ void nppiWarpAffineBack_32f_C3R_kernel(const Npp32f *pSrc, NppiSize o
   }
 }
 
+// 32f C4R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_32f_C4R_kernel(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp32f *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -909,6 +920,7 @@ __global__ void nppiWarpAffineBack_32f_C4R_kernel(const Npp32f *pSrc, NppiSize o
   }
 }
 
+// 32s C1R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_32s_C1R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp32s *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -946,6 +958,7 @@ __global__ void nppiWarpAffineBack_32s_C1R_kernel(const Npp32s *pSrc, NppiSize o
   }
 }
 
+// 32s C3R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_32s_C3R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp32s *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -992,6 +1005,7 @@ __global__ void nppiWarpAffineBack_32s_C3R_kernel(const Npp32s *pSrc, NppiSize o
   }
 }
 
+// 32s C4R 反向仿射变换内核
 __global__ void nppiWarpAffineBack_32s_C4R_kernel(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                   Npp32s *pDst, int nDstStep, NppiRect oDstROI, double a00, double a01,
                                                   double a02, double a10, double a11, double a12, int eInterpolation) {
@@ -1039,10 +1053,11 @@ __global__ void nppiWarpAffineBack_32s_C4R_kernel(const Npp32s *pSrc, NppiSize o
 }
 
 // =============================================
-// WarpAffineBack implement
+// WarpAffineBack 实现函数
 // =============================================
 
 extern "C" {
+// 8u C1R 实现
 NppStatus nppiWarpAffineBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                              int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1070,6 +1085,7 @@ NppStatus nppiWarpAffineBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   return NPP_SUCCESS;
 }
 
+// 8u C3R 实现
 NppStatus nppiWarpAffineBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                              int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1097,6 +1113,7 @@ NppStatus nppiWarpAffineBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   return NPP_SUCCESS;
 }
 
+// 8u C4R 实现
 NppStatus nppiWarpAffineBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                              int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1124,6 +1141,7 @@ NppStatus nppiWarpAffineBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
   return NPP_SUCCESS;
 }
 
+// 16u C1R 实现
 NppStatus nppiWarpAffineBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1151,6 +1169,7 @@ NppStatus nppiWarpAffineBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 16u C3R 实现
 NppStatus nppiWarpAffineBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1178,6 +1197,7 @@ NppStatus nppiWarpAffineBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 16u C4R 实现
 NppStatus nppiWarpAffineBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1205,6 +1225,7 @@ NppStatus nppiWarpAffineBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 32f C1R 实现
 NppStatus nppiWarpAffineBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1232,6 +1253,7 @@ NppStatus nppiWarpAffineBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 32f C3R 实现
 NppStatus nppiWarpAffineBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1259,6 +1281,7 @@ NppStatus nppiWarpAffineBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 32f C4R 实现
 NppStatus nppiWarpAffineBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1286,6 +1309,7 @@ NppStatus nppiWarpAffineBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 32s C1R 实现
 NppStatus nppiWarpAffineBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1313,6 +1337,7 @@ NppStatus nppiWarpAffineBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 32s C3R 实现
 NppStatus nppiWarpAffineBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -1340,6 +1365,7 @@ NppStatus nppiWarpAffineBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcS
   return NPP_SUCCESS;
 }
 
+// 32s C4R 实现
 NppStatus nppiWarpAffineBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                               Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3],
                                               int eInterpolation, NppStreamContext nppStreamCtx) {
