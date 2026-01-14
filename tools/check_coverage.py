@@ -60,7 +60,14 @@ class CoverageAnalyzer:
             # Pattern 2: Direct wrapper: NppStatus nppiFunc(...)
             wrapper_pattern = r'NppStatus\s+(nppi\w+|npps\w+)\s*\('
 
-            for pattern in [impl_pattern, wrapper_pattern]:
+            # Pattern 3: Memory allocation functions returning pointer types (Npp8u*, etc.)
+            # Format: Npp8u *nppiMalloc_8u_C1(...) or Npp8u* nppiMalloc_8u_C1(...)
+            malloc_pattern = r'Npp\w+\s*\*\s*(nppiMalloc_\w+|nppsMalloc_\w+)\s*\('
+
+            # Pattern 4: Free functions returning void
+            free_pattern = r'void\s+(nppiFree|nppsFree)\s*\('
+
+            for pattern in [impl_pattern, wrapper_pattern, malloc_pattern, free_pattern]:
                 for match in re.finditer(pattern, content):
                     func_base = match.group(1)
 
@@ -84,13 +91,16 @@ class CoverageAnalyzer:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
 
-            # Look for direct API calls
-            pattern = r'\b(nppi\w+|npps\w+)\s*\('
+            # Look for direct API calls: nppiFunc(
+            pattern1 = r'\b(nppi\w+|npps\w+)\s*\('
+            # Look for function pointer usage: nppiFunc, or nppiFunc)
+            pattern2 = r'\b(nppi\w+|npps\w+)\s*[,\)]'
 
-            for match in re.finditer(pattern, content):
-                func_name = match.group(1)
-                if func_name in self.api_functions:
-                    self.tests[func_name] = str(file_path.relative_to(self.test_dir.parent))
+            for pattern in [pattern1, pattern2]:
+                for match in re.finditer(pattern, content):
+                    func_name = match.group(1)
+                    if func_name in self.api_functions:
+                        self.tests[func_name] = str(file_path.relative_to(self.test_dir.parent))
 
         except Exception as e:
             print(f"Warning: Error scanning {file_path}: {e}")
