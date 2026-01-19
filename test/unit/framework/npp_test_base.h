@@ -11,15 +11,25 @@
 #include <vector>
 
 // Helper functions for Npp16f (half-precision float) type
+inline unsigned short npp_half_as_ushort_host(__half h) {
+  return static_cast<unsigned short>(static_cast<__half_raw>(h).x);
+}
+
+inline __half npp_ushort_as_half_host(unsigned short v) {
+  __half_raw raw{};
+  raw.x = v;
+  return __half(raw);
+}
+
 inline Npp16f float_to_npp16f_host(float val) {
   Npp16f result;
   __half h = __float2half(val);
-  result.fp16 = static_cast<short>(__half_as_ushort(h));
+  result.fp16 = static_cast<short>(npp_half_as_ushort_host(h));
   return result;
 }
 
 inline float npp16f_to_float_host(Npp16f val) {
-  __half h = __ushort_as_half(static_cast<unsigned short>(val.fp16));
+  __half h = npp_ushort_as_half_host(static_cast<unsigned short>(val.fp16));
   return __half2float(h);
 }
 
