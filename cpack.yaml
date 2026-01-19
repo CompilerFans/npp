@@ -1,0 +1,22 @@
+meta:
+  project_name: mcMPP                                  # project build name config
+  label: MXMACA_Compiler
+  api_version:                                         # project build version config
+  generator_type:                                      # generator deb or rpm package config, config:DEB or RPM or DEB;RPM
+  generator_path:
+  variables: ["version", "minor_version_series"]
+
+
+packages:
+  - file_name: mcmpp_${version}                         # package file name config
+    name: mcmpp_${minor_version_series}                 # package name config
+    description: maca mcmpp lib package.
+    version: ${version}                                 # package version config
+    install_path:                                       # package install path config
+    component: headers libs                             # package component group config
+    pre_build:                                          # package pre build scripts config
+    depends:                                            # ↓ package depend list config
+      - deb_name:                                       # deb package depend config
+        rpm_name:                                       # rpm package depend config
+        name:                                           # if deb/rpm depend ddescription has no difference, config name.
+        condition:                                      # package version depend condition config, config such as "=" ">" "<" ">=" "<=" ">>" "<<"

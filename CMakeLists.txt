@@ -47,7 +47,6 @@ endif()
 # Install configuration only for MPP build
 npp_configure_install()
 
-# Packaging configuration
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Cpack.cmake")
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/Cpack.cmake")
-endif()
+# set cpack using param
+set( LIBRARY_NAME mcmpp )
+include(cmake/CCPack.cmake)
