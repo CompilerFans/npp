@@ -68,7 +68,6 @@ while [[ $# -gt 0 ]]; do
             CMAKE_NAME="cmake"
             shift
             ;;
-
         --shared)
             BUILD_SHARED_LIBS="ON"
             shift

@@ -229,7 +229,7 @@ INSTANTIATE_TEST_SUITE_P(AddSquare16u32f, AddSquare16u32fParamTest, ::testing::V
                          [](const auto &info) { return info.param.name(); });
 
 // ==================== AddWeighted 8u32f C1IR ====================
-struct AddWeightedParam {
+struct AddWeightedParamAccumulator {
   int width;
   int height;
   Npp32f alpha;
@@ -246,12 +246,12 @@ struct AddWeightedParam {
   }
 };
 
-static const std::vector<AddWeightedParam> kAddWeightedParams = {
+static const std::vector<AddWeightedParamAccumulator> kAddWeightedParams = {
     {32, 32, 0.5f, false, false}, {32, 32, 0.5f, true, false}, {32, 32, 0.25f, false, false},
     {32, 32, 0.75f, true, false}, {32, 32, 0.5f, false, true}, {32, 32, 0.5f, true, true},
 };
 
-class AddWeighted8u32fParamTest : public NppTestBase, public ::testing::WithParamInterface<AddWeightedParam> {};
+class AddWeighted8u32fParamTest : public NppTestBase, public ::testing::WithParamInterface<AddWeightedParamAccumulator> {};
 
 TEST_P(AddWeighted8u32fParamTest, AddWeighted_8u32f_C1IR) {
   const auto &p = GetParam();
@@ -310,7 +310,7 @@ INSTANTIATE_TEST_SUITE_P(AddWeighted8u32f, AddWeighted8u32fParamTest, ::testing:
                          [](const auto &info) { return info.param.name(); });
 
 // ==================== AddWeighted 16u32f C1IR ====================
-class AddWeighted16u32fParamTest : public NppTestBase, public ::testing::WithParamInterface<AddWeightedParam> {};
+class AddWeighted16u32fParamTest : public NppTestBase, public ::testing::WithParamInterface<AddWeightedParamAccumulator> {};
 
 TEST_P(AddWeighted16u32fParamTest, AddWeighted_16u32f_C1IR) {
   const auto &p = GetParam();
@@ -349,7 +349,7 @@ INSTANTIATE_TEST_SUITE_P(AddWeighted16u32f, AddWeighted16u32fParamTest, ::testin
                          [](const auto &info) { return info.param.name(); });
 
 // ==================== AddWeighted 32f C1IR ====================
-class AddWeighted32fParamTest : public NppTestBase, public ::testing::WithParamInterface<AddWeightedParam> {};
+class AddWeighted32fParamTest : public NppTestBase, public ::testing::WithParamInterface<AddWeightedParamAccumulator> {};
 
 TEST_P(AddWeighted32fParamTest, AddWeighted_32f_C1IR) {
   const auto &p = GetParam();

@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 
-if(USE_MACA_SDK)
-    project(MPP VERSION 1.0.0 LANGUAGES CXX)
-else()
-    project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
-endif()
-
 # Build options
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
@@ -17,21 +11,26 @@ option(WITHOUT_CU_BRIDGE "Build with MACA SDK (no CUDA Toolkit dependency)" OFF)
 
 # Include modular CMake configuration
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-if(WITHOUT_CU_BRIDGE)
-    include(MacaConfig)
-    npp_configure_maca()
-else()
-    include(CudaConfig)
-    npp_configure_cuda()
-endif()
-
 include(FindSources)
 include(CommonConfig)
 include(OptConfig)
 include(TestConfig)
-include(InstallConfig)
 include(CMakePackageConfigHelpers)
+
+if(WITHOUT_CU_BRIDGE)
+    message("npp_configure_maca")
+    include(MacaConfig)
+    npp_configure_maca()
+    set(CMAKE_CXX_COMPILER "${MACA_PATH}/mxgpu_llvm/bin/mxcc" CACHE FILEPATH "MACA compiler")
+    project(MPP VERSION 1.0.0 LANGUAGES CXX)
+else()
+    message("npp_configure_cuda")
+    include(CudaConfig)
+    npp_configure_cuda()
+    project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
+endif()
+
+include(InstallConfig)
 
 # build src folder --- core lib
 add_subdirectory(src)

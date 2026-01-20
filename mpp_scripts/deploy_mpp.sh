@@ -230,7 +230,7 @@ if [ "$NEED_BUILD" = true ]; then
     if [ "$DRY_RUN" = false ]; then
         echo "  Building MPP library..."
         cd "$PROJECT_DIR"
-        ./build.sh
+        ./build_maca_no_cubridge.sh
     else
         echo "  [DRY-RUN] Would build MPP library"
     fi

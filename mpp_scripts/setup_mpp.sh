@@ -290,8 +290,8 @@ if [ "$SKIP_BUILD" = true ]; then
     echo "  Skipped (--skip-build)"
 elif [ "$DRY_RUN" = false ]; then
     cd "$PROJECT_DIR"
-    if [ -f "./build.sh" ]; then
-        ./build.sh --shared --maca --without-cu-bridge
+    if [ -f "./build_maca_no_cubridge.sh" ]; then
+        ./build_maca_no_cubridge.sh
         echo "  Build complete"
     else
         echo "  Warning: build.sh not found, skipping build"
