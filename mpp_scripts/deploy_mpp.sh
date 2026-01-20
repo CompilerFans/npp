@@ -198,9 +198,9 @@ echo ""
 echo "Step 3: Check MPP library build status"
 NEED_BUILD=false
 
-# Library structure: libmppc contains all implementations, others are stubs
+# Library structure: libmpp contains all implementations, others are stubs
 # Libraries: libmppc, libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps
-MAIN_LIB="libmppc"
+MAIN_LIB="libmpp"
 
 # Check if main library exists
 if [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.a" ] || [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.so" ]; then
@@ -267,7 +267,7 @@ else
 fi
 
 # Copy libraries (main + stubs)
-# Main library: libmppc (contains all implementations)
+# Main library: libmpp (contains all implementations)
 # Stub libraries: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps
 MPP_LIBS="mppc mppial mppicc mppidei mppif mppig mppim mppist mppisu mppitc mpps"
 
@@ -285,7 +285,7 @@ if [ "$DRY_RUN" = false ]; then
     done
 else
     echo "  [DRY-RUN] Would copy libraries to $MACA_SDK/lib/:"
-    echo "    Main: libmppc.{so,a}"
+    echo "    Main: libmpp.{so,a}"
     echo "    Stubs: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps"
 fi
 echo ""
@@ -345,7 +345,7 @@ echo ""
 echo "MACA SDK:"
 echo "  Headers: $MACA_SDK/include/mcmpp/"
 echo "  Libraries: $MACA_SDK/lib/"
-echo "    Main:  libmppc.{so,a} (contains all implementations)"
+echo "    Main:  libmpp.{so,a} (contains all implementations)"
 echo "    Stubs: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps"
 echo ""
 echo "cu-bridge:"

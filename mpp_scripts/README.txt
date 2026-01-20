@@ -56,7 +56,7 @@ Individual Scripts (can be used standalone)
      wrapper/user_include/*.h   - User-facing NPP headers
 
 4. deploy_mpp.sh - Deploy MPP to MACA SDK and cu-bridge
-   Copies built libraries (libmppc + stubs) and headers to target directories.
+   Copies built libraries (libmpp + stubs) and headers to target directories.
    Usage:
      ./mpp_scripts/deploy_mpp.sh --maca <maca_sdk_path> --cu-bridge <cu_bridge_path>
      ./mpp_scripts/deploy_mpp.sh --maca /opt/maca-3.3.0 --cu-bridge ~/cu-bridge --dry-run

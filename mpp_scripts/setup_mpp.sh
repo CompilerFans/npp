@@ -60,7 +60,7 @@
 #      wrapper/user_include/*.h   - User-facing NPP headers
 #
 # 4. deploy_mpp.sh - Deploy MPP to MACA SDK and cu-bridge
-#    Copies built libraries (libmppc + stubs) and headers to target directories.
+#    Copies built libraries (libmpp + stubs) and headers to target directories.
 #    Usage:
 #      ./mpp_scripts/deploy_mpp.sh --maca <maca_sdk_path> --cu-bridge <cu_bridge_path>
 #      ./mpp_scripts/deploy_mpp.sh --maca /opt/maca-3.3.0 --cu-bridge ~/cu-bridge --dry-run
@@ -342,14 +342,14 @@ echo "  │   ├── user_include/            # NPP compatibility headers"
 echo "  │   ├── *_wrapper.h              # NPP->MPP bridge"
 echo "  │   └── npp2mpp_functions.h      # Function mappings"
 echo "  └── build/src/"
-echo "      ├── libmppc.{so,a}           # Main library (all implementations)"
-echo "      └── libmpp*.{so,a}           # Stub libraries (link to libmppc)"
+echo "      ├── libmpp.{so,a}            # Main library (all implementations)"
+echo "      └── libmpp*.{so,a}           # Stub libraries (link to libmpp)"
 echo ""
 
 if [ "$SKIP_DEPLOY" = false ] && [ -n "$MACA_SDK" ] && [ -n "$CU_BRIDGE" ]; then
     echo "Deployed to:"
     echo "  MACA SDK:  $MACA_SDK/include/mcmpp/"
-    echo "  Libraries: $MACA_SDK/lib/libmppc.{so,a} + stubs"
+    echo "  Libraries: $MACA_SDK/lib/libmpp.{so,a} + stubs"
     echo "  cu-bridge: $CU_BRIDGE/include/"
     echo ""
     echo "User code example:"
@@ -357,7 +357,7 @@ if [ "$SKIP_DEPLOY" = false ] && [ -n "$MACA_SDK" ] && [ -n "$CU_BRIDGE" ]; then
     echo "  nppiMalloc_8u_C1(width, height, &step);"
     echo ""
     echo "Compile command:"
-    echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmppc user_code.cu"
+    echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmpp user_code.cu"
     echo ""
 else
     echo "To deploy later, run:"

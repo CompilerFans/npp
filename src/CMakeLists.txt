@@ -3,8 +3,8 @@
 # =============================================================================
 # Library Structure for NPP Compatibility
 # =============================================================================
-# libmppc.so/a contains all implementations (corresponds to libnppc.so)
-# Other libraries are stubs that link to libmppc:
+# libmpp.so/a contains all implementations (corresponds to libnppc.so)
+# Other libraries are stubs that link to libmpp:
 #
 # NVIDIA NPP Libraries -> MPP Libraries:
 #   libnppc.so    -> libmppc.so     (Core - contains ALL implementations)
@@ -29,9 +29,9 @@ if(WITHOUT_CU_BRIDGE)
 endif()
 
 # =============================================================================
-# Main library: libmppc (contains all implementations)
+# Main library: libmpp (contains all implementations)
 # Target name "npp" is kept for internal CMake references (tests depend on it)
-# Output name is "mppc" -> generates libmppc.so/libmppc.a
+# Output name is "mpp" -> generates libmpp.so/libmpp.a
 # =============================================================================
 add_library(npp
     ${CPU_SOURCES}
