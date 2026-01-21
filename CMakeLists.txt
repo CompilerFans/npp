@@ -12,7 +12,6 @@ option(WITHOUT_CU_BRIDGE "Build with MACA SDK (no CUDA Toolkit dependency)" OFF)
 # Include modular CMake configuration
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FindSources)
-include(CommonConfig)
 include(OptConfig)
 include(TestConfig)
 include(CMakePackageConfigHelpers)
@@ -30,6 +29,7 @@ else()
     project(MPP VERSION 1.0.0 LANGUAGES CXX CUDA)
 endif()
 
+include(CommonConfig)
 include(InstallConfig)
 
 # build src folder --- core lib
