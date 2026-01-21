@@ -1,9 +1,6 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-#include <thrust/device_vector.h>
-#include <thrust/sort.h>
-
 #define WATERSHED_MASK -2
 #define WATERSHED_WSHED -1
 #define WATERSHED_INIT 0
