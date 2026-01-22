@@ -110,33 +110,10 @@ function(npp_install_docs_examples)
     endif()
 endfunction()
 
-# 安装示例可执行文件
-function(npp_install_samples)
-    # 如果构建了示例，也安装可执行文件到bin目录
-    if(BUILD_EXAMPLES AND TARGET basic_add_example)
-        install(TARGETS basic_add_example
-            RUNTIME DESTINATION ${INSTALL_BINDIR}
-            COMPONENT samples
-        )
-    endif()
-endfunction()
-
 # 主安装函数
 function(npp_configure_install)
     # 安装头文件
     npp_install_headers()
-
-    # 安装库文件 - 这会在src/CMakeLists.txt中调用
-    # npp_install_library()
-
-    # 安装CMake配置
-    npp_install_cmake_config()
-
-    # 安装文档和示例
-    # npp_install_docs_examples()
-
-    # 安装示例可执行文件
-    npp_install_samples()
 
     # 生成卸载脚本
     if(NOT TARGET uninstall)

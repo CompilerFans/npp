@@ -7,7 +7,6 @@ echo "=== NPP Samples Build Script (MACA) ==="
 # Default values
 BUILD_TYPE="Release"
 JOBS=$(nproc)
-BUILD_SHARED_LIBS="OFF"
 USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
 WARNINGS_AS_ERRORS="ON"
 BUILD_DIR="build"
@@ -26,10 +25,6 @@ while [[ $# -gt 0 ]]; do
         -j)
             JOBS="$2"
             shift 2
-            ;;
-        --shared)
-            BUILD_SHARED_LIBS="ON"
-            shift
             ;;
         --use-nvidia-npp)
             USE_NVIDIA_NPP="ON"
@@ -67,7 +62,6 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  -d, --debug         Debug build"
             echo "  -j N                Use N parallel jobs"
-            echo "  --shared            Link shared libraries (.so)"
             echo "  --use-nvidia-npp    Use NVIDIA NPP instead of MPP"
             echo "  --no-werror         Disable warnings as errors"
             echo "  --mpp-root DIR      Set MPP root directory"
@@ -99,7 +93,6 @@ CMAKE_ARGS=(
     -B "$BUILD_DIR"
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
     -DCUDA_ARCH="$CUDA_ARCH"
-    -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS"
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS"
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP"
     -G Ninja
@@ -118,7 +111,7 @@ fi
 
 # Configure CMake (use cmake_maca for MACA environment)
 echo "Configuring CMake ($BUILD_TYPE mode)..."
-echo "CUDA_ARCH=$CUDA_ARCH, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
+echo "CUDA_ARCH=$CUDA_ARCH,  USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
 
 # Try cmake_maca first, fallback to cmake
 if command -v cmake_maca &> /dev/null; then

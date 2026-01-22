@@ -1,13 +1,24 @@
 cmake_minimum_required(VERSION 3.15)
 
+if(WIN32)
+    message(FATAL_ERROR "This project does NOT support building on Windows!!!!!")
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT WITHOUT_CU_BRIDGE)
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+endif()
+
 # Build options
 option(BUILD_TESTS "Build tests" ON)
-option(BUILD_EXAMPLES "Build examples" ON)
-option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
 option(WITHOUT_CU_BRIDGE "Build with MACA SDK (no CUDA Toolkit dependency)" OFF)
+
+message("GPU_TYPE: ${GPU_TYPE}")
 
 # Include modular CMake configuration
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -38,9 +49,6 @@ add_subdirectory(src)
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
-endif()
-
-if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 

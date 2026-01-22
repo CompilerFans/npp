@@ -11,8 +11,6 @@ BUILD_TYPE="Release"
 BUILD_DIR="build"  # Default build directory
 
 BUILD_TESTS="ON"
-BUILD_EXAMPLES="ON"
-BUILD_SHARED_LIBS="ON"
 WARNINGS_AS_ERRORS="ON"
 
 # CUDA/MACA SDK Relative
@@ -33,17 +31,8 @@ while [[ $# -gt 0 ]]; do
             JOBS="$2"
             shift 2
             ;;
-        --no-tests)
-            BUILD_TESTS="OFF"
-            shift
-            ;;
-        --no-examples)
-            BUILD_EXAMPLES="OFF"
-            shift
-            ;;
         --lib-only)
             BUILD_TESTS="OFF"
-            BUILD_EXAMPLES="OFF"
             shift
             ;;
         --no-werror)
@@ -68,10 +57,6 @@ while [[ $# -gt 0 ]]; do
             CMAKE_NAME="cmake"
             shift
             ;;
-        --shared)
-            BUILD_SHARED_LIBS="ON"
-            shift
-            ;;
         clean)
             echo "Cleaning build directories..."
             rm -rf build/ build-nvidia/
@@ -83,10 +68,7 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  -d, --debug     Debug build"
             echo "  -j N            Use N parallel jobs"
-            echo "  --no-tests      Skip building tests"
-            echo "  --no-examples   Skip building examples"
             echo "  --lib-only      Build library only (no tests, no examples)"
-            echo "  --shared        Build shared libraries (.so/.dll) instead of static (.a/.lib)"
             echo "  --no-werror     Disable warnings as errors"
             echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
             echo "  --cuda          Build with CUDA SDK"
@@ -113,22 +95,20 @@ else
 fi
 
 # TODO check combine logic, such as --cuda & --use-nvidia-npp, --maca & --without-cu-bridge
-
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
-
-# Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
-echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS"
-echo "USE_NVIDIA_NPP=$USE_NVIDIA_NPP, GPU_TYPE=$GPU_TYPE, WITHOUT_CU_BRIDGE=$WITHOUT_CU_BRIDGE, CMAKE_NAME=$CMAKE_NAME"
-
+echo "BUILD_TESTS=$BUILD_TESTS"
+echo "WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS"
+echo "USE_NVIDIA_NPP=$USE_NVIDIA_NPP,CMAKE_NAME=$CMAKE_NAME"
+echo "GPU_TYPE=$WARNINGPU_TYPEGS_AS_ERRORS"
+echo "WITHOUT_CU_BRIDGE=$WITHOUT_CU_BRIDGE"
+echo "CMAKE_NAME=$CMAKE_NAME"
 
 $CMAKE_NAME -S .\
     -B $BUILD_DIR \
     -G Ninja      \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DBUILD_TESTS="$BUILD_TESTS" \
-    -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
-    -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
     -DGPU_TYPE="$GPU_TYPE" \

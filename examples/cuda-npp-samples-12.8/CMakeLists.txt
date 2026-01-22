@@ -11,7 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # =============================================================================
 # Build Options (compatible with mcMPP build system)
 # =============================================================================
-option(BUILD_SHARED_LIBS "Build shared libraries (.so/.dll) instead of static (.a/.lib)" OFF)
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 
@@ -70,17 +69,8 @@ if(USE_NVIDIA_NPP)
     set(NPP_INCLUDE_DIRS "")
 else()
     message(STATUS "Using MPP library")
-    if(BUILD_SHARED_LIBS)
-        find_library(MPP_LIBRARY NAMES mppc
-            PATHS ${MPP_LIBRARY_DIR} PATH_SUFFIXES lib lib64 NO_DEFAULT_PATH)
-    else()
-        find_library(MPP_LIBRARY NAMES mppc libmppc.a
-            PATHS ${MPP_LIBRARY_DIR} PATH_SUFFIXES lib lib64 NO_DEFAULT_PATH)
-    endif()
-
-    if(NOT MPP_LIBRARY)
-        find_library(MPP_LIBRARY NAMES mppc)
-    endif()
+    find_library(MPP_LIBRARY NAMES mpp libmpp.a
+        PATHS ${MPP_LIBRARY_DIR} PATH_SUFFIXES lib lib64 NO_DEFAULT_PATH)
 
     if(NOT MPP_LIBRARY)
         message(FATAL_ERROR "MPP library not found in ${MPP_LIBRARY_DIR}")
@@ -171,7 +161,7 @@ else()
     message(STATUS "MPP Include Dir:     ${MPP_INCLUDE_DIR}")
     message(STATUS "MPP Library:         ${MPP_LIBRARY}")
 endif()
-message(STATUS "Build Shared Libs:   ${BUILD_SHARED_LIBS}")
+
 message(STATUS "CUDA Architecture:   ${CUDA_ARCH}")
 message(STATUS "Warnings as Errors:  ${NPP_WARNINGS_AS_ERRORS}")
 message(STATUS "FreeImage Found:     ${FREEIMAGE_FOUND}")

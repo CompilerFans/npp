@@ -1,4 +1,5 @@
 #!/bin/bash
 
 echo "=== mcMPP build by maca and with cu-bridge ==="
-./build.sh --shared --maca
+export CUCC_CMAKE_ENTRY=2
+./build.sh --maca
