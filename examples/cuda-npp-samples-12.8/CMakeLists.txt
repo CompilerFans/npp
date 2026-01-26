@@ -69,7 +69,7 @@ if(USE_NVIDIA_NPP)
     set(NPP_INCLUDE_DIRS "")
 else()
     message(STATUS "Using MPP library")
-    find_library(MPP_LIBRARY NAMES mpp libmpp.a
+    find_library(MPP_LIBRARY NAMES mpp_static
         PATHS ${MPP_LIBRARY_DIR} PATH_SUFFIXES lib lib64 NO_DEFAULT_PATH)
 
     if(NOT MPP_LIBRARY)
