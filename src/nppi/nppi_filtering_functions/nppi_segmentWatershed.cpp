@@ -38,7 +38,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32
                                        NppiWatershedSegmentBoundaryType eSegmentBoundaryType, NppiSize oSizeROI,
                                        Npp8u *pDeviceMemoryBuffer) {
   // Parameter validation
-  if (pSrcDst == nullptr || pMarkerLabels == nullptr || pDeviceMemoryBuffer == nullptr) {
+  if (pSrcDst == nullptr || pDeviceMemoryBuffer == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
 
@@ -46,7 +46,12 @@ NppStatus nppiSegmentWatershed_8u_C1IR(Npp8u *pSrcDst, Npp32s nSrcDstStep, Npp32
     return NPP_SIZE_ERROR;
   }
 
-  if (nSrcDstStep <= 0 || nMarkerLabelsStep <= 0) {
+  if (nSrcDstStep <= 0) {
+    return NPP_STEP_ERROR;
+  }
+
+  // pMarkerLabels can be nullptr (skip label output)
+  if (pMarkerLabels != nullptr && nMarkerLabelsStep <= 0) {
     return NPP_STEP_ERROR;
   }
 
@@ -66,7 +71,7 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u *pSrcDst, Npp32s nSrcDstStep, N
                                            NppiWatershedSegmentBoundaryType eSegmentBoundaryType, NppiSize oSizeROI,
                                            Npp8u *pDeviceMemoryBuffer, NppStreamContext nppStreamCtx) {
   // Parameter validation
-  if (pSrcDst == nullptr || pMarkerLabels == nullptr || pDeviceMemoryBuffer == nullptr) {
+  if (pSrcDst == nullptr || pDeviceMemoryBuffer == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
 
@@ -74,7 +79,12 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx(Npp8u *pSrcDst, Npp32s nSrcDstStep, N
     return NPP_SIZE_ERROR;
   }
 
-  if (nSrcDstStep <= 0 || nMarkerLabelsStep <= 0) {
+  if (nSrcDstStep <= 0) {
+    return NPP_STEP_ERROR;
+  }
+
+  // pMarkerLabels can be nullptr (skip label output)
+  if (pMarkerLabels != nullptr && nMarkerLabelsStep <= 0) {
     return NPP_STEP_ERROR;
   }
 

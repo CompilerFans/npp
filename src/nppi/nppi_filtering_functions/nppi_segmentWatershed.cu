@@ -234,16 +234,20 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
   computeGradient_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcDst, nSrcDstStep, pGradient, gradStep,
                                                                            width, height, (Npp8u)eNorm);
 
-  // Step 2: Initialize markers
-  initializeMarkers_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>((Npp32s *)pMarkerLabels, nMarkerLabelsStep,
-                                                                             width, height);
+  // Step 2: Initialize markers (skip if pMarkerLabels is nullptr)
+  if (pMarkerLabels != nullptr) {
+    initializeMarkers_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>((Npp32s *)pMarkerLabels, nMarkerLabelsStep,
+                                                                               width, height);
+  }
 
-  // Step 3: Find initial boundary pixels
+  // Step 3: Find initial boundary pixels (skip if pMarkerLabels is nullptr)
   cudaMemsetAsync(pQueueCount1, 0, sizeof(int), nppStreamCtx.hStream);
 
-  findBoundaryPixels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      (Npp32s *)pMarkerLabels, nMarkerLabelsStep, pGradient, gradStep, pPixelQueue1, pQueueCount1, width, height,
-      (int)imageSize);
+  if (pMarkerLabels != nullptr) {
+    findBoundaryPixels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        (Npp32s *)pMarkerLabels, nMarkerLabelsStep, pGradient, gradStep, pPixelQueue1, pQueueCount1, width, height,
+        (int)imageSize);
+  }
 
   // Step 4: Iterative processing (simplified priority queue)
   WatershedPixel *currentQueue = pPixelQueue1;
@@ -266,9 +270,11 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
     dim3 linearBlockSize(256);
     dim3 linearGridSize((h_count + linearBlockSize.x - 1) / linearBlockSize.x);
 
-    processWatershedPixels_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(
-        currentQueue, h_count, (Npp32s *)pMarkerLabels, nMarkerLabelsStep, width, height, nextQueue, nextCount,
-        pGradient, gradStep);
+    if (pMarkerLabels != nullptr) {
+      processWatershedPixels_kernel<<<linearGridSize, linearBlockSize, 0, nppStreamCtx.hStream>>>(
+          currentQueue, h_count, (Npp32s *)pMarkerLabels, nMarkerLabelsStep, width, height, nextQueue, nextCount,
+          pGradient, gradStep);
+    }
 
     // Swap queues
     WatershedPixel *tempQueue = currentQueue;
