@@ -157,15 +157,15 @@ watershed_count=0
 
 watershed_mapping=(
     "teapot_Segments_8Way_512x512_8u.raw:teapot_Segments_8Way_512x512_8u.raw"
-    "teapot_CompressedSegmentLabels_8Way_512x512_32u.raw:teapot_SegmentLabels_8Way_512x512_32u.raw"
+    "teapot_CompressedSegmentLabels_8Way_512x512_32u.raw:teapot_CompressedSegmentLabels_8Way_512x512_32u.raw"
     "teapot_SegmentBoundaries_8Way_512x512_8u.raw:teapot_SegmentBoundaries_8Way_512x512_8u.raw"
     "teapot_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw:teapot_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw"
     "CT_skull_Segments_8Way_512x512_8u.raw:CT_skull_Segments_8Way_512x512_8u.raw"
-    "CT_skull_CompressedSegmentLabels_8Way_512x512_32u.raw:CT_skull_SegmentLabels_8Way_512x512_32u.raw"
+    "CT_skull_CompressedSegmentLabels_8Way_512x512_32u.raw:CT_skull_CompressedSegmentLabels_8Way_512x512_32u.raw"
     "CT_skull_SegmentBoundaries_8Way_512x512_8u.raw:CT_skull_SegmentBoundaries_8Way_512x512_8u.raw"
     "CT_skull_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw:CT_skull_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw"
     "Rocks_Segments_8Way_512x512_8u.raw:Rocks_Segments_8Way_512x512_8u.raw"
-    "Rocks_CompressedSegmentLabels_8Way_512x512_32u.raw:Rocks_SegmentLabels_8Way_512x512_32u.raw"
+    "Rocks_CompressedSegmentLabels_8Way_512x512_32u.raw:Rocks_CompressedSegmentLabels_8Way_512x512_32u.raw"
     "Rocks_SegmentBoundaries_8Way_512x512_8u.raw:Rocks_SegmentBoundaries_8Way_512x512_8u.raw"
     "Rocks_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw:Rocks_SegmentsWithContrastingBoundaries_8Way_512x512_8u.raw"
 )
