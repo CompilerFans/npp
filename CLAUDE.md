@@ -223,9 +223,46 @@ Include from `API/` directory (symlink to current version)
 - C++ compiler with CUDA support
 - CMake 3.18+
 - Ninja build system (recommended)
-- 测试npp原始闭源库使用 source ./build.sh --use-nvidia-npp ;cd build-nvidia;./unit_tests，测试npp源码实现使用source ./build.sh;cd build-nvidia;./unit_tests
-- 避免使用宏，如果需要请使用模板或类
-- src实现状态和测试状态看api_analysis/coverage.csv和api_analysis/coverage_summary.md，新增实现后调用source update_coverage.sh更新
-- 测试使用TEST_P，简化重复代码，降低测试代码冗余，可通过functor传入测试预期
-- 源码实现和测试实现，需要基于api的名称独立分类
-- 针对函数签名中size_t和int数据类型上的区别，本工程目标是src源码中两个版本均支持，使用复用的函数实现。测试基于cuda版本，选择不同的测试调用
+
+## Coverage Tracking
+
+### Checking Implementation Status
+Track implementation and test coverage using the automated analysis tools:
+- **coverage.csv**: Full function-level coverage data
+- **coverage_summary.md**: Module-level statistics and percentages
+
+View coverage status:
+```bash
+cat api_analysis/coverage_summary.md
+```
+
+### Updating Coverage After Implementation
+After adding new implementations or tests, update the coverage tracking:
+```bash
+./update_coverage.sh
+```
+
+This generates:
+- Updated `api_analysis/coverage.csv`
+- Updated `api_analysis/coverage_summary.md`
+- Module-specific untested function lists (e.g., `untested_arithmetic.txt`)
+
+## Implementation Patterns
+
+### Avoid Macros
+- Prefer templates or classes over preprocessor macros
+- Use type-safe abstractions for code reuse
+
+### Type Compatibility (size_t vs int)
+- Support both size_t and int versions where API signatures differ across CUDA versions
+- Implement shared logic using function templates or common helpers
+- Tests should conditionally call the appropriate version based on CUDA version
+
+### Test Parameterization
+- Use `TEST_P` (parameterized tests) to reduce code duplication
+- Pass expected behavior via functors or test fixtures
+- Keep test code DRY (Don't Repeat Yourself)
+
+### File Organization
+- Implementation files and test files should be organized by API function name
+- Maintain parallel structure between `src/` and `test/unit/` hierarchies

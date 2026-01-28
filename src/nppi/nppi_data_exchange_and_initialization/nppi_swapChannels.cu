@@ -3,82 +3,81 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// SwapChannels kernel for 4-channel images (C4R and C4IR)
-__global__ void nppiSwapChannels_8u_C4_kernel(const Npp8u *pSrc, int nSrcStep,
-                                               Npp8u *pDst, int nDstStep,
-                                               int width, int height,
-                                               const int *aDstOrder) {
+// Template kernel for channel swapping with generic data types and channel counts
+template<typename T, int SRC_CHANNELS, int DST_CHANNELS>
+__global__ void nppiSwapChannels_kernel(const T *pSrc, int nSrcStep,
+                                         T *pDst, int nDstStep,
+                                         int width, int height,
+                                         const int *aDstOrder,
+                                         T fillValue = 0) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x >= width || y >= height)
     return;
 
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
+  const T *src_row = (const T *)((const char *)pSrc + y * nSrcStep);
+  T *dst_row = (T *)((char *)pDst + y * nDstStep);
 
-  // Read channel order from constant memory or global memory
   int order[4];
-  order[0] = aDstOrder[0];
-  order[1] = aDstOrder[1];
-  order[2] = aDstOrder[2];
-  order[3] = aDstOrder[3];
+  for (int i = 0; i < DST_CHANNELS; i++) {
+    order[i] = aDstOrder[i];
+  }
 
-  // Swap channels according to aDstOrder
-  // dst[c] = src[aDstOrder[c]]
-  dst_row[x * 4 + 0] = src_row[x * 4 + order[0]];
-  dst_row[x * 4 + 1] = src_row[x * 4 + order[1]];
-  dst_row[x * 4 + 2] = src_row[x * 4 + order[2]];
-  dst_row[x * 4 + 3] = src_row[x * 4 + order[3]];
+  for (int c = 0; c < DST_CHANNELS; c++) {
+    int src_ch = order[c];
+    if (src_ch >= 0 && src_ch < SRC_CHANNELS) {
+      dst_row[x * DST_CHANNELS + c] = src_row[x * SRC_CHANNELS + src_ch];
+    } else {
+      dst_row[x * DST_CHANNELS + c] = fillValue;
+    }
+  }
 }
 
-// Optimized vectorized version using uint32_t for aligned access
-__global__ void nppiSwapChannels_8u_C4_vectorized_kernel(const Npp8u *pSrc, int nSrcStep,
-                                                          Npp8u *pDst, int nDstStep,
-                                                          int width, int height,
-                                                          const int *aDstOrder) {
+// AC4R specialized kernel that skips alpha channel (channel 3)
+template<typename T>
+__global__ void nppiSwapChannels_AC4_kernel(const T *pSrc, int nSrcStep,
+                                             T *pDst, int nDstStep,
+                                             int width, int height,
+                                             const int *aDstOrder) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
   if (x >= width || y >= height)
     return;
 
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
+  const T *src_row = (const T *)((const char *)pSrc + y * nSrcStep);
+  T *dst_row = (T *)((char *)pDst + y * nDstStep);
 
-  // Load channel order
-  int order[4];
+  int order[3];
   order[0] = aDstOrder[0];
   order[1] = aDstOrder[1];
   order[2] = aDstOrder[2];
-  order[3] = aDstOrder[3];
 
-  // Perform channel swap
-  int src_idx = x * 4;
-  int dst_idx = x * 4;
+  // Swap first 3 channels only
+  for (int c = 0; c < 3; c++) {
+    dst_row[x * 4 + c] = src_row[x * 4 + order[c]];
+  }
 
-  dst_row[dst_idx + 0] = src_row[src_idx + order[0]];
-  dst_row[dst_idx + 1] = src_row[src_idx + order[1]];
-  dst_row[dst_idx + 2] = src_row[src_idx + order[2]];
-  dst_row[dst_idx + 3] = src_row[src_idx + order[3]];
+  // Set alpha channel to 0 (NVIDIA NPP behavior)
+  dst_row[x * 4 + 3] = 0;
 }
 
-extern "C" {
-
-// Implementation function for C4R with context
-NppStatus nppiSwapChannels_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
-                                            Npp8u *pDst, int nDstStep,
-                                            NppiSize oSizeROI,
-                                            const int aDstOrder[4],
-                                            NppStreamContext nppStreamCtx) {
-  // Allocate device memory for aDstOrder
+// Template implementation function
+template<typename T, int SRC_CHANNELS, int DST_CHANNELS>
+NppStatus nppiSwapChannels_impl(const T *pSrc, int nSrcStep,
+                                 T *pDst, int nDstStep,
+                                 NppiSize oSizeROI,
+                                 const int *aDstOrder,
+                                 T fillValue,
+                                 NppStreamContext nppStreamCtx) {
   int *d_aDstOrder;
-  cudaError_t err = cudaMalloc(&d_aDstOrder, 4 * sizeof(int));
+  cudaError_t err = cudaMalloc(&d_aDstOrder, DST_CHANNELS * sizeof(int));
   if (err != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  err = cudaMemcpyAsync(d_aDstOrder, aDstOrder, 4 * sizeof(int),
+  err = cudaMemcpyAsync(d_aDstOrder, aDstOrder, DST_CHANNELS * sizeof(int),
                         cudaMemcpyHostToDevice, nppStreamCtx.hStream);
   if (err != cudaSuccess) {
     cudaFree(d_aDstOrder);
@@ -89,7 +88,49 @@ NppStatus nppiSwapChannels_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiSwapChannels_8u_C4_vectorized_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  nppiSwapChannels_kernel<T, SRC_CHANNELS, DST_CHANNELS>
+      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
+      d_aDstOrder, fillValue);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    cudaFree(d_aDstOrder);
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  cudaFree(d_aDstOrder);
+
+  return NPP_SUCCESS;
+}
+
+// AC4R specialized implementation
+template<typename T>
+NppStatus nppiSwapChannels_AC4R_impl(const T *pSrc, int nSrcStep,
+                                      T *pDst, int nDstStep,
+                                      NppiSize oSizeROI,
+                                      const int aDstOrder[3],
+                                      NppStreamContext nppStreamCtx) {
+  int *d_aDstOrder;
+  cudaError_t err = cudaMalloc(&d_aDstOrder, 3 * sizeof(int));
+  if (err != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  err = cudaMemcpyAsync(d_aDstOrder, aDstOrder, 3 * sizeof(int),
+                        cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  if (err != cudaSuccess) {
+    cudaFree(d_aDstOrder);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiSwapChannels_AC4_kernel<T>
+      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_aDstOrder);
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -98,44 +139,24 @@ NppStatus nppiSwapChannels_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Free device memory after kernel completes
   cudaStreamSynchronize(nppStreamCtx.hStream);
   cudaFree(d_aDstOrder);
 
   return NPP_SUCCESS;
 }
 
-// Implementation function for C4IR (in-place) with context
-NppStatus nppiSwapChannels_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep,
-                                             NppiSize oSizeROI,
-                                             const int aDstOrder[4],
-                                             NppStreamContext nppStreamCtx) {
-  // For in-place operation, we need a temporary buffer
-  // Allocate temporary device memory
-  int step;
-  Npp8u *pTemp = nppiMalloc_8u_C4(oSizeROI.width, oSizeROI.height, &step);
-  if (!pTemp) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
+// Explicit template instantiations for export
+#define INSTANTIATE_SWAP_CHANNELS(T) \
+  template NppStatus nppiSwapChannels_impl<T, 3, 3>(const T*, int, T*, int, NppiSize, const int*, T, NppStreamContext); \
+  template NppStatus nppiSwapChannels_impl<T, 4, 4>(const T*, int, T*, int, NppiSize, const int*, T, NppStreamContext); \
+  template NppStatus nppiSwapChannels_impl<T, 4, 3>(const T*, int, T*, int, NppiSize, const int*, T, NppStreamContext); \
+  template NppStatus nppiSwapChannels_impl<T, 3, 4>(const T*, int, T*, int, NppiSize, const int*, T, NppStreamContext); \
+  template NppStatus nppiSwapChannels_AC4R_impl<T>(const T*, int, T*, int, NppiSize, const int[3], NppStreamContext);
 
-  // Copy source to temp
-  cudaError_t err = cudaMemcpy2DAsync(pTemp, step, pSrcDst, nSrcDstStep,
-                                      oSizeROI.width * 4 * sizeof(Npp8u), oSizeROI.height,
-                                      cudaMemcpyDeviceToDevice, nppStreamCtx.hStream);
-  if (err != cudaSuccess) {
-    nppiFree(pTemp);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
+INSTANTIATE_SWAP_CHANNELS(Npp8u)
+INSTANTIATE_SWAP_CHANNELS(Npp16u)
+INSTANTIATE_SWAP_CHANNELS(Npp16s)
+INSTANTIATE_SWAP_CHANNELS(Npp32s)
+INSTANTIATE_SWAP_CHANNELS(Npp32f)
 
-  // Perform swap from temp to original
-  NppStatus status = nppiSwapChannels_8u_C4R_Ctx_impl(pTemp, step, pSrcDst, nSrcDstStep,
-                                                       oSizeROI, aDstOrder, nppStreamCtx);
-
-  // Free temporary buffer
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  nppiFree(pTemp);
-
-  return status;
-}
-
-} // extern "C"
+#undef INSTANTIATE_SWAP_CHANNELS
