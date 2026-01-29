@@ -15,6 +15,9 @@ OUTPUT_FILE = os.path.join(PROJECT_DIR, 'wrapper', 'npp2mpp_functions.h')
 
 def extract_function_names(content):
     """Extract function names starting with npp/nppi/npps."""
+    # Strip comments to avoid picking up enum values mentioned in docs.
+    content = re.sub(r'/\*.*?\*/', '', content, flags=re.S)
+    content = re.sub(r'//.*', '', content)
     pattern = r'\b(npp[ips]?[A-Za-z0-9_]+)\s*\('
     matches = re.findall(pattern, content)
     return sorted(set(matches))

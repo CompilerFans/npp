@@ -44,7 +44,7 @@ PROJECT_DIR = SCRIPT_DIR.parent
 PROCESS_DIRS = ['src', 'test', 'cmake', 'examples']
 API_DIR = 'API'
 API_VERSION_DIRS = ['API-11.4', 'API-12.2', 'API-12.8']
-SKIP_DIRS = ['build', 'build-nvidia', '.git', 'third_party', 'wrapper', '.npp_backup', '.cuda_backup', 'maca_test', 'cuda-npp-samples'] + API_VERSION_DIRS
+SKIP_DIRS = ['build', 'build-nvidia', '.git', 'third_party', 'wrapper', '.npp_backup', '.cuda_backup', 'maca_test', 'cuda-npp-samples', 'cuda-npp-samples-11.6'] + API_VERSION_DIRS
 ROOT_FILES = ['CMakeLists.txt', 'build.sh', 'build_maca.sh']
 CODE_EXTENSIONS = {'.cpp', '.cu', '.h', '.hpp', '.cuh', '.c'}
 BUILD_EXTENSIONS = {'.cmake', '.txt', '.sh', '.md'}
@@ -167,7 +167,7 @@ class GenericNppReplacer:
         content = re.sub(r'/nppcore/', '/mppcore/', content)
 
         # 9. Header guards - handle all NV_NPP* patterns
-        content = re.sub(r'\bNV_NPP([A-Z_]*_H)\b', r'MV_MPP\1', content)
+        content = re.sub(r'\bNV_NPP([A-Z_]*_H)\b', r'MX_MPP\1', content)
         content = re.sub(r'\b_NPP_H_\b', '_MPP_H_', content)
         content = re.sub(r'\b_NPPDEFS_H_\b', '_MPPDEFS_H_', content)
 
