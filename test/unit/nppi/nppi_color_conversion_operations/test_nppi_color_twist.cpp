@@ -511,3 +511,224 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_IP3R_Ctx_Brightness) {
     ASSERT_NEAR(dstB[i], b, 1);
   }
 }
+
+// 测试16位无符号三通道ColorTwist - 恒等变换
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_16u_C3R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp16u> srcData(width * height * 3);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 3 + 0] = static_cast<Npp16u>((i * 5) % 65535);
+    srcData[i * 3 + 1] = static_cast<Npp16u>((i * 7) % 65535);
+    srcData[i * 3 + 2] = static_cast<Npp16u>((i * 11) % 65535);
+  }
+
+  NppImageMemory<Npp16u> src(width, height, 3);
+  NppImageMemory<Npp16u> dst(width, height, 3);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_16u_C3R_Ctx(src.get(), src.step(), dst.get(), dst.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp16u> dstData(width * height * 3);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < width * height * 3; i++) {
+    ASSERT_EQ(srcData[i], dstData[i]);
+  }
+}
+
+// 测试16位无符号AC4 ColorTwist - 恒等变换 (alpha置零)
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_16u_AC4R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp16u> srcData(width * height * 4);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 4 + 0] = static_cast<Npp16u>((i * 5) % 65535);
+    srcData[i * 4 + 1] = static_cast<Npp16u>((i * 7) % 65535);
+    srcData[i * 4 + 2] = static_cast<Npp16u>((i * 11) % 65535);
+    srcData[i * 4 + 3] = static_cast<Npp16u>((i * 13) % 65535);
+  }
+
+  NppImageMemory<Npp16u> src(width, height, 4);
+  NppImageMemory<Npp16u> dst(width, height, 4);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_16u_AC4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp16u> dstData(width * height * 4);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    ASSERT_EQ(dstData[i * 4 + 0], srcData[i * 4 + 0]);
+    ASSERT_EQ(dstData[i * 4 + 1], srcData[i * 4 + 1]);
+    ASSERT_EQ(dstData[i * 4 + 2], srcData[i * 4 + 2]);
+    ASSERT_EQ(dstData[i * 4 + 3], 0);
+  }
+}
+
+// 测试16位无符号三通道ColorTwist in-place
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_16u_C3IR_Ctx_Brightness) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp16u> srcData(width * height * 3);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 3 + 0] = static_cast<Npp16u>((i * 5) % 65535);
+    srcData[i * 3 + 1] = static_cast<Npp16u>((i * 7) % 65535);
+    srcData[i * 3 + 2] = static_cast<Npp16u>((i * 11) % 65535);
+  }
+
+  NppImageMemory<Npp16u> src(width, height, 3);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 10.0f},
+      {0.0f, 1.0f, 0.0f, 20.0f},
+      {0.0f, 0.0f, 1.0f, 30.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiColorTwist32f_16u_C3IR_Ctx(src.get(), src.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp16u> dstData(width * height * 3);
+  src.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    int r = std::min(65535, static_cast<int>(srcData[i * 3 + 0]) + 10);
+    int g = std::min(65535, static_cast<int>(srcData[i * 3 + 1]) + 20);
+    int b = std::min(65535, static_cast<int>(srcData[i * 3 + 2]) + 30);
+    ASSERT_NEAR(dstData[i * 3 + 0], r, 1);
+    ASSERT_NEAR(dstData[i * 3 + 1], g, 1);
+    ASSERT_NEAR(dstData[i * 3 + 2], b, 1);
+  }
+}
+
+// 测试16位有符号三通道ColorTwist - 恒等变换
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_16s_C3R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp16s> srcData(width * height * 3);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 3 + 0] = static_cast<Npp16s>((i * 5) % 1024 - 512);
+    srcData[i * 3 + 1] = static_cast<Npp16s>((i * 7) % 1024 - 512);
+    srcData[i * 3 + 2] = static_cast<Npp16s>((i * 11) % 1024 - 512);
+  }
+
+  size_t srcStepBytes = 0;
+  size_t dstStepBytes = 0;
+  Npp16s *d_src = nullptr;
+  Npp16s *d_dst = nullptr;
+  ASSERT_EQ(cudaMallocPitch(reinterpret_cast<void **>(&d_src), &srcStepBytes, width * sizeof(Npp16s) * 3, height),
+            cudaSuccess);
+  ASSERT_EQ(cudaMallocPitch(reinterpret_cast<void **>(&d_dst), &dstStepBytes, width * sizeof(Npp16s) * 3, height),
+            cudaSuccess);
+
+  cudaMemcpy2D(d_src, srcStepBytes, srcData.data(), width * sizeof(Npp16s) * 3, width * sizeof(Npp16s) * 3, height,
+               cudaMemcpyHostToDevice);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiColorTwist32f_16s_C3R_Ctx(d_src, static_cast<int>(srcStepBytes), d_dst,
+                                                   static_cast<int>(dstStepBytes), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp16s> dstData(width * height * 3);
+  cudaMemcpy2D(dstData.data(), width * sizeof(Npp16s) * 3, d_dst, dstStepBytes, width * sizeof(Npp16s) * 3, height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height * 3; i++) {
+    ASSERT_EQ(srcData[i], dstData[i]);
+  }
+
+  cudaFree(d_src);
+  cudaFree(d_dst);
+}
+
+// 测试16位有符号三通道ColorTwist in-place
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_16s_C3IR_Ctx_Brightness) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp16s> srcData(width * height * 3);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 3 + 0] = static_cast<Npp16s>((i * 5) % 1024 - 512);
+    srcData[i * 3 + 1] = static_cast<Npp16s>((i * 7) % 1024 - 512);
+    srcData[i * 3 + 2] = static_cast<Npp16s>((i * 11) % 1024 - 512);
+  }
+
+  size_t srcStepBytes = 0;
+  Npp16s *d_src = nullptr;
+  ASSERT_EQ(cudaMallocPitch(reinterpret_cast<void **>(&d_src), &srcStepBytes, width * sizeof(Npp16s) * 3, height),
+            cudaSuccess);
+
+  cudaMemcpy2D(d_src, srcStepBytes, srcData.data(), width * sizeof(Npp16s) * 3, width * sizeof(Npp16s) * 3, height,
+               cudaMemcpyHostToDevice);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 10.0f},
+      {0.0f, 1.0f, 0.0f, 20.0f},
+      {0.0f, 0.0f, 1.0f, 30.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_16s_C3IR_Ctx(d_src, static_cast<int>(srcStepBytes), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp16s> dstData(width * height * 3);
+  cudaMemcpy2D(dstData.data(), width * sizeof(Npp16s) * 3, d_src, srcStepBytes, width * sizeof(Npp16s) * 3, height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; i++) {
+    int r = std::min(32767, static_cast<int>(srcData[i * 3 + 0]) + 10);
+    int g = std::min(32767, static_cast<int>(srcData[i * 3 + 1]) + 20);
+    int b = std::min(32767, static_cast<int>(srcData[i * 3 + 2]) + 30);
+    ASSERT_NEAR(dstData[i * 3 + 0], r, 1);
+    ASSERT_NEAR(dstData[i * 3 + 1], g, 1);
+    ASSERT_NEAR(dstData[i * 3 + 2], b, 1);
+  }
+
+  cudaFree(d_src);
+}
