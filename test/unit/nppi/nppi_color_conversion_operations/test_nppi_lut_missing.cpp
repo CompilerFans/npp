@@ -1,7 +1,9 @@
 #include "npp.h"
 #include "npp_test_base.h"
+#include <algorithm>
 #include <cstring>
 #include <gtest/gtest.h>
+#include <limits>
 #include <random>
 #include <vector>
 
@@ -56,6 +58,49 @@ class Lut8uC3RParamTest : public LutMissingTestBase, public ::testing::WithParam
 class Lut8uC4RParamTest : public LutMissingTestBase, public ::testing::WithParamInterface<LutCase> {};
 class Lut16uC1RParamTest : public LutMissingTestBase, public ::testing::WithParamInterface<LutCase> {};
 
+#ifdef USE_NVIDIA_NPP_TESTS
+template <typename T> T clampToType(Npp32s value);
+template <> Npp8u clampToType<Npp8u>(Npp32s value) {
+  return static_cast<Npp8u>(std::min(std::max(value, 0), 255));
+}
+template <> Npp16u clampToType<Npp16u>(Npp32s value) {
+  return static_cast<Npp16u>(std::min(std::max(value, 0), 65535));
+}
+
+template <typename T>
+T applyLutNoInterpolation(T input, const std::vector<Npp32s> &values, const std::vector<Npp32s> &levels) {
+  int index = 0;
+  const int inputValue = static_cast<int>(input);
+  for (size_t i = 1; i < levels.size(); ++i) {
+    if (inputValue >= levels[i]) {
+      index = static_cast<int>(i);
+    } else {
+      break;
+    }
+  }
+  return clampToType<T>(values[static_cast<size_t>(index)]);
+}
+#endif
+
+template <typename T>
+bool allocAndCopyToDevice(const std::vector<T> &host, T **devicePtr) {
+  *devicePtr = nullptr;
+  if (host.empty()) {
+    return false;
+  }
+  cudaError_t err = cudaMalloc(reinterpret_cast<void **>(devicePtr), host.size() * sizeof(T));
+  if (err != cudaSuccess) {
+    return false;
+  }
+  err = cudaMemcpy(*devicePtr, host.data(), host.size() * sizeof(T), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) {
+    cudaFree(*devicePtr);
+    *devicePtr = nullptr;
+    return false;
+  }
+  return true;
+}
+
 } // namespace
 
 TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
@@ -83,17 +128,45 @@ TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width, width, height, cudaMemcpyHostToDevice);
   cudaMemcpy2D(d_dst, dstStep, hostDst.data(), width, width, height, cudaMemcpyHostToDevice);
 
-  const int levels = 2;
-  const Npp32s values[2] = {0, 255};
-  const Npp32s levelPos[2] = {0, 255};
+  std::vector<Npp32s> values = {0, 255};
+  std::vector<Npp32s> levelPos = {0, 255};
+  const int levels = static_cast<int>(values.size());
 
-  NppStatus status = nppiLUT_8u_C1R(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels);
+  Npp32s *d_values = nullptr;
+  Npp32s *d_levels = nullptr;
+  if (!allocAndCopyToDevice(values, &d_values) || !allocAndCopyToDevice(levelPos, &d_levels)) {
+    if (d_values) {
+      cudaFree(d_values);
+    }
+    if (d_levels) {
+      cudaFree(d_levels);
+    }
+    nppiFree(d_src);
+    nppiFree(d_dst);
+    GTEST_SKIP() << "Failed to allocate LUT device memory";
+  }
+
+  NppStatus status = nppiLUT_8u_C1R(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels);
+#ifdef USE_NVIDIA_NPP_TESTS
+  EXPECT_EQ(status, NPP_NO_ERROR);
+#else
   EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
+#endif
 
   std::vector<Npp8u> out(width * height);
   cudaMemcpy2D(out.data(), width, d_dst, dstStep, width, height, cudaMemcpyDeviceToHost);
+#ifdef USE_NVIDIA_NPP_TESTS
+  std::vector<Npp8u> expected(width * height);
+  for (size_t i = 0; i < expected.size(); ++i) {
+    expected[i] = applyLutNoInterpolation(hostSrc[i], values, levelPos);
+  }
+  EXPECT_EQ(out, expected);
+#else
   EXPECT_EQ(out, hostDst);
+#endif
 
+  cudaFree(d_values);
+  cudaFree(d_levels);
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -124,22 +197,63 @@ TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
   cudaMemcpy2D(d_dst, dstStep, hostDst.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
 
   int levels[3] = {2, 2, 2};
-  const Npp32s values0[2] = {0, 255};
-  const Npp32s values1[2] = {0, 255};
-  const Npp32s values2[2] = {0, 255};
-  const Npp32s levelPos0[2] = {0, 255};
-  const Npp32s levelPos1[2] = {0, 255};
-  const Npp32s levelPos2[2] = {0, 255};
-  const Npp32s *values[3] = {values0, values1, values2};
-  const Npp32s *levelPos[3] = {levelPos0, levelPos1, levelPos2};
+  std::vector<Npp32s> values0 = {0, 255};
+  std::vector<Npp32s> values1 = {0, 255};
+  std::vector<Npp32s> values2 = {0, 255};
+  std::vector<Npp32s> levelPos0 = {0, 255};
+  std::vector<Npp32s> levelPos1 = {0, 255};
+  std::vector<Npp32s> levelPos2 = {0, 255};
+
+  Npp32s *d_values0 = nullptr;
+  Npp32s *d_values1 = nullptr;
+  Npp32s *d_values2 = nullptr;
+  Npp32s *d_levelPos0 = nullptr;
+  Npp32s *d_levelPos1 = nullptr;
+  Npp32s *d_levelPos2 = nullptr;
+  if (!allocAndCopyToDevice(values0, &d_values0) || !allocAndCopyToDevice(values1, &d_values1) ||
+      !allocAndCopyToDevice(values2, &d_values2) || !allocAndCopyToDevice(levelPos0, &d_levelPos0) ||
+      !allocAndCopyToDevice(levelPos1, &d_levelPos1) || !allocAndCopyToDevice(levelPos2, &d_levelPos2)) {
+    if (d_values0) cudaFree(d_values0);
+    if (d_values1) cudaFree(d_values1);
+    if (d_values2) cudaFree(d_values2);
+    if (d_levelPos0) cudaFree(d_levelPos0);
+    if (d_levelPos1) cudaFree(d_levelPos1);
+    if (d_levelPos2) cudaFree(d_levelPos2);
+    nppiFree(d_src);
+    nppiFree(d_dst);
+    GTEST_SKIP() << "Failed to allocate LUT device memory";
+  }
+
+  const Npp32s *values[3] = {d_values0, d_values1, d_values2};
+  const Npp32s *levelPos[3] = {d_levelPos0, d_levelPos1, d_levelPos2};
 
   NppStatus status = nppiLUT_8u_C3R(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels);
+#ifdef USE_NVIDIA_NPP_TESTS
+  EXPECT_EQ(status, NPP_NO_ERROR);
+#else
   EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
+#endif
 
   std::vector<Npp8u> out(width * height * 3);
   cudaMemcpy2D(out.data(), width * 3, d_dst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+#ifdef USE_NVIDIA_NPP_TESTS
+  std::vector<Npp8u> expected(width * height * 3);
+  for (size_t i = 0; i < expected.size(); i += 3) {
+    expected[i] = applyLutNoInterpolation(hostSrc[i], values0, levelPos0);
+    expected[i + 1] = applyLutNoInterpolation(hostSrc[i + 1], values1, levelPos1);
+    expected[i + 2] = applyLutNoInterpolation(hostSrc[i + 2], values2, levelPos2);
+  }
+  EXPECT_EQ(out, expected);
+#else
   EXPECT_EQ(out, hostDst);
+#endif
 
+  cudaFree(d_values0);
+  cudaFree(d_values1);
+  cudaFree(d_values2);
+  cudaFree(d_levelPos0);
+  cudaFree(d_levelPos1);
+  cudaFree(d_levelPos2);
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -170,24 +284,73 @@ TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
   cudaMemcpy2D(d_dst, dstStep, hostDst.data(), width * 4, width * 4, height, cudaMemcpyHostToDevice);
 
   int levels[4] = {2, 2, 2, 2};
-  const Npp32s values0[2] = {0, 255};
-  const Npp32s values1[2] = {0, 255};
-  const Npp32s values2[2] = {0, 255};
-  const Npp32s values3[2] = {0, 255};
-  const Npp32s levelPos0[2] = {0, 255};
-  const Npp32s levelPos1[2] = {0, 255};
-  const Npp32s levelPos2[2] = {0, 255};
-  const Npp32s levelPos3[2] = {0, 255};
-  const Npp32s *values[4] = {values0, values1, values2, values3};
-  const Npp32s *levelPos[4] = {levelPos0, levelPos1, levelPos2, levelPos3};
+  std::vector<Npp32s> values0 = {0, 255};
+  std::vector<Npp32s> values1 = {0, 255};
+  std::vector<Npp32s> values2 = {0, 255};
+  std::vector<Npp32s> values3 = {0, 255};
+  std::vector<Npp32s> levelPos0 = {0, 255};
+  std::vector<Npp32s> levelPos1 = {0, 255};
+  std::vector<Npp32s> levelPos2 = {0, 255};
+  std::vector<Npp32s> levelPos3 = {0, 255};
+
+  Npp32s *d_values0 = nullptr;
+  Npp32s *d_values1 = nullptr;
+  Npp32s *d_values2 = nullptr;
+  Npp32s *d_values3 = nullptr;
+  Npp32s *d_levelPos0 = nullptr;
+  Npp32s *d_levelPos1 = nullptr;
+  Npp32s *d_levelPos2 = nullptr;
+  Npp32s *d_levelPos3 = nullptr;
+  if (!allocAndCopyToDevice(values0, &d_values0) || !allocAndCopyToDevice(values1, &d_values1) ||
+      !allocAndCopyToDevice(values2, &d_values2) || !allocAndCopyToDevice(values3, &d_values3) ||
+      !allocAndCopyToDevice(levelPos0, &d_levelPos0) || !allocAndCopyToDevice(levelPos1, &d_levelPos1) ||
+      !allocAndCopyToDevice(levelPos2, &d_levelPos2) || !allocAndCopyToDevice(levelPos3, &d_levelPos3)) {
+    if (d_values0) cudaFree(d_values0);
+    if (d_values1) cudaFree(d_values1);
+    if (d_values2) cudaFree(d_values2);
+    if (d_values3) cudaFree(d_values3);
+    if (d_levelPos0) cudaFree(d_levelPos0);
+    if (d_levelPos1) cudaFree(d_levelPos1);
+    if (d_levelPos2) cudaFree(d_levelPos2);
+    if (d_levelPos3) cudaFree(d_levelPos3);
+    nppiFree(d_src);
+    nppiFree(d_dst);
+    GTEST_SKIP() << "Failed to allocate LUT device memory";
+  }
+
+  const Npp32s *values[4] = {d_values0, d_values1, d_values2, d_values3};
+  const Npp32s *levelPos[4] = {d_levelPos0, d_levelPos1, d_levelPos2, d_levelPos3};
 
   NppStatus status = nppiLUT_8u_C4R(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels);
+#ifdef USE_NVIDIA_NPP_TESTS
+  EXPECT_EQ(status, NPP_NO_ERROR);
+#else
   EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
+#endif
 
   std::vector<Npp8u> out(width * height * 4);
   cudaMemcpy2D(out.data(), width * 4, d_dst, dstStep, width * 4, height, cudaMemcpyDeviceToHost);
+#ifdef USE_NVIDIA_NPP_TESTS
+  std::vector<Npp8u> expected(width * height * 4);
+  for (size_t i = 0; i < expected.size(); i += 4) {
+    expected[i] = applyLutNoInterpolation(hostSrc[i], values0, levelPos0);
+    expected[i + 1] = applyLutNoInterpolation(hostSrc[i + 1], values1, levelPos1);
+    expected[i + 2] = applyLutNoInterpolation(hostSrc[i + 2], values2, levelPos2);
+    expected[i + 3] = applyLutNoInterpolation(hostSrc[i + 3], values3, levelPos3);
+  }
+  EXPECT_EQ(out, expected);
+#else
   EXPECT_EQ(out, hostDst);
+#endif
 
+  cudaFree(d_values0);
+  cudaFree(d_values1);
+  cudaFree(d_values2);
+  cudaFree(d_values3);
+  cudaFree(d_levelPos0);
+  cudaFree(d_levelPos1);
+  cudaFree(d_levelPos2);
+  cudaFree(d_levelPos3);
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -219,18 +382,46 @@ TEST_P(Lut16uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   cudaMemcpy2D(d_dst, dstStep, hostDst.data(), width * sizeof(Npp16u), width * sizeof(Npp16u), height,
                cudaMemcpyHostToDevice);
 
-  const int levels = 2;
-  const Npp32s values[2] = {0, 65535};
-  const Npp32s levelPos[2] = {0, 65535};
+  std::vector<Npp32s> values = {0, 65535};
+  std::vector<Npp32s> levelPos = {0, 65535};
+  const int levels = static_cast<int>(values.size());
 
-  NppStatus status = nppiLUT_16u_C1R(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels);
+  Npp32s *d_values = nullptr;
+  Npp32s *d_levels = nullptr;
+  if (!allocAndCopyToDevice(values, &d_values) || !allocAndCopyToDevice(levelPos, &d_levels)) {
+    if (d_values) {
+      cudaFree(d_values);
+    }
+    if (d_levels) {
+      cudaFree(d_levels);
+    }
+    nppiFree(d_src);
+    nppiFree(d_dst);
+    GTEST_SKIP() << "Failed to allocate LUT device memory";
+  }
+
+  NppStatus status = nppiLUT_16u_C1R(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels);
+#ifdef USE_NVIDIA_NPP_TESTS
+  EXPECT_EQ(status, NPP_NO_ERROR);
+#else
   EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
+#endif
 
   std::vector<Npp16u> out(width * height);
   cudaMemcpy2D(out.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,
                cudaMemcpyDeviceToHost);
+#ifdef USE_NVIDIA_NPP_TESTS
+  std::vector<Npp16u> expected(width * height);
+  for (size_t i = 0; i < expected.size(); ++i) {
+    expected[i] = applyLutNoInterpolation(hostSrc[i], values, levelPos);
+  }
+  EXPECT_EQ(out, expected);
+#else
   EXPECT_EQ(out, hostDst);
+#endif
 
+  cudaFree(d_values);
+  cudaFree(d_levels);
   nppiFree(d_src);
   nppiFree(d_dst);
 }
