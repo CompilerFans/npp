@@ -131,6 +131,152 @@ __global__ void bgra_to_ycbcr422_c2_kernel(const Npp8u *src, int srcStep, Npp8u 
   dstRow[outIdx + 3] = cr;
 }
 
+__global__ void rgb_to_ycbcr422_y_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstY, int dstYStep, int width,
+                                            int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *srcRow = (const Npp8u *)((const char *)src + y * srcStep);
+  Npp8u *dstRowY = (Npp8u *)((char *)dstY + y * dstYStep);
+
+  int idx = x * 3;
+  Npp8u r = srcRow[idx + 0];
+  Npp8u g = srcRow[idx + 1];
+  Npp8u b = srcRow[idx + 2];
+
+  Npp8u yv, cbv, crv;
+  rgb_to_ycbcr_pixel(r, g, b, yv, cbv, crv);
+  dstRowY[x] = yv;
+}
+
+__global__ void bgr_to_ycbcr422_y_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstY, int dstYStep, int width,
+                                            int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *srcRow = (const Npp8u *)((const char *)src + y * srcStep);
+  Npp8u *dstRowY = (Npp8u *)((char *)dstY + y * dstYStep);
+
+  int idx = x * 3;
+  Npp8u b = srcRow[idx + 0];
+  Npp8u g = srcRow[idx + 1];
+  Npp8u r = srcRow[idx + 2];
+
+  Npp8u yv, cbv, crv;
+  rgb_to_ycbcr_pixel(r, g, b, yv, cbv, crv);
+  dstRowY[x] = yv;
+}
+
+__global__ void rgb_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstCb, int dstCbStep,
+                                               Npp8u *dstCr, int dstCrStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  int cbWidth = width >> 1;
+  if (x >= cbWidth || y >= height) {
+    return;
+  }
+
+  int baseX = x << 1;
+  const Npp8u *srcRow = (const Npp8u *)((const char *)src + y * srcStep);
+
+  Npp8u y0, cb0, cr0;
+  Npp8u y1, cb1, cr1;
+  int idx0 = baseX * 3;
+  int idx1 = (baseX + 1) * 3;
+  rgb_to_ycbcr_pixel(srcRow[idx0 + 0], srcRow[idx0 + 1], srcRow[idx0 + 2], y0, cb0, cr0);
+  rgb_to_ycbcr_pixel(srcRow[idx1 + 0], srcRow[idx1 + 1], srcRow[idx1 + 2], y1, cb1, cr1);
+
+  Npp8u *dstRowCb = (Npp8u *)((char *)dstCb + y * dstCbStep);
+  Npp8u *dstRowCr = (Npp8u *)((char *)dstCr + y * dstCrStep);
+  dstRowCb[x] = static_cast<Npp8u>((cb0 + cb1) / 2);
+  dstRowCr[x] = static_cast<Npp8u>((cr0 + cr1) / 2);
+}
+
+__global__ void bgr_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstCb, int dstCbStep,
+                                               Npp8u *dstCr, int dstCrStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  int cbWidth = width >> 1;
+  if (x >= cbWidth || y >= height) {
+    return;
+  }
+
+  int baseX = x << 1;
+  const Npp8u *srcRow = (const Npp8u *)((const char *)src + y * srcStep);
+
+  Npp8u y0, cb0, cr0;
+  Npp8u y1, cb1, cr1;
+  int idx0 = baseX * 3;
+  int idx1 = (baseX + 1) * 3;
+  rgb_to_ycbcr_pixel(srcRow[idx0 + 2], srcRow[idx0 + 1], srcRow[idx0 + 0], y0, cb0, cr0);
+  rgb_to_ycbcr_pixel(srcRow[idx1 + 2], srcRow[idx1 + 1], srcRow[idx1 + 0], y1, cb1, cr1);
+
+  Npp8u *dstRowCb = (Npp8u *)((char *)dstCb + y * dstCbStep);
+  Npp8u *dstRowCr = (Npp8u *)((char *)dstCr + y * dstCrStep);
+  dstRowCb[x] = static_cast<Npp8u>((cb0 + cb1) / 2);
+  dstRowCr[x] = static_cast<Npp8u>((cr0 + cr1) / 2);
+}
+
+__global__ void ycbcr422_to_rgb_p3c3_kernel(const Npp8u *srcY, int srcYStep, const Npp8u *srcCb, int srcCbStep,
+                                            const Npp8u *srcCr, int srcCrStep, Npp8u *dst, int dstStep, int width,
+                                            int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *rowY = (const Npp8u *)((const char *)srcY + y * srcYStep);
+  const Npp8u *rowCb = (const Npp8u *)((const char *)srcCb + y * srcCbStep);
+  const Npp8u *rowCr = (const Npp8u *)((const char *)srcCr + y * srcCrStep);
+  Npp8u *dstRow = (Npp8u *)((char *)dst + y * dstStep);
+
+  int cbx = x >> 1;
+  Npp8u r, g, b;
+  ycbcr_to_rgb_pixel(rowY[x], rowCb[cbx], rowCr[cbx], r, g, b);
+
+  int outIdx = x * 3;
+  dstRow[outIdx + 0] = r;
+  dstRow[outIdx + 1] = g;
+  dstRow[outIdx + 2] = b;
+}
+
+__global__ void ycbcr422_to_bgr_p3c3_kernel(const Npp8u *srcY, int srcYStep, const Npp8u *srcCb, int srcCbStep,
+                                            const Npp8u *srcCr, int srcCrStep, Npp8u *dst, int dstStep, int width,
+                                            int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *rowY = (const Npp8u *)((const char *)srcY + y * srcYStep);
+  const Npp8u *rowCb = (const Npp8u *)((const char *)srcCb + y * srcCbStep);
+  const Npp8u *rowCr = (const Npp8u *)((const char *)srcCr + y * srcCrStep);
+  Npp8u *dstRow = (Npp8u *)((char *)dst + y * dstStep);
+
+  int cbx = x >> 1;
+  Npp8u r, g, b;
+  ycbcr_to_rgb_pixel(rowY[x], rowCb[cbx], rowCr[cbx], r, g, b);
+
+  int outIdx = x * 3;
+  dstRow[outIdx + 0] = b;
+  dstRow[outIdx + 1] = g;
+  dstRow[outIdx + 2] = r;
+}
+
 __global__ void ycbcr422_to_rgb_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, int width,
                                           int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -260,6 +406,38 @@ cudaError_t nppiBGRToYCbCr422_8u_AC4C2R_kernel(const Npp8u *pSrc, int nSrcStep, 
   return cudaGetLastError();
 }
 
+cudaError_t nppiRGBToYCbCr422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCb, int nDstCbStep, Npp8u *pDstCr, int nDstCrStep,
+                                              NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridY((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  rgb_to_ycbcr422_y_c3_kernel<<<gridY, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, oSizeROI.width,
+                                                               oSizeROI.height);
+
+  dim3 gridCb((oSizeROI.width / 2 + blockSize.x - 1) / blockSize.x,
+              (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  rgb_to_ycbcr422_cbcr_c3_kernel<<<gridCb, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstCb, nDstCbStep, pDstCr,
+                                                                   nDstCrStep, oSizeROI.width, oSizeROI.height);
+  return cudaGetLastError();
+}
+
+cudaError_t nppiBGRToYCbCr422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCb, int nDstCbStep, Npp8u *pDstCr, int nDstCrStep,
+                                              NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridY((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  bgr_to_ycbcr422_y_c3_kernel<<<gridY, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, oSizeROI.width,
+                                                               oSizeROI.height);
+
+  dim3 gridCb((oSizeROI.width / 2 + blockSize.x - 1) / blockSize.x,
+              (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  bgr_to_ycbcr422_cbcr_c3_kernel<<<gridCb, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstCb, nDstCbStep, pDstCr,
+                                                                   nDstCrStep, oSizeROI.width, oSizeROI.height);
+  return cudaGetLastError();
+}
+
 cudaError_t nppiYCbCr422ToRGB_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
@@ -271,6 +449,18 @@ cudaError_t nppiYCbCr422ToRGB_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, N
   return cudaGetLastError();
 }
 
+cudaError_t nppiYCbCr422ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCb, int nSrcCbStep,
+                                              const Npp8u *pSrcCr, int nSrcCrStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  ycbcr422_to_rgb_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcCb, nSrcCbStep, pSrcCr,
+                                                                  nSrcCrStep, pDst, nDstStep, oSizeROI.width,
+                                                                  oSizeROI.height);
+  return cudaGetLastError();
+}
+
 cudaError_t nppiYCbCr422ToBGR_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
@@ -279,6 +469,18 @@ cudaError_t nppiYCbCr422ToBGR_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, N
 
   ycbcr422_to_bgr_c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                 oSizeROI.height);
+  return cudaGetLastError();
+}
+
+cudaError_t nppiYCbCr422ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCb, int nSrcCbStep,
+                                              const Npp8u *pSrcCr, int nSrcCrStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  ycbcr422_to_bgr_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcCb, nSrcCbStep, pSrcCr,
+                                                                  nSrcCrStep, pDst, nDstStep, oSizeROI.width,
+                                                                  oSizeROI.height);
   return cudaGetLastError();
 }
 
