@@ -31,6 +31,24 @@ template <typename T> struct PaddedBuffer {
   }
 };
 
+// Helper structure for padded C4 float buffers
+struct PaddedBufferC4_32f {
+  Npp32f *base_ptr; // Base pointer (includes padding)
+  Npp32f *data_ptr; // Data pointer (actual ROI area)
+  int step;         // Step size
+  int padding;      // Padding size
+  int width;        // ROI width
+  int height;       // ROI height
+
+  PaddedBufferC4_32f() : base_ptr(nullptr), data_ptr(nullptr), step(0), padding(0), width(0), height(0) {}
+
+  ~PaddedBufferC4_32f() {
+    if (base_ptr) {
+      nppiFree(base_ptr);
+    }
+  }
+};
+
 // Helper function to allocate GPU memory with padding
 template <typename T> PaddedBuffer<T> *allocateWithPadding(int width, int height, int padding = 8) {
   auto *buffer = new PaddedBuffer<T>();
@@ -66,6 +84,32 @@ template <typename T> PaddedBuffer<T> *allocateWithPadding(int width, int height
   return buffer;
 }
 
+// Helper function to allocate GPU memory with padding for 32f C4 buffers
+PaddedBufferC4_32f *allocateWithPaddingC4_32f(int width, int height, int padding = 8) {
+  auto *buffer = new PaddedBufferC4_32f();
+  buffer->width = width;
+  buffer->height = height;
+  buffer->padding = padding;
+
+  int paddedWidth = width + 2 * padding;
+  int paddedHeight = height + 2 * padding;
+
+  buffer->base_ptr = nppiMalloc_32f_C4(paddedWidth, paddedHeight, &buffer->step);
+  if (!buffer->base_ptr) {
+    delete buffer;
+    return nullptr;
+  }
+
+  // Initialize entire buffer to zero (including padding)
+  cudaMemset2D(buffer->base_ptr, buffer->step, 0, paddedWidth * 4 * sizeof(Npp32f), paddedHeight);
+
+  // Calculate data pointer (points to start of actual ROI within padded buffer)
+  buffer->data_ptr = reinterpret_cast<Npp32f *>(
+      reinterpret_cast<char *>(buffer->base_ptr) + padding * buffer->step + padding * 4 * sizeof(Npp32f));
+
+  return buffer;
+}
+
 // Helper function to copy data to padded buffer
 template <typename T> void copyToPaddedBuffer(PaddedBuffer<T> *buffer, const std::vector<T> &hostData) {
   cudaMemcpy2D(buffer->data_ptr, buffer->step, hostData.data(), buffer->width * sizeof(T), buffer->width * sizeof(T),
@@ -76,6 +120,17 @@ template <typename T> void copyToPaddedBuffer(PaddedBuffer<T> *buffer, const std
 template <typename T> void copyFromPaddedBuffer(std::vector<T> &hostData, const PaddedBuffer<T> *buffer) {
   cudaMemcpy2D(hostData.data(), buffer->width * sizeof(T), buffer->data_ptr, buffer->step, buffer->width * sizeof(T),
                buffer->height, cudaMemcpyDeviceToHost);
+}
+
+// Helper functions to copy data to/from padded C4 float buffers
+void copyToPaddedBufferC4_32f(PaddedBufferC4_32f *buffer, const std::vector<Npp32f> &hostData) {
+  cudaMemcpy2D(buffer->data_ptr, buffer->step, hostData.data(), buffer->width * 4 * sizeof(Npp32f),
+               buffer->width * 4 * sizeof(Npp32f), buffer->height, cudaMemcpyHostToDevice);
+}
+
+void copyFromPaddedBufferC4_32f(std::vector<Npp32f> &hostData, const PaddedBufferC4_32f *buffer) {
+  cudaMemcpy2D(hostData.data(), buffer->width * 4 * sizeof(Npp32f), buffer->data_ptr, buffer->step,
+               buffer->width * 4 * sizeof(Npp32f), buffer->height, cudaMemcpyDeviceToHost);
 }
 
 // Test parameter structure for morphological operations
@@ -2789,16 +2844,15 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C4R_Comprehensive) {
     }
   }
 
-  // Allocate device memory
-  int srcStep, dstStep;
-  Npp32f *d_src = nppiMalloc_32f_C4(config.width, config.height, &srcStep);
-  Npp32f *d_dst = nppiMalloc_32f_C4(config.width, config.height, &dstStep);
-  ASSERT_NE(d_src, nullptr);
-  ASSERT_NE(d_dst, nullptr);
+  // Allocate padded device memory to ensure valid data outside ROI boundaries
+  const int padding = 8; // Sufficient for up to 15x15 kernels
+  auto *srcBuffer = allocateWithPaddingC4_32f(config.width, config.height, padding);
+  auto *dstBuffer = allocateWithPaddingC4_32f(config.width, config.height, padding);
+  ASSERT_NE(srcBuffer, nullptr);
+  ASSERT_NE(dstBuffer, nullptr);
 
   // Upload test data
-  cudaMemcpy2D(d_src, srcStep, testData.data(), config.width * 4 * sizeof(Npp32f), config.width * 4 * sizeof(Npp32f),
-               config.height, cudaMemcpyHostToDevice);
+  copyToPaddedBufferC4_32f(srcBuffer, testData);
 
   // Create structural element
   auto kernel = createStructuralElement(config);
@@ -2811,13 +2865,13 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C4R_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test regular version
-  NppStatus status = nppiErode_32f_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErode_32f_C4R(srcBuffer->data_ptr, srcBuffer->step, dstBuffer->data_ptr, dstBuffer->step,
+                                       oSizeROI, d_mask, oMaskSize, oAnchor);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion 32f C4R failed for config: " << config.description;
 
   // Download and verify results
   std::vector<Npp32f> result(config.width * config.height * 4);
-  cudaMemcpy2D(result.data(), config.width * 4 * sizeof(Npp32f), d_dst, dstStep, config.width * 4 * sizeof(Npp32f),
-               config.height, cudaMemcpyDeviceToHost);
+  copyFromPaddedBufferC4_32f(result, dstBuffer);
 
   // Verify all channels processed correctly
   for (int c = 0; c < 4; c++) {
@@ -2839,8 +2893,8 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C4R_Comprehensive) {
   }
 
   // Cleanup
-  nppiFree(d_src);
-  nppiFree(d_dst);
+  delete srcBuffer;
+  delete dstBuffer;
   cudaFree(d_mask);
 }
 
@@ -2862,16 +2916,15 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Comprehensive) {
     }
   }
 
-  // Allocate device memory
-  int srcStep, dstStep;
-  Npp32f *d_src = nppiMalloc_32f_C4(config.width, config.height, &srcStep);
-  Npp32f *d_dst = nppiMalloc_32f_C4(config.width, config.height, &dstStep);
-  ASSERT_NE(d_src, nullptr);
-  ASSERT_NE(d_dst, nullptr);
+  // Allocate padded device memory to ensure valid data outside ROI boundaries
+  const int padding = 8; // Sufficient for up to 15x15 kernels
+  auto *srcBuffer = allocateWithPaddingC4_32f(config.width, config.height, padding);
+  auto *dstBuffer = allocateWithPaddingC4_32f(config.width, config.height, padding);
+  ASSERT_NE(srcBuffer, nullptr);
+  ASSERT_NE(dstBuffer, nullptr);
 
   // Upload test data
-  cudaMemcpy2D(d_src, srcStep, testData.data(), config.width * 4 * sizeof(Npp32f), config.width * 4 * sizeof(Npp32f),
-               config.height, cudaMemcpyHostToDevice);
+  copyToPaddedBufferC4_32f(srcBuffer, testData);
 
   // Create structural element
   auto kernel = createStructuralElement(config);
@@ -2884,13 +2937,13 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test regular version
-  NppStatus status = nppiDilate_32f_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiDilate_32f_C4R(srcBuffer->data_ptr, srcBuffer->step, dstBuffer->data_ptr, dstBuffer->step,
+                                        oSizeROI, d_mask, oMaskSize, oAnchor);
   ASSERT_EQ(status, NPP_SUCCESS) << "Dilation 32f C4R failed for config: " << config.description;
 
   // Download and verify results
   std::vector<Npp32f> result(config.width * config.height * 4);
-  cudaMemcpy2D(result.data(), config.width * 4 * sizeof(Npp32f), d_dst, dstStep, config.width * 4 * sizeof(Npp32f),
-               config.height, cudaMemcpyDeviceToHost);
+  copyFromPaddedBufferC4_32f(result, dstBuffer);
 
   // Verify all channels processed correctly
   for (int c = 0; c < 4; c++) {
@@ -2912,8 +2965,8 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Comprehensive) {
   }
 
   // Cleanup
-  nppiFree(d_src);
-  nppiFree(d_dst);
+  delete srcBuffer;
+  delete dstBuffer;
   cudaFree(d_mask);
 }
 
