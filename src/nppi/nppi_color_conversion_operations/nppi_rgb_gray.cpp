@@ -9,6 +9,14 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
                                           NppStreamContext nppStreamCtx);
 NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiRGBToGray_16u_C3C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiRGBToGray_16u_AC4C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiRGBToGray_16s_C3C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiRGBToGray_16s_AC4C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
@@ -62,6 +70,72 @@ NppStatus nppiRGBToGray_8u_AC4C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiRGBToGray_8u_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16u_C3C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateRGBToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiRGBToGray_16u_C3C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16u_C3C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiRGBToGray_16u_C3C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16u_AC4C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateRGBToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiRGBToGray_16u_AC4C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16u_AC4C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                   NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiRGBToGray_16u_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16s_C3C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateRGBToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiRGBToGray_16s_C3C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16s_C3C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiRGBToGray_16s_C3C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16s_AC4C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateRGBToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiRGBToGray_16s_AC4C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiRGBToGray_16s_AC4C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                   NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiRGBToGray_16s_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiRGBToGray_32f_C3C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
