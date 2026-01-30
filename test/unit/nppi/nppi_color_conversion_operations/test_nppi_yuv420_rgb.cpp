@@ -112,16 +112,9 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_Alpha) {
 
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
-#ifdef USE_NVIDIA_NPP_TESTS
-  // NVIDIA NPP behavior: alpha is set from luma (Y) for P3C4R
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 4 + 3], yPlane[i]);
   }
-#else
-  for (int i = 0; i < width * height; i++) {
-    ASSERT_EQ(dstData[i * 4 + 3], 0xFF);
-  }
-#endif
 }
 
 TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3AC4R_AlphaPreserve) {
@@ -155,14 +148,7 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3AC4R_AlphaPreserve) {
 
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
-#ifdef USE_NVIDIA_NPP_TESTS
-  // NVIDIA NPP behavior: alpha is cleared to 0 for P3AC4R
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 4 + 3], 0);
   }
-#else
-  for (int i = 0; i < width * height; i++) {
-    ASSERT_EQ(dstData[i * 4 + 3], 37);
-  }
-#endif
 }

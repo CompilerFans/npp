@@ -53,7 +53,7 @@ __global__ void yuv420_to_rgb_p3c4_kernel(const uint8_t *__restrict__ srcY, int 
                                           const uint8_t *__restrict__ srcU, int srcUStep,
                                           const uint8_t *__restrict__ srcV, int srcVStep,
                                           uint8_t *__restrict__ dst, int dstStep, int width, int height,
-                                          bool write_alpha) {
+                                          int alpha_mode) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -74,9 +74,15 @@ __global__ void yuv420_to_rgb_p3c4_kernel(const uint8_t *__restrict__ srcY, int 
   dst[dst_offset] = R;
   dst[dst_offset + 1] = G;
   dst[dst_offset + 2] = B;
-  if (write_alpha) {
-    dst[dst_offset + 3] = 0xFF;
+  uint8_t alpha = 0;
+  if (alpha_mode == 0) {
+    alpha = Y;       // match NVIDIA behavior for C4: alpha from luma
+  } else if (alpha_mode == 1) {
+    alpha = 0xFF;    // constant 0xFF
+  } else {
+    alpha = 0;       // clear alpha
   }
+  dst[dst_offset + 3] = alpha;
 }
 
 __global__ void yuv420_to_rgb_p3p3_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
@@ -125,7 +131,7 @@ extern "C" cudaError_t nppiYUV420ToRGB_8u_P3C4R_kernel(const Npp8u *pSrcY, int n
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
-                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, true);
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, 0);
   return cudaGetLastError();
 }
 
@@ -137,7 +143,7 @@ extern "C" cudaError_t nppiYUV420ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, int 
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
-                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, false);
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, 2);
   return cudaGetLastError();
 }
 
