@@ -2,25 +2,23 @@
 #include <cstdint>
 #include <cuda_runtime.h>
 
-// ITU-R BT.601 coefficients (standard definition)
-__constant__ float YUV420_TO_RGB_BT601[9] = {
-    1.164f, 0.000f,  1.596f,  // R = 1.164*(Y-16) + 1.596*(V-128)
-    1.164f, -0.392f, -0.813f, // G = 1.164*(Y-16) - 0.392*(U-128) - 0.813*(V-128)
-    1.164f, 2.017f,  0.000f   // B = 1.164*(Y-16) + 2.017*(U-128)
-};
-
 __device__ inline void yuv420_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b) {
-  float fy = (float)y - 16.0f;
-  float fu = (float)u - 128.0f;
-  float fv = (float)v - 128.0f;
+  // Fixed-point coefficients (scale = 128) tuned to match NVIDIA NPP YUV420 behavior.
+  int yv = static_cast<int>(y);
+  int ud = static_cast<int>(u) - 128;
+  int vd = static_cast<int>(v) - 128;
 
-  float fr = YUV420_TO_RGB_BT601[0] * fy + YUV420_TO_RGB_BT601[1] * fu + YUV420_TO_RGB_BT601[2] * fv;
-  float fg = YUV420_TO_RGB_BT601[3] * fy + YUV420_TO_RGB_BT601[4] * fu + YUV420_TO_RGB_BT601[5] * fv;
-  float fb = YUV420_TO_RGB_BT601[6] * fy + YUV420_TO_RGB_BT601[7] * fu + YUV420_TO_RGB_BT601[8] * fv;
+  int r_val = yv + ((145 * vd) >> 7);
+  int g_val = yv + (((-22 * ud) + (-45 * vd)) >> 7);
+  int b_val = yv + ((255 * ud) >> 7);
 
-  r = (uint8_t)fmaxf(0.0f, fminf(255.0f, fr + 0.5f));
-  g = (uint8_t)fmaxf(0.0f, fminf(255.0f, fg + 0.5f));
-  b = (uint8_t)fmaxf(0.0f, fminf(255.0f, fb + 0.5f));
+  r_val = max(0, min(255, r_val));
+  g_val = max(0, min(255, g_val));
+  b_val = max(0, min(255, b_val));
+
+  r = static_cast<uint8_t>(r_val);
+  g = static_cast<uint8_t>(g_val);
+  b = static_cast<uint8_t>(b_val);
 }
 
 __global__ void yuv420_to_rgb_p3c3_kernel(const uint8_t *__restrict__ srcY, int srcYStep,

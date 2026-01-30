@@ -6,6 +6,24 @@ using namespace npp_functional_test;
 
 class YUV420ToRGBTest : public NppTestBase {};
 
+static inline void yuv_to_rgb_nvidia_ref(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp8u &g, Npp8u &b) {
+  int yv = static_cast<int>(y);
+  int ud = static_cast<int>(u) - 128;
+  int vd = static_cast<int>(v) - 128;
+
+  int r_val = yv + ((145 * vd) >> 7);
+  int g_val = yv + (((-22 * ud) + (-45 * vd)) >> 7);
+  int b_val = yv + ((255 * ud) >> 7);
+
+  r_val = std::min(255, std::max(0, r_val));
+  g_val = std::min(255, std::max(0, g_val));
+  b_val = std::min(255, std::max(0, b_val));
+
+  r = static_cast<Npp8u>(r_val);
+  g = static_cast<Npp8u>(g_val);
+  b = static_cast<Npp8u>(b_val);
+}
+
 TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C3R_Gray) {
   const int width = 32;
   const int height = 32;
@@ -83,6 +101,80 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3R_Gray) {
   for (int i = 0; i < width * height; i++) {
     ASSERT_NEAR(r[i], g[i], 1);
     ASSERT_NEAR(r[i], b[i], 1);
+  }
+}
+
+TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C3R_GrayscaleReference) {
+  const int width = 2;
+  const int height = 2;
+
+  std::vector<Npp8u> yPlane = {16, 235, 81, 145};
+  std::vector<Npp8u> uPlane((width / 2) * (height / 2), 128);
+  std::vector<Npp8u> vPlane((width / 2) * (height / 2), 128);
+
+  NppImageMemory<Npp8u> y(width, height);
+  NppImageMemory<Npp8u> u(width / 2, height / 2);
+  NppImageMemory<Npp8u> v(width / 2, height / 2);
+  NppImageMemory<Npp8u> dst(width, height, 3);
+
+  y.copyFromHost(yPlane);
+  u.copyFromHost(uPlane);
+  v.copyFromHost(vPlane);
+
+  const Npp8u *srcPlanes[3] = {y.get(), u.get(), v.get()};
+  int srcSteps[3] = {y.step(), u.step(), v.step()};
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiYUV420ToRGB_8u_P3C3R(srcPlanes, srcSteps, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dstData(width * height * 3);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    Npp8u r, g, b;
+    yuv_to_rgb_nvidia_ref(yPlane[i], 128, 128, r, g, b);
+    int idx = i * 3;
+    ASSERT_EQ(dstData[idx], r);
+    ASSERT_EQ(dstData[idx + 1], g);
+    ASSERT_EQ(dstData[idx + 2], b);
+  }
+}
+
+TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C3R_ChromaReference) {
+  const int width = 2;
+  const int height = 2;
+
+  std::vector<Npp8u> yPlane(width * height, 128);
+  std::vector<Npp8u> uPlane((width / 2) * (height / 2), 64);
+  std::vector<Npp8u> vPlane((width / 2) * (height / 2), 192);
+
+  NppImageMemory<Npp8u> y(width, height);
+  NppImageMemory<Npp8u> u(width / 2, height / 2);
+  NppImageMemory<Npp8u> v(width / 2, height / 2);
+  NppImageMemory<Npp8u> dst(width, height, 3);
+
+  y.copyFromHost(yPlane);
+  u.copyFromHost(uPlane);
+  v.copyFromHost(vPlane);
+
+  const Npp8u *srcPlanes[3] = {y.get(), u.get(), v.get()};
+  int srcSteps[3] = {y.step(), u.step(), v.step()};
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiYUV420ToRGB_8u_P3C3R(srcPlanes, srcSteps, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dstData(width * height * 3);
+  dst.copyToHost(dstData);
+
+  Npp8u r, g, b;
+  yuv_to_rgb_nvidia_ref(128, 64, 192, r, g, b);
+  for (int i = 0; i < width * height; i++) {
+    int idx = i * 3;
+    ASSERT_EQ(dstData[idx], r);
+    ASSERT_EQ(dstData[idx + 1], g);
+    ASSERT_EQ(dstData[idx + 2], b);
   }
 }
 
