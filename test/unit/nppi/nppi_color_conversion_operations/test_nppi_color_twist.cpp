@@ -158,3 +158,171 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C1R_Ctx_Brightness) {
     ASSERT_NEAR(dstData[i], expected, 1); // 允许舍入误差
   }
 }
+
+// 测试8位四通道ColorTwist - 恒等变换并保留alpha
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C4R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcData(width * height * 4);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 4 + 0] = static_cast<Npp8u>(i % 256);
+    srcData[i * 4 + 1] = static_cast<Npp8u>((i * 2) % 256);
+    srcData[i * 4 + 2] = static_cast<Npp8u>((i * 3) % 256);
+    srcData[i * 4 + 3] = static_cast<Npp8u>((i * 5) % 256);
+  }
+
+  NppImageMemory<Npp8u> src(width, height, 4);
+  NppImageMemory<Npp8u> dst(width, height, 4);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_8u_C4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstData(width * height * 4);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    ASSERT_EQ(dstData[i * 4 + 0], srcData[i * 4 + 0]);
+    ASSERT_EQ(dstData[i * 4 + 1], srcData[i * 4 + 1]);
+    ASSERT_EQ(dstData[i * 4 + 2], srcData[i * 4 + 2]);
+    ASSERT_EQ(dstData[i * 4 + 3], srcData[i * 4 + 3]);
+  }
+}
+
+// 测试8位四通道AC4 ColorTwist - 恒等变换，alpha清零
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_AC4R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcData(width * height * 4);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 4 + 0] = static_cast<Npp8u>(i % 256);
+    srcData[i * 4 + 1] = static_cast<Npp8u>((i * 2) % 256);
+    srcData[i * 4 + 2] = static_cast<Npp8u>((i * 3) % 256);
+    srcData[i * 4 + 3] = static_cast<Npp8u>((i * 7) % 256);
+  }
+
+  NppImageMemory<Npp8u> src(width, height, 4);
+  NppImageMemory<Npp8u> dst(width, height, 4);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_8u_AC4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstData(width * height * 4);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    ASSERT_EQ(dstData[i * 4 + 0], srcData[i * 4 + 0]);
+    ASSERT_EQ(dstData[i * 4 + 1], srcData[i * 4 + 1]);
+    ASSERT_EQ(dstData[i * 4 + 2], srcData[i * 4 + 2]);
+    ASSERT_EQ(dstData[i * 4 + 3], 0);
+  }
+}
+
+// 测试8位三通道ColorTwist in-place
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C3IR_Ctx_Brightness) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcData(width * height * 3);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 3 + 0] = static_cast<Npp8u>(i % 256);
+    srcData[i * 3 + 1] = static_cast<Npp8u>((i * 2) % 256);
+    srcData[i * 3 + 2] = static_cast<Npp8u>((i * 3) % 256);
+  }
+
+  NppImageMemory<Npp8u> src(width, height, 3);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 10.0f},
+      {0.0f, 1.0f, 0.0f, 20.0f},
+      {0.0f, 0.0f, 1.0f, 30.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiColorTwist32f_8u_C3IR_Ctx(src.get(), src.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstData(width * height * 3);
+  src.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    int r = std::min(255, static_cast<int>(srcData[i * 3 + 0]) + 10);
+    int g = std::min(255, static_cast<int>(srcData[i * 3 + 1]) + 20);
+    int b = std::min(255, static_cast<int>(srcData[i * 3 + 2]) + 30);
+    ASSERT_NEAR(dstData[i * 3 + 0], r, 1);
+    ASSERT_NEAR(dstData[i * 3 + 1], g, 1);
+    ASSERT_NEAR(dstData[i * 3 + 2], b, 1);
+  }
+}
+
+// 测试8位四通道ColorTwist in-place (alpha应保持不变)
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_AC4IR_Ctx_Brightness) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcData(width * height * 4);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 4 + 0] = static_cast<Npp8u>(i % 256);
+    srcData[i * 4 + 1] = static_cast<Npp8u>((i * 2) % 256);
+    srcData[i * 4 + 2] = static_cast<Npp8u>((i * 3) % 256);
+    srcData[i * 4 + 3] = static_cast<Npp8u>((i * 7) % 256);
+  }
+
+  NppImageMemory<Npp8u> src(width, height, 4);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 10.0f},
+      {0.0f, 1.0f, 0.0f, 20.0f},
+      {0.0f, 0.0f, 1.0f, 30.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiColorTwist32f_8u_AC4IR_Ctx(src.get(), src.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstData(width * height * 4);
+  src.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    int r = std::min(255, static_cast<int>(srcData[i * 4 + 0]) + 10);
+    int g = std::min(255, static_cast<int>(srcData[i * 4 + 1]) + 20);
+    int b = std::min(255, static_cast<int>(srcData[i * 4 + 2]) + 30);
+    ASSERT_NEAR(dstData[i * 4 + 0], r, 1);
+    ASSERT_NEAR(dstData[i * 4 + 1], g, 1);
+    ASSERT_NEAR(dstData[i * 4 + 2], b, 1);
+    ASSERT_EQ(dstData[i * 4 + 3], srcData[i * 4 + 3]);
+  }
+}
