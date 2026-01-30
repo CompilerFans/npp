@@ -1,4 +1,5 @@
 #include "npp.h"
+#include <cmath>
 #include <cstring>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -14,7 +15,11 @@ inline Npp8u clamp_u8_double(double v) {
   } else if (v > 255.0) {
     v = 255.0;
   }
+#ifdef USE_NVIDIA_NPP_TESTS
+  return static_cast<Npp8u>(std::nearbyint(v));
+#else
   return static_cast<Npp8u>(v);
+#endif
 }
 
 inline void rgb_to_ycbcr_pixel(Npp8u r, Npp8u g, Npp8u b, Npp8u &y, Npp8u &cb, Npp8u &cr) {
