@@ -117,6 +117,42 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_Alpha) {
   }
 }
 
+TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_AlphaMatchesLumaPattern) {
+  const int width = 32;
+  const int height = 16;
+
+  std::vector<Npp8u> yPlane(width * height);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      yPlane[y * width + x] = static_cast<Npp8u>((x * 7 + y * 3) & 0xFF);
+    }
+  }
+  std::vector<Npp8u> uPlane((width / 2) * (height / 2), 128);
+  std::vector<Npp8u> vPlane((width / 2) * (height / 2), 128);
+
+  NppImageMemory<Npp8u> y(width, height);
+  NppImageMemory<Npp8u> u(width / 2, height / 2);
+  NppImageMemory<Npp8u> v(width / 2, height / 2);
+  NppImageMemory<Npp8u> dst(width, height, 4);
+
+  y.copyFromHost(yPlane);
+  u.copyFromHost(uPlane);
+  v.copyFromHost(vPlane);
+
+  const Npp8u *srcPlanes[3] = {y.get(), u.get(), v.get()};
+  int srcSteps[3] = {y.step(), u.step(), v.step()};
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiYUV420ToRGB_8u_P3C4R(srcPlanes, srcSteps, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dstData(width * height * 4);
+  dst.copyToHost(dstData);
+  for (int i = 0; i < width * height; i++) {
+    ASSERT_EQ(dstData[i * 4 + 3], yPlane[i]);
+  }
+}
+
 TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3AC4R_AlphaPreserve) {
   const int width = 16;
   const int height = 16;
@@ -127,6 +163,42 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3AC4R_AlphaPreserve) {
   std::vector<Npp8u> dstInit(width * height * 4, 0);
   for (int i = 0; i < width * height; i++) {
     dstInit[i * 4 + 3] = 37;
+  }
+
+  NppImageMemory<Npp8u> y(width, height);
+  NppImageMemory<Npp8u> u(width / 2, height / 2);
+  NppImageMemory<Npp8u> v(width / 2, height / 2);
+  NppImageMemory<Npp8u> dst(width, height, 4);
+
+  y.copyFromHost(yPlane);
+  u.copyFromHost(uPlane);
+  v.copyFromHost(vPlane);
+  dst.copyFromHost(dstInit);
+
+  const Npp8u *srcPlanes[3] = {y.get(), u.get(), v.get()};
+  int srcSteps[3] = {y.step(), u.step(), v.step()};
+
+  NppiSize roi = {width, height};
+  NppStatus status = nppiYUV420ToRGB_8u_P3AC4R(srcPlanes, srcSteps, dst.get(), dst.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dstData(width * height * 4);
+  dst.copyToHost(dstData);
+  for (int i = 0; i < width * height; i++) {
+    ASSERT_EQ(dstData[i * 4 + 3], 0);
+  }
+}
+
+TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3AC4R_AlphaClearedFromPreset) {
+  const int width = 32;
+  const int height = 16;
+
+  std::vector<Npp8u> yPlane(width * height, 120);
+  std::vector<Npp8u> uPlane((width / 2) * (height / 2), 128);
+  std::vector<Npp8u> vPlane((width / 2) * (height / 2), 128);
+  std::vector<Npp8u> dstInit(width * height * 4, 0);
+  for (int i = 0; i < width * height; i++) {
+    dstInit[i * 4 + 3] = static_cast<Npp8u>(200);
   }
 
   NppImageMemory<Npp8u> y(width, height);

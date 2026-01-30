@@ -49,6 +49,9 @@ __global__ void yuv420_to_rgb_p3c3_kernel(const uint8_t *__restrict__ srcY, int 
   dst[dst_offset + 2] = B;
 }
 
+// Alpha behavior matches NVIDIA NPP:
+// - P3C4R: alpha = luma (Y) per pixel
+// - P3AC4R: alpha = 0
 __global__ void yuv420_to_rgb_p3c4_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                           const uint8_t *__restrict__ srcU, int srcUStep,
                                           const uint8_t *__restrict__ srcV, int srcVStep,
