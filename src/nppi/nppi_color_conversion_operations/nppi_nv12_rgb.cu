@@ -33,6 +33,33 @@ __device__ inline void nv12_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_
   b = (uint8_t)fmaxf(0.0f, fminf(255.0f, fb + 0.5f));
 }
 
+__device__ inline int shift_right_floor(int value, int bits) {
+  if (value >= 0) {
+    return value >> bits;
+  }
+  const int denom = 1 << bits;
+  return -(((-value) + denom - 1) / denom);
+}
+
+__device__ inline void nv21_to_rgb_pixel(uint8_t y, uint8_t v, uint8_t u, uint8_t &r, uint8_t &g, uint8_t &b) {
+  int yv = static_cast<int>(y);
+  int ud = static_cast<int>(u) - 128;
+  int vd = static_cast<int>(v) - 128;
+
+  // Coefficients match NVIDIA NPP NV21 conversion behavior (fixed-point, scale 256).
+  int r_val = yv + shift_right_floor(455 * vd, 8);
+  int g_val = yv + shift_right_floor(181 * ud - 89 * vd, 8);
+  int b_val = yv + shift_right_floor(359 * ud, 8);
+
+  r_val = max(0, min(255, r_val));
+  g_val = max(0, min(255, g_val));
+  b_val = max(0, min(255, b_val));
+
+  r = static_cast<uint8_t>(r_val);
+  g = static_cast<uint8_t>(g_val);
+  b = static_cast<uint8_t>(b_val);
+}
+
 __global__ void nv12_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYStep, const uint8_t *__restrict__ srcUV,
                                    int srcUVStep, uint8_t *__restrict__ dst, int dstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -60,6 +87,32 @@ __global__ void nv12_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYSte
   dst[dst_offset] = R;
   dst[dst_offset + 1] = G;
   dst[dst_offset + 2] = B;
+}
+
+__global__ void nv21_to_rgb_kernel(const uint8_t *__restrict__ srcY, int srcYStep, const uint8_t *__restrict__ srcVU,
+                                   int srcVUStep, uint8_t *__restrict__ dst, int dstStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height)
+    return;
+
+  uint8_t Y = srcY[y * srcYStep + x];
+
+  int uv_x = (x >> 1) << 1;
+  int uv_y = y >> 1;
+  int uv_offset = uv_y * srcVUStep + uv_x;
+  uint8_t V = srcVU[uv_offset];
+  uint8_t U = srcVU[uv_offset + 1];
+
+  uint8_t R, G, B;
+  nv21_to_rgb_pixel(Y, V, U, R, G, B);
+
+  int dst_offset = y * dstStep + x * 4;
+  dst[dst_offset] = R;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = B;
+  dst[dst_offset + 3] = 0xFF;
 }
 
 __global__ void nv12_to_rgb_709_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
@@ -122,6 +175,32 @@ __global__ void nv12_to_bgr_kernel(const uint8_t *__restrict__ srcY, int srcYSte
   dst[dst_offset + 2] = R;
 }
 
+__global__ void nv21_to_bgr_kernel(const uint8_t *__restrict__ srcY, int srcYStep, const uint8_t *__restrict__ srcVU,
+                                   int srcVUStep, uint8_t *__restrict__ dst, int dstStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height)
+    return;
+
+  uint8_t Y = srcY[y * srcYStep + x];
+
+  int uv_x = (x >> 1) << 1;
+  int uv_y = y >> 1;
+  int uv_offset = uv_y * srcVUStep + uv_x;
+  uint8_t V = srcVU[uv_offset];
+  uint8_t U = srcVU[uv_offset + 1];
+
+  uint8_t R, G, B;
+  nv21_to_rgb_pixel(Y, V, U, R, G, B);
+
+  int dst_offset = y * dstStep + x * 4;
+  dst[dst_offset] = B;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = R;
+  dst[dst_offset + 3] = 0xFF;
+}
+
 __global__ void nv12_to_bgr_709_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                        const uint8_t *__restrict__ srcUV, int srcUVStep, uint8_t *__restrict__ dst,
                                        int dstStep, int width, int height) {
@@ -161,6 +240,18 @@ extern "C" cudaError_t nppiNV12ToRGB_8u_P2C3R_kernel(const Npp8u *pSrcY, int nSr
 
   // Launch kernel
   nv12_to_rgb_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
+                                                         oSizeROI.width, oSizeROI.height);
+
+  return cudaGetLastError();
+}
+
+extern "C" cudaError_t nppiNV21ToRGB_8u_P2C4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcVU,
+                                                     int nSrcVUStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                                     cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nv21_to_rgb_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcVU, nSrcVUStep, pDst, nDstStep,
                                                          oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
@@ -292,6 +383,18 @@ extern "C" cudaError_t nppiNV12ToBGR_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, 
 
   nv12_to_bgr_709_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst, nDstStep,
                                                              oSizeROI.width, oSizeROI.height);
+
+  return cudaGetLastError();
+}
+
+extern "C" cudaError_t nppiNV21ToBGR_8u_P2C4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcVU,
+                                                     int nSrcVUStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                                     cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nv21_to_bgr_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcVU, nSrcVUStep, pDst, nDstStep,
+                                                         oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
