@@ -143,3 +143,269 @@ TEST_F(ColorToGrayTest, ColorToGray_8u_C4C1R_UsesAlphaCoeff) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
+
+TEST_F(ColorToGrayTest, ColorToGray_16u_C3C1R_IdentityCoeff) {
+  const Npp32f coeffs[3] = {1.0f, 0.0f, 0.0f};
+  std::vector<Npp16u> srcData(width * height * 3);
+  std::vector<Npp16u> expected(width * height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      Npp16u r = static_cast<Npp16u>(((x + y) * 64) & 0xFFFF);
+      Npp16u g = static_cast<Npp16u>(((x * 3 + y) * 32) & 0xFFFF);
+      Npp16u b = static_cast<Npp16u>(((x + y * 2) * 48) & 0xFFFF);
+      srcData[idx + 0] = r;
+      srcData[idx + 1] = g;
+      srcData[idx + 2] = b;
+      expected[y * width + x] = r;
+    }
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  Npp16u *d_src = nppiMalloc_16u_C3(width, height, &srcStep);
+  Npp16u *d_dst = nppiMalloc_16u_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16u) * 3, width * sizeof(Npp16u) * 3, height,
+               cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiColorToGray_16u_C3C1R(d_src, srcStep, d_dst, dstStep, roi, coeffs);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> result(width * height);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(result[i], expected[i]) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(ColorToGrayTest, ColorToGray_16u_AC4C1R_WeightedNoAlpha) {
+  const Npp32f coeffs[3] = {0.25f, 0.5f, 0.25f};
+  std::vector<Npp16u> srcData(width * height * 4);
+  std::vector<Npp16u> expected(width * height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 4;
+      Npp16u r = static_cast<Npp16u>(((x + y) * 64) & 0xFFFF);
+      Npp16u g = static_cast<Npp16u>(((x * 2 + y) * 64) & 0xFFFF);
+      Npp16u b = static_cast<Npp16u>(((x + y * 2) * 64) & 0xFFFF);
+      Npp16u a = static_cast<Npp16u>(((x * 5 + y * 7) * 64) & 0xFFFF);
+      srcData[idx + 0] = r;
+      srcData[idx + 1] = g;
+      srcData[idx + 2] = b;
+      srcData[idx + 3] = a;
+      expected[y * width + x] = static_cast<Npp16u>((r + 2 * g + b) / 4);
+    }
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  Npp16u *d_src = nppiMalloc_16u_C4(width, height, &srcStep);
+  Npp16u *d_dst = nppiMalloc_16u_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16u) * 4, width * sizeof(Npp16u) * 4, height,
+               cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiColorToGray_16u_AC4C1R(d_src, srcStep, d_dst, dstStep, roi, coeffs);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> result(width * height);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(result[i], expected[i]) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(ColorToGrayTest, ColorToGray_16u_C4C1R_UsesAlphaCoeff) {
+  const Npp32f coeffs[4] = {0.25f, 0.25f, 0.25f, 0.25f};
+  std::vector<Npp16u> srcData(width * height * 4);
+  std::vector<Npp16u> expected(width * height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 4;
+      Npp16u r = static_cast<Npp16u>(((x + y) * 64) & 0xFFFF);
+      Npp16u g = static_cast<Npp16u>(((x * 3 + y) * 64) & 0xFFFF);
+      Npp16u b = static_cast<Npp16u>(((x + y * 2) * 64) & 0xFFFF);
+      Npp16u a = static_cast<Npp16u>(((x * 2 + y * 3) * 64) & 0xFFFF);
+      srcData[idx + 0] = r;
+      srcData[idx + 1] = g;
+      srcData[idx + 2] = b;
+      srcData[idx + 3] = a;
+      expected[y * width + x] = static_cast<Npp16u>((r + g + b + a) / 4);
+    }
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  Npp16u *d_src = nppiMalloc_16u_C4(width, height, &srcStep);
+  Npp16u *d_dst = nppiMalloc_16u_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp16u) * 4, width * sizeof(Npp16u) * 4, height,
+               cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiColorToGray_16u_C4C1R(d_src, srcStep, d_dst, dstStep, roi, coeffs);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> result(width * height);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(result[i], expected[i]) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(ColorToGrayTest, ColorToGray_32f_C3C1R_IdentityCoeff) {
+  const Npp32f coeffs[3] = {1.0f, 0.0f, 0.0f};
+  std::vector<Npp32f> srcData(width * height * 3);
+  std::vector<Npp32f> expected(width * height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      float r = static_cast<float>((x + y) * 1.25f);
+      float g = static_cast<float>((x * 3 + y) * 0.5f);
+      float b = static_cast<float>((x + y * 2) * 0.75f);
+      srcData[idx + 0] = r;
+      srcData[idx + 1] = g;
+      srcData[idx + 2] = b;
+      expected[y * width + x] = r;
+    }
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  Npp32f *d_src = nppiMalloc_32f_C3(width, height, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp32f) * 3, width * sizeof(Npp32f) * 3, height,
+               cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiColorToGray_32f_C3C1R(d_src, srcStep, d_dst, dstStep, roi, coeffs);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> result(width * height);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_NEAR(result[i], expected[i], 1e-5f) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(ColorToGrayTest, ColorToGray_32f_AC4C1R_WeightedNoAlpha) {
+  const Npp32f coeffs[3] = {0.25f, 0.5f, 0.25f};
+  std::vector<Npp32f> srcData(width * height * 4);
+  std::vector<Npp32f> expected(width * height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 4;
+      float r = static_cast<float>((x + y) * 1.0f);
+      float g = static_cast<float>((x * 2 + y) * 1.0f);
+      float b = static_cast<float>((x + y * 2) * 1.0f);
+      float a = static_cast<float>((x * 3 + y * 4) * 1.0f);
+      srcData[idx + 0] = r;
+      srcData[idx + 1] = g;
+      srcData[idx + 2] = b;
+      srcData[idx + 3] = a;
+      expected[y * width + x] = 0.25f * r + 0.5f * g + 0.25f * b;
+    }
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  Npp32f *d_src = nppiMalloc_32f_C4(width, height, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp32f) * 4, width * sizeof(Npp32f) * 4, height,
+               cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiColorToGray_32f_AC4C1R(d_src, srcStep, d_dst, dstStep, roi, coeffs);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> result(width * height);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_NEAR(result[i], expected[i], 1e-5f) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(ColorToGrayTest, ColorToGray_32f_C4C1R_UsesAlphaCoeff) {
+  const Npp32f coeffs[4] = {0.25f, 0.25f, 0.25f, 0.25f};
+  std::vector<Npp32f> srcData(width * height * 4);
+  std::vector<Npp32f> expected(width * height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 4;
+      float r = static_cast<float>((x + y) * 1.25f);
+      float g = static_cast<float>((x * 3 + y) * 0.5f);
+      float b = static_cast<float>((x + y * 2) * 0.75f);
+      float a = static_cast<float>((x * 2 + y * 3) * 0.25f);
+      srcData[idx + 0] = r;
+      srcData[idx + 1] = g;
+      srcData[idx + 2] = b;
+      srcData[idx + 3] = a;
+      expected[y * width + x] = 0.25f * (r + g + b + a);
+    }
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  Npp32f *d_src = nppiMalloc_32f_C4(width, height, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width * sizeof(Npp32f) * 4, width * sizeof(Npp32f) * 4, height,
+               cudaMemcpyHostToDevice);
+
+  NppStatus status = nppiColorToGray_32f_C4C1R(d_src, srcStep, d_dst, dstStep, roi, coeffs);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> result(width * height);
+  cudaMemcpy2D(result.data(), width * sizeof(Npp32f), d_dst, dstStep, width * sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_NEAR(result[i], expected[i], 1e-5f) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
