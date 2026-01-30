@@ -326,3 +326,188 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_AC4IR_Ctx_Brightness) {
     ASSERT_EQ(dstData[i * 4 + 3], srcData[i * 4 + 3]);
   }
 }
+
+// 测试8位双通道ColorTwist - 恒等变换
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C2R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcData(width * height * 2);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 2 + 0] = static_cast<Npp8u>(i % 256);
+    srcData[i * 2 + 1] = static_cast<Npp8u>((i * 3) % 256);
+  }
+
+  NppImageMemory<Npp8u> src(width, height, 2);
+  NppImageMemory<Npp8u> dst(width, height, 2);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_8u_C2R_Ctx(src.get(), src.step(), dst.get(), dst.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstData(width * height * 2);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < width * height * 2; i++) {
+    ASSERT_EQ(srcData[i], dstData[i]);
+  }
+}
+
+// 测试8位双通道ColorTwist in-place
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_C2IR_Ctx_Brightness) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcData(width * height * 2);
+  for (int i = 0; i < width * height; i++) {
+    srcData[i * 2 + 0] = static_cast<Npp8u>(i % 256);
+    srcData[i * 2 + 1] = static_cast<Npp8u>((i * 3) % 256);
+  }
+
+  NppImageMemory<Npp8u> src(width, height, 2);
+  src.copyFromHost(srcData);
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 10.0f},
+      {0.0f, 1.0f, 0.0f, 20.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiColorTwist32f_8u_C2IR_Ctx(src.get(), src.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstData(width * height * 2);
+  src.copyToHost(dstData);
+
+  for (int i = 0; i < width * height; i++) {
+    int c0 = std::min(255, static_cast<int>(srcData[i * 2 + 0]) + 10);
+    int c1 = std::min(255, static_cast<int>(srcData[i * 2 + 1]) + 20);
+    ASSERT_NEAR(dstData[i * 2 + 0], c0, 1);
+    ASSERT_NEAR(dstData[i * 2 + 1], c1, 1);
+  }
+}
+
+// 测试8位平面三通道ColorTwist - 恒等变换
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_P3R_Ctx_Identity) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcR(width * height);
+  std::vector<Npp8u> srcG(width * height);
+  std::vector<Npp8u> srcB(width * height);
+  for (int i = 0; i < width * height; i++) {
+    srcR[i] = static_cast<Npp8u>(i % 256);
+    srcG[i] = static_cast<Npp8u>((i * 2) % 256);
+    srcB[i] = static_cast<Npp8u>((i * 3) % 256);
+  }
+
+  NppImageMemory<Npp8u> srcPlaneR(width, height, 1);
+  NppImageMemory<Npp8u> srcPlaneG(width, height, 1);
+  NppImageMemory<Npp8u> srcPlaneB(width, height, 1);
+  NppImageMemory<Npp8u> dstPlaneR(width, height, 1);
+  NppImageMemory<Npp8u> dstPlaneG(width, height, 1);
+  NppImageMemory<Npp8u> dstPlaneB(width, height, 1);
+
+  srcPlaneR.copyFromHost(srcR);
+  srcPlaneG.copyFromHost(srcG);
+  srcPlaneB.copyFromHost(srcB);
+
+  const Npp8u *pSrc[3] = {srcPlaneR.get(), srcPlaneG.get(), srcPlaneB.get()};
+  Npp8u *pDst[3] = {dstPlaneR.get(), dstPlaneG.get(), dstPlaneB.get()};
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status = nppiColorTwist32f_8u_P3R_Ctx(pSrc, srcPlaneR.step(), pDst, dstPlaneR.step(), oSizeROI, aTwist,
+                                                  nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstR(width * height);
+  std::vector<Npp8u> dstG(width * height);
+  std::vector<Npp8u> dstB(width * height);
+  dstPlaneR.copyToHost(dstR);
+  dstPlaneG.copyToHost(dstG);
+  dstPlaneB.copyToHost(dstB);
+
+  for (int i = 0; i < width * height; i++) {
+    ASSERT_EQ(dstR[i], srcR[i]);
+    ASSERT_EQ(dstG[i], srcG[i]);
+    ASSERT_EQ(dstB[i], srcB[i]);
+  }
+}
+
+// 测试8位平面三通道ColorTwist in-place
+TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_IP3R_Ctx_Brightness) {
+  const int width = 32, height = 32;
+
+  std::vector<Npp8u> srcR(width * height);
+  std::vector<Npp8u> srcG(width * height);
+  std::vector<Npp8u> srcB(width * height);
+  for (int i = 0; i < width * height; i++) {
+    srcR[i] = static_cast<Npp8u>(i % 256);
+    srcG[i] = static_cast<Npp8u>((i * 2) % 256);
+    srcB[i] = static_cast<Npp8u>((i * 3) % 256);
+  }
+
+  NppImageMemory<Npp8u> planeR(width, height, 1);
+  NppImageMemory<Npp8u> planeG(width, height, 1);
+  NppImageMemory<Npp8u> planeB(width, height, 1);
+  planeR.copyFromHost(srcR);
+  planeG.copyFromHost(srcG);
+  planeB.copyFromHost(srcB);
+
+  Npp8u *pSrcDst[3] = {planeR.get(), planeG.get(), planeB.get()};
+
+  Npp32f aTwist[3][4] = {
+      {1.0f, 0.0f, 0.0f, 10.0f},
+      {0.0f, 1.0f, 0.0f, 20.0f},
+      {0.0f, 0.0f, 1.0f, 30.0f},
+  };
+
+  NppiSize oSizeROI = {width, height};
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  NppStatus status =
+      nppiColorTwist32f_8u_IP3R_Ctx(pSrcDst, planeR.step(), oSizeROI, aTwist, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp8u> dstR(width * height);
+  std::vector<Npp8u> dstG(width * height);
+  std::vector<Npp8u> dstB(width * height);
+  planeR.copyToHost(dstR);
+  planeG.copyToHost(dstG);
+  planeB.copyToHost(dstB);
+
+  for (int i = 0; i < width * height; i++) {
+    int r = std::min(255, static_cast<int>(srcR[i]) + 10);
+    int g = std::min(255, static_cast<int>(srcG[i]) + 20);
+    int b = std::min(255, static_cast<int>(srcB[i]) + 30);
+    ASSERT_NEAR(dstR[i], r, 1);
+    ASSERT_NEAR(dstG[i], g, 1);
+    ASSERT_NEAR(dstB[i], b, 1);
+  }
+}

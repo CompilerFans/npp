@@ -95,6 +95,64 @@ __global__ void nppiColorTwist32f_8u_AC4R_kernel(const Npp8u *pSrc, int nSrcStep
   dst_row[dst_idx + 3] = 0;
 }
 
+// Color twist kernel for 2-channel 8-bit images (treat as RG)
+__global__ void nppiColorTwist32f_8u_C2R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                int height, const float *twist) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
+  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
+
+  int src_idx = x * 2;
+  int dst_idx = x * 2;
+
+  float r = (float)src_row[src_idx + 0];
+  float g = (float)src_row[src_idx + 1];
+  float b = 0.0f;
+
+  float r_new = twist[0] * r + twist[1] * g + twist[2] * b + twist[3];
+  float g_new = twist[4] * r + twist[5] * g + twist[6] * b + twist[7];
+
+  dst_row[dst_idx + 0] = (Npp8u)fmaxf(0.0f, fminf(255.0f, r_new + 0.5f));
+  dst_row[dst_idx + 1] = (Npp8u)fmaxf(0.0f, fminf(255.0f, g_new + 0.5f));
+}
+
+// Color twist kernel for planar 3-channel 8-bit images
+__global__ void nppiColorTwist32f_8u_P3R_kernel(const Npp8u *pSrcR, const Npp8u *pSrcG, const Npp8u *pSrcB,
+                                                int nSrcStep, Npp8u *pDstR, Npp8u *pDstG, Npp8u *pDstB, int nDstStep,
+                                                int width, int height, const float *twist) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *src_row_r = (const Npp8u *)((const char *)pSrcR + y * nSrcStep);
+  const Npp8u *src_row_g = (const Npp8u *)((const char *)pSrcG + y * nSrcStep);
+  const Npp8u *src_row_b = (const Npp8u *)((const char *)pSrcB + y * nSrcStep);
+  Npp8u *dst_row_r = (Npp8u *)((char *)pDstR + y * nDstStep);
+  Npp8u *dst_row_g = (Npp8u *)((char *)pDstG + y * nDstStep);
+  Npp8u *dst_row_b = (Npp8u *)((char *)pDstB + y * nDstStep);
+
+  float r = (float)src_row_r[x];
+  float g = (float)src_row_g[x];
+  float b = (float)src_row_b[x];
+
+  float r_new = twist[0] * r + twist[1] * g + twist[2] * b + twist[3];
+  float g_new = twist[4] * r + twist[5] * g + twist[6] * b + twist[7];
+  float b_new = twist[8] * r + twist[9] * g + twist[10] * b + twist[11];
+
+  dst_row_r[x] = (Npp8u)fmaxf(0.0f, fminf(255.0f, r_new + 0.5f));
+  dst_row_g[x] = (Npp8u)fmaxf(0.0f, fminf(255.0f, g_new + 0.5f));
+  dst_row_b[x] = (Npp8u)fmaxf(0.0f, fminf(255.0f, b_new + 0.5f));
+}
+
 // Color twist kernel for single-channel 8-bit images (grayscale)
 __global__ void nppiColorTwist32f_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                 int height, const float *twist) {
@@ -244,6 +302,87 @@ NppStatus nppiColorTwist32f_8u_AC4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
   return NPP_SUCCESS;
 }
 
+// 2-channel 8-bit implementation
+NppStatus nppiColorTwist32f_8u_C2R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                            NppStreamContext nppStreamCtx) {
+  float *d_twist;
+  cudaError_t cudaStatus = cudaMalloc(&d_twist, 12 * sizeof(float));
+  if (cudaStatus != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  float h_twist[12];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+      h_twist[i * 4 + j] = aTwist[i][j];
+    }
+  }
+
+  cudaStatus = cudaMemcpyAsync(d_twist, h_twist, 12 * sizeof(float), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  if (cudaStatus != cudaSuccess) {
+    cudaFree(d_twist);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiColorTwist32f_8u_C2R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_twist);
+
+  cudaStatus = cudaGetLastError();
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  cudaFree(d_twist);
+
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+// Planar 3-channel 8-bit implementation
+NppStatus nppiColorTwist32f_8u_P3R_Ctx_impl(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *const pDst[3],
+                                            int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                            NppStreamContext nppStreamCtx) {
+  float *d_twist;
+  cudaError_t cudaStatus = cudaMalloc(&d_twist, 12 * sizeof(float));
+  if (cudaStatus != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  float h_twist[12];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+      h_twist[i * 4 + j] = aTwist[i][j];
+    }
+  }
+
+  cudaStatus = cudaMemcpyAsync(d_twist, h_twist, 12 * sizeof(float), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  if (cudaStatus != cudaSuccess) {
+    cudaFree(d_twist);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiColorTwist32f_8u_P3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc[0], pSrc[1], pSrc[2], nSrcStep, pDst[0], pDst[1], pDst[2], nDstStep, oSizeROI.width, oSizeROI.height,
+      d_twist);
+
+  cudaStatus = cudaGetLastError();
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  cudaFree(d_twist);
+
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
 // Single-channel 8-bit implementation
 NppStatus nppiColorTwist32f_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, const Npp32f aTwist[3][4],
@@ -304,8 +443,18 @@ NppStatus nppiColorTwist32f_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, Np
   return nppiColorTwist32f_8u_C4R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
+NppStatus nppiColorTwist32f_8u_C2IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                             const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  return nppiColorTwist32f_8u_C2R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
+}
+
 NppStatus nppiColorTwist32f_8u_AC4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                               const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   return nppiColorTwist32f_8u_C4R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
+}
+
+NppStatus nppiColorTwist32f_8u_IP3R_Ctx_impl(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                             const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  return nppiColorTwist32f_8u_P3R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 }
