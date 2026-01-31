@@ -129,10 +129,21 @@ MPP Implementation ←→ NVIDIA NPP Library ←→ CPU Reference Implementation
               (Bit-level precision)
 ```
 
+### Test Framework Components
+The project uses a unified test framework in `test/unit/framework/`:
+- **NppTestBase**: Base test class with device setup/teardown and capability checks
+- **NppTestMemory**: Unified memory management (host/device allocation, RAII wrappers)
+- **NppTestResultValidator**: Result comparison utilities with tolerance support
+- **NppTestRandGen**: Random data generation for test inputs
+- **NppTestUtils**: Common test utilities and helpers
+
+All new tests should inherit from `NppTestBase` and use the framework utilities.
+
 ### Test Organization
 - Unit tests must match source code hierarchy
 - Test files named: `test_<function>.cpp`
 - Test organization mirrors API module structure
+- Use namespace `npp_functional_test` for all test code
 
 ### Test Restrictions
 - **DO NOT use GTEST_SKIP** - tests must run
@@ -266,3 +277,19 @@ This generates:
 ### File Organization
 - Implementation files and test files should be organized by API function name
 - Maintain parallel structure between `src/` and `test/unit/` hierarchies
+
+
+## 开发流程与执行规则
+### 开发流程（按顺序执行）
+1. 先写测试用例，再写实现代码。
+2. 先在 `build-nvidia` 目录开发并运行测试，确保测试通过；测试需包含功能测试与精度测试，优先使用 gtest 参数化覆盖不同数据量、数据类型。需要执行build-nvidia下的unit_tests，使用nvidia的npp库，验证测试代码正确性
+2.1 如果遇到执行nvidia下的unit_tests错误，需要优先修正，并且不能因为错误影响其他测试
+3. 再开发 `src/` 函数实现；实现需考虑复用性，抽象可复用逻辑。
+4. 在 `build` 目录运行测试，确保测试通过。
+5. 执行 `./update_coverage.sh` 更新覆盖率数据。
+6. 完成后提交 `git commit` 并 `push` 到远程仓库。
+
+## 开发计划
+- 扫描并提取npp/api_analysis/coverage.csv中，nppi_color_conversion.h缺失的api，总结至npp/api_analysis目录，再逐步实现
+- 基于nppi_color_conversion.h中在实际中的实际使用热度，制定开发计划
+- 开发要考虑测试和源码的复用性

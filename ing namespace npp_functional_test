@@ -1,0 +1,553 @@
+[1mdiff --git a/test/unit/framework/npp_test_base.h b/test/unit/framework/npp_test_base.h[m
+[1mindex 2b10e41..97f6796 100644[m
+[1m--- a/test/unit/framework/npp_test_base.h[m
+[1m+++ b/test/unit/framework/npp_test_base.h[m
+[36m@@ -1,48 +1,11 @@[m
+ #pragma once[m
+ [m
+[31m-#include "npp.h"[m
+[31m-#include "npp_version_compat.h"[m
+[31m-#include <cuda_fp16.h>[m
+[31m-#include <cuda_runtime.h>[m
+[32m+[m[32m#include "npp.h"[m[41m  [m
+[32m+[m[32m#include "npp_test_memory.h"[m
+[32m+[m[32m#include "npp_test_result_validator.h"[m
+[32m+[m[32m#include "npp_test_rand_gen.h"[m
+[32m+[m[32m#include "npp_test_utils.h"[m
+ #include <gtest/gtest.h>[m
+[31m-#include <memory>[m
+[31m-#include <random>[m
+[31m-#include <type_traits>[m
+[31m-#include <vector>[m
+[31m-[m
+[31m-// Helper functions for Npp16f (half-precision float) type[m
+[31m-inline unsigned short npp_half_as_ushort_host(__half h) {[m
+[31m-  return static_cast<unsigned short>(static_cast<__half_raw>(h).x);[m
+[31m-}[m
+[31m-[m
+[31m-inline __half npp_ushort_as_half_host(unsigned short v) {[m
+[31m-  __half_raw raw{};[m
+[31m-  raw.x = v;[m
+[31m-  return __half(raw);[m
+[31m-}[m
+[31m-[m
+[31m-inline Npp16f float_to_npp16f_host(float val) {[m
+[31m-  Npp16f result;[m
+[31m-  __half h = __float2half(val);[m
+[31m-  result.fp16 = static_cast<short>(npp_half_as_ushort_host(h));[m
+[31m-  return result;[m
+[31m-}[m
+[31m-[m
+[31m-inline float npp16f_to_float_host(Npp16f val) {[m
+[31m-  __half h = npp_ushort_as_half_host(static_cast<unsigned short>(val.fp16));[m
+[31m-  return __half2float(h);[m
+[31m-}[m
+[31m-[m
+[31m-// Type trait to check if T is Npp16f[m
+[31m-template <typename T> struct is_npp16f : std::false_type {};[m
+[31m-template <> struct is_npp16f<Npp16f> : std::true_type {};[m
+[31m-template <typename T> constexpr bool is_npp16f_v = is_npp16f<T>::value;[m
+[31m-[m
+[31m-#if CUDA_SDK_AT_LEAST(12, 8)[m
+[31m-#define SIZE_TYPE size_t[m
+[31m-#else[m
+[31m-#define SIZE_TYPE int[m
+[31m-#endif[m
+ [m
+ namespace npp_functional_test {[m
+ [m
+[36m@@ -50,35 +13,20 @@[m [mnamespace npp_functional_test {[m
+ class NppTestBase : public ::testing::Test {[m
+ protected:[m
+   void SetUp() override {[m
+[31m-    // Initialize device[m
+[31m-    cudaError_t err = cudaSetDevice(0);[m
+[31m-    if (err != cudaSuccess) {[m
+[31m-      GTEST_FAIL() << "CUDA device unavailable: " << cudaGetErrorString(err);[m
+[31m-    }[m
+[31m-[m
+     // Check device availability[m
+     int deviceCount;[m
+[31m-    err = cudaGetDeviceCount(&deviceCount);[m
+[31m-    if (err != cudaSuccess) {[m
+[31m-      GTEST_FAIL() << "CUDA device count query failed: " << cudaGetErrorString(err);[m
+[31m-    }[m
+[31m-    if (deviceCount <= 0) {[m
+[31m-      GTEST_FAIL() << "No CUDA devices available";[m
+[31m-    }[m
+[32m+[m[32m    auto err = cudaGetDeviceCount(&deviceCount);[m
+[32m+[m[32m    ASSERT_EQ(err, cudaSuccess) << "Failed to get device count";[m
+[32m+[m[32m    ASSERT_GT(deviceCount, 0) << "No devices available";[m
+ [m
+     // Get device properties[m
+     err = cudaGetDeviceProperties(&deviceProp_, 0);[m
+     ASSERT_EQ(err, cudaSuccess) << "Failed to get device properties";[m
+[31m-    device_ready_ = true;[m
+   }[m
+ [m
+   void TearDown() override {[m
+[31m-    if (!device_ready_) {[m
+[31m-      return;[m
+[31m-    }[m
+[31m-    // Synchronize device and check for errors[m
+[31m-    cudaError_t err = cudaDeviceSynchronize();[m
+[31m-    EXPECT_EQ(err, cudaSuccess) << "error after test: " << cudaGetErrorString(err);[m
+[32m+[m[32m    auto err = cudaDeviceSynchronize();[m
+[32m+[m[32m    ASSERT_EQ(err, cudaSuccess) << "error after test: " << cudaGetErrorString(err);[m
+   }[m
+ [m
+   // Device properties access[m
+[36m@@ -90,431 +38,7 @@[m [mprotected:[m
+   }[m
+ [m
+ private:[m
+[31m-  bool device_ready_ = false;[m
+   cudaDeviceProp deviceProp_;[m
+ };[m
+ [m
+[31m-// Implementation file[m
+[31m-template <typename T> class DeviceMemory {[m
+[31m-public:[m
+[31m-  DeviceMemory() : ptr_(nullptr), size_(0) {}[m
+[31m-[m
+[31m-  explicit DeviceMemory(size_t size) : size_(size) { allocate(size); }[m
+[31m-[m
+[31m-  ~DeviceMemory() { free(); }[m
+[31m-[m
+[31m-  // Disable copy[m
+[31m-  DeviceMemory(const DeviceMemory &) = delete;[m
+[31m-  DeviceMemory &operator=(const DeviceMemory &) = delete;[m
+[31m-[m
+[31m-  // Support move[m
+[31m-  DeviceMemory(DeviceMemory &&other) noexcept : ptr_(other.ptr_), size_(other.size_) {[m
+[31m-    other.ptr_ = nullptr;[m
+[31m-    other.size_ = 0;[m
+[31m-  }[m
+[31m-[m
+[31m-  DeviceMemory &operator=(DeviceMemory &&other) noexcept {[m
+[31m-    if (this != &other) {[m
+[31m-      free();[m
+[31m-      ptr_ = other.ptr_;[m
+[31m-      size_ = other.size_;[m
+[31m-      other.ptr_ = nullptr;[m
+[31m-      other.size_ = 0;[m
+[31m-    }[m
+[31m-    return *this;[m
+[31m-  }[m
+[31m-[m
+[31m-  void allocate(size_t size) {[m
+[31m-    free();[m
+[31m-    cudaError_t err = cudaMalloc(&ptr_, size * sizeof(T));[m
+[31m-    if (err != cudaSuccess) {[m
+[31m-      throw std::runtime_error("Failed to allocate device memory: " + std::string(cudaGetErrorString(err)));[m
+[31m-    }[m
+[31m-    size_ = size;[m
+[31m-  }[m
+[31m-[m
+[31m-  void free() {[m
+[31m-    if (ptr_) {[m
+[31m-      cudaFree(ptr_);[m
+[31m-      ptr_ = nullptr;[m
+[31m-      size_ = 0;[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  T *get() const { return ptr_; }[m
+[31m-  size_t size() const { return size_; }[m
+[31m-[m
+[31m-  // Data transfer[m
+[31m-  void copyFromHost(const std::vector<T> &hostData) {[m
+[31m-    ASSERT_EQ(hostData.size(), size_) << "Size mismatch in copyFromHost";[m
+[31m-    cudaError_t err = cudaMemcpy(ptr_, hostData.data(), size_ * sizeof(T), cudaMemcpyHostToDevice);[m
+[31m-    ASSERT_EQ(err, cudaSuccess) << "Failed to copy from host";[m
+[31m-  }[m
+[31m-[m
+[31m-  void copyToHost(std::vector<T> &hostData) const {[m
+[31m-    hostData.resize(size_);[m
+[31m-    cudaError_t err = cudaMemcpy(hostData.data(), ptr_, size_ * sizeof(T), cudaMemcpyDeviceToHost);[m
+[31m-    ASSERT_EQ(err, cudaSuccess) << "Failed to copy to host";[m
+[31m-  }[m
+[31m-[m
+[31m-private:[m
+[31m-  T *ptr_;[m
+[31m-  size_t size_;[m
+[31m-};[m
+[31m-[m
+[31m-// Implementation file[m
+[31m-template <typename T> class NppImageMemory {[m
+[31m-public:[m
+[31m-  NppImageMemory() : ptr_(nullptr), step_(0), width_(0), height_(0), channels_(1) {}[m
+[31m-[m
+[31m-  NppImageMemory(int width, int height, int channels = 1)[m
+[31m-      : ptr_(nullptr), step_(0), width_(width), height_(height), channels_(channels) {[m
+[31m-    allocate(width, height, channels);[m
+[31m-  }[m
+[31m-[m
+[31m-  ~NppImageMemory() { free(); }[m
+[31m-[m
+[31m-  // Disable copy[m
+[31m-  NppImageMemory(const NppImageMemory &) = delete;[m
+[31m-  NppImageMemory &operator=(const NppImageMemory &) = delete;[m
+[31m-[m
+[31m-  // Support move[m
+[31m-  NppImageMemory(NppImageMemory &&other) noexcept[m
+[31m-      : ptr_(other.ptr_), step_(other.step_), width_(other.width_), height_(other.height_), channels_(other.channels_) {[m
+[31m-    other.ptr_ = nullptr;[m
+[31m-    other.step_ = 0;[m
+[31m-    other.width_ = 0;[m
+[31m-    other.height_ = 0;[m
+[31m-    other.channels_ = 1;[m
+[31m-  }[m
+[31m-[m
+[31m-  void allocate(int width, int height, int channels = 1) {[m
+[31m-    free();[m
+[31m-    width_ = width;[m
+[31m-    height_ = height;[m
+[31m-    channels_ = channels;[m
+[31m-[m
+[31m-    if constexpr (std::is_same_v<T, Npp8u>) {[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = nppiMalloc_8u_C1(width, height, &step_);[m
+[31m-      } else if (channels == 2) {[m
+[31m-        ptr_ = nppiMalloc_8u_C2(width, height, &step_);[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = nppiMalloc_8u_C3(width, height, &step_);[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = nppiMalloc_8u_C4(width, height, &step_);[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp8u");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp8s>) {[m
+[31m-      static_assert(sizeof(T) == 0, "Unsupported NPP data type");[m
+[31m-      ptr_ = reinterpret_cast<T *>(nppiMalloc_8u_C1(width, height * channels, &step_));[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp16u>) {[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = nppiMalloc_16u_C1(width, height, &step_);[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = nppiMalloc_16u_C3(width, height, &step_);[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = nppiMalloc_16u_C4(width, height, &step_);[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp16u");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp16s>) {[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = nppiMalloc_16s_C1(width, height, &step_);[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp16s");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp16f>) {[m
+[31m-      // Npp16f has the same size as Npp16u, so we use 16u allocation functions[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_16u_C1(width, height, &step_));[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_16u_C3(width, height, &step_));[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_16u_C4(width, height, &step_));[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp16f");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp32s>) {[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = nppiMalloc_32s_C1(width, height, &step_);[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = nppiMalloc_32s_C3(width, height, &step_);[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = nppiMalloc_32s_C4(width, height, &step_);[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp32s");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp32f>) {[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = nppiMalloc_32f_C1(width, height, &step_);[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = nppiMalloc_32f_C3(width, height, &step_);[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = nppiMalloc_32f_C4(width, height, &step_);[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp32f");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp32fc>) {[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = nppiMalloc_32fc_C1(width, height, &step_);[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = nppiMalloc_32fc_C3(width, height, &step_);[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = nppiMalloc_32fc_C4(width, height, &step_);[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp32fc");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp16sc>) {[m
+[31m-      // Npp16sc is complex 16-bit signed, use 32s allocation (same size: 4 bytes)[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_32s_C1(width, height, &step_));[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_32s_C3(width, height, &step_));[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_32s_C4(width, height, &step_));[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp16sc");[m
+[31m-      }[m
+[31m-    } else if constexpr (std::is_same_v<T, Npp32sc>) {[m
+[31m-      // Npp32sc is complex 32-bit signed (8 bytes), use 32fc allocation (same size)[m
+[31m-      if (channels == 1) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_32fc_C1(width, height, &step_));[m
+[31m-      } else if (channels == 3) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_32fc_C3(width, height, &step_));[m
+[31m-      } else if (channels == 4) {[m
+[31m-        ptr_ = reinterpret_cast<T *>(nppiMalloc_32fc_C4(width, height, &step_));[m
+[31m-      } else {[m
+[31m-        throw std::runtime_error("Unsupported channel count for Npp32sc");[m
+[31m-      }[m
+[31m-    } else {[m
+[31m-      static_assert(sizeof(T) == 0, "Unsupported NPP data type");[m
+[31m-    }[m
+[31m-[m
+[31m-    if (!ptr_) {[m
+[31m-      throw std::runtime_error("Failed to allocate NPP image memory");[m
+[31m-    }[m
+[31m-[m
+[31m-    cudaError_t err = cudaMemset(ptr_, 0, sizeInBytes());[m
+[31m-    if (err != cudaSuccess) {[m
+[31m-      throw std::runtime_error("Failed to initialize NPP image memory: " + std::string(cudaGetErrorString(err)));[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  void free() {[m
+[31m-    if (ptr_) {[m
+[31m-      nppiFree(ptr_);[m
+[31m-      ptr_ = nullptr;[m
+[31m-      step_ = 0;[m
+[31m-      width_ = 0;[m
+[31m-      height_ = 0;[m
+[31m-      channels_ = 1;[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  T *get() const { return ptr_; }[m
+[31m-  int step() const { return step_; }[m
+[31m-  int width() const { return width_; }[m
+[31m-  int height() const { return height_; }[m
+[31m-  int channels() const { return channels_; }[m
+[31m-  NppiSize size() const { return {width_, height_}; }[m
+[31m-  size_t sizeInBytes() const { return step_ * height_; }[m
+[31m-[m
+[31m-  // Data transfer[m
+[31m-  void copyFromHost(const std::vector<T> &hostData) {[m
+[31m-    ASSERT_EQ(hostData.size(), width_ * height_ * channels_) << "Size mismatch in copyFromHost";[m
+[31m-    cudaError_t err = cudaMemcpy2D(ptr_, step_, hostData.data(), width_ * channels_ * sizeof(T),[m
+[31m-                                   width_ * channels_ * sizeof(T), height_, cudaMemcpyHostToDevice);[m
+[31m-    ASSERT_EQ(err, cudaSuccess) << "Failed to copy from host";[m
+[31m-  }[m
+[31m-[m
+[31m-  void copyToHost(std::vector<T> &hostData) const {[m
+[31m-    hostData.resize(width_ * height_ * channels_);[m
+[31m-    cudaError_t err = cudaMemcpy2D(hostData.data(), width_ * channels_ * sizeof(T), ptr_, step_,[m
+[31m-                                   width_ * channels_ * sizeof(T), height_, cudaMemcpyDeviceToHost);[m
+[31m-    ASSERT_EQ(err, cudaSuccess) << "Failed to copy to host";[m
+[31m-  }[m
+[31m-[m
+[31m-  void fill(T value) {[m
+[31m-    std::vector<T> hostData(width_ * height_ * channels_, value);[m
+[31m-    copyFromHost(hostData);[m
+[31m-  }[m
+[31m-[m
+[31m-private:[m
+[31m-  T *ptr_;[m
+[31m-  int step_;[m
+[31m-  int width_;[m
+[31m-  int height_;[m
+[31m-  int channels_;[m
+[31m-};[m
+[31m-[m
+[31m-// Implementation file[m
+[31m-class TestDataGenerator {[m
+[31m-public:[m
+[31m-  // Generate random data[m
+[31m-  template <typename T>[m
+[31m-  static void generateRandom(std::vector<T> &data, T minVal, T maxVal, unsigned seed = std::random_device{}()) {[m
+[31m-    std::mt19937 gen(seed);[m
+[31m-[m
+[31m-    if constexpr (std::is_floating_point_v<T>) {[m
+[31m-      std::uniform_real_distribution<T> dis(minVal, maxVal);[m
+[31m-      for (auto &val : data) {[m
+[31m-        val = dis(gen);[m
+[31m-      }[m
+[31m-    } else if constexpr (is_npp16f_v<T>) {[m
+[31m-      float minF = npp16f_to_float_host(minVal);[m
+[31m-      float maxF = npp16f_to_float_host(maxVal);[m
+[31m-      std::uniform_real_distribution<float> dis(minF, maxF);[m
+[31m-      for (auto &val : data) {[m
+[31m-        val = float_to_npp16f_host(dis(gen));[m
+[31m-      }[m
+[31m-    } else {[m
+[31m-      std::uniform_int_distribution<int> dis(minVal, maxVal);[m
+[31m-      for (auto &val : data) {[m
+[31m-        val = static_cast<T>(dis(gen));[m
+[31m-      }[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  // Generate random Npp16f data from float range[m
+[31m-  static void generateRandom16f(std::vector<Npp16f> &data, float minVal, float maxVal,[m
+[31m-                                unsigned seed = std::random_device{}()) {[m
+[31m-    std::mt19937 gen(seed);[m
+[31m-    std::uniform_real_distribution<float> dis(minVal, maxVal);[m
+[31m-    for (auto &val : data) {[m
+[31m-      val = float_to_npp16f_host(dis(gen));[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  // Generate sequential data[m
+[31m-  template <typename T> static void generateSequential(std::vector<T> &data, T startVal = T{}, T step = T{1}) {[m
+[31m-    T current = startVal;[m
+[31m-    for (auto &val : data) {[m
+[31m-      val = current;[m
+[31m-      current += step;[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  // Generate constant data[m
+[31m-  template <typename T> static void generateConstant(std::vector<T> &data, T value) {[m
+[31m-    std::fill(data.begin(), data.end(), value);[m
+[31m-  }[m
+[31m-[m
+[31m-  // Generate test pattern data (checkerboard, stripes, etc.)[m
+[31m-  template <typename T>[m
+[31m-  static void generateCheckerboard(std::vector<T> &data, int width, int height, T value1, T value2) {[m
+[31m-    ASSERT_EQ(data.size(), width * height) << "Data size mismatch";[m
+[31m-[m
+[31m-    for (int y = 0; y < height; y++) {[m
+[31m-      for (int x = 0; x < width; x++) {[m
+[31m-        int idx = y * width + x;[m
+[31m-        data[idx] = ((x + y) % 2 == 0) ? value1 : value2;[m
+[31m-      }[m
+[31m-    }[m
+[31m-  }[m
+[31m-};[m
+[31m-[m
+[31m-// Implementation file[m
+[31m-class ResultValidator {[m
+[31m-public:[m
+[31m-  // Verify array equality (integer types)[m
+[31m-  template <typename T> static bool arraysEqual(const std::vector<T> &a, const std::vector<T> &b, T tolerance = T{}) {[m
+[31m-    if (a.size() != b.size())[m
+[31m-      return false;[m
+[31m-[m
+[31m-    if constexpr (std::is_floating_point_v<T>) {[m
+[31m-      for (size_t i = 0; i < a.size(); i++) {[m
+[31m-        if (std::abs(a[i] - b[i]) > tolerance) {[m
+[31m-          return false;[m
+[31m-        }[m
+[31m-      }[m
+[31m-    } else if constexpr (is_npp16f_v<T>) {[m
+[31m-      float tolF = npp16f_to_float_host(tolerance);[m
+[31m-      for (size_t i = 0; i < a.size(); i++) {[m
+[31m-        float af = npp16f_to_float_host(a[i]);[m
+[31m-        float bf = npp16f_to_float_host(b[i]);[m
+[31m-        if (std::abs(af - bf) > tolF) {[m
+[31m-          return false;[m
+[31m-        }[m
+[31m-      }[m
+[31m-    } else {[m
+[31m-      for (size_t i = 0; i < a.size(); i++) {[m
+[31m-        if (std::abs(static_cast<long long>(a[i]) - static_cast<long long>(b[i])) > tolerance) {[m
+[31m-          return false;[m
+[31m-        }[m
+[31m-      }[m
+[31m-    }[m
+[31m-    return true;[m
+[31m-  }[m
+[31m-[m
+[31m-  // Overload for Npp16f with float tolerance[m
+[31m-  static bool arraysEqual16f(const std::vector<Npp16f> &a, const std::vector<Npp16f> &b, float tolerance = 1e-3f) {[m
+[31m-    if (a.size() != b.size())[m
+[31m-      return false;[m
+[31m-    for (size_t i = 0; i < a.size(); i++) {[m
+[31m-      float af = npp16f_to_float_host(a[i]);[m
+[31m-      float bf = npp16f_to_float_host(b[i]);[m
+[31m-      if (std::abs(af - bf) > tolerance) {[m
+[31m-        return false;[m
+[31m-      }[m
+[31m-    }[m
+[31m-    return true;[m
+[31m-  }[m
+[31m-[m
+[31m-  // Find first mismatch position[m
+[31m-  template <typename T>[m
+[31m-  static std::pair<bool, size_t> findFirstMismatch(const std::vector<T> &a, const std::vector<T> &b,[m
+[31m-                                                   T tolerance = T{}) {[m
+[31m-    if (a.size() != b.size()) {[m
+[31m-      return {false, 0};[m
+[31m-    }[m
+[31m-[m
+[31m-    for (size_t i = 0; i < a.size(); i++) {[m
+[31m-      bool match;[m
+[31m-      if constexpr (std::is_floating_point_v<T>) {[m
+[31m-        match = (std::abs(a[i] - b[i]) <= tolerance);[m
+[31m-      } else if constexpr (is_npp16f_v<T>) {[m
+[31m-        float tolF = npp16f_to_float_host(tolerance);[m
+[31m-        float af = npp16f_to_float_host(a[i]);[m
+[31m-        float bf = npp16f_to_float_host(b[i]);[m
+[31m-        match = (std::abs(af - bf) <= tolF);[m
+[31m-      } else {[m
+[31m-        match = (std::abs(static_cast<long long>(a[i]) - static_cast<long long>(b[i])) <= tolerance);[m
+[31m-      }[m
+[31m-[m
+[31m-      if (!match) {[m
+[31m-        return {false, i};[m
+[31m-      }[m
+[31m-    }[m
+[31m-    return {true, 0};[m
+[31m-  }[m
+[31m-[m
+[31m-  // Compute array statistics[m
+[31m-  template <typename T>[m
+[31m-  static void computeStats(const std::vector<T> &data, T &minVal, T &maxVal, double &mean, double &stddev) {[m
+[31m-    if (data.empty()) {[m
+[31m-      minVal = maxVal = T{};[m
+[31m-      mean = stddev = 0.0;[m
+[31m-      return;[m
+[31m-    }[m
+[31m-[m
+[31m-    minVal = *std::min_element(data.begin(), data.end());[m
+[31m-    maxVal = *std::max_element(data.begin(), data.end());[m
+[31m-[m
+[31m-    double sum = 0.0;[m
+[31m-    for (const auto &val : data) {[m
+[31m-      sum += static_cast<double>(val);[m
+[31m-    }[m
+[31m-    mean = sum / data.size();[m
+[31m-[m
+[31m-    double variance = 0.0;[m
+[31m-    for (const auto &val : data) {[m
+[31m-      double diff = static_cast<double>(val) - mean;[m
+[31m-      variance += diff * diff;[m
+[31m-    }[m
+[31m-    stddev = std::sqrt(variance / data.size());[m
+[31m-  }[m
+[31m-};[m
+[31m-[m
+ } // namespace npp_functional_test[m
+[1mdiff --git a/test/unit/nppi/nppi_arithmetic_operations/nppi_arithmetic_test_framework.h b/test/unit/nppi/nppi_arithmetic_operations/nppi_arithmetic_test_framework.h[m
+[1mindex 387bb3d..c026aef 100644[m
+[1m--- a/test/unit/nppi/nppi_arithmetic_operations/nppi_arithmetic_test_framework.h[m
+[1m+++ b/test/unit/nppi/nppi_arithmetic_operations/nppi_arithmetic_test_framework.h[m
+[36m@@ -2,6 +2,8 @@[m
+ [m
+ #include "npp.h"[m
+ #include "npp_test_base.h"[m
+[32m+[m[32m#include "npp_test_result_validator.h"[m
+[32m+[m[32m#include "npp_test_rand_gen.h"[m
+ #include <cmath>[m
+ #include <functional>[m
+ #include <gtest/gtest.h>[m
+[36m@@ -11,8 +13,6 @@[m
+ [m
+ namespace npp_arithmetic_test {[m
+ [m
+[31m-using namespace npp_functional_test;[m
+[31m-[m
+ // Expected value calculator functor types[m
+ template <typename T> using UnaryExpectFunc = std::function<T(T)>;[m
+ template <typename T> using BinaryExpectFunc = std::function<T(T, T)>;[m
