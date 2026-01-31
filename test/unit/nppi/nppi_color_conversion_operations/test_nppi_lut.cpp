@@ -15,7 +15,7 @@ struct LutCase {
   int seed;
 };
 
-class LutMissingTestBase : public npp_functional_test::NppTestBase {
+class LutTestBase : public npp_functional_test::NppTestBase {
 protected:
   void SetUp() override {
     npp_functional_test::NppTestBase::SetUp();
@@ -44,12 +44,12 @@ protected:
   bool has_cuda_ = false;
 };
 
-class Lut8uC1RParamTest : public LutMissingTestBase, public ::testing::WithParamInterface<LutCase> {};
-class Lut8uC3RParamTest : public LutMissingTestBase, public ::testing::WithParamInterface<LutCase> {};
-class Lut8uC4RParamTest : public LutMissingTestBase, public ::testing::WithParamInterface<LutCase> {};
-class Lut16uC1RParamTest : public LutMissingTestBase, public ::testing::WithParamInterface<LutCase> {};
+class Lut8uC1RParamTest : public LutTestBase, public ::testing::WithParamInterface<LutCase> {};
+class Lut8uC3RParamTest : public LutTestBase, public ::testing::WithParamInterface<LutCase> {};
+class Lut8uC4RParamTest : public LutTestBase, public ::testing::WithParamInterface<LutCase> {};
+class Lut16uC1RParamTest : public LutTestBase, public ::testing::WithParamInterface<LutCase> {};
 
-#ifdef USE_NVIDIA_NPP_TESTS
+
 template <typename T> T clampToType(Npp32s value);
 template <> Npp8u clampToType<Npp8u>(Npp32s value) {
   return static_cast<Npp8u>(std::min(std::max(value, 0), 255));
@@ -71,7 +71,6 @@ T applyLutNoInterpolation(T input, const std::vector<Npp32s> &values, const std:
   }
   return clampToType<T>(values[static_cast<size_t>(index)]);
 }
-#endif
 
 template <typename T>
 bool allocAndCopyToDevice(const std::vector<T> &host, T **devicePtr) {
@@ -94,7 +93,7 @@ bool allocAndCopyToDevice(const std::vector<T> &host, T **devicePtr) {
 
 } // namespace
 
-TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
+TEST_P(Lut8uC1RParamTest, LUT_NoInterpolation) {
   const auto param = GetParam();
   const int width = param.width;
   const int height = param.height;
@@ -138,23 +137,16 @@ TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   }
 
   NppStatus status = nppiLUT_8u_C1R(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels);
-#ifdef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(status, NPP_NO_ERROR);
-#else
-  EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
-#endif
 
   std::vector<Npp8u> out(width * height);
   cudaMemcpy2D(out.data(), width, d_dst, dstStep, width, height, cudaMemcpyDeviceToHost);
-#ifdef USE_NVIDIA_NPP_TESTS
   std::vector<Npp8u> expected(width * height);
   for (size_t i = 0; i < expected.size(); ++i) {
     expected[i] = applyLutNoInterpolation(hostSrc[i], values, levelPos);
   }
   EXPECT_EQ(out, expected);
-#else
-  EXPECT_EQ(out, hostDst);
-#endif
+
 
   cudaFree(d_values);
   cudaFree(d_levels);
@@ -162,7 +154,7 @@ TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   nppiFree(d_dst);
 }
 
-TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
+TEST_P(Lut8uC3RParamTest, LUT_NoInterpolation) {
   const auto param = GetParam();
   const int width = param.width;
   const int height = param.height;
@@ -219,15 +211,10 @@ TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
   const Npp32s *levelPos[3] = {d_levelPos0, d_levelPos1, d_levelPos2};
 
   NppStatus status = nppiLUT_8u_C3R(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels);
-#ifdef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(status, NPP_NO_ERROR);
-#else
-  EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
-#endif
 
   std::vector<Npp8u> out(width * height * 3);
   cudaMemcpy2D(out.data(), width * 3, d_dst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
-#ifdef USE_NVIDIA_NPP_TESTS
   std::vector<Npp8u> expected(width * height * 3);
   for (size_t i = 0; i < expected.size(); i += 3) {
     expected[i] = applyLutNoInterpolation(hostSrc[i], values0, levelPos0);
@@ -235,9 +222,6 @@ TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
     expected[i + 2] = applyLutNoInterpolation(hostSrc[i + 2], values2, levelPos2);
   }
   EXPECT_EQ(out, expected);
-#else
-  EXPECT_EQ(out, hostDst);
-#endif
 
   cudaFree(d_values0);
   cudaFree(d_values1);
@@ -249,7 +233,7 @@ TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
   nppiFree(d_dst);
 }
 
-TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
+TEST_P(Lut8uC4RParamTest, LUT_NoInterpolation) {
   const auto param = GetParam();
   const int width = param.width;
   const int height = param.height;
@@ -313,15 +297,10 @@ TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
   const Npp32s *levelPos[4] = {d_levelPos0, d_levelPos1, d_levelPos2, d_levelPos3};
 
   NppStatus status = nppiLUT_8u_C4R(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels);
-#ifdef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(status, NPP_NO_ERROR);
-#else
-  EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
-#endif
 
   std::vector<Npp8u> out(width * height * 4);
   cudaMemcpy2D(out.data(), width * 4, d_dst, dstStep, width * 4, height, cudaMemcpyDeviceToHost);
-#ifdef USE_NVIDIA_NPP_TESTS
   std::vector<Npp8u> expected(width * height * 4);
   for (size_t i = 0; i < expected.size(); i += 4) {
     expected[i] = applyLutNoInterpolation(hostSrc[i], values0, levelPos0);
@@ -330,9 +309,6 @@ TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
     expected[i + 3] = applyLutNoInterpolation(hostSrc[i + 3], values3, levelPos3);
   }
   EXPECT_EQ(out, expected);
-#else
-  EXPECT_EQ(out, hostDst);
-#endif
 
   cudaFree(d_values0);
   cudaFree(d_values1);
@@ -346,7 +322,7 @@ TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
   nppiFree(d_dst);
 }
 
-TEST_P(Lut16uC1RParamTest, ReturnNotImplementedAndNoWrite) {
+TEST_P(Lut16uC1RParamTest, LUT_NoInterpolation) {
   const auto param = GetParam();
   const int width = param.width;
   const int height = param.height;
@@ -397,15 +373,11 @@ TEST_P(Lut16uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   std::vector<Npp16u> out(width * height);
   cudaMemcpy2D(out.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,
                cudaMemcpyDeviceToHost);
-#ifdef USE_NVIDIA_NPP_TESTS
   std::vector<Npp16u> expected(width * height);
   for (size_t i = 0; i < expected.size(); ++i) {
     expected[i] = applyLutNoInterpolation(hostSrc[i], values, levelPos);
   }
   EXPECT_EQ(out, expected);
-#else
-  EXPECT_EQ(out, hostDst);
-#endif
 
   cudaFree(d_values);
   cudaFree(d_levels);

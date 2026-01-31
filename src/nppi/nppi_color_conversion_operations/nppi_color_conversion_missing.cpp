@@ -2692,31 +2692,6 @@ NppStatus nppiLUT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C1R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 NppStatus nppiLUT_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
@@ -3060,31 +3035,6 @@ NppStatus nppiLUT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeRO
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 NppStatus nppiLUT_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
@@ -3106,31 +3056,6 @@ NppStatus nppiLUT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeRO
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 NppStatus nppiLUT_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
@@ -3144,31 +3069,6 @@ NppStatus nppiLUT_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, c
 NppStatus nppiLUT_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)nLevels;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
   (void)oSizeROI;
   (void)pValues;
   (void)pLevels;

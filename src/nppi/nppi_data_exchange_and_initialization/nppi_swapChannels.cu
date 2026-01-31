@@ -34,7 +34,7 @@ __global__ void nppiSwapChannels_kernel(const T *pSrc, int nSrcStep,
   }
 }
 
-// AC4R specialized kernel that skips alpha channel (channel 3)
+// AC4R specialized kernel that processes first 3 channels, leaves alpha unchanged
 template<typename T>
 __global__ void nppiSwapChannels_AC4_kernel(const T *pSrc, int nSrcStep,
                                              T *pDst, int nDstStep,
@@ -49,18 +49,16 @@ __global__ void nppiSwapChannels_AC4_kernel(const T *pSrc, int nSrcStep,
   const T *src_row = (const T *)((const char *)pSrc + y * nSrcStep);
   T *dst_row = (T *)((char *)pDst + y * nDstStep);
 
-  int order[3];
-  order[0] = aDstOrder[0];
-  order[1] = aDstOrder[1];
-  order[2] = aDstOrder[2];
-
-  // Swap first 3 channels only
+  // Swap first 3 channels according to aDstOrder
   for (int c = 0; c < 3; c++) {
-    dst_row[x * 4 + c] = src_row[x * 4 + order[c]];
+    int src_ch = aDstOrder[c];
+    if (src_ch >= 0 && src_ch < 4) {
+      dst_row[x * 4 + c] = src_row[x * 4 + src_ch];
+    }
   }
 
-  // Preserve alpha channel for AC4R
-  dst_row[x * 4 + 3] = src_row[x * 4 + 3];
+  // AC4R does not modify alpha channel (channel 3)
+  // Alpha remains as dst's original value
 }
 
 // Template implementation function
