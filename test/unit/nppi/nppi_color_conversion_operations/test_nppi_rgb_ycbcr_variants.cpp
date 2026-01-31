@@ -108,6 +108,17 @@ TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_C3R_Reference) {
     ASSERT_EQ(dst[idx + 1], cb);
     ASSERT_EQ(dst[idx + 2], cr);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 3);
+  status = nppiRGBToYCbCr_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_AC4R_AlphaBehavior) {
@@ -148,6 +159,17 @@ TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_AC4R_AlphaBehavior) {
     // Alpha behavior is validated against NVIDIA NPP.
     ASSERT_EQ(dst[idx + 3], 0);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 4);
+  status = nppiRGBToYCbCr_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_C3P3R_Reference) {
@@ -181,6 +203,25 @@ TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_C3P3R_Reference) {
     ASSERT_EQ(cb_plane[i], cb);
     ASSERT_EQ(cr_plane[i], cr);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> cb_ctx(width, height);
+  NppImageMemory<Npp8u> cr_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), cb_ctx.get(), cr_ctx.get()};
+  status = nppiRGBToYCbCr_8u_C3P3R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, cb_plane_ctx, cr_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  cb_ctx.copyToHost(cb_plane_ctx);
+  cr_ctx.copyToHost(cr_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(cb_plane_ctx, cb_plane);
+  EXPECT_EQ(cr_plane_ctx, cr_plane);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_P3R_Reference) {
@@ -219,6 +260,25 @@ TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_P3R_Reference) {
     ASSERT_EQ(cb_plane[i], cb);
     ASSERT_EQ(cr_plane[i], cr);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> cb_ctx(width, height);
+  NppImageMemory<Npp8u> cr_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), cb_ctx.get(), cr_ctx.get()};
+  status = nppiRGBToYCbCr_8u_P3R_Ctx(src_planes, r_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, cb_plane_ctx, cr_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  cb_ctx.copyToHost(cb_plane_ctx);
+  cr_ctx.copyToHost(cr_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(cb_plane_ctx, cb_plane);
+  EXPECT_EQ(cr_plane_ctx, cr_plane);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_AC4P3R_AlphaIgnored) {
@@ -262,6 +322,25 @@ TEST_F(RGBToYCbCrVariantsTest, RGBToYCbCr_8u_AC4P3R_AlphaIgnored) {
     ASSERT_EQ(cb_plane[i], cb);
     ASSERT_EQ(cr_plane[i], cr);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> cb_ctx(width, height);
+  NppImageMemory<Npp8u> cr_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), cb_ctx.get(), cr_ctx.get()};
+  status = nppiRGBToYCbCr_8u_AC4P3R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, cb_plane_ctx, cr_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  cb_ctx.copyToHost(cb_plane_ctx);
+  cr_ctx.copyToHost(cr_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(cb_plane_ctx, cb_plane);
+  EXPECT_EQ(cr_plane_ctx, cr_plane);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, BGRToYCbCr_8u_C3P3R_Reference) {
@@ -295,6 +374,25 @@ TEST_F(RGBToYCbCrVariantsTest, BGRToYCbCr_8u_C3P3R_Reference) {
     ASSERT_EQ(cb_plane[i], cb);
     ASSERT_EQ(cr_plane[i], cr);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> cb_ctx(width, height);
+  NppImageMemory<Npp8u> cr_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), cb_ctx.get(), cr_ctx.get()};
+  status = nppiBGRToYCbCr_8u_C3P3R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, cb_plane_ctx, cr_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  cb_ctx.copyToHost(cb_plane_ctx);
+  cr_ctx.copyToHost(cr_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(cb_plane_ctx, cb_plane);
+  EXPECT_EQ(cr_plane_ctx, cr_plane);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, BGRToYCbCr_8u_AC4P3R_Reference) {
@@ -338,6 +436,25 @@ TEST_F(RGBToYCbCrVariantsTest, BGRToYCbCr_8u_AC4P3R_Reference) {
     ASSERT_EQ(cb_plane[i], cb);
     ASSERT_EQ(cr_plane[i], cr);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> cb_ctx(width, height);
+  NppImageMemory<Npp8u> cr_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), cb_ctx.get(), cr_ctx.get()};
+  status = nppiBGRToYCbCr_8u_AC4P3R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, cb_plane_ctx, cr_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  cb_ctx.copyToHost(cb_plane_ctx);
+  cr_ctx.copyToHost(cr_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(cb_plane_ctx, cb_plane);
+  EXPECT_EQ(cr_plane_ctx, cr_plane);
 }
 
 TEST_F(RGBToYCbCrVariantsTest, BGRToYCbCr_8u_AC4P4R_AlphaPreserved) {
@@ -386,4 +503,26 @@ TEST_F(RGBToYCbCrVariantsTest, BGRToYCbCr_8u_AC4P4R_AlphaPreserved) {
     ASSERT_EQ(cr_plane[i], cr);
     ASSERT_EQ(a_plane[i], alpha[i]);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> cb_ctx(width, height);
+  NppImageMemory<Npp8u> cr_ctx(width, height);
+  NppImageMemory<Npp8u> a_ctx(width, height);
+  Npp8u *ctx_planes[4] = {y_ctx.get(), cb_ctx.get(), cr_ctx.get(), a_ctx.get()};
+  status = nppiBGRToYCbCr_8u_AC4P4R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, cb_plane_ctx, cr_plane_ctx, a_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  cb_ctx.copyToHost(cb_plane_ctx);
+  cr_ctx.copyToHost(cr_plane_ctx);
+  a_ctx.copyToHost(a_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(cb_plane_ctx, cb_plane);
+  EXPECT_EQ(cr_plane_ctx, cr_plane);
+  EXPECT_EQ(a_plane_ctx, a_plane);
 }

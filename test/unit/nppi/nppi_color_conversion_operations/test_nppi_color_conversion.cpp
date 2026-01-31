@@ -150,3 +150,87 @@ TEST_F(ColorConversionTest, YUVToRGB_RoundTrip) {
     EXPECT_NEAR(h_result[i], h_src[i], 5); // 允许5个单位的误差
   }
 }
+
+TEST_F(ColorConversionTest, RGBToYUV_BasicColors_CtxMatches) {
+  for (int i = 0; i < width * height; ++i) {
+    int idx = i * 3;
+    if (i < width) {
+      h_src[idx + 0] = 255;
+      h_src[idx + 1] = 0;
+      h_src[idx + 2] = 0;
+    } else if (i < 2 * width) {
+      h_src[idx + 0] = 0;
+      h_src[idx + 1] = 255;
+      h_src[idx + 2] = 0;
+    } else if (i < 3 * width) {
+      h_src[idx + 0] = 0;
+      h_src[idx + 1] = 0;
+      h_src[idx + 2] = 255;
+    } else {
+      h_src[idx + 0] = 255;
+      h_src[idx + 1] = 255;
+      h_src[idx + 2] = 255;
+    }
+  }
+
+  cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+
+  NppStatus status = nppiRGBToYUV_8u_C3R(d_src, step_src, d_dst, step_dst, size);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> ref(width * height * 3);
+  err = cudaMemcpy2D(ref.data(), width * 3, d_dst, step_dst, width * 3, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYUV_8u_C3R_Ctx(d_src, step_src, d_dst, step_dst, size, ctx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> ctx_out(width * height * 3);
+  err = cudaMemcpy2D(ctx_out.data(), width * 3, d_dst, step_dst, width * 3, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+
+  for (size_t i = 0; i < ref.size(); ++i) {
+    EXPECT_EQ(ctx_out[i], ref[i]) << "Mismatch at " << i;
+  }
+}
+
+TEST_F(ColorConversionTest, YUVToRGB_RoundTrip_CtxMatches) {
+  for (int i = 0; i < width * height; ++i) {
+    int idx = i * 3;
+    Npp8u gray = (i * 255) / (width * height);
+    h_src[idx + 0] = gray;
+    h_src[idx + 1] = gray;
+    h_src[idx + 2] = gray;
+  }
+
+  cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+  ASSERT_EQ(err, cudaSuccess);
+
+  NppStatus status = nppiRGBToYUV_8u_C3R(d_src, step_src, d_dst, step_dst, size);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> ref_rgb(width * height * 3);
+  status = nppiYUVToRGB_8u_C3R(d_dst, step_dst, d_src, step_src, size);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  err = cudaMemcpy2D(ref_rgb.data(), width * 3, d_src, step_src, width * 3, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUVToRGB_8u_C3R_Ctx(d_dst, step_dst, d_src, step_src, size, ctx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> ctx_rgb(width * height * 3);
+  err = cudaMemcpy2D(ctx_rgb.data(), width * 3, d_src, step_src, width * 3, height, cudaMemcpyDeviceToHost);
+  ASSERT_EQ(err, cudaSuccess);
+
+  for (size_t i = 0; i < ref_rgb.size(); ++i) {
+    EXPECT_EQ(ctx_rgb[i], ref_rgb[i]) << "Mismatch at " << i;
+  }
+}

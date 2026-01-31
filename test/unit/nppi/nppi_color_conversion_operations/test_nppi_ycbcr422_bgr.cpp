@@ -118,6 +118,39 @@ TEST_F(BgrYCbCr422Test, BGRToYCbCr422_And_Back_ExpectedValues) {
     EXPECT_EQ(flatBGR[i], kExpectedYCbCr422ToBGR[i]) << "BGR mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiBGRToYCbCr422_8u_C3C2R_Ctx(d_src, srcStep, d_c2, c2Step, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostC2.data(), d_c2, hostC2.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width * 2; ++x) {
+      flatC2[y * width * 2 + x] = hostC2[y * c2Step + x];
+    }
+  }
+  for (int i = 0; i < width * height * 2; ++i) {
+    EXPECT_EQ(flatC2[i], kExpectedBGRYCbCr422C2[i]) << "Ctx C2 mismatch at " << i;
+  }
+
+  status = nppiYCbCr422ToBGR_8u_C2C3R_Ctx(d_c2, c2Step, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostBGROut.data(), d_dst, hostBGROut.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      int srcIdx = y * dstStep + x * 3;
+      flatBGR[idx + 0] = hostBGROut[srcIdx + 0];
+      flatBGR[idx + 1] = hostBGROut[srcIdx + 1];
+      flatBGR[idx + 2] = hostBGROut[srcIdx + 2];
+    }
+  }
+  for (int i = 0; i < width * height * 3; ++i) {
+    EXPECT_EQ(flatBGR[i], kExpectedYCbCr422ToBGR[i]) << "Ctx BGR mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_c2);
   nppiFree(d_dst);

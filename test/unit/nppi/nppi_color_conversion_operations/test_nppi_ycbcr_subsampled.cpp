@@ -1,4 +1,6 @@
 #include "npp_test_base.h"
+#include <algorithm>
+#include <random>
 #include <vector>
 
 using namespace npp_functional_test;

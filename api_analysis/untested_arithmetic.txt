@@ -1,0 +1,4 @@
+nppiSub_32s_C4IRSfs
+nppiSub_32s_C4IRSfs_Ctx
+nppiSub_32s_C4RSfs
+nppiSub_32s_C4RSfs_Ctx

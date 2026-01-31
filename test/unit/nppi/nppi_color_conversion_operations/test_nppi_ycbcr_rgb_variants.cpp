@@ -87,6 +87,16 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_C3R_Reference) {
     ASSERT_EQ(dst[idx + 1], g);
     ASSERT_EQ(dst[idx + 2], b);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 3);
+  status = nppiYCbCrToRGB_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_AC4R_AlphaBehavior) {
@@ -125,6 +135,17 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_AC4R_AlphaBehavior) {
     ASSERT_EQ(dst[idx + 2], b);
     ASSERT_EQ(dst[idx + 3], 0);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 4);
+  status = nppiYCbCrToRGB_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_P3C3R_Reference) {
@@ -160,6 +181,17 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_P3C3R_Reference) {
     ASSERT_EQ(dst[idx + 1], g);
     ASSERT_EQ(dst[idx + 2], b);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 3);
+  status = nppiYCbCrToRGB_8u_P3C3R_Ctx(src_planes, y_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_P3R_Reference) {
@@ -200,6 +232,25 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_P3R_Reference) {
     ASSERT_EQ(g_plane[i], g);
     ASSERT_EQ(b_plane[i], b);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> r_ctx(width, height);
+  NppImageMemory<Npp8u> g_ctx(width, height);
+  NppImageMemory<Npp8u> b_ctx(width, height);
+  Npp8u *ctx_planes[3] = {r_ctx.get(), g_ctx.get(), b_ctx.get()};
+  status = nppiYCbCrToRGB_8u_P3R_Ctx(src_planes, y_mem.step(), ctx_planes, r_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> r_plane_ctx, g_plane_ctx, b_plane_ctx;
+  r_ctx.copyToHost(r_plane_ctx);
+  g_ctx.copyToHost(g_plane_ctx);
+  b_ctx.copyToHost(b_plane_ctx);
+
+  EXPECT_EQ(r_plane_ctx, r_plane);
+  EXPECT_EQ(g_plane_ctx, g_plane);
+  EXPECT_EQ(b_plane_ctx, b_plane);
 }
 
 TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_P3C4R_AlphaConstant) {
@@ -237,6 +288,17 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToRGB_8u_P3C4R_AlphaConstant) {
     ASSERT_EQ(dst[idx + 2], b);
     ASSERT_EQ(dst[idx + 3], alpha);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 4);
+  status = nppiYCbCrToRGB_8u_P3C4R_Ctx(src_planes, y_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, alpha, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(YCbCrToRGBVariantsTest, YCbCrToBGR_8u_P3C3R_Reference) {
@@ -272,6 +334,17 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToBGR_8u_P3C3R_Reference) {
     ASSERT_EQ(dst[idx + 1], g);
     ASSERT_EQ(dst[idx + 2], r);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 3);
+  status = nppiYCbCrToBGR_8u_P3C3R_Ctx(src_planes, y_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(YCbCrToRGBVariantsTest, YCbCrToBGR_8u_P3C4R_AlphaConstant) {
@@ -309,4 +382,15 @@ TEST_F(YCbCrToRGBVariantsTest, YCbCrToBGR_8u_P3C4R_AlphaConstant) {
     ASSERT_EQ(dst[idx + 2], r);
     ASSERT_EQ(dst[idx + 3], alpha);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 4);
+  status = nppiYCbCrToBGR_8u_P3C4R_Ctx(src_planes, y_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, alpha, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }

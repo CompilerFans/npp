@@ -166,6 +166,67 @@ TEST_F(YCbCr420Test, RGBToYCbCr420_And_Back_ExpectedValues) {
     }
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYCbCr420_8u_C3P3R_Ctx(d_src, srcStep, pDst, dstSteps, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostY.data(), d_y, hostY.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCb.data(), d_cb, hostCb.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCr.data(), d_cr, hostCr.size(), cudaMemcpyDeviceToHost);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      flatY[y * width + x] = hostY[y * yStep + x];
+    }
+  }
+  for (int y = 0; y < height / 2; ++y) {
+    for (int x = 0; x < width / 2; ++x) {
+      int idx = y * (width / 2) + x;
+      flatCb[idx] = hostCb[y * cbStep + x];
+      flatCr[idx] = hostCr[y * crStep + x];
+    }
+  }
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int expIdx = y * width + x;
+      EXPECT_EQ(flatY[expIdx], kExpectedYCbCr420Y[expIdx]) << "Ctx Y mismatch at " << expIdx;
+    }
+  }
+
+  for (int y = 0; y < height / 2; ++y) {
+    for (int x = 0; x < width / 2; ++x) {
+      int expIdx = y * (width / 2) + x;
+      EXPECT_EQ(flatCb[expIdx], kExpectedYCbCr420Cb[expIdx]) << "Ctx Cb mismatch at " << expIdx;
+      EXPECT_EQ(flatCr[expIdx], kExpectedYCbCr420Cr[expIdx]) << "Ctx Cr mismatch at " << expIdx;
+    }
+  }
+
+  status = nppiYCbCr420ToRGB_8u_P3C3R_Ctx(pSrcPlanes, srcSteps, d_dst, dstRgbStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostRGBOut.data(), d_dst, hostRGBOut.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      int srcIdx = y * dstRgbStep + x * 3;
+      flatRGB[idx + 0] = hostRGBOut[srcIdx + 0];
+      flatRGB[idx + 1] = hostRGBOut[srcIdx + 1];
+      flatRGB[idx + 2] = hostRGBOut[srcIdx + 2];
+    }
+  }
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int expIdx = (y * width + x) * 3;
+      EXPECT_EQ(flatRGB[expIdx + 0], kExpectedYCbCr420ToRGB[expIdx + 0]) << "Ctx R mismatch at " << expIdx;
+      EXPECT_EQ(flatRGB[expIdx + 1], kExpectedYCbCr420ToRGB[expIdx + 1]) << "Ctx G mismatch at " << expIdx;
+      EXPECT_EQ(flatRGB[expIdx + 2], kExpectedYCbCr420ToRGB[expIdx + 2]) << "Ctx B mismatch at " << expIdx;
+    }
+  }
+
   nppiFree(d_src);
   nppiFree(d_y);
   nppiFree(d_cb);

@@ -152,6 +152,16 @@ TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_C3R_Reference) {
   std::vector<Npp8u> dst;
   dst_mem.copyToHost(dst);
   check_packed_yuv(dst, pixels);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 3);
+  status = nppiRGBToYUV_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_AC4R_AlphaCleared) {
@@ -194,6 +204,17 @@ TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_AC4R_AlphaCleared) {
     // NVIDIA NPP clears alpha for AC4 packed output.
     ASSERT_EQ(dst[i * 4 + 3], 0);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 4);
+  status = nppiRGBToYUV_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_C3P3R_Reference) {
@@ -229,6 +250,25 @@ TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_C3P3R_Reference) {
   v_mem.copyToHost(v_plane);
 
   check_planar_yuv(y_plane, u_plane, v_plane, pixels);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> u_ctx(width, height);
+  NppImageMemory<Npp8u> v_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), u_ctx.get(), v_ctx.get()};
+  status = nppiRGBToYUV_8u_C3P3R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, u_plane_ctx, v_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  u_ctx.copyToHost(u_plane_ctx);
+  v_ctx.copyToHost(v_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(u_plane_ctx, u_plane);
+  EXPECT_EQ(v_plane_ctx, v_plane);
 }
 
 TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_P3R_Reference) {
@@ -269,6 +309,25 @@ TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_P3R_Reference) {
   v_mem.copyToHost(v_plane);
 
   check_planar_yuv(y_plane, u_plane, v_plane, pixels);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> u_ctx(width, height);
+  NppImageMemory<Npp8u> v_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), u_ctx.get(), v_ctx.get()};
+  status = nppiRGBToYUV_8u_P3R_Ctx(src_planes, r_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, u_plane_ctx, v_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  u_ctx.copyToHost(u_plane_ctx);
+  v_ctx.copyToHost(v_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(u_plane_ctx, u_plane);
+  EXPECT_EQ(v_plane_ctx, v_plane);
 }
 
 TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_AC4P4R_AlphaPreserve) {
@@ -320,6 +379,28 @@ TEST_F(RGBToYUVVariantsTest, RGBToYUV_8u_AC4P4R_AlphaPreserve) {
     ASSERT_EQ(v_plane[i], v);
     ASSERT_EQ(a_plane[i], alpha[i]);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> u_ctx(width, height);
+  NppImageMemory<Npp8u> v_ctx(width, height);
+  NppImageMemory<Npp8u> a_ctx(width, height);
+  Npp8u *ctx_planes[4] = {y_ctx.get(), u_ctx.get(), v_ctx.get(), a_ctx.get()};
+  status = nppiRGBToYUV_8u_AC4P4R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, u_plane_ctx, v_plane_ctx, a_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  u_ctx.copyToHost(u_plane_ctx);
+  v_ctx.copyToHost(v_plane_ctx);
+  a_ctx.copyToHost(a_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(u_plane_ctx, u_plane);
+  EXPECT_EQ(v_plane_ctx, v_plane);
+  EXPECT_EQ(a_plane_ctx, a_plane);
 }
 
 TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_C3R_Reference) {
@@ -348,6 +429,16 @@ TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_C3R_Reference) {
   std::vector<Npp8u> dst;
   dst_mem.copyToHost(dst);
   check_packed_yuv_from_bgr(dst, pixels);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 3);
+  status = nppiBGRToYUV_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_AC4R_AlphaCleared) {
@@ -390,6 +481,17 @@ TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_AC4R_AlphaCleared) {
     // NVIDIA NPP clears alpha for AC4 packed output.
     ASSERT_EQ(dst[i * 4 + 3], 0);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> ctx_mem(width, height, 4);
+  status = nppiBGRToYUV_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctx_out;
+  ctx_mem.copyToHost(ctx_out);
+  EXPECT_EQ(ctx_out, dst);
 }
 
 TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_C3P3R_Reference) {
@@ -425,6 +527,25 @@ TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_C3P3R_Reference) {
   v_mem.copyToHost(v_plane);
 
   check_planar_yuv_from_bgr(y_plane, u_plane, v_plane, pixels);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> u_ctx(width, height);
+  NppImageMemory<Npp8u> v_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), u_ctx.get(), v_ctx.get()};
+  status = nppiBGRToYUV_8u_C3P3R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, u_plane_ctx, v_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  u_ctx.copyToHost(u_plane_ctx);
+  v_ctx.copyToHost(v_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(u_plane_ctx, u_plane);
+  EXPECT_EQ(v_plane_ctx, v_plane);
 }
 
 TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_P3R_Reference) {
@@ -465,6 +586,25 @@ TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_P3R_Reference) {
   v_mem.copyToHost(v_plane);
 
   check_planar_yuv_from_bgr(y_plane, u_plane, v_plane, pixels);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> u_ctx(width, height);
+  NppImageMemory<Npp8u> v_ctx(width, height);
+  Npp8u *ctx_planes[3] = {y_ctx.get(), u_ctx.get(), v_ctx.get()};
+  status = nppiBGRToYUV_8u_P3R_Ctx(src_planes, b_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, u_plane_ctx, v_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  u_ctx.copyToHost(u_plane_ctx);
+  v_ctx.copyToHost(v_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(u_plane_ctx, u_plane);
+  EXPECT_EQ(v_plane_ctx, v_plane);
 }
 
 TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_AC4P4R_AlphaPreserve) {
@@ -516,4 +656,26 @@ TEST_F(RGBToYUVVariantsTest, BGRToYUV_8u_AC4P4R_AlphaPreserve) {
     ASSERT_EQ(v_plane[i], v);
     ASSERT_EQ(a_plane[i], alpha[i]);
   }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  NppImageMemory<Npp8u> y_ctx(width, height);
+  NppImageMemory<Npp8u> u_ctx(width, height);
+  NppImageMemory<Npp8u> v_ctx(width, height);
+  NppImageMemory<Npp8u> a_ctx(width, height);
+  Npp8u *ctx_planes[4] = {y_ctx.get(), u_ctx.get(), v_ctx.get(), a_ctx.get()};
+  status = nppiBGRToYUV_8u_AC4P4R_Ctx(src_mem.get(), src_mem.step(), ctx_planes, y_ctx.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> y_plane_ctx, u_plane_ctx, v_plane_ctx, a_plane_ctx;
+  y_ctx.copyToHost(y_plane_ctx);
+  u_ctx.copyToHost(u_plane_ctx);
+  v_ctx.copyToHost(v_plane_ctx);
+  a_ctx.copyToHost(a_plane_ctx);
+
+  EXPECT_EQ(y_plane_ctx, y_plane);
+  EXPECT_EQ(u_plane_ctx, u_plane);
+  EXPECT_EQ(v_plane_ctx, v_plane);
+  EXPECT_EQ(a_plane_ctx, a_plane);
 }

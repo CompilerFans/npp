@@ -130,6 +130,22 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_8u_AC4C1R_BasicOperation) {
     EXPECT_NEAR(resultData[i], expectedData[i], 1) << "Mismatch at pixel " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_8u_AC4C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> ctxResult(width * height);
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy(ctxResult.data() + y * width, (char *)d_dst + y * dstStep, width * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  for (int i = 0; i < width * height; i++) {
+    EXPECT_NEAR(ctxResult[i], expectedData[i], 1) << "Ctx mismatch at pixel " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -179,6 +195,22 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_32f_C3C1R_BasicOperation) {
   // Verify results with floating-point precision
   for (int i = 0; i < width * height; i++) {
     EXPECT_NEAR(resultData[i], expectedData[i], 0.001f) << "Mismatch at pixel " << i;
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_32f_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> ctxResult(width * height);
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy(ctxResult.data() + y * width, (char *)d_dst + y * dstStep, width * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  for (int i = 0; i < width * height; i++) {
+    EXPECT_NEAR(ctxResult[i], expectedData[i], 0.001f) << "Ctx mismatch at pixel " << i;
   }
 
   nppiFree(d_src);
@@ -334,6 +366,21 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16u_C3C1R_ExpectedValues) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16uC3[i]) << "Mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_16u_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, testRoi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> ctxResult(testWidth * testHeight);
+  for (int y = 0; y < testHeight; ++y) {
+    cudaMemcpy(ctxResult.data() + y * testWidth, (char *)d_dst + y * dstStep, testWidth * sizeof(Npp16u),
+               cudaMemcpyDeviceToHost);
+  }
+  for (size_t i = 0; i < ctxResult.size(); ++i) {
+    EXPECT_EQ(ctxResult[i], kExpectedRGBToGray16uC3[i]) << "Ctx mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -388,6 +435,21 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16u_AC4C1R_ExpectedValues) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16uAC4[i]) << "Mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_16u_AC4C1R_Ctx(d_src, srcStep, d_dst, dstStep, testRoi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> ctxResult(testWidth * testHeight);
+  for (int y = 0; y < testHeight; ++y) {
+    cudaMemcpy(ctxResult.data() + y * testWidth, (char *)d_dst + y * dstStep, testWidth * sizeof(Npp16u),
+               cudaMemcpyDeviceToHost);
+  }
+  for (size_t i = 0; i < ctxResult.size(); ++i) {
+    EXPECT_EQ(ctxResult[i], kExpectedRGBToGray16uAC4[i]) << "Ctx mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_dst);
 }
@@ -440,6 +502,19 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16s_C3C1R_ExpectedValues) {
   ASSERT_EQ(resultData.size(), sizeof(kExpectedRGBToGray16sC3) / sizeof(kExpectedRGBToGray16sC3[0]));
   for (size_t i = 0; i < resultData.size(); ++i) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16sC3[i]) << "Mismatch at " << i;
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_16s_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, testRoi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16s> ctxResult(testWidth * testHeight);
+  cudaMemcpy2D(ctxResult.data(), testWidth * sizeof(Npp16s), d_dst, dstStep, testWidth * sizeof(Npp16s), testHeight,
+               cudaMemcpyDeviceToHost);
+  for (size_t i = 0; i < ctxResult.size(); ++i) {
+    EXPECT_EQ(ctxResult[i], kExpectedRGBToGray16sC3[i]) << "Ctx mismatch at " << i;
   }
 
   cudaFree(d_src);
@@ -498,6 +573,19 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16s_AC4C1R_ExpectedValues) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16sAC4[i]) << "Mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_16s_AC4C1R_Ctx(d_src, srcStep, d_dst, dstStep, testRoi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16s> ctxResult(testWidth * testHeight);
+  cudaMemcpy2D(ctxResult.data(), testWidth * sizeof(Npp16s), d_dst, dstStep, testWidth * sizeof(Npp16s), testHeight,
+               cudaMemcpyDeviceToHost);
+  for (size_t i = 0; i < ctxResult.size(); ++i) {
+    EXPECT_EQ(ctxResult[i], kExpectedRGBToGray16sAC4[i]) << "Ctx mismatch at " << i;
+  }
+
   cudaFree(d_src);
   cudaFree(d_dst);
 }
@@ -549,6 +637,22 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_32f_AC4C1R_BasicOperation) {
   // Verify results
   for (int i = 0; i < width * height; i++) {
     EXPECT_NEAR(resultData[i], expectedData[i], 0.001f) << "Mismatch at pixel " << i;
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToGray_32f_AC4C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> ctxResult(width * height);
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy(ctxResult.data() + y * width, (char *)d_dst + y * dstStep, width * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  for (int i = 0; i < width * height; i++) {
+    EXPECT_NEAR(ctxResult[i], expectedData[i], 0.001f) << "Ctx mismatch at pixel " << i;
   }
 
   nppiFree(d_src);

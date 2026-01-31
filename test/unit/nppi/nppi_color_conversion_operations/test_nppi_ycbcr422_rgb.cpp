@@ -294,6 +294,39 @@ TEST_F(YCbCr422Test, RGBToYCbCr422_And_Back_ExpectedValues) {
     EXPECT_EQ(flatRGB[i], kExpectedYCbCr422ToRGB[i]) << "RGB mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYCbCr422_8u_C3C2R_Ctx(d_src, srcStep, d_c2, c2Step, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostC2.data(), d_c2, hostC2.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width * 2; ++x) {
+      flatC2[y * width * 2 + x] = hostC2[y * c2Step + x];
+    }
+  }
+  for (int i = 0; i < width * height * 2; ++i) {
+    EXPECT_EQ(flatC2[i], kExpectedYCbCr422C2[i]) << "Ctx C2 mismatch at " << i;
+  }
+
+  status = nppiYCbCr422ToRGB_8u_C2C3R_Ctx(d_c2, c2Step, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostRGBOut.data(), d_dst, hostRGBOut.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      int srcIdx = y * dstStep + x * 3;
+      flatRGB[idx + 0] = hostRGBOut[srcIdx + 0];
+      flatRGB[idx + 1] = hostRGBOut[srcIdx + 1];
+      flatRGB[idx + 2] = hostRGBOut[srcIdx + 2];
+    }
+  }
+  for (int i = 0; i < width * height * 3; ++i) {
+    EXPECT_EQ(flatRGB[i], kExpectedYCbCr422ToRGB[i]) << "Ctx RGB mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_c2);
   nppiFree(d_dst);
@@ -364,6 +397,30 @@ TEST_P(YCbCr422PlanarParamTest, RGBToYCbCr422_C3P3R_ExactMatch) {
     EXPECT_EQ(flatCr[i], expectedCr[i]) << "Cr mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYCbCr422_8u_C3P3R_Ctx(d_src, srcStep, dst_planes, dst_steps, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(yPlane.data(), d_y, yPlane.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(cbPlane.data(), d_cb, cbPlane.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(crPlane.data(), d_cr, crPlane.size(), cudaMemcpyDeviceToHost);
+
+  for (int row = 0; row < height; ++row) {
+    std::memcpy(&flatY[row * width], &yPlane[row * yStep], width);
+    std::memcpy(&flatCb[row * (width / 2)], &cbPlane[row * cbStep], width / 2);
+    std::memcpy(&flatCr[row * (width / 2)], &crPlane[row * crStep], width / 2);
+  }
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(flatY[i], expectedY[i]) << "Ctx Y mismatch at " << i;
+  }
+  for (int i = 0; i < (width / 2) * height; ++i) {
+    EXPECT_EQ(flatCb[i], expectedCb[i]) << "Ctx Cb mismatch at " << i;
+    EXPECT_EQ(flatCr[i], expectedCr[i]) << "Ctx Cr mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_y);
   nppiFree(d_cb);
@@ -431,6 +488,30 @@ TEST_P(YCbCr422PlanarParamTest, YCbCr422ToRGB_P3C3R_ExactMatch) {
   for (int i = 0; i < width * height * 3; ++i) {
     int diff = std::abs(static_cast<int>(flatRGB[i]) - static_cast<int>(expectedRGB[i]));
     EXPECT_LE(diff, tolerance) << "RGB mismatch at " << i
+                               << " (got " << static_cast<int>(flatRGB[i])
+                               << ", expected " << static_cast<int>(expectedRGB[i]) << ")";
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYCbCr422ToRGB_8u_P3C3R_Ctx(src_planes, src_steps, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(rgbOut.data(), d_dst, rgbOut.size(), cudaMemcpyDeviceToHost);
+  for (int row = 0; row < height; ++row) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (row * width + x) * 3;
+      int srcIdx = row * dstStep + x * 3;
+      flatRGB[idx + 0] = rgbOut[srcIdx + 0];
+      flatRGB[idx + 1] = rgbOut[srcIdx + 1];
+      flatRGB[idx + 2] = rgbOut[srcIdx + 2];
+    }
+  }
+
+  for (int i = 0; i < width * height * 3; ++i) {
+    int diff = std::abs(static_cast<int>(flatRGB[i]) - static_cast<int>(expectedRGB[i]));
+    EXPECT_LE(diff, tolerance) << "Ctx RGB mismatch at " << i
                                << " (got " << static_cast<int>(flatRGB[i])
                                << ", expected " << static_cast<int>(expectedRGB[i]) << ")";
   }

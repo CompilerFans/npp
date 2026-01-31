@@ -1,6 +1,7 @@
 #include "npp_test_base.h"
 #include <algorithm>
 #include <cmath>
+#include <random>
 #include <vector>
 
 using namespace npp_functional_test;
@@ -111,6 +112,32 @@ static inline void hsv_to_rgb_ref(Npp8u h, Npp8u s, Npp8u v, Npp8u &r, Npp8u &g,
 } // namespace
 
 class HSVConversionTest : public NppTestBase {};
+
+namespace {
+struct HsvCtxCase {
+  int width;
+  int height;
+  unsigned int seed;
+};
+
+static void fill_random_u8(std::vector<Npp8u> &data, int count, unsigned int seed) {
+  std::mt19937 rng(seed);
+  std::uniform_int_distribution<int> dist(0, 255);
+  data.resize(count);
+  for (auto &v : data) {
+    v = static_cast<Npp8u>(dist(rng));
+  }
+}
+
+static void expect_equal_u8(const std::vector<Npp8u> &a, const std::vector<Npp8u> &b, int tol) {
+  ASSERT_EQ(a.size(), b.size());
+  for (size_t i = 0; i < a.size(); ++i) {
+    EXPECT_NEAR(a[i], b[i], tol) << "Mismatch at " << i;
+  }
+}
+} // namespace
+
+class HSVConversionCtxParamTest : public NppTestBase, public ::testing::WithParamInterface<HsvCtxCase> {};
 
 TEST_F(HSVConversionTest, RGBToHSV_8u_C3R_BasicColors) {
   const int width = 4;
@@ -261,3 +288,116 @@ TEST_F(HSVConversionTest, HSVToRGB_8u_AC4R_AlphaCleared) {
     EXPECT_EQ(dst[i * 4 + 3], 0);
   }
 }
+
+TEST_P(HSVConversionCtxParamTest, RGBToHSV_C3R_CtxMatches) {
+  const auto param = GetParam();
+  std::vector<Npp8u> src;
+  fill_random_u8(src, param.width * param.height * 3, param.seed);
+
+  NppImageMemory<Npp8u> src_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> dst_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> ctx_mem(param.width, param.height, 3);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {param.width, param.height};
+  NppStatus status = nppiRGBToHSV_8u_C3R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToHSV_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  std::vector<Npp8u> ctx_out;
+  dst_mem.copyToHost(dst);
+  ctx_mem.copyToHost(ctx_out);
+  expect_equal_u8(dst, ctx_out, 2);
+}
+
+TEST_P(HSVConversionCtxParamTest, HSVToRGB_C3R_CtxMatches) {
+  const auto param = GetParam();
+  std::vector<Npp8u> src;
+  fill_random_u8(src, param.width * param.height * 3, param.seed + 17);
+
+  NppImageMemory<Npp8u> src_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> dst_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> ctx_mem(param.width, param.height, 3);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {param.width, param.height};
+  NppStatus status = nppiHSVToRGB_8u_C3R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiHSVToRGB_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  std::vector<Npp8u> ctx_out;
+  dst_mem.copyToHost(dst);
+  ctx_mem.copyToHost(ctx_out);
+  expect_equal_u8(dst, ctx_out, 2);
+}
+
+TEST_P(HSVConversionCtxParamTest, RGBToHSV_AC4R_CtxMatches) {
+  const auto param = GetParam();
+  std::vector<Npp8u> src;
+  fill_random_u8(src, param.width * param.height * 4, param.seed + 33);
+
+  NppImageMemory<Npp8u> src_mem(param.width, param.height, 4);
+  NppImageMemory<Npp8u> dst_mem(param.width, param.height, 4);
+  NppImageMemory<Npp8u> ctx_mem(param.width, param.height, 4);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {param.width, param.height};
+  NppStatus status = nppiRGBToHSV_8u_AC4R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToHSV_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  std::vector<Npp8u> ctx_out;
+  dst_mem.copyToHost(dst);
+  ctx_mem.copyToHost(ctx_out);
+  expect_equal_u8(dst, ctx_out, 2);
+}
+
+TEST_P(HSVConversionCtxParamTest, HSVToRGB_AC4R_CtxMatches) {
+  const auto param = GetParam();
+  std::vector<Npp8u> src;
+  fill_random_u8(src, param.width * param.height * 4, param.seed + 49);
+
+  NppImageMemory<Npp8u> src_mem(param.width, param.height, 4);
+  NppImageMemory<Npp8u> dst_mem(param.width, param.height, 4);
+  NppImageMemory<Npp8u> ctx_mem(param.width, param.height, 4);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {param.width, param.height};
+  NppStatus status = nppiHSVToRGB_8u_AC4R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiHSVToRGB_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  std::vector<Npp8u> ctx_out;
+  dst_mem.copyToHost(dst);
+  ctx_mem.copyToHost(ctx_out);
+  expect_equal_u8(dst, ctx_out, 2);
+}
+
+INSTANTIATE_TEST_SUITE_P(FunctionalCases, HSVConversionCtxParamTest,
+                         ::testing::Values(HsvCtxCase{4, 3, 101}, HsvCtxCase{8, 5, 202}));
+INSTANTIATE_TEST_SUITE_P(PrecisionCases, HSVConversionCtxParamTest,
+                         ::testing::Values(HsvCtxCase{64, 32, 303}, HsvCtxCase{128, 16, 404}));

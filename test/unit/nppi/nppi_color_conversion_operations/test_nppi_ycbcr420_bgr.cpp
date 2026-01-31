@@ -144,6 +144,26 @@ TEST_F(BgrToYCbCr420Test, BGRToYCbCr420_8u_C3P3R_ExpectedValues) {
     EXPECT_EQ(flatCr[i], kExpectedBGRToYCbCr420Cr[i]) << "Cr mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiBGRToYCbCr420_8u_C3P3R_Ctx(d_src, srcStep, pDst, dstSteps, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostY.data(), d_y, hostY.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCb.data(), d_cb, hostCb.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCr.data(), d_cr, hostCr.size(), cudaMemcpyDeviceToHost);
+
+  flattenPlanes(hostY, yStep, hostCb, cbStep, hostCr, crStep, width, height, flatY, flatCb, flatCr);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(flatY[i], kExpectedBGRToYCbCr420Y[i]) << "Ctx Y mismatch at " << i;
+  }
+  for (int i = 0; i < (width / 2) * (height / 2); ++i) {
+    EXPECT_EQ(flatCb[i], kExpectedBGRToYCbCr420Cb[i]) << "Ctx Cb mismatch at " << i;
+    EXPECT_EQ(flatCr[i], kExpectedBGRToYCbCr420Cr[i]) << "Ctx Cr mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_y);
   nppiFree(d_cb);
@@ -206,6 +226,26 @@ TEST_F(BgrToYCbCr420Test, BGRToYCbCr420_8u_AC4P3R_ExpectedValues) {
   for (int i = 0; i < (width / 2) * (height / 2); ++i) {
     EXPECT_EQ(flatCb[i], kExpectedBGRAToYCbCr420Cb[i]) << "Cb mismatch at " << i;
     EXPECT_EQ(flatCr[i], kExpectedBGRAToYCbCr420Cr[i]) << "Cr mismatch at " << i;
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiBGRToYCbCr420_8u_AC4P3R_Ctx(d_src, srcStep, pDst, dstSteps, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostY.data(), d_y, hostY.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCb.data(), d_cb, hostCb.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCr.data(), d_cr, hostCr.size(), cudaMemcpyDeviceToHost);
+
+  flattenPlanes(hostY, yStep, hostCb, cbStep, hostCr, crStep, width, height, flatY, flatCb, flatCr);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(flatY[i], kExpectedBGRAToYCbCr420Y[i]) << "Ctx Y mismatch at " << i;
+  }
+  for (int i = 0; i < (width / 2) * (height / 2); ++i) {
+    EXPECT_EQ(flatCb[i], kExpectedBGRAToYCbCr420Cb[i]) << "Ctx Cb mismatch at " << i;
+    EXPECT_EQ(flatCr[i], kExpectedBGRAToYCbCr420Cr[i]) << "Ctx Cr mismatch at " << i;
   }
 
   nppiFree(d_src);

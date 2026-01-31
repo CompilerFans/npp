@@ -71,6 +71,7 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_P3C3R_Reference) {
 
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
+  std::vector<Npp8u> baseData = dstData;
 
   for (int i = 0; i < width * height; i++) {
     int uvIndex = (i % width) / 2 + (i / width) * (width / 2);
@@ -80,6 +81,18 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_P3C3R_Reference) {
     ASSERT_EQ(dstData[idx + 0], r);
     ASSERT_EQ(dstData[idx + 1], g);
     ASSERT_EQ(dstData[idx + 2], b);
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUV422ToRGB_8u_P3C3R_Ctx(srcPlanes, srcSteps, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxData(width * height * 3);
+  dst.copyToHost(ctxData);
+  for (size_t i = 0; i < ctxData.size(); ++i) {
+    EXPECT_EQ(ctxData[i], baseData[i]) << "Ctx mismatch at " << i;
   }
 }
 
@@ -114,6 +127,9 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_P3R_Reference) {
   r.copyToHost(rPlane);
   g.copyToHost(gPlane);
   b.copyToHost(bPlane);
+  std::vector<Npp8u> baseR = rPlane;
+  std::vector<Npp8u> baseG = gPlane;
+  std::vector<Npp8u> baseB = bPlane;
 
   for (int i = 0; i < width * height; i++) {
     int uvIndex = (i % width) / 2 + (i / width) * (width / 2);
@@ -122,6 +138,21 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_P3R_Reference) {
     ASSERT_EQ(rPlane[i], rr);
     ASSERT_EQ(gPlane[i], gg);
     ASSERT_EQ(bPlane[i], bb);
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUV422ToRGB_8u_P3R_Ctx(srcPlanes, srcSteps, dstPlanes, r.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  r.copyToHost(rPlane);
+  g.copyToHost(gPlane);
+  b.copyToHost(bPlane);
+  for (int i = 0; i < width * height; i++) {
+    EXPECT_EQ(rPlane[i], baseR[i]) << "Ctx R mismatch at " << i;
+    EXPECT_EQ(gPlane[i], baseG[i]) << "Ctx G mismatch at " << i;
+    EXPECT_EQ(bPlane[i], baseB[i]) << "Ctx B mismatch at " << i;
   }
 }
 
@@ -151,8 +182,21 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_P3AC4R_AlphaCleared) {
 
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
+  std::vector<Npp8u> baseData = dstData;
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 4 + 3], 0);
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUV422ToRGB_8u_P3AC4R_Ctx(srcPlanes, srcSteps, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxData(width * height * 4);
+  dst.copyToHost(ctxData);
+  for (size_t i = 0; i < ctxData.size(); ++i) {
+    EXPECT_EQ(ctxData[i], baseData[i]) << "Ctx mismatch at " << i;
   }
 }
 
@@ -183,6 +227,7 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_C2C3R_YUYV) {
 
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
+  std::vector<Npp8u> baseData = dstData;
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -195,5 +240,17 @@ TEST_F(YUV422ToRGBTest, YUV422ToRGB_8u_C2C3R_YUYV) {
       ASSERT_EQ(dstData[idx + 1], g);
       ASSERT_EQ(dstData[idx + 2], b);
     }
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUV422ToRGB_8u_C2C3R_Ctx(src_mem.get(), src_mem.step(), dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxData(width * height * 3);
+  dst.copyToHost(ctxData);
+  for (size_t i = 0; i < ctxData.size(); ++i) {
+    EXPECT_EQ(ctxData[i], baseData[i]) << "Ctx mismatch at " << i;
   }
 }

@@ -147,6 +147,16 @@ TEST_P(Lut8uC1RParamTest, LUT_NoInterpolation) {
   }
   EXPECT_EQ(out, expected);
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiLUT_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> out_ctx(width * height);
+  cudaMemcpy2D(out_ctx.data(), width, d_dst, dstStep, width, height, cudaMemcpyDeviceToHost);
+  EXPECT_EQ(out_ctx, expected);
+
 
   cudaFree(d_values);
   cudaFree(d_levels);
@@ -222,6 +232,16 @@ TEST_P(Lut8uC3RParamTest, LUT_NoInterpolation) {
     expected[i + 2] = applyLutNoInterpolation(hostSrc[i + 2], values2, levelPos2);
   }
   EXPECT_EQ(out, expected);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiLUT_8u_C3R_Ctx(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> out_ctx(width * height * 3);
+  cudaMemcpy2D(out_ctx.data(), width * 3, d_dst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+  EXPECT_EQ(out_ctx, expected);
 
   cudaFree(d_values0);
   cudaFree(d_values1);
@@ -310,6 +330,16 @@ TEST_P(Lut8uC4RParamTest, LUT_NoInterpolation) {
   }
   EXPECT_EQ(out, expected);
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiLUT_8u_C4R_Ctx(d_src, srcStep, d_dst, dstStep, roi, values, levelPos, levels, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> out_ctx(width * height * 4);
+  cudaMemcpy2D(out_ctx.data(), width * 4, d_dst, dstStep, width * 4, height, cudaMemcpyDeviceToHost);
+  EXPECT_EQ(out_ctx, expected);
+
   cudaFree(d_values0);
   cudaFree(d_values1);
   cudaFree(d_values2);
@@ -378,6 +408,17 @@ TEST_P(Lut16uC1RParamTest, LUT_NoInterpolation) {
     expected[i] = applyLutNoInterpolation(hostSrc[i], values, levelPos);
   }
   EXPECT_EQ(out, expected);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiLUT_16u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp16u> out_ctx(width * height);
+  cudaMemcpy2D(out_ctx.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,
+               cudaMemcpyDeviceToHost);
+  EXPECT_EQ(out_ctx, expected);
 
   cudaFree(d_values);
   cudaFree(d_levels);

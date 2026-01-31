@@ -93,6 +93,7 @@ TEST_F(NV21ToRGBBGRTest, NV21ToRGB_8u_P2C4R) {
 
   std::vector<Npp8u> hostRGBA(rgbaStep * height);
   cudaMemcpy(hostRGBA.data(), d_rgba, rgbaStep * height, cudaMemcpyDeviceToHost);
+  std::vector<Npp8u> baseRGBA = hostRGBA;
 
   for (int y = 0; y < height; y += 4) {
     for (int x = 0; x < width; x += 4) {
@@ -121,6 +122,18 @@ TEST_F(NV21ToRGBBGRTest, NV21ToRGB_8u_P2C4R) {
       EXPECT_EQ(ag, eg);
       EXPECT_EQ(ab, eb);
     }
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiNV21ToRGB_8u_P2C4R_Ctx(pSrc, width, d_rgba, rgbaStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxRGBA(rgbaStep * height);
+  cudaMemcpy(ctxRGBA.data(), d_rgba, rgbaStep * height, cudaMemcpyDeviceToHost);
+  for (size_t i = 0; i < ctxRGBA.size(); ++i) {
+    EXPECT_EQ(ctxRGBA[i], baseRGBA[i]) << "Ctx mismatch at " << i;
   }
 
   nppsFree(d_srcY);
@@ -153,6 +166,7 @@ TEST_F(NV21ToRGBBGRTest, NV21ToBGR_8u_P2C4R) {
 
   std::vector<Npp8u> hostBGRA(bgraStep * height);
   cudaMemcpy(hostBGRA.data(), d_bgra, bgraStep * height, cudaMemcpyDeviceToHost);
+  std::vector<Npp8u> baseBGRA = hostBGRA;
 
   for (int y = 0; y < height; y += 4) {
     for (int x = 0; x < width; x += 4) {
@@ -181,6 +195,18 @@ TEST_F(NV21ToRGBBGRTest, NV21ToBGR_8u_P2C4R) {
       EXPECT_EQ(ag, eg);
       EXPECT_EQ(ar, er);
     }
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiNV21ToBGR_8u_P2C4R_Ctx(pSrc, width, d_bgra, bgraStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxBGRA(bgraStep * height);
+  cudaMemcpy(ctxBGRA.data(), d_bgra, bgraStep * height, cudaMemcpyDeviceToHost);
+  for (size_t i = 0; i < ctxBGRA.size(); ++i) {
+    EXPECT_EQ(ctxBGRA[i], baseBGRA[i]) << "Ctx mismatch at " << i;
   }
 
   nppsFree(d_srcY);

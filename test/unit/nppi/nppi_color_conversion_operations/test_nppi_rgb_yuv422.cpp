@@ -153,6 +153,34 @@ TEST_F(RGBToYUV422Test, RGBToYUV422_8u_C3P3R) {
     }
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYUV422_8u_C3P3R_Ctx(d_src, srcStep, pDst, dstSteps, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxY(yStep * height);
+  std::vector<Npp8u> ctxU(uStep * height);
+  std::vector<Npp8u> ctxV(vStep * height);
+  cudaMemcpy(ctxY.data(), d_y, ctxY.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(ctxU.data(), d_u, ctxU.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(ctxV.data(), d_v, ctxV.size(), cudaMemcpyDeviceToHost);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      EXPECT_EQ(ctxY[y * yStep + x], expY[y * width + x]);
+    }
+  }
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width / 2; ++x) {
+      int idx = y * uStep + x;
+      int expIdx = y * (width / 2) + x;
+      EXPECT_EQ(ctxU[idx], expU[expIdx]);
+      EXPECT_EQ(ctxV[idx], expV[expIdx]);
+    }
+  }
+
   nppiFree(d_src);
   nppiFree(d_y);
   nppiFree(d_u);
@@ -230,6 +258,34 @@ TEST_F(RGBToYUV422Test, RGBToYUV422_8u_P3R) {
     }
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYUV422_8u_P3R_Ctx(pSrc, rStep, pDst, dstSteps, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxY(yStep * height);
+  std::vector<Npp8u> ctxU(uStep * height);
+  std::vector<Npp8u> ctxV(vStep * height);
+  cudaMemcpy(ctxY.data(), d_y, ctxY.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(ctxU.data(), d_u, ctxU.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(ctxV.data(), d_v, ctxV.size(), cudaMemcpyDeviceToHost);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      EXPECT_EQ(ctxY[y * yStep + x], expY[y * width + x]);
+    }
+  }
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width / 2; ++x) {
+      int idx = y * uStep + x;
+      int expIdx = y * (width / 2) + x;
+      EXPECT_EQ(ctxU[idx], expU[expIdx]);
+      EXPECT_EQ(ctxV[idx], expV[expIdx]);
+    }
+  }
+
   nppiFree(d_r);
   nppiFree(d_g);
   nppiFree(d_b);
@@ -273,6 +329,30 @@ TEST_F(RGBToYUV422Test, RGBToYUV422_8u_C3C2R_YUYV) {
       EXPECT_EQ(out[outIdx + 1], u);
       EXPECT_EQ(out[outIdx + 2], y1);
       EXPECT_EQ(out[outIdx + 3], v);
+    }
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiRGBToYUV422_8u_C3C2R_Ctx(d_src, srcStep, d_dst, dstStep, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxOut(dstStep * height);
+  cudaMemcpy(ctxOut.data(), d_dst, ctxOut.size(), cudaMemcpyDeviceToHost);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; x += 2) {
+      int outIdx = y * dstStep + x * 2;
+      int y0 = expY[y * width + x];
+      int y1 = expY[y * width + x + 1];
+      int u = expU[y * (width / 2) + (x / 2)];
+      int v = expV[y * (width / 2) + (x / 2)];
+
+      EXPECT_EQ(ctxOut[outIdx + 0], y0);
+      EXPECT_EQ(ctxOut[outIdx + 1], u);
+      EXPECT_EQ(ctxOut[outIdx + 2], y1);
+      EXPECT_EQ(ctxOut[outIdx + 3], v);
     }
   }
 

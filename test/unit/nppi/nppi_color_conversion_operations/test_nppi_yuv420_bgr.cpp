@@ -52,6 +52,7 @@ TEST_F(YUV420ToBGRTest, YUV420ToBGR_8u_P3C3R_Reference) {
 
   std::vector<Npp8u> dstData(width * height * 3);
   dst.copyToHost(dstData);
+  std::vector<Npp8u> baseData = dstData;
 
   for (int i = 0; i < width * height; i++) {
     Npp8u r, g, b;
@@ -60,6 +61,18 @@ TEST_F(YUV420ToBGRTest, YUV420ToBGR_8u_P3C3R_Reference) {
     ASSERT_EQ(dstData[idx + 0], b);
     ASSERT_EQ(dstData[idx + 1], g);
     ASSERT_EQ(dstData[idx + 2], r);
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUV420ToBGR_8u_P3C3R_Ctx(srcPlanes, srcSteps, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxData(width * height * 3);
+  dst.copyToHost(ctxData);
+  for (size_t i = 0; i < ctxData.size(); ++i) {
+    EXPECT_EQ(ctxData[i], baseData[i]) << "Ctx mismatch at " << i;
   }
 }
 
@@ -92,7 +105,20 @@ TEST_F(YUV420ToBGRTest, YUV420ToBGR_8u_P3C4R_AlphaConstant) {
 
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
+  std::vector<Npp8u> baseData = dstData;
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 4 + 3], 0xFF);
+  }
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiYUV420ToBGR_8u_P3C4R_Ctx(srcPlanes, srcSteps, dst.get(), dst.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> ctxData(width * height * 4);
+  dst.copyToHost(ctxData);
+  for (size_t i = 0; i < ctxData.size(); ++i) {
+    EXPECT_EQ(ctxData[i], baseData[i]) << "Ctx mismatch at " << i;
   }
 }

@@ -142,6 +142,80 @@ std::vector<typename NppTypeTraits<T>::DstType> runGradientToGray(NppiNorm norm)
 }
 
 template <typename T>
+std::vector<typename NppTypeTraits<T>::DstType> runGradientToGrayCtx(NppiNorm norm) {
+  constexpr int width = 4;
+  constexpr int height = 4;
+  NppiSize roi{width, height};
+
+  std::vector<T> hostSrc(width * height * 3);
+  fillInput(hostSrc, width, height);
+
+  int srcStep = 0;
+  int dstStep = 0;
+  T *d_src = nullptr;
+  typename NppTypeTraits<T>::DstType *d_dst = nullptr;
+
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    d_src = reinterpret_cast<T *>(nppiMalloc_8u_C3(width, height, &srcStep));
+    d_dst = reinterpret_cast<typename NppTypeTraits<T>::DstType *>(nppiMalloc_8u_C1(width, height, &dstStep));
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    d_src = reinterpret_cast<T *>(nppiMalloc_16u_C3(width, height, &srcStep));
+    d_dst = reinterpret_cast<typename NppTypeTraits<T>::DstType *>(nppiMalloc_16u_C1(width, height, &dstStep));
+  } else if constexpr (std::is_same_v<T, Npp32f>) {
+    d_src = reinterpret_cast<T *>(nppiMalloc_32f_C3(width, height, &srcStep));
+    d_dst = reinterpret_cast<typename NppTypeTraits<T>::DstType *>(nppiMalloc_32f_C1(width, height, &dstStep));
+  } else {
+    size_t srcStepBytes = 0;
+    size_t dstStepBytes = 0;
+    cudaMallocPitch(reinterpret_cast<void **>(&d_src), &srcStepBytes, width * sizeof(T) * 3, height);
+    cudaMallocPitch(reinterpret_cast<void **>(&d_dst), &dstStepBytes, width * sizeof(T), height);
+    srcStep = static_cast<int>(srcStepBytes);
+    dstStep = static_cast<int>(dstStepBytes);
+  }
+
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(T) * 3, width * sizeof(T) * 3, height,
+               cudaMemcpyHostToDevice);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+
+  NppStatus status = NPP_SUCCESS;
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    status = nppiGradientColorToGray_8u_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, norm, ctx);
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    status = nppiGradientColorToGray_16u_C3C1R_Ctx(d_src, srcStep, d_dst, dstStep, roi, norm, ctx);
+  } else if constexpr (std::is_same_v<T, Npp16s>) {
+    status = nppiGradientColorToGray_16s_C3C1R_Ctx(reinterpret_cast<const Npp16s *>(d_src), srcStep,
+                                                   reinterpret_cast<Npp16s *>(d_dst), dstStep, roi, norm, ctx);
+  } else {
+    status = nppiGradientColorToGray_32f_C3C1R_Ctx(reinterpret_cast<const Npp32f *>(d_src), srcStep,
+                                                   reinterpret_cast<Npp32f *>(d_dst), dstStep, roi, norm, ctx);
+  }
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<typename NppTypeTraits<T>::DstType> hostDst(width * height);
+  cudaMemcpy2D(hostDst.data(), width * sizeof(typename NppTypeTraits<T>::DstType), d_dst, dstStep,
+               width * sizeof(typename NppTypeTraits<T>::DstType), height, cudaMemcpyDeviceToHost);
+
+  if constexpr (std::is_same_v<T, Npp8u>) {
+    nppiFree(d_src);
+    nppiFree(d_dst);
+  } else if constexpr (std::is_same_v<T, Npp16u>) {
+    nppiFree(d_src);
+    nppiFree(d_dst);
+  } else if constexpr (std::is_same_v<T, Npp32f>) {
+    nppiFree(d_src);
+    nppiFree(d_dst);
+  } else {
+    cudaFree(d_src);
+    cudaFree(d_dst);
+  }
+
+  return hostDst;
+}
+
+template <typename T>
 void dumpOutputs(const char *label, const std::vector<typename NppTypeTraits<T>::DstType> &vals) {
   std::cout << label << " = {";
   for (size_t i = 0; i < vals.size(); ++i) {
@@ -238,6 +312,62 @@ TEST(GradientColorToGrayTest, GradientColorToGray_32f_C3C1R_AllNorms) {
   checkExpected<Npp32f>(l1, ExpectedOutputs<Npp32f>::kL1);
   checkExpected<Npp32f>(l2, ExpectedOutputs<Npp32f>::kL2);
   checkExpected<Npp32f>(linf, ExpectedOutputs<Npp32f>::kInf);
+}
+
+TEST(GradientColorToGrayTest, GradientColorToGray_8u_C3C1R_CtxMatches) {
+  auto l1 = runGradientToGray<Npp8u>(nppiNormL1);
+  auto l2 = runGradientToGray<Npp8u>(nppiNormL2);
+  auto linf = runGradientToGray<Npp8u>(nppiNormInf);
+
+  auto l1_ctx = runGradientToGrayCtx<Npp8u>(nppiNormL1);
+  auto l2_ctx = runGradientToGrayCtx<Npp8u>(nppiNormL2);
+  auto linf_ctx = runGradientToGrayCtx<Npp8u>(nppiNormInf);
+
+  checkExpected<Npp8u>(l1_ctx, l1.data());
+  checkExpected<Npp8u>(l2_ctx, l2.data());
+  checkExpected<Npp8u>(linf_ctx, linf.data());
+}
+
+TEST(GradientColorToGrayTest, GradientColorToGray_16u_C3C1R_CtxMatches) {
+  auto l1 = runGradientToGray<Npp16u>(nppiNormL1);
+  auto l2 = runGradientToGray<Npp16u>(nppiNormL2);
+  auto linf = runGradientToGray<Npp16u>(nppiNormInf);
+
+  auto l1_ctx = runGradientToGrayCtx<Npp16u>(nppiNormL1);
+  auto l2_ctx = runGradientToGrayCtx<Npp16u>(nppiNormL2);
+  auto linf_ctx = runGradientToGrayCtx<Npp16u>(nppiNormInf);
+
+  checkExpected<Npp16u>(l1_ctx, l1.data());
+  checkExpected<Npp16u>(l2_ctx, l2.data());
+  checkExpected<Npp16u>(linf_ctx, linf.data());
+}
+
+TEST(GradientColorToGrayTest, GradientColorToGray_16s_C3C1R_CtxMatches) {
+  auto l1 = runGradientToGray<Npp16s>(nppiNormL1);
+  auto l2 = runGradientToGray<Npp16s>(nppiNormL2);
+  auto linf = runGradientToGray<Npp16s>(nppiNormInf);
+
+  auto l1_ctx = runGradientToGrayCtx<Npp16s>(nppiNormL1);
+  auto l2_ctx = runGradientToGrayCtx<Npp16s>(nppiNormL2);
+  auto linf_ctx = runGradientToGrayCtx<Npp16s>(nppiNormInf);
+
+  checkExpected<Npp16s>(l1_ctx, l1.data());
+  checkExpected<Npp16s>(l2_ctx, l2.data());
+  checkExpected<Npp16s>(linf_ctx, linf.data());
+}
+
+TEST(GradientColorToGrayTest, GradientColorToGray_32f_C3C1R_CtxMatches) {
+  auto l1 = runGradientToGray<Npp32f>(nppiNormL1);
+  auto l2 = runGradientToGray<Npp32f>(nppiNormL2);
+  auto linf = runGradientToGray<Npp32f>(nppiNormInf);
+
+  auto l1_ctx = runGradientToGrayCtx<Npp32f>(nppiNormL1);
+  auto l2_ctx = runGradientToGrayCtx<Npp32f>(nppiNormL2);
+  auto linf_ctx = runGradientToGrayCtx<Npp32f>(nppiNormInf);
+
+  checkExpected<Npp32f>(l1_ctx, l1.data());
+  checkExpected<Npp32f>(l2_ctx, l2.data());
+  checkExpected<Npp32f>(linf_ctx, linf.data());
 }
 
 const Npp8u ExpectedOutputs<Npp8u>::kL1[kSize] = {0, 5, 11, 17, 7, 12, 18, 24, 14, 19, 25, 31, 21, 26, 32, 38};

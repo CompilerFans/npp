@@ -1,5 +1,6 @@
 #include "npp_test_base.h"
 #include <cmath>
+#include <random>
 #include <vector>
 
 using namespace npp_functional_test;
@@ -97,6 +98,32 @@ static inline void lab_to_bgr_ref(Npp8u l, Npp8u a, Npp8u bb, Npp8u &b, Npp8u &g
 
 class LabConversionTest : public NppTestBase {};
 
+namespace {
+struct LabCtxCase {
+  int width;
+  int height;
+  unsigned int seed;
+};
+
+static void fill_random_u8(std::vector<Npp8u> &data, int count, unsigned int seed) {
+  std::mt19937 rng(seed);
+  std::uniform_int_distribution<int> dist(0, 255);
+  data.resize(count);
+  for (auto &v : data) {
+    v = static_cast<Npp8u>(dist(rng));
+  }
+}
+
+static void expect_equal_u8(const std::vector<Npp8u> &a, const std::vector<Npp8u> &b, int tol) {
+  ASSERT_EQ(a.size(), b.size());
+  for (size_t i = 0; i < a.size(); ++i) {
+    EXPECT_NEAR(a[i], b[i], tol) << "Mismatch at " << i;
+  }
+}
+} // namespace
+
+class LabConversionCtxParamTest : public NppTestBase, public ::testing::WithParamInterface<LabCtxCase> {};
+
 TEST_F(LabConversionTest, BGRToLab_8u_C3R_Accuracy) {
   const int width = 4;
   const int height = 1;
@@ -168,3 +195,62 @@ TEST_F(LabConversionTest, LabToBGR_8u_C3R_RoundTrip) {
     EXPECT_NEAR(dst[i * 3 + 2], pixels[i].r, 3);
   }
 }
+
+TEST_P(LabConversionCtxParamTest, BGRToLab_CtxMatches) {
+  const auto param = GetParam();
+  std::vector<Npp8u> src;
+  fill_random_u8(src, param.width * param.height * 3, param.seed);
+
+  NppImageMemory<Npp8u> src_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> dst_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> ctx_mem(param.width, param.height, 3);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {param.width, param.height};
+  NppStatus status = nppiBGRToLab_8u_C3R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiBGRToLab_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  std::vector<Npp8u> ctx_out;
+  dst_mem.copyToHost(dst);
+  ctx_mem.copyToHost(ctx_out);
+  expect_equal_u8(dst, ctx_out, 2);
+}
+
+TEST_P(LabConversionCtxParamTest, LabToBGR_CtxMatches) {
+  const auto param = GetParam();
+  std::vector<Npp8u> src;
+  fill_random_u8(src, param.width * param.height * 3, param.seed + 19);
+
+  NppImageMemory<Npp8u> src_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> dst_mem(param.width, param.height, 3);
+  NppImageMemory<Npp8u> ctx_mem(param.width, param.height, 3);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {param.width, param.height};
+  NppStatus status = nppiLabToBGR_8u_C3R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiLabToBGR_8u_C3R_Ctx(src_mem.get(), src_mem.step(), ctx_mem.get(), ctx_mem.step(), roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  std::vector<Npp8u> ctx_out;
+  dst_mem.copyToHost(dst);
+  ctx_mem.copyToHost(ctx_out);
+  expect_equal_u8(dst, ctx_out, 3);
+}
+
+INSTANTIATE_TEST_SUITE_P(FunctionalCases, LabConversionCtxParamTest,
+                         ::testing::Values(LabCtxCase{4, 3, 12}, LabCtxCase{8, 5, 24}));
+INSTANTIATE_TEST_SUITE_P(PrecisionCases, LabConversionCtxParamTest,
+                         ::testing::Values(LabCtxCase{64, 32, 36}, LabCtxCase{128, 16, 48}));

@@ -1,5 +1,6 @@
 #include "npp_test_base.h"
 #include <algorithm>
+#include <random>
 
 using namespace npp_functional_test;
 
@@ -9,6 +10,41 @@ protected:
 
   void TearDown() override { NppTestBase::TearDown(); }
 };
+
+namespace {
+struct CfaCase {
+  int width;
+  int height;
+  NppiBayerGridPosition pattern;
+  unsigned int seed;
+};
+
+template <typename T>
+void fill_bayer(std::vector<T> &src, int width, int height, NppiBayerGridPosition pattern, unsigned int seed) {
+  std::mt19937 rng(seed);
+  std::uniform_int_distribution<int> dist(50, 200);
+  src.resize(width * height);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = y * width + x;
+      int v = dist(rng);
+      // Add slight variation per channel location.
+      if (pattern == NPPI_BAYER_BGGR) {
+        v += ((y & 1) == 0 && (x & 1) == 0) ? 10 : 0;
+      } else if (pattern == NPPI_BAYER_RGGB) {
+        v += ((y & 1) == 0 && (x & 1) == 0) ? 20 : 0;
+      } else if (pattern == NPPI_BAYER_GBRG) {
+        v += ((y & 1) == 0 && (x & 1) == 1) ? 15 : 0;
+      } else {
+        v += ((y & 1) == 1 && (x & 1) == 0) ? 12 : 0;
+      }
+      src[idx] = static_cast<T>(v);
+    }
+  }
+}
+} // namespace
+
+class CFAToRGBParamTest : public NppTestBase, public ::testing::WithParamInterface<CfaCase> {};
 
 // 测试8位CFA到RGB转换 - BGGR模式
 TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_BGGR) {
@@ -188,3 +224,74 @@ TEST_F(CFAToRGBFunctionalTest, CFAToRGB_8u_C1C3R_Ctx_AllPatterns) {
     ASSERT_TRUE(hasNonZero);
   }
 }
+
+TEST_P(CFAToRGBParamTest, CFAToRGB_8u_C1C3R_MatchesCtx) {
+  const auto param = GetParam();
+  std::vector<Npp8u> srcData;
+  fill_bayer(srcData, param.width, param.height, param.pattern, param.seed);
+
+  NppImageMemory<Npp8u> src(param.width, param.height);
+  NppImageMemory<Npp8u> dst(param.width, param.height, 3);
+  NppImageMemory<Npp8u> dst_ctx(param.width, param.height, 3);
+  src.copyFromHost(srcData);
+
+  NppiSize oSrcSize = {param.width, param.height};
+  NppiRect oSrcROI = {0, 0, param.width, param.height};
+
+  NppStatus status = nppiCFAToRGB_8u_C1C3R(src.get(), src.step(), oSrcSize, oSrcROI, dst.get(), dst.step(),
+                                           param.pattern, NPPI_INTER_UNDEFINED);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  status = nppiCFAToRGB_8u_C1C3R_Ctx(src.get(), src.step(), oSrcSize, oSrcROI, dst_ctx.get(), dst_ctx.step(),
+                                     param.pattern, NPPI_INTER_UNDEFINED, ctx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> out, out_ctx;
+  dst.copyToHost(out);
+  dst_ctx.copyToHost(out_ctx);
+  ASSERT_EQ(out.size(), out_ctx.size());
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_EQ(out[i], out_ctx[i]) << "Mismatch at " << i;
+  }
+}
+
+TEST_P(CFAToRGBParamTest, CFAToRGB_16u_C1C3R_MatchesCtx) {
+  const auto param = GetParam();
+  std::vector<Npp16u> srcData;
+  fill_bayer(srcData, param.width, param.height, param.pattern, param.seed + 7);
+
+  NppImageMemory<Npp16u> src(param.width, param.height);
+  NppImageMemory<Npp16u> dst(param.width, param.height, 3);
+  NppImageMemory<Npp16u> dst_ctx(param.width, param.height, 3);
+  src.copyFromHost(srcData);
+
+  NppiSize oSrcSize = {param.width, param.height};
+  NppiRect oSrcROI = {0, 0, param.width, param.height};
+
+  NppStatus status = nppiCFAToRGB_16u_C1C3R(src.get(), src.step(), oSrcSize, oSrcROI, dst.get(), dst.step(),
+                                            param.pattern, NPPI_INTER_UNDEFINED);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  status = nppiCFAToRGB_16u_C1C3R_Ctx(src.get(), src.step(), oSrcSize, oSrcROI, dst_ctx.get(), dst_ctx.step(),
+                                      param.pattern, NPPI_INTER_UNDEFINED, ctx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp16u> out, out_ctx;
+  dst.copyToHost(out);
+  dst_ctx.copyToHost(out_ctx);
+  ASSERT_EQ(out.size(), out_ctx.size());
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_EQ(out[i], out_ctx[i]) << "Mismatch at " << i;
+  }
+}
+
+INSTANTIATE_TEST_SUITE_P(FunctionalCases, CFAToRGBParamTest,
+                         ::testing::Values(CfaCase{16, 16, NPPI_BAYER_BGGR, 11},
+                                           CfaCase{16, 16, NPPI_BAYER_RGGB, 22}));
+INSTANTIATE_TEST_SUITE_P(PrecisionCases, CFAToRGBParamTest,
+                         ::testing::Values(CfaCase{64, 64, NPPI_BAYER_GBRG, 33},
+                                           CfaCase{64, 64, NPPI_BAYER_GRBG, 44}));

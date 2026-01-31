@@ -121,6 +121,40 @@ TEST_F(BgrAtoYCbCr422Test, BGRAToYCbCr422_And_Back_ExpectedValues) {
     EXPECT_EQ(flatBGRA[i], kExpectedYCbCr422ToBGRA[i]) << "BGRA mismatch at " << i;
   }
 
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+  status = nppiBGRToYCbCr422_8u_AC4C2R_Ctx(d_src, srcStep, d_c2, c2Step, roi, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostC2.data(), d_c2, hostC2.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width * 2; ++x) {
+      flatC2[y * width * 2 + x] = hostC2[y * c2Step + x];
+    }
+  }
+  for (int i = 0; i < width * height * 2; ++i) {
+    EXPECT_EQ(flatC2[i], kExpectedBGRAToYCbCr422C2[i]) << "Ctx C2 mismatch at " << i;
+  }
+
+  status = nppiYCbCr422ToBGR_8u_C2C4R_Ctx(d_c2, c2Step, d_dst, dstStep, roi, alpha, ctx);
+  EXPECT_EQ(status, NPP_NO_ERROR);
+
+  cudaMemcpy(hostBGRA.data(), d_dst, hostBGRA.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 4;
+      int srcIdx = y * dstStep + x * 4;
+      flatBGRA[idx + 0] = hostBGRA[srcIdx + 0];
+      flatBGRA[idx + 1] = hostBGRA[srcIdx + 1];
+      flatBGRA[idx + 2] = hostBGRA[srcIdx + 2];
+      flatBGRA[idx + 3] = hostBGRA[srcIdx + 3];
+    }
+  }
+  for (int i = 0; i < width * height * 4; ++i) {
+    EXPECT_EQ(flatBGRA[i], kExpectedYCbCr422ToBGRA[i]) << "Ctx BGRA mismatch at " << i;
+  }
+
   nppiFree(d_src);
   nppiFree(d_c2);
   nppiFree(d_dst);
