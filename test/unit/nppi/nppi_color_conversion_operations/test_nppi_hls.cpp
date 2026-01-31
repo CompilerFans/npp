@@ -164,6 +164,44 @@ TEST_F(HLSConversionTest, RGBToHLS_8u_C3R_BasicGray) {
   }
 }
 
+TEST_F(HLSConversionTest, RGBToHLS_8u_C3R_Ctx_BasicGray) {
+  const int width = 4;
+  const int height = 1;
+  std::vector<RgbPixel> pixels = {
+      {0, 0, 0},
+      {64, 64, 64},
+      {128, 128, 128},
+      {255, 255, 255},
+  };
+
+  std::vector<Npp8u> src;
+  build_pixels(src, pixels, false);
+
+  NppImageMemory<Npp8u> src_mem(width, height, 3);
+  NppImageMemory<Npp8u> dst_mem(width, height, 3);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiRGBToHLS_8u_C3R_Ctx(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi, nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  dst_mem.copyToHost(dst);
+
+  for (int i = 0; i < width; ++i) {
+    Npp8u h, l, s;
+    rgb_to_hls_ref(pixels[i].r, pixels[i].g, pixels[i].b, h, l, s);
+    EXPECT_NEAR(dst[i * 3 + 0], h, 1);
+    EXPECT_NEAR(dst[i * 3 + 1], l, 1);
+    EXPECT_NEAR(dst[i * 3 + 2], s, 1);
+  }
+}
+
 TEST_F(HLSConversionTest, RGBToHLS_8u_C3R_PrimaryColorsAccuracy) {
   const int width = 4;
   const int height = 1;
@@ -231,6 +269,45 @@ TEST_F(HLSConversionTest, HLSToRGB_8u_C3R_RoundTripAccuracy) {
   }
 }
 
+TEST_F(HLSConversionTest, HLSToRGB_8u_C3R_Ctx_RoundTripAccuracy) {
+  const int width = 4;
+  const int height = 1;
+  std::vector<RgbPixel> pixels = {
+      {10, 30, 200},
+      {120, 200, 40},
+      {200, 50, 50},
+      {0, 0, 0},
+  };
+
+  std::vector<Npp8u> src;
+  build_pixels(src, pixels, false);
+
+  NppImageMemory<Npp8u> src_mem(width, height, 3);
+  NppImageMemory<Npp8u> hls_mem(width, height, 3);
+  NppImageMemory<Npp8u> dst_mem(width, height, 3);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiRGBToHLS_8u_C3R_Ctx(src_mem.get(), src_mem.step(), hls_mem.get(), hls_mem.step(), roi, nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  status = nppiHLSToRGB_8u_C3R_Ctx(hls_mem.get(), hls_mem.step(), dst_mem.get(), dst_mem.step(), roi, nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  dst_mem.copyToHost(dst);
+  for (int i = 0; i < width; ++i) {
+    EXPECT_NEAR(dst[i * 3 + 0], pixels[i].r, 2);
+    EXPECT_NEAR(dst[i * 3 + 1], pixels[i].g, 2);
+    EXPECT_NEAR(dst[i * 3 + 2], pixels[i].b, 2);
+  }
+}
+
 
 TEST_F(HLSConversionTest, RGBToHLS_8u_AC4R_AlphaBehavior) {
   const int width = 2;
@@ -258,6 +335,51 @@ TEST_F(HLSConversionTest, RGBToHLS_8u_AC4R_AlphaBehavior) {
 
   NppiSize roi = {width, height};
   NppStatus status = nppiRGBToHLS_8u_AC4R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  dst_mem.copyToHost(dst);
+  for (int i = 0; i < width * height; ++i) {
+    Npp8u h, l, s;
+    rgb_to_hls_ref(pixels[i].r, pixels[i].g, pixels[i].b, h, l, s);
+    EXPECT_NEAR(dst[i * 4 + 0], h, 2);
+    EXPECT_NEAR(dst[i * 4 + 1], l, 2);
+    EXPECT_NEAR(dst[i * 4 + 2], s, 2);
+    EXPECT_EQ(dst[i * 4 + 3], 0);
+  }
+}
+
+TEST_F(HLSConversionTest, RGBToHLS_8u_AC4R_Ctx_AlphaBehavior) {
+  const int width = 2;
+  const int height = 2;
+  std::vector<RgbPixel> pixels = {
+      {255, 0, 0},
+      {0, 255, 0},
+      {0, 0, 255},
+      {255, 255, 255},
+  };
+
+  std::vector<Npp8u> src(width * height * 4);
+  std::vector<Npp8u> alpha(width * height);
+  for (int i = 0; i < width * height; ++i) {
+    src[i * 4 + 0] = pixels[i].r;
+    src[i * 4 + 1] = pixels[i].g;
+    src[i * 4 + 2] = pixels[i].b;
+    src[i * 4 + 3] = static_cast<Npp8u>(10 + i * 20);
+    alpha[i] = src[i * 4 + 3];
+  }
+
+  NppImageMemory<Npp8u> src_mem(width, height, 4);
+  NppImageMemory<Npp8u> dst_mem(width, height, 4);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiRGBToHLS_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi, nppStreamCtx);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp8u> dst;
@@ -312,6 +434,51 @@ TEST_F(HLSConversionTest, HLSToRGB_8u_AC4R_AlphaBehavior) {
   }
 }
 
+TEST_F(HLSConversionTest, HLSToRGB_8u_AC4R_Ctx_AlphaBehavior) {
+  const int width = 2;
+  const int height = 2;
+  std::vector<RgbPixel> pixels = {
+      {10, 30, 200},
+      {120, 200, 40},
+      {200, 50, 50},
+      {0, 0, 0},
+  };
+
+  std::vector<Npp8u> src(width * height * 4);
+  std::vector<Npp8u> alpha(width * height);
+  for (int i = 0; i < width * height; ++i) {
+    Npp8u h, l, s;
+    rgb_to_hls_ref(pixels[i].r, pixels[i].g, pixels[i].b, h, l, s);
+    src[i * 4 + 0] = h;
+    src[i * 4 + 1] = l;
+    src[i * 4 + 2] = s;
+    src[i * 4 + 3] = static_cast<Npp8u>(15 + i * 15);
+    alpha[i] = src[i * 4 + 3];
+  }
+
+  NppImageMemory<Npp8u> src_mem(width, height, 4);
+  NppImageMemory<Npp8u> dst_mem(width, height, 4);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiHLSToRGB_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi, nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  dst_mem.copyToHost(dst);
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_NEAR(dst[i * 4 + 0], pixels[i].r, 2);
+    EXPECT_NEAR(dst[i * 4 + 1], pixels[i].g, 3);
+    EXPECT_NEAR(dst[i * 4 + 2], pixels[i].b, 3);
+    EXPECT_EQ(dst[i * 4 + 3], 0);
+  }
+}
+
 TEST_F(HLSConversionTest, BGRToHLS_8u_AC4R_AlphaCleared) {
   const int width = 2;
   const int height = 2;
@@ -336,6 +503,49 @@ TEST_F(HLSConversionTest, BGRToHLS_8u_AC4R_AlphaCleared) {
 
   NppiSize roi = {width, height};
   NppStatus status = nppiBGRToHLS_8u_AC4R(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  dst_mem.copyToHost(dst);
+  for (int i = 0; i < width * height; ++i) {
+    Npp8u h, l, s;
+    rgb_to_hls_ref(pixels[i].r, pixels[i].g, pixels[i].b, h, l, s);
+    EXPECT_NEAR(dst[i * 4 + 0], h, 2);
+    EXPECT_NEAR(dst[i * 4 + 1], l, 2);
+    EXPECT_NEAR(dst[i * 4 + 2], s, 2);
+    EXPECT_EQ(dst[i * 4 + 3], 0);
+  }
+}
+
+TEST_F(HLSConversionTest, BGRToHLS_8u_AC4R_Ctx_AlphaCleared) {
+  const int width = 2;
+  const int height = 2;
+  std::vector<RgbPixel> pixels = {
+      {255, 0, 0},
+      {0, 255, 0},
+      {0, 0, 255},
+      {255, 255, 255},
+  };
+
+  std::vector<Npp8u> src(width * height * 4);
+  for (int i = 0; i < width * height; ++i) {
+    src[i * 4 + 0] = pixels[i].b;
+    src[i * 4 + 1] = pixels[i].g;
+    src[i * 4 + 2] = pixels[i].r;
+    src[i * 4 + 3] = static_cast<Npp8u>(10 + i * 30);
+  }
+
+  NppImageMemory<Npp8u> src_mem(width, height, 4);
+  NppImageMemory<Npp8u> dst_mem(width, height, 4);
+  src_mem.copyFromHost(src);
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiBGRToHLS_8u_AC4R_Ctx(src_mem.get(), src_mem.step(), dst_mem.get(), dst_mem.step(), roi, nppStreamCtx);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp8u> dst;
@@ -378,6 +588,51 @@ TEST_F(HLSConversionTest, BGRToHLS_8u_C3P3R_RoundTripPacked) {
 
   NppImageMemory<Npp8u> dst_mem(width, height, 3);
   status = nppiHLSToBGR_8u_P3C3R((const Npp8u *const *)hls_planes, h_plane.step(), dst_mem.get(), dst_mem.step(), roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> dst;
+  dst_mem.copyToHost(dst);
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_NEAR(dst[i * 3 + 0], pixels[i].b, 3);
+    EXPECT_NEAR(dst[i * 3 + 1], pixels[i].g, 3);
+    EXPECT_NEAR(dst[i * 3 + 2], pixels[i].r, 3);
+  }
+}
+
+TEST_F(HLSConversionTest, BGRToHLS_8u_C3P3R_Ctx_RoundTripPacked) {
+  const int width = 2;
+  const int height = 2;
+  std::vector<RgbPixel> pixels = {
+      {10, 30, 200},
+      {120, 200, 40},
+      {200, 50, 50},
+      {0, 0, 0},
+  };
+
+  std::vector<Npp8u> src;
+  build_pixels(src, pixels, true);
+
+  NppImageMemory<Npp8u> src_mem(width, height, 3);
+  src_mem.copyFromHost(src);
+
+  NppImageMemory<Npp8u> h_plane(width, height, 1);
+  NppImageMemory<Npp8u> l_plane(width, height, 1);
+  NppImageMemory<Npp8u> s_plane(width, height, 1);
+
+  Npp8u *hls_planes[3] = {h_plane.get(), l_plane.get(), s_plane.get()};
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiBGRToHLS_8u_C3P3R_Ctx(src_mem.get(), src_mem.step(), hls_planes, h_plane.step(), roi, nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppImageMemory<Npp8u> dst_mem(width, height, 3);
+  status = nppiHLSToBGR_8u_P3C3R_Ctx((const Npp8u *const *)hls_planes, h_plane.step(), dst_mem.get(),
+                                    dst_mem.step(), roi, nppStreamCtx);
   ASSERT_EQ(status, NPP_NO_ERROR);
 
   std::vector<Npp8u> dst;
@@ -440,3 +695,59 @@ TEST_F(HLSConversionTest, BGRToHLS_8u_P3R_RoundTripPlanar) {
   }
 }
 
+TEST_F(HLSConversionTest, BGRToHLS_8u_P3R_Ctx_RoundTripPlanar) {
+  const int width = 2;
+  const int height = 2;
+  std::vector<RgbPixel> pixels = {
+      {255, 0, 0},
+      {0, 255, 0},
+      {0, 0, 255},
+      {255, 255, 255},
+  };
+
+  std::vector<Npp8u> b_plane, g_plane, r_plane;
+  build_planar_bgr(pixels, b_plane, g_plane, r_plane);
+
+  NppImageMemory<Npp8u> b_mem(width, height, 1);
+  NppImageMemory<Npp8u> g_mem(width, height, 1);
+  NppImageMemory<Npp8u> r_mem(width, height, 1);
+  b_mem.copyFromHost(b_plane);
+  g_mem.copyFromHost(g_plane);
+  r_mem.copyFromHost(r_plane);
+
+  const Npp8u *bgr_planes[3] = {b_mem.get(), g_mem.get(), r_mem.get()};
+
+  NppImageMemory<Npp8u> h_plane(width, height, 1);
+  NppImageMemory<Npp8u> l_plane(width, height, 1);
+  NppImageMemory<Npp8u> s_plane(width, height, 1);
+  Npp8u *hls_planes[3] = {h_plane.get(), l_plane.get(), s_plane.get()};
+
+  NppiSize roi = {width, height};
+  NppStreamContext nppStreamCtx{};
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = 0;
+
+  NppStatus status =
+      nppiBGRToHLS_8u_P3R_Ctx(bgr_planes, b_mem.step(), hls_planes, h_plane.step(), roi, nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  NppImageMemory<Npp8u> out_b(width, height, 1);
+  NppImageMemory<Npp8u> out_g(width, height, 1);
+  NppImageMemory<Npp8u> out_r(width, height, 1);
+  Npp8u *out_planes[3] = {out_b.get(), out_g.get(), out_r.get()};
+
+  status = nppiHLSToBGR_8u_P3R_Ctx((const Npp8u *const *)hls_planes, h_plane.step(), out_planes, out_b.step(), roi,
+                                  nppStreamCtx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> out_bh, out_gh, out_rh;
+  out_b.copyToHost(out_bh);
+  out_g.copyToHost(out_gh);
+  out_r.copyToHost(out_rh);
+
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_NEAR(out_bh[i], b_plane[i], 3);
+    EXPECT_NEAR(out_gh[i], g_plane[i], 3);
+    EXPECT_NEAR(out_rh[i], r_plane[i], 3);
+  }
+}
