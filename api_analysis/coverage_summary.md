@@ -2,8 +2,8 @@
 
 - Total API Functions: 12500
 - Implemented: 3852 (30.8%)
-- Tested: 2794 (22.4%)
-- Implemented but not tested: 1100
+- Tested: 2795 (22.4%)
+- Implemented but not tested: 1099
 
 ## By Module
 
@@ -13,7 +13,7 @@
 - Total: 2137, Impl: 2137 (100.0%), Test: 2133 (99.8%)
 
 **nppi_color_conversion.h**
-- Total: 1040, Impl: 1040 (100.0%), Test: 168 (16.2%)
+- Total: 1040, Impl: 1040 (100.0%), Test: 169 (16.2%)
 
 **nppi_data_exchange_and_initialization.h**
 - Total: 966, Impl: 83 (8.6%), Test: 101 (10.5%)

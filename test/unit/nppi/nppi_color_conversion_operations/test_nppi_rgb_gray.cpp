@@ -501,3 +501,56 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16s_AC4C1R_ExpectedValues) {
   cudaFree(d_src);
   cudaFree(d_dst);
 }
+
+// Test 4-channel RGBA to grayscale conversion (32-bit float)
+TEST_F(RGBToGrayFunctionalTest, RGBToGray_32f_AC4C1R_BasicOperation) {
+  std::vector<Npp32f> srcData(width * height * 4);
+  std::vector<Npp32f> expectedData(width * height);
+
+  // Create test RGBA image with float values
+  for (int i = 0; i < width * height; i++) {
+    Npp32f r = 0.8f;
+    Npp32f g = 0.6f;
+    Npp32f b = 0.4f;
+    Npp32f a = 1.0f; // Alpha should be ignored
+
+    srcData[i * 4 + 0] = r;
+    srcData[i * 4 + 1] = g;
+    srcData[i * 4 + 2] = b;
+    srcData[i * 4 + 3] = a;
+
+    expectedData[i] = calculateGrayValue(r, g, b);
+  }
+
+  // Allocate GPU memory
+  int srcStep, dstStep;
+  Npp32f *d_src = nppiMalloc_32f_C4(width, height, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  // Copy input data to GPU
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * width * 4, width * 4 * sizeof(Npp32f),
+               cudaMemcpyHostToDevice);
+  }
+
+  // Execute NPP function
+  NppStatus status = nppiRGBToGray_32f_AC4C1R(d_src, srcStep, d_dst, dstStep, roi);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  // Copy result back to host
+  std::vector<Npp32f> resultData(width * height);
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy(resultData.data() + y * width, (char *)d_dst + y * dstStep, width * sizeof(Npp32f),
+               cudaMemcpyDeviceToHost);
+  }
+
+  // Verify results
+  for (int i = 0; i < width * height; i++) {
+    EXPECT_NEAR(resultData[i], expectedData[i], 0.001f) << "Mismatch at pixel " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}

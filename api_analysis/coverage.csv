@@ -2802,7 +2802,7 @@ nppiRGBToGray_16u_AC4C1R,nppi_color_conversion.h,yes,src/nppi/nppi_color_convers
 nppiRGBToGray_16u_AC4C1R_Ctx,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,no,
 nppiRGBToGray_16u_C3C1R,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,yes,test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
 nppiRGBToGray_16u_C3C1R_Ctx,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,no,
-nppiRGBToGray_32f_AC4C1R,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,no,
+nppiRGBToGray_32f_AC4C1R,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,yes,test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
 nppiRGBToGray_32f_AC4C1R_Ctx,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,no,
 nppiRGBToGray_32f_C3C1R,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,yes,test/unit/nppi/nppi_color_conversion_operations/test_nppi_rgb_gray.cpp
 nppiRGBToGray_32f_C3C1R_Ctx,nppi_color_conversion.h,yes,src/nppi/nppi_color_conversion_operations/nppi_rgb_gray.cpp,no,
