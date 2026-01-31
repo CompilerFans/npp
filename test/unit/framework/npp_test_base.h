@@ -52,20 +52,30 @@ protected:
   void SetUp() override {
     // Initialize device
     cudaError_t err = cudaSetDevice(0);
-    ASSERT_EQ(err, cudaSuccess) << "Failed to set device";
+    if (err != cudaSuccess) {
+      GTEST_SKIP() << "CUDA device unavailable: " << cudaGetErrorString(err);
+    }
 
     // Check device availability
     int deviceCount;
     err = cudaGetDeviceCount(&deviceCount);
-    ASSERT_EQ(err, cudaSuccess) << "Failed to get device count";
-    ASSERT_GT(deviceCount, 0) << "No devices available";
+    if (err != cudaSuccess) {
+      GTEST_SKIP() << "CUDA device count query failed: " << cudaGetErrorString(err);
+    }
+    if (deviceCount <= 0) {
+      GTEST_SKIP() << "No CUDA devices available";
+    }
 
     // Get device properties
     err = cudaGetDeviceProperties(&deviceProp_, 0);
     ASSERT_EQ(err, cudaSuccess) << "Failed to get device properties";
+    device_ready_ = true;
   }
 
   void TearDown() override {
+    if (!device_ready_) {
+      return;
+    }
     // Synchronize device and check for errors
     cudaError_t err = cudaDeviceSynchronize();
     EXPECT_EQ(err, cudaSuccess) << "error after test: " << cudaGetErrorString(err);
@@ -80,6 +90,7 @@ protected:
   }
 
 private:
+  bool device_ready_ = false;
   cudaDeviceProp deviceProp_;
 };
 
