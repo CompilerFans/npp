@@ -423,7 +423,7 @@ TEST_F(NV12ToRGBTest, VariousImageSizes) {
       if (d_rgb)
         nppiFree(d_rgb);
 
-      GTEST_SKIP() << "Could not allocate GPU memory for " << size.name;
+      GTEST_FAIL() << "Could not allocate GPU memory for " << size.name;
       continue;
     }
 

@@ -216,7 +216,7 @@ TEST(NppsSupportLargeMemoryTest, LargeAllocation) {
     nppsFree(large_signal);
   } else {
     // If allocation fails, this may be due to insufficient memory, which is acceptable
-    GTEST_SKIP() << "Large memory allocation failed - possibly due to insufficient GPU memory";
+    GTEST_FAIL() << "Large memory allocation failed - possibly due to insufficient GPU memory";
   }
 }
 

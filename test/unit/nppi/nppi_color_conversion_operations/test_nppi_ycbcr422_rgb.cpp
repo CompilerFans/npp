@@ -216,7 +216,7 @@ TEST_F(YCbCr422Test, RGBToYCbCr422_And_Back_ExpectedValues) {
   int deviceCount = 0;
   cudaError_t devErr = cudaGetDeviceCount(&deviceCount);
   if (devErr != cudaSuccess || deviceCount == 0) {
-    GTEST_SKIP() << "CUDA device unavailable for YCbCr422 tests";
+    GTEST_FAIL() << "CUDA device unavailable for YCbCr422 tests";
   }
   std::vector<Npp8u> hostRGB;
   createPackedRGB(hostRGB);
@@ -224,14 +224,14 @@ TEST_F(YCbCr422Test, RGBToYCbCr422_And_Back_ExpectedValues) {
   int srcStep = 0;
   Npp8u *d_src = nppiMalloc_8u_C3(width, height, &srcStep);
   if (!d_src) {
-    GTEST_SKIP() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
+    GTEST_FAIL() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
   }
 
   int c2Step = 0;
   Npp8u *d_c2 = nppiMalloc_8u_C2(width, height, &c2Step);
   if (!d_c2) {
     nppiFree(d_src);
-    GTEST_SKIP() << "nppiMalloc_8u_C2 failed for YCbCr422 tests";
+    GTEST_FAIL() << "nppiMalloc_8u_C2 failed for YCbCr422 tests";
   }
 
   cudaMemcpy2D(d_src, srcStep, hostRGB.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
@@ -248,7 +248,7 @@ TEST_F(YCbCr422Test, RGBToYCbCr422_And_Back_ExpectedValues) {
   if (!d_dst) {
     nppiFree(d_src);
     nppiFree(d_c2);
-    GTEST_SKIP() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
+    GTEST_FAIL() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
   }
 
   status = nppiYCbCr422ToRGB_8u_C2C3R(d_c2, c2Step, d_dst, dstStep, roi);
@@ -304,18 +304,13 @@ TEST_F(YCbCr422Test, RGBToYCbCr422_And_Back_ExpectedValues) {
 
 TEST_P(YCbCr422PlanarParamTest, RGBToYCbCr422_C3P3R_ExactMatch) {
   SCOPED_TRACE(use_random ? "precision" : "functional");
-  int deviceCount = 0;
-  cudaError_t devErr = cudaGetDeviceCount(&deviceCount);
-  if (devErr != cudaSuccess || deviceCount == 0) {
-    GTEST_SKIP() << "CUDA device unavailable for YCbCr422 tests";
-  }
   std::vector<Npp8u> hostRGB;
   createPackedRGB(hostRGB);
 
   int srcStep = 0;
   Npp8u *d_src = nppiMalloc_8u_C3(width, height, &srcStep);
   if (!d_src) {
-    GTEST_SKIP() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
+    GTEST_FAIL() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
   }
 
   int yStep = 0;
@@ -332,7 +327,7 @@ TEST_P(YCbCr422PlanarParamTest, RGBToYCbCr422_C3P3R_ExactMatch) {
     if (d_cr)
       nppiFree(d_cr);
     nppiFree(d_src);
-    GTEST_SKIP() << "nppiMalloc_8u_C1 failed for YCbCr422 tests";
+    GTEST_FAIL() << "nppiMalloc_8u_C1 failed for YCbCr422 tests";
   }
 
   cudaMemcpy2D(d_src, srcStep, hostRGB.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
@@ -380,11 +375,6 @@ TEST_P(YCbCr422PlanarParamTest, RGBToYCbCr422_C3P3R_ExactMatch) {
 
 TEST_P(YCbCr422PlanarParamTest, YCbCr422ToRGB_P3C3R_ExactMatch) {
   SCOPED_TRACE(use_random ? "precision" : "functional");
-  int deviceCount = 0;
-  cudaError_t devErr = cudaGetDeviceCount(&deviceCount);
-  if (devErr != cudaSuccess || deviceCount == 0) {
-    GTEST_SKIP() << "CUDA device unavailable for YCbCr422 tests";
-  }
   std::vector<Npp8u> hostRGB;
   createPackedRGB(hostRGB);
 
@@ -399,15 +389,6 @@ TEST_P(YCbCr422PlanarParamTest, YCbCr422ToRGB_P3C3R_ExactMatch) {
   Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
   Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height, &cbStep);
   Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height, &crStep);
-  if (!d_y || !d_cb || !d_cr) {
-    if (d_y)
-      nppiFree(d_y);
-    if (d_cb)
-      nppiFree(d_cb);
-    if (d_cr)
-      nppiFree(d_cr);
-    GTEST_SKIP() << "nppiMalloc_8u_C1 failed for YCbCr422 tests";
-  }
 
   for (int row = 0; row < height; ++row) {
     cudaMemcpy((char *)d_y + row * yStep, &yPlane[row * width], width, cudaMemcpyHostToDevice);
@@ -421,7 +402,7 @@ TEST_P(YCbCr422PlanarParamTest, YCbCr422ToRGB_P3C3R_ExactMatch) {
     nppiFree(d_y);
     nppiFree(d_cb);
     nppiFree(d_cr);
-    GTEST_SKIP() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
+    GTEST_FAIL() << "nppiMalloc_8u_C3 failed for YCbCr422 tests";
   }
 
   const Npp8u *src_planes[3] = {d_y, d_cb, d_cr};

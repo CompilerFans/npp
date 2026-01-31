@@ -53,17 +53,17 @@ protected:
     // Initialize device
     cudaError_t err = cudaSetDevice(0);
     if (err != cudaSuccess) {
-      GTEST_SKIP() << "CUDA device unavailable: " << cudaGetErrorString(err);
+      GTEST_FAIL() << "CUDA device unavailable: " << cudaGetErrorString(err);
     }
 
     // Check device availability
     int deviceCount;
     err = cudaGetDeviceCount(&deviceCount);
     if (err != cudaSuccess) {
-      GTEST_SKIP() << "CUDA device count query failed: " << cudaGetErrorString(err);
+      GTEST_FAIL() << "CUDA device count query failed: " << cudaGetErrorString(err);
     }
     if (deviceCount <= 0) {
-      GTEST_SKIP() << "No CUDA devices available";
+      GTEST_FAIL() << "No CUDA devices available";
     }
 
     // Get device properties

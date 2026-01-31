@@ -59,8 +59,8 @@ __global__ void nppiSwapChannels_AC4_kernel(const T *pSrc, int nSrcStep,
     dst_row[x * 4 + c] = src_row[x * 4 + order[c]];
   }
 
-  // Set alpha channel to 0 (NVIDIA NPP behavior)
-  dst_row[x * 4 + 3] = 0;
+  // Preserve alpha channel for AC4R
+  dst_row[x * 4 + 3] = src_row[x * 4 + 3];
 }
 
 // Template implementation function

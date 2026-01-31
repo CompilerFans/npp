@@ -18,20 +18,11 @@ struct LutCase {
 class LutMissingTestBase : public npp_functional_test::NppTestBase {
 protected:
   void SetUp() override {
-    int deviceCount = 0;
-    cudaError_t err = cudaGetDeviceCount(&deviceCount);
-    if (err != cudaSuccess || deviceCount == 0) {
-      has_cuda_ = false;
-      GTEST_SKIP() << "CUDA device unavailable for LUT missing tests";
-    }
-    has_cuda_ = true;
     npp_functional_test::NppTestBase::SetUp();
   }
 
   void TearDown() override {
-    if (has_cuda_) {
-      npp_functional_test::NppTestBase::TearDown();
-    }
+    npp_functional_test::NppTestBase::TearDown();
   }
 
   void fillU8(std::vector<Npp8u> &data, int seed) {
@@ -117,12 +108,12 @@ TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   int dstStep = 0;
   Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
   if (!d_src) {
-    GTEST_SKIP() << "nppiMalloc_8u_C1 failed";
+    GTEST_FAIL() << "nppiMalloc_8u_C1 failed";
   }
   Npp8u *d_dst = nppiMalloc_8u_C1(width, height, &dstStep);
   if (!d_dst) {
     nppiFree(d_src);
-    GTEST_SKIP() << "nppiMalloc_8u_C1 failed";
+    GTEST_FAIL() << "nppiMalloc_8u_C1 failed";
   }
 
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width, width, height, cudaMemcpyHostToDevice);
@@ -143,7 +134,7 @@ TEST_P(Lut8uC1RParamTest, ReturnNotImplementedAndNoWrite) {
     }
     nppiFree(d_src);
     nppiFree(d_dst);
-    GTEST_SKIP() << "Failed to allocate LUT device memory";
+    GTEST_FAIL() << "Failed to allocate LUT device memory";
   }
 
   NppStatus status = nppiLUT_8u_C1R(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels);
@@ -185,12 +176,12 @@ TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
   int dstStep = 0;
   Npp8u *d_src = nppiMalloc_8u_C3(width, height, &srcStep);
   if (!d_src) {
-    GTEST_SKIP() << "nppiMalloc_8u_C3 failed";
+    GTEST_FAIL() << "nppiMalloc_8u_C3 failed";
   }
   Npp8u *d_dst = nppiMalloc_8u_C3(width, height, &dstStep);
   if (!d_dst) {
     nppiFree(d_src);
-    GTEST_SKIP() << "nppiMalloc_8u_C3 failed";
+    GTEST_FAIL() << "nppiMalloc_8u_C3 failed";
   }
 
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
@@ -221,7 +212,7 @@ TEST_P(Lut8uC3RParamTest, ReturnNotImplementedAndNoWrite) {
     if (d_levelPos2) cudaFree(d_levelPos2);
     nppiFree(d_src);
     nppiFree(d_dst);
-    GTEST_SKIP() << "Failed to allocate LUT device memory";
+    GTEST_FAIL() << "Failed to allocate LUT device memory";
   }
 
   const Npp32s *values[3] = {d_values0, d_values1, d_values2};
@@ -272,12 +263,12 @@ TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
   int dstStep = 0;
   Npp8u *d_src = nppiMalloc_8u_C4(width, height, &srcStep);
   if (!d_src) {
-    GTEST_SKIP() << "nppiMalloc_8u_C4 failed";
+    GTEST_FAIL() << "nppiMalloc_8u_C4 failed";
   }
   Npp8u *d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
   if (!d_dst) {
     nppiFree(d_src);
-    GTEST_SKIP() << "nppiMalloc_8u_C4 failed";
+    GTEST_FAIL() << "nppiMalloc_8u_C4 failed";
   }
 
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * 4, width * 4, height, cudaMemcpyHostToDevice);
@@ -315,7 +306,7 @@ TEST_P(Lut8uC4RParamTest, ReturnNotImplementedAndNoWrite) {
     if (d_levelPos3) cudaFree(d_levelPos3);
     nppiFree(d_src);
     nppiFree(d_dst);
-    GTEST_SKIP() << "Failed to allocate LUT device memory";
+    GTEST_FAIL() << "Failed to allocate LUT device memory";
   }
 
   const Npp32s *values[4] = {d_values0, d_values1, d_values2, d_values3};
@@ -369,12 +360,12 @@ TEST_P(Lut16uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   int dstStep = 0;
   Npp16u *d_src = nppiMalloc_16u_C1(width, height, &srcStep);
   if (!d_src) {
-    GTEST_SKIP() << "nppiMalloc_16u_C1 failed";
+    GTEST_FAIL() << "nppiMalloc_16u_C1 failed";
   }
   Npp16u *d_dst = nppiMalloc_16u_C1(width, height, &dstStep);
   if (!d_dst) {
     nppiFree(d_src);
-    GTEST_SKIP() << "nppiMalloc_16u_C1 failed";
+    GTEST_FAIL() << "nppiMalloc_16u_C1 failed";
   }
 
   cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp16u), width * sizeof(Npp16u), height,
@@ -401,11 +392,7 @@ TEST_P(Lut16uC1RParamTest, ReturnNotImplementedAndNoWrite) {
   }
 
   NppStatus status = nppiLUT_16u_C1R(d_src, srcStep, d_dst, dstStep, roi, d_values, d_levels, levels);
-#ifdef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(status, NPP_NO_ERROR);
-#else
-  EXPECT_EQ(status, NPP_NOT_IMPLEMENTED_ERROR);
-#endif
 
   std::vector<Npp16u> out(width * height);
   cudaMemcpy2D(out.data(), width * sizeof(Npp16u), d_dst, dstStep, width * sizeof(Npp16u), height,

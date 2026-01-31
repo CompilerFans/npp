@@ -271,8 +271,8 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_32s_AC4R) {
   EXPECT_EQ(dstData[0], 300);
   EXPECT_EQ(dstData[1], 200);
   EXPECT_EQ(dstData[2], 100);
-  // Note: NVIDIA NPP AC4R sets alpha channel to 0 (not source alpha)
-  EXPECT_EQ(dstData[3], 0);
+  // AC4R preserves alpha channel
+  EXPECT_EQ(dstData[3], 999);
 }
 
 // Test multiple data types - use 16u instead of 16s for C4
