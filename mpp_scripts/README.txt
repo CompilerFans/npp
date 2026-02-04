@@ -1,12 +1,13 @@
+MPP One-Click Setup Script
+
 This script automates the complete MPP setup process:
 1. Create wrapper directory structure
 2. Generate function mappings (from original NPP API)
 3. Generate wrapper files (from original NPP API)
 4. Convert NPP source code to MPP naming
 5. Convert CUDA Runtime API to MACA Runtime API
-6. Copy MPP headers to wrapper/include
-7. Build MPP library
-8. Deploy to MACA SDK and cu-bridge (optional)
+6. Build MPP library
+7. Deploy to MACA SDK and cu-bridge (optional)
 
 IMPORTANT: Steps 1-3 must run BEFORE step 4, because wrapper generation
 needs to scan the original NPP API headers to create npp->mpp mappings.
@@ -36,9 +37,9 @@ Individual Scripts (can be used standalone)
    Scope: src/, test/, cmake/, examples/, API/ directories and root files
    Usage:
      python3 mpp_scripts/convert_npp2mpp.py --preview  # Preview changes
-     python3 mpp_scripts/convert_npp2mpp.py --backup   # Create backup in .npp_backup/
-     python3 mpp_scripts/convert_npp2mpp.py --apply    # Apply conversion
-     python3 mpp_scripts/convert_npp2mpp.py --restore  # Restore from backup
+     python3 mpp_scripts/convert_npp2mpp.py --backup   # Create full-project backup
+     python3 mpp_scripts/convert_npp2mpp.py --apply    # Apply conversion (then run CUDA->MACA)
+     python3 mpp_scripts/convert_npp2mpp.py --restore  # Restore from full-project backup
 
 2. generate_function_mappings.py - Generate function name mappings
    Scans API headers and generates npp2mpp_functions.h with #define mappings.
@@ -56,7 +57,7 @@ Individual Scripts (can be used standalone)
      wrapper/user_include/*.h   - User-facing NPP headers
 
 4. deploy_mpp.sh - Deploy MPP to MACA SDK and cu-bridge
-   Copies built libraries (libmpp + stubs) and headers to target directories.
+   Copies built libraries (libmppc + stubs) and headers to target directories.
    Usage:
      ./mpp_scripts/deploy_mpp.sh --maca <maca_sdk_path> --cu-bridge <cu_bridge_path>
      ./mpp_scripts/deploy_mpp.sh --maca /opt/maca-3.3.0 --cu-bridge ~/cu-bridge --dry-run
@@ -66,9 +67,7 @@ Individual Scripts (can be used standalone)
    Scope: src/, test/, examples/, API/ directories (wrapper/ excluded for compatibility)
    Usage:
      python3 mpp_scripts/convert_cuda2maca.py --check    # Preview changes
-     python3 mpp_scripts/convert_cuda2maca.py --backup   # Create backup in .cuda_backup/
      python3 mpp_scripts/convert_cuda2maca.py --apply    # Apply conversion
-     python3 mpp_scripts/convert_cuda2maca.py --restore  # Restore from backup
 
 6. update_cubridge_link.sh - Update cu-bridge link.json with NPP->MPP mappings
    Automatically adds library path mappings for cu-bridge.

@@ -14,7 +14,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent.absolute()
 PROJECT_DIR = SCRIPT_DIR.parent
-WRAPPER_DIR = PROJECT_DIR / 'wrapper'
+WRAPPER_DIR = PROJECT_DIR / 'wrapper' / 'mpp'
 
 # =============================================================================
 # Type mappings based on API/nppdefs.h
@@ -416,6 +416,19 @@ UTILITY_MACROS = [
     ('MPP_HALF_TO_MPP16F', 'NPP_HALF_TO_NPP16F'),
 ]
 
+# StreamContext member aliases
+STRUCT_MEMBER_ALIASES = [
+    ('nMcDeviceId', 'nCudaDeviceId'),
+    ('nMcDevAttrComputeCapabilityMajor', 'nCudaDevAttrComputeCapabilityMajor'),
+    ('nMcDevAttrComputeCapabilityMinor', 'nCudaDevAttrComputeCapabilityMinor'),
+]
+
+# Header guard and version macro compatibility
+COMPAT_MACROS = [
+    ('MX_MPPIDEFS_H', 'NV_NPPIDEFS_H'),
+    ('MPP_VERSION_MAJOR', 'NPP_VERSION_MAJOR'),
+    ('MPP_VERSION_MINOR', 'NPP_VERSION_MINOR'),
+]
 # Core function mappings
 CORE_FUNCTIONS = [
     ('mppGetLibVersion', 'nppGetLibVersion'),
@@ -722,6 +735,24 @@ def generate_nppdefs_wrapper() -> str:
 
     lines.extend([
         '',
+        '/* ============================================',
+        ' * Struct Member Aliases',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in STRUCT_MEMBER_ALIASES:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
+        ' * Compatibility Macros',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in COMPAT_MACROS:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
         '#endif /* NPP_BRIDGE_DEFS_H */',
         '',
     ])
@@ -862,7 +893,7 @@ def main():
 
     # Create directories
     WRAPPER_DIR.mkdir(parents=True, exist_ok=True)
-    user_include_dir = WRAPPER_DIR / 'user_include'
+    user_include_dir = PROJECT_DIR / 'wrapper' / 'user_include'
     user_include_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate wrapper files

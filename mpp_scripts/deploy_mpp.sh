@@ -101,12 +101,11 @@ if [ "$DRY_RUN" = true ]; then
 fi
 
 echo "========================================"
-echo "  MPP Deployment Script"
+echo "MPP Deployment Script"
 echo "========================================"
-echo ""
-echo "Project:     $PROJECT_DIR"
-echo "MACA SDK:    $MACA_SDK"
-echo "cu-bridge:   $CU_BRIDGE"
+echo "Project:   $PROJECT_DIR"
+echo "MACA SDK:  $MACA_SDK"
+echo "cu-bridge: $CU_BRIDGE"
 echo ""
 
 # Check directories exist
@@ -126,192 +125,94 @@ if [ ! -d "$CU_BRIDGE" ]; then
 fi
 
 # ============================================
-# Step 1: Generate wrapper files (if needed)
-# Must run BEFORE NPP->MPP conversion
+# Pre-checks (conversion/build already done)
 # ============================================
-echo "Step 1: Generate wrapper files (if needed)"
-if [ -d "$PROJECT_DIR/src/nppi" ]; then
-    # Source is still in NPP naming, can generate wrapper
-    if [ ! -f "$PROJECT_DIR/wrapper/npp2mpp_functions.h" ]; then
-        echo "  Generating function mappings..."
-        if [ "$DRY_RUN" = false ]; then
-            mkdir -p "$PROJECT_DIR/wrapper/include"
-            mkdir -p "$PROJECT_DIR/wrapper/user_include"
-            python3 "$SCRIPT_DIR/generate_function_mappings.py"
-        else
-            echo "  [DRY-RUN] Would generate npp2mpp_functions.h"
-        fi
-    else
-        echo "  Function mappings already exist"
-    fi
+echo "Pre-checks"
+if [ ! -d "$PROJECT_DIR/src/mppi" ]; then
+    echo "  Error: Source not converted to MPP. Run convert_npp2mpp.py --apply first."
+    exit 1
+fi
 
-    if [ ! -f "$PROJECT_DIR/wrapper/nppdefs_wrapper.h" ]; then
-        echo "  Generating wrapper files..."
-        if [ "$DRY_RUN" = false ]; then
-            python3 "$SCRIPT_DIR/generate_npp_wrapper.py"
-        else
-            echo "  [DRY-RUN] Would generate wrapper files"
-        fi
-    else
-        echo "  Wrapper files already exist"
-    fi
-elif [ -d "$PROJECT_DIR/src/mppi" ]; then
-    # Source already converted, wrapper should exist
-    if [ ! -f "$PROJECT_DIR/wrapper/npp2mpp_functions.h" ]; then
-        echo "  Warning: Source already converted but wrapper not found!"
-        echo "  Cannot generate wrapper from converted source."
-        echo "  Please restore NPP source first or ensure wrapper exists."
-        exit 1
-    else
-        echo "  Wrapper files already exist"
-    fi
-else
-    echo "  Error: Cannot determine source naming (no src/nppi or src/mppi found)"
+if grep -rq "#include.*cuda_runtime.h" "$PROJECT_DIR/src/" 2>/dev/null; then
+    echo "  Error: CUDA runtime includes still present. Run convert_cuda2maca.py --apply (or convert_npp2mpp.py --apply) first."
+    exit 1
+fi
+
+if [ ! -d "$PROJECT_DIR/wrapper/mpp" ] || \
+   [ ! -d "$PROJECT_DIR/wrapper/user_include" ]; then
+    echo "  Error: Wrapper files missing. Run generate_function_mappings.py and generate_npp_wrapper.py first."
+    exit 1
+fi
+
+INSTALL_DIR="$PROJECT_DIR/build/install"
+if [ ! -d "$INSTALL_DIR" ]; then
+    echo "  Error: Install directory not found: $INSTALL_DIR"
+    echo "  Run ./build.sh first."
+    exit 1
+fi
+
+INCLUDE_SRC="$INSTALL_DIR/include/mcmpp"
+if [ ! -d "$INCLUDE_SRC" ]; then
+    echo "  Error: Include directory not found: $INCLUDE_SRC"
+    exit 1
+fi
+
+if [ ! -f "$INSTALL_DIR/lib/libmpp.so" ] && \
+   [ ! -f "$INSTALL_DIR/lib/libmpp_static.a" ] && \
+   [ ! -f "$INSTALL_DIR/lib/libmppc.a" ] && \
+   [ ! -f "$INSTALL_DIR/lib/libmppc.so" ]; then
+    echo "  Error: MPP libraries not found in $INSTALL_DIR/lib."
+    echo "  Run ./build.sh first."
     exit 1
 fi
 echo ""
 
 # ============================================
-# Step 2: Convert NPP to MPP (if needed)
+# Step 1: Deploy to MACA SDK
 # ============================================
-echo "Step 2: Check NPP to MPP conversion status"
-if [ -d "$PROJECT_DIR/src/nppi" ]; then
-    echo "  Source is in NPP naming, converting to MPP..."
-    if [ "$DRY_RUN" = false ]; then
-        cd "$PROJECT_DIR"
-        python3 "$SCRIPT_DIR/convert_npp2mpp.py" --backup
-        python3 "$SCRIPT_DIR/convert_npp2mpp.py" --apply
-    else
-        echo "  [DRY-RUN] Would convert NPP to MPP"
-    fi
-elif [ -d "$PROJECT_DIR/src/mppi" ]; then
-    echo "  Source already in MPP naming, skip conversion"
-else
-    echo "  Error: Cannot determine source naming (no src/nppi or src/mppi found)"
-    exit 1
-fi
-echo ""
+echo "Step 1: Deploy MPP to MACA SDK"
 
-# ============================================
-# Step 3: Build MPP library (if not already built)
-# ============================================
-echo "Step 3: Check MPP library build status"
-NEED_BUILD=false
-
-# Library structure: libmpp contains all implementations, others are stubs
-# Libraries: libmppc, libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps
-MAIN_LIB="libmpp"
-
-# Check if main library exists
-if [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.a" ] || [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.so" ]; then
-    # Determine which library file to check (prefer .a over .so for symbol checking)
-    if [ -f "$PROJECT_DIR/build/src/${MAIN_LIB}.a" ]; then
-        LIB_FILE="$PROJECT_DIR/build/src/${MAIN_LIB}.a"
-    else
-        LIB_FILE="$PROJECT_DIR/build/src/${MAIN_LIB}.so"
-    fi
-
-	# Check if library exports mpp symbols (not npp)
-    if nm "$LIB_FILE" 2>/dev/null | grep -q " T mppGetLibVersion"; then
-        echo "  MPP library already built with mpp*** symbols, skip build"
-    elif nm "$LIB_FILE" 2>/dev/null | grep -q " T nppGetLibVersion"; then
-        echo "  Library exists but has npp*** symbols, need rebuild"
-        NEED_BUILD=true
-    else
-        echo "  Library exists but cannot verify symbols, need rebuild"
-        NEED_BUILD=true
-    fi
-else
-    echo "  Library not found, need build"
-    NEED_BUILD=true
-fi
-
-if [ "$NEED_BUILD" = true ]; then
-    if [ "$DRY_RUN" = false ]; then
-        echo "  Building MPP library..."
-        cd "$PROJECT_DIR"
-        ./build_maca_no_cubridge.sh
-    else
-        echo "  [DRY-RUN] Would build MPP library"
-    fi
-else
-    echo "  Using existing MPP library"
-fi
-echo ""
-
-# ============================================
-# Step 4: Deploy to MACA SDK (mcmpp directory)
-# ============================================
-echo "Step 4: Deploy MPP to MACA SDK"
-
-# Create directories
 if [ "$DRY_RUN" = false ]; then
-    mkdir -p "$MACA_SDK/include/mcmpp"
-else
-    echo "  [DRY-RUN] Would create: $MACA_SDK/include/mcmpp"
-fi
-
-# Copy MPP headers (from wrapper/include)
-echo "  Copying MPP implementation headers..."
-if [ "$DRY_RUN" = false ]; then
-    if [ -d "$PROJECT_DIR/wrapper/include" ]; then
-        cp "$PROJECT_DIR/wrapper/include/"*.h "$MACA_SDK/include/mcmpp/"
-        echo "    Copied to $MACA_SDK/include/mcmpp/:"
-        ls "$PROJECT_DIR/wrapper/include/"*.h | xargs -n1 basename | sed 's/^/      /'
-    else
-        echo "    Error: $PROJECT_DIR/wrapper/include not found"
+    if [ ! -d "$MACA_SDK/include" ]; then
+        echo "  Error: MACA SDK include directory not found: $MACA_SDK/include"
         exit 1
     fi
-else
-    echo "  [DRY-RUN] Would copy headers to $MACA_SDK/include/mcmpp/"
-fi
+    cp -r "$INCLUDE_SRC" "$MACA_SDK/include/"
+    echo "  Copied headers to $MACA_SDK/include/$(basename "$INCLUDE_SRC"):"
+    ls "$INCLUDE_SRC" | sed 's/^/    /'
 
-# Copy libraries (main + stubs)
-# Main library: libmpp (contains all implementations)
-# Stub libraries: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps
-MPP_LIBS="mppc mppial mppicc mppidei mppif mppig mppim mppist mppisu mppitc mpps"
-
-echo "  Copying MPP libraries..."
-if [ "$DRY_RUN" = false ]; then
-    for lib in $MPP_LIBS; do
-        if [ -f "$PROJECT_DIR/build/src/lib${lib}.so" ]; then
-            cp "$PROJECT_DIR/build/src/lib${lib}.so"* "$MACA_SDK/lib/"
-            echo "    Copied: lib${lib}.so"
-        fi
-        if [ -f "$PROJECT_DIR/build/src/lib${lib}.a" ]; then
-            cp "$PROJECT_DIR/build/src/lib${lib}.a" "$MACA_SDK/lib/"
-            echo "    Copied: lib${lib}.a"
-        fi
-    done
+    if [ ! -d "$MACA_SDK/lib" ]; then
+        echo "  Error: MACA SDK lib directory not found: $MACA_SDK/lib"
+        exit 1
+    fi
+    cp "$INSTALL_DIR/lib/"libmpp*.so* "$MACA_SDK/lib/" 2>/dev/null || true
+    cp "$INSTALL_DIR/lib/"libmpp*.a "$MACA_SDK/lib/" 2>/dev/null || true
+    echo "  Copied libraries to $MACA_SDK/lib/:"
+    ls "$INSTALL_DIR/lib"/libmpp*.so* "$INSTALL_DIR/lib"/libmpp*.a 2>/dev/null | xargs -n1 basename | sed 's/^/    /'
 else
-    echo "  [DRY-RUN] Would copy libraries to $MACA_SDK/lib/:"
-    echo "    Main: libmpp.{so,a}"
-    echo "    Stubs: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps"
+    echo "  [DRY-RUN] Would copy headers from $INCLUDE_SRC to $MACA_SDK/include/"
+    echo "  [DRY-RUN] Would copy libs from $INSTALL_DIR/lib to $MACA_SDK/lib/"
 fi
 echo ""
 
 # ============================================
-# Step 5: Deploy to cu-bridge (NPP compatibility headers)
+# Step 2: Deploy to cu-bridge (NPP compatibility headers)
 # ============================================
-echo "Step 5: Deploy NPP->MPP bridge to cu-bridge"
+echo "Step 2: Deploy NPP->MPP bridge to cu-bridge"
 
-# Create bridge/mpp directory
-if [ "$DRY_RUN" = false ]; then
-    mkdir -p "$CU_BRIDGE/include/bridge/mpp"
-else
-    echo "  [DRY-RUN] Would create: $CU_BRIDGE/include/bridge/mpp"
-fi
-
-# Copy bridge wrapper files (from wrapper/)
+# Copy bridge wrapper files (from wrapper/mpp)
 echo "  Copying bridge wrapper files..."
 if [ "$DRY_RUN" = false ]; then
-    if ls "$PROJECT_DIR/wrapper/"*_wrapper.h 1>/dev/null 2>&1; then
-        cp "$PROJECT_DIR/wrapper/"*_wrapper.h "$CU_BRIDGE/include/bridge/mpp/"
-        cp "$PROJECT_DIR/wrapper/npp2mpp_functions.h" "$CU_BRIDGE/include/bridge/mpp/"
+    if [ ! -d "$CU_BRIDGE/include/bridge" ]; then
+        echo "    Error: $CU_BRIDGE/include/bridge not found"
+        exit 1
+    fi
+    if [ -d "$PROJECT_DIR/wrapper/mpp" ]; then
+        cp -r "$PROJECT_DIR/wrapper/mpp" "$CU_BRIDGE/include/bridge/"
         echo "    Copied to $CU_BRIDGE/include/bridge/mpp/:"
-        ls "$PROJECT_DIR/wrapper/"*_wrapper.h "$PROJECT_DIR/wrapper/npp2mpp_functions.h" | xargs -n1 basename | sed 's/^/      /'
+        ls "$PROJECT_DIR/wrapper/mpp" | sed 's/^/      /'
     else
-        echo "    Error: Wrapper files not found in $PROJECT_DIR/wrapper/"
+        echo "    Error: $PROJECT_DIR/wrapper/mpp not found"
         exit 1
     fi
 else
@@ -321,6 +222,10 @@ fi
 # Copy top-level NPP headers (from wrapper/user_include)
 echo "  Copying top-level NPP headers..."
 if [ "$DRY_RUN" = false ]; then
+    if [ ! -d "$CU_BRIDGE/include" ]; then
+        echo "    Error: $CU_BRIDGE/include not found"
+        exit 1
+    fi
     if [ -d "$PROJECT_DIR/wrapper/user_include" ]; then
         cp "$PROJECT_DIR/wrapper/user_include/"*.h "$CU_BRIDGE/include/"
         echo "    Copied to $CU_BRIDGE/include/:"
@@ -339,27 +244,12 @@ echo ""
 # Summary
 # ============================================
 echo "========================================"
-echo "  Deployment Complete"
+echo "Deployment Complete"
 echo "========================================"
-echo ""
-echo "MACA SDK:"
-echo "  Headers: $MACA_SDK/include/mcmpp/"
-echo "  Libraries: $MACA_SDK/lib/"
-echo "    Main:  libmpp.{so,a} (contains all implementations)"
-echo "    Stubs: libmppial, libmppicc, libmppidei, libmppif, libmppig, libmppim, libmppist, libmppisu, libmppitc, libmpps"
-echo ""
-echo "cu-bridge:"
-echo "  Top-level: $CU_BRIDGE/include/npp*.h"
-echo "  Bridge:    $CU_BRIDGE/include/bridge/mpp/*_wrapper.h"
-echo ""
-echo "User code example:"
-echo "  #include <npp.h>"
-echo "  nppiMalloc_8u_C1(width, height, &step);"
-echo "  nppiSet_8u_C1R(value, dst, step, roi);"
-echo ""
-echo "Compile command (link to appropriate stub library):"
-echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmppial user_code.cu"
-echo ""
-echo "Or link to main library directly:"
-echo "  cucc -I\$CU_BRIDGE/include -I\$MACA_SDK/include -L\$MACA_SDK/lib -lmppc user_code.cu"
-echo ""
+echo "MACA SDK include: $MACA_SDK/include/$(basename "$INCLUDE_SRC")"
+echo "MACA SDK libs:"
+ls "$MACA_SDK/lib"/libmpp*.so* "$MACA_SDK/lib"/libmpp*.a 2>/dev/null | xargs -n1 basename | sed 's/^/  /'
+echo "cu-bridge headers:"
+ls "$CU_BRIDGE/include"/npp*.h 2>/dev/null | xargs -n1 basename | sed 's/^/  /'
+echo "cu-bridge bridge headers:"
+ls "$CU_BRIDGE/include/bridge/mpp"/* 2>/dev/null | xargs -n1 basename | sed 's/^/  /'
