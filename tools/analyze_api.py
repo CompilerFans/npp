@@ -82,7 +82,7 @@ class APIAnalyzer:
                 continue
 
             # Case 1: Return type alone on one line
-            ret_type_match = re.match(r'^(NppStatus|void|int|size_t|Npp\w+)\s*(\*)?\s*$', line)
+            ret_type_match = re.match(r'^(void|int|size_t|Npp\w+)\s*(\*)?\s*$', line)
             if ret_type_match:
                 return_type = ret_type_match.group(1)
                 if ret_type_match.group(2):  # Has pointer
@@ -111,7 +111,7 @@ class APIAnalyzer:
                 continue
 
             # Case 2: Return type and function name on same line
-            same_line_match = re.match(r'^(NppStatus|void|int|size_t|Npp\w+)\s*(\*)?\s+(nppi\w+|npps\w+)\s*\(', line)
+            same_line_match = re.match(r'^(void|int|size_t|Npp\w+)\s*(\*)?\s+(nppi\w+|npps\w+)\s*\(', line)
             if same_line_match:
                 return_type = same_line_match.group(1)
                 if same_line_match.group(2):  # Has pointer

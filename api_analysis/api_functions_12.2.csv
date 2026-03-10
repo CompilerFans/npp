@@ -10283,6 +10283,36 @@ nppiWMSSSIM_8u_C1R_Ctx,nppi_statistics_functions.h,NppStatus,"const Npp8u * pSrc
 nppiWMSSSIM_8u_C3R,nppi_statistics_functions.h,NppStatus,"const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pMSSSIM, Npp8u * pDeviceBuffer","NppStatus nppiWMSSSIM_8u_C3R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pMSSSIM, Npp8u * pDeviceBuffer)"
 nppiWMSSSIM_8u_C3R_Ctx,nppi_statistics_functions.h,NppStatus,"const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pMSSSIM, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx","NppStatus nppiWMSSSIM_8u_C3R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pMSSSIM, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx)"
 nppiFree,nppi_support_functions.h,void,void * pData,void nppiFree(void * pData)
+nppiMalloc_16s_C1,nppi_support_functions.h,Npp16s *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16s * nppiMalloc_16s_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16s_C2,nppi_support_functions.h,Npp16s *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16s * nppiMalloc_16s_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16s_C4,nppi_support_functions.h,Npp16s *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16s * nppiMalloc_16s_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16sc_C1,nppi_support_functions.h,Npp16sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16sc * nppiMalloc_16sc_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16sc_C2,nppi_support_functions.h,Npp16sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16sc * nppiMalloc_16sc_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16sc_C3,nppi_support_functions.h,Npp16sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16sc * nppiMalloc_16sc_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16sc_C4,nppi_support_functions.h,Npp16sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16sc * nppiMalloc_16sc_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16u_C1,nppi_support_functions.h,Npp16u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16u * nppiMalloc_16u_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16u_C2,nppi_support_functions.h,Npp16u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16u * nppiMalloc_16u_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16u_C3,nppi_support_functions.h,Npp16u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16u * nppiMalloc_16u_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_16u_C4,nppi_support_functions.h,Npp16u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp16u * nppiMalloc_16u_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32f_C1,nppi_support_functions.h,Npp32f *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32f * nppiMalloc_32f_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32f_C2,nppi_support_functions.h,Npp32f *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32f * nppiMalloc_32f_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32f_C3,nppi_support_functions.h,Npp32f *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32f * nppiMalloc_32f_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32f_C4,nppi_support_functions.h,Npp32f *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32f * nppiMalloc_32f_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32fc_C1,nppi_support_functions.h,Npp32fc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32fc * nppiMalloc_32fc_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32fc_C2,nppi_support_functions.h,Npp32fc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32fc * nppiMalloc_32fc_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32fc_C3,nppi_support_functions.h,Npp32fc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32fc * nppiMalloc_32fc_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32fc_C4,nppi_support_functions.h,Npp32fc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32fc * nppiMalloc_32fc_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32s_C1,nppi_support_functions.h,Npp32s *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32s * nppiMalloc_32s_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32s_C3,nppi_support_functions.h,Npp32s *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32s * nppiMalloc_32s_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32s_C4,nppi_support_functions.h,Npp32s *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32s * nppiMalloc_32s_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32sc_C1,nppi_support_functions.h,Npp32sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32sc * nppiMalloc_32sc_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32sc_C2,nppi_support_functions.h,Npp32sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32sc * nppiMalloc_32sc_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32sc_C3,nppi_support_functions.h,Npp32sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32sc * nppiMalloc_32sc_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_32sc_C4,nppi_support_functions.h,Npp32sc *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp32sc * nppiMalloc_32sc_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_8u_C1,nppi_support_functions.h,Npp8u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp8u * nppiMalloc_8u_C1(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_8u_C2,nppi_support_functions.h,Npp8u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp8u * nppiMalloc_8u_C2(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_8u_C3,nppi_support_functions.h,Npp8u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp8u * nppiMalloc_8u_C3(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
+nppiMalloc_8u_C4,nppi_support_functions.h,Npp8u *,"int nWidthPixels, int nHeightPixels, int * pStepBytes","Npp8u * nppiMalloc_8u_C4(int nWidthPixels, int nHeightPixels, int * pStepBytes)"
 nppiCompareC_16s_AC4R,nppi_threshold_and_compare_operations.h,NppStatus,"const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation","NppStatus nppiCompareC_16s_AC4R(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation)"
 nppiCompareC_16s_AC4R_Ctx,nppi_threshold_and_compare_operations.h,NppStatus,"const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx","NppStatus nppiCompareC_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)"
 nppiCompareC_16s_C1R,nppi_threshold_and_compare_operations.h,NppStatus,"const Npp16s * pSrc, int nSrcStep, const Npp16s nConstant, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation","NppStatus nppiCompareC_16s_C1R(const Npp16s * pSrc, int nSrcStep, const Npp16s nConstant, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation)"
@@ -12455,3 +12485,17 @@ nppsZeroCrossing_16s32f_Ctx,npps_statistics_functions.h,NppStatus,"const Npp16s 
 nppsZeroCrossing_32f,npps_statistics_functions.h,NppStatus,"const Npp32f * pSrc, int nLength, Npp32f * pValZC, NppsZCType tZCType, Npp8u * pDeviceBuffer","NppStatus nppsZeroCrossing_32f(const Npp32f * pSrc, int nLength, Npp32f * pValZC, NppsZCType tZCType, Npp8u * pDeviceBuffer)"
 nppsZeroCrossing_32f_Ctx,npps_statistics_functions.h,NppStatus,"const Npp32f * pSrc, int nLength, Npp32f * pValZC, NppsZCType tZCType, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx","NppStatus nppsZeroCrossing_32f_Ctx(const Npp32f * pSrc, int nLength, Npp32f * pValZC, NppsZCType tZCType, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx)"
 nppsFree,npps_support_functions.h,void,void * pValues,void nppsFree(void * pValues)
+nppsMalloc_16s,npps_support_functions.h,Npp16s *,int nSize,Npp16s * nppsMalloc_16s(int nSize)
+nppsMalloc_16sc,npps_support_functions.h,Npp16sc *,int nSize,Npp16sc * nppsMalloc_16sc(int nSize)
+nppsMalloc_16u,npps_support_functions.h,Npp16u *,int nSize,Npp16u * nppsMalloc_16u(int nSize)
+nppsMalloc_32f,npps_support_functions.h,Npp32f *,int nSize,Npp32f * nppsMalloc_32f(int nSize)
+nppsMalloc_32fc,npps_support_functions.h,Npp32fc *,int nSize,Npp32fc * nppsMalloc_32fc(int nSize)
+nppsMalloc_32s,npps_support_functions.h,Npp32s *,int nSize,Npp32s * nppsMalloc_32s(int nSize)
+nppsMalloc_32sc,npps_support_functions.h,Npp32sc *,int nSize,Npp32sc * nppsMalloc_32sc(int nSize)
+nppsMalloc_32u,npps_support_functions.h,Npp32u *,int nSize,Npp32u * nppsMalloc_32u(int nSize)
+nppsMalloc_64f,npps_support_functions.h,Npp64f *,int nSize,Npp64f * nppsMalloc_64f(int nSize)
+nppsMalloc_64fc,npps_support_functions.h,Npp64fc *,int nSize,Npp64fc * nppsMalloc_64fc(int nSize)
+nppsMalloc_64s,npps_support_functions.h,Npp64s *,int nSize,Npp64s * nppsMalloc_64s(int nSize)
+nppsMalloc_64sc,npps_support_functions.h,Npp64sc *,int nSize,Npp64sc * nppsMalloc_64sc(int nSize)
+nppsMalloc_8s,npps_support_functions.h,Npp8s *,int nSize,Npp8s * nppsMalloc_8s(int nSize)
+nppsMalloc_8u,npps_support_functions.h,Npp8u *,int nSize,Npp8u * nppsMalloc_8u(int nSize)
