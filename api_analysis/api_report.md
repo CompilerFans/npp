@@ -2,9 +2,9 @@
 
 ## Version Overview
 
-**11.4**: 12068 functions
-**12.2**: 12456 functions
-**12.8**: 12492 functions
+**11.4**: 12112 functions
+**12.2**: 12500 functions
+**12.8**: 12536 functions
 
 ## Version Differences
 
@@ -28,18 +28,18 @@
 - ... and 419 more
 
 **Changed:**
-- nppiDistanceTransformPBA_16s16u_C1R_Ctx
-- nppiHistogramEvenGetBufferSize_16u_C3R_Ctx
-- nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx
-- nppiHistogramRangeGetBufferSize_32f_C4R_Ctx
-- nppiHistogramRangeGetBufferSize_8u_C1R_Ctx
+- nppiDistanceTransformPBA_16u16u_C1R_Ctx
+- nppiHistogramRangeGetBufferSize_16s_C1R_Ctx
+- nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R
+- nppiDistanceTransformPBA_8u16u_C1R_Ctx
+- nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx
 - ... and 35 more
 
 ### 12.2 -> 12.8
 
-- Added: 3210
-- Removed: 3174
-- Changed: 3174
+- Added: 3224
+- Removed: 3188
+- Changed: 3188
 
 **Added:**
 - nppiAverageErrorGetBufferHostSize_16s_C1R
@@ -52,21 +52,21 @@
 - nppiAverageErrorGetBufferHostSize_16s_C4R_Ctx
 - nppiAverageErrorGetBufferHostSize_16sc_C1R
 - nppiAverageErrorGetBufferHostSize_16sc_C1R_Ctx
-- ... and 3200 more
+- ... and 3214 more
 
 **Changed:**
-- nppsDivC_16u_Sfs
-- nppiSameNormLevelGetBufferHostSize_8s32f_AC4R_Ctx
-- nppiMinIndxGetBufferHostSize_16u_AC4R
-- nppiAverageRelativeErrorGetBufferHostSize_32u_C1R
-- nppsMinMaxGetBufferSize_8u_Ctx
-- ... and 3169 more
+- nppsMul_16s
+- nppsMinIndx_64f
+- nppsSubCRev_64f
+- nppiHistogramRangeGetBufferSize_32f_C4R
+- nppiNormRelL1GetBufferHostSize_16s_C4R_Ctx
+- ... and 3183 more
 
 ## Module Statistics (12.8)
 
 ### NPPI
 
-Total: 10738
+Total: 10768
 
 - nppi_arithmetic_and_logical_operations.h: 2137
 - nppi_color_conversion.h: 1074
@@ -76,16 +76,16 @@ Total: 10738
 - nppi_linear_transforms.h: 4
 - nppi_morphological_operations.h: 292
 - nppi_statistics_functions.h: 3246
-- nppi_support_functions.h: 1
+- nppi_support_functions.h: 31
 - nppi_threshold_and_compare_operations.h: 418
 
 ### NPPS
 
-Total: 1754
+Total: 1768
 
 - npps_arithmetic_and_logical_operations.h: 740
 - npps_conversion_functions.h: 174
 - npps_filtering_functions.h: 3
 - npps_initialization.h: 70
 - npps_statistics_functions.h: 766
-- npps_support_functions.h: 1
+- npps_support_functions.h: 15

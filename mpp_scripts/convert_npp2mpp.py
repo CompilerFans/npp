@@ -23,9 +23,9 @@ Exceptions: Any mapping that doesn't follow the simple prefix replacement patter
 
 Usage:
   python3 convert_npp2mpp.py --preview     # Preview changes
-  python3 convert_npp2mpp.py --backup      # Create backup
-  python3 convert_npp2mpp.py --apply       # Apply conversion
-  python3 convert_npp2mpp.py --restore     # Restore from backup
+  python3 convert_npp2mpp.py --backup      # Create full-project backup
+  python3 convert_npp2mpp.py --apply       # Apply conversion (then run CUDA->MACA)
+  python3 convert_npp2mpp.py --restore     # Restore from full-project backup
 """
 
 import os
@@ -33,8 +33,8 @@ import re
 import sys
 import shutil
 import argparse
+import subprocess
 from pathlib import Path
-from datetime import datetime
 from typing import List, Tuple, Dict, Set
 
 SCRIPT_DIR = Path(__file__).parent.absolute()
@@ -44,12 +44,12 @@ PROJECT_DIR = SCRIPT_DIR.parent
 PROCESS_DIRS = ['src', 'test', 'cmake', 'examples']
 API_DIR = 'API'
 API_VERSION_DIRS = ['API-11.4', 'API-12.2', 'API-12.8']
-SKIP_DIRS = ['build', 'build-nvidia', '.git', 'third_party', 'wrapper', '.npp_backup', '.cuda_backup', 'maca_test', 'cuda-npp-samples'] + API_VERSION_DIRS
-ROOT_FILES = ['CMakeLists.txt', 'build.sh', 'build_maca.sh']
+SKIP_DIRS = ['build', 'build-nvidia', '.git', 'third_party', 'wrapper', '.npp_backup_full', '.cuda_backup', 'maca_test', 'cuda-npp-samples', 'cuda-npp-samples-11.6', 'cuda-npp-samples-12.8'] + API_VERSION_DIRS
+ROOT_FILES = ['CMakeLists.txt', 'build.sh']
 CODE_EXTENSIONS = {'.cpp', '.cu', '.h', '.hpp', '.cuh', '.c'}
 BUILD_EXTENSIONS = {'.cmake', '.txt', '.sh', '.md'}
 ALL_EXTENSIONS = CODE_EXTENSIONS | BUILD_EXTENSIONS
-BACKUP_DIR = '.npp_backup'
+BACKUP_DIR = PROJECT_DIR / '.npp_backup_full'
 
 
 # =============================================================================
@@ -167,7 +167,7 @@ class GenericNppReplacer:
         content = re.sub(r'/nppcore/', '/mppcore/', content)
 
         # 9. Header guards - handle all NV_NPP* patterns
-        content = re.sub(r'\bNV_NPP([A-Z_]*_H)\b', r'MV_MPP\1', content)
+        content = re.sub(r'\bNV_NPP([A-Z_]*_H)\b', r'MX_MPP\1', content)
         content = re.sub(r'\b_NPP_H_\b', '_MPP_H_', content)
         content = re.sub(r'\b_NPPDEFS_H_\b', '_MPPDEFS_H_', content)
 
@@ -503,125 +503,84 @@ class NppToMppConverter:
         dir_renames = [c for c in self.all_changes if c['type'] == 'dir_rename']
         api_renames = [c for c in self.all_changes if c['type'] == 'api_rename']
 
-        print(f"  Files with content changes: {len(content_changes)}")
-        print(f"  Files to rename: {len(file_renames)}")
-        print(f"  Directories to rename: {len(dir_renames)}")
-        print(f"  API headers to rename: {len(api_renames)}")
+        print_path_list("Files with content changes", [c['path'] for c in content_changes])
+        print_path_list("Files to rename", [f"{c['old']} -> {c['new']}" for c in file_renames])
+        print_path_list("Directories to rename", [f"{c['old']} -> {c['new']}" for c in dir_renames])
+        print_path_list("API headers to rename", [f"{c['old']} -> {c['new']}" for c in api_renames])
         print()
-        print("Generic rules applied:")
-        print("  - npp*/Npp*/NPP* -> mpp*/Mpp*/MPP*")
-        print("  - nppi*/Nppi*/NPPI* -> mppi*/Mppi*/MPPI*")
-        print("  - npps*/Npps*/NPPS* -> mpps*/Mpps*/MPPS*")
-        print(f"  - {len(EXCEPTION_MAPPINGS)} exception mappings")
-
         if self.dry_run:
             print(f"\n{'='*60}")
             print("Preview mode. Use --apply to make changes.")
             print(f"{'='*60}")
 
 
-def create_backup(project_root: Path) -> str:
-    """Create a backup."""
-    backup_dir = project_root / BACKUP_DIR
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_path = backup_dir / timestamp
-
-    print(f"Creating backup: {backup_path}")
-    backup_path.mkdir(parents=True, exist_ok=True)
-
-    for proc_dir in PROCESS_DIRS:
-        src_dir = project_root / proc_dir
-        if src_dir.exists():
-            dst_dir = backup_path / proc_dir
-            if not dst_dir.exists():
-                shutil.copytree(src_dir, dst_dir)
-                print(f"  Backed up: {proc_dir}/")
-
-    # Backup API (handle symlink)
-    api_dir = project_root / API_DIR
-    if api_dir.exists() or api_dir.is_symlink():
-        if api_dir.is_symlink():
-            link_target = os.readlink(api_dir)
-            real_api_dir = project_root / link_target
-            if real_api_dir.exists():
-                dst_dir = backup_path / link_target
-                if not dst_dir.exists():
-                    shutil.copytree(real_api_dir, dst_dir)
-                symlink_info_file = backup_path / 'API_SYMLINK'
-                with open(symlink_info_file, 'w') as f:
-                    f.write(link_target)
-                print(f"  Backed up: {link_target}/ (API)")
-        else:
-            dst_dir = backup_path / API_DIR
-            if not dst_dir.exists():
-                shutil.copytree(api_dir, dst_dir)
-                print(f"  Backed up: {API_DIR}/")
-
-    for filename in ROOT_FILES:
-        src_file = project_root / filename
-        if src_file.exists():
-            shutil.copy2(src_file, backup_path / filename)
-            print(f"  Backed up: {filename}")
-
-    return str(backup_path)
+def print_path_list(title: str, items: List[str]) -> None:
+    """Print a title and a list of paths/items."""
+    if not items:
+        print(f"  {title}: (none)")
+        return
+    print(f"  {title}:")
+    for item in items:
+        print(f"    {item}")
 
 
-def restore_backup(project_root: Path, backup_name: str = None) -> None:
-    """Restore from backup."""
-    backup_dir = project_root / BACKUP_DIR
-    if not backup_dir.exists():
-        print("No backups found.")
+def create_backup(project_root: Path) -> bool:
+    """Create a full-project backup."""
+    if BACKUP_DIR.exists():
+        print(f"Backup already exists: {BACKUP_DIR}")
+        print("Reusing existing backup (skipping new backup).")
+        return True
+
+    print(f"Creating full backup: {BACKUP_DIR}")
+    shutil.copytree(
+        project_root,
+        BACKUP_DIR,
+        ignore=shutil.ignore_patterns(BACKUP_DIR.name),
+    )
+    print("Backup complete.")
+    top_items = sorted([p.name for p in BACKUP_DIR.iterdir()])
+    print_path_list("Backup contents", top_items)
+    return True
+
+
+def restore_backup(project_root: Path) -> bool:
+    """Restore from full-project backup."""
+    if not BACKUP_DIR.exists():
+        print(f"Backup not found: {BACKUP_DIR}")
+        return False
+
+    print(f"Restoring from full backup: {BACKUP_DIR}")
+    restored = []
+    for root, _, filenames in os.walk(BACKUP_DIR):
+        rel_path = Path(root).relative_to(BACKUP_DIR)
+        target_dir = project_root / rel_path
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for filename in filenames:
+            src = Path(root) / filename
+            dst = target_dir / filename
+            shutil.copy2(src, dst)
+            restored.append(str(rel_path / filename))
+    print("Restore complete. Note: extra files may remain in the project.")
+    print_path_list("Restored files", restored)
+    return True
+
+
+def run_cuda2maca(project_root: Path) -> None:
+    """Run CUDA->MACA conversion after NPP->MPP conversion."""
+    script = SCRIPT_DIR / 'convert_cuda2maca.py'
+    if not script.exists():
+        print(f"Warning: {script} not found, skipping CUDA->MACA conversion.")
         return
 
-    backups = sorted([d for d in backup_dir.iterdir() if d.is_dir()], reverse=True)
-    if not backups:
-        print("No backups found.")
-        return
-
-    if backup_name:
-        backup_path = backup_dir / backup_name
-        if not backup_path.exists():
-            print(f"Backup '{backup_name}' not found.")
-            return
-    else:
-        backup_path = backups[0]
-        print(f"Restoring from: {backup_path.name}")
-
-    symlink_info_file = backup_path / 'API_SYMLINK'
-    api_symlink_target = None
-    if symlink_info_file.exists():
-        with open(symlink_info_file, 'r') as f:
-            api_symlink_target = f.read().strip()
-
-    for item in backup_path.iterdir():
-        if item.name == 'API_SYMLINK':
-            continue
-        dst = project_root / item.name
-        if item.is_dir():
-            if dst.exists():
-                shutil.rmtree(dst)
-            shutil.copytree(item, dst)
-            print(f"  Restored: {item.name}/")
-        else:
-            shutil.copy2(item, dst)
-            print(f"  Restored: {item.name}")
-
-
-def list_backups(project_root: Path) -> None:
-    """List available backups."""
-    backup_dir = project_root / BACKUP_DIR
-    if not backup_dir.exists():
-        print("No backups found.")
-        return
-
-    backups = sorted([d for d in backup_dir.iterdir() if d.is_dir()], reverse=True)
-    if not backups:
-        print("No backups found.")
-        return
-
-    print("Available backups:")
-    for b in backups:
-        print(f"  {b.name}")
+    print("\nRunning CUDA->MACA conversion...")
+    result = subprocess.run(
+        [sys.executable, str(script), '--apply'],
+        cwd=str(project_root),
+        check=False,
+    )
+    if result.returncode != 0:
+        print("CUDA->MACA conversion failed.")
+        sys.exit(result.returncode)
 
 
 def main():
@@ -635,18 +594,18 @@ All npp*/Npp*/NPP* patterns are converted to mpp*/Mpp*/MPP*.
 Examples:
   %(prog)s --preview           Preview all changes
   %(prog)s --preview --verbose Detailed preview
-  %(prog)s --backup            Create backup
-  %(prog)s --apply             Apply changes
-  %(prog)s --restore           Restore from backup
+  %(prog)s --backup            Create full-project backup
+  %(prog)s --apply             Apply changes (then run CUDA->MACA)
+  %(prog)s --restore           Restore from full-project backup
         """
     )
 
     parser.add_argument('--preview', action='store_true', help='Preview changes')
     parser.add_argument('--apply', action='store_true', help='Apply changes')
-    parser.add_argument('--backup', action='store_true', help='Create backup')
-    parser.add_argument('--restore', nargs='?', const='__latest__', metavar='NAME',
-                        help='Restore from backup')
-    parser.add_argument('--list-backups', action='store_true', help='List backups')
+    parser.add_argument('--backup', action='store_true', help='Create full-project backup')
+    parser.add_argument('--restore', action='store_true', help='Restore from full-project backup')
+    parser.add_argument('--skip-cuda2maca', action='store_true',
+                        help='Skip CUDA->MACA conversion after apply')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
     parser.add_argument('--project-root', type=str, default=str(PROJECT_DIR),
                         help='Project root directory')
@@ -658,23 +617,22 @@ Examples:
         print(f"Error: '{project_root}' is not the project root.")
         sys.exit(1)
 
-    if args.list_backups:
-        list_backups(project_root)
-        return
-
     if args.restore:
-        backup_name = None if args.restore == '__latest__' else args.restore
-        restore_backup(project_root, backup_name)
+        restore_backup(project_root)
         return
 
     if args.backup:
-        create_backup(project_root)
+        if not create_backup(project_root):
+            sys.exit(1)
         if not args.apply:
             return
 
     dry_run = not args.apply
     converter = NppToMppConverter(project_root, dry_run=dry_run, verbose=args.verbose)
     converter.run()
+
+    if args.apply and not args.skip_cuda2maca:
+        run_cuda2maca(project_root)
 
 
 if __name__ == '__main__':

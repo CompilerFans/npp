@@ -11,10 +11,13 @@ import glob
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 API_DIR = os.path.join(PROJECT_DIR, 'API')
-OUTPUT_FILE = os.path.join(PROJECT_DIR, 'wrapper', 'npp2mpp_functions.h')
+OUTPUT_FILE = os.path.join(PROJECT_DIR, 'wrapper', 'mpp', 'npp2mpp_functions.h')
 
 def extract_function_names(content):
     """Extract function names starting with npp/nppi/npps."""
+    # Strip comments to avoid picking up enum values mentioned in docs.
+    content = re.sub(r'/\*.*?\*/', '', content, flags=re.S)
+    content = re.sub(r'//.*', '', content)
     pattern = r'\b(npp[ips]?[A-Za-z0-9_]+)\s*\('
     matches = re.findall(pattern, content)
     return sorted(set(matches))
@@ -66,6 +69,7 @@ def main():
     print(f"Found {len(filtered_functions)} functions to map")
 
     # Write header file
+    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
     with open(OUTPUT_FILE, 'w') as f:
         f.write('''/*
  * Auto-generated NPP to MPP function mappings

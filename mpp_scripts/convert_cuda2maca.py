@@ -20,14 +20,11 @@ Exceptions (explicit mappings required):
 
 Usage:
   python3 convert_cuda2maca.py --check     # Preview changes
-  python3 convert_cuda2maca.py --backup    # Create backup
   python3 convert_cuda2maca.py --apply     # Apply conversion
-  python3 convert_cuda2maca.py --restore   # Restore from backup
 """
 
 import os
 import re
-import shutil
 import argparse
 from pathlib import Path
 from typing import List, Tuple, Dict, Callable
@@ -39,9 +36,8 @@ PROJECT_DIR = SCRIPT_DIR.parent
 PROCESS_DIRS = ['src', 'test', 'examples']
 API_DIR = 'API'
 API_VERSION_DIRS = ['API-11.4', 'API-12.2', 'API-12.8']
-SKIP_DIRS = ['.git', 'build', 'build-nvidia', '.npp_backup', '.cuda_backup', 'wrapper', 'maca_test', 'cuda-npp-samples'] + API_VERSION_DIRS
+SKIP_DIRS = ['.git', 'build', 'build-nvidia', '.npp_backup', '.cuda_backup', 'wrapper', 'maca_test', 'cuda-npp-samples', 'cuda-npp-samples-11.6', 'cuda-npp-samples-12.8'] + API_VERSION_DIRS
 FILE_EXTENSIONS = ['.cu', '.cpp', '.c', '.h', '.hpp', '.cuh']
-BACKUP_DIR = PROJECT_DIR / '.cuda_backup'
 
 
 # =============================================================================
@@ -223,51 +219,6 @@ def get_all_files(base_dir: Path, include_api: bool = True) -> List[Path]:
     return files
 
 
-def create_backup():
-    """Create backup of files before conversion."""
-    print(f"Creating backup in {BACKUP_DIR}")
-
-    if BACKUP_DIR.exists():
-        print(f"  Backup already exists. Remove {BACKUP_DIR} first.")
-        return False
-
-    BACKUP_DIR.mkdir(parents=True)
-    files = get_all_files(PROJECT_DIR)
-    backed_up = 0
-
-    for file_path in files:
-        rel_path = file_path.relative_to(PROJECT_DIR)
-        backup_path = BACKUP_DIR / rel_path
-        backup_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(file_path, backup_path)
-        backed_up += 1
-
-    print(f"  Backed up {backed_up} files")
-    return True
-
-
-def restore_backup():
-    """Restore files from backup."""
-    if not BACKUP_DIR.exists():
-        print(f"Error: Backup not found: {BACKUP_DIR}")
-        return False
-
-    print(f"Restoring from {BACKUP_DIR}")
-    restored = 0
-
-    for root, dirs, filenames in os.walk(BACKUP_DIR):
-        for filename in filenames:
-            backup_path = Path(root) / filename
-            rel_path = backup_path.relative_to(BACKUP_DIR)
-            target_path = PROJECT_DIR / rel_path
-            target_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(backup_path, target_path)
-            restored += 1
-
-    print(f"  Restored {restored} files")
-    return True
-
-
 def check_changes():
     """Preview changes without applying."""
     print("Checking for CUDA -> MACA conversions (Generic Rules)...")
@@ -361,29 +312,21 @@ Only exceptions to the general cuda* -> mc* pattern are explicitly listed.
 
 Examples:
   python3 convert_cuda2maca.py --check     # Preview changes
-  python3 convert_cuda2maca.py --backup    # Create backup
   python3 convert_cuda2maca.py --apply     # Apply conversion
-  python3 convert_cuda2maca.py --restore   # Restore from backup
         """
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--check', action='store_true', help='Preview changes')
-    group.add_argument('--backup', action='store_true', help='Create backup')
     group.add_argument('--apply', action='store_true', help='Apply conversion')
-    group.add_argument('--restore', action='store_true', help='Restore from backup')
 
     args = parser.parse_args()
     os.chdir(PROJECT_DIR)
 
     if args.check:
         check_changes()
-    elif args.backup:
-        create_backup()
     elif args.apply:
         apply_changes()
-    elif args.restore:
-        restore_backup()
 
 
 if __name__ == '__main__':

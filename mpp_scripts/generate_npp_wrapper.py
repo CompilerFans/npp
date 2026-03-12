@@ -14,7 +14,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent.absolute()
 PROJECT_DIR = SCRIPT_DIR.parent
-WRAPPER_DIR = PROJECT_DIR / 'wrapper'
+WRAPPER_DIR = PROJECT_DIR / 'wrapper' / 'mpp'
 
 # =============================================================================
 # Type mappings based on API/nppdefs.h
@@ -115,6 +115,7 @@ STATUS_ERRORS = [
     ('MPP_INVALID_HOST_POINTER_ERROR', 'NPP_INVALID_HOST_POINTER_ERROR'),
     ('MPP_INVALID_DEVICE_POINTER_ERROR', 'NPP_INVALID_DEVICE_POINTER_ERROR'),
     ('MPP_LUT_PALETTE_BITSIZE_ERROR', 'NPP_LUT_PALETTE_BITSIZE_ERROR'),
+    ('MPP_ZC_MODE_NOT_SUPPORTED_ERROR', 'NPP_ZC_MODE_NOT_SUPPORTED_ERROR'),
     ('MPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY', 'NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY'),
     ('MPP_TEXTURE_BIND_ERROR', 'NPP_TEXTURE_BIND_ERROR'),
     ('MPP_WRONG_INTERSECTION_ROI_ERROR', 'NPP_WRONG_INTERSECTION_ROI_ERROR'),
@@ -124,6 +125,26 @@ STATUS_ERRORS = [
     ('MPP_MEMCPY_ERROR', 'NPP_MEMCPY_ERROR'),
     ('MPP_ALIGNMENT_ERROR', 'NPP_ALIGNMENT_ERROR'),
     ('MPP_CUDA_KERNEL_EXECUTION_ERROR', 'NPP_CUDA_KERNEL_EXECUTION_ERROR'),
+    ('MPP_ROUND_MODE_NOT_SUPPORTED_ERROR', 'NPP_ROUND_MODE_NOT_SUPPORTED_ERROR'),
+    ('MPP_QUALITY_INDEX_ERROR', 'NPP_QUALITY_INDEX_ERROR'),
+    ('MPP_RESIZE_NO_OPERATION_ERROR', 'NPP_RESIZE_NO_OPERATION_ERROR'),
+    ('MPP_OVERFLOW_ERROR', 'NPP_OVERFLOW_ERROR'),
+    ('MPP_NOT_EVEN_STEP_ERROR', 'NPP_NOT_EVEN_STEP_ERROR'),
+    ('MPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR', 'NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR'),
+    ('MPP_LUT_NUMBER_OF_LEVELS_ERROR', 'NPP_LUT_NUMBER_OF_LEVELS_ERROR'),
+    ('MPP_CORRUPTED_DATA_ERROR', 'NPP_CORRUPTED_DATA_ERROR'),
+    ('MPP_CHANNEL_ORDER_ERROR', 'NPP_CHANNEL_ORDER_ERROR'),
+    ('MPP_ZERO_MASK_VALUE_ERROR', 'NPP_ZERO_MASK_VALUE_ERROR'),
+    ('MPP_QUADRANGLE_ERROR', 'NPP_QUADRANGLE_ERROR'),
+    ('MPP_RECTANGLE_ERROR', 'NPP_RECTANGLE_ERROR'),
+    ('MPP_COEFFICIENT_ERROR', 'NPP_COEFFICIENT_ERROR'),
+    ('MPP_NUMBER_OF_CHANNELS_ERROR', 'NPP_NUMBER_OF_CHANNELS_ERROR'),
+    ('MPP_COI_ERROR', 'NPP_COI_ERROR'),
+    ('MPP_DIVISOR_ERROR', 'NPP_DIVISOR_ERROR'),
+    ('MPP_CHANNEL_ERROR', 'NPP_CHANNEL_ERROR'),
+    ('MPP_STRIDE_ERROR', 'NPP_STRIDE_ERROR'),
+    ('MPP_ANCHOR_ERROR', 'NPP_ANCHOR_ERROR'),
+    ('MPP_MASK_SIZE_ERROR', 'NPP_MASK_SIZE_ERROR'),
     ('MPP_RESIZE_FACTOR_ERROR', 'NPP_RESIZE_FACTOR_ERROR'),
     ('MPP_INTERPOLATION_ERROR', 'NPP_INTERPOLATION_ERROR'),
     ('MPP_MIRROR_FLIP_ERROR', 'NPP_MIRROR_FLIP_ERROR'),
@@ -133,6 +154,7 @@ STATUS_ERRORS = [
     ('MPP_CONTEXT_MATCH_ERROR', 'NPP_CONTEXT_MATCH_ERROR'),
     ('MPP_FFT_FLAG_ERROR', 'NPP_FFT_FLAG_ERROR'),
     ('MPP_FFT_ORDER_ERROR', 'NPP_FFT_ORDER_ERROR'),
+    ('MPP_STEP_ERROR', 'NPP_STEP_ERROR'),
     ('MPP_SCALE_RANGE_ERROR', 'NPP_SCALE_RANGE_ERROR'),
     ('MPP_DATA_TYPE_ERROR', 'NPP_DATA_TYPE_ERROR'),
     ('MPP_OUT_OFF_RANGE_ERROR', 'NPP_OUT_OFF_RANGE_ERROR'),
@@ -153,11 +175,30 @@ STATUS_ERRORS = [
 # NppStatus warning codes (positive values)
 STATUS_WARNINGS = [
     ('MPP_NO_OPERATION_WARNING', 'NPP_NO_OPERATION_WARNING'),
+    ('MPP_DIVIDE_BY_ZERO_WARNING', 'NPP_DIVIDE_BY_ZERO_WARNING'),
     ('MPP_AFFINE_QUAD_INCORRECT_WARNING', 'NPP_AFFINE_QUAD_INCORRECT_WARNING'),
     ('MPP_WRONG_INTERSECTION_ROI_WARNING', 'NPP_WRONG_INTERSECTION_ROI_WARNING'),
     ('MPP_WRONG_INTERSECTION_QUAD_WARNING', 'NPP_WRONG_INTERSECTION_QUAD_WARNING'),
     ('MPP_DOUBLE_SIZE_WARNING', 'NPP_DOUBLE_SIZE_WARNING'),
     ('MPP_MISALIGNED_DST_ROI_WARNING', 'NPP_MISALIGNED_DST_ROI_WARNING'),
+]
+
+# Legacy/compat NppStatus aliases not present in API/nppdefs.h
+STATUS_ALIASES = [
+    ('MPP_BAD_ARGUMENT_ERROR', 'NPP_BAD_ARG_ERROR'),
+    ('MPP_COEFFICIENT_ERROR', 'NPP_COEFF_ERROR'),
+    ('MPP_RECTANGLE_ERROR', 'NPP_RECT_ERROR'),
+    ('MPP_QUADRANGLE_ERROR', 'NPP_QUAD_ERROR'),
+    ('MPP_MEMORY_ALLOCATION_ERR', 'NPP_MEM_ALLOC_ERR'),
+    ('MPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR', 'NPP_HISTO_NUMBER_OF_LEVELS_ERROR'),
+    ('MPP_BAD_ARGUMENT_ERROR', 'NPP_INVALID_INPUT'),
+    ('MPP_NULL_POINTER_ERROR', 'NPP_POINTER_ERROR'),
+    ('MPP_NO_OPERATION_WARNING', 'NPP_WARNING'),
+    ('MPP_MISALIGNED_DST_ROI_WARNING', 'NPP_ODD_ROI_WARNING'),
+    ('MPP_MEMFREE_ERROR', 'NPP_MEMFREE_ERR'),
+    ('MPP_MEMSET_ERROR', 'NPP_MEMSET_ERR'),
+    ('MPP_MEMCPY_ERROR', 'NPP_MEMCPY_ERR'),
+    ('MPP_MIRROR_FLIP_ERROR', 'NPP_MIRROR_FLIP_ERR'),
 ]
 
 # NppiInterpolationMode values
@@ -172,6 +213,7 @@ INTERPOLATION_MODES = [
     ('MPPI_INTER_SUPER', 'NPPI_INTER_SUPER'),
     ('MPPI_INTER_LANCZOS', 'NPPI_INTER_LANCZOS'),
     ('MPPI_INTER_LANCZOS3_ADVANCED', 'NPPI_INTER_LANCZOS3_ADVANCED'),
+    ('MPPI_SMOOTH_EDGE', 'NPPI_SMOOTH_EDGE'),
 ]
 
 # NppiBayerGridPosition values
@@ -225,6 +267,7 @@ CHANNELS = [
     ('MPP_CH_3', 'NPP_CH_3'),
     ('MPP_CH_4', 'NPP_CH_4'),
     ('MPP_CH_A4', 'NPP_CH_A4'),
+    ('MPP_CH_P2', 'NPP_CH_P2'),
     ('MPP_CH_P3', 'NPP_CH_P3'),
     ('MPP_CH_P4', 'NPP_CH_P4'),
 ]
@@ -287,6 +330,26 @@ ALPHA_OPS = [
     ('MPPI_OP_ALPHA_XOR_PREMUL', 'NPPI_OP_ALPHA_XOR_PREMUL'),
     ('MPPI_OP_ALPHA_PLUS_PREMUL', 'NPPI_OP_ALPHA_PLUS_PREMUL'),
     ('MPPI_OP_ALPHA_PREMUL', 'NPPI_OP_ALPHA_PREMUL'),
+]
+
+# NppsZCType values
+ZC_TYPES = [
+    ('mppZCR', 'nppZCR'),
+    ('mppZCXor', 'nppZCXor'),
+    ('mppZCC', 'nppZCC'),
+]
+
+# NppiHuffmanTableType values
+HUFFMAN_TABLE_TYPES = [
+    ('mppiDCTable', 'nppiDCTable'),
+    ('mppiACTable', 'nppiACTable'),
+]
+
+# NppiNorm values
+NORM_TYPES = [
+    ('mppiNormInf', 'nppiNormInf'),
+    ('mppiNormL1', 'nppiNormL1'),
+    ('mppiNormL2', 'nppiNormL2'),
 ]
 
 # NppiWatershedSegmentBoundaryType values
@@ -353,6 +416,19 @@ UTILITY_MACROS = [
     ('MPP_HALF_TO_MPP16F', 'NPP_HALF_TO_NPP16F'),
 ]
 
+# StreamContext member aliases
+STRUCT_MEMBER_ALIASES = [
+    ('nMcDeviceId', 'nCudaDeviceId'),
+    ('nMcDevAttrComputeCapabilityMajor', 'nCudaDevAttrComputeCapabilityMajor'),
+    ('nMcDevAttrComputeCapabilityMinor', 'nCudaDevAttrComputeCapabilityMinor'),
+]
+
+# Header guard and version macro compatibility
+COMPAT_MACROS = [
+    ('MX_MPPIDEFS_H', 'NV_NPPIDEFS_H'),
+    ('MPP_VERSION_MAJOR', 'NPP_VERSION_MAJOR'),
+    ('MPP_VERSION_MINOR', 'NPP_VERSION_MINOR'),
+]
 # Core function mappings
 CORE_FUNCTIONS = [
     ('mppGetLibVersion', 'nppGetLibVersion'),
@@ -471,6 +547,15 @@ def generate_nppdefs_wrapper() -> str:
     lines.extend([
         '',
         '/* ============================================',
+        ' * Legacy NppStatus Aliases',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in STATUS_ALIASES:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
         ' * NppiInterpolationMode',
         ' * ============================================ */',
     ])
@@ -579,6 +664,33 @@ def generate_nppdefs_wrapper() -> str:
     lines.extend([
         '',
         '/* ============================================',
+        ' * NppsZCType',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in ZC_TYPES:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
+        ' * NppiHuffmanTableType',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in HUFFMAN_TABLE_TYPES:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
+        ' * NppiNorm',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in NORM_TYPES:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
         ' * NppiWatershedSegmentBoundaryType',
         ' * ============================================ */',
     ])
@@ -619,6 +731,24 @@ def generate_nppdefs_wrapper() -> str:
         ' * ============================================ */',
     ])
     for mpp, npp in UTILITY_MACROS:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
+        ' * Struct Member Aliases',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in STRUCT_MEMBER_ALIASES:
+        lines.append(generate_define(mpp, npp))
+
+    lines.extend([
+        '',
+        '/* ============================================',
+        ' * Compatibility Macros',
+        ' * ============================================ */',
+    ])
+    for mpp, npp in COMPAT_MACROS:
         lines.append(generate_define(mpp, npp))
 
     lines.extend([
@@ -702,10 +832,15 @@ def generate_npp_wrapper() -> str:
         '#ifndef NPP_BRIDGE_MAIN_H',
         '#define NPP_BRIDGE_MAIN_H',
         '',
+        '#include "../runtime/cuda_to_maca_mcr_adaptor.h"',
+        '#include "../runtime/cuda_runtime_wrapper.h"',
+        '',
         '#include "nppdefs_wrapper.h"',
         '#include "nppcore_wrapper.h"',
         '#include "nppi_wrapper.h"',
         '#include "npps_wrapper.h"',
+        '',
+        '#include <mcmpp/mpp.h>',
         '',
         '#endif /* NPP_BRIDGE_MAIN_H */',
         '',
@@ -714,7 +849,7 @@ def generate_npp_wrapper() -> str:
 
 
 def generate_user_header(name: str, wrapper_name: str) -> str:
-    guard = f'{name.upper()}_H_'
+    guard = f'NV_{name.upper()}_H'
     lines = [
         '/*',
         f' * {name}.h - NPP Compatibility Header for MPP Library',
@@ -733,7 +868,7 @@ def generate_user_header(name: str, wrapper_name: str) -> str:
 
 def generate_submodule_header(prefix: str, module: str) -> str:
     header_name = f'{prefix}_{module}'
-    guard = header_name.upper().replace('_', '__') + '_H_'
+    guard = f'NV_{header_name.upper()}_H'
     wrapper = prefix
     lines = [
         '/*',
@@ -758,7 +893,7 @@ def main():
 
     # Create directories
     WRAPPER_DIR.mkdir(parents=True, exist_ok=True)
-    user_include_dir = WRAPPER_DIR / 'user_include'
+    user_include_dir = PROJECT_DIR / 'wrapper' / 'user_include'
     user_include_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate wrapper files
