@@ -8,7 +8,7 @@ endif()
 
 
 if (GPU_TYPE STREQUAL "METAX_GPU")
-  set(METAX_TARGET_ARCH_FLAGS "--offload-arch=xcore1000 --offload-arch=xcore1500 --offload-arch=xcore1600")
+  set(METAX_TARGET_ARCH_FLAGS "--offload-arch=xcore1000 --offload-arch=xcore1100 --offload-arch=xcore1500 --offload-arch=xcore1520 --offload-arch=xcore1600")
   set(MXCC_OPT_FLAGS "-use-dim-intrinsic \
                       -mllvm -metaxgpu-new-streg-abi=true"
                     )
