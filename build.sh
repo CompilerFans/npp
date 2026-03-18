@@ -9,7 +9,8 @@ BUILD_TYPE="Release"
 JOBS=$(nproc)
 BUILD_TESTS="ON"
 BUILD_EXAMPLES="ON"
-BUILD_SHARED_LIBS="OFF"
+BUILD_BENCHMARK="OFF"
+BUILD_SHARED_LIBS="ON"
 WARNINGS_AS_ERRORS="ON"
 # Check environment variable first, then use default
 USE_NVIDIA_NPP="OFF"
@@ -56,9 +57,14 @@ while [[ $# -gt 0 ]]; do
             BUILD_EXAMPLES="OFF"
             shift
             ;;
+        --benchmark)
+            BUILD_BENCHMARK="ON"
+            shift
+            ;;
         --lib-only)
             BUILD_TESTS="OFF"
             BUILD_EXAMPLES="OFF"
+            BUILD_BENCHMARK="OFF"
             shift
             ;;
         --no-werror)
@@ -91,6 +97,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --arch N        Set CUDA architecture (e.g., 75, 86, 89). Auto-detected if not specified."
             echo "  --no-tests      Skip building tests"
             echo "  --no-examples   Skip building examples"
+            echo "  --benchmark     Build performance benchmark (npp_benchmark)"
             echo "  --lib-only      Build library only (no tests, no examples)"
             echo "  --shared        Build shared libraries (.so/.dll) instead of static (.a/.lib)"
             echo "  --no-werror     Disable warnings as errors"
@@ -127,13 +134,14 @@ fi
 
 # Configure CMake
 echo "Configuring CMake ($BUILD_TYPE mode)..."
-echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP"
+echo "BUILD_TESTS=$BUILD_TESTS, BUILD_EXAMPLES=$BUILD_EXAMPLES, BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS, WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS, USE_NVIDIA_NPP=$USE_NVIDIA_NPP, BUILD_BENCHMARK=$BUILD_BENCHMARK"
 cmake -S .\
     -B $BUILD_DIR\
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DCMAKE_CUDA_ARCHITECTURES="$CUDA_ARCH" \
     -DBUILD_TESTS="$BUILD_TESTS" \
     -DBUILD_EXAMPLES="$BUILD_EXAMPLES" \
+    -DBUILD_BENCHMARK="$BUILD_BENCHMARK" \
     -DBUILD_SHARED_LIBS="$BUILD_SHARED_LIBS" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
