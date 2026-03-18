@@ -47,6 +47,31 @@ __global__ void convert_8u16u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   dstRow[x] = (Npp16u)srcRow[x];
 }
 
+__device__ inline Npp8u round_and_clamp_32f_to_u8(Npp32f value, NppRoundMode eRoundMode) {
+  Npp32f rounded = value;
+  if (eRoundMode == NPP_RND_NEAR) {
+    Npp32f floor_val = floorf(value);
+    Npp32f diff = value - floor_val;
+    if (diff > 0.5f) {
+      rounded = floor_val + 1.0f;
+    } else if (diff < 0.5f) {
+      rounded = floor_val;
+    } else {
+      int int_floor = static_cast<int>(floor_val);
+      rounded = (int_floor % 2 == 0) ? floor_val : floor_val + 1.0f;
+    }
+  } else if (eRoundMode == NPP_RND_FINANCIAL) {
+    rounded = roundf(value);
+  }
+  if (rounded < 0.0f) {
+    rounded = 0.0f;
+  }
+  if (rounded > 255.0f) {
+    rounded = 255.0f;
+  }
+  return static_cast<Npp8u>(rounded);
+}
+
 __global__ void convert_32f8u_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
                                          int nDstStep, int width, int height, NppRoundMode eRoundMode) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -58,31 +83,24 @@ __global__ void convert_32f8u_C1R_kernel(const Npp32f *__restrict__ pSrc, int nS
   const Npp32f *srcRow = (const Npp32f *)(((const char *)pSrc) + y * nSrcStep);
   Npp8u *dstRow = (Npp8u *)(((char *)pDst) + y * nDstStep);
 
-  Npp32f val = srcRow[x];
-  Npp32f rounded;
-  if (eRoundMode == NPP_RND_NEAR) {
-    rounded = roundf(val);
-  } else if (eRoundMode == NPP_RND_FINANCIAL) {
-    Npp32f floor_val = floorf(val);
-    Npp32f diff = val - floor_val;
-    if (diff > 0.5f) {
-      rounded = floor_val + 1.0f;
-    } else if (diff < 0.5f) {
-      rounded = floor_val;
-    } else {
-      int int_floor = (int)floor_val;
-      rounded = (int_floor % 2 == 0) ? floor_val : floor_val + 1.0f;
-    }
-  } else {
-    rounded = val;
-  }
+  dstRow[x] = round_and_clamp_32f_to_u8(srcRow[x], eRoundMode);
+}
 
-  if (rounded < 0.0f)
-    rounded = 0.0f;
-  if (rounded > 255.0f)
-    rounded = 255.0f;
+__global__ void convert_32f8u_C3R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
+                                         int nDstStep, int width, int height, NppRoundMode eRoundMode) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  dstRow[x] = (Npp8u)rounded;
+  if (x >= width || y >= height)
+    return;
+
+  const Npp32f *srcRow = (const Npp32f *)(((const char *)pSrc) + y * nSrcStep);
+  Npp8u *dstRow = (Npp8u *)(((char *)pDst) + y * nDstStep);
+  int offset = x * 3;
+
+  dstRow[offset + 0] = round_and_clamp_32f_to_u8(srcRow[offset + 0], eRoundMode);
+  dstRow[offset + 1] = round_and_clamp_32f_to_u8(srcRow[offset + 1], eRoundMode);
+  dstRow[offset + 2] = round_and_clamp_32f_to_u8(srcRow[offset + 2], eRoundMode);
 }
 
 __global__ void convert_16u32f_C1R_kernel(const Npp16u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
@@ -174,6 +192,34 @@ NppStatus nppiConvert_32f8u_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   convert_32f8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eRoundMode);
+
+  cudaError_t cudaErr = cudaGetLastError();
+  if (cudaErr != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_NO_ERROR;
+}
+
+NppStatus nppiConvert_32f8u_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppRoundMode eRoundMode, NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pDst)
+    return NPP_NULL_POINTER_ERROR;
+  if (nDstStep <= 0)
+    return NPP_STEP_ERROR;
+  if (nSrcStep <= 0)
+    return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0)
+    return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0)
+    return NPP_NO_ERROR;
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  convert_32f8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eRoundMode);
 
   cudaError_t cudaErr = cudaGetLastError();
