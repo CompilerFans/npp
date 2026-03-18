@@ -10,6 +10,35 @@
 
 using namespace npp_functional_test;
 
+namespace {
+
+Npp8u round_and_clamp_to_byte(Npp32f value, NppRoundMode mode) {
+  Npp32f rounded = value;
+  if (mode == NPP_RND_NEAR) {
+    Npp32f floor_val = floorf(value);
+    Npp32f diff = value - floor_val;
+    if (diff > 0.5f) {
+      rounded = floor_val + 1.0f;
+    } else if (diff < 0.5f) {
+      rounded = floor_val;
+    } else {
+      int int_floor = static_cast<int>(floor_val);
+      rounded = (int_floor % 2 == 0) ? floor_val : floor_val + 1.0f;
+    }
+  } else if (mode == NPP_RND_FINANCIAL) {
+    rounded = roundf(value);
+  }
+  if (rounded < 0.0f) {
+    rounded = 0.0f;
+  }
+  if (rounded > 255.0f) {
+    rounded = 255.0f;
+  }
+  return static_cast<Npp8u>(rounded);
+}
+
+} // namespace
+
 // ============================================================================
 // Common Test Utilities and Data Generators
 // ============================================================================
@@ -38,9 +67,11 @@ public:
     COLOR_GRADIENT // RGB gradient for color images
   };
 
-  static TestData generateTestData(int width, int height, int channels, DataPattern pattern, int seed = 42) {
+  static TestData generateTestData(int width, int height, int channels, DataPattern pattern,
+                                   NppRoundMode rndMode = NPP_RND_NEAR, int seed = 42) {
     TestData data(width, height, channels);
     std::mt19937 gen(seed);
+    (void)rndMode;
 
     switch (pattern) {
     case DataPattern::SEQUENTIAL:
@@ -65,7 +96,11 @@ public:
 
     // Generate expected results based on conversion
     for (size_t i = 0; i < data.src.size(); i++) {
-      data.expected[i] = static_cast<DstType>(data.src[i]);
+      if constexpr (std::is_same_v<SrcType, Npp32f> && std::is_same_v<DstType, Npp8u>) {
+        data.expected[i] = round_and_clamp_to_byte(data.src[i], rndMode);
+      } else {
+        data.expected[i] = static_cast<DstType>(data.src[i]);
+      }
     }
 
     return data;
@@ -74,10 +109,10 @@ public:
   static void validateResults(const std::vector<DstType> &actual, const std::vector<DstType> &expected,
                               float tolerance = 1e-6f) {
     ASSERT_EQ(actual.size(), expected.size());
+    (void)tolerance;
 
     for (size_t i = 0; i < actual.size(); i++) {
       if constexpr (std::is_floating_point_v<DstType>) {
-        (void)tolerance;
         EXPECT_NEAR(actual[i], expected[i], tolerance) << "Mismatch at index " << i;
       } else {
         EXPECT_EQ(actual[i], expected[i]) << "Mismatch at index " << i;
@@ -268,11 +303,11 @@ protected:
   // Generic conversion test template
   template <typename SrcType, typename DstType, int Channels>
   void testConversion(int width, int height, typename ConvertTestHelper<SrcType, DstType>::DataPattern pattern,
-                      bool useContext = false) {
+                      bool useContext = false, NppRoundMode rndMode = NPP_RND_NEAR) {
     using Helper = ConvertTestHelper<SrcType, DstType>;
 
     // Generate test data
-    auto testData = Helper::generateTestData(width, height, Channels, pattern);
+    auto testData = Helper::generateTestData(width, height, Channels, pattern, rndMode);
 
     // Allocate GPU memory
     GPUMemoryManager<SrcType> srcGPU(width, height, Channels);
@@ -292,11 +327,11 @@ protected:
       NppStreamContext ctx;
       nppGetStreamContext(&ctx);
       status = performConversionWithContext<SrcType, DstType, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(),
-                                                                        dstGPU.step(), roi, ctx);
+                                                                        dstGPU.step(), roi, rndMode, ctx);
       cudaStreamSynchronize(ctx.hStream);
     } else {
-      status =
-          performConversion<SrcType, DstType, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi);
+      status = performConversion<SrcType, DstType, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi,
+                                                            rndMode);
     }
 
     ASSERT_EQ(status, NPP_SUCCESS) << "Conversion failed";
@@ -311,12 +346,20 @@ protected:
 private:
   // Specialized conversion function dispatch
   template <typename SrcType, typename DstType, int Channels>
-  NppStatus performConversion(const SrcType *src, int srcStep, DstType *dst, int dstStep, NppiSize roi) {
+  NppStatus performConversion(const SrcType *src, int srcStep, DstType *dst, int dstStep, NppiSize roi,
+                              NppRoundMode rndMode) {
+    (void)rndMode;
     if constexpr (std::is_same_v<SrcType, Npp8u> && std::is_same_v<DstType, Npp32f>) {
       if constexpr (Channels == 1) {
         return nppiConvert_8u32f_C1R(src, srcStep, dst, dstStep, roi);
       } else if constexpr (Channels == 3) {
         return nppiConvert_8u32f_C3R(src, srcStep, dst, dstStep, roi);
+      }
+    } else if constexpr (std::is_same_v<SrcType, Npp32f> && std::is_same_v<DstType, Npp8u>) {
+      if constexpr (Channels == 1) {
+        return nppiConvert_32f8u_C1R(src, srcStep, dst, dstStep, roi, rndMode);
+      } else if constexpr (Channels == 3) {
+        return nppiConvert_32f8u_C3R(src, srcStep, dst, dstStep, roi, rndMode);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -324,12 +367,19 @@ private:
 
   template <typename SrcType, typename DstType, int Channels>
   NppStatus performConversionWithContext(const SrcType *src, int srcStep, DstType *dst, int dstStep, NppiSize roi,
-                                         NppStreamContext ctx) {
+                                         NppRoundMode rndMode, NppStreamContext ctx) {
+    (void)rndMode;
     if constexpr (std::is_same_v<SrcType, Npp8u> && std::is_same_v<DstType, Npp32f>) {
       if constexpr (Channels == 1) {
         return nppiConvert_8u32f_C1R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
       } else if constexpr (Channels == 3) {
         return nppiConvert_8u32f_C3R_Ctx(src, srcStep, dst, dstStep, roi, ctx);
+      }
+    } else if constexpr (std::is_same_v<SrcType, Npp32f> && std::is_same_v<DstType, Npp8u>) {
+      if constexpr (Channels == 1) {
+        return nppiConvert_32f8u_C1R_Ctx(src, srcStep, dst, dstStep, roi, rndMode, ctx);
+      } else if constexpr (Channels == 3) {
+        return nppiConvert_32f8u_C3R_Ctx(src, srcStep, dst, dstStep, roi, rndMode, ctx);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -359,6 +409,71 @@ TEST_F(ConvertTest, Convert_8u32f_C3R_Random) {
 
 TEST_F(ConvertTest, Convert_8u32f_C1R_WithContext) {
   testConversion<Npp8u, Npp32f, 1>(64, 64, ConvertTestHelper<Npp8u, Npp32f>::DataPattern::GRADIENT, true);
+}
+
+TEST_F(ConvertTest, Convert_32f8u_C3R_Near) {
+  testConversion<Npp32f, Npp8u, 3>(64, 64, ConvertTestHelper<Npp32f, Npp8u>::DataPattern::COLOR_GRADIENT, false,
+                                    NPP_RND_NEAR);
+}
+
+TEST_F(ConvertTest, Convert_32f8u_C3R_FinancialWithContext) {
+  testConversion<Npp32f, Npp8u, 3>(32, 32, ConvertTestHelper<Npp32f, Npp8u>::DataPattern::COLOR_GRADIENT, true,
+                                    NPP_RND_FINANCIAL);
+}
+
+TEST_F(ConvertTest, Convert_32f8u_C3R_RoundingAndClampBehavior) {
+  constexpr int kWidth = 3;
+  constexpr int kHeight = 2;
+  std::vector<Npp32f> srcData = {
+      -1.0f, 0.49f, 0.50f,
+      1.50f, 2.50f, 3.50f,
+      127.49f, 127.50f, 128.50f,
+      254.50f, 255.49f, 300.0f,
+      -12.5f, -0.5f, 42.5f,
+      43.5f, 254.6f, 255.6f,
+  };
+
+  auto runCase = [&](NppRoundMode rndMode, const std::vector<Npp8u> &expected) {
+    GPUMemoryManager<Npp32f> src(kWidth, kHeight, 3);
+    GPUMemoryManager<Npp8u> dst(kWidth, kHeight, 3);
+    ASSERT_TRUE(src.isValid());
+    ASSERT_TRUE(dst.isValid());
+    ASSERT_TRUE(src.copyFromHost(srcData, kWidth, kHeight, 3));
+
+    NppiSize roi{kWidth, kHeight};
+    ASSERT_EQ(nppiConvert_32f8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, rndMode), NPP_SUCCESS);
+
+    std::vector<Npp8u> result;
+    ASSERT_TRUE(dst.copyToHost(result, kWidth, kHeight, 3));
+    EXPECT_EQ(result, expected);
+  };
+
+  std::vector<Npp8u> expectedNear(srcData.size());
+  std::vector<Npp8u> expectedFinancial(srcData.size());
+  std::transform(srcData.begin(), srcData.end(), expectedNear.begin(),
+                 [](Npp32f value) { return round_and_clamp_to_byte(value, NPP_RND_NEAR); });
+  std::transform(srcData.begin(), srcData.end(), expectedFinancial.begin(),
+                 [](Npp32f value) { return round_and_clamp_to_byte(value, NPP_RND_FINANCIAL); });
+
+  runCase(NPP_RND_NEAR, expectedNear);
+  runCase(NPP_RND_FINANCIAL, expectedFinancial);
+}
+
+TEST_F(ConvertTest, Convert_32f8u_C3R_InvalidArguments) {
+  GPUMemoryManager<Npp32f> src(4, 3, 3);
+  GPUMemoryManager<Npp8u> dst(4, 3, 3);
+  ASSERT_TRUE(src.isValid());
+  ASSERT_TRUE(dst.isValid());
+
+  const NppiSize validRoi{4, 3};
+  const NppiSize invalidRoi{-1, 3};
+
+  EXPECT_EQ(nppiConvert_32f8u_C3R(nullptr, src.step(), dst.get(), dst.step(), validRoi, NPP_RND_NEAR),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiConvert_32f8u_C3R(src.get(), src.step(), dst.get(), 0, validRoi, NPP_RND_NEAR), NPP_STEP_ERROR);
+  EXPECT_EQ(nppiConvert_32f8u_C3R(src.get(), 0, dst.get(), dst.step(), validRoi, NPP_RND_NEAR), NPP_SUCCESS);
+  EXPECT_EQ(nppiConvert_32f8u_C3R(src.get(), src.step(), dst.get(), dst.step(), invalidRoi, NPP_RND_NEAR),
+            NPP_SIZE_ERROR);
 }
 
 // Size variation tests

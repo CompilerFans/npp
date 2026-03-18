@@ -5,5 +5,4 @@ Testing/
 *.a
 *.so
 *.zip
-benchmark_*
 api_analysis/api_inventory.json

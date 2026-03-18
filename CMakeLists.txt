@@ -15,6 +15,7 @@ include(CMakePackageConfigHelpers)
 # 构建选项 - moved before subdirectories to control build flow
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_BENCHMARK "Build performance benchmarks" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static libraries" OFF)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
@@ -60,6 +61,10 @@ if(BUILD_EXAMPLES)
     else()
         message(STATUS "Skipping examples build (requires MPP library)")
     endif()
+endif()
+
+if(BUILD_BENCHMARK)
+    add_subdirectory(benchmark benchmark)
 endif()
 
 # 配置安装 - 仅在构建MPP库时需要
