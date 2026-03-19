@@ -2232,6 +2232,40 @@ TEST_F(ResizeFunctionalTest, Resize_32f_C1R_Ctx_CubicInterpolation) {
   ASSERT_GT(maxVal - minVal, 0.1f);
 }
 
+TEST_F(ResizeFunctionalTest, Resize_32f_C1R_CubicInterpolation) {
+  const int srcWidth = 32, srcHeight = 32;
+  const int dstWidth = 48, dstHeight = 48;
+
+  std::vector<Npp32f> srcData(srcWidth * srcHeight);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      srcData[y * srcWidth + x] = sinf(x * 0.2f) * cosf(y * 0.2f);
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight);
+
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResize_32f_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                        NPPI_INTER_CUBIC);
+
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp32f> dstData(dstWidth * dstHeight);
+  dst.copyToHost(dstData);
+
+  float maxVal = *std::max_element(dstData.begin(), dstData.end());
+  float minVal = *std::min_element(dstData.begin(), dstData.end());
+  ASSERT_GT(maxVal - minVal, 0.1f);
+}
+
 // Test 32f C3R with LINEAR interpolation
 TEST_F(ResizeFunctionalTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
   const int srcWidth = 32, srcHeight = 32;
