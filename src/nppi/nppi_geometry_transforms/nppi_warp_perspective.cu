@@ -1,5 +1,6 @@
 #include "npp.h"
 #include <cmath>
+#include <cuda_fp16.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
@@ -59,6 +60,89 @@ __device__ T cubicInterpolation(const T *pSrc, int nSrcStep, NppiSize srcSize, f
   // Simplified version: fallback to bilinear interpolation
   // Full bicubic interpolation is computationally expensive, use bilinear approximation here
   return bilinearInterpolation<T>(pSrc, nSrcStep, srcSize, fx, fy);
+}
+
+__device__ inline float npp16fToFloatDevice(Npp16f value) {
+  union {
+    Npp16f npp;
+    unsigned short bits;
+  } conv{};
+  conv.npp = value;
+  __half_raw raw{conv.bits};
+  __half halfValue = raw;
+  return __half2float(halfValue);
+}
+
+__device__ inline Npp16f floatToNpp16fDevice(float value) {
+  __half halfValue = __float2half(value);
+  __half_raw raw = halfValue;
+  union {
+    Npp16f npp;
+    unsigned short bits;
+  } conv{};
+  conv.bits = raw.x;
+  return conv.npp;
+}
+
+template <>
+__device__ Npp16f nearestInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
+  int ix = static_cast<int>(fx + 0.5f);
+  int iy = static_cast<int>(fy + 0.5f);
+  if (ix < 0 || ix >= srcSize.width || iy < 0 || iy >= srcSize.height) {
+    return floatToNpp16fDevice(0.0f);
+  }
+  const Npp16f *srcPixel = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) + ix;
+  return *srcPixel;
+}
+
+template <>
+__device__ Npp16f bilinearInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
+  int x0 = static_cast<int>(floorf(fx));
+  int y0 = static_cast<int>(floorf(fy));
+  int x1 = x0 + 1;
+  int y1 = y0 + 1;
+
+  float dx = fx - x0;
+  float dy = fy - y0;
+
+  if (x0 < 0 || x1 >= srcSize.width || y0 < 0 || y1 >= srcSize.height) {
+    return nearestInterpolation<Npp16f>(pSrc, nSrcStep, srcSize, fx, fy);
+  }
+
+  const Npp16f *p00 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) + x0;
+  const Npp16f *p01 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) + x1;
+  const Npp16f *p10 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) + x0;
+  const Npp16f *p11 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) + x1;
+
+  float v00 = npp16fToFloatDevice(*p00);
+  float v01 = npp16fToFloatDevice(*p01);
+  float v10 = npp16fToFloatDevice(*p10);
+  float v11 = npp16fToFloatDevice(*p11);
+  float v0 = v00 * (1.0f - dx) + v01 * dx;
+  float v1 = v10 * (1.0f - dx) + v11 * dx;
+  return floatToNpp16fDevice(v0 * (1.0f - dy) + v1 * dy);
+}
+
+template <>
+__device__ Npp16f cubicInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
+  return bilinearInterpolation<Npp16f>(pSrc, nSrcStep, srcSize, fx, fy);
+}
+
+template <typename T>
+__global__ void mergeAlphaChannelC4Kernel(const T *pSrcWarped, T *pDst, int nDstStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const T *srcPixel = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrcWarped) + y * nDstStep) + x * 4;
+  T *dstPixel = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep) + x * 4;
+  T alpha = dstPixel[3];
+  dstPixel[0] = srcPixel[0];
+  dstPixel[1] = srcPixel[1];
+  dstPixel[2] = srcPixel[2];
+  dstPixel[3] = alpha;
 }
 
 __global__ void nppiWarpPerspective_8u_C1R_kernel(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
@@ -2542,5 +2626,194 @@ NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize 
   }
 
   return NPP_SUCCESS;
+}
+
+}
+
+__global__ void nppiWarpPerspective_16f_C1R_kernel(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                   Npp16f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
+                                                   double c02, double c10, double c11, double c12, double c20,
+                                                   double c21, double c22, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+    double w = c20 * dst_x + c21 * dst_y + c22;
+    Npp16f *dstPixel = reinterpret_cast<Npp16f *>(reinterpret_cast<char *>(pDst) + y * nDstStep) + x;
+    if (fabs(w) < 1e-10) {
+      *dstPixel = floatToNpp16fDevice(0.0f);
+      return;
+    }
+    float srcX = static_cast<float>((c00 * dst_x + c01 * dst_y + c02) / w);
+    float srcY = static_cast<float>((c10 * dst_x + c11 * dst_y + c12) / w);
+    switch (eInterpolation) {
+    case NPPI_INTER_NN:
+      *dstPixel = nearestInterpolation<Npp16f>(pSrc, nSrcStep, oSrcSize, srcX, srcY);
+      break;
+    case NPPI_INTER_LINEAR:
+      *dstPixel = bilinearInterpolation<Npp16f>(pSrc, nSrcStep, oSrcSize, srcX, srcY);
+      break;
+    default:
+      *dstPixel = cubicInterpolation<Npp16f>(pSrc, nSrcStep, oSrcSize, srcX, srcY);
+      break;
+    }
+  }
+}
+
+template <int channels>
+__global__ void nppiWarpPerspective_16f_CxR_kernel(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                   Npp16f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
+                                                   double c02, double c10, double c11, double c12, double c20,
+                                                   double c21, double c22, int eInterpolation) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x < oDstROI.width && y < oDstROI.height) {
+    int dst_x = x + oDstROI.x;
+    int dst_y = y + oDstROI.y;
+    double w = c20 * dst_x + c21 * dst_y + c22;
+    Npp16f *dstPixel = reinterpret_cast<Npp16f *>(reinterpret_cast<char *>(pDst) + y * nDstStep) + x * channels;
+    if (fabs(w) < 1e-10) {
+      for (int c = 0; c < channels; ++c) {
+        dstPixel[c] = floatToNpp16fDevice(0.0f);
+      }
+      return;
+    }
+
+    float fx = static_cast<float>((c00 * dst_x + c01 * dst_y + c02) / w);
+    float fy = static_cast<float>((c10 * dst_x + c11 * dst_y + c12) / w);
+    for (int c = 0; c < channels; ++c) {
+      float result = 0.0f;
+      switch (eInterpolation) {
+      case NPPI_INTER_NN: {
+        int ix = static_cast<int>(roundf(fx));
+        int iy = static_cast<int>(roundf(fy));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp16f *pixel =
+              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) + ix * channels + c;
+          result = npp16fToFloatDevice(*pixel);
+        }
+        break;
+      }
+      case NPPI_INTER_LINEAR: {
+        int x0 = static_cast<int>(floorf(fx));
+        int y0 = static_cast<int>(floorf(fy));
+        int x1 = x0 + 1;
+        int y1 = y0 + 1;
+        float dx = fx - x0;
+        float dy = fy - y0;
+        if (x0 >= 0 && x1 < oSrcSize.width && y0 >= 0 && y1 < oSrcSize.height) {
+          const Npp16f *p00 =
+              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) + x0 * channels + c;
+          const Npp16f *p01 =
+              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) + x1 * channels + c;
+          const Npp16f *p10 =
+              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) + x0 * channels + c;
+          const Npp16f *p11 =
+              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) + x1 * channels + c;
+          float v0 = npp16fToFloatDevice(*p00) * (1.0f - dx) + npp16fToFloatDevice(*p01) * dx;
+          float v1 = npp16fToFloatDevice(*p10) * (1.0f - dx) + npp16fToFloatDevice(*p11) * dx;
+          result = v0 * (1.0f - dy) + v1 * dy;
+        }
+        break;
+      }
+      default: {
+        int ix = static_cast<int>(roundf(fx));
+        int iy = static_cast<int>(roundf(fy));
+        if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+          const Npp16f *pixel =
+              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) + ix * channels + c;
+          result = npp16fToFloatDevice(*pixel);
+        }
+        break;
+      }
+      }
+      dstPixel[c] = floatToNpp16fDevice(result);
+    }
+  }
+}
+
+template <typename T>
+static NppStatus mergeAlphaLaunch(const T *pSrcWarped, T *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  mergeAlphaChannelC4Kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcWarped, pDst, nDstStep, oSizeROI.width,
+                                                                               oSizeROI.height);
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
+  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+extern "C" {
+NppStatus nppiWarpPerspective_16f_C1R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp16f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+  nppiWarpPerspective_16f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
+  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiWarpPerspective_16f_C3R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp16f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+  nppiWarpPerspective_16f_CxR_kernel<3><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
+  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiWarpPerspective_16f_C4R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp16f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
+  nppiWarpPerspective_16f_CxR_kernel<4><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs[0][0], aCoeffs[0][1], aCoeffs[0][2],
+      aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
+  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiMergeAlpha_8u_C4R(const Npp8u *pSrcWarped, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                NppStreamContext nppStreamCtx) {
+  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMergeAlpha_16u_C4R(const Npp16u *pSrcWarped, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMergeAlpha_32f_C4R(const Npp32f *pSrcWarped, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiMergeAlpha_32s_C4R(const Npp32s *pSrcWarped, Npp32s *pDst, int nDstStep, NppiSize oSizeROI,
+                                 NppStreamContext nppStreamCtx) {
+  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 }

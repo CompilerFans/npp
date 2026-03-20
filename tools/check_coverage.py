@@ -83,6 +83,9 @@ class CoverageAnalyzer:
             # Detect generated swapChannels wrappers defined via macros
             self._capture_swapchannels_wrappers(content, file_path)
 
+            # Detect generated warpPerspective wrappers defined via macros
+            self._capture_warpperspective_wrappers(content, file_path)
+
         except Exception as e:
             print(f"Warning: Error scanning {file_path}: {e}")
 
@@ -132,6 +135,62 @@ class CoverageAnalyzer:
                 record(f'nppiSwapChannels_{data_type}_{suffix}')
                 record(f'nppiSwapChannels_{data_type}_{suffix}_Ctx')
 
+    def _capture_warpperspective_wrappers(self, content: str, file_path: Path):
+        """Detect macro-generated warpPerspective wrappers"""
+        rel_path = str(file_path.relative_to(self.src_dir.parent))
+
+        def record(name: str):
+            if name in self.api_functions and name not in self.implementations:
+                self.implementations[name] = rel_path
+
+        ac4_pattern = r'DEFINE_WARP_PERSPECTIVE_AC4\s*\(\s*[^,]+,\s*([^,]+),'
+        planar_pattern = r'DEFINE_WARP_PERSPECTIVE_PLANAR\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        back_ac4_pattern = r'DEFINE_WARP_PERSPECTIVE_BACK_AC4\s*\(\s*[^,]+,\s*([^,]+),'
+        back_planar_pattern = r'DEFINE_WARP_PERSPECTIVE_BACK_PLANAR\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        quad_packed_pattern = r'DEFINE_WARP_PERSPECTIVE_QUAD_PACKED\s*\(\s*[^,]+,\s*([^,]+),\s*([^,]+),'
+        quad_planar_pattern = r'DEFINE_WARP_PERSPECTIVE_QUAD_PLANAR\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        batch_pattern = r'DEFINE_WARP_PERSPECTIVE_BATCH\s*\(\s*[^,]+,\s*([^,]+),\s*([^,]+),'
+
+        for match in re.finditer(ac4_pattern, content):
+            suffix = match.group(1).strip()
+            record(f'nppiWarpPerspective_{suffix}_AC4R')
+            record(f'nppiWarpPerspective_{suffix}_AC4R_Ctx')
+
+        for match in re.finditer(planar_pattern, content):
+            suffix, planes = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiWarpPerspective_{suffix}_P{planes}R')
+            record(f'nppiWarpPerspective_{suffix}_P{planes}R_Ctx')
+
+        for match in re.finditer(back_ac4_pattern, content):
+            suffix = match.group(1).strip()
+            record(f'nppiWarpPerspectiveBack_{suffix}_AC4R')
+            record(f'nppiWarpPerspectiveBack_{suffix}_AC4R_Ctx')
+
+        for match in re.finditer(back_planar_pattern, content):
+            suffix, planes = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiWarpPerspectiveBack_{suffix}_P{planes}R')
+            record(f'nppiWarpPerspectiveBack_{suffix}_P{planes}R_Ctx')
+
+        for match in re.finditer(quad_packed_pattern, content):
+            suffix, variant = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiWarpPerspectiveQuad_{suffix}_{variant}')
+            record(f'nppiWarpPerspectiveQuad_{suffix}_{variant}_Ctx')
+
+        for match in re.finditer(quad_planar_pattern, content):
+            suffix, planes = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiWarpPerspectiveQuad_{suffix}_P{planes}R')
+            record(f'nppiWarpPerspectiveQuad_{suffix}_P{planes}R_Ctx')
+
+        for match in re.finditer(batch_pattern, content):
+            suffix, variant = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiWarpPerspectiveBatch_{suffix}_{variant}')
+            record(f'nppiWarpPerspectiveBatch_{suffix}_{variant}_Ctx')
+
+        if 'nppiWarpPerspectiveBatchInit_Ctx' in content:
+            record('nppiWarpPerspectiveBatchInit_Ctx')
+        if 'nppiWarpPerspectiveBatchInit(' in content:
+            record('nppiWarpPerspectiveBatchInit')
+
     def scan_tests(self):
         """Scan test files for function calls"""
         for test_file in self.test_dir.rglob('test_*.cpp'):
@@ -156,6 +215,32 @@ class CoverageAnalyzer:
 
         except Exception as e:
             print(f"Warning: Error scanning {file_path}: {e}")
+
+    def _capture_copy_wrappers(self, content: str, file_path: Path):
+        """Detect macro-generated copy wrappers"""
+        rel_path = str(file_path.relative_to(self.src_dir.parent))
+
+        def record(name: str):
+            if name in self.api_functions and name not in self.implementations:
+                self.implementations[name] = rel_path
+
+        simple_pattern = r'NPPI_COPY_WRAPPER\s*\(\s*[^,]+,\s*([^,]+),\s*([^) \t]+)\s*\)'
+        for match in re.finditer(simple_pattern, content):
+            suffix, channel = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiCopy_{suffix}_{channel}_Ctx')
+            record(f'nppiCopy_{suffix}_{channel}')
+
+        cxpxr_pattern = r'NPPI_COPY_CXPXR_WRAPPER\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        for match in re.finditer(cxpxr_pattern, content):
+            suffix, channels = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiCopy_{suffix}_C{channels}P{channels}R_Ctx')
+            record(f'nppiCopy_{suffix}_C{channels}P{channels}R')
+
+        pxcxr_pattern = r'NPPI_COPY_PXCXR_WRAPPER\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        for match in re.finditer(pxcxr_pattern, content):
+            suffix, channels = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiCopy_{suffix}_P{channels}C{channels}R_Ctx')
+            record(f'nppiCopy_{suffix}_P{channels}C{channels}R')
 
     def generate_coverage_csv(self, output_path: Path):
         """Generate coverage CSV"""
