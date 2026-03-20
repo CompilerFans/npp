@@ -2,9 +2,8 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-// Set kernel for 8-bit single channel
-
-__global__ void nppiSet_8u_C1R_kernel(Npp8u nValue, Npp8u *pDst, int nDstStep, int width, int height) {
+template <typename T>
+__global__ void nppiSet_C1R_kernel(T nValue, T *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -12,13 +11,12 @@ __global__ void nppiSet_8u_C1R_kernel(Npp8u nValue, Npp8u *pDst, int nDstStep, i
     return;
   }
 
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
-  dst_row[x] = nValue;
+  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
+  dstRow[x] = nValue;
 }
 
-// Set kernel for 8-bit three channel
-
-__global__ void nppiSet_8u_C3R_kernel(const Npp8u *aValue, Npp8u *pDst, int nDstStep, int width, int height) {
+template <typename T, int CHANNELS>
+__global__ void nppiSet_CxR_kernel(const T *aValue, T *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -26,179 +24,113 @@ __global__ void nppiSet_8u_C3R_kernel(const Npp8u *aValue, Npp8u *pDst, int nDst
     return;
   }
 
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
-  int idx = x * 3;
+  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
+  int idx = x * CHANNELS;
 
-  dst_row[idx + 0] = aValue[0];
-  dst_row[idx + 1] = aValue[1];
-  dst_row[idx + 2] = aValue[2];
+#pragma unroll
+  for (int c = 0; c < CHANNELS; ++c) {
+    dstRow[idx + c] = aValue[c];
+  }
 }
 
-// Set kernel for 32-bit float single channel
+template <typename T>
+NppStatus launchSetScalar(T nValue, T *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-__global__ void nppiSet_32f_C1R_kernel(Npp32f nValue, Npp32f *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  nppiSet_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
+                                                                        oSizeROI.height);
 
-  if (x >= width || y >= height) {
-    return;
-  }
-
-  Npp32f *dst_row = (Npp32f *)((char *)pDst + y * nDstStep);
-  dst_row[x] = nValue;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-// Set kernel for 16-bit unsigned single channel
-
-__global__ void nppiSet_16u_C1R_kernel(Npp16u nValue, Npp16u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height) {
-    return;
+template <typename T, int CHANNELS>
+NppStatus launchSetVector(const T *aValue, T *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  T *dValue = nullptr;
+  cudaError_t status = cudaMalloc(&dValue, CHANNELS * sizeof(T));
+  if (status != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  Npp16u *dst_row = (Npp16u *)((char *)pDst + y * nDstStep);
-  dst_row[x] = nValue;
-}
-
-// Set kernel for 8-bit unsigned four channel
-
-__global__ void nppiSet_8u_C4R_kernel(const Npp8u *aValue, Npp8u *pDst, int nDstStep, int width, int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height) {
-    return;
+  status = cudaMemcpyAsync(dValue, aValue, CHANNELS * sizeof(T), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  if (status != cudaSuccess) {
+    cudaFree(dValue);
+    return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  Npp8u *dst_row = (Npp8u *)((char *)pDst + y * nDstStep);
-  int idx = x * 4;
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  dst_row[idx + 0] = aValue[0];
-  dst_row[idx + 1] = aValue[1];
-  dst_row[idx + 2] = aValue[2];
-  dst_row[idx + 3] = aValue[3];
+  nppiSet_CxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(dValue, pDst, nDstStep,
+                                                                                      oSizeROI.width, oSizeROI.height);
+
+  status = cudaGetLastError();
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  cudaFree(dValue);
+
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 extern "C" {
 
-// 8-bit unsigned single channel implementation
 NppStatus nppiSet_8u_C1R_Ctx_impl(Npp8u nValue, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiSet_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
-                                                                          oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  return launchSetScalar(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// 8-bit unsigned three channel implementation
 NppStatus nppiSet_8u_C3R_Ctx_impl(const Npp8u aValue[3], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
-  // Copy value array to device memory
-  Npp8u *d_aValue;
-  cudaError_t cudaStatus = cudaMalloc(&d_aValue, 3 * sizeof(Npp8u));
-  if (cudaStatus != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  cudaStatus = cudaMemcpyAsync(d_aValue, aValue, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  if (cudaStatus != cudaSuccess) {
-    cudaFree(d_aValue);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiSet_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(d_aValue, pDst, nDstStep, oSizeROI.width,
-                                                                          oSizeROI.height);
-
-  cudaStatus = cudaGetLastError();
-
-  // Sync stream and free memory
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_aValue);
-
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  return launchSetVector<Npp8u, 3>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
-// 32-bit float single channel implementation
-NppStatus nppiSet_32f_C1R_Ctx_impl(Npp32f nValue, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                   NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiSet_32f_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
-                                                                           oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
-}
-
-// 16-bit unsigned single channel implementation
-NppStatus nppiSet_16u_C1R_Ctx_impl(Npp16u nValue, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
-                                   NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiSet_16u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
-                                                                           oSizeROI.height);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
-}
-
-// 8-bit unsigned four channel implementation
 NppStatus nppiSet_8u_C4R_Ctx_impl(const Npp8u aValue[4], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
-  Npp8u *d_aValue;
-  cudaError_t cudaStatus = cudaMalloc(&d_aValue, 4 * sizeof(Npp8u));
-  if (cudaStatus != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  cudaStatus = cudaMemcpyAsync(d_aValue, aValue, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  if (cudaStatus != cudaSuccess) {
-    cudaFree(d_aValue);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiSet_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(d_aValue, pDst, nDstStep, oSizeROI.width,
-                                                                          oSizeROI.height);
-
-  cudaStatus = cudaGetLastError();
-
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_aValue);
-
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  return launchSetVector<Npp8u, 4>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
+
+NppStatus nppiSet_16u_C1R_Ctx_impl(Npp16u nValue, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetScalar(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
+
+NppStatus nppiSet_16u_C3R_Ctx_impl(const Npp16u aValue[3], Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetVector<Npp16u, 3>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16u_C4R_Ctx_impl(const Npp16u aValue[4], Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetVector<Npp16u, 4>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C1R_Ctx_impl(Npp16s nValue, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetScalar(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C3R_Ctx_impl(const Npp16s aValue[3], Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetVector<Npp16s, 3>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C4R_Ctx_impl(const Npp16s aValue[4], Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetVector<Npp16s, 4>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C1R_Ctx_impl(Npp32f nValue, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetScalar(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C3R_Ctx_impl(const Npp32f aValue[3], Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetVector<Npp32f, 3>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C4R_Ctx_impl(const Npp32f aValue[4], Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  return launchSetVector<Npp32f, 4>(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+} // extern "C"

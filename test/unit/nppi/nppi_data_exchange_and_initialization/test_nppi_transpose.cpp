@@ -1,5 +1,6 @@
 #include "npp_test_base.h"
 #include <iomanip>
+#include <type_traits>
 
 using namespace npp_functional_test;
 
@@ -26,6 +27,117 @@ protected:
       for (int x = 0; x < src_width; x++) {
         dst[x * src_height + y] = src[y * src_width + x];
       }
+    }
+  }
+
+  template <typename T, int CHANNELS>
+  void runInterleavedTransposeTest(NppStatus (*fn)(const T *, int, T *, int, NppiSize), int width, int height) {
+    std::vector<T> src(width * height * CHANNELS);
+    for (size_t i = 0; i < src.size(); ++i) {
+      src[i] = static_cast<T>((i * 7 + 3) % 251);
+    }
+
+    std::vector<T> expected(width * height * CHANNELS);
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        for (int c = 0; c < CHANNELS; ++c) {
+          expected[(x * height + y) * CHANNELS + c] = src[(y * width + x) * CHANNELS + c];
+        }
+      }
+    }
+
+    std::vector<T> dst(width * height * CHANNELS);
+    NppiSize roi = {width, height};
+
+    if constexpr (std::is_same_v<T, Npp16s> && CHANNELS > 1) {
+      T *srcDev = nullptr;
+      T *dstDev = nullptr;
+      size_t srcPitch = 0;
+      size_t dstPitch = 0;
+      ASSERT_EQ(cudaMallocPitch(&srcDev, &srcPitch, width * CHANNELS * sizeof(T), height), cudaSuccess);
+      ASSERT_EQ(cudaMallocPitch(&dstDev, &dstPitch, height * CHANNELS * sizeof(T), width), cudaSuccess);
+      ASSERT_EQ(cudaMemcpy2D(srcDev, srcPitch, src.data(), width * CHANNELS * sizeof(T), width * CHANNELS * sizeof(T),
+                             height, cudaMemcpyHostToDevice),
+                cudaSuccess);
+
+      ASSERT_EQ(fn(srcDev, static_cast<int>(srcPitch), dstDev, static_cast<int>(dstPitch), roi), NPP_NO_ERROR);
+      ASSERT_EQ(cudaMemcpy2D(dst.data(), height * CHANNELS * sizeof(T), dstDev, dstPitch, height * CHANNELS * sizeof(T),
+                             width, cudaMemcpyDeviceToHost),
+                cudaSuccess);
+
+      cudaFree(srcDev);
+      cudaFree(dstDev);
+    } else {
+      NppImageMemory<T> srcMem(width, height, CHANNELS);
+      NppImageMemory<T> dstMem(height, width, CHANNELS);
+      srcMem.copyFromHost(src);
+
+      ASSERT_EQ(fn(srcMem.get(), srcMem.step(), dstMem.get(), dstMem.step(), roi), NPP_NO_ERROR);
+      dstMem.copyToHost(dst);
+    }
+
+    if constexpr (std::is_floating_point_v<T>) {
+      EXPECT_TRUE(ResultValidator::arraysEqual(dst, expected, 1e-5f));
+    } else {
+      EXPECT_TRUE(ResultValidator::arraysEqual(dst, expected));
+    }
+  }
+
+  template <typename T, int CHANNELS>
+  void runInterleavedTransposeCtxTest(NppStatus (*fn)(const T *, int, T *, int, NppiSize, NppStreamContext), int width,
+                                      int height) {
+    std::vector<T> src(width * height * CHANNELS);
+    for (size_t i = 0; i < src.size(); ++i) {
+      src[i] = static_cast<T>((i * 5 + 11) % 241);
+    }
+
+    std::vector<T> expected(width * height * CHANNELS);
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        for (int c = 0; c < CHANNELS; ++c) {
+          expected[(x * height + y) * CHANNELS + c] = src[(y * width + x) * CHANNELS + c];
+        }
+      }
+    }
+
+    std::vector<T> dst(width * height * CHANNELS);
+    NppiSize roi = {width, height};
+    NppStreamContext ctx;
+    nppGetStreamContext(&ctx);
+
+    if constexpr (std::is_same_v<T, Npp16s> && CHANNELS > 1) {
+      T *srcDev = nullptr;
+      T *dstDev = nullptr;
+      size_t srcPitch = 0;
+      size_t dstPitch = 0;
+      ASSERT_EQ(cudaMallocPitch(&srcDev, &srcPitch, width * CHANNELS * sizeof(T), height), cudaSuccess);
+      ASSERT_EQ(cudaMallocPitch(&dstDev, &dstPitch, height * CHANNELS * sizeof(T), width), cudaSuccess);
+      ASSERT_EQ(cudaMemcpy2D(srcDev, srcPitch, src.data(), width * CHANNELS * sizeof(T), width * CHANNELS * sizeof(T),
+                             height, cudaMemcpyHostToDevice),
+                cudaSuccess);
+
+      ASSERT_EQ(fn(srcDev, static_cast<int>(srcPitch), dstDev, static_cast<int>(dstPitch), roi, ctx), NPP_NO_ERROR);
+      cudaStreamSynchronize(ctx.hStream);
+      ASSERT_EQ(cudaMemcpy2D(dst.data(), height * CHANNELS * sizeof(T), dstDev, dstPitch, height * CHANNELS * sizeof(T),
+                             width, cudaMemcpyDeviceToHost),
+                cudaSuccess);
+
+      cudaFree(srcDev);
+      cudaFree(dstDev);
+    } else {
+      NppImageMemory<T> srcMem(width, height, CHANNELS);
+      NppImageMemory<T> dstMem(height, width, CHANNELS);
+      srcMem.copyFromHost(src);
+
+      ASSERT_EQ(fn(srcMem.get(), srcMem.step(), dstMem.get(), dstMem.step(), roi, ctx), NPP_NO_ERROR);
+      cudaStreamSynchronize(ctx.hStream);
+      dstMem.copyToHost(dst);
+    }
+
+    if constexpr (std::is_floating_point_v<T>) {
+      EXPECT_TRUE(ResultValidator::arraysEqual(dst, expected, 1e-5f));
+    } else {
+      EXPECT_TRUE(ResultValidator::arraysEqual(dst, expected));
     }
   }
 };
@@ -284,6 +396,44 @@ TEST_F(TransposeFunctionalTest, Transpose_8u_C1R_DoubleTranspose) {
   EXPECT_TRUE(ResultValidator::arraysEqual(final_result, original_data))
       << "Double transpose should restore original data";
 }
+
+#define NPPI_TRANSPOSE_TEST(TEST_NAME, TYPE, CHANNELS, API)                                                            \
+  TEST_F(TransposeFunctionalTest, TEST_NAME) { runInterleavedTransposeTest<TYPE, CHANNELS>(API, 5, 3); }
+
+#define NPPI_TRANSPOSE_CTX_TEST(TEST_NAME, TYPE, CHANNELS, API)                                                        \
+  TEST_F(TransposeFunctionalTest, TEST_NAME) { runInterleavedTransposeCtxTest<TYPE, CHANNELS>(API, 4, 6); }
+
+NPPI_TRANSPOSE_TEST(Transpose_8u_C3R_Interleaved, Npp8u, 3, nppiTranspose_8u_C3R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_8u_C3R_Ctx_Interleaved, Npp8u, 3, nppiTranspose_8u_C3R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_8u_C4R_Interleaved, Npp8u, 4, nppiTranspose_8u_C4R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_8u_C4R_Ctx_Interleaved, Npp8u, 4, nppiTranspose_8u_C4R_Ctx)
+
+NPPI_TRANSPOSE_TEST(Transpose_16u_C3R_Interleaved, Npp16u, 3, nppiTranspose_16u_C3R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_16u_C3R_Ctx_Interleaved, Npp16u, 3, nppiTranspose_16u_C3R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_16u_C4R_Interleaved, Npp16u, 4, nppiTranspose_16u_C4R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_16u_C4R_Ctx_Interleaved, Npp16u, 4, nppiTranspose_16u_C4R_Ctx)
+
+NPPI_TRANSPOSE_TEST(Transpose_16s_C1R_Interleaved, Npp16s, 1, nppiTranspose_16s_C1R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_16s_C1R_Ctx_Interleaved, Npp16s, 1, nppiTranspose_16s_C1R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_16s_C3R_Interleaved, Npp16s, 3, nppiTranspose_16s_C3R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_16s_C3R_Ctx_Interleaved, Npp16s, 3, nppiTranspose_16s_C3R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_16s_C4R_Interleaved, Npp16s, 4, nppiTranspose_16s_C4R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_16s_C4R_Ctx_Interleaved, Npp16s, 4, nppiTranspose_16s_C4R_Ctx)
+
+NPPI_TRANSPOSE_TEST(Transpose_32s_C1R_Interleaved, Npp32s, 1, nppiTranspose_32s_C1R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_32s_C1R_Ctx_Interleaved, Npp32s, 1, nppiTranspose_32s_C1R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_32s_C3R_Interleaved, Npp32s, 3, nppiTranspose_32s_C3R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_32s_C3R_Ctx_Interleaved, Npp32s, 3, nppiTranspose_32s_C3R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_32s_C4R_Interleaved, Npp32s, 4, nppiTranspose_32s_C4R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_32s_C4R_Ctx_Interleaved, Npp32s, 4, nppiTranspose_32s_C4R_Ctx)
+
+NPPI_TRANSPOSE_TEST(Transpose_32f_C3R_Interleaved, Npp32f, 3, nppiTranspose_32f_C3R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_32f_C3R_Ctx_Interleaved, Npp32f, 3, nppiTranspose_32f_C3R_Ctx)
+NPPI_TRANSPOSE_TEST(Transpose_32f_C4R_Interleaved, Npp32f, 4, nppiTranspose_32f_C4R)
+NPPI_TRANSPOSE_CTX_TEST(Transpose_32f_C4R_Ctx_Interleaved, Npp32f, 4, nppiTranspose_32f_C4R_Ctx)
+
+#undef NPPI_TRANSPOSE_TEST
+#undef NPPI_TRANSPOSE_CTX_TEST
 
 // ==================== 不同数据类型测试 ====================
 
