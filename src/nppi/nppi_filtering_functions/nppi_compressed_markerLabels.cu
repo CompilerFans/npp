@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 #include <algorithm>
 #include <climits>
 #include <cstring>
@@ -511,6 +512,7 @@ NppStatus nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R_impl(Npp32u nMaxC
   return NPP_SUCCESS;
 }
 
+#if CUDA_SDK_AT_LEAST(12, 2)
 // Generate geometry lists
 NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl(
     NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoListDev, NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoListHost,
@@ -673,6 +675,7 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
 
   return NPP_SUCCESS;
 }
+#endif
 
 // Batch compress marker labels (advanced)
 NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(

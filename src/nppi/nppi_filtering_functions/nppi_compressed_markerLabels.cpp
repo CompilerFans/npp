@@ -1,5 +1,6 @@
 #include "../../npp_internal.h"
 #include "npp.h"
+#include "npp_version_compat.h"
 #include <cuda_runtime.h>
 
 // Declare GPU implementation functions
@@ -18,6 +19,7 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
 NppStatus nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R_impl(Npp32u nMaxContourPixelGeometryInfoCount,
                                                                     Npp32u *hpBufferSize);
 
+#if CUDA_SDK_AT_LEAST(12, 2)
 NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl(
     NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoListDev, NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoListHost,
     NppiContourPixelDirectionInfo *pContoursDirectionImageDev, Npp32s nContoursDirectionImageStep,
@@ -29,6 +31,7 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
     Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID,
     NppiContourBlockSegment *pContoursBlockSegmentListDev, NppiContourBlockSegment *pContoursBlockSegmentListHost,
     Npp32u bOutputInCounterclockwiseOrder, NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+#endif
 
 NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
     NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
@@ -107,6 +110,7 @@ NppStatus nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R(Npp32u nMaxContou
   return nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R_impl(nMaxContourPixelGeometryInfoCount, hpBufferSize);
 }
 
+#if CUDA_SDK_AT_LEAST(12, 2)
 // Generate geometry lists
 NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx(
     NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoListDev, NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoListHost,
@@ -142,6 +146,7 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx(
       pContoursBlockSegmentListDev, pContoursBlockSegmentListHost, bOutputInCounterclockwiseOrder, oSizeROI,
       nppStreamCtx);
 }
+#endif
 
 // Batch compress marker labels (advanced)
 NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx(NppiImageDescriptor *pSrcDstBatchList,
