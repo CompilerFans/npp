@@ -97,6 +97,11 @@ NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLeve
   return nppiHistogramEvenGetBufferSize_internal(oSizeROI, nLevels, hpBufferSize);
 }
 
+// 11.4 version
+NppStatus nppiHistogramEvenGetBufferSize_8u_C1R_Ctx(NppiSize oSizeROI, int nLevels, int *hpBufferSize) {
+  return nppiHistogramEvenGetBufferSize_internal(oSizeROI, nLevels, hpBufferSize);
+}
+
 //=============================================================================
 // 8-bit unsigned 4-channel Buffer Size APIs
 //=============================================================================
@@ -736,7 +741,7 @@ NppStatus nppiHistogramRange_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize 
 }
 
 //=============================================================================
-// 16-bit unsigned 4-channel HistogramEven APIs 
+// 16-bit unsigned 4-channel HistogramEven APIs
 //=============================================================================
 
 // Input validation helper for 4-channel histogram
@@ -775,7 +780,7 @@ static inline NppStatus validateHistogramEven4ChannelInputs(const void *pSrc, in
 
 // Input validation helper for 4-channel HistogramRange
 static inline NppStatus validateHistogramRange4ChannelInputs(const void *pSrc, int nSrcStep, NppiSize oSizeROI,
-                                                              Npp32s *pHist[4], const void *pLevels[4], 
+                                                              Npp32s *pHist[4], const void *pLevels[4],
                                                               int nLevels[4], const Npp8u *pDeviceBuffer,
                                                               size_t elementSize) {
   if (!pSrc || !pHist || !pLevels || !nLevels || !pDeviceBuffer) {
@@ -1005,7 +1010,7 @@ NppStatus nppiHistogramRange_16s_C1R(const Npp16s *pSrc, int nSrcStep, NppiSize 
 NppStatus nppiHistogramRange_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
                                         const Npp32s *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
                                         NppStreamContext nppStreamCtx) {
-  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist, 
+  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist,
                                                            (const void **)pLevels, nLevels, pDeviceBuffer,
                                                            sizeof(Npp8u));
   if (status != NPP_SUCCESS) {
@@ -1030,7 +1035,7 @@ NppStatus nppiHistogramRange_8u_C4R(const Npp8u *pSrc, int nSrcStep, NppiSize oS
 NppStatus nppiHistogramRange_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
                                          const Npp32s *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
                                          NppStreamContext nppStreamCtx) {
-  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist, 
+  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist,
                                                            (const void **)pLevels, nLevels, pDeviceBuffer,
                                                            sizeof(Npp16u));
   if (status != NPP_SUCCESS) {
@@ -1056,7 +1061,7 @@ NppStatus nppiHistogramRange_16u_C4R(const Npp16u *pSrc, int nSrcStep, NppiSize 
 NppStatus nppiHistogramRange_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
                                          const Npp32s *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
                                          NppStreamContext nppStreamCtx) {
-  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist, 
+  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist,
                                                            (const void **)pLevels, nLevels, pDeviceBuffer,
                                                            sizeof(Npp16s));
   if (status != NPP_SUCCESS) {
@@ -1082,7 +1087,7 @@ NppStatus nppiHistogramRange_16s_C4R(const Npp16s *pSrc, int nSrcStep, NppiSize 
 NppStatus nppiHistogramRange_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist[4],
                                          const Npp32f *pLevels[4], int nLevels[4], Npp8u *pDeviceBuffer,
                                          NppStreamContext nppStreamCtx) {
-  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist, 
+  NppStatus status = validateHistogramRange4ChannelInputs(pSrc, nSrcStep, oSizeROI, pHist,
                                                            (const void **)pLevels, nLevels, pDeviceBuffer,
                                                            sizeof(Npp32f));
   if (status != NPP_SUCCESS) {
