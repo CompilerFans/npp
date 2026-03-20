@@ -198,12 +198,12 @@ NppStatus nppiSwapChannels_##TYPE##_AC4R_Ctx( \
     const Npp##TYPE *pSrc, int nSrcStep, \
     Npp##TYPE *pDst, int nDstStep, NppiSize oSizeROI, \
     const int aDstOrder[3], NppStreamContext nppStreamCtx) { \
+  (void)nppStreamCtx; \
   NppStatus status = validateAC4RInputs(pSrc, pDst, nSrcStep, nDstStep, oSizeROI, aDstOrder); \
   if (status != NPP_SUCCESS) { \
     return status; \
   } \
-  return nppiSwapChannels_AC4R_impl<Npp##TYPE>( \
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aDstOrder, nppStreamCtx); \
+  return NPP_BAD_ARGUMENT_ERROR; \
 } \
 \
 NppStatus nppiSwapChannels_##TYPE##_AC4R( \

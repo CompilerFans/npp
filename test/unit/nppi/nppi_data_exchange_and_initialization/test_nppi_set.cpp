@@ -149,3 +149,68 @@ TEST_F(SetFunctionalTest, Set_8u_C1R_Ctx_PartialROI) {
     }
   }
 }
+
+TEST_F(SetFunctionalTest, Set_16u_C3R_Basic) {
+  const int width = 17, height = 9;
+  const Npp16u aValue[3] = {100, 200, 300};
+  NppImageMemory<Npp16u> dst(width, height, 3);
+  NppiSize roi = {width, height};
+
+  ASSERT_EQ(nppiSet_16u_C3R(aValue, dst.get(), dst.step(), roi), NPP_SUCCESS);
+
+  std::vector<Npp16u> dstData(width * height * 3);
+  dst.copyToHost(dstData);
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(dstData[i * 3 + 0], aValue[0]);
+    EXPECT_EQ(dstData[i * 3 + 1], aValue[1]);
+    EXPECT_EQ(dstData[i * 3 + 2], aValue[2]);
+  }
+}
+
+TEST_F(SetFunctionalTest, Set_16s_C4R_Ctx_Basic) {
+  const int width = 13, height = 11;
+  const Npp16s aValue[4] = {-7, 14, -21, 28};
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+
+  Npp16s *dst = nullptr;
+  size_t pitch = 0;
+  ASSERT_EQ(cudaMallocPitch(&dst, &pitch, width * 4 * sizeof(Npp16s), height), cudaSuccess);
+
+  ASSERT_EQ(nppiSet_16s_C4R_Ctx(aValue, dst, static_cast<int>(pitch), roi, ctx), NPP_SUCCESS);
+  cudaStreamSynchronize(ctx.hStream);
+
+  std::vector<Npp16s> dstData(width * height * 4);
+  ASSERT_EQ(cudaMemcpy2D(dstData.data(), width * 4 * sizeof(Npp16s), dst, pitch, width * 4 * sizeof(Npp16s), height,
+                         cudaMemcpyDeviceToHost),
+            cudaSuccess);
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_EQ(dstData[i * 4 + 0], aValue[0]);
+    EXPECT_EQ(dstData[i * 4 + 1], aValue[1]);
+    EXPECT_EQ(dstData[i * 4 + 2], aValue[2]);
+    EXPECT_EQ(dstData[i * 4 + 3], aValue[3]);
+  }
+
+  cudaFree(dst);
+}
+
+TEST_F(SetFunctionalTest, Set_32f_C3R_Ctx_Basic) {
+  const int width = 10, height = 12;
+  const Npp32f aValue[3] = {1.25f, -2.5f, 3.75f};
+  NppImageMemory<Npp32f> dst(width, height, 3);
+  NppiSize roi = {width, height};
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+
+  ASSERT_EQ(nppiSet_32f_C3R_Ctx(aValue, dst.get(), dst.step(), roi, ctx), NPP_SUCCESS);
+  cudaStreamSynchronize(ctx.hStream);
+
+  std::vector<Npp32f> dstData(width * height * 3);
+  dst.copyToHost(dstData);
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_FLOAT_EQ(dstData[i * 3 + 0], aValue[0]);
+    EXPECT_FLOAT_EQ(dstData[i * 3 + 1], aValue[1]);
+    EXPECT_FLOAT_EQ(dstData[i * 3 + 2], aValue[2]);
+  }
+}

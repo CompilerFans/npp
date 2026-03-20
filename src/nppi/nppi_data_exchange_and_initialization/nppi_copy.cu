@@ -545,6 +545,16 @@ NppStatus nppiCopy_16u_C4P4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *
   return nppiCopy_CxPxR_impl<Npp16u, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
+NppStatus nppiCopy_16s_C4P4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *const pDst[4], int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiCopy_CxPxR_impl<Npp16s, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiCopy_32s_C4P4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *const pDst[4], int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiCopy_CxPxR_impl<Npp32s, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
 NppStatus nppiCopy_32f_C4P4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *const pDst[4], int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiCopy_CxPxR_impl<Npp32f, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
@@ -590,6 +600,16 @@ NppStatus nppiCopy_8u_P4C4R_Ctx_impl(const Npp8u *const pSrc[4], int nSrcStep, N
 NppStatus nppiCopy_16u_P4C4R_Ctx_impl(const Npp16u *const pSrc[4], int nSrcStep, Npp16u *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   return nppiCopy_PxCxR_impl<Npp16u, 4>(const_cast<Npp16u **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiCopy_16s_P4C4R_Ctx_impl(const Npp16s *const pSrc[4], int nSrcStep, Npp16s *pDst, int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiCopy_PxCxR_impl<Npp16s, 4>(const_cast<Npp16s **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiCopy_32s_P4C4R_Ctx_impl(const Npp32s *const pSrc[4], int nSrcStep, Npp32s *pDst, int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return nppiCopy_PxCxR_impl<Npp32s, 4>(const_cast<Npp32s **>(pSrc), nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 NppStatus nppiCopy_32f_P4C4R_Ctx_impl(const Npp32f *const pSrc[4], int nSrcStep, Npp32f *pDst, int nDstStep,

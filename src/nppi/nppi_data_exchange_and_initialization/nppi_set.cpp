@@ -16,6 +16,20 @@ NppStatus nppiSet_16u_C1R_Ctx_impl(Npp16u nValue, Npp16u *pDst, int nDstStep, Np
                                    NppStreamContext nppStreamCtx);
 NppStatus nppiSet_8u_C4R_Ctx_impl(const Npp8u aValue[4], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_16u_C3R_Ctx_impl(const Npp16u aValue[3], Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_16u_C4R_Ctx_impl(const Npp16u aValue[4], Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_16s_C1R_Ctx_impl(Npp16s nValue, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_16s_C3R_Ctx_impl(const Npp16s aValue[3], Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_16s_C4R_Ctx_impl(const Npp16s aValue[4], Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_32f_C3R_Ctx_impl(const Npp32f aValue[3], Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
+NppStatus nppiSet_32f_C4R_Ctx_impl(const Npp32f aValue[4], Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx);
 }
 
 // Input validation helper
@@ -103,6 +117,93 @@ NppStatus nppiSet_16u_C1R(Npp16u nValue, Npp16u *pDst, int nDstStep, NppiSize oS
   return nppiSet_16u_C1R_Ctx(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
+NppStatus nppiSet_16u_C3R_Ctx(const Npp16u aValue[3], Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  if (!aValue) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  return nppiSet_16u_C3R_Ctx_impl(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16u_C3R(const Npp16u aValue[3], Npp16u *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_16u_C3R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16u_C4R_Ctx(const Npp16u aValue[4], Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  if (!aValue) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  return nppiSet_16u_C4R_Ctx_impl(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16u_C4R(const Npp16u aValue[4], Npp16u *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_16u_C4R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C1R_Ctx(Npp16s nValue, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiSet_16s_C1R_Ctx_impl(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C1R(Npp16s nValue, Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_16s_C1R_Ctx(nValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C3R_Ctx(const Npp16s aValue[3], Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  if (!aValue) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  return nppiSet_16s_C3R_Ctx_impl(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C3R(const Npp16s aValue[3], Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_16s_C3R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C4R_Ctx(const Npp16s aValue[4], Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  if (!aValue) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  return nppiSet_16s_C4R_Ctx_impl(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_16s_C4R(const Npp16s aValue[4], Npp16s *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_16s_C4R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
 NppStatus nppiSet_8u_C4R_Ctx(const Npp8u aValue[4], Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                              NppStreamContext nppStreamCtx) {
   NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
@@ -119,4 +220,40 @@ NppStatus nppiSet_8u_C4R(const Npp8u aValue[4], Npp8u *pDst, int nDstStep, NppiS
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiSet_8u_C4R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C3R_Ctx(const Npp32f aValue[3], Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  if (!aValue) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  return nppiSet_32f_C3R_Ctx_impl(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C3R(const Npp32f aValue[3], Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_32f_C3R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C4R_Ctx(const Npp32f aValue[4], Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                              NppStreamContext nppStreamCtx) {
+  NppStatus status = validateSetInputs(pDst, nDstStep, oSizeROI);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  if (!aValue) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  return nppiSet_32f_C4R_Ctx_impl(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiSet_32f_C4R(const Npp32f aValue[4], Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiSet_32f_C4R_Ctx(aValue, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }

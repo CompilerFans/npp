@@ -166,6 +166,15 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
                               eInterpolation, nppStreamCtx);
 }
 
+NppStatus nppiResize_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                     Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                     int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_8u_C4R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp8u, 4>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                              eInterpolation, nppStreamCtx);
+}
+
 // 16u C1R
 NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
@@ -173,6 +182,51 @@ NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize
   LOG_INFO("nppiResize_16u_C1R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
            oDstRectROI.height);
   return resizeImpl<Npp16u, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16u_C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_16u_C3R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp16u, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_16u_C4R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp16u, 4>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_16s_C1R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp16s, 1>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C3R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_16s_C3R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp16s, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_16s_C4R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp16s, 4>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
 
@@ -193,6 +247,15 @@ NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize
   LOG_INFO("nppiResize_32f_C3R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
            oDstRectROI.height);
   return resizeImpl<Npp32f, 3>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx) {
+  LOG_INFO("nppiResize_32f_C4R called: %dx%d -> %dx%d", oSrcRectROI.width, oSrcRectROI.height, oDstRectROI.width,
+           oDstRectROI.height);
+  return resizeImpl<Npp32f, 4>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
 }
 

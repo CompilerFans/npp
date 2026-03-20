@@ -277,6 +277,123 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_Bilinear) {
   validateHorizontalMonotonic<Npp8u, 1>(resultData, dstWidth, dstHeight);
 }
 
+TEST_F(ResizeFunctionalTest, Resize_8u_C4R_NearestNeighbor) {
+  const int srcWidth = 12, srcHeight = 10;
+  const int dstWidth = 24, dstHeight = 20;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  fillCheckerboard<Npp8u, 4>(srcData, srcWidth, srcHeight, 2, 255, 0);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                              NPPI_INTER_NN),
+            NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+  validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C4 resize");
+}
+
+TEST_F(ResizeFunctionalTest, Resize_16u_C3R_LinearInterpolation) {
+  const int srcWidth = 8, srcHeight = 6;
+  const int dstWidth = 16, dstHeight = 12;
+
+  std::vector<Npp16u> srcData(srcWidth * srcHeight * 3);
+  fillHorizontalGradient<Npp16u, 3>(srcData, srcWidth, srcHeight, 0, 4095);
+
+  NppImageMemory<Npp16u> src(srcWidth, srcHeight, 3);
+  NppImageMemory<Npp16u> dst(dstWidth, dstHeight, 3);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  ASSERT_EQ(nppiResize_16u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                               NPPI_INTER_LINEAR),
+            NPP_SUCCESS);
+
+  std::vector<Npp16u> dstData(dstWidth * dstHeight * 3);
+  dst.copyToHost(dstData);
+  validateRange(dstData, static_cast<Npp16u>(0), static_cast<Npp16u>(4095), "16u C3 resize");
+}
+
+TEST_F(ResizeFunctionalTest, Resize_16s_C1R_Ctx_LinearInterpolation) {
+  const int srcWidth = 9, srcHeight = 7;
+  const int dstWidth = 18, dstHeight = 14;
+
+  std::vector<Npp16s> srcData(srcWidth * srcHeight);
+  for (int y = 0; y < srcHeight; ++y) {
+    for (int x = 0; x < srcWidth; ++x) {
+      srcData[y * srcWidth + x] = static_cast<Npp16s>(x * 20 - y * 15);
+    }
+  }
+
+  NppImageMemory<Npp16s> src(srcWidth, srcHeight);
+  NppImageMemory<Npp16s> dst(dstWidth, dstHeight);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+
+  ASSERT_EQ(nppiResize_16s_C1R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                   NPPI_INTER_LINEAR, ctx),
+            NPP_SUCCESS);
+
+  cudaStreamSynchronize(ctx.hStream);
+
+  std::vector<Npp16s> dstData(dstWidth * dstHeight);
+  dst.copyToHost(dstData);
+  auto [minIt, maxIt] = std::minmax_element(dstData.begin(), dstData.end());
+  ASSERT_LT(*minIt, *maxIt);
+}
+
+TEST_F(ResizeFunctionalTest, Resize_32f_C4R_CubicInterpolation) {
+  const int srcWidth = 10, srcHeight = 10;
+  const int dstWidth = 14, dstHeight = 14;
+
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; ++y) {
+    for (int x = 0; x < srcWidth; ++x) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = x * 0.25f;
+      srcData[idx + 1] = y * 0.5f;
+      srcData[idx + 2] = (x + y) * 0.125f;
+      srcData[idx + 3] = 1.0f;
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  ASSERT_EQ(nppiResize_32f_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                               NPPI_INTER_CUBIC),
+            NPP_SUCCESS);
+
+  std::vector<Npp32f> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+  validateRange(dstData, -1.0f, 8.0f, "32f C4 resize");
+}
+
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
   const int srcWidth = 16, srcHeight = 16;
   const int dstWidth = 32, dstHeight = 32;

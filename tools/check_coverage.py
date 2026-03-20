@@ -77,8 +77,60 @@ class CoverageAnalyzer:
                     elif f"{func_base}_Ctx" in self.api_functions:
                         self.implementations[f"{func_base}_Ctx"] = str(file_path.relative_to(self.src_dir.parent))
 
+            # Detect generated copy wrappers defined via macros
+            self._capture_copy_wrappers(content, file_path)
+
+            # Detect generated swapChannels wrappers defined via macros
+            self._capture_swapchannels_wrappers(content, file_path)
+
         except Exception as e:
             print(f"Warning: Error scanning {file_path}: {e}")
+
+    def _capture_copy_wrappers(self, content: str, file_path: Path):
+        """Detect macro-generated copy wrappers"""
+        rel_path = str(file_path.relative_to(self.src_dir.parent))
+
+        def record(name: str):
+            if name in self.api_functions and name not in self.implementations:
+                self.implementations[name] = rel_path
+
+        # Simple wrappers: NPPI_COPY_WRAPPER(TYPE, SUFFIX, CHANNEL)
+        simple_pattern = r'NPPI_COPY_WRAPPER\s*\(\s*[^,]+,\s*([^,]+),\s*([^\)\s]+)\s*\)'
+        for match in re.finditer(simple_pattern, content):
+            suffix, channel = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiCopy_{suffix}_{channel}_Ctx')
+            record(f'nppiCopy_{suffix}_{channel}')
+
+        # CxPxR wrappers
+        cxpxr_pattern = r'NPPI_COPY_CXPXR_WRAPPER\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        for match in re.finditer(cxpxr_pattern, content):
+            suffix, channels = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiCopy_{suffix}_C{channels}P{channels}R_Ctx')
+            record(f'nppiCopy_{suffix}_C{channels}P{channels}R')
+
+        # PxCxR wrappers
+        pxcxr_pattern = r'NPPI_COPY_PXCXR_WRAPPER\s*\(\s*[^,]+,\s*([^,]+),\s*(\d+)\s*\)'
+        for match in re.finditer(pxcxr_pattern, content):
+            suffix, channels = match.group(1).strip(), match.group(2).strip()
+            record(f'nppiCopy_{suffix}_P{channels}C{channels}R_Ctx')
+            record(f'nppiCopy_{suffix}_P{channels}C{channels}R')
+
+    def _capture_swapchannels_wrappers(self, content: str, file_path: Path):
+        """Detect macro-generated swapChannels wrappers"""
+        rel_path = str(file_path.relative_to(self.src_dir.parent))
+
+        def record(name: str):
+            if name in self.api_functions and name not in self.implementations:
+                self.implementations[name] = rel_path
+
+        all_pattern = r'GENERATE_ALL_SWAP_CHANNELS\s*\(\s*([^) \t]+)\s*\)'
+        suffixes = ['C3R', 'C4R', 'C3IR', 'C4IR', 'C4C3R', 'C3C4R', 'AC4R']
+
+        for match in re.finditer(all_pattern, content):
+            data_type = match.group(1).strip()
+            for suffix in suffixes:
+                record(f'nppiSwapChannels_{data_type}_{suffix}')
+                record(f'nppiSwapChannels_{data_type}_{suffix}_Ctx')
 
     def scan_tests(self):
         """Scan test files for function calls"""
