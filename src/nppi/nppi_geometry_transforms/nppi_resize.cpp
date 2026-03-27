@@ -12,8 +12,26 @@ NppStatus nppiResize_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
 NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResize_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                     Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                     int eInterpolation, NppStreamContext nppStreamCtx);
 NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResize_16u_C3R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResize_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResize_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResize_16s_C3R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResize_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
 NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
@@ -21,10 +39,9 @@ NppStatus nppiResize_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize
 NppStatus nppiResize_32f_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiResizeSqrPixel_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
-                                             double nYFactor, double nXShift, double nYShift, int eInterpolation,
-                                             NppStreamContext nppStreamCtx);
+NppStatus nppiResize_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                      Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                      int eInterpolation, NppStreamContext nppStreamCtx);
 }
 
 // Input validation helper
@@ -106,6 +123,26 @@ NppStatus nppiResize_8u_C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, 
                                eInterpolation, nppStreamCtx);
 }
 
+NppStatus nppiResize_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp8u *pDst,
+                                int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation,
+                                NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResize_8u_C4R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                    eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_8u_C4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp8u *pDst,
+                            int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiResize_8u_C4R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                               eInterpolation, nppStreamCtx);
+}
+
 // 16-bit unsigned single channel resize
 NppStatus nppiResize_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                  Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
@@ -125,6 +162,106 @@ NppStatus nppiResize_16u_C1R(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiResize_16u_C1R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                 Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                 int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResize_16u_C3R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                     eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16u_C3R(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp16u *pDst,
+                             int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiResize_16u_C3R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                 Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                 int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResize_16u_C4R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                     eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16u_C4R(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp16u *pDst,
+                             int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiResize_16u_C4R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                 Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                 int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResize_16s_C1R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                     eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C1R(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp16s *pDst,
+                             int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiResize_16s_C1R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                 Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                 int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResize_16s_C3R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                     eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C3R(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp16s *pDst,
+                             int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiResize_16s_C3R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                 Npp16s *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                 int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResize_16s_C4R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                     eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResize_16s_C4R(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp16s *pDst,
+                             int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
+  nppStreamCtx.hStream = 0;
+  return nppiResize_16s_C4R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                 eInterpolation, nppStreamCtx);
 }
 
@@ -172,55 +309,22 @@ NppStatus nppiResize_32f_C3R(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize
                                 eInterpolation, nppStreamCtx);
 }
 
-static inline NppStatus validateResizeSqrPixelInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                              void *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
-                                              double nYFactor) {
-  if (!pSrc || !pDst) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
-  if (nSrcStep <= 0 || nDstStep <= 0) {
-    return NPP_STEP_ERROR;
-  }
-
-  if (oSrcSize.width <= 0 || oSrcSize.height <= 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  if (oSrcROI.width <= 0 || oSrcROI.height <= 0 || oSrcROI.x < 0 || oSrcROI.y < 0 ||
-      oSrcROI.x + oSrcROI.width > oSrcSize.width || oSrcROI.y + oSrcROI.height > oSrcSize.height) {
-    return NPP_SIZE_ERROR;
-  }
-
-  if (oDstROI.width <= 0 || oDstROI.height <= 0 || oDstROI.x < 0 || oDstROI.y < 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  if (nXFactor <= 0.0 || nYFactor <= 0.0) {
-    return NPP_RESIZE_FACTOR_ERROR;
-  }
-
-  return NPP_SUCCESS;
-}
-
-NppStatus nppiResizeSqrPixel_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                        Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor, double nYFactor,
-                                        double nXShift, double nYShift, int eInterpolation, NppStreamContext nppStreamCtx) {
-  NppStatus status =
-      validateResizeSqrPixelInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor, nYFactor);
+NppStatus nppiResize_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
+                                 Npp32f *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
+                                 int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeInputs(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                          eInterpolation);
   if (status != NPP_SUCCESS) {
     return status;
   }
-
-  return nppiResizeSqrPixel_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor,
-                                            nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+  return nppiResize_32f_C4R_Ctx_impl(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                     eInterpolation, nppStreamCtx);
 }
 
-NppStatus nppiResizeSqrPixel_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                    int nDstStep, NppiRect oDstROI, double nXFactor, double nYFactor, double nXShift,
-                                    double nYShift, int eInterpolation) {
-  NppStreamContext nppStreamCtx = {};
+NppStatus nppiResize_32f_C4R(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI, Npp32f *pDst,
+                             int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI, int eInterpolation) {
+  NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
-  return nppiResizeSqrPixel_8u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor, nYFactor,
-                                       nXShift, nYShift, eInterpolation, nppStreamCtx);
+  return nppiResize_32f_C4R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
+                                eInterpolation, nppStreamCtx);
 }

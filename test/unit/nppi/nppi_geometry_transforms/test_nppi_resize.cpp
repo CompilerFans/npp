@@ -277,6 +277,123 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_Bilinear) {
   validateHorizontalMonotonic<Npp8u, 1>(resultData, dstWidth, dstHeight);
 }
 
+TEST_F(ResizeFunctionalTest, Resize_8u_C4R_NearestNeighbor) {
+  const int srcWidth = 12, srcHeight = 10;
+  const int dstWidth = 24, dstHeight = 20;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  fillCheckerboard<Npp8u, 4>(srcData, srcWidth, srcHeight, 2, 255, 0);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                              NPPI_INTER_NN),
+            NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+  validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C4 resize");
+}
+
+TEST_F(ResizeFunctionalTest, Resize_16u_C3R_LinearInterpolation) {
+  const int srcWidth = 8, srcHeight = 6;
+  const int dstWidth = 16, dstHeight = 12;
+
+  std::vector<Npp16u> srcData(srcWidth * srcHeight * 3);
+  fillHorizontalGradient<Npp16u, 3>(srcData, srcWidth, srcHeight, 0, 4095);
+
+  NppImageMemory<Npp16u> src(srcWidth, srcHeight, 3);
+  NppImageMemory<Npp16u> dst(dstWidth, dstHeight, 3);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  ASSERT_EQ(nppiResize_16u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                               NPPI_INTER_LINEAR),
+            NPP_SUCCESS);
+
+  std::vector<Npp16u> dstData(dstWidth * dstHeight * 3);
+  dst.copyToHost(dstData);
+  validateRange(dstData, static_cast<Npp16u>(0), static_cast<Npp16u>(4095), "16u C3 resize");
+}
+
+TEST_F(ResizeFunctionalTest, Resize_16s_C1R_Ctx_LinearInterpolation) {
+  const int srcWidth = 9, srcHeight = 7;
+  const int dstWidth = 18, dstHeight = 14;
+
+  std::vector<Npp16s> srcData(srcWidth * srcHeight);
+  for (int y = 0; y < srcHeight; ++y) {
+    for (int x = 0; x < srcWidth; ++x) {
+      srcData[y * srcWidth + x] = static_cast<Npp16s>(x * 20 - y * 15);
+    }
+  }
+
+  NppImageMemory<Npp16s> src(srcWidth, srcHeight);
+  NppImageMemory<Npp16s> dst(dstWidth, dstHeight);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+
+  ASSERT_EQ(nppiResize_16s_C1R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                   NPPI_INTER_LINEAR, ctx),
+            NPP_SUCCESS);
+
+  cudaStreamSynchronize(ctx.hStream);
+
+  std::vector<Npp16s> dstData(dstWidth * dstHeight);
+  dst.copyToHost(dstData);
+  auto [minIt, maxIt] = std::minmax_element(dstData.begin(), dstData.end());
+  ASSERT_LT(*minIt, *maxIt);
+}
+
+TEST_F(ResizeFunctionalTest, Resize_32f_C4R_CubicInterpolation) {
+  const int srcWidth = 10, srcHeight = 10;
+  const int dstWidth = 14, dstHeight = 14;
+
+  std::vector<Npp32f> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; ++y) {
+    for (int x = 0; x < srcWidth; ++x) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = x * 0.25f;
+      srcData[idx + 1] = y * 0.5f;
+      srcData[idx + 2] = (x + y) * 0.125f;
+      srcData[idx + 3] = 1.0f;
+    }
+  }
+
+  NppImageMemory<Npp32f> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp32f> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  ASSERT_EQ(nppiResize_32f_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                               NPPI_INTER_CUBIC),
+            NPP_SUCCESS);
+
+  std::vector<Npp32f> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+  validateRange(dstData, -1.0f, 8.0f, "32f C4 resize");
+}
+
 TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor) {
   const int srcWidth = 16, srcHeight = 16;
   const int dstWidth = 32, dstHeight = 32;
@@ -1400,7 +1517,7 @@ TEST_F(ResizeFunctionalTest, Linear_8u_C3R_ExactInterpolation) {
   // Validate against CPU reference
   // MPP: strict tolerance=0 for perfect match
   // NVIDIA NPP: tolerance=12 due to algorithm differences
-#ifdef USE_NVIDIA_NPP
+#ifdef USE_NVIDIA_NPP_TESTS
   validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 12);
 #else
   validateAgainstLinearCPUReference<Npp8u, 3>(resultData, srcData, srcWidth, srcHeight, dstWidth, dstHeight, 0);
@@ -2232,40 +2349,6 @@ TEST_F(ResizeFunctionalTest, Resize_32f_C1R_Ctx_CubicInterpolation) {
   ASSERT_GT(maxVal - minVal, 0.1f);
 }
 
-TEST_F(ResizeFunctionalTest, Resize_32f_C1R_CubicInterpolation) {
-  const int srcWidth = 32, srcHeight = 32;
-  const int dstWidth = 48, dstHeight = 48;
-
-  std::vector<Npp32f> srcData(srcWidth * srcHeight);
-  for (int y = 0; y < srcHeight; y++) {
-    for (int x = 0; x < srcWidth; x++) {
-      srcData[y * srcWidth + x] = sinf(x * 0.2f) * cosf(y * 0.2f);
-    }
-  }
-
-  NppImageMemory<Npp32f> src(srcWidth, srcHeight);
-  NppImageMemory<Npp32f> dst(dstWidth, dstHeight);
-
-  src.copyFromHost(srcData);
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiSize dstSize = {dstWidth, dstHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
-
-  NppStatus status = nppiResize_32f_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                        NPPI_INTER_CUBIC);
-
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  std::vector<Npp32f> dstData(dstWidth * dstHeight);
-  dst.copyToHost(dstData);
-
-  float maxVal = *std::max_element(dstData.begin(), dstData.end());
-  float minVal = *std::min_element(dstData.begin(), dstData.end());
-  ASSERT_GT(maxVal - minVal, 0.1f);
-}
-
 // Test 32f C3R with LINEAR interpolation
 TEST_F(ResizeFunctionalTest, Resize_32f_C3R_Ctx_LinearInterpolation) {
   const int srcWidth = 32, srcHeight = 32;
@@ -2520,204 +2603,3 @@ INSTANTIATE_TEST_SUITE_P(
                       ResizeParams{64, 64, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_2x_downscale_large"},
                       ResizeParams{48, 48, 16, 16, NPPI_INTER_LANCZOS, "LANCZOS_3x_downscale"},
                       ResizeParams{96, 96, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_3x_downscale_large"}));
-
-
-template <typename T> T clampValue(T value, T minVal, T maxVal) {
-  return std::max(minVal, std::min(value, maxVal));
-}
-
-void resizeSqrPixelReference(const std::vector<Npp8u> &src, int srcStep, NppiRect srcROI, std::vector<Npp8u> &dst,
-                             int dstStep, NppiRect dstROI, double nXFactor, double nYFactor, double nXShift,
-                             double nYShift, int eInterpolation) {
-  float invScaleX = 1.0f / static_cast<float>(nXFactor);
-  float invScaleY = 1.0f / static_cast<float>(nYFactor);
-  float shiftX = static_cast<float>(nXShift);
-  float shiftY = static_cast<float>(nYShift);
-
-  float minX = static_cast<float>(srcROI.x);
-  float minY = static_cast<float>(srcROI.y);
-  float maxX = static_cast<float>(srcROI.x + srcROI.width - 1);
-  float maxY = static_cast<float>(srcROI.y + srcROI.height - 1);
-
-  for (int dy = 0; dy < dstROI.height; ++dy) {
-    int destY = dy + dstROI.y;
-    float sy = (static_cast<float>(destY) + 0.5f) * invScaleY + shiftY + static_cast<float>(srcROI.y) - 0.5f;
-    sy = clampValue(sy, minY, maxY);
-
-    for (int dx = 0; dx < dstROI.width; ++dx) {
-      int destX = dx + dstROI.x;
-      float sx = (static_cast<float>(destX) + 0.5f) * invScaleX + shiftX + static_cast<float>(srcROI.x) - 0.5f;
-      sx = clampValue(sx, minX, maxX);
-
-      Npp8u *dstRow = dst.data() + destY * dstStep;
-
-      if (eInterpolation == NPPI_INTER_NN) {
-        int xi = static_cast<int>(std::floor(sx + 0.5f));
-        int yi = static_cast<int>(std::floor(sy + 0.5f));
-        xi = clampValue(xi, srcROI.x, srcROI.x + srcROI.width - 1);
-        yi = clampValue(yi, srcROI.y, srcROI.y + srcROI.height - 1);
-        const Npp8u *srcRow = src.data() + yi * srcStep;
-        dstRow[destX] = srcRow[xi];
-      } else {
-        int x1 = static_cast<int>(std::floor(sx));
-        int y1 = static_cast<int>(std::floor(sy));
-        x1 = clampValue(x1, srcROI.x, srcROI.x + srcROI.width - 1);
-        y1 = clampValue(y1, srcROI.y, srcROI.y + srcROI.height - 1);
-
-        int x2 = std::min(x1 + 1, srcROI.x + srcROI.width - 1);
-        int y2 = std::min(y1 + 1, srcROI.y + srcROI.height - 1);
-
-        float tx = sx - static_cast<float>(x1);
-        float ty = sy - static_cast<float>(y1);
-
-        const Npp8u *row1 = src.data() + y1 * srcStep;
-        const Npp8u *row2 = src.data() + y2 * srcStep;
-
-        float p11 = static_cast<float>(row1[x1]);
-        float p12 = static_cast<float>(row1[x2]);
-        float p21 = static_cast<float>(row2[x1]);
-        float p22 = static_cast<float>(row2[x2]);
-
-        float top = p11 + (p12 - p11) * tx;
-        float bottom = p21 + (p22 - p21) * tx;
-        float value = top + (bottom - top) * ty;
-        dstRow[destX] = static_cast<Npp8u>(value + 0.5f);
-      }
-    }
-  }
-}
-
-struct NppiFreeDeleter {
-  void operator()(Npp8u *ptr) const {
-    if (ptr != nullptr) {
-      nppiFree(ptr);
-    }
-  }
-};
-
-class NppiResizeSqrPixel8uC1RTest : public ::testing::Test {
-protected:
-  using NppiBuffer = std::unique_ptr<Npp8u, NppiFreeDeleter>;
-
-  static NppiBuffer AllocateBuffer(int width, int height, int *step) {
-    Npp8u *buffer = nppiMalloc_8u_C1(width, height, step);
-    return NppiBuffer(buffer);
-  }
-};
-
-TEST_F(NppiResizeSqrPixel8uC1RTest, LinearUpscaleMatchesReference) {
-  const int srcWidth = 4;
-  const int srcHeight = 4;
-  const double nXFactor = 2.0;
-  const double nYFactor = 2.0;
-  const double nXShift = 0.0;
-  const double nYShift = 0.0;
-
-  NppiSize srcSize = {srcWidth, srcHeight};
-  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
-  NppiRect dstROI = {0, 0, static_cast<int>(srcROI.width * nXFactor), static_cast<int>(srcROI.height * nYFactor)};
-
-  int srcStep = 0;
-  int dstStep = 0;
-  auto d_src = AllocateBuffer(srcROI.width, srcROI.height, &srcStep);
-  ASSERT_TRUE(d_src);
-  auto d_dst = AllocateBuffer(dstROI.width, dstROI.height, &dstStep);
-  ASSERT_TRUE(d_dst);
-
-  std::vector<Npp8u> h_src(srcStep * srcROI.height, 0);
-  std::vector<Npp8u> h_dst(dstStep * dstROI.height, 0);
-  std::vector<Npp8u> h_ref(dstStep * dstROI.height, 0);
-
-  for (int y = 0; y < srcROI.height; ++y) {
-    for (int x = 0; x < srcROI.width; ++x) {
-      h_src[y * srcStep + x] = static_cast<Npp8u>(y * 16 + x * 8);
-    }
-  }
-
-  ASSERT_EQ(cudaMemcpy2D(d_src.get(), srcStep, h_src.data(), srcStep, srcROI.width, srcROI.height, cudaMemcpyHostToDevice),
-            cudaSuccess);
-
-  NppStatus status = nppiResizeSqrPixel_8u_C1R(d_src.get(), srcSize, srcStep, srcROI, d_dst.get(), dstStep, dstROI,
-                                               nXFactor, nYFactor,
-                                               nXShift, nYShift, NPPI_INTER_LINEAR);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  ASSERT_EQ(cudaMemcpy2D(h_dst.data(), dstStep, d_dst.get(), dstStep, dstROI.width, dstROI.height, cudaMemcpyDeviceToHost),
-            cudaSuccess);
-
-  resizeSqrPixelReference(h_src, srcStep, srcROI, h_ref, dstStep, dstROI, nXFactor, nYFactor, nXShift, nYShift,
-                          NPPI_INTER_LINEAR);
-
-  for (int y = 0; y < dstROI.height; ++y) {
-    for (int x = 0; x < dstROI.width; ++x) {
-      EXPECT_NEAR(h_dst[y * dstStep + x], h_ref[y * dstStep + x], 1) << "Mismatch at (" << x << "," << y << ")";
-    }
-  }
-}
-
-TEST_F(NppiResizeSqrPixel8uC1RTest, NearestWithShiftMatchesReference) {
-  const int size = 8;
-  const double nXFactor = 1.0;
-  const double nYFactor = 1.0;
-  const double nXShift = 1.0;
-  const double nYShift = 1.0;
-
-  NppiSize srcSize = {size, size};
-  NppiRect srcROI = {0, 0, size, size};
-  NppiRect dstROI = {0, 0, size, size};
-
-  int srcStep = 0;
-  int dstStep = 0;
-  auto d_src = AllocateBuffer(srcROI.width, srcROI.height, &srcStep);
-  ASSERT_TRUE(d_src);
-  auto d_dst = AllocateBuffer(dstROI.width, dstROI.height, &dstStep);
-  ASSERT_TRUE(d_dst);
-
-  std::vector<Npp8u> h_src(srcStep * srcROI.height, 0);
-  std::vector<Npp8u> h_dst(dstStep * dstROI.height, 0);
-  std::vector<Npp8u> h_ref(dstStep * dstROI.height, 0);
-
-  for (int y = 0; y < size; ++y) {
-    for (int x = 0; x < size; ++x) {
-      h_src[y * srcStep + x] = static_cast<Npp8u>(y * size + x);
-    }
-  }
-
-  ASSERT_EQ(cudaMemcpy2D(d_src.get(), srcStep, h_src.data(), srcStep, srcROI.width, srcROI.height, cudaMemcpyHostToDevice),
-            cudaSuccess);
-
-  NppStatus status = nppiResizeSqrPixel_8u_C1R(d_src.get(), srcSize, srcStep, srcROI, d_dst.get(), dstStep, dstROI,
-                                               nXFactor, nYFactor,
-                                               nXShift, nYShift, NPPI_INTER_NN);
-  ASSERT_EQ(status, NPP_SUCCESS);
-
-  ASSERT_EQ(cudaMemcpy2D(h_dst.data(), dstStep, d_dst.get(), dstStep, dstROI.width, dstROI.height, cudaMemcpyDeviceToHost),
-            cudaSuccess);
-
-  resizeSqrPixelReference(h_src, srcStep, srcROI, h_ref, dstStep, dstROI, nXFactor, nYFactor, nXShift, nYShift,
-                          NPPI_INTER_NN);
-
-  for (int y = 0; y < dstROI.height; ++y) {
-    for (int x = 0; x < dstROI.width; ++x) {
-      EXPECT_EQ(h_dst[y * dstStep + x], h_ref[y * dstStep + x]) << "Mismatch at (" << x << "," << y << ")";
-    }
-  }
-}
-
-TEST_F(NppiResizeSqrPixel8uC1RTest, InvalidFactorReturnsError) {
-  const int size = 4;
-  NppiSize srcSize = {size, size};
-  NppiRect srcROI = {0, 0, size, size};
-  NppiRect dstROI = {0, 0, size, size};
-
-  int srcStep = 0;
-  int dstStep = 0;
-  auto d_src = AllocateBuffer(size, size, &srcStep);
-  ASSERT_TRUE(d_src);
-  auto d_dst = AllocateBuffer(size, size, &dstStep);
-  ASSERT_TRUE(d_dst);
-
-  NppStatus status = nppiResizeSqrPixel_8u_C1R(d_src.get(), srcSize, srcStep, srcROI, d_dst.get(), dstStep, dstROI, 0.0,
-                                               1.0, 0.0, 0.0, NPPI_INTER_LINEAR);
-  EXPECT_EQ(status, NPP_RESIZE_FACTOR_ERROR);
-}

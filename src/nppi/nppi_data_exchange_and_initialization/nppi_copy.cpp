@@ -52,6 +52,10 @@ NppStatus nppiCopy_8u_C4P4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *con
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiCopy_16u_C4P4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *const pDst[4], int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiCopy_16s_C4P4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *const pDst[4], int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiCopy_32s_C4P4R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, Npp32s *const pDst[4], int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiCopy_32f_C4P4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *const pDst[4], int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 
@@ -71,6 +75,10 @@ NppStatus nppiCopy_32f_P3C3R_Ctx_impl(const Npp32f *const pSrc[3], int nSrcStep,
 NppStatus nppiCopy_8u_P4C4R_Ctx_impl(const Npp8u *const pSrc[4], int nSrcStep, Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiCopy_16u_P4C4R_Ctx_impl(const Npp16u *const pSrc[4], int nSrcStep, Npp16u *pDst, int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiCopy_16s_P4C4R_Ctx_impl(const Npp16s *const pSrc[4], int nSrcStep, Npp16s *pDst, int nDstStep,
+                                      NppiSize oSizeROI, NppStreamContext nppStreamCtx);
+NppStatus nppiCopy_32s_P4C4R_Ctx_impl(const Npp32s *const pSrc[4], int nSrcStep, Npp32s *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx);
 NppStatus nppiCopy_32f_P4C4R_Ctx_impl(const Npp32f *const pSrc[4], int nSrcStep, Npp32f *pDst, int nDstStep,
                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx);
@@ -240,6 +248,8 @@ NPPI_COPY_CXPXR_WRAPPER(Npp32f, 32f, 3)
 // C4P4R wrappers
 NPPI_COPY_CXPXR_WRAPPER(Npp8u, 8u, 4)
 NPPI_COPY_CXPXR_WRAPPER(Npp16u, 16u, 4)
+NPPI_COPY_CXPXR_WRAPPER(Npp16s, 16s, 4)
+NPPI_COPY_CXPXR_WRAPPER(Npp32s, 32s, 4)
 NPPI_COPY_CXPXR_WRAPPER(Npp32f, 32f, 4)
 
 // P3C3R wrappers
@@ -252,6 +262,8 @@ NPPI_COPY_PXCXR_WRAPPER(Npp32f, 32f, 3)
 // P4C4R wrappers
 NPPI_COPY_PXCXR_WRAPPER(Npp8u, 8u, 4)
 NPPI_COPY_PXCXR_WRAPPER(Npp16u, 16u, 4)
+NPPI_COPY_PXCXR_WRAPPER(Npp16s, 16s, 4)
+NPPI_COPY_PXCXR_WRAPPER(Npp32s, 32s, 4)
 NPPI_COPY_PXCXR_WRAPPER(Npp32f, 32f, 4)
 
 #undef NPPI_COPY_CXPXR_WRAPPER
