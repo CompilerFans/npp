@@ -53,15 +53,19 @@ NppStatus nppiWarpPerspective_16f_C3R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrc
 NppStatus nppiWarpPerspective_16f_C4R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
                                                Npp16f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
                                                int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiMergeAlpha_8u_C4R(const Npp8u *pSrcWarped, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                NppStreamContext nppStreamCtx);
-NppStatus nppiMergeAlpha_16u_C4R(const Npp16u *pSrcWarped, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx);
-NppStatus nppiMergeAlpha_32f_C4R(const Npp32f *pSrcWarped, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx);
-NppStatus nppiMergeAlpha_32s_C4R(const Npp32s *pSrcWarped, Npp32s *pDst, int nDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx);
-}
+NppStatus nppiWarpPerspective_8u_AC4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_16u_AC4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                Npp16u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                                int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32f_AC4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                Npp32f *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                                int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspective_32s_AC4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                Npp32s *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                                int eInterpolation, NppStreamContext nppStreamCtx);
+                                              }
 
 static inline NppStatus validateWarpPerspectiveInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep,
                                                       NppiRect oSrcROI, void *pDst, int nDstStep, NppiRect oDstROI,
@@ -111,32 +115,6 @@ static inline NppStreamContext getDefaultStreamContextZero() {
   NppStreamContext nppStreamCtx{};
   nppStreamCtx.hStream = 0;
   return nppStreamCtx;
-}
-
-template <typename T, typename WarpFn, typename MergeFn>
-static NppStatus warpPerspectiveAC4Common(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, T *pDst,
-                                          int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3], int eInterpolation,
-                                          NppStreamContext nppStreamCtx, WarpFn warpFn, MergeFn mergeFn) {
-  NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
-                                                   eInterpolation);
-  if (status != NPP_SUCCESS) {
-    return status;
-  }
-
-  T *pTmp = nullptr;
-  size_t tmpBytes = static_cast<size_t>(nDstStep) * oDstROI.height;
-  cudaError_t cudaStatus = cudaMalloc(&pTmp, tmpBytes);
-  if (cudaStatus != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  status = warpFn(pSrc, oSrcSize, nSrcStep, oSrcROI, pTmp, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx);
-  if (status == NPP_SUCCESS) {
-    status = mergeFn(pTmp, pDst, nDstStep, {oDstROI.width, oDstROI.height}, nppStreamCtx);
-  }
-
-  cudaFree(pTmp);
-  return status;
 }
 
 template <typename T, typename WarpFn>
@@ -638,6 +616,22 @@ NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize 
                                                    NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
                                                    const double aCoeffs[3][3], int eInterpolation,
                                                    NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_8u_AC4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                   Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_16u_AC4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                    NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                    const double aCoeffs[3][3], int eInterpolation,
+                                                    NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32f_AC4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                    NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                    const double aCoeffs[3][3], int eInterpolation,
+                                                    NppStreamContext nppStreamCtx);
+NppStatus nppiWarpPerspectiveBack_32s_AC4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                    NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                    const double aCoeffs[3][3], int eInterpolation,
+                                                    NppStreamContext nppStreamCtx);
 }
 
 // 8u C1R
@@ -973,12 +967,17 @@ NppStatus nppiWarpPerspective_16f_C4R(const Npp16f *pSrc, NppiSize oSrcSize, int
                                          eInterpolation, getDefaultStreamContextZero());
 }
 
-#define DEFINE_WARP_PERSPECTIVE_AC4(TYPE, SUFFIX, MERGE_FN)                                                                     \
+#define DEFINE_WARP_PERSPECTIVE_AC4(TYPE, SUFFIX)                                                                               \
   NppStatus nppiWarpPerspective_##SUFFIX##_AC4R_Ctx(const TYPE *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,      \
                                                     TYPE *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],    \
                                                     int eInterpolation, NppStreamContext nppStreamCtx) {                       \
-    return warpPerspectiveAC4Common(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation,     \
-                                    nppStreamCtx, nppiWarpPerspective_##SUFFIX##_C4R_Ctx, MERGE_FN);                          \
+    NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,    \
+                                                     eInterpolation);                                                           \
+    if (status != NPP_SUCCESS) {                                                                                               \
+      return status;                                                                                                            \
+    }                                                                                                                           \
+    return nppiWarpPerspective_##SUFFIX##_AC4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,          \
+                                                        aCoeffs, eInterpolation, nppStreamCtx);                               \
   }                                                                                                                            \
   NppStatus nppiWarpPerspective_##SUFFIX##_AC4R(const TYPE *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,         \
                                                 TYPE *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],       \
@@ -1002,10 +1001,10 @@ NppStatus nppiWarpPerspective_16f_C4R(const Npp16f *pSrc, NppiSize oSrcSize, int
                                                            aCoeffs, eInterpolation, getDefaultStreamContextZero());            \
   }
 
-DEFINE_WARP_PERSPECTIVE_AC4(Npp8u, 8u, nppiMergeAlpha_8u_C4R)
-DEFINE_WARP_PERSPECTIVE_AC4(Npp16u, 16u, nppiMergeAlpha_16u_C4R)
-DEFINE_WARP_PERSPECTIVE_AC4(Npp32f, 32f, nppiMergeAlpha_32f_C4R)
-DEFINE_WARP_PERSPECTIVE_AC4(Npp32s, 32s, nppiMergeAlpha_32s_C4R)
+DEFINE_WARP_PERSPECTIVE_AC4(Npp8u, 8u)
+DEFINE_WARP_PERSPECTIVE_AC4(Npp16u, 16u)
+DEFINE_WARP_PERSPECTIVE_AC4(Npp32f, 32f)
+DEFINE_WARP_PERSPECTIVE_AC4(Npp32s, 32s)
 DEFINE_WARP_PERSPECTIVE_PLANAR(Npp8u, 8u, 3)
 DEFINE_WARP_PERSPECTIVE_PLANAR(Npp8u, 8u, 4)
 DEFINE_WARP_PERSPECTIVE_PLANAR(Npp16u, 16u, 3)
@@ -1018,13 +1017,18 @@ DEFINE_WARP_PERSPECTIVE_PLANAR(Npp32s, 32s, 4)
 #undef DEFINE_WARP_PERSPECTIVE_AC4
 #undef DEFINE_WARP_PERSPECTIVE_PLANAR
 
-#define DEFINE_WARP_PERSPECTIVE_BACK_AC4(TYPE, SUFFIX, MERGE_FN)                                                                \
+#define DEFINE_WARP_PERSPECTIVE_BACK_AC4(TYPE, SUFFIX)                                                                          \
   NppStatus nppiWarpPerspectiveBack_##SUFFIX##_AC4R_Ctx(const TYPE *pSrc, NppiSize oSrcSize, int nSrcStep,                    \
                                                         NppiRect oSrcROI, TYPE *pDst, int nDstStep, NppiRect oDstROI,          \
                                                         const double aCoeffs[3][3], int eInterpolation,                        \
                                                         NppStreamContext nppStreamCtx) {                                        \
-    return warpPerspectiveAC4Common(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation,     \
-                                    nppStreamCtx, nppiWarpPerspectiveBack_##SUFFIX##_C4R_Ctx, MERGE_FN);                      \
+    NppStatus status = validateWarpPerspectiveInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,    \
+                                                     eInterpolation);                                                           \
+    if (status != NPP_SUCCESS) {                                                                                               \
+      return status;                                                                                                            \
+    }                                                                                                                           \
+    return nppiWarpPerspectiveBack_##SUFFIX##_AC4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,      \
+                                                            aCoeffs, eInterpolation, nppStreamCtx);                           \
   }                                                                                                                             \
   NppStatus nppiWarpPerspectiveBack_##SUFFIX##_AC4R(const TYPE *pSrc, NppiSize oSrcSize, int nSrcStep,                        \
                                                     NppiRect oSrcROI, TYPE *pDst, int nDstStep, NppiRect oDstROI,             \
@@ -1048,10 +1052,10 @@ DEFINE_WARP_PERSPECTIVE_PLANAR(Npp32s, 32s, 4)
                                                                aCoeffs, eInterpolation, getDefaultStreamContextZero());        \
   }
 
-DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp8u, 8u, nppiMergeAlpha_8u_C4R)
-DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp16u, 16u, nppiMergeAlpha_16u_C4R)
-DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp32f, 32f, nppiMergeAlpha_32f_C4R)
-DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp32s, 32s, nppiMergeAlpha_32s_C4R)
+DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp8u, 8u)
+DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp16u, 16u)
+DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp32f, 32f)
+DEFINE_WARP_PERSPECTIVE_BACK_AC4(Npp32s, 32s)
 DEFINE_WARP_PERSPECTIVE_BACK_PLANAR(Npp8u, 8u, 3)
 DEFINE_WARP_PERSPECTIVE_BACK_PLANAR(Npp8u, 8u, 4)
 DEFINE_WARP_PERSPECTIVE_BACK_PLANAR(Npp16u, 16u, 3)
