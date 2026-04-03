@@ -150,27 +150,19 @@ __device__ Npp8u cubicInterpolationU8(const Npp8u *pSrc, int nSrcStep, NppiSize 
   return saturateCastU8(res);
 }
 
-__device__ inline float npp16fToFloatDevice(Npp16f value) {
-  union {
-    Npp16f npp;
-    unsigned short bits;
-  } conv{};
-  conv.npp = value;
-  __half_raw raw{conv.bits};
-  __half halfValue = raw;
-  return __half2float(halfValue);
+__device__ __forceinline__ __half npp16fToHalfDevice(Npp16f value) {
+  return __ushort_as_half(static_cast<unsigned short>(value.fp16));
 }
 
-__device__ inline Npp16f floatToNpp16fDevice(float value) {
-  __half halfValue = __float2half(value);
-  __half_raw raw = halfValue;
-  union {
-    Npp16f npp;
-    unsigned short bits;
-  } conv{};
-  conv.bits = raw.x;
-  return conv.npp;
+__device__ __forceinline__ Npp16f halfToNpp16fDevice(__half value) {
+  Npp16f result;
+  result.fp16 = static_cast<short>(__half_as_ushort(value));
+  return result;
 }
+
+__device__ inline float npp16fToFloatDevice(Npp16f value) { return __half2float(npp16fToHalfDevice(value)); }
+
+__device__ inline Npp16f floatToNpp16fDevice(float value) { return halfToNpp16fDevice(__float2half(value)); }
 
 template <>
 __device__ Npp16f nearestInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
@@ -184,7 +176,8 @@ __device__ Npp16f nearestInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep,
 }
 
 template <>
-__device__ Npp16f bilinearInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep, NppiSize srcSize, float fx, float fy) {
+__device__ Npp16f bilinearInterpolation<Npp16f>(const Npp16f *pSrc, int nSrcStep, NppiSize srcSize, float fx,
+                                                float fy) {
   int x0 = static_cast<int>(floorf(fx));
   int y0 = static_cast<int>(floorf(fy));
   int x1 = x0 + 1;
@@ -2678,13 +2671,12 @@ NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize 
 
   return NPP_SUCCESS;
 }
-
 }
 
-__global__ void nppiWarpPerspective_16f_C1R_kernel(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp16f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                   double c02, double c10, double c11, double c12, double c20,
-                                                   double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspective_16f_C1R_kernel(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   double c00, double c01, double c02, double c10, double c11,
+                                                   double c12, double c20, double c21, double c22, int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x < oDstROI.width && y < oDstROI.height) {
@@ -2713,10 +2705,10 @@ __global__ void nppiWarpPerspective_16f_C1R_kernel(const Npp16f *pSrc, NppiSize 
 }
 
 template <int channels>
-__global__ void nppiWarpPerspective_16f_CxR_kernel(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                                   Npp16f *pDst, int nDstStep, NppiRect oDstROI, double c00, double c01,
-                                                   double c02, double c10, double c11, double c12, double c20,
-                                                   double c21, double c22, int eInterpolation) {
+__global__ void nppiWarpPerspective_16f_CxR_kernel(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                   NppiRect oSrcROI, Npp16f *pDst, int nDstStep, NppiRect oDstROI,
+                                                   double c00, double c01, double c02, double c10, double c11,
+                                                   double c12, double c20, double c21, double c22, int eInterpolation) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x < oDstROI.width && y < oDstROI.height) {
@@ -2740,8 +2732,8 @@ __global__ void nppiWarpPerspective_16f_CxR_kernel(const Npp16f *pSrc, NppiSize 
         int ix = static_cast<int>(roundf(fx));
         int iy = static_cast<int>(roundf(fy));
         if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
-          const Npp16f *pixel =
-              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) + ix * channels + c;
+          const Npp16f *pixel = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) +
+                                ix * channels + c;
           result = npp16fToFloatDevice(*pixel);
         }
         break;
@@ -2754,17 +2746,26 @@ __global__ void nppiWarpPerspective_16f_CxR_kernel(const Npp16f *pSrc, NppiSize 
         float dx = fx - x0;
         float dy = fy - y0;
         if (x0 >= 0 && x1 < oSrcSize.width && y0 >= 0 && y1 < oSrcSize.height) {
-          const Npp16f *p00 =
-              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) + x0 * channels + c;
-          const Npp16f *p01 =
-              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) + x1 * channels + c;
-          const Npp16f *p10 =
-              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) + x0 * channels + c;
-          const Npp16f *p11 =
-              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) + x1 * channels + c;
+          const Npp16f *p00 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) +
+                              x0 * channels + c;
+          const Npp16f *p01 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep) +
+                              x1 * channels + c;
+          const Npp16f *p10 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) +
+                              x0 * channels + c;
+          const Npp16f *p11 = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep) +
+                              x1 * channels + c;
           float v0 = npp16fToFloatDevice(*p00) * (1.0f - dx) + npp16fToFloatDevice(*p01) * dx;
           float v1 = npp16fToFloatDevice(*p10) * (1.0f - dx) + npp16fToFloatDevice(*p11) * dx;
           result = v0 * (1.0f - dy) + v1 * dy;
+        } else {
+          int ix = static_cast<int>(roundf(fx));
+          int iy = static_cast<int>(roundf(fy));
+          if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
+            const Npp16f *pixel =
+                reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) + ix * channels +
+                c;
+            result = npp16fToFloatDevice(*pixel);
+          }
         }
         break;
       }
@@ -2772,8 +2773,8 @@ __global__ void nppiWarpPerspective_16f_CxR_kernel(const Npp16f *pSrc, NppiSize 
         int ix = static_cast<int>(roundf(fx));
         int iy = static_cast<int>(roundf(fy));
         if (ix >= 0 && ix < oSrcSize.width && iy >= 0 && iy < oSrcSize.height) {
-          const Npp16f *pixel =
-              reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) + ix * channels + c;
+          const Npp16f *pixel = reinterpret_cast<const Npp16f *>(reinterpret_cast<const char *>(pSrc) + iy * nSrcStep) +
+                                ix * channels + c;
           result = npp16fToFloatDevice(*pixel);
         }
         break;
@@ -2789,14 +2790,35 @@ static NppStatus mergeAlphaLaunch(const T *pSrcWarped, T *pDst, int nDstStep, Np
                                   NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-  mergeAlphaChannelC4Kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcWarped, pDst, nDstStep, oSizeROI.width,
-                                                                               oSizeROI.height);
+  mergeAlphaChannelC4Kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcWarped, pDst, nDstStep,
+                                                                              oSizeROI.width, oSizeROI.height);
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
   cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
   return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+template <typename T, typename WarpFn>
+static NppStatus warpPerspectiveAC4CtxImplCommon(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                 T *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                                 int eInterpolation, NppStreamContext nppStreamCtx, WarpFn warpFn) {
+  T *pTmp = nullptr;
+  size_t tmpBytes = static_cast<size_t>(nDstStep) * oDstROI.height;
+  cudaError_t cudaStatus = cudaMalloc(reinterpret_cast<void **>(&pTmp), tmpBytes);
+  if (cudaStatus != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+
+  NppStatus status =
+      warpFn(pSrc, oSrcSize, nSrcStep, oSrcROI, pTmp, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx);
+  if (status == NPP_SUCCESS) {
+    status = mergeAlphaLaunch(pTmp, pDst, nDstStep, {oDstROI.width, oDstROI.height}, nppStreamCtx);
+  }
+
+  cudaFree(pTmp);
+  return status;
 }
 
 extern "C" {
@@ -2848,23 +2870,66 @@ NppStatus nppiWarpPerspective_16f_C4R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrc
   return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiMergeAlpha_8u_C4R(const Npp8u *pSrcWarped, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                NppStreamContext nppStreamCtx) {
-  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+NppStatus nppiWarpPerspective_8u_AC4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                               Npp8u *pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[3][3],
+                                               int eInterpolation, NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspective_8u_C4R_Ctx_impl);
 }
 
-NppStatus nppiMergeAlpha_16u_C4R(const Npp16u *pSrcWarped, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx) {
-  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+NppStatus nppiWarpPerspective_16u_AC4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                const double aCoeffs[3][3], int eInterpolation,
+                                                NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspective_16u_C4R_Ctx_impl);
 }
 
-NppStatus nppiMergeAlpha_32f_C4R(const Npp32f *pSrcWarped, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx) {
-  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+NppStatus nppiWarpPerspective_32f_AC4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                const double aCoeffs[3][3], int eInterpolation,
+                                                NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspective_32f_C4R_Ctx_impl);
 }
 
-NppStatus nppiMergeAlpha_32s_C4R(const Npp32s *pSrcWarped, Npp32s *pDst, int nDstStep, NppiSize oSizeROI,
-                                 NppStreamContext nppStreamCtx) {
-  return mergeAlphaLaunch(pSrcWarped, pDst, nDstStep, oSizeROI, nppStreamCtx);
+NppStatus nppiWarpPerspective_32s_AC4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                const double aCoeffs[3][3], int eInterpolation,
+                                                NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspective_32s_C4R_Ctx_impl);
+}
+
+NppStatus nppiWarpPerspectiveBack_8u_AC4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                                   Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                                   const double aCoeffs[3][3], int eInterpolation,
+                                                   NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspectiveBack_8u_C4R_Ctx_impl);
+}
+
+NppStatus nppiWarpPerspectiveBack_16u_AC4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                    NppiRect oSrcROI, Npp16u *pDst, int nDstStep, NppiRect oDstROI,
+                                                    const double aCoeffs[3][3], int eInterpolation,
+                                                    NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspectiveBack_16u_C4R_Ctx_impl);
+}
+
+NppStatus nppiWarpPerspectiveBack_32f_AC4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                    NppiRect oSrcROI, Npp32f *pDst, int nDstStep, NppiRect oDstROI,
+                                                    const double aCoeffs[3][3], int eInterpolation,
+                                                    NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspectiveBack_32f_C4R_Ctx_impl);
+}
+
+NppStatus nppiWarpPerspectiveBack_32s_AC4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                    NppiRect oSrcROI, Npp32s *pDst, int nDstStep, NppiRect oDstROI,
+                                                    const double aCoeffs[3][3], int eInterpolation,
+                                                    NppStreamContext nppStreamCtx) {
+  return warpPerspectiveAC4CtxImplCommon(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs,
+                                         eInterpolation, nppStreamCtx, nppiWarpPerspectiveBack_32s_C4R_Ctx_impl);
 }
 }

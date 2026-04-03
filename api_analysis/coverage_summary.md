@@ -1,9 +1,9 @@
 # Coverage Summary
 
 - Total API Functions: 12500
-- Implemented: 4117 (32.9%)
-- Tested: 3746 (30.0%)
-- Implemented but not tested: 371
+- Implemented: 4109 (32.9%)
+- Tested: 3803 (30.4%)
+- Implemented but not tested: 317
 
 ## By Module
 
@@ -22,7 +22,7 @@
 - Total: 1895, Impl: 88 (4.6%), Test: 52 (2.7%)
 
 **nppi_geometry_transforms.h**
-- Total: 705, Impl: 342 (48.5%), Test: 167 (23.7%)
+- Total: 705, Impl: 334 (47.4%), Test: 224 (31.8%)
 
 **nppi_linear_transforms.h**
 - Total: 4, Impl: 4 (100.0%), Test: 4 (100.0%)

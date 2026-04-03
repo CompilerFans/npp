@@ -19,11 +19,22 @@ protected:
   NppiSize oSizeROI;
 };
 
+namespace {
+
+NppStatus getWatershedBufferSizeCompat(NppiSize oSizeROI, size_t *bufferSize) {
+  int legacyBufferSize = 0;
+  const NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &legacyBufferSize);
+  *bufferSize = static_cast<size_t>(legacyBufferSize);
+  return status;
+}
+
+} // namespace
+
 // 测试缓冲区大小获取
 TEST_F(NPPIWatershedTest, SegmentWatershedGetBufferSize_Basic) {
-  SIZE_TYPE bufferSize = 0;
+  size_t bufferSize = 0;
 
-  NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
+  NppStatus status = getWatershedBufferSizeCompat(oSizeROI, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
@@ -49,8 +60,8 @@ TEST_F(NPPIWatershedTest, SegmentWatershed_8u_C1IR_Basic) {
   markerData[(height - 2) * width + (width - 2)] = 2; // 右下角种子点
 
   // 获取缓冲区大小
-  SIZE_TYPE bufferSize = 0;
-  NppStatus status = nppiSegmentWatershedGetBufferSize_8u_C1R(oSizeROI, &bufferSize);
+  size_t bufferSize = 0;
+  NppStatus status = getWatershedBufferSizeCompat(oSizeROI, &bufferSize);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   // 分配GPU内存

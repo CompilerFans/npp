@@ -1,13 +1,11 @@
 #include "npp.h"
+#include "npp_test_utils.h"
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
-#include <vector>
-#include <cstring>
-#include <cuda_fp16.h>
 #include <iostream>
 #include <random>
-#include <cstdint>
+#include <vector>
 
 class WarpPerspectiveFunctionalTest : public ::testing::Test {
 protected:
@@ -29,36 +27,493 @@ protected:
 
 namespace {
 
-inline Npp16f floatToNpp16f(float value) {
-  __half halfValue = __float2half(value);
-  __half_raw raw = halfValue;
-  Npp16f result;
-  uint16_t bits = raw.x;
-  static_assert(sizeof(result) == sizeof(bits));
-  std::memcpy(&result, &bits, sizeof(result));
-  return result;
-}
+inline Npp16f floatToNpp16f(float value) { return float_to_npp16f_host(value); }
 
-inline float npp16fToFloat(Npp16f value) {
-  uint16_t bits = 0;
-  static_assert(sizeof(value) == sizeof(bits));
-  std::memcpy(&bits, &value, sizeof(value));
-  __half_raw raw{bits};
-  __half halfValue = raw;
-  return __half2float(halfValue);
-}
+inline float npp16fToFloat(Npp16f value) { return npp16f_to_float_host(value); }
 
-template <typename T> inline void copyImageToDevice(T *dst, int dstStep, const std::vector<T> &src, int width, int height, int channels) {
+template <typename T>
+inline void copyImageToDevice(T *dst, int dstStep, const std::vector<T> &src, int width, int height, int channels) {
   for (int y = 0; y < height; ++y) {
-    cudaMemcpy(reinterpret_cast<char *>(dst) + y * dstStep, src.data() + y * width * channels, width * channels * sizeof(T),
-               cudaMemcpyHostToDevice);
+    cudaMemcpy(reinterpret_cast<char *>(dst) + y * dstStep, src.data() + y * width * channels,
+               width * channels * sizeof(T), cudaMemcpyHostToDevice);
   }
 }
 
-template <typename T> inline void copyImageToHost(std::vector<T> &dst, const T *src, int srcStep, int width, int height, int channels) {
+template <typename T>
+inline void copyImageToHost(std::vector<T> &dst, const T *src, int srcStep, int width, int height, int channels) {
   for (int y = 0; y < height; ++y) {
-    cudaMemcpy(dst.data() + y * width * channels, reinterpret_cast<const char *>(src) + y * srcStep, width * channels * sizeof(T),
-               cudaMemcpyDeviceToHost);
+    cudaMemcpy(dst.data() + y * width * channels, reinterpret_cast<const char *>(src) + y * srcStep,
+               width * channels * sizeof(T), cudaMemcpyDeviceToHost);
+  }
+}
+
+} // namespace
+
+namespace {
+
+template <typename T>
+using WarpPackedFn = NppStatus (*)(const T *, NppiSize, int, NppiRect, T *, int, NppiRect, const double (*)[3], int);
+
+template <typename T>
+using WarpPlanarFn = NppStatus (*)(const T *[], NppiSize, int, NppiRect, T *[], int, NppiRect, const double (*)[3],
+                                   int);
+
+template <typename T>
+using WarpQuadPackedFn = NppStatus (*)(const T *, NppiSize, int, NppiRect, const double (*)[2], T *, int, NppiRect,
+                                       const double (*)[2], int);
+
+template <typename T>
+using WarpQuadPlanarFn = NppStatus (*)(const T *[], NppiSize, int, NppiRect, const double (*)[2], T *[], int, NppiRect,
+                                       const double (*)[2], int);
+
+using WarpBatchFn = NppStatus (*)(NppiSize, NppiRect, NppiRect, int, NppiWarpPerspectiveBatchCXR *, unsigned int);
+
+template <typename T> struct PackedApiCase {
+  const char *name;
+  WarpPackedFn<T> fn;
+  int channels;
+  bool preserve_alpha;
+};
+
+template <typename T> struct PlanarApiCase {
+  const char *name;
+  WarpPlanarFn<T> fn;
+  int planes;
+};
+
+template <typename T> struct QuadPackedApiCase {
+  const char *name;
+  WarpQuadPackedFn<T> fn;
+  int channels;
+  bool preserve_alpha;
+};
+
+template <typename T> struct QuadPlanarApiCase {
+  const char *name;
+  WarpQuadPlanarFn<T> fn;
+  int planes;
+};
+
+template <typename T> struct BatchApiCase {
+  const char *name;
+  WarpBatchFn fn;
+  int channels;
+  bool preserve_alpha;
+};
+
+template <typename T> T *allocatePackedImage(int width, int height, int channels, int *step);
+template <> Npp8u *allocatePackedImage<Npp8u>(int width, int height, int channels, int *step) {
+  switch (channels) {
+  case 1:
+    return nppiMalloc_8u_C1(width, height, step);
+  case 3:
+    return nppiMalloc_8u_C3(width, height, step);
+  case 4:
+    return nppiMalloc_8u_C4(width, height, step);
+  default:
+    return nullptr;
+  }
+}
+template <> Npp16u *allocatePackedImage<Npp16u>(int width, int height, int channels, int *step) {
+  switch (channels) {
+  case 1:
+    return nppiMalloc_16u_C1(width, height, step);
+  case 3:
+    return nppiMalloc_16u_C3(width, height, step);
+  case 4:
+    return nppiMalloc_16u_C4(width, height, step);
+  default:
+    return nullptr;
+  }
+}
+template <> Npp32s *allocatePackedImage<Npp32s>(int width, int height, int channels, int *step) {
+  switch (channels) {
+  case 1:
+    return nppiMalloc_32s_C1(width, height, step);
+  case 3:
+    return nppiMalloc_32s_C3(width, height, step);
+  case 4:
+    return nppiMalloc_32s_C4(width, height, step);
+  default:
+    return nullptr;
+  }
+}
+template <> Npp32f *allocatePackedImage<Npp32f>(int width, int height, int channels, int *step) {
+  switch (channels) {
+  case 1:
+    return nppiMalloc_32f_C1(width, height, step);
+  case 3:
+    return nppiMalloc_32f_C3(width, height, step);
+  case 4:
+    return nppiMalloc_32f_C4(width, height, step);
+  default:
+    return nullptr;
+  }
+}
+template <> Npp16f *allocatePackedImage<Npp16f>(int width, int height, int channels, int *step) {
+  *step = width * channels * static_cast<int>(sizeof(Npp16f));
+  Npp16f *ptr = nullptr;
+  if (cudaMalloc(&ptr, static_cast<size_t>(*step) * height) != cudaSuccess) {
+    return nullptr;
+  }
+  return ptr;
+}
+
+template <typename T> void freePackedImage(T *ptr);
+template <> void freePackedImage<Npp8u>(Npp8u *ptr) { nppiFree(ptr); }
+template <> void freePackedImage<Npp16u>(Npp16u *ptr) { nppiFree(ptr); }
+template <> void freePackedImage<Npp32s>(Npp32s *ptr) { nppiFree(ptr); }
+template <> void freePackedImage<Npp32f>(Npp32f *ptr) { nppiFree(ptr); }
+template <> void freePackedImage<Npp16f>(Npp16f *ptr) { cudaFree(ptr); }
+
+template <typename T> T makePatternValue(int x, int y, int channel);
+template <> inline Npp8u makePatternValue<Npp8u>(int x, int y, int channel) {
+  return static_cast<Npp8u>((x * 13 + y * 7 + channel * 29 + 11) & 0xFF);
+}
+template <> inline Npp16u makePatternValue<Npp16u>(int x, int y, int channel) {
+  return static_cast<Npp16u>((x * 257 + y * 131 + channel * 73 + 19) % 65535);
+}
+template <> inline Npp32s makePatternValue<Npp32s>(int x, int y, int channel) {
+  return x * 10000 + y * 100 + channel * 17 - 2500;
+}
+template <> inline Npp32f makePatternValue<Npp32f>(int x, int y, int channel) {
+  return static_cast<Npp32f>((x * 0.25f) + (y * 0.5f) + channel * 0.125f);
+}
+template <> inline Npp16f makePatternValue<Npp16f>(int x, int y, int channel) {
+  return floatToNpp16f((x * 0.125f) + (y * 0.25f) + channel * 0.0625f);
+}
+
+template <typename T> T makeAlphaValue(int index);
+template <> inline Npp8u makeAlphaValue<Npp8u>(int index) { return static_cast<Npp8u>((31 + index * 9) & 0xFF); }
+template <> inline Npp16u makeAlphaValue<Npp16u>(int index) { return static_cast<Npp16u>((1000 + index * 37) % 65535); }
+template <> inline Npp32s makeAlphaValue<Npp32s>(int index) { return 100000 + index * 23; }
+template <> inline Npp32f makeAlphaValue<Npp32f>(int index) {
+  return static_cast<Npp32f>(0.1f + (index % 97) * 0.005f);
+}
+template <> inline Npp16f makeAlphaValue<Npp16f>(int index) {
+  return floatToNpp16f(0.1f + static_cast<float>(index % 97) * 0.01f);
+}
+
+template <typename T> void fillPackedPattern(std::vector<T> &data, int width, int height, int channels) {
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        data[(y * width + x) * channels + c] = makePatternValue<T>(x, y, c);
+      }
+    }
+  }
+}
+
+template <typename T> void fillPlanarPattern(std::vector<T> &data, int width, int height, int plane) {
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      data[y * width + x] = makePatternValue<T>(x, y, plane);
+    }
+  }
+}
+
+template <typename T> void fillAlphaPreservingDestination(std::vector<T> &data, int width, int height) {
+  std::fill(data.begin(), data.end(), T{});
+  for (int i = 0; i < width * height; ++i) {
+    data[i * 4 + 3] = makeAlphaValue<T>(i);
+  }
+}
+
+inline void expectSampleEqual(Npp8u actual, Npp8u expected, const char *api, int index) {
+  EXPECT_EQ(actual, expected) << api << " mismatch at sample " << index;
+}
+inline void expectSampleEqual(Npp16u actual, Npp16u expected, const char *api, int index) {
+  EXPECT_EQ(actual, expected) << api << " mismatch at sample " << index;
+}
+inline void expectSampleEqual(Npp32s actual, Npp32s expected, const char *api, int index) {
+  EXPECT_EQ(actual, expected) << api << " mismatch at sample " << index;
+}
+inline void expectSampleEqual(Npp32f actual, Npp32f expected, const char *api, int index) {
+  EXPECT_NEAR(actual, expected, 1e-5f) << api << " mismatch at sample " << index;
+}
+inline void expectSampleEqual(Npp16f actual, Npp16f expected, const char *api, int index) {
+  EXPECT_NEAR(npp16fToFloat(actual), npp16fToFloat(expected), 1e-3f) << api << " mismatch at sample " << index;
+}
+
+template <typename T>
+void runPackedIdentityCase(const PackedApiCase<T> &api, NppiSize srcSize, NppiRect srcROI, NppiRect dstROI) {
+  const int width = srcSize.width;
+  const int height = srcSize.height;
+  std::vector<T> srcData(width * height * api.channels);
+  std::vector<T> dstData(width * height * api.channels, T{});
+  fillPackedPattern(srcData, width, height, api.channels);
+  if (api.preserve_alpha) {
+    fillAlphaPreservingDestination(dstData, width, height);
+  }
+
+  int srcStep = 0;
+  int dstStep = 0;
+  T *d_src = allocatePackedImage<T>(width, height, api.channels, &srcStep);
+  T *d_dst = allocatePackedImage<T>(width, height, api.channels, &dstStep);
+  ASSERT_NE(d_src, nullptr) << api.name;
+  ASSERT_NE(d_dst, nullptr) << api.name;
+
+  copyImageToDevice(d_src, srcStep, srcData, width, height, api.channels);
+  copyImageToDevice(d_dst, dstStep, dstData, width, height, api.channels);
+
+  const double coeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+  ASSERT_EQ(api.fn(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN), NPP_SUCCESS)
+      << api.name;
+
+  std::vector<T> result(width * height * api.channels);
+  copyImageToHost(result, d_dst, dstStep, width, height, api.channels);
+
+  for (int i = 0; i < width * height; ++i) {
+    for (int c = 0; c < api.channels; ++c) {
+      const int idx = i * api.channels + c;
+      if (api.preserve_alpha && c == 3) {
+        expectSampleEqual(result[idx], dstData[idx], api.name, idx);
+      } else {
+        expectSampleEqual(result[idx], srcData[idx], api.name, idx);
+      }
+    }
+  }
+
+  freePackedImage(d_src);
+  freePackedImage(d_dst);
+}
+
+template <typename T>
+void runPlanarIdentityCase(const PlanarApiCase<T> &api, NppiSize srcSize, NppiRect srcROI, NppiRect dstROI) {
+  const int width = srcSize.width;
+  const int height = srcSize.height;
+  std::vector<T> srcHost[4];
+  std::vector<T> dstHost[4];
+  const T *srcPlanes[4] = {};
+  T *dstPlanes[4] = {};
+  T *srcDev[4] = {};
+  T *dstDev[4] = {};
+  int srcStep = 0;
+  int dstStep = 0;
+
+  for (int plane = 0; plane < api.planes; ++plane) {
+    srcHost[plane].resize(width * height);
+    dstHost[plane].resize(width * height, T{});
+    fillPlanarPattern(srcHost[plane], width, height, plane);
+
+    int currentSrcStep = 0;
+    int currentDstStep = 0;
+    srcDev[plane] = allocatePackedImage<T>(width, height, 1, &currentSrcStep);
+    dstDev[plane] = allocatePackedImage<T>(width, height, 1, &currentDstStep);
+    ASSERT_NE(srcDev[plane], nullptr) << api.name;
+    ASSERT_NE(dstDev[plane], nullptr) << api.name;
+    if (plane == 0) {
+      srcStep = currentSrcStep;
+      dstStep = currentDstStep;
+    } else {
+      ASSERT_EQ(srcStep, currentSrcStep) << api.name;
+      ASSERT_EQ(dstStep, currentDstStep) << api.name;
+    }
+
+    copyImageToDevice(srcDev[plane], srcStep, srcHost[plane], width, height, 1);
+    copyImageToDevice(dstDev[plane], dstStep, dstHost[plane], width, height, 1);
+    srcPlanes[plane] = srcDev[plane];
+    dstPlanes[plane] = dstDev[plane];
+  }
+
+  const double coeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+  ASSERT_EQ(api.fn(srcPlanes, srcSize, srcStep, srcROI, dstPlanes, dstStep, dstROI, coeffs, NPPI_INTER_NN), NPP_SUCCESS)
+      << api.name;
+
+  for (int plane = 0; plane < api.planes; ++plane) {
+    std::vector<T> result(width * height);
+    copyImageToHost(result, dstDev[plane], dstStep, width, height, 1);
+    for (int i = 0; i < width * height; ++i) {
+      expectSampleEqual(result[i], srcHost[plane][i], api.name, plane * width * height + i);
+    }
+  }
+
+  for (int plane = 0; plane < api.planes; ++plane) {
+    freePackedImage(srcDev[plane]);
+    freePackedImage(dstDev[plane]);
+  }
+}
+
+template <typename T>
+void runQuadPackedIdentityCase(const QuadPackedApiCase<T> &api, NppiSize srcSize, NppiRect srcROI, NppiRect dstROI) {
+  const int width = srcSize.width;
+  const int height = srcSize.height;
+  std::vector<T> srcData(width * height * api.channels);
+  std::vector<T> dstData(width * height * api.channels, T{});
+  fillPackedPattern(srcData, width, height, api.channels);
+  if (api.preserve_alpha) {
+    fillAlphaPreservingDestination(dstData, width, height);
+  }
+
+  const double srcQuad[4][2] = {
+      {0.0, 0.0}, {double(width - 1), 0.0}, {double(width - 1), double(height - 1)}, {0.0, double(height - 1)}};
+  const double dstQuad[4][2] = {
+      {0.0, 0.0}, {double(width - 1), 0.0}, {double(width - 1), double(height - 1)}, {0.0, double(height - 1)}};
+
+  int srcStep = 0;
+  int dstStep = 0;
+  T *d_src = allocatePackedImage<T>(width, height, api.channels, &srcStep);
+  T *d_dst = allocatePackedImage<T>(width, height, api.channels, &dstStep);
+  ASSERT_NE(d_src, nullptr) << api.name;
+  ASSERT_NE(d_dst, nullptr) << api.name;
+
+  copyImageToDevice(d_src, srcStep, srcData, width, height, api.channels);
+  copyImageToDevice(d_dst, dstStep, dstData, width, height, api.channels);
+
+  ASSERT_EQ(api.fn(d_src, srcSize, srcStep, srcROI, srcQuad, d_dst, dstStep, dstROI, dstQuad, NPPI_INTER_NN),
+            NPP_SUCCESS)
+      << api.name;
+
+  std::vector<T> result(width * height * api.channels);
+  copyImageToHost(result, d_dst, dstStep, width, height, api.channels);
+  for (int i = 0; i < width * height; ++i) {
+    for (int c = 0; c < api.channels; ++c) {
+      const int idx = i * api.channels + c;
+      if (api.preserve_alpha && c == 3) {
+        expectSampleEqual(result[idx], dstData[idx], api.name, idx);
+      } else {
+        expectSampleEqual(result[idx], srcData[idx], api.name, idx);
+      }
+    }
+  }
+
+  freePackedImage(d_src);
+  freePackedImage(d_dst);
+}
+
+template <typename T>
+void runQuadPlanarIdentityCase(const QuadPlanarApiCase<T> &api, NppiSize srcSize, NppiRect srcROI, NppiRect dstROI) {
+  const int width = srcSize.width;
+  const int height = srcSize.height;
+  std::vector<T> srcHost[4];
+  std::vector<T> dstHost[4];
+  const T *srcPlanes[4] = {};
+  T *dstPlanes[4] = {};
+  T *srcDev[4] = {};
+  T *dstDev[4] = {};
+  int srcStep = 0;
+  int dstStep = 0;
+
+  const double srcQuad[4][2] = {
+      {0.0, 0.0}, {double(width - 1), 0.0}, {double(width - 1), double(height - 1)}, {0.0, double(height - 1)}};
+  const double dstQuad[4][2] = {
+      {0.0, 0.0}, {double(width - 1), 0.0}, {double(width - 1), double(height - 1)}, {0.0, double(height - 1)}};
+
+  for (int plane = 0; plane < api.planes; ++plane) {
+    srcHost[plane].resize(width * height);
+    dstHost[plane].resize(width * height, T{});
+    fillPlanarPattern(srcHost[plane], width, height, plane);
+
+    int currentSrcStep = 0;
+    int currentDstStep = 0;
+    srcDev[plane] = allocatePackedImage<T>(width, height, 1, &currentSrcStep);
+    dstDev[plane] = allocatePackedImage<T>(width, height, 1, &currentDstStep);
+    ASSERT_NE(srcDev[plane], nullptr) << api.name;
+    ASSERT_NE(dstDev[plane], nullptr) << api.name;
+    if (plane == 0) {
+      srcStep = currentSrcStep;
+      dstStep = currentDstStep;
+    } else {
+      ASSERT_EQ(srcStep, currentSrcStep) << api.name;
+      ASSERT_EQ(dstStep, currentDstStep) << api.name;
+    }
+
+    copyImageToDevice(srcDev[plane], srcStep, srcHost[plane], width, height, 1);
+    copyImageToDevice(dstDev[plane], dstStep, dstHost[plane], width, height, 1);
+    srcPlanes[plane] = srcDev[plane];
+    dstPlanes[plane] = dstDev[plane];
+  }
+
+  ASSERT_EQ(api.fn(srcPlanes, srcSize, srcStep, srcROI, srcQuad, dstPlanes, dstStep, dstROI, dstQuad, NPPI_INTER_NN),
+            NPP_SUCCESS)
+      << api.name;
+
+  for (int plane = 0; plane < api.planes; ++plane) {
+    std::vector<T> result(width * height);
+    copyImageToHost(result, dstDev[plane], dstStep, width, height, 1);
+    for (int i = 0; i < width * height; ++i) {
+      expectSampleEqual(result[i], srcHost[plane][i], api.name, plane * width * height + i);
+    }
+  }
+
+  for (int plane = 0; plane < api.planes; ++plane) {
+    freePackedImage(srcDev[plane]);
+    freePackedImage(dstDev[plane]);
+  }
+}
+
+template <typename T>
+void runBatchIdentityCase(const BatchApiCase<T> &api, NppiSize srcSize, NppiRect srcROI, NppiRect dstROI) {
+  constexpr unsigned int kBatchSize = 2;
+  double coeffs[kBatchSize][3][3] = {
+      {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+      {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
+  };
+
+  const int width = srcSize.width;
+  const int height = srcSize.height;
+  std::vector<std::vector<T>> srcHost(kBatchSize, std::vector<T>(width * height * api.channels));
+  std::vector<std::vector<T>> dstHost(kBatchSize, std::vector<T>(width * height * api.channels, T{}));
+  std::vector<T *> srcDev(kBatchSize, nullptr);
+  std::vector<T *> dstDev(kBatchSize, nullptr);
+  std::vector<int> srcSteps(kBatchSize, 0);
+  std::vector<int> dstSteps(kBatchSize, 0);
+  std::vector<Npp64f *> coeffDev(kBatchSize, nullptr);
+  std::vector<NppiWarpPerspectiveBatchCXR> batchHost(kBatchSize);
+
+  for (unsigned int i = 0; i < kBatchSize; ++i) {
+    fillPackedPattern(srcHost[i], width, height, api.channels);
+    if (api.preserve_alpha) {
+      fillAlphaPreservingDestination(dstHost[i], width, height);
+    }
+
+    srcDev[i] = allocatePackedImage<T>(width, height, api.channels, &srcSteps[i]);
+    dstDev[i] = allocatePackedImage<T>(width, height, api.channels, &dstSteps[i]);
+    ASSERT_NE(srcDev[i], nullptr) << api.name;
+    ASSERT_NE(dstDev[i], nullptr) << api.name;
+
+    copyImageToDevice(srcDev[i], srcSteps[i], srcHost[i], width, height, api.channels);
+    copyImageToDevice(dstDev[i], dstSteps[i], dstHost[i], width, height, api.channels);
+    ASSERT_EQ(cudaMalloc(&coeffDev[i], sizeof(coeffs[i])), cudaSuccess) << api.name;
+    ASSERT_EQ(cudaMemcpy(coeffDev[i], coeffs[i], sizeof(coeffs[i]), cudaMemcpyHostToDevice), cudaSuccess) << api.name;
+
+    batchHost[i].pSrc = srcDev[i];
+    batchHost[i].nSrcStep = srcSteps[i];
+    batchHost[i].pDst = dstDev[i];
+    batchHost[i].nDstStep = dstSteps[i];
+    batchHost[i].pCoeffs = coeffDev[i];
+  }
+
+  NppiWarpPerspectiveBatchCXR *batchDev = nullptr;
+  ASSERT_EQ(cudaMalloc(&batchDev, sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize), cudaSuccess) << api.name;
+  ASSERT_EQ(
+      cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
+      cudaSuccess)
+      << api.name;
+
+  ASSERT_EQ(nppiWarpPerspectiveBatchInit(batchDev, kBatchSize), NPP_SUCCESS) << api.name;
+  ASSERT_EQ(api.fn(srcSize, srcROI, dstROI, NPPI_INTER_NN, batchDev, kBatchSize), NPP_SUCCESS) << api.name;
+
+  for (unsigned int batchIdx = 0; batchIdx < kBatchSize; ++batchIdx) {
+    std::vector<T> result(width * height * api.channels);
+    copyImageToHost(result, dstDev[batchIdx], dstSteps[batchIdx], width, height, api.channels);
+    for (int i = 0; i < width * height; ++i) {
+      for (int c = 0; c < api.channels; ++c) {
+        const int idx = i * api.channels + c;
+        if (api.preserve_alpha && c == 3) {
+          expectSampleEqual(result[idx], dstHost[batchIdx][idx], api.name, idx);
+        } else {
+          expectSampleEqual(result[idx], srcHost[batchIdx][idx], api.name, idx);
+        }
+      }
+    }
+  }
+
+  cudaFree(batchDev);
+  for (unsigned int i = 0; i < kBatchSize; ++i) {
+    cudaFree(coeffDev[i]);
+    freePackedImage(srcDev[i]);
+    freePackedImage(dstDev[i]);
   }
 }
 
@@ -1518,8 +1973,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_P3R_Identity) {
   const Npp8u *srcPlanes[3] = {d_src0, d_src1, d_src2};
   Npp8u *dstPlanes[3] = {d_dst0, d_dst1, d_dst2};
 
-  NppStatus status =
-      nppiWarpPerspective_8u_P3R(srcPlanes, srcSize, srcStep, srcROI, dstPlanes, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  NppStatus status = nppiWarpPerspective_8u_P3R(srcPlanes, srcSize, srcStep, srcROI, dstPlanes, dstStep, dstROI, coeffs,
+                                                NPPI_INTER_NN);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> dstPlane0(dstWidth * dstHeight);
@@ -1570,6 +2025,78 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_16f_C1R_Identity) {
 
   std::vector<Npp16f> result(dstWidth * dstHeight);
   copyImageToHost(result, d_dst, dstStep, dstWidth, dstHeight, 1);
+
+  for (size_t i = 0; i < result.size(); ++i) {
+    EXPECT_NEAR(npp16fToFloat(result[i]), npp16fToFloat(srcData[i]), 1e-3f);
+  }
+
+  cudaFree(d_src);
+  cudaFree(d_dst);
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_16f_C1R_LinearIdentity) {
+  std::vector<Npp16f> srcData(srcWidth * srcHeight);
+  for (int y = 0; y < srcHeight; ++y) {
+    for (int x = 0; x < srcWidth; ++x) {
+      srcData[y * srcWidth + x] = floatToNpp16f((x * 0.2f + y * 0.35f + 0.15f) / 8.0f);
+    }
+  }
+
+  const double coeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+
+  const int srcStep = srcWidth * static_cast<int>(sizeof(Npp16f));
+  const int dstStep = dstWidth * static_cast<int>(sizeof(Npp16f));
+  Npp16f *d_src = nullptr;
+  Npp16f *d_dst = nullptr;
+  ASSERT_EQ(cudaMalloc(&d_src, srcStep * srcHeight), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&d_dst, dstStep * dstHeight), cudaSuccess);
+
+  copyImageToDevice(d_src, srcStep, srcData, srcWidth, srcHeight, 1);
+
+  ASSERT_EQ(
+      nppiWarpPerspective_16f_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_LINEAR),
+      NPP_SUCCESS);
+
+  std::vector<Npp16f> result(dstWidth * dstHeight);
+  copyImageToHost(result, d_dst, dstStep, dstWidth, dstHeight, 1);
+
+  for (size_t i = 0; i < result.size(); ++i) {
+    EXPECT_NEAR(npp16fToFloat(result[i]), npp16fToFloat(srcData[i]), 1e-3f);
+  }
+
+  cudaFree(d_src);
+  cudaFree(d_dst);
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_16f_C3R_LinearIdentity) {
+  constexpr int channels = 3;
+  std::vector<Npp16f> srcData(srcWidth * srcHeight * channels);
+  for (int y = 0; y < srcHeight; ++y) {
+    for (int x = 0; x < srcWidth; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        srcData[(y * srcWidth + x) * channels + c] =
+            floatToNpp16f((x * 0.125f + y * 0.375f + c * 0.1875f + 0.05f) / 4.0f);
+      }
+    }
+  }
+
+  const double coeffs[3][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+
+  const int srcStep = srcWidth * channels * static_cast<int>(sizeof(Npp16f));
+  const int dstStep = dstWidth * channels * static_cast<int>(sizeof(Npp16f));
+  Npp16f *d_src = nullptr;
+  Npp16f *d_dst = nullptr;
+  ASSERT_EQ(cudaMalloc(&d_src, srcStep * srcHeight), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&d_dst, dstStep * dstHeight), cudaSuccess);
+
+  copyImageToDevice(d_src, srcStep, srcData, srcWidth, srcHeight, channels);
+
+  ASSERT_EQ(
+      nppiWarpPerspective_16f_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_LINEAR),
+      NPP_SUCCESS);
+
+  std::vector<Npp16f> result(dstWidth * dstHeight * channels);
+  copyImageToHost(result, d_dst, dstStep, dstWidth, dstHeight, channels);
 
   for (size_t i = 0; i < result.size(); ++i) {
     EXPECT_NEAR(npp16fToFloat(result[i]), npp16fToFloat(srcData[i]), 1e-3f);
@@ -1632,9 +2159,13 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveQuad_8u_C1R_IdentityQuad) {
     }
   }
 
-  const double srcQuad[4][2] = {{0.0, 0.0}, {double(srcWidth - 1), 0.0}, {double(srcWidth - 1), double(srcHeight - 1)},
+  const double srcQuad[4][2] = {{0.0, 0.0},
+                                {double(srcWidth - 1), 0.0},
+                                {double(srcWidth - 1), double(srcHeight - 1)},
                                 {0.0, double(srcHeight - 1)}};
-  const double dstQuad[4][2] = {{0.0, 0.0}, {double(dstWidth - 1), 0.0}, {double(dstWidth - 1), double(dstHeight - 1)},
+  const double dstQuad[4][2] = {{0.0, 0.0},
+                                {double(dstWidth - 1), 0.0},
+                                {double(dstWidth - 1), double(dstHeight - 1)},
                                 {0.0, double(dstHeight - 1)}};
 
   int srcStep = 0;
@@ -1701,12 +2232,14 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveBatch_8u_C1R_Identity) {
 
   NppiWarpPerspectiveBatchCXR *batchDev = nullptr;
   ASSERT_EQ(cudaMalloc(&batchDev, sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(
+      cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
+      cudaSuccess);
 
   ASSERT_EQ(nppiWarpPerspectiveBatchInit(batchDev, kBatchSize), NPP_SUCCESS);
-  ASSERT_EQ(nppiWarpPerspectiveBatch_8u_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiWarpPerspectiveBatch_8u_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
+      NPP_SUCCESS);
 
   for (unsigned int i = 0; i < kBatchSize; ++i) {
     std::vector<Npp8u> result(dstWidth * dstHeight);
@@ -1765,12 +2298,14 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveBatch_16f_C1R_Identity) {
 
   NppiWarpPerspectiveBatchCXR *batchDev = nullptr;
   ASSERT_EQ(cudaMalloc(&batchDev, sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(
+      cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
+      cudaSuccess);
 
   ASSERT_EQ(nppiWarpPerspectiveBatchInit(batchDev, kBatchSize), NPP_SUCCESS);
-  ASSERT_EQ(nppiWarpPerspectiveBatch_16f_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiWarpPerspectiveBatch_16f_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
+      NPP_SUCCESS);
 
   for (unsigned int i = 0; i < kBatchSize; ++i) {
     std::vector<Npp16f> result(dstWidth * dstHeight);
@@ -1785,6 +2320,174 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveBatch_16f_C1R_Identity) {
     cudaFree(coeffDev[i]);
     cudaFree(srcDev[i]);
     cudaFree(dstDev[i]);
+  }
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_NonCtxPackedCoverage) {
+  const PackedApiCase<Npp16f> float16Cases[] = {
+      {"nppiWarpPerspective_16f_C3R", nppiWarpPerspective_16f_C3R, 3, false},
+      {"nppiWarpPerspective_16f_C4R", nppiWarpPerspective_16f_C4R, 4, false},
+  };
+  for (const auto &api : float16Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PackedApiCase<Npp16u> unsigned16Cases[] = {
+      {"nppiWarpPerspective_16u_AC4R", nppiWarpPerspective_16u_AC4R, 4, true},
+  };
+  for (const auto &api : unsigned16Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PackedApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspective_32f_AC4R", nppiWarpPerspective_32f_AC4R, 4, true},
+  };
+  for (const auto &api : float32Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PackedApiCase<Npp32s> int32Cases[] = {
+      {"nppiWarpPerspective_32s_AC4R", nppiWarpPerspective_32s_AC4R, 4, true},
+  };
+  for (const auto &api : int32Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_NonCtxPlanarCoverage) {
+  const PlanarApiCase<Npp8u> uint8Cases[] = {
+      {"nppiWarpPerspective_8u_P4R", nppiWarpPerspective_8u_P4R, 4},
+  };
+  for (const auto &api : uint8Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PlanarApiCase<Npp16u> uint16Cases[] = {
+      {"nppiWarpPerspective_16u_P3R", nppiWarpPerspective_16u_P3R, 3},
+      {"nppiWarpPerspective_16u_P4R", nppiWarpPerspective_16u_P4R, 4},
+  };
+  for (const auto &api : uint16Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PlanarApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspective_32f_P3R", nppiWarpPerspective_32f_P3R, 3},
+      {"nppiWarpPerspective_32f_P4R", nppiWarpPerspective_32f_P4R, 4},
+  };
+  for (const auto &api : float32Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PlanarApiCase<Npp32s> int32Cases[] = {
+      {"nppiWarpPerspective_32s_P3R", nppiWarpPerspective_32s_P3R, 3},
+      {"nppiWarpPerspective_32s_P4R", nppiWarpPerspective_32s_P4R, 4},
+  };
+  for (const auto &api : int32Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveQuad_NonCtxPackedCoverage) {
+  const QuadPackedApiCase<Npp8u> uint8Cases[] = {
+      {"nppiWarpPerspectiveQuad_8u_AC4R", nppiWarpPerspectiveQuad_8u_AC4R, 4, true},
+      {"nppiWarpPerspectiveQuad_8u_C3R", nppiWarpPerspectiveQuad_8u_C3R, 3, false},
+      {"nppiWarpPerspectiveQuad_8u_C4R", nppiWarpPerspectiveQuad_8u_C4R, 4, false},
+  };
+  for (const auto &api : uint8Cases) {
+    runQuadPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const QuadPackedApiCase<Npp16u> uint16Cases[] = {
+      {"nppiWarpPerspectiveQuad_16u_AC4R", nppiWarpPerspectiveQuad_16u_AC4R, 4, true},
+      {"nppiWarpPerspectiveQuad_16u_C1R", nppiWarpPerspectiveQuad_16u_C1R, 1, false},
+      {"nppiWarpPerspectiveQuad_16u_C3R", nppiWarpPerspectiveQuad_16u_C3R, 3, false},
+      {"nppiWarpPerspectiveQuad_16u_C4R", nppiWarpPerspectiveQuad_16u_C4R, 4, false},
+  };
+  for (const auto &api : uint16Cases) {
+    runQuadPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const QuadPackedApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspectiveQuad_32f_AC4R", nppiWarpPerspectiveQuad_32f_AC4R, 4, true},
+      {"nppiWarpPerspectiveQuad_32f_C1R", nppiWarpPerspectiveQuad_32f_C1R, 1, false},
+      {"nppiWarpPerspectiveQuad_32f_C3R", nppiWarpPerspectiveQuad_32f_C3R, 3, false},
+      {"nppiWarpPerspectiveQuad_32f_C4R", nppiWarpPerspectiveQuad_32f_C4R, 4, false},
+  };
+  for (const auto &api : float32Cases) {
+    runQuadPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const QuadPackedApiCase<Npp32s> int32Cases[] = {
+      {"nppiWarpPerspectiveQuad_32s_AC4R", nppiWarpPerspectiveQuad_32s_AC4R, 4, true},
+      {"nppiWarpPerspectiveQuad_32s_C1R", nppiWarpPerspectiveQuad_32s_C1R, 1, false},
+      {"nppiWarpPerspectiveQuad_32s_C3R", nppiWarpPerspectiveQuad_32s_C3R, 3, false},
+      {"nppiWarpPerspectiveQuad_32s_C4R", nppiWarpPerspectiveQuad_32s_C4R, 4, false},
+  };
+  for (const auto &api : int32Cases) {
+    runQuadPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveQuad_NonCtxPlanarCoverage) {
+  const QuadPlanarApiCase<Npp8u> uint8Cases[] = {
+      {"nppiWarpPerspectiveQuad_8u_P3R", nppiWarpPerspectiveQuad_8u_P3R, 3},
+      {"nppiWarpPerspectiveQuad_8u_P4R", nppiWarpPerspectiveQuad_8u_P4R, 4},
+  };
+  for (const auto &api : uint8Cases) {
+    runQuadPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const QuadPlanarApiCase<Npp16u> uint16Cases[] = {
+      {"nppiWarpPerspectiveQuad_16u_P3R", nppiWarpPerspectiveQuad_16u_P3R, 3},
+      {"nppiWarpPerspectiveQuad_16u_P4R", nppiWarpPerspectiveQuad_16u_P4R, 4},
+  };
+  for (const auto &api : uint16Cases) {
+    runQuadPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const QuadPlanarApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspectiveQuad_32f_P3R", nppiWarpPerspectiveQuad_32f_P3R, 3},
+      {"nppiWarpPerspectiveQuad_32f_P4R", nppiWarpPerspectiveQuad_32f_P4R, 4},
+  };
+  for (const auto &api : float32Cases) {
+    runQuadPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const QuadPlanarApiCase<Npp32s> int32Cases[] = {
+      {"nppiWarpPerspectiveQuad_32s_P3R", nppiWarpPerspectiveQuad_32s_P3R, 3},
+      {"nppiWarpPerspectiveQuad_32s_P4R", nppiWarpPerspectiveQuad_32s_P4R, 4},
+  };
+  for (const auto &api : int32Cases) {
+    runQuadPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+}
+
+TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveBatch_NonCtxCoverage) {
+  const BatchApiCase<Npp8u> uint8Cases[] = {
+      {"nppiWarpPerspectiveBatch_8u_C3R", nppiWarpPerspectiveBatch_8u_C3R, 3, false},
+      {"nppiWarpPerspectiveBatch_8u_C4R", nppiWarpPerspectiveBatch_8u_C4R, 4, false},
+      {"nppiWarpPerspectiveBatch_8u_AC4R", nppiWarpPerspectiveBatch_8u_AC4R, 4, true},
+  };
+  for (const auto &api : uint8Cases) {
+    runBatchIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const BatchApiCase<Npp16f> float16Cases[] = {
+      {"nppiWarpPerspectiveBatch_16f_C3R", nppiWarpPerspectiveBatch_16f_C3R, 3, false},
+      {"nppiWarpPerspectiveBatch_16f_C4R", nppiWarpPerspectiveBatch_16f_C4R, 4, false},
+  };
+  for (const auto &api : float16Cases) {
+    runBatchIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const BatchApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspectiveBatch_32f_C1R", nppiWarpPerspectiveBatch_32f_C1R, 1, false},
+      {"nppiWarpPerspectiveBatch_32f_C3R", nppiWarpPerspectiveBatch_32f_C3R, 3, false},
+      {"nppiWarpPerspectiveBatch_32f_C4R", nppiWarpPerspectiveBatch_32f_C4R, 4, false},
+      {"nppiWarpPerspectiveBatch_32f_AC4R", nppiWarpPerspectiveBatch_32f_AC4R, 4, true},
+  };
+  for (const auto &api : float32Cases) {
+    runBatchIdentityCase(api, srcSize, srcROI, dstROI);
   }
 }
 
@@ -1806,7 +2509,63 @@ protected:
   NppiRect srcROI, dstROI;
 };
 
-// 测试 8u C1R 反向透视变换 - 恒等变换
+TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_NonCtxPackedCoverage) {
+  const PackedApiCase<Npp16u> uint16Cases[] = {
+      {"nppiWarpPerspectiveBack_16u_AC4R", nppiWarpPerspectiveBack_16u_AC4R, 4, true},
+  };
+  for (const auto &api : uint16Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PackedApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspectiveBack_32f_AC4R", nppiWarpPerspectiveBack_32f_AC4R, 4, true},
+  };
+  for (const auto &api : float32Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PackedApiCase<Npp32s> int32Cases[] = {
+      {"nppiWarpPerspectiveBack_32s_AC4R", nppiWarpPerspectiveBack_32s_AC4R, 4, true},
+  };
+  for (const auto &api : int32Cases) {
+    runPackedIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+}
+
+TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_NonCtxPlanarCoverage) {
+  const PlanarApiCase<Npp8u> uint8Cases[] = {
+      {"nppiWarpPerspectiveBack_8u_P3R", nppiWarpPerspectiveBack_8u_P3R, 3},
+      {"nppiWarpPerspectiveBack_8u_P4R", nppiWarpPerspectiveBack_8u_P4R, 4},
+  };
+  for (const auto &api : uint8Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PlanarApiCase<Npp16u> uint16Cases[] = {
+      {"nppiWarpPerspectiveBack_16u_P3R", nppiWarpPerspectiveBack_16u_P3R, 3},
+      {"nppiWarpPerspectiveBack_16u_P4R", nppiWarpPerspectiveBack_16u_P4R, 4},
+  };
+  for (const auto &api : uint16Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PlanarApiCase<Npp32f> float32Cases[] = {
+      {"nppiWarpPerspectiveBack_32f_P3R", nppiWarpPerspectiveBack_32f_P3R, 3},
+      {"nppiWarpPerspectiveBack_32f_P4R", nppiWarpPerspectiveBack_32f_P4R, 4},
+  };
+  for (const auto &api : float32Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+
+  const PlanarApiCase<Npp32s> int32Cases[] = {
+      {"nppiWarpPerspectiveBack_32s_P3R", nppiWarpPerspectiveBack_32s_P3R, 3},
+      {"nppiWarpPerspectiveBack_32s_P4R", nppiWarpPerspectiveBack_32s_P4R, 4},
+  };
+  for (const auto &api : int32Cases) {
+    runPlanarIdentityCase(api, srcSize, srcROI, dstROI);
+  }
+}
+
 TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C1R_Identity) {
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
 
@@ -1863,7 +2622,6 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C1R_Identity) {
   nppiFree(d_dst);
 }
 
-// 测试 8u C1R Ctx 版本
 TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C1R_Ctx) {
   std::vector<Npp8u> srcData(srcWidth * srcHeight);
 
@@ -1913,7 +2671,6 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C1R_Ctx) {
   nppiFree(d_dst);
 }
 
-// 测试 8u C3R 反向透视变换
 TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_8u_C3R_Identity) {
   std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
 
@@ -2560,4 +3317,3 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_Scaling) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
-
