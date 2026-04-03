@@ -1,4 +1,5 @@
 #include "nppdefs.h"
+#include <climits>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
@@ -131,45 +132,32 @@ template <typename T>
 NppStatus launch_mirror_inplace_kernel(T *pSrcDst, int nSrcDstStep, int width, int height, NppiAxis flip, int channels,
                                        cudaStream_t stream) {
 
-  // Allocate temporary buffer
-  size_t bufferSize = width * height * channels * sizeof(T);
+  // Use pitched temporary copy to preserve row stride and avoid read-after-write hazards
+  size_t tempPitchBytes = 0;
   T *d_temp = nullptr;
-  cudaError_t cudaErr = cudaMalloc(&d_temp, bufferSize);
+  cudaError_t cudaErr =
+      cudaMallocPitch(reinterpret_cast<void **>(&d_temp), &tempPitchBytes, width * channels * sizeof(T), height);
   if (cudaErr != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  // Copy from device to temporary buffer
-  cudaErr = cudaMemcpyAsync(d_temp, pSrcDst, bufferSize, cudaMemcpyDeviceToDevice, stream);
+  cudaErr = cudaMemcpy2DAsync(d_temp, tempPitchBytes, pSrcDst, nSrcDstStep, width * channels * sizeof(T), height,
+                              cudaMemcpyDeviceToDevice, stream);
   if (cudaErr != cudaSuccess) {
     cudaFree(d_temp);
     return NPP_MEMCPY_ERROR;
   }
 
-  // Launch appropriate kernel based on channels
-  dim3 blockSize(16, 16);
-  dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
-
-  NppStatus status = NPP_NO_ERROR;
-
-  if (channels == 1) {
-    nppiMirror_kernel_template<T, 1>
-        <<<gridSize, blockSize, 0, stream>>>(d_temp, nSrcDstStep, pSrcDst, nSrcDstStep, width, height, flip);
-  } else if (channels == 3) {
-    nppiMirror_kernel_template<T, 3>
-        <<<gridSize, blockSize, 0, stream>>>(d_temp, nSrcDstStep, pSrcDst, nSrcDstStep, width, height, flip);
-  } else if (channels == 4) {
-    nppiMirror_kernel_template<T, 4>
-        <<<gridSize, blockSize, 0, stream>>>(d_temp, nSrcDstStep, pSrcDst, nSrcDstStep, width, height, flip);
-  } else {
-    status = NPP_CHANNEL_ERROR;
+  if (tempPitchBytes > static_cast<size_t>(INT_MAX)) {
+    cudaFree(d_temp);
+    return NPP_STEP_ERROR;
   }
 
-  // Free temporary buffer
-  cudaFree(d_temp);
+  NppStatus status = launch_mirror_kernel<T>(d_temp, static_cast<int>(tempPitchBytes), pSrcDst, nSrcDstStep, width,
+                                             height, flip, channels, stream);
 
-  cudaErr = cudaGetLastError();
-  return (cudaErr == cudaSuccess && status == NPP_NO_ERROR) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  cudaFree(d_temp);
+  return status;
 }
 
 extern "C" {

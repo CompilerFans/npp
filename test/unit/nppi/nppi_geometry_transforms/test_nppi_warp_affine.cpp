@@ -1,4 +1,5 @@
 #include "npp.h"
+#include <algorithm>
 #include <cmath>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -22,6 +23,49 @@ protected:
   NppiSize srcSize;
   NppiRect srcROI, dstROI;
 };
+
+namespace {
+float bicubicCoeff(float x_) {
+  float x = std::fabs(x_);
+  if (x <= 1.0f) {
+    return x * x * (1.5f * x - 2.5f) + 1.0f;
+  } else if (x < 2.0f) {
+    return x * (x * (-0.5f * x + 2.5f) - 4.0f) + 2.0f;
+  }
+  return 0.0f;
+}
+
+float getPixelU8(const std::vector<Npp8u> &src, int width, int height, int x, int y, int c, int channels) {
+  if (x < 0 || x >= width || y < 0 || y >= height) {
+    return 0.0f;
+  }
+  return static_cast<float>(src[(y * width + x) * channels + c]);
+}
+
+Npp8u cubicSampleU8(const std::vector<Npp8u> &src, int width, int height, float fx, float fy, int c, int channels) {
+  float xmin = std::ceil(fx - 2.0f);
+  float xmax = std::floor(fx + 2.0f);
+  float ymin = std::ceil(fy - 2.0f);
+  float ymax = std::floor(fy + 2.0f);
+
+  float sum = 0.0f;
+  float wsum = 0.0f;
+
+  for (float cy = ymin; cy <= ymax; cy += 1.0f) {
+    int yy = static_cast<int>(std::floor(cy));
+    for (float cx = xmin; cx <= xmax; cx += 1.0f) {
+      int xx = static_cast<int>(std::floor(cx));
+      float w = bicubicCoeff(fx - cx) * bicubicCoeff(fy - cy);
+      sum += getPixelU8(src, width, height, xx, yy, c, channels) * w;
+      wsum += w;
+    }
+  }
+
+  float res = (wsum == 0.0f) ? 0.0f : (sum / wsum);
+  res = std::min(255.0f, std::max(0.0f, res));
+  return static_cast<Npp8u>(res + 0.5f);
+}
+} // namespace
 
 // 测试恒等变换（无变换）
 TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Identity) {
@@ -66,6 +110,106 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_Identity) {
   for (int i = 0; i < srcWidth * srcHeight; i++) {
     EXPECT_EQ(resultData[i], srcData[i]) << "Identity transform failed at pixel " << i;
   }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_ForwardMatrixTranslation) {
+  const int dx = 5;
+  const int dy = 4;
+  const int srcX = 2;
+  const int srcY = 3;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight, 0);
+  srcData[srcY * srcWidth + srcX] = 255;
+
+  // Forward translation matrix.
+  double coeffs[2][3] = {{1.0, 0.0, (double)dx}, {0.0, 1.0, (double)dy}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffine_8u_C1R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth, (char *)d_dst + y * dstStep, dstWidth * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  const int dstX = srcX + dx;
+  const int dstY = srcY + dy;
+  ASSERT_LT(dstX, dstWidth);
+  ASSERT_LT(dstY, dstHeight);
+
+  EXPECT_EQ(resultData[dstY * dstWidth + dstX], 255);
+  EXPECT_EQ(resultData[srcY * dstWidth + srcX], 0);
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
+TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C3R_ForwardMatrixTranslation) {
+  const int dx = 4;
+  const int dy = 6;
+  const int srcX = 1;
+  const int srcY = 2;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3, 0);
+  int srcIdx = (srcY * srcWidth + srcX) * 3;
+  srcData[srcIdx + 0] = 10;
+  srcData[srcIdx + 1] = 20;
+  srcData[srcIdx + 2] = 30;
+
+  // Forward translation matrix.
+  double coeffs[2][3] = {{1.0, 0.0, (double)dx}, {0.0, 1.0, (double)dy}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C3(srcWidth, srcHeight, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < srcHeight; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffine_8u_C3R(d_src, srcSize, srcStep, srcROI, d_dst, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  for (int y = 0; y < dstHeight; y++) {
+    cudaMemcpy(resultData.data() + y * dstWidth * 3, (char *)d_dst + y * dstStep, dstWidth * 3 * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  const int dstX = srcX + dx;
+  const int dstY = srcY + dy;
+  ASSERT_LT(dstX, dstWidth);
+  ASSERT_LT(dstY, dstHeight);
+
+  int dstIdx = (dstY * dstWidth + dstX) * 3;
+  EXPECT_EQ(resultData[dstIdx + 0], 10);
+  EXPECT_EQ(resultData[dstIdx + 1], 20);
+  EXPECT_EQ(resultData[dstIdx + 2], 30);
+
+  int origIdx = (srcY * dstWidth + srcX) * 3;
+  EXPECT_EQ(resultData[origIdx + 0], 0);
+  EXPECT_EQ(resultData[origIdx + 1], 0);
+  EXPECT_EQ(resultData[origIdx + 2], 0);
 
   nppiFree(d_src);
   nppiFree(d_dst);
@@ -1211,6 +1355,61 @@ TEST_F(WarpAffineBackTest, WarpAffineBack_Translation) {
 }
 
 // 测试反向仿射变换的缩放效果
+TEST_F(WarpAffineBackTest, WarpAffineBack_8u_C3R_CubicFractionalTranslation) {
+  const int width = 8;
+  const int height = 8;
+  NppiSize size = {width, height};
+  NppiRect roi = {0, 0, width, height};
+
+  std::vector<Npp8u> srcData(width * height * 3, 0);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int idx = (y * width + x) * 3;
+      srcData[idx + 0] = static_cast<Npp8u>((x + y * 2) % 256);
+      srcData[idx + 1] = static_cast<Npp8u>((x * 3 + y) % 256);
+      srcData[idx + 2] = static_cast<Npp8u>((x + y * 5) % 256);
+    }
+  }
+
+  // Fractional translation for inverse mapping (dst -> src).
+  double coeffs[2][3] = {{1.0, 0.0, 0.5}, {0.0, 1.0, 0.25}};
+
+  int srcStep, dstStep;
+  Npp8u *d_src = nppiMalloc_8u_C3(width, height, &srcStep);
+  Npp8u *d_dst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * width * 3, width * 3 * sizeof(Npp8u),
+               cudaMemcpyHostToDevice);
+  }
+
+  NppStatus status =
+      nppiWarpAffineBack_8u_C3R(d_src, size, srcStep, roi, d_dst, dstStep, roi, coeffs, NPPI_INTER_CUBIC);
+  EXPECT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(width * height * 3);
+  for (int y = 0; y < height; y++) {
+    cudaMemcpy(resultData.data() + y * width * 3, (char *)d_dst + y * dstStep, width * 3 * sizeof(Npp8u),
+               cudaMemcpyDeviceToHost);
+  }
+
+  const int dstX = 2;
+  const int dstY = 3;
+  float srcX = static_cast<float>(coeffs[0][0] * dstX + coeffs[0][1] * dstY + coeffs[0][2]);
+  float srcY = static_cast<float>(coeffs[1][0] * dstX + coeffs[1][1] * dstY + coeffs[1][2]);
+
+  for (int c = 0; c < 3; c++) {
+    Npp8u expected = cubicSampleU8(srcData, width, height, srcX, srcY, c, 3);
+    Npp8u actual = resultData[(dstY * width + dstX) * 3 + c];
+    EXPECT_LE(std::abs((int)actual - (int)expected), 1) << "Channel " << c;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
+
 TEST_F(WarpAffineBackTest, WarpAffineBack_Scaling) {
   std::vector<Npp32f> srcData(srcWidth * srcHeight);
 

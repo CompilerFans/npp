@@ -426,7 +426,11 @@ public:
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_integral_v<T>) {
       if (shiftCount >= 0 && shiftCount < 32) {
-        return static_cast<T>(a >> shiftCount);
+        if constexpr (std::is_same_v<T, Npp8s>) {
+          return static_cast<T>(static_cast<int>(a) >> shiftCount);
+        } else {
+          return static_cast<T>(a >> shiftCount);
+        }
       }
     }
     return a;
@@ -452,7 +456,12 @@ template <typename T> struct LeftShiftStrategy {
 
 template <typename T> struct RightShiftStrategy {
   __device__ __host__ static T apply(T value, Npp32u shiftCount) {
-    if constexpr (std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp8s>) {
+    if constexpr (std::is_same_v<T, Npp8s>) {
+      if (shiftCount < 32) {
+        return static_cast<T>(static_cast<int>(value) >> shiftCount);
+      }
+      return static_cast<T>(0);
+    } else if constexpr (std::is_same_v<T, Npp8u>) {
       return (shiftCount < 8) ? (value >> shiftCount) : 0;
     } else if constexpr (std::is_same_v<T, Npp16u> || std::is_same_v<T, Npp16s>) {
       return (shiftCount < 16) ? (value >> shiftCount) : 0;
