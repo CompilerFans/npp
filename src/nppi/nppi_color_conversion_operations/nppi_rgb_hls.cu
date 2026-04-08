@@ -304,7 +304,7 @@ __global__ void bgr_to_hls_ac4p4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     pDstRowH[x] = h;
     pDstRowL[x] = l;
     pDstRowS[x] = s;
-    pDstRowA[x] = 0;
+    pDstRowA[x] = pSrcRow[idx + 3];
   }
 }
 
@@ -318,7 +318,7 @@ __global__ void bgr_to_hls_ap4c4_kernel(const Npp8u *pSrcB, const Npp8u *pSrcG, 
     const Npp8u *pRowB = (const Npp8u *)((const char *)pSrcB + y * nSrcStep);
     const Npp8u *pRowG = (const Npp8u *)((const char *)pSrcG + y * nSrcStep);
     const Npp8u *pRowR = (const Npp8u *)((const char *)pSrcR + y * nSrcStep);
-    (void)pSrcA;
+    const Npp8u *pRowA = (const Npp8u *)((const char *)pSrcA + y * nSrcStep);
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
     Npp8u h, l, s;
@@ -328,7 +328,7 @@ __global__ void bgr_to_hls_ap4c4_kernel(const Npp8u *pSrcB, const Npp8u *pSrcG, 
     pDstRow[idx + 0] = h;
     pDstRow[idx + 1] = l;
     pDstRow[idx + 2] = s;
-    pDstRow[idx + 3] = 0;
+    pDstRow[idx + 3] = pRowA[x];
   }
 }
 
@@ -342,7 +342,7 @@ __global__ void bgr_to_hls_ap4_kernel(const Npp8u *pSrcB, const Npp8u *pSrcG, co
     const Npp8u *pRowB = (const Npp8u *)((const char *)pSrcB + y * nSrcStep);
     const Npp8u *pRowG = (const Npp8u *)((const char *)pSrcG + y * nSrcStep);
     const Npp8u *pRowR = (const Npp8u *)((const char *)pSrcR + y * nSrcStep);
-    (void)pSrcA;
+    const Npp8u *pRowA = (const Npp8u *)((const char *)pSrcA + y * nSrcStep);
     Npp8u *pDstRowH = (Npp8u *)((char *)pDstH + y * nDstStep);
     Npp8u *pDstRowL = (Npp8u *)((char *)pDstL + y * nDstStep);
     Npp8u *pDstRowS = (Npp8u *)((char *)pDstS + y * nDstStep);
@@ -354,7 +354,7 @@ __global__ void bgr_to_hls_ap4_kernel(const Npp8u *pSrcB, const Npp8u *pSrcG, co
     pDstRowH[x] = h;
     pDstRowL[x] = l;
     pDstRowS[x] = s;
-    pDstRowA[x] = 0;
+    pDstRowA[x] = pRowA[x];
   }
 }
 
@@ -449,7 +449,7 @@ __global__ void hls_to_bgr_ac4p4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
     pDstRowB[x] = b;
     pDstRowG[x] = g;
     pDstRowR[x] = r;
-    pDstRowA[x] = 0;
+    pDstRowA[x] = pSrcRow[idx + 3];
   }
 }
 
@@ -463,7 +463,7 @@ __global__ void hls_to_bgr_ap4c4_kernel(const Npp8u *pSrcH, const Npp8u *pSrcL, 
     const Npp8u *pRowH = (const Npp8u *)((const char *)pSrcH + y * nSrcStep);
     const Npp8u *pRowL = (const Npp8u *)((const char *)pSrcL + y * nSrcStep);
     const Npp8u *pRowS = (const Npp8u *)((const char *)pSrcS + y * nSrcStep);
-    (void)pSrcA;
+    const Npp8u *pRowA = (const Npp8u *)((const char *)pSrcA + y * nSrcStep);
     Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
 
     Npp8u r, g, b;
@@ -473,7 +473,7 @@ __global__ void hls_to_bgr_ap4c4_kernel(const Npp8u *pSrcH, const Npp8u *pSrcL, 
     pDstRow[idx + 0] = b;
     pDstRow[idx + 1] = g;
     pDstRow[idx + 2] = r;
-    pDstRow[idx + 3] = 0;
+    pDstRow[idx + 3] = pRowA[x];
   }
 }
 
@@ -487,7 +487,7 @@ __global__ void hls_to_bgr_ap4_kernel(const Npp8u *pSrcH, const Npp8u *pSrcL, co
     const Npp8u *pRowH = (const Npp8u *)((const char *)pSrcH + y * nSrcStep);
     const Npp8u *pRowL = (const Npp8u *)((const char *)pSrcL + y * nSrcStep);
     const Npp8u *pRowS = (const Npp8u *)((const char *)pSrcS + y * nSrcStep);
-    (void)pSrcA;
+    const Npp8u *pRowA = (const Npp8u *)((const char *)pSrcA + y * nSrcStep);
     Npp8u *pDstRowB = (Npp8u *)((char *)pDstB + y * nDstStep);
     Npp8u *pDstRowG = (Npp8u *)((char *)pDstG + y * nDstStep);
     Npp8u *pDstRowR = (Npp8u *)((char *)pDstR + y * nDstStep);
@@ -499,7 +499,7 @@ __global__ void hls_to_bgr_ap4_kernel(const Npp8u *pSrcH, const Npp8u *pSrcL, co
     pDstRowB[x] = b;
     pDstRowG[x] = g;
     pDstRowR[x] = r;
-    pDstRowA[x] = 0;
+    pDstRowA[x] = pRowA[x];
   }
 }
 

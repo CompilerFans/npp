@@ -140,15 +140,15 @@ TEST_F(BgrAtoYCbCr422Test, BGRAToYCbCr422_And_Back_ExpectedValues) {
   status = nppiYCbCr422ToBGR_8u_C2C4R_Ctx(d_c2, c2Step, d_dst, dstStep, roi, alpha, ctx);
   EXPECT_EQ(status, NPP_NO_ERROR);
 
-  cudaMemcpy(hostBGRA.data(), d_dst, hostBGRA.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostBGRAOut.data(), d_dst, hostBGRAOut.size(), cudaMemcpyDeviceToHost);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       int idx = (y * width + x) * 4;
       int srcIdx = y * dstStep + x * 4;
-      flatBGRA[idx + 0] = hostBGRA[srcIdx + 0];
-      flatBGRA[idx + 1] = hostBGRA[srcIdx + 1];
-      flatBGRA[idx + 2] = hostBGRA[srcIdx + 2];
-      flatBGRA[idx + 3] = hostBGRA[srcIdx + 3];
+      flatBGRA[idx + 0] = hostBGRAOut[srcIdx + 0];
+      flatBGRA[idx + 1] = hostBGRAOut[srcIdx + 1];
+      flatBGRA[idx + 2] = hostBGRAOut[srcIdx + 2];
+      flatBGRA[idx + 3] = hostBGRAOut[srcIdx + 3];
     }
   }
   for (int i = 0; i < width * height * 4; ++i) {

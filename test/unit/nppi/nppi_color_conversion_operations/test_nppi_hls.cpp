@@ -809,6 +809,15 @@ TEST_P(HLSMissingRoundTripTest, MissingBGRToHLSVariants_RoundTrip) {
   const auto param = GetParam();
   const int width = param.width;
   const int height = param.height;
+  // This tolerance is calibrated against the NVIDIA baseline in build-nvidia.
+  // With:
+  //   ./build-nvidia/unit_tests --gtest_filter='*HLSMissingRoundTripTest.MissingBGRToHLSVariants_RoundTrip*'
+  // the largest observed round-trip delta on these missing BGR<->HLS variants
+  // was 7 in PrecisionCases/HLSMissingRoundTripTest.MissingBGRToHLSVariants_RoundTrip/1
+  // (for example at test_nppi_hls.cpp:180, mismatch index 108: got 196 vs exp 203).
+  // Use 8 here to stay aligned with the NVIDIA behavior rather than forcing a tighter bound
+  // than the reference implementation itself satisfies.
+  const int kRoundTripTol = 8;
   NppiSize roi = {width, height};
 
   std::vector<RgbPixel> pixels;
@@ -853,9 +862,9 @@ TEST_P(HLSMissingRoundTripTest, MissingBGRToHLSVariants_RoundTrip) {
     b_out.copyToHost(b_out_h);
     g_out.copyToHost(g_out_h);
     r_out.copyToHost(r_out_h);
-    expect_plane_near(b_out_h, b_plane, 2);
-    expect_plane_near(g_out_h, g_plane, 2);
-    expect_plane_near(r_out_h, r_plane, 2);
+    expect_plane_near(b_out_h, b_plane, kRoundTripTol);
+    expect_plane_near(g_out_h, g_plane, kRoundTripTol);
+    expect_plane_near(r_out_h, r_plane, kRoundTripTol);
 
     NppImageMemory<Npp8u> hls_packed_ctx(width, height, 3);
     status =
@@ -904,9 +913,9 @@ TEST_P(HLSMissingRoundTripTest, MissingBGRToHLSVariants_RoundTrip) {
     g_out.copyToHost(g_out_h);
     r_out.copyToHost(r_out_h);
     a_back.copyToHost(a_back_h);
-    expect_plane_near(b_out_h, b_plane, 2);
-    expect_plane_near(g_out_h, g_plane, 2);
-    expect_plane_near(r_out_h, r_plane, 2);
+    expect_plane_near(b_out_h, b_plane, kRoundTripTol);
+    expect_plane_near(g_out_h, g_plane, kRoundTripTol);
+    expect_plane_near(r_out_h, r_plane, kRoundTripTol);
     expect_plane_near(a_back_h, a_plane, 0);
 
     NppImageMemory<Npp8u> h_plane_ctx(width, height);
@@ -963,9 +972,9 @@ TEST_P(HLSMissingRoundTripTest, MissingBGRToHLSVariants_RoundTrip) {
     g_out.copyToHost(g_out_h);
     r_out.copyToHost(r_out_h);
     a_out.copyToHost(a_out_h);
-    expect_plane_near(b_out_h, b_plane, 2);
-    expect_plane_near(g_out_h, g_plane, 2);
-    expect_plane_near(r_out_h, r_plane, 2);
+    expect_plane_near(b_out_h, b_plane, kRoundTripTol);
+    expect_plane_near(g_out_h, g_plane, kRoundTripTol);
+    expect_plane_near(r_out_h, r_plane, kRoundTripTol);
     expect_plane_near(a_out_h, a_plane, 0);
 
     NppImageMemory<Npp8u> hls_packed_ctx(width, height, 4);
@@ -1021,9 +1030,9 @@ TEST_P(HLSMissingRoundTripTest, MissingBGRToHLSVariants_RoundTrip) {
     g_out.copyToHost(g_out_h);
     r_out.copyToHost(r_out_h);
     a_out.copyToHost(a_out_h);
-    expect_plane_near(b_out_h, b_plane, 2);
-    expect_plane_near(g_out_h, g_plane, 2);
-    expect_plane_near(r_out_h, r_plane, 2);
+    expect_plane_near(b_out_h, b_plane, kRoundTripTol);
+    expect_plane_near(g_out_h, g_plane, kRoundTripTol);
+    expect_plane_near(r_out_h, r_plane, kRoundTripTol);
     expect_plane_near(a_out_h, a_plane, 0);
 
     NppImageMemory<Npp8u> h_plane_ctx(width, height);
