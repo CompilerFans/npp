@@ -1,25 +1,45 @@
-#include "nppdefs.h"
+#include "npp.h"
+#include <cstdint>
 #include <cuda_runtime.h>
 
-__device__ inline Npp8u clamp_u8(float v) { return (Npp8u)fmaxf(0.0f, fminf(255.0f, v)); }
+__device__ inline void yuv420_to_rgb_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b) {
+  // Fixed-point coefficients (scale = 128) tuned to match NVIDIA NPP YUV420 behavior.
+  int yv = static_cast<int>(y);
+  int ud = static_cast<int>(u) - 128;
+  int vd = static_cast<int>(v) - 128;
 
-__device__ inline void yuv_to_rgb(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp8u &g, Npp8u &b) {
-  float fy = (float)y;
-  float fu = (float)u - 128.0f;
-  float fv = (float)v - 128.0f;
+  int r_val = yv + ((145 * vd) >> 7);
+  int g_val = yv + (((-22 * ud) + (-45 * vd)) >> 7);
+  int b_val = yv + ((255 * ud) >> 7);
 
-  float fr = fy + 1.140f * fv;
-  float fg = fy - 0.394f * fu - 0.581f * fv;
-  float fb = fy + 2.032f * fu;
+  r_val = max(0, min(255, r_val));
+  g_val = max(0, min(255, g_val));
+  b_val = max(0, min(255, b_val));
 
-  r = clamp_u8(fr + 0.5f);
-  g = clamp_u8(fg + 0.5f);
-  b = clamp_u8(fb + 0.5f);
+  r = static_cast<uint8_t>(r_val);
+  g = static_cast<uint8_t>(g_val);
+  b = static_cast<uint8_t>(b_val);
 }
 
-__global__ void yuv420_to_rgb_p3c3_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                          int srcStepU, int srcStepV, Npp8u *pDst, int dstStep, int width,
-                                          int height) {
+__device__ inline void yuv420_to_rgb_bt601_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g,
+                                                 uint8_t &b) {
+  float Y = static_cast<float>(y);
+  float U = static_cast<float>(u) - 128.0f;
+  float V = static_cast<float>(v) - 128.0f;
+
+  float R = Y + 1.140f * V;
+  float G = Y - 0.395f * U - 0.581f * V;
+  float B = Y + 2.032f * U;
+
+  r = static_cast<uint8_t>(fminf(fmaxf(R, 0.0f), 255.0f));
+  g = static_cast<uint8_t>(fminf(fmaxf(G, 0.0f), 255.0f));
+  b = static_cast<uint8_t>(fminf(fmaxf(B, 0.0f), 255.0f));
+}
+
+__global__ void yuv420_to_rgb_p3c3_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
+                                          const uint8_t *__restrict__ srcU, int srcUStep,
+                                          const uint8_t *__restrict__ srcV, int srcVStep,
+                                          uint8_t *__restrict__ dst, int dstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -27,26 +47,29 @@ __global__ void yuv420_to_rgb_p3c3_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU
     return;
   }
 
-  const Npp8u *rowY = (const Npp8u *)((const char *)pSrcY + y * srcStepY);
-  const Npp8u *rowU = (const Npp8u *)((const char *)pSrcU + (y >> 1) * srcStepU);
-  const Npp8u *rowV = (const Npp8u *)((const char *)pSrcV + (y >> 1) * srcStepV);
+  uint8_t Y = srcY[y * srcYStep + x];
+  int uv_x = x >> 1;
+  int uv_y = y >> 1;
+  uint8_t U = srcU[uv_y * srcUStep + uv_x];
+  uint8_t V = srcV[uv_y * srcVStep + uv_x];
 
-  Npp8u Y = rowY[x];
-  Npp8u U = rowU[x >> 1];
-  Npp8u V = rowV[x >> 1];
+  uint8_t R, G, B;
+  yuv420_to_rgb_pixel(Y, U, V, R, G, B);
 
-  Npp8u r, g, b;
-  yuv_to_rgb(Y, U, V, r, g, b);
-
-  Npp8u *dstRow = (Npp8u *)((char *)pDst + y * dstStep);
-  int idx = x * 3;
-  dstRow[idx + 0] = r;
-  dstRow[idx + 1] = g;
-  dstRow[idx + 2] = b;
+  int dst_offset = y * dstStep + x * 3;
+  dst[dst_offset] = R;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = B;
 }
 
-__global__ void yuv420_to_rgb_p3c4_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                          int srcStepU, int srcStepV, Npp8u *pDst, int dstStep, int width, int height) {
+// Alpha behavior matches NVIDIA NPP:
+// - P3C4R: alpha = luma (Y) per pixel
+// - P3AC4R: alpha = 0
+__global__ void yuv420_to_rgb_p3c4_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
+                                          const uint8_t *__restrict__ srcU, int srcUStep,
+                                          const uint8_t *__restrict__ srcV, int srcVStep,
+                                          uint8_t *__restrict__ dst, int dstStep, int width, int height,
+                                          int alpha_mode) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -54,28 +77,34 @@ __global__ void yuv420_to_rgb_p3c4_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU
     return;
   }
 
-  const Npp8u *rowY = (const Npp8u *)((const char *)pSrcY + y * srcStepY);
-  const Npp8u *rowU = (const Npp8u *)((const char *)pSrcU + (y >> 1) * srcStepU);
-  const Npp8u *rowV = (const Npp8u *)((const char *)pSrcV + (y >> 1) * srcStepV);
+  uint8_t Y = srcY[y * srcYStep + x];
+  int uv_x = x >> 1;
+  int uv_y = y >> 1;
+  uint8_t U = srcU[uv_y * srcUStep + uv_x];
+  uint8_t V = srcV[uv_y * srcVStep + uv_x];
 
-  Npp8u Y = rowY[x];
-  Npp8u U = rowU[x >> 1];
-  Npp8u V = rowV[x >> 1];
+  uint8_t R, G, B;
+  yuv420_to_rgb_pixel(Y, U, V, R, G, B);
 
-  Npp8u r, g, b;
-  yuv_to_rgb(Y, U, V, r, g, b);
-
-  Npp8u *dstRow = (Npp8u *)((char *)pDst + y * dstStep);
-  int idx = x * 4;
-  dstRow[idx + 0] = r;
-  dstRow[idx + 1] = g;
-  dstRow[idx + 2] = b;
-  dstRow[idx + 3] = 0xFF;
+  int dst_offset = y * dstStep + x * 4;
+  dst[dst_offset] = R;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = B;
+  uint8_t alpha = 0;
+  if (alpha_mode == 0) {
+    alpha = Y;       // match NVIDIA behavior for C4: alpha from luma
+  } else if (alpha_mode == 1) {
+    alpha = 0xFF;    // constant 0xFF
+  } else {
+    alpha = 0;       // clear alpha
+  }
+  dst[dst_offset + 3] = alpha;
 }
 
-__global__ void yuv420_to_rgb_p3ac4_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                           int srcStepU, int srcStepV, Npp8u *pDst, int dstStep, int width,
-                                           int height) {
+__global__ void yuv420_to_bgr_p3c3_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
+                                          const uint8_t *__restrict__ srcU, int srcUStep,
+                                          const uint8_t *__restrict__ srcV, int srcVStep,
+                                          uint8_t *__restrict__ dst, int dstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -83,29 +112,25 @@ __global__ void yuv420_to_rgb_p3ac4_kernel(const Npp8u *pSrcY, const Npp8u *pSrc
     return;
   }
 
-  const Npp8u *rowY = (const Npp8u *)((const char *)pSrcY + y * srcStepY);
-  const Npp8u *rowU = (const Npp8u *)((const char *)pSrcU + (y >> 1) * srcStepU);
-  const Npp8u *rowV = (const Npp8u *)((const char *)pSrcV + (y >> 1) * srcStepV);
+  uint8_t Y = srcY[y * srcYStep + x];
+  int uv_x = x >> 1;
+  int uv_y = y >> 1;
+  uint8_t U = srcU[uv_y * srcUStep + uv_x];
+  uint8_t V = srcV[uv_y * srcVStep + uv_x];
 
-  Npp8u Y = rowY[x];
-  Npp8u U = rowU[x >> 1];
-  Npp8u V = rowV[x >> 1];
+  uint8_t R, G, B;
+  yuv420_to_rgb_bt601_pixel(Y, U, V, R, G, B);
 
-  Npp8u r, g, b;
-  yuv_to_rgb(Y, U, V, r, g, b);
-
-  Npp8u *dstRow = (Npp8u *)((char *)pDst + y * dstStep);
-  int idx = x * 4;
-  Npp8u a = dstRow[idx + 3];
-  dstRow[idx + 0] = r;
-  dstRow[idx + 1] = g;
-  dstRow[idx + 2] = b;
-  dstRow[idx + 3] = a;
+  int dst_offset = y * dstStep + x * 3;
+  dst[dst_offset] = B;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = R;
 }
 
-__global__ void yuv420_to_rgb_p3r_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                         int srcStepU, int srcStepV, Npp8u *pDstR, Npp8u *pDstG, Npp8u *pDstB,
-                                         int dstStep, int width, int height) {
+__global__ void yuv420_to_bgr_p3c4_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
+                                          const uint8_t *__restrict__ srcU, int srcUStep,
+                                          const uint8_t *__restrict__ srcV, int srcVStep,
+                                          uint8_t *__restrict__ dst, int dstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -113,68 +138,118 @@ __global__ void yuv420_to_rgb_p3r_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU,
     return;
   }
 
-  const Npp8u *rowY = (const Npp8u *)((const char *)pSrcY + y * srcStepY);
-  const Npp8u *rowU = (const Npp8u *)((const char *)pSrcU + (y >> 1) * srcStepU);
-  const Npp8u *rowV = (const Npp8u *)((const char *)pSrcV + (y >> 1) * srcStepV);
+  uint8_t Y = srcY[y * srcYStep + x];
+  int uv_x = x >> 1;
+  int uv_y = y >> 1;
+  uint8_t U = srcU[uv_y * srcUStep + uv_x];
+  uint8_t V = srcV[uv_y * srcVStep + uv_x];
 
-  Npp8u Y = rowY[x];
-  Npp8u U = rowU[x >> 1];
-  Npp8u V = rowV[x >> 1];
+  uint8_t R, G, B;
+  yuv420_to_rgb_bt601_pixel(Y, U, V, R, G, B);
 
-  Npp8u r, g, b;
-  yuv_to_rgb(Y, U, V, r, g, b);
-
-  Npp8u *rowR = (Npp8u *)((char *)pDstR + y * dstStep);
-  Npp8u *rowG = (Npp8u *)((char *)pDstG + y * dstStep);
-  Npp8u *rowB = (Npp8u *)((char *)pDstB + y * dstStep);
-
-  rowR[x] = r;
-  rowG[x] = g;
-  rowB[x] = b;
+  int dst_offset = y * dstStep + x * 4;
+  dst[dst_offset] = B;
+  dst[dst_offset + 1] = G;
+  dst[dst_offset + 2] = R;
+  dst[dst_offset + 3] = 0xFF;
 }
 
-extern "C" {
-cudaError_t nppiYUV420ToRGB_8u_P3R_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                          int srcStepU, int srcStepV, Npp8u *pDstR, Npp8u *pDstG, Npp8u *pDstB,
-                                          int dstStep, NppiSize oSizeROI, cudaStream_t stream) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+__global__ void yuv420_to_rgb_p3p3_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
+                                          const uint8_t *__restrict__ srcU, int srcUStep,
+                                          const uint8_t *__restrict__ srcV, int srcVStep,
+                                          uint8_t *__restrict__ dstR, uint8_t *__restrict__ dstG,
+                                          uint8_t *__restrict__ dstB, int dstStep, int width, int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  yuv420_to_rgb_p3r_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, pSrcU, pSrcV, srcStepY, srcStepU, srcStepV, pDstR,
-                                                               pDstG, pDstB, dstStep, oSizeROI.width, oSizeROI.height);
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  uint8_t Y = srcY[y * srcYStep + x];
+  int uv_x = x >> 1;
+  int uv_y = y >> 1;
+  uint8_t U = srcU[uv_y * srcUStep + uv_x];
+  uint8_t V = srcV[uv_y * srcVStep + uv_x];
+
+  uint8_t R, G, B;
+  yuv420_to_rgb_pixel(Y, U, V, R, G, B);
+
+  dstR[y * dstStep + x] = R;
+  dstG[y * dstStep + x] = G;
+  dstB[y * dstStep + x] = B;
+}
+
+extern "C" cudaError_t nppiYUV420ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
+                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                        int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  yuv420_to_rgb_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
 }
 
-cudaError_t nppiYUV420ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                            int srcStepU, int srcStepV, Npp8u *pDst, int dstStep, NppiSize oSizeROI,
-                                            cudaStream_t stream) {
+extern "C" cudaError_t nppiYUV420ToRGB_8u_P3C4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
+                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                        int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  yuv420_to_rgb_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, pSrcU, pSrcV, srcStepY, srcStepU, srcStepV, pDst,
-                                                                dstStep, oSizeROI.width, oSizeROI.height);
+  yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, 0);
   return cudaGetLastError();
 }
 
-cudaError_t nppiYUV420ToRGB_8u_P3C4R_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                            int srcStepU, int srcStepV, Npp8u *pDst, int dstStep, NppiSize oSizeROI,
-                                            cudaStream_t stream) {
+extern "C" cudaError_t nppiYUV420ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
+                                                         int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                         int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, pSrcU, pSrcV, srcStepY, srcStepU, srcStepV, pDst,
-                                                                dstStep, oSizeROI.width, oSizeROI.height);
+  yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height, 2);
   return cudaGetLastError();
 }
 
-cudaError_t nppiYUV420ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, const Npp8u *pSrcU, const Npp8u *pSrcV, int srcStepY,
-                                             int srcStepU, int srcStepV, Npp8u *pDst, int dstStep, NppiSize oSizeROI,
-                                             cudaStream_t stream) {
+extern "C" cudaError_t nppiYUV420ToRGB_8u_P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
+                                                      int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR,
+                                                      Npp8u *pDstG, Npp8u *pDstB, int nDstStep, NppiSize oSizeROI,
+                                                      cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  yuv420_to_rgb_p3ac4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, pSrcU, pSrcV, srcStepY, srcStepU, srcStepV, pDst,
-                                                                 dstStep, oSizeROI.width, oSizeROI.height);
+  yuv420_to_rgb_p3p3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
+                                                                pDstR, pDstG, pDstB, nDstStep, oSizeROI.width,
+                                                                oSizeROI.height);
   return cudaGetLastError();
 }
+
+extern "C" cudaError_t nppiYUV420ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
+                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                        int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  yuv420_to_bgr_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  return cudaGetLastError();
+}
+
+extern "C" cudaError_t nppiYUV420ToBGR_8u_P3C4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
+                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                        int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  yuv420_to_bgr_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
+                                                                pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  return cudaGetLastError();
 }
