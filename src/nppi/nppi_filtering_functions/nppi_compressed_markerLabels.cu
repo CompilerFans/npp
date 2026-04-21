@@ -1,11 +1,8 @@
 #include "npp.h"
-#include "npp_version_compat.h"
 #include <algorithm>
 #include <climits>
 #include <cstring>
 #include <cuda_runtime.h>
-
-#include <map>
 #include <vector>
 
 // Contour direction constants (from nppdefs.h)
@@ -18,239 +15,678 @@
 #define CONTOUR_DIR_N 64
 #define CONTOUR_DIR_NW 128
 
-// Kernel to count pixels per label
-__global__ void countPixelsPerLabel_kernel(const Npp32u *pMarkerLabels, int nStep, int width, int height,
-                                           Npp32u *pPixelCounts, unsigned int nMaxLabelID) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+namespace {
 
-  if (x >= width || y >= height)
+constexpr int kNeighborCount = 8;
+constexpr int kNeighborDx[kNeighborCount] = {1, 1, 0, -1, -1, -1, 0, 1};
+constexpr int kNeighborDy[kNeighborCount] = {0, -1, -1, -1, 0, 1, 1, 1};
+constexpr Npp8u kNeighborBits[kNeighborCount] = {CONTOUR_DIR_E, CONTOUR_DIR_NE, CONTOUR_DIR_N, CONTOUR_DIR_NW,
+                                                 CONTOUR_DIR_W, CONTOUR_DIR_SW, CONTOUR_DIR_S, CONTOUR_DIR_SE};
+constexpr Npp32u kMaxContourPixelsPerSegment = 256u * 1024u;
+
+struct HostCompressedMarkerContourData {
+  std::vector<Npp8u> contourImage;
+  std::vector<NppiContourPixelDirectionInfo> directionImage;
+  std::vector<NppiCompressedMarkerLabelsInfo> infoList;
+  std::vector<Npp32u> contourCounts;
+  std::vector<Npp32u> contourOffsets;
+  NppiContourTotalsInfo totalsInfo{};
+};
+
+inline bool isInBounds(int x, int y, int width, int height) { return x >= 0 && x < width && y >= 0 && y < height; }
+
+inline size_t pixelOffset(int x, int y, int width) { return static_cast<size_t>(y) * width + x; }
+
+template <typename T>
+cudaError_t copyDeviceImageToHost(std::vector<T> &host, const T *device, int deviceStep, int width, int height) {
+  host.assign(static_cast<size_t>(width) * height, T{});
+  if (device == nullptr) {
+    return cudaSuccess;
+  }
+
+  return cudaMemcpy2D(host.data(), static_cast<size_t>(width) * sizeof(T), device, deviceStep,
+                      static_cast<size_t>(width) * sizeof(T), height, cudaMemcpyDeviceToHost);
+}
+
+template <typename T>
+cudaError_t copyHostImageToDevice(T *device, int deviceStep, const std::vector<T> &host, int width, int height) {
+  if (device == nullptr) {
+    return cudaSuccess;
+  }
+
+  return cudaMemcpy2D(device, deviceStep, host.data(), static_cast<size_t>(width) * sizeof(T),
+                      static_cast<size_t>(width) * sizeof(T), height, cudaMemcpyHostToDevice);
+}
+
+template <typename T> cudaError_t copyHostArrayToDevice(T *device, const std::vector<T> &host, size_t count) {
+  if (device == nullptr || count == 0) {
+    return cudaSuccess;
+  }
+
+  return cudaMemcpy(device, host.data(), count * sizeof(T), cudaMemcpyHostToDevice);
+}
+
+// Count pixels per label (including label 0, which is observable in info outputs).
+__global__ void countPixelsPerLabel_kernel(const Npp32u *pMarkerLabels, int nMarkerStep, int width, int height,
+                                           Npp32u *pPixelCounts, unsigned int nMaxMarkerLabelID) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
     return;
+  }
 
-  const Npp32u *row = (const Npp32u *)((const char *)pMarkerLabels + y * nStep);
-  Npp32u label = row[x];
-
-  if (label > 0 && label <= nMaxLabelID) {
-    atomicAdd(&pPixelCounts[label], 1);
+  const Npp32u *row = reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + y * nMarkerStep);
+  const Npp32u label = row[x];
+  if (label <= nMaxMarkerLabelID && pPixelCounts != nullptr) {
+    atomicAdd(&pPixelCounts[label], 1u);
   }
 }
 
-// Kernel to detect contour pixels
-__global__ void detectContourPixels_kernel(const Npp32u *pMarkerLabels, int nStep, int width, int height,
+// Restored GPU path for contour extraction to avoid host-only regressions.
+__global__ void detectContourPixels_kernel(const Npp32u *pMarkerLabels, int nMarkerStep, int width, int height,
                                            Npp8u *pContoursImage, int nContoursStep, Npp32u *pContourCounts,
-                                           unsigned int nMaxLabelID) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
-    return;
-
-  const Npp32u *row = (const Npp32u *)((const char *)pMarkerLabels + y * nStep);
-  Npp32u label = row[x];
-
-  Npp8u *contourRow = pContoursImage ? (Npp8u *)((char *)pContoursImage + y * nContoursStep) : nullptr;
-
-  if (label == 0) {
-    if (contourRow)
-      contourRow[x] = 0;
+                                           unsigned int nMaxMarkerLabelID) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
     return;
   }
 
-  // Check if pixel is on contour (has neighbor with different label)
-  bool isContour = false;
-  int dx[] = {-1, 0, 1, -1, 1, -1, 0, 1};
-  int dy[] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-  for (int i = 0; i < 8; i++) {
-    int nx = x + dx[i];
-    int ny = y + dy[i];
-
-    if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
-      isContour = true;
-      break;
+  const Npp32u *labelRow = reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + y * nMarkerStep);
+  const Npp32u label = labelRow[x];
+  if (label > nMaxMarkerLabelID) {
+    if (pContoursImage != nullptr) {
+      Npp8u *contourRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pContoursImage) + y * nContoursStep);
+      contourRow[x] = 0;
     }
+    return;
+  }
 
-    const Npp32u *neighborRow = (const Npp32u *)((const char *)pMarkerLabels + ny * nStep);
+  bool isContour = false;
+  const int dx[8] = {1, 1, 0, -1, -1, -1, 0, 1};
+  const int dy[8] = {0, -1, -1, -1, 0, 1, 1, 1};
+  for (int i = 0; i < 8; ++i) {
+    const int nx = x + dx[i];
+    const int ny = y + dy[i];
+    if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
+      continue;
+    }
+    const Npp32u *neighborRow =
+        reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + ny * nMarkerStep);
     if (neighborRow[nx] != label) {
       isContour = true;
       break;
     }
   }
 
-  if (contourRow) {
+  if (pContoursImage != nullptr) {
+    Npp8u *contourRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pContoursImage) + y * nContoursStep);
     contourRow[x] = isContour ? 255 : 0;
   }
-
-  if (isContour && label <= nMaxLabelID) {
-    atomicAdd(&pContourCounts[label], 1);
+  if (isContour && pContourCounts != nullptr) {
+    atomicAdd(&pContourCounts[label], 1u);
   }
 }
 
-// Kernel to compute contour direction info
-__global__ void computeContourDirection_kernel(const Npp32u *pMarkerLabels, int nStep, int width, int height,
-                                               NppiContourPixelDirectionInfo *pDirectionImage, int nDirectionStep,
-                                               unsigned int nMaxLabelID) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
+__global__ void updateBoundingBox_kernel(const Npp32u *pMarkerLabels, int nMarkerStep, int width, int height, int *pMinX,
+                                         int *pMinY, int *pMaxX, int *pMaxY, unsigned int nMaxMarkerLabelID) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
     return;
-
-  const Npp32u *row = (const Npp32u *)((const char *)pMarkerLabels + y * nStep);
-  Npp32u label = row[x];
-
-  NppiContourPixelDirectionInfo *dirRow =
-      (NppiContourPixelDirectionInfo *)((char *)pDirectionImage + y * nDirectionStep);
-  NppiContourPixelDirectionInfo &info = dirRow[x];
-
-  // Initialize
-  info.nMarkerLabelID = label;
-  info.nContourDirectionCenterPixel = 0;
-  info.nContourInteriorDirectionCenterPixel = 0;
-  info.nConnected = 0;
-  info.nGeometryInfoIsValid = 0;
-
-  if (label == 0)
-    return;
-
-  // Check all 8 neighbors and compute direction info
-  Npp8u connected = 0;
-  Npp8u interiorDir = 0;
-
-  // Direction offsets: E, NE, N, NW, W, SW, S, SE
-  int dx[] = {1, 1, 0, -1, -1, -1, 0, 1};
-  int dy[] = {0, -1, -1, -1, 0, 1, 1, 1};
-  Npp8u dirBits[] = {CONTOUR_DIR_E, CONTOUR_DIR_NE, CONTOUR_DIR_N, CONTOUR_DIR_NW,
-                     CONTOUR_DIR_W, CONTOUR_DIR_SW, CONTOUR_DIR_S, CONTOUR_DIR_SE};
-
-  for (int i = 0; i < 8; i++) {
-    int nx = x + dx[i];
-    int ny = y + dy[i];
-
-    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-      const Npp32u *neighborRow = (const Npp32u *)((const char *)pMarkerLabels + ny * nStep);
-      if (neighborRow[nx] == label) {
-        connected |= dirBits[i];
-      } else {
-        // Direction to exterior
-        interiorDir |= dirBits[(i + 4) % 8]; // Opposite direction points to interior
-      }
-
-      // Store neighbor locations
-      switch (i) {
-      case 0:
-        info.nEast1.x = nx;
-        info.nEast1.y = ny;
-        info.nTest1EastConnected = (neighborRow[nx] == label);
-        break;
-      case 1:
-        info.nNorthEast1.x = nx;
-        info.nNorthEast1.y = ny;
-        info.nTest1NorthEastConnected = (neighborRow[nx] == label);
-        break;
-      case 2:
-        info.nNorth1.x = nx;
-        info.nNorth1.y = ny;
-        info.nTest1NorthConnected = (neighborRow[nx] == label);
-        break;
-      case 3:
-        info.nNorthWest1.x = nx;
-        info.nNorthWest1.y = ny;
-        info.nTest1NorthWestConnected = (neighborRow[nx] == label);
-        break;
-      case 4:
-        info.nWest1.x = nx;
-        info.nWest1.y = ny;
-        info.nTest1WestConnected = (neighborRow[nx] == label);
-        break;
-      case 5:
-        info.nSouthWest1.x = nx;
-        info.nSouthWest1.y = ny;
-        info.nTest1SouthWestConnected = (neighborRow[nx] == label);
-        break;
-      case 6:
-        info.nSouth1.x = nx;
-        info.nSouth1.y = ny;
-        info.nTest1SouthConnected = (neighborRow[nx] == label);
-        break;
-      case 7:
-        info.nSouthEast1.x = nx;
-        info.nSouthEast1.y = ny;
-        info.nTest1SouthEastConnected = (neighborRow[nx] == label);
-        break;
-      }
-    }
   }
 
-  info.nConnected = connected;
-  info.nContourInteriorDirectionCenterPixel = interiorDir;
-}
-
-// Kernel to update bounding box info for each label
-__global__ void updateBoundingBox_kernel(const Npp32u *pMarkerLabels, int nStep, int width, int height, int *pMinX,
-                                         int *pMinY, int *pMaxX, int *pMaxY, unsigned int nMaxLabelID) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
+  const Npp32u *row = reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + y * nMarkerStep);
+  const Npp32u label = row[x];
+  if (label > nMaxMarkerLabelID) {
     return;
+  }
 
-  const Npp32u *row = (const Npp32u *)((const char *)pMarkerLabels + y * nStep);
-  Npp32u label = row[x];
-
-  if (label == 0 || label > nMaxLabelID)
-    return;
-
-  // Update bounding box using atomic operations
   atomicMin(&pMinX[label], x);
   atomicMin(&pMinY[label], y);
   atomicMax(&pMaxX[label], x);
   atomicMax(&pMaxY[label], y);
 }
 
-// Kernel to find first contour pixel for each label
-__global__ void findFirstContourPixel_kernel(const Npp8u *pContoursImage, int nContoursStep,
-                                             const Npp32u *pMarkerLabels, int nStep, int width, int height,
-                                             int *pFirstContourX, int *pFirstContourY, unsigned int nMaxLabelID) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
+__global__ void findFirstContourPixel_kernel(const Npp8u *pContoursImage, int nContoursStep, const Npp32u *pMarkerLabels,
+                                             int nMarkerStep, int width, int height, int *pFirstContourEncoded,
+                                             unsigned int nMaxMarkerLabelID) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
     return;
+  }
 
-  const Npp8u *contourRow = (const Npp8u *)((const char *)pContoursImage + y * nContoursStep);
-  if (contourRow[x] == 0)
-    return; // Not a contour pixel
-
-  const Npp32u *labelRow = (const Npp32u *)((const char *)pMarkerLabels + y * nStep);
-  Npp32u label = labelRow[x];
-
-  if (label == 0 || label > nMaxLabelID)
+  const Npp8u *contourRow = reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pContoursImage) + y * nContoursStep);
+  if (contourRow[x] == 0) {
     return;
+  }
 
-  // Encode position as y * width + x for comparison (topmost-leftmost wins)
-  int encoded = y * width + x;
-  atomicMin(&pFirstContourY[label], encoded); // Use encoded position to find topmost-leftmost
+  const Npp32u *labelRow = reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + y * nMarkerStep);
+  const Npp32u label = labelRow[x];
+  if (label > nMaxMarkerLabelID) {
+    return;
+  }
+
+  atomicMin(&pFirstContourEncoded[label], y * width + x);
 }
 
-// Kernel for batch compression
-__global__ void batchCompressLabels_kernel(Npp32u *pMarkerLabels, int nStep, int width, int height,
-                                           Npp32u *pLabelMapping, unsigned int nMaxLabelID) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x >= width || y >= height)
+__global__ void computeContourDirection_kernel(const Npp32u *pMarkerLabels, int nMarkerStep, int width, int height,
+                                               const Npp8u *pContoursImage, int nContoursStep,
+                                               NppiContourPixelDirectionInfo *pDirectionImage, int nDirectionStep,
+                                               unsigned int nMaxMarkerLabelID) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
     return;
+  }
 
-  Npp32u *row = (Npp32u *)((char *)pMarkerLabels + y * nStep);
-  Npp32u label = row[x];
+  const Npp32u *labelRow = reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + y * nMarkerStep);
+  const Npp32u label = labelRow[x];
+  NppiContourPixelDirectionInfo *dirRow =
+      reinterpret_cast<NppiContourPixelDirectionInfo *>(reinterpret_cast<char *>(pDirectionImage) + y * nDirectionStep);
+  NppiContourPixelDirectionInfo info{};
+  info.nMarkerLabelID = label;
+  if (label > nMaxMarkerLabelID) {
+    dirRow[x] = info;
+    return;
+  }
 
-  if (label > 0 && label <= nMaxLabelID) {
-    row[x] = pLabelMapping[label];
+  Npp8u contourNeighborMask = 0;
+  Npp8u interiorMask = 0;
+  const int dx[8] = {1, 1, 0, -1, -1, -1, 0, 1};
+  const int dy[8] = {0, -1, -1, -1, 0, 1, 1, 1};
+  const Npp8u bits[8] = {CONTOUR_DIR_E, CONTOUR_DIR_NE, CONTOUR_DIR_N, CONTOUR_DIR_NW,
+                         CONTOUR_DIR_W, CONTOUR_DIR_SW, CONTOUR_DIR_S, CONTOUR_DIR_SE};
+
+  for (int i = 0; i < 8; ++i) {
+    const int nx = x + dx[i];
+    const int ny = y + dy[i];
+    bool sameLabel = true;
+    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+      const Npp32u *neighborRow =
+          reinterpret_cast<const Npp32u *>(reinterpret_cast<const char *>(pMarkerLabels) + ny * nMarkerStep);
+      sameLabel = (neighborRow[nx] == label);
+      if (sameLabel) {
+        interiorMask |= bits[i];
+        if (pContoursImage != nullptr) {
+          const Npp8u *contourRow = reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pContoursImage) +
+                                                                     ny * nContoursStep);
+          if (contourRow[nx] != 0) {
+            contourNeighborMask |= bits[i];
+          }
+        }
+      }
+      switch (i) {
+      case 0:
+        info.nEast1.x = nx;
+        info.nEast1.y = ny;
+        break;
+      case 1:
+        info.nNorthEast1.x = nx;
+        info.nNorthEast1.y = ny;
+        break;
+      case 2:
+        info.nNorth1.x = nx;
+        info.nNorth1.y = ny;
+        break;
+      case 3:
+        info.nNorthWest1.x = nx;
+        info.nNorthWest1.y = ny;
+        break;
+      case 4:
+        info.nWest1.x = nx;
+        info.nWest1.y = ny;
+        break;
+      case 5:
+        info.nSouthWest1.x = nx;
+        info.nSouthWest1.y = ny;
+        break;
+      case 6:
+        info.nSouth1.x = nx;
+        info.nSouth1.y = ny;
+        break;
+      case 7:
+        info.nSouthEast1.x = nx;
+        info.nSouthEast1.y = ny;
+        break;
+      default:
+        break;
+      }
+    }
+
+    const Npp8u connected = sameLabel ? 1u : 0u;
+    switch (i) {
+    case 0:
+      info.nTest1EastConnected = connected;
+      break;
+    case 1:
+      info.nTest1NorthEastConnected = connected;
+      break;
+    case 2:
+      info.nTest1NorthConnected = connected;
+      break;
+    case 3:
+      info.nTest1NorthWestConnected = connected;
+      break;
+    case 4:
+      info.nTest1WestConnected = connected;
+      break;
+    case 5:
+      info.nTest1SouthWestConnected = connected;
+      break;
+    case 6:
+      info.nTest1SouthConnected = connected;
+      break;
+    case 7:
+      info.nTest1SouthEastConnected = connected;
+      break;
+    default:
+      break;
+    }
+  }
+
+  if (pContoursImage != nullptr) {
+    const Npp8u *centerContourRow =
+        reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pContoursImage) + y * nContoursStep);
+    if (centerContourRow[x] != 0) {
+      info.nContourDirectionCenterPixel = contourNeighborMask;
+      info.nContourInteriorDirectionCenterPixel = interiorMask;
+      info.nConnected = contourNeighborMask;
+    }
+  }
+  dirRow[x] = info;
+}
+
+inline void setNeighborPoint(NppiContourPixelDirectionInfo &info, int direction, int x, int y) {
+  switch (direction) {
+  case 0:
+    info.nEast1.x = x;
+    info.nEast1.y = y;
+    break;
+  case 1:
+    info.nNorthEast1.x = x;
+    info.nNorthEast1.y = y;
+    break;
+  case 2:
+    info.nNorth1.x = x;
+    info.nNorth1.y = y;
+    break;
+  case 3:
+    info.nNorthWest1.x = x;
+    info.nNorthWest1.y = y;
+    break;
+  case 4:
+    info.nWest1.x = x;
+    info.nWest1.y = y;
+    break;
+  case 5:
+    info.nSouthWest1.x = x;
+    info.nSouthWest1.y = y;
+    break;
+  case 6:
+    info.nSouth1.x = x;
+    info.nSouth1.y = y;
+    break;
+  case 7:
+    info.nSouthEast1.x = x;
+    info.nSouthEast1.y = y;
+    break;
+  default:
+    break;
   }
 }
 
+inline void setNeighborConnectedFlag(NppiContourPixelDirectionInfo &info, int direction, bool connected) {
+  const Npp8u value = connected ? 1u : 0u;
+  switch (direction) {
+  case 0:
+    info.nTest1EastConnected = value;
+    break;
+  case 1:
+    info.nTest1NorthEastConnected = value;
+    break;
+  case 2:
+    info.nTest1NorthConnected = value;
+    break;
+  case 3:
+    info.nTest1NorthWestConnected = value;
+    break;
+  case 4:
+    info.nTest1WestConnected = value;
+    break;
+  case 5:
+    info.nTest1SouthWestConnected = value;
+    break;
+  case 6:
+    info.nTest1SouthConnected = value;
+    break;
+  case 7:
+    info.nTest1SouthEastConnected = value;
+    break;
+  default:
+    break;
+  }
+}
+
+inline bool hasMissingNeighbor(const NppiContourPixelDirectionInfo &info) {
+  return info.nTest1EastConnected == 0 || info.nTest1NorthEastConnected == 0 || info.nTest1NorthConnected == 0 ||
+         info.nTest1NorthWestConnected == 0 || info.nTest1WestConnected == 0 || info.nTest1SouthWestConnected == 0 ||
+         info.nTest1SouthConnected == 0 || info.nTest1SouthEastConnected == 0;
+}
+
+inline Npp8u selectPrimaryDirection(Npp8u directionMask) {
+  for (int i = 0; i < kNeighborCount; ++i) {
+    if ((directionMask & kNeighborBits[i]) != 0) {
+      return kNeighborBits[i];
+    }
+  }
+  return 0;
+}
+
+[[maybe_unused]] bool analyzeCompressedMarkerContours(const std::vector<Npp32u> &labels, int width, int height,
+                                                      unsigned int nMaxMarkerLabelID,
+                                                      HostCompressedMarkerContourData *analysis) {
+  if (analysis == nullptr) {
+    return false;
+  }
+
+  const size_t pixelCount = static_cast<size_t>(width) * height;
+  analysis->contourImage.assign(pixelCount, 0);
+  analysis->directionImage.assign(pixelCount, NppiContourPixelDirectionInfo{});
+  analysis->infoList.assign(static_cast<size_t>(nMaxMarkerLabelID + 1), NppiCompressedMarkerLabelsInfo{});
+  analysis->contourCounts.assign(static_cast<size_t>(nMaxMarkerLabelID + 1), 0);
+  analysis->contourOffsets.assign(static_cast<size_t>(nMaxMarkerLabelID + 1), 0);
+  analysis->totalsInfo = NppiContourTotalsInfo{};
+
+  std::vector<int> minX(nMaxMarkerLabelID + 1, width);
+  std::vector<int> minY(nMaxMarkerLabelID + 1, height);
+  std::vector<int> maxX(nMaxMarkerLabelID + 1, -1);
+  std::vector<int> maxY(nMaxMarkerLabelID + 1, -1);
+  std::vector<int> firstContourX(nMaxMarkerLabelID + 1, 0);
+  std::vector<int> firstContourY(nMaxMarkerLabelID + 1, 0);
+  std::vector<Npp8u> hasFirstContour(nMaxMarkerLabelID + 1, 0);
+  std::vector<Npp8u> isContour(pixelCount, 0);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const size_t idx = pixelOffset(x, y, width);
+      const Npp32u label = labels[idx];
+      // Labels outside declared range are ignored; label 0 (background) is kept
+      // so callers can query background contour statistics.
+      if (label > nMaxMarkerLabelID) {
+        continue;
+      }
+
+      analysis->infoList[label].nMarkerLabelPixelCount++;
+      minX[label] = std::min(minX[label], x);
+      minY[label] = std::min(minY[label], y);
+      maxX[label] = std::max(maxX[label], x);
+      maxY[label] = std::max(maxY[label], y);
+    }
+  }
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const size_t idx = pixelOffset(x, y, width);
+      const Npp32u label = labels[idx];
+      if (label > nMaxMarkerLabelID) {
+        continue;
+      }
+
+      bool contourPixel = false;
+      for (int direction = 0; direction < kNeighborCount; ++direction) {
+        const int nx = x + kNeighborDx[direction];
+        const int ny = y + kNeighborDy[direction];
+        if (!isInBounds(nx, ny, width, height)) {
+          continue;
+        }
+
+        if (labels[pixelOffset(nx, ny, width)] != label) {
+          contourPixel = true;
+          break;
+        }
+      }
+
+      if (!contourPixel) {
+        continue;
+      }
+
+      isContour[idx] = 1;
+      analysis->contourImage[idx] = 255;
+      analysis->contourCounts[label]++;
+
+      if (hasFirstContour[label] == 0 || x < firstContourX[label] ||
+          (x == firstContourX[label] && y < firstContourY[label])) {
+        firstContourX[label] = x;
+        firstContourY[label] = y;
+        hasFirstContour[label] = 1;
+      }
+    }
+  }
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const size_t idx = pixelOffset(x, y, width);
+      const Npp32u label = labels[idx];
+      NppiContourPixelDirectionInfo info{};
+      info.nMarkerLabelID = label;
+
+      if (label <= nMaxMarkerLabelID) {
+        Npp8u contourNeighborMask = 0;
+        Npp8u interiorMask = 0;
+
+        for (int direction = 0; direction < kNeighborCount; ++direction) {
+          const int nx = x + kNeighborDx[direction];
+          const int ny = y + kNeighborDy[direction];
+          bool sameLabel = true;
+
+          if (isInBounds(nx, ny, width, height)) {
+            setNeighborPoint(info, direction, nx, ny);
+            sameLabel = (labels[pixelOffset(nx, ny, width)] == label);
+            if (sameLabel) {
+              interiorMask |= kNeighborBits[direction];
+              if (isContour[pixelOffset(nx, ny, width)] != 0) {
+                contourNeighborMask |= kNeighborBits[direction];
+              }
+            }
+          }
+
+          setNeighborConnectedFlag(info, direction, sameLabel);
+        }
+
+        if (isContour[idx] != 0) {
+          // Preserve the historical nConnected semantics used by callers that
+          // inspect direction-image masks directly.
+          info.nContourDirectionCenterPixel = contourNeighborMask;
+          info.nContourInteriorDirectionCenterPixel = interiorMask;
+          info.nConnected = contourNeighborMask;
+        }
+      }
+
+      analysis->directionImage[idx] = info;
+    }
+  }
+
+  Npp32u runningOffset = 0;
+  Npp32u longestContour = 0;
+  for (unsigned int label = 0; label <= nMaxMarkerLabelID; ++label) {
+    NppiCompressedMarkerLabelsInfo &info = analysis->infoList[label];
+    info.nContourPixelCount = analysis->contourCounts[label];
+    info.nContourPixelsFound = 0;
+    analysis->contourOffsets[label] = runningOffset;
+    runningOffset += analysis->contourCounts[label];
+    longestContour = std::max(longestContour, analysis->contourCounts[label]);
+
+    if (maxX[label] >= 0) {
+      info.oMarkerLabelBoundingBox.x = minX[label];
+      info.oMarkerLabelBoundingBox.y = minY[label];
+      info.oMarkerLabelBoundingBox.width = maxX[label];
+      info.oMarkerLabelBoundingBox.height = maxY[label];
+    } else {
+      info.oMarkerLabelBoundingBox = NppiRect{0, 0, 0, 0};
+    }
+
+    if (hasFirstContour[label] != 0) {
+      info.oContourFirstPixelLocation.x = firstContourX[label];
+      info.oContourFirstPixelLocation.y = firstContourY[label];
+    } else {
+      info.oContourFirstPixelLocation = NppiPoint{0, 0};
+    }
+  }
+
+  analysis->totalsInfo.nTotalImagePixelContourCount = runningOffset;
+  analysis->totalsInfo.nLongestImageContourPixelCount = longestContour;
+  return true;
+}
+
+std::vector<Npp32u> deriveContourList(const Npp32u *deviceList, size_t count) {
+  std::vector<Npp32u> derived(count, 0);
+  if (deviceList != nullptr && count > 0 &&
+      cudaMemcpy(derived.data(), deviceList, count * sizeof(Npp32u), cudaMemcpyDeviceToHost) == cudaSuccess) {
+    return derived;
+  }
+  return derived;
+}
+
+bool isContourDirectionPixel(const NppiContourPixelDirectionInfo &info, Npp32u labelID) {
+  return info.nMarkerLabelID == labelID && hasMissingNeighbor(info);
+}
+
+int chooseStartDirection(int backtrackDirection, bool counterclockwise) {
+  return counterclockwise ? (backtrackDirection + 6) % kNeighborCount : (backtrackDirection + 2) % kNeighborCount;
+}
+
+std::vector<NppiPoint> traceOrderedContourForLabel(const std::vector<NppiContourPixelDirectionInfo> &directionImage,
+                                                   int width, int height, Npp32u labelID, bool counterclockwise) {
+  std::vector<NppiPoint> contourPixels;
+  std::vector<Npp8u> contourMask(static_cast<size_t>(width) * height, 0);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const size_t idx = pixelOffset(x, y, width);
+      if (!isContourDirectionPixel(directionImage[idx], labelID)) {
+        continue;
+      }
+
+      contourMask[idx] = 1;
+      contourPixels.push_back(NppiPoint{x, y});
+    }
+  }
+
+  if (contourPixels.empty()) {
+    return {};
+  }
+
+  std::sort(contourPixels.begin(), contourPixels.end(), [](const NppiPoint &lhs, const NppiPoint &rhs) {
+    if (lhs.x != rhs.x) {
+      return lhs.x < rhs.x;
+    }
+    return lhs.y < rhs.y;
+  });
+
+  const NppiPoint start = contourPixels.front();
+  std::vector<Npp8u> visited(static_cast<size_t>(width) * height, 0);
+  std::vector<NppiPoint> ordered;
+  ordered.reserve(contourPixels.size());
+
+  // Moore-neighborhood contour walk with deterministic left-top start point.
+  int currentX = start.x;
+  int currentY = start.y;
+  int backtrackDirection = 4;
+  int previousX = start.x - 1;
+  int previousY = start.y;
+
+  while (ordered.size() < contourPixels.size()) {
+    const size_t currentIdx = pixelOffset(currentX, currentY, width);
+    if (visited[currentIdx] == 0) {
+      ordered.push_back(NppiPoint{currentX, currentY});
+      visited[currentIdx] = 1;
+    }
+
+    bool foundNext = false;
+    const int startDirection = chooseStartDirection(backtrackDirection, counterclockwise);
+    for (int offset = 0; offset < kNeighborCount; ++offset) {
+      const int direction = counterclockwise ? (startDirection + offset) % kNeighborCount
+                                             : (startDirection + kNeighborCount - offset) % kNeighborCount;
+      const int nextX = currentX + kNeighborDx[direction];
+      const int nextY = currentY + kNeighborDy[direction];
+      if (!isInBounds(nextX, nextY, width, height)) {
+        continue;
+      }
+
+      const size_t nextIdx = pixelOffset(nextX, nextY, width);
+      if (contourMask[nextIdx] == 0) {
+        continue;
+      }
+      if (nextX == previousX && nextY == previousY) {
+        continue;
+      }
+      if (visited[nextIdx] != 0 && !(nextX == start.x && nextY == start.y && ordered.size() == contourPixels.size())) {
+        continue;
+      }
+
+      previousX = currentX;
+      previousY = currentY;
+      currentX = nextX;
+      currentY = nextY;
+      backtrackDirection = (direction + 4) % kNeighborCount;
+      foundNext = true;
+      break;
+    }
+
+    if (!foundNext) {
+      break;
+    }
+    if (currentX == start.x && currentY == start.y) {
+      break;
+    }
+  }
+
+  for (const NppiPoint &point : contourPixels) {
+    const size_t idx = pixelOffset(point.x, point.y, width);
+    if (visited[idx] == 0) {
+      ordered.push_back(point);
+      visited[idx] = 1;
+    }
+  }
+
+  if (!counterclockwise) {
+    std::reverse(ordered.begin(), ordered.end());
+  }
+  return ordered;
+}
+
+void fillBlockSegments(std::vector<NppiContourBlockSegment> &segments, Npp32u labelID, Npp32u contourPixelCount,
+                       Npp32u startingOffset) {
+  if (contourPixelCount == 0) {
+    return;
+  }
+
+  Npp32u segmentNum = 0;
+  Npp32u remaining = contourPixelCount;
+  Npp32u offset = startingOffset;
+  while (remaining > 0) {
+    const Npp32u segmentPixels = std::min(remaining, kMaxContourPixelsPerSegment);
+    NppiContourBlockSegment segment{};
+    segment.nMarkerLabelID = labelID;
+    segment.nContourPixelCount = segmentPixels;
+    segment.nContourStartingPixelOffset = offset;
+    segment.nSegmentNum = segmentNum++;
+    segments.push_back(segment);
+    remaining -= segmentPixels;
+    offset += segmentPixels;
+  }
+}
+
+} // namespace
+
 extern "C" {
+
+NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, int nMarkerLabelsStep,
+                                                       NppiSize oMarkerLabelsROI, int nStartingNumber,
+                                                       int *pNewMarkerLabelsNumber, Npp8u *pDeviceBuffer,
+                                                       NppStreamContext nppStreamCtx);
 
 // Get info list buffer size
 NppStatus nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R_impl(unsigned int nMaxMarkerLabelID,
@@ -269,238 +705,195 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
     Npp32s nContoursDirectionImageStep, NppiContourTotalsInfo *pContoursTotalsInfoHost,
     Npp32u *pContoursPixelCountsListDev, Npp32u *pContoursPixelCountsListHost, Npp32u *pContoursPixelStartingOffsetDev,
     Npp32u *pContoursPixelStartingOffsetHost, NppStreamContext nppStreamCtx) {
-
-  int width = oSizeROI.width;
-  int height = oSizeROI.height;
+  const int width = oSizeROI.width;
+  const int height = oSizeROI.height;
+  const size_t pixelCount = static_cast<size_t>(width) * height;
+  const size_t labelCount = static_cast<size_t>(nMaxMarkerLabelID + 1);
+  const size_t countsSizeBytes = labelCount * sizeof(Npp32u);
+  const size_t bboxSizeBytes = labelCount * sizeof(int);
   cudaStream_t stream = nppStreamCtx.hStream;
-
-  // Clear any previous errors
-  cudaGetLastError();
 
   dim3 blockSize(16, 16);
   dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-  // Allocate temporary buffers for pixel and contour counts
-  Npp32u *d_pixelCounts = nullptr;
-  Npp32u *d_contourCounts = nullptr;
-  size_t countSize = (nMaxMarkerLabelID + 1) * sizeof(Npp32u);
+  Npp8u *dInternalContoursImage = nullptr;
+  Npp32u *dPixelCounts = nullptr;
+  Npp32u *dContourCounts = nullptr;
+  int *dMinX = nullptr;
+  int *dMinY = nullptr;
+  int *dMaxX = nullptr;
+  int *dMaxY = nullptr;
+  int *dFirstContourEncoded = nullptr;
 
-  cudaError_t err = cudaMalloc(&d_pixelCounts, countSize);
-  if (err != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-  err = cudaMalloc(&d_contourCounts, countSize);
-  if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  cudaMemsetAsync(d_pixelCounts, 0, countSize, stream);
-  cudaMemsetAsync(d_contourCounts, 0, countSize, stream);
-
-  // Allocate temporary buffers for bounding box and first contour pixel
-  int *d_minX = nullptr, *d_minY = nullptr, *d_maxX = nullptr, *d_maxY = nullptr;
-  int *d_firstContourPos = nullptr;
-  size_t bboxSize = (nMaxMarkerLabelID + 1) * sizeof(int);
-
-  err = cudaMalloc(&d_minX, bboxSize);
-  if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-  err = cudaMalloc(&d_minY, bboxSize);
-  if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-  err = cudaMalloc(&d_maxX, bboxSize);
-  if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-  err = cudaMalloc(&d_maxY, bboxSize);
-  if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    cudaFree(d_maxX);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-  err = cudaMalloc(&d_firstContourPos, bboxSize);
-  if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    cudaFree(d_maxX);
-    cudaFree(d_maxY);
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  // Initialize bounding box arrays with sentinel values
-  std::vector<int> h_minInit(nMaxMarkerLabelID + 1, width);
-  std::vector<int> h_maxInit(nMaxMarkerLabelID + 1, -1);
-  std::vector<int> h_firstInit(nMaxMarkerLabelID + 1, INT_MAX);
-
-  cudaMemcpyAsync(d_minX, h_minInit.data(), bboxSize, cudaMemcpyHostToDevice, stream);
-  cudaMemcpyAsync(d_minY, h_minInit.data(), bboxSize, cudaMemcpyHostToDevice, stream);
-  cudaMemcpyAsync(d_maxX, h_maxInit.data(), bboxSize, cudaMemcpyHostToDevice, stream);
-  cudaMemcpyAsync(d_maxY, h_maxInit.data(), bboxSize, cudaMemcpyHostToDevice, stream);
-  cudaMemcpyAsync(d_firstContourPos, h_firstInit.data(), bboxSize, cudaMemcpyHostToDevice, stream);
-
-  // Helper lambda to cleanup and return error
-  auto cleanupAndReturn = [&]() {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    cudaFree(d_maxX);
-    cudaFree(d_maxY);
-    cudaFree(d_firstContourPos);
+  auto cleanup = [&]() {
+    if (dInternalContoursImage != nullptr) {
+      cudaFree(dInternalContoursImage);
+    }
+    if (dPixelCounts != nullptr) {
+      cudaFree(dPixelCounts);
+    }
+    if (dContourCounts != nullptr) {
+      cudaFree(dContourCounts);
+    }
+    if (dMinX != nullptr) {
+      cudaFree(dMinX);
+    }
+    if (dMinY != nullptr) {
+      cudaFree(dMinY);
+    }
+    if (dMaxX != nullptr) {
+      cudaFree(dMaxX);
+    }
+    if (dMaxY != nullptr) {
+      cudaFree(dMaxY);
+    }
+    if (dFirstContourEncoded != nullptr) {
+      cudaFree(dFirstContourEncoded);
+    }
   };
 
-  // Count pixels per label
-  countPixelsPerLabel_kernel<<<gridSize, blockSize, 0, stream>>>(pCompressedMarkerLabels, nCompressedMarkerLabelsStep,
-                                                                 width, height, d_pixelCounts, nMaxMarkerLabelID);
-
-  // Detect contour pixels and count
-  detectContourPixels_kernel<<<gridSize, blockSize, 0, stream>>>(pCompressedMarkerLabels, nCompressedMarkerLabelsStep,
-                                                                 width, height, pContoursImage, nContoursImageStep,
-                                                                 d_contourCounts, nMaxMarkerLabelID);
-
-  // Compute contour direction info if requested
-  if (pContoursDirectionImage != nullptr) {
-    computeContourDirection_kernel<<<gridSize, blockSize, 0, stream>>>(
-        pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width, height, pContoursDirectionImage,
-        nContoursDirectionImageStep, nMaxMarkerLabelID);
+  Npp8u *contoursImageForKernels = pContoursImage;
+  Npp32s contoursStepForKernels = nContoursImageStep;
+  if (contoursImageForKernels == nullptr) {
+    if (cudaMalloc(&dInternalContoursImage, pixelCount * sizeof(Npp8u)) != cudaSuccess) {
+      cleanup();
+      return NPP_MEMORY_ALLOCATION_ERR;
+    }
+    contoursImageForKernels = dInternalContoursImage;
+    contoursStepForKernels = static_cast<Npp32s>(width * sizeof(Npp8u));
   }
 
-  // Update bounding box
-  updateBoundingBox_kernel<<<gridSize, blockSize, 0, stream>>>(pCompressedMarkerLabels, nCompressedMarkerLabelsStep,
-                                                               width, height, d_minX, d_minY, d_maxX, d_maxY,
-                                                               nMaxMarkerLabelID);
-
-  // Find first contour pixel ( runs after contours image is filled)
-  if (pContoursImage != nullptr) {
-    findFirstContourPixel_kernel<<<gridSize, blockSize, 0, stream>>>(
-        pContoursImage, nContoursImageStep, pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width, height,
-        nullptr, d_firstContourPos, nMaxMarkerLabelID);
+  if (cudaMalloc(&dPixelCounts, countsSizeBytes) != cudaSuccess || cudaMalloc(&dContourCounts, countsSizeBytes) != cudaSuccess ||
+      cudaMalloc(&dMinX, bboxSizeBytes) != cudaSuccess || cudaMalloc(&dMinY, bboxSizeBytes) != cudaSuccess ||
+      cudaMalloc(&dMaxX, bboxSizeBytes) != cudaSuccess || cudaMalloc(&dMaxY, bboxSizeBytes) != cudaSuccess ||
+      cudaMalloc(&dFirstContourEncoded, bboxSizeBytes) != cudaSuccess) {
+    cleanup();
+    return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  // Sync and check for kernel errors
-  cudaStreamSynchronize(stream);
-  err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    cleanupAndReturn();
+  if (cudaMemsetAsync(dPixelCounts, 0, countsSizeBytes, stream) != cudaSuccess ||
+      cudaMemsetAsync(dContourCounts, 0, countsSizeBytes, stream) != cudaSuccess) {
+    cleanup();
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Copy counts from device to host
-  std::vector<Npp32u> h_pixelCounts(nMaxMarkerLabelID + 1);
-  std::vector<Npp32u> h_contourCounts(nMaxMarkerLabelID + 1);
+  std::vector<int> hMinInit(labelCount, width);
+  std::vector<int> hMinYInit(labelCount, height);
+  std::vector<int> hMaxInit(labelCount, -1);
+  std::vector<int> hFirstInit(labelCount, INT_MAX);
+  if (cudaMemcpyAsync(dMinX, hMinInit.data(), bboxSizeBytes, cudaMemcpyHostToDevice, stream) != cudaSuccess ||
+      cudaMemcpyAsync(dMinY, hMinYInit.data(), bboxSizeBytes, cudaMemcpyHostToDevice, stream) != cudaSuccess ||
+      cudaMemcpyAsync(dMaxX, hMaxInit.data(), bboxSizeBytes, cudaMemcpyHostToDevice, stream) != cudaSuccess ||
+      cudaMemcpyAsync(dMaxY, hMaxInit.data(), bboxSizeBytes, cudaMemcpyHostToDevice, stream) != cudaSuccess ||
+      cudaMemcpyAsync(dFirstContourEncoded, hFirstInit.data(), bboxSizeBytes, cudaMemcpyHostToDevice, stream) !=
+          cudaSuccess) {
+    cleanup();
+    return NPP_MEMCPY_ERROR;
+  }
 
-  cudaMemcpy(h_pixelCounts.data(), d_pixelCounts, countSize, cudaMemcpyDeviceToHost);
-  cudaMemcpy(h_contourCounts.data(), d_contourCounts, countSize, cudaMemcpyDeviceToHost);
+  countPixelsPerLabel_kernel<<<gridSize, blockSize, 0, stream>>>(pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width,
+                                                                  height, dPixelCounts, nMaxMarkerLabelID);
+  detectContourPixels_kernel<<<gridSize, blockSize, 0, stream>>>(
+      pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width, height, contoursImageForKernels,
+      contoursStepForKernels, dContourCounts, nMaxMarkerLabelID);
+  updateBoundingBox_kernel<<<gridSize, blockSize, 0, stream>>>(pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width,
+                                                               height, dMinX, dMinY, dMaxX, dMaxY, nMaxMarkerLabelID);
+  findFirstContourPixel_kernel<<<gridSize, blockSize, 0, stream>>>(
+      contoursImageForKernels, contoursStepForKernels, pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width, height,
+      dFirstContourEncoded, nMaxMarkerLabelID);
 
-  // Copy bounding box and first contour pixel data from device
-  std::vector<int> h_minX(nMaxMarkerLabelID + 1);
-  std::vector<int> h_minY(nMaxMarkerLabelID + 1);
-  std::vector<int> h_maxX(nMaxMarkerLabelID + 1);
-  std::vector<int> h_maxY(nMaxMarkerLabelID + 1);
-  std::vector<int> h_firstContourPos(nMaxMarkerLabelID + 1);
+  if (pContoursDirectionImage != nullptr) {
+    computeContourDirection_kernel<<<gridSize, blockSize, 0, stream>>>(
+        pCompressedMarkerLabels, nCompressedMarkerLabelsStep, width, height, contoursImageForKernels,
+        contoursStepForKernels, pContoursDirectionImage, nContoursDirectionImageStep, nMaxMarkerLabelID);
+  }
 
-  cudaMemcpy(h_minX.data(), d_minX, bboxSize, cudaMemcpyDeviceToHost);
-  cudaMemcpy(h_minY.data(), d_minY, bboxSize, cudaMemcpyDeviceToHost);
-  cudaMemcpy(h_maxX.data(), d_maxX, bboxSize, cudaMemcpyDeviceToHost);
-  cudaMemcpy(h_maxY.data(), d_maxY, bboxSize, cudaMemcpyDeviceToHost);
-  cudaMemcpy(h_firstContourPos.data(), d_firstContourPos, bboxSize, cudaMemcpyDeviceToHost);
+  if (cudaStreamSynchronize(stream) != cudaSuccess || cudaGetLastError() != cudaSuccess) {
+    cleanup();
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 
-  // Build info list on host
-  std::vector<NppiCompressedMarkerLabelsInfo> h_infoList(nMaxMarkerLabelID + 1);
+  std::vector<Npp32u> hPixelCounts(labelCount, 0);
+  std::vector<Npp32u> hContourCounts(labelCount, 0);
+  std::vector<int> hMinX(labelCount, width);
+  std::vector<int> hMinY(labelCount, height);
+  std::vector<int> hMaxX(labelCount, -1);
+  std::vector<int> hMaxY(labelCount, -1);
+  std::vector<int> hFirstContourPos(labelCount, INT_MAX);
+  if (cudaMemcpy(hPixelCounts.data(), dPixelCounts, countsSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess ||
+      cudaMemcpy(hContourCounts.data(), dContourCounts, countsSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess ||
+      cudaMemcpy(hMinX.data(), dMinX, bboxSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess ||
+      cudaMemcpy(hMinY.data(), dMinY, bboxSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess ||
+      cudaMemcpy(hMaxX.data(), dMaxX, bboxSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess ||
+      cudaMemcpy(hMaxY.data(), dMaxY, bboxSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess ||
+      cudaMemcpy(hFirstContourPos.data(), dFirstContourEncoded, bboxSizeBytes, cudaMemcpyDeviceToHost) != cudaSuccess) {
+    cleanup();
+    return NPP_MEMCPY_ERROR;
+  }
 
-  Npp32u totalContourPixels = 0;
+  std::vector<NppiCompressedMarkerLabelsInfo> hInfoList(labelCount);
+  std::vector<Npp32u> hContourOffsets(labelCount, 0);
+  Npp32u runningOffset = 0;
   Npp32u longestContour = 0;
-  Npp32u currentOffset = 0;
+  for (unsigned int label = 0; label <= nMaxMarkerLabelID; ++label) {
+    NppiCompressedMarkerLabelsInfo &info = hInfoList[label];
+    info.nMarkerLabelPixelCount = hPixelCounts[label];
+    info.nContourPixelCount = hContourCounts[label];
+    info.nContourPixelsFound = 0;
 
-  for (unsigned int i = 0; i <= nMaxMarkerLabelID; i++) {
-    h_infoList[i].nMarkerLabelPixelCount = h_pixelCounts[i];
-    h_infoList[i].nContourPixelCount = h_contourCounts[i];
-    h_infoList[i].nContourPixelsFound = 0;
-
-    // Set bounding box
-    // Note: NPP stores width/height as right/bottom coordinates (maxX/maxY), not actual dimensions
-    if (h_minX[i] < width && h_maxX[i] >= 0) {
-      h_infoList[i].oMarkerLabelBoundingBox.x = h_minX[i];
-      h_infoList[i].oMarkerLabelBoundingBox.y = h_minY[i];
-      h_infoList[i].oMarkerLabelBoundingBox.width = h_maxX[i];
-      h_infoList[i].oMarkerLabelBoundingBox.height = h_maxY[i];
+    if (hMaxX[label] >= 0) {
+      info.oMarkerLabelBoundingBox.x = hMinX[label];
+      info.oMarkerLabelBoundingBox.y = hMinY[label];
+      // NVIDIA stores right/bottom coordinates here, not geometric width/height.
+      info.oMarkerLabelBoundingBox.width = hMaxX[label];
+      info.oMarkerLabelBoundingBox.height = hMaxY[label];
     } else {
-      h_infoList[i].oMarkerLabelBoundingBox.x = 0;
-      h_infoList[i].oMarkerLabelBoundingBox.y = 0;
-      h_infoList[i].oMarkerLabelBoundingBox.width = 0;
-      h_infoList[i].oMarkerLabelBoundingBox.height = 0;
+      info.oMarkerLabelBoundingBox = NppiRect{0, 0, 0, 0};
     }
 
-    // Decode first contour pixel position
-    if (h_firstContourPos[i] < INT_MAX) {
-      h_infoList[i].oContourFirstPixelLocation.y = h_firstContourPos[i] / width;
-      h_infoList[i].oContourFirstPixelLocation.x = h_firstContourPos[i] % width;
+    if (hFirstContourPos[label] != INT_MAX) {
+      info.oContourFirstPixelLocation.x = hFirstContourPos[label] % width;
+      info.oContourFirstPixelLocation.y = hFirstContourPos[label] / width;
     } else {
-      h_infoList[i].oContourFirstPixelLocation.x = 0;
-      h_infoList[i].oContourFirstPixelLocation.y = 0;
+      info.oContourFirstPixelLocation = NppiPoint{0, 0};
     }
 
-    totalContourPixels += h_contourCounts[i];
-    if (h_contourCounts[i] > longestContour) {
-      longestContour = h_contourCounts[i];
-    }
-
-    // Set starting offset
-    if (pContoursPixelStartingOffsetHost != nullptr) {
-      pContoursPixelStartingOffsetHost[i] = currentOffset;
-    }
-    currentOffset += h_contourCounts[i];
-
-    // Copy contour count to list
-    if (pContoursPixelCountsListHost != nullptr) {
-      pContoursPixelCountsListHost[i] = h_contourCounts[i];
-    }
+    hContourOffsets[label] = runningOffset;
+    runningOffset += hContourCounts[label];
+    longestContour = std::max(longestContour, hContourCounts[label]);
   }
 
-  // Copy info list to device
-  cudaMemcpy(pMarkerLabelsInfoList, h_infoList.data(), (nMaxMarkerLabelID + 1) * sizeof(NppiCompressedMarkerLabelsInfo),
-             cudaMemcpyHostToDevice);
-
-  // Copy counts and offsets to device if pointers provided
-  if (pContoursPixelCountsListDev != nullptr) {
-    cudaMemcpy(pContoursPixelCountsListDev, h_contourCounts.data(), countSize, cudaMemcpyHostToDevice);
-  }
-  if (pContoursPixelStartingOffsetDev != nullptr && pContoursPixelStartingOffsetHost != nullptr) {
-    cudaMemcpy(pContoursPixelStartingOffsetDev, pContoursPixelStartingOffsetHost, countSize, cudaMemcpyHostToDevice);
+  if (cudaMemcpy(pMarkerLabelsInfoList, hInfoList.data(), labelCount * sizeof(NppiCompressedMarkerLabelsInfo),
+                 cudaMemcpyHostToDevice) != cudaSuccess) {
+    cleanup();
+    return NPP_MEMCPY_ERROR;
   }
 
-  // Fill totals info
+  if (pContoursPixelCountsListHost != nullptr) {
+    std::memcpy(pContoursPixelCountsListHost, hContourCounts.data(), countsSizeBytes);
+  }
+  if (pContoursPixelStartingOffsetHost != nullptr) {
+    std::memcpy(pContoursPixelStartingOffsetHost, hContourOffsets.data(), countsSizeBytes);
+  }
+  if (pContoursPixelCountsListDev != nullptr &&
+      cudaMemcpy(pContoursPixelCountsListDev, hContourCounts.data(), countsSizeBytes, cudaMemcpyHostToDevice) !=
+          cudaSuccess) {
+    cleanup();
+    return NPP_MEMCPY_ERROR;
+  }
+  if (pContoursPixelStartingOffsetDev != nullptr &&
+      cudaMemcpy(pContoursPixelStartingOffsetDev, hContourOffsets.data(), countsSizeBytes, cudaMemcpyHostToDevice) !=
+          cudaSuccess) {
+    cleanup();
+    return NPP_MEMCPY_ERROR;
+  }
+
   if (pContoursTotalsInfoHost != nullptr) {
-    pContoursTotalsInfoHost->nTotalImagePixelContourCount = totalContourPixels;
+    pContoursTotalsInfoHost->nTotalImagePixelContourCount = runningOffset;
     pContoursTotalsInfoHost->nLongestImageContourPixelCount = longestContour;
   }
 
-  // Clean up
-  cudaFree(d_pixelCounts);
-  cudaFree(d_contourCounts);
-  cudaFree(d_minX);
-  cudaFree(d_minY);
-  cudaFree(d_maxX);
-  cudaFree(d_maxY);
-  cudaFree(d_firstContourPos);
-
+  cleanup();
   return NPP_SUCCESS;
 }
 
@@ -509,6 +902,31 @@ NppStatus nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R_impl(Npp32u nMaxC
                                                                     Npp32u *hpBufferSize) {
   size_t size = nMaxContourPixelGeometryInfoCount * sizeof(NppiContourPixelGeometryInfo);
   *hpBufferSize = (Npp32u)((size + 255) & ~255);
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R_impl(
+    Npp32u *pContoursPixelCountsListHost, Npp32u nTotalImagePixelContourCount, Npp32u nCompressedLabelCount,
+    Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID, Npp32u *hpBufferSize) {
+  constexpr Npp32u kMaxContourPixelsPerSegment = 256u * 1024u;
+
+  if (nTotalImagePixelContourCount == 0) {
+    *hpBufferSize = 0;
+    return NPP_SUCCESS;
+  }
+
+  size_t segmentCount = 0;
+  for (Npp32u labelID = nFirstContourGeometryListID;
+       labelID < nLastContourGeometryListID && labelID <= nCompressedLabelCount; ++labelID) {
+    Npp32u contourPixelCount = pContoursPixelCountsListHost[labelID];
+    if (contourPixelCount == 0) {
+      continue;
+    }
+    segmentCount += (contourPixelCount + kMaxContourPixelsPerSegment - 1) / kMaxContourPixelsPerSegment;
+  }
+
+  size_t size = segmentCount * sizeof(NppiContourBlockSegment);
+  *hpBufferSize = static_cast<Npp32u>((size + 255) & ~255);
   return NPP_SUCCESS;
 }
 
@@ -524,152 +942,166 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
     Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID,
     NppiContourBlockSegment *pContoursBlockSegmentListDev, NppiContourBlockSegment *pContoursBlockSegmentListHost,
     Npp32u bOutputInCounterclockwiseOrder, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  const int width = oSizeROI.width;
+  const int height = oSizeROI.height;
+  const size_t labelListSize = static_cast<size_t>(nMaxMarkerLabelID + 1);
 
-  int width = oSizeROI.width;
-  int height = oSizeROI.height;
-  (void)nppStreamCtx; // Stream context reserved for future async support
+  std::vector<NppiContourPixelDirectionInfo> hostDirectionImage;
+  if (copyDeviceImageToHost(hostDirectionImage, pContoursDirectionImageDev, nContoursDirectionImageStep, width,
+                            height) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
 
-  // Copy direction image to host for processing
-  size_t dirImageSize = (size_t)width * height * sizeof(NppiContourPixelDirectionInfo);
-  std::vector<NppiContourPixelDirectionInfo> h_dirImage(width * height);
-  cudaMemcpy(h_dirImage.data(), pContoursDirectionImageDev, dirImageSize, cudaMemcpyDeviceToHost);
+  std::vector<Npp32u> contourCounts = deriveContourList(pContoursPixelCountsListDev, labelListSize);
+  if (std::all_of(contourCounts.begin(), contourCounts.end(), [](Npp32u value) { return value == 0; })) {
+    // Legacy caller may only provide direction image; reconstruct per-label counts.
+    contourCounts.assign(labelListSize, 0);
+    for (const NppiContourPixelDirectionInfo &info : hostDirectionImage) {
+      if (info.nMarkerLabelID <= nMaxMarkerLabelID && isContourDirectionPixel(info, info.nMarkerLabelID)) {
+        contourCounts[info.nMarkerLabelID]++;
+      }
+    }
+  }
 
-  // Process each contour in the requested range
-  Npp32u geometryListOffset = 0;
-  if (pContoursPixelsStartingOffsetHost != nullptr && nFirstContourGeometryListID > 0) {
-    geometryListOffset = pContoursPixelsStartingOffsetHost[nFirstContourGeometryListID];
+  std::vector<Npp32u> contourOffsets;
+  if (pContoursPixelsStartingOffsetHost != nullptr) {
+    contourOffsets.assign(pContoursPixelsStartingOffsetHost, pContoursPixelsStartingOffsetHost + labelListSize);
+  } else {
+    contourOffsets = deriveContourList(pContoursPixelsStartingOffsetDev, labelListSize);
+    if (std::all_of(contourOffsets.begin(), contourOffsets.end(), [](Npp32u value) { return value == 0; })) {
+      // Legacy path fallback: build packed offsets from the reconstructed counts.
+      contourOffsets.assign(labelListSize, 0);
+      Npp32u runningOffset = 0;
+      for (size_t label = 0; label < labelListSize; ++label) {
+        contourOffsets[label] = runningOffset;
+        runningOffset += contourCounts[label];
+      }
+    }
+  }
+
+  std::vector<Npp32u> pixelsFound(labelListSize, 0);
+  std::vector<NppiContourPixelGeometryInfo> geometryLists(nTotalImagePixelContourCount);
+  std::vector<NppiContourBlockSegment> blockSegments;
+
+  if (pContoursGeometryImageHost != nullptr && nContoursGeometryImageStep > 0) {
+    for (int y = 0; y < height; ++y) {
+      std::memset(static_cast<char *>(static_cast<void *>(pContoursGeometryImageHost + y * nContoursGeometryImageStep)),
+                  0, width * sizeof(Npp8u));
+    }
   }
 
   for (Npp32u labelID = nFirstContourGeometryListID;
-       labelID < nLastContourGeometryListID && labelID <= nMaxMarkerLabelID; labelID++) {
-    if (pMarkerLabelsInfoListHost == nullptr)
-      continue;
-
+       labelID < nLastContourGeometryListID && labelID <= nMaxMarkerLabelID; ++labelID) {
     NppiCompressedMarkerLabelsInfo &info = pMarkerLabelsInfoListHost[labelID];
-    if (info.nContourPixelCount == 0)
-      continue;
-
-    // Skip very large contours by default (performance optimization)
-    if (info.nContourPixelCount > 256 * 1024 && nLastContourGeometryListID - nFirstContourGeometryListID > 1) {
+    if (info.nContourPixelCount > kMaxContourPixelsPerSegment &&
+        nLastContourGeometryListID - nFirstContourGeometryListID > 1) {
+      fillBlockSegments(blockSegments, labelID, contourCounts[labelID], contourOffsets[labelID]);
       continue;
     }
 
-    // Find starting pixel
-    int startX = info.oContourFirstPixelLocation.x;
-    int startY = info.oContourFirstPixelLocation.y;
+    std::vector<NppiPoint> orderedPoints =
+        traceOrderedContourForLabel(hostDirectionImage, width, height, labelID, bOutputInCounterclockwiseOrder != 0);
+    const Npp32u baseOffset = contourOffsets[labelID];
+    const Npp32u writableCount =
+        baseOffset < nTotalImagePixelContourCount
+            ? std::min<Npp32u>(static_cast<Npp32u>(orderedPoints.size()), nTotalImagePixelContourCount - baseOffset)
+            : 0;
 
-    if (startX >= width || startY >= height)
-      continue;
+    pixelsFound[labelID] = writableCount;
+    info.nContourPixelsFound = writableCount;
+    fillBlockSegments(blockSegments, labelID, contourCounts[labelID], baseOffset);
 
-    // Trace contour
-    int x = startX;
-    int y = startY;
-    Npp32u pixelCount = 0;
-    Npp32u listOffset = geometryListOffset;
+    for (Npp32u i = 0; i < writableCount; ++i) {
+      const NppiPoint &point = orderedPoints[i];
+      const NppiPoint &prev = orderedPoints[(i + writableCount - 1) % writableCount];
+      const NppiPoint &next = orderedPoints[(i + 1) % writableCount];
+      const size_t geomIndex = static_cast<size_t>(baseOffset + i);
+      NppiContourPixelGeometryInfo &geom = geometryLists[geomIndex];
+      geom = NppiContourPixelGeometryInfo{};
+      geom.oContourOrderedGeometryLocation = point;
+      geom.oContourCenterPixelLocation = point;
+      geom.oContourPrevPixelLocation = prev;
+      geom.oContourNextPixelLocation = next;
+      geom.nOrderIndex = static_cast<Npp32s>(i);
+      geom.nReverseOrderIndex = static_cast<Npp32s>(writableCount - 1 - i);
+      geom.nFirstIndex = baseOffset;
+      geom.nLastIndex = baseOffset + writableCount - 1;
+      geom.nNextContourPixelIndex = baseOffset + ((i + 1) % writableCount);
+      geom.nPrevContourPixelIndex = baseOffset + ((i + writableCount - 1) % writableCount);
+      geom.nPixelAlreadyUsed = 1;
+      geom.nAlreadyLinked = 0;
+      geom.nAlreadyOutput = 1;
 
-    // Direction to search next (start going clockwise from east)
-    int searchDir = 0; // Start searching from east
+      const Npp8u interiorMask =
+          hostDirectionImage[pixelOffset(point.x, point.y, width)].nContourInteriorDirectionCenterPixel;
+      geom.nContourInteriorDirection = selectPrimaryDirection(interiorMask);
 
-    do {
-      NppiContourPixelDirectionInfo &dirInfo = h_dirImage[y * width + x];
-      if (dirInfo.nMarkerLabelID != labelID)
-        break;
-
-      // Store geometry info
-      if (pContoursPixelGeometryListsHost != nullptr && listOffset < nTotalImagePixelContourCount) {
-        NppiContourPixelGeometryInfo &geom = pContoursPixelGeometryListsHost[listOffset];
-        geom.oContourCenterPixelLocation.x = x;
-        geom.oContourCenterPixelLocation.y = y;
-        geom.nOrderIndex = bOutputInCounterclockwiseOrder ? pixelCount : (info.nContourPixelCount - 1 - pixelCount);
-        geom.nReverseOrderIndex =
-            bOutputInCounterclockwiseOrder ? (info.nContourPixelCount - 1 - pixelCount) : pixelCount;
-
-        // Store bounding box in first pixel
-        if (pixelCount == 0) {
-          geom.oContourPrevPixelLocation.x = info.oMarkerLabelBoundingBox.x;
-          geom.oContourPrevPixelLocation.y = info.oMarkerLabelBoundingBox.y;
-          geom.oContourNextPixelLocation.x = info.oMarkerLabelBoundingBox.width;
-          geom.oContourNextPixelLocation.y = info.oMarkerLabelBoundingBox.height;
-        }
-
-        listOffset++;
+      if (i == 0) {
+        geom.oContourPrevPixelLocation.x = info.oMarkerLabelBoundingBox.x;
+        geom.oContourPrevPixelLocation.y = info.oMarkerLabelBoundingBox.y;
+        geom.oContourNextPixelLocation.x = info.oMarkerLabelBoundingBox.width;
+        geom.oContourNextPixelLocation.y = info.oMarkerLabelBoundingBox.height;
       }
 
-      // Mark pixel as visited
+      NppiContourPixelDirectionInfo &dirInfo = hostDirectionImage[pixelOffset(point.x, point.y, width)];
       dirInfo.nGeometryInfoIsValid = 1;
-      pixelCount++;
+      dirInfo.oContourPixelGeometryInfo = geom;
 
-      // Find next contour pixel (search in order based on direction)
-      int dx[] = {1, 1, 0, -1, -1, -1, 0, 1};
-      int dy[] = {0, 1, 1, 1, 0, -1, -1, -1};
-
-      bool found = false;
-      int startSearch = bOutputInCounterclockwiseOrder ? (searchDir + 6) % 8 : (searchDir + 2) % 8;
-
-      for (int i = 0; i < 8; i++) {
-        int dir = bOutputInCounterclockwiseOrder ? (startSearch + i) % 8 : (startSearch + 8 - i) % 8;
-        int nx = x + dx[dir];
-        int ny = y + dy[dir];
-
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-          NppiContourPixelDirectionInfo &nextDir = h_dirImage[ny * width + nx];
-          if (nextDir.nMarkerLabelID == labelID && nextDir.nGeometryInfoIsValid == 0) {
-            // Check if this is a contour pixel
-            bool isContour = false;
-            for (int j = 0; j < 8; j++) {
-              int nnx = nx + dx[j];
-              int nny = ny + dy[j];
-              if (nnx < 0 || nnx >= width || nny < 0 || nny >= height) {
-                isContour = true;
-                break;
-              }
-              if (h_dirImage[nny * width + nnx].nMarkerLabelID != labelID) {
-                isContour = true;
-                break;
-              }
-            }
-
-            if (isContour) {
-              x = nx;
-              y = ny;
-              searchDir = (dir + 4) % 8; // Reverse direction for next search
-              found = true;
-              break;
-            }
-          }
-        }
+      if (pContoursGeometryImageHost != nullptr && nContoursGeometryImageStep > 0) {
+        reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pContoursGeometryImageHost) +
+                                  static_cast<size_t>(point.y) * nContoursGeometryImageStep)[point.x] = 255;
       }
-
-      if (!found)
-        break;
-
-    } while (x != startX || y != startY);
-
-    info.nContourPixelsFound = pixelCount;
-    geometryListOffset = listOffset;
-
-    // Update found list
-    if (pContoursPixelsFoundListHost != nullptr) {
-      pContoursPixelsFoundListHost[labelID] = pixelCount;
     }
   }
 
-  // Copy geometry lists to device
-  if (pContoursPixelGeometryListsDev != nullptr && pContoursPixelGeometryListsHost != nullptr) {
-    size_t copySize = nTotalImagePixelContourCount * sizeof(NppiContourPixelGeometryInfo);
-    cudaMemcpy(pContoursPixelGeometryListsDev, pContoursPixelGeometryListsHost, copySize, cudaMemcpyHostToDevice);
+  if (pContoursPixelGeometryListsHost != nullptr && !geometryLists.empty()) {
+    std::memcpy(pContoursPixelGeometryListsHost, geometryLists.data(),
+                geometryLists.size() * sizeof(NppiContourPixelGeometryInfo));
+  }
+  if (copyHostArrayToDevice(pContoursPixelGeometryListsDev, geometryLists, geometryLists.size()) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
   }
 
-  // Copy found list to device
-  if (pContoursPixelsFoundListDev != nullptr && pContoursPixelsFoundListHost != nullptr) {
-    cudaMemcpy(pContoursPixelsFoundListDev, pContoursPixelsFoundListHost, (nMaxMarkerLabelID + 1) * sizeof(Npp32u),
-               cudaMemcpyHostToDevice);
+  if (pContoursPixelsFoundListHost != nullptr) {
+    std::memcpy(pContoursPixelsFoundListHost, pixelsFound.data(), pixelsFound.size() * sizeof(Npp32u));
+  }
+  if (copyHostArrayToDevice(pContoursPixelsFoundListDev, pixelsFound, pixelsFound.size()) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
   }
 
-  // Copy updated info list to device
-  if (pMarkerLabelsInfoListDev != nullptr && pMarkerLabelsInfoListHost != nullptr) {
-    cudaMemcpy(pMarkerLabelsInfoListDev, pMarkerLabelsInfoListHost,
-               (nMaxMarkerLabelID + 1) * sizeof(NppiCompressedMarkerLabelsInfo), cudaMemcpyHostToDevice);
+  if (pContoursPixelsStartingOffsetHost != nullptr) {
+    std::memcpy(pContoursPixelsStartingOffsetHost, contourOffsets.data(), contourOffsets.size() * sizeof(Npp32u));
+  }
+  if (copyHostArrayToDevice(pContoursPixelsStartingOffsetDev, contourOffsets, contourOffsets.size()) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
+
+  if (pContoursPixelCountsListDev != nullptr &&
+      copyHostArrayToDevice(pContoursPixelCountsListDev, contourCounts, contourCounts.size()) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
+
+  if (copyHostImageToDevice(pContoursDirectionImageDev, nContoursDirectionImageStep, hostDirectionImage, width,
+                            height) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
+
+  if (copyHostArrayToDevice(pMarkerLabelsInfoListDev,
+                            std::vector<NppiCompressedMarkerLabelsInfo>(pMarkerLabelsInfoListHost,
+                                                                        pMarkerLabelsInfoListHost + labelListSize),
+                            labelListSize) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
+
+  if (pContoursBlockSegmentListHost != nullptr && !blockSegments.empty()) {
+    std::memcpy(pContoursBlockSegmentListHost, blockSegments.data(),
+                blockSegments.size() * sizeof(NppiContourBlockSegment));
+  }
+  if (pContoursBlockSegmentListDev != nullptr && !blockSegments.empty() &&
+      cudaMemcpy(pContoursBlockSegmentListDev, blockSegments.data(),
+                 blockSegments.size() * sizeof(NppiContourBlockSegment), cudaMemcpyHostToDevice) != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
   }
 
   return NPP_SUCCESS;
@@ -677,86 +1109,84 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
 
 // Batch compress marker labels (advanced)
 NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
-    NppiImageDescriptor *pSrcDstBatchListDev, NppiBufferDescriptor *pBufferListDev, unsigned int *pNewMaxLabelIDListDev,
+    NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
     int nBatchSize, NppiSize oMaxSizeROI, int nLargestPerImageBufferSize, NppStreamContext nppStreamCtx) {
 
   cudaStream_t stream = nppStreamCtx.hStream;
-  (void)nLargestPerImageBufferSize; // Not used in this implementation
-  (void)oMaxSizeROI; // Not used in this implementation
+  constexpr int kCompressBufferFixedOverhead = 65556;
+  constexpr int kCompressBufferBytesPerLabel = static_cast<int>(sizeof(Npp32u) * 2);
 
-  // Copy descriptor lists from device to host
-  std::vector<NppiImageDescriptor> h_imgList(nBatchSize);
-  std::vector<NppiBufferDescriptor> h_bufList(nBatchSize);
-  std::vector<unsigned int> h_newMaxLabelIDList(nBatchSize);
-
-  cudaMemcpy(h_imgList.data(), pSrcDstBatchListDev, nBatchSize * sizeof(NppiImageDescriptor), cudaMemcpyDeviceToHost);
-  cudaMemcpy(h_bufList.data(), pBufferListDev, nBatchSize * sizeof(NppiBufferDescriptor), cudaMemcpyDeviceToHost);
-
-  for (int batch = 0; batch < nBatchSize; batch++) {
-    NppiImageDescriptor &img = h_imgList[batch];
-    NppiBufferDescriptor &buf = h_bufList[batch];
-
-    int width = img.oSize.width;
-    int height = img.oSize.height;
-    int numPixels = width * height;
-    Npp32u *pMarkerLabels = (Npp32u *)img.pData;
-    int nStep = img.nStep;
-
-    // Max label ID is width * height (from nppiLabelMarkersUF output)
-    unsigned int nMaxMarkerLabelID = (unsigned int)numPixels;
-
-    // Use provided buffer for label mapping on device
-    Npp32u *pLabelMapping = (Npp32u *)buf.pData;
-
-    // Read image to host
-    std::vector<Npp32u> h_image(numPixels);
-    cudaMemcpy(h_image.data(), pMarkerLabels, numPixels * sizeof(Npp32u), cudaMemcpyDeviceToHost);
-
-    // Use a map for sparse label tracking (more memory efficient)
-    std::map<Npp32u, Npp32u> labelMap;
-
-    // Collect unique labels (including label 0, which is valid)
-    for (int i = 0; i < numPixels; i++) {
-      Npp32u label = h_image[i];
-      if (label <= nMaxMarkerLabelID) {
-        labelMap[label] = 0; // Mark as seen
-      }
-    }
-
-    // Assign compressed labels
-    unsigned int newLabelID = 1;
-    for (auto &kv : labelMap) {
-      kv.second = newLabelID++;
-    }
-
-    h_newMaxLabelIDList[batch] = newLabelID - 1;
-
-    // Create full mapping array for GPU (initialize to 0)
-    std::vector<Npp32u> h_mapping(nMaxMarkerLabelID + 1, 0);
-    for (const auto &kv : labelMap) {
-      h_mapping[kv.first] = kv.second;
-    }
-
-    // Copy mapping to device
-    cudaMemcpyAsync(pLabelMapping, h_mapping.data(), (nMaxMarkerLabelID + 1) * sizeof(Npp32u),
-                    cudaMemcpyHostToDevice, stream);
-    cudaStreamSynchronize(stream);
-
-    // Apply mapping
-    dim3 blockSize(16, 16);
-    dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
-
-    batchCompressLabels_kernel<<<gridSize, blockSize, 0, stream>>>(pMarkerLabels, nStep, width, height, pLabelMapping,
-                                                                   nMaxMarkerLabelID);
-    cudaStreamSynchronize(stream);
+  if (pSrcDstBatchList == nullptr || pBufferList == nullptr || pNewMaxLabelIDList == nullptr) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nBatchSize <= 1) {
+    return NPP_BAD_ARGUMENT_ERROR;
+  }
+  if (oMaxSizeROI.width <= 0 || oMaxSizeROI.height <= 0 || nLargestPerImageBufferSize <= 0) {
+    return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  // Copy results back to device
-  cudaMemcpy(pNewMaxLabelIDListDev, h_newMaxLabelIDList.data(), nBatchSize * sizeof(unsigned int), cudaMemcpyHostToDevice);
+  std::vector<NppiImageDescriptor> h_batchImages(static_cast<size_t>(nBatchSize));
+  std::vector<NppiBufferDescriptor> h_batchBuffers(static_cast<size_t>(nBatchSize));
+  std::vector<unsigned int> h_newMaxLabelIDList(static_cast<size_t>(nBatchSize), 0);
 
-  cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) {
+  cudaError_t cudaStatus =
+      cudaMemcpyAsync(h_batchImages.data(), pSrcDstBatchList, h_batchImages.size() * sizeof(NppiImageDescriptor),
+                      cudaMemcpyDeviceToHost, stream);
+  if (cudaStatus != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
+  cudaStatus = cudaMemcpyAsync(h_batchBuffers.data(), pBufferList, h_batchBuffers.size() * sizeof(NppiBufferDescriptor),
+                               cudaMemcpyDeviceToHost, stream);
+  if (cudaStatus != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
+  }
+  cudaStatus = cudaStreamSynchronize(stream);
+  if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  for (int batch = 0; batch < nBatchSize; ++batch) {
+    const NppiImageDescriptor &img = h_batchImages[batch];
+    const NppiBufferDescriptor &buf = h_batchBuffers[batch];
+
+    if (img.pData == nullptr || buf.pData == nullptr) {
+      return NPP_NULL_POINTER_ERROR;
+    }
+    if (img.oSize.width <= 0 || img.oSize.height <= 0) {
+      return NPP_SIZE_ERROR;
+    }
+    if (img.oSize.width > oMaxSizeROI.width || img.oSize.height > oMaxSizeROI.height) {
+      return NPP_SIZE_ERROR;
+    }
+    if (img.nStep <= 0) {
+      return NPP_STEP_ERROR;
+    }
+    if (buf.nBufferSize < kCompressBufferFixedOverhead) {
+      return NPP_BAD_ARGUMENT_ERROR;
+    }
+
+    // Batch API encodes the effective starting label range in per-image buffer size.
+    const int nStartingNumber = (buf.nBufferSize - kCompressBufferFixedOverhead) / kCompressBufferBytesPerLabel;
+    if (nStartingNumber <= 0) {
+      return NPP_BAD_ARGUMENT_ERROR;
+    }
+
+    int newMarkerLabelsNumber = 0;
+    NppStatus status = nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(reinterpret_cast<Npp32u *>(img.pData), img.nStep,
+                                                                    img.oSize, nStartingNumber, &newMarkerLabelsNumber,
+                                                                    reinterpret_cast<Npp8u *>(buf.pData), nppStreamCtx);
+    if (status != NPP_SUCCESS) {
+      return status;
+    }
+
+    h_newMaxLabelIDList[batch] = static_cast<unsigned int>(std::max(newMarkerLabelsNumber - 1, 0));
+  }
+
+  cudaStatus = cudaMemcpyAsync(pNewMaxLabelIDList, h_newMaxLabelIDList.data(),
+                               h_newMaxLabelIDList.size() * sizeof(unsigned int), cudaMemcpyHostToDevice, stream);
+  if (cudaStatus != cudaSuccess) {
+    return NPP_MEMCPY_ERROR;
   }
 
   return NPP_SUCCESS;

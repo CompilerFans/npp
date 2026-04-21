@@ -746,6 +746,12 @@ typedef struct
 #define NPP_CONTOUR_DIRECTION_ANY_SOUTH  NPP_CONTOUR_DIRECTION_SOUTH_EAST | NPP_CONTOUR_DIRECTION_SOUTH | NPP_CONTOUR_DIRECTION_SOUTH_WEST
 #define NPP_CONTOUR_DIRECTION_ANY_EAST   NPP_CONTOUR_DIRECTION_NORTH_EAST | NPP_CONTOUR_DIRECTION_EAST | NPP_CONTOUR_DIRECTION_SOUTH_EAST
 
+/**
+ * Unified public layout for MPP multi-version source compatibility.
+ * The project keeps the larger 11.4-era field set so code written against
+ * 11.4/12.2/12.8 style APIs can use one public struct definition when it
+ * includes the unified MPP headers.
+**/
 typedef struct
 {
     Npp32u  nMarkerLabelID;                         /**< MarkerLabelID of contour interior connected region */
@@ -764,35 +770,7 @@ typedef struct
     Npp8u nTest1SouthWestConnected;
     Npp8u nTest1SouthConnected;
     Npp8u nTest1SouthEastConnected;
-} NppiContourPixelDirectionInfo_1104;
-
-typedef struct
-{
-    Npp32u  nMarkerLabelID;                         /**< MarkerLabelID of contour interior connected region */
-    Npp8u nContourDirectionCenterPixel;             /**< provides current center contour pixel input and output direction info */
-    Npp8u nContourInteriorDirectionCenterPixel;     /**< provides current center contour pixel region interior direction info */
-    Npp8u nConnected;                               /**< direction to directly connected contour pixels, 0 if not connected */
-    Npp8u nGeometryInfoIsValid;
-    NppiContourPixelGeometryInfo oContourPixelGeometryInfo;
-    NppiPoint nEast1, nNorthEast1, nNorth1, nNorthWest1, nWest1, nSouthWest1, nSouth1, nSouthEast1;
-    Npp8u nTest1EastConnected;
-    Npp8u nTest1NorthEastConnected;
-    Npp8u nTest1NorthConnected;
-    Npp8u nTest1NorthWestConnected;
-    Npp8u nTest1WestConnected;
-    Npp8u nTest1SouthWestConnected;
-    Npp8u nTest1SouthConnected;
-    Npp8u nTest1SouthEastConnected;
-} NppiContourPixelDirectionInfo_1202;
-
-/*
- * Unified public headers currently expose the CUDA 12.2+ layout.
- * The 11.4 legacy layout is retained under the _1104 suffix for
- * future compatibility selection if version-specific public API views
- * are reintroduced.
- */
-// TODO Add version switching control to ensure that the correct version of this struct is used with the correct version of the API.
-typedef NppiContourPixelDirectionInfo_1202 NppiContourPixelDirectionInfo;
+} NppiContourPixelDirectionInfo;
 
 typedef struct
 {
