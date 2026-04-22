@@ -13,6 +13,7 @@ endif()
 
 # Build options
 option(BUILD_TESTS "Build tests" ON)
+option(BUILD_BENCHMARK "Build performance benchmarks" ON)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
@@ -68,3 +69,13 @@ if(NOT USE_NVIDIA_NPP AND NOT USE_MACA_NPP)
     set( LIBRARY_NAME mcmpp )
     include(cmake/CCPack.cmake)
 endif()
+if(BUILD_BENCHMARK)
+    add_subdirectory(benchmark benchmark)
+endif()
+
+# Install configuration only for MPP build
+npp_configure_install()
+
+# set cpack using param
+set( LIBRARY_NAME mcmpp )
+include(cmake/CCPack.cmake)

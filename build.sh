@@ -11,6 +11,7 @@ BUILD_TYPE="Release"
 BUILD_DIR="build"  # Default build directory
 
 BUILD_TESTS="ON"
+BUILD_BENCHMARK="OFF"
 WARNINGS_AS_ERRORS="ON"
 
 # CUDA/MACA SDK Relative
@@ -32,8 +33,13 @@ while [[ $# -gt 0 ]]; do
             JOBS="$2"
             shift 2
             ;;
+        --benchmark)
+            BUILD_BENCHMARK="ON"
+            shift
+            ;;
         --lib-only)
             BUILD_TESTS="OFF"
+            BUILD_BENCHMARK="OFF"
             shift
             ;;
         --no-werror)
@@ -76,6 +82,7 @@ while [[ $# -gt 0 ]]; do
             echo "  -d, --debug     Debug build"
             echo "  -j N            Use N parallel jobs"
             echo "  --lib-only      Build library only (no tests, no examples)"
+            echo "  --benchmark     Build performance benchmark (npp_benchmark)"
             echo "  --no-werror     Disable warnings as errors"
             echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
             echo "  --use-maca-npp   Use MACA NPP library for tests instead of MPP"
@@ -109,6 +116,7 @@ fi
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
 echo "Configuring CMake ($BUILD_TYPE mode)..."
 echo "BUILD_TESTS=$BUILD_TESTS"
+echo "BUILD_BENCHMARK=$BUILD_BENCHMARK"
 echo "WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS"
 echo "USE_NVIDIA_NPP=$USE_NVIDIA_NPP,USE_MACA_NPP=$USE_MACA_NPP,CMAKE_NAME=$CMAKE_NAME"
 echo "GPU_TYPE=$WARNINGPU_TYPEG_AS_ERRORS"
@@ -120,6 +128,7 @@ $CMAKE_NAME -S .\
     -G Ninja      \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DBUILD_TESTS="$BUILD_TESTS" \
+    -DBUILD_BENCHMARK="$BUILD_BENCHMARK" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
     -DUSE_MACA_NPP="$USE_MACA_NPP" \

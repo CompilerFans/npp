@@ -1,0 +1,4 @@
+interface:
+  display_name: "MPP Implementation Workflow"
+  short_description: "Implement and repair NPP API workflow"
+  default_prompt: "Use $mpp-api-implement when implementing, repairing, testing, or validating NPP APIs against NVIDIA NPP behavior in this repository."
