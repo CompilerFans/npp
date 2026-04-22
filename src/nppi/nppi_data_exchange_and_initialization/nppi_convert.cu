@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <cstdint>
 
-constexpr int kConvertElemsPerThread = 16;
+constexpr int kConvert32f8uElemsPerThread = 16;
 constexpr int kConvertBlockX = 256;
 __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
@@ -19,45 +19,48 @@ __global__ void convert_8u32f_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   dstRow[x] = (Npp32f)srcRow[x];
 }
 
-__global__ void convert_8u32f_C3R_kernel_opt(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
-                                             int nDstStep, int rowElems, int height) {
-  int elemBase = (blockIdx.x * blockDim.x + threadIdx.x) * kConvertElemsPerThread;
-  int y = blockIdx.y;
-  if (y >= height || elemBase >= rowElems) {
+__global__ void convert_8u32f_C3R_kernel_vec4(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
+                                              int nDstStep, int vec4PerRow, int height) {
+  const int vecIdx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y;
+  if (y >= height || vecIdx >= vec4PerRow) {
     return;
   }
 
   const Npp8u *srcRow = (const Npp8u *)(((const char *)pSrc) + y * nSrcStep);
   Npp32f *dstRow = (Npp32f *)(((char *)pDst) + y * nDstStep);
-  const int remain = rowElems - elemBase;
-  const Npp8u *srcPtr = srcRow + elemBase;
-  Npp32f *dstPtr = dstRow + elemBase;
-  const bool alignedSrc = ((reinterpret_cast<uintptr_t>(srcPtr) & 0x3u) == 0u);
-  const bool alignedDst = ((reinterpret_cast<uintptr_t>(dstPtr) & 0xFu) == 0u);
-  if (remain >= kConvertElemsPerThread && alignedSrc && alignedDst) {
-    const uchar4 *src4 = reinterpret_cast<const uchar4 *>(srcPtr);
-    float4 *dst4 = reinterpret_cast<float4 *>(dstPtr);
+  const uchar4 s = reinterpret_cast<const uchar4 *>(srcRow)[vecIdx];
+  const int base = vecIdx * 4;
+  dstRow[base + 0] = (Npp32f)s.x;
+  dstRow[base + 1] = (Npp32f)s.y;
+  dstRow[base + 2] = (Npp32f)s.z;
+  dstRow[base + 3] = (Npp32f)s.w;
+}
 
-    const uchar4 s0 = src4[0];
-    const uchar4 s1 = src4[1];
-    const uchar4 s2 = src4[2];
-    const uchar4 s3 = src4[3];
-
-    dst4[0] = make_float4((float)s0.x, (float)s0.y, (float)s0.z, (float)s0.w);
-    dst4[1] = make_float4((float)s1.x, (float)s1.y, (float)s1.z, (float)s1.w);
-    dst4[2] = make_float4((float)s2.x, (float)s2.y, (float)s2.z, (float)s2.w);
-    dst4[3] = make_float4((float)s3.x, (float)s3.y, (float)s3.z, (float)s3.w);
+__global__ void convert_8u32f_C3R_kernel_tail(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
+                                              int nDstStep, int startElem, int tailElems, int height) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y;
+  if (y >= height || x >= tailElems) {
     return;
   }
 
-  const int tail = min(kConvertElemsPerThread, remain);
-#pragma unroll
-  for (int i = 0; i < kConvertElemsPerThread; ++i) {
-    if (i >= tail) {
-      break;
-    }
-    dstPtr[i] = (Npp32f)srcPtr[i];
+  const Npp8u *srcRow = (const Npp8u *)(((const char *)pSrc) + y * nSrcStep);
+  Npp32f *dstRow = (Npp32f *)(((char *)pDst) + y * nDstStep);
+  dstRow[startElem + x] = (Npp32f)srcRow[startElem + x];
+}
+
+__global__ void convert_8u32f_C3R_kernel_scalar(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
+                                                int nDstStep, int rowElems, int height) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y;
+  if (y >= height || x >= rowElems) {
+    return;
   }
+
+  const Npp8u *srcRow = (const Npp8u *)(((const char *)pSrc) + y * nSrcStep);
+  Npp32f *dstRow = (Npp32f *)(((char *)pDst) + y * nDstStep);
+  dstRow[x] = (Npp32f)srcRow[x];
 }
 
 __global__ void convert_8u16u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp16u *__restrict__ pDst,
@@ -116,7 +119,7 @@ __device__ __forceinline__ uchar4 round_and_clamp_32f4_to_u8(float4 value) {
 template <bool FinancialMode>
 __global__ void convert_32f8u_C3R_kernel_opt(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
                                              int nDstStep, int rowElems, int height) {
-  int elemBase = (blockIdx.x * blockDim.x + threadIdx.x) * kConvertElemsPerThread;
+  int elemBase = (blockIdx.x * blockDim.x + threadIdx.x) * kConvert32f8uElemsPerThread;
   int y = blockIdx.y;
   if (y >= height || elemBase >= rowElems) {
     return;
@@ -129,7 +132,7 @@ __global__ void convert_32f8u_C3R_kernel_opt(const Npp32f *__restrict__ pSrc, in
   Npp8u *dstPtr = dstRow + elemBase;
   const bool alignedSrc = ((reinterpret_cast<uintptr_t>(srcPtr) & 0xFu) == 0u);
   const bool alignedDst = ((reinterpret_cast<uintptr_t>(dstPtr) & 0x3u) == 0u);
-  if (remain >= kConvertElemsPerThread && alignedSrc && alignedDst) {
+  if (remain >= kConvert32f8uElemsPerThread && alignedSrc && alignedDst) {
     const float4 *src4 = reinterpret_cast<const float4 *>(srcPtr);
     uchar4 *dst4 = reinterpret_cast<uchar4 *>(dstPtr);
     dst4[0] = round_and_clamp_32f4_to_u8<FinancialMode>(src4[0]);
@@ -139,9 +142,9 @@ __global__ void convert_32f8u_C3R_kernel_opt(const Npp32f *__restrict__ pSrc, in
     return;
   }
 
-  const int tail = min(kConvertElemsPerThread, remain);
+  const int tail = min(kConvert32f8uElemsPerThread, remain);
 #pragma unroll
-  for (int i = 0; i < kConvertElemsPerThread; ++i) {
+  for (int i = 0; i < kConvert32f8uElemsPerThread; ++i) {
     if (i >= tail) {
       break;
     }
@@ -201,11 +204,26 @@ NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
 
   const int rowElems = oSizeROI.width * 3;
   dim3 blockSize(kConvertBlockX, 1);
-  dim3 gridSize((rowElems + blockSize.x * kConvertElemsPerThread - 1) / (blockSize.x * kConvertElemsPerThread),
-                oSizeROI.height);
+  const int vecElems = rowElems & ~3;
+  const int vec4PerRow = vecElems >> 2;
+  const int tailElems = rowElems - vecElems;
+  const bool canUseVec4 = (vec4PerRow > 0) && ((reinterpret_cast<uintptr_t>(pSrc) & 0x3u) == 0u) && ((nSrcStep & 0x3) == 0);
 
-  convert_8u32f_C3R_kernel_opt<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                   rowElems, oSizeROI.height);
+  if (canUseVec4) {
+    dim3 gridVec((vec4PerRow + blockSize.x - 1) / blockSize.x, oSizeROI.height);
+    convert_8u32f_C3R_kernel_vec4<<<gridVec, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, vec4PerRow, oSizeROI.height);
+
+    if (tailElems > 0) {
+      dim3 gridTail((tailElems + blockSize.x - 1) / blockSize.x, oSizeROI.height);
+      convert_8u32f_C3R_kernel_tail<<<gridTail, blockSize, 0, nppStreamCtx.hStream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, vecElems, tailElems, oSizeROI.height);
+    }
+  } else {
+    dim3 gridScalar((rowElems + blockSize.x - 1) / blockSize.x, oSizeROI.height);
+    convert_8u32f_C3R_kernel_scalar<<<gridScalar, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, rowElems, oSizeROI.height);
+  }
 
   // Check for kernel launch errors
   cudaError_t cudaErr = cudaGetLastError();
@@ -263,7 +281,8 @@ NppStatus nppiConvert_32f8u_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u
 
   const int rowElems = oSizeROI.width * 3;
   dim3 blockSize(kConvertBlockX, 1);
-  dim3 gridSize((rowElems + blockSize.x * kConvertElemsPerThread - 1) / (blockSize.x * kConvertElemsPerThread),
+  dim3 gridSize((rowElems + blockSize.x * kConvert32f8uElemsPerThread - 1) /
+                    (blockSize.x * kConvert32f8uElemsPerThread),
                 oSizeROI.height);
 
   if (eRoundMode == NPP_RND_FINANCIAL) {
