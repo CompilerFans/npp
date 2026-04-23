@@ -63,19 +63,13 @@ if(BUILD_TESTS)
     endif()
 endif()
 
+if(BUILD_BENCHMARK)
+    add_subdirectory(benchmark benchmark)
+endif()
+
 # Install/packaging only for MPP build
 if(NOT USE_NVIDIA_NPP AND NOT USE_MACA_NPP)
     npp_configure_install()
     set( LIBRARY_NAME mcmpp )
     include(cmake/CCPack.cmake)
 endif()
-if(BUILD_BENCHMARK)
-    add_subdirectory(benchmark benchmark)
-endif()
-
-# Install configuration only for MPP build
-npp_configure_install()
-
-# set cpack using param
-set( LIBRARY_NAME mcmpp )
-include(cmake/CCPack.cmake)
