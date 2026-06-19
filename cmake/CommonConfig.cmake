@@ -4,12 +4,9 @@ include(GNUInstallDirs)
 
 # 设置通用编译标准
 function(npp_set_common_standards target)
-    # MACA and not use cu-bridge, use maca c directly
-    if(NOT WITHOUT_CU_BRIDGE)
-        set_target_properties(${target} PROPERTIES
-            CUDA_SEPARABLE_COMPILATION ON
-        )
-    endif()
+    set_target_properties(${target} PROPERTIES
+	    CUDA_SEPARABLE_COMPILATION OFF
+	    )
 endfunction()
 
 # 添加NPP通用包含目录
