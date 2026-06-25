@@ -21,7 +21,7 @@ __device__ __forceinline__ double warpReduceSum(double val) {
 // Block-level reduction for double precision
 
 __device__ __forceinline__ double blockReduceSum(double val) {
-  static __shared__ double shared[32]; // 32 warps max
+  static __shared__ double shared[WARP_SIZE]; // WARP_SIZE warps max
   int lane = threadIdx.x % WARP_SIZE;
   int wid = threadIdx.x / WARP_SIZE;
 
@@ -37,6 +37,7 @@ __device__ __forceinline__ double blockReduceSum(double val) {
   if (wid == 0)
     val = warpReduceSum(val);
 
+  __syncthreads();
   return val;
 }
 
