@@ -1284,3 +1284,380 @@ TEST_F(NppiMeanStdDevComprehensiveTest, EdgeCases_AllAPIs) {
     }
   }
 }
+
+// ====================================================================================
+// NUMERICAL STABILITY TESTS - repeated runs on same data must produce identical results
+// ====================================================================================
+
+static constexpr int kStabilityRuns = 10;
+
+class NppiMeanStdDevStabilityTest : public ::testing::Test {
+protected:
+  void SetUp() override { ASSERT_EQ(cudaSetDevice(0), cudaSuccess); }
+  void TearDown() override {
+    cudaDeviceSynchronize();
+    cudaGetLastError();
+  }
+};
+
+// 8u_C1R: run N times, every result must be bit-identical.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_8u_C1R_RepeatedRuns) {
+  const int width = 256, height = 256;
+  std::mt19937 gen(42);
+  std::uniform_int_distribution<int> dis(0, 255);
+  std::vector<Npp8u> hostSrc(width * height);
+  for (auto &v : hostSrc)
+    v = static_cast<Npp8u>(dis(gen));
+
+  int srcStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  SIZE_TYPE bufSize = 0;
+  ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R(roi, &bufSize), NPP_SUCCESS);
+
+  Npp8u *d_buf = nullptr;
+  cudaMalloc(&d_buf, bufSize);
+  Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+  Npp64f refMean = 0, refStdDev = 0;
+  for (int i = 0; i < kStabilityRuns; ++i) {
+    ASSERT_EQ(nppiMean_StdDev_8u_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+    Npp64f hMean, hStdDev;
+    cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    if (i == 0) {
+      refMean = hMean;
+      refStdDev = hStdDev;
+    } else {
+      EXPECT_EQ(hMean, refMean) << "Mean changed on run " << i;
+      EXPECT_EQ(hStdDev, refStdDev) << "StdDev changed on run " << i;
+    }
+  }
+  nppiFree(d_src);
+  cudaFree(d_buf);
+  cudaFree(d_mean);
+  cudaFree(d_stddev);
+}
+
+// 32f_C1R: run N times, every result must be bit-identical.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_32f_C1R_RepeatedRuns) {
+  const int width = 256, height = 256;
+  std::mt19937 gen(123);
+  std::uniform_real_distribution<float> dis(0.0f, 1000.0f);
+  std::vector<Npp32f> hostSrc(width * height);
+  for (auto &v : hostSrc)
+    v = dis(gen);
+
+  int srcStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  SIZE_TYPE bufSize = 0;
+  ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_32f_C1R(roi, &bufSize), NPP_SUCCESS);
+
+  Npp8u *d_buf = nullptr;
+  cudaMalloc(&d_buf, bufSize);
+  Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+  Npp64f refMean = 0, refStdDev = 0;
+  for (int i = 0; i < kStabilityRuns; ++i) {
+    ASSERT_EQ(nppiMean_StdDev_32f_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+    Npp64f hMean, hStdDev;
+    cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    if (i == 0) {
+      refMean = hMean;
+      refStdDev = hStdDev;
+    } else {
+      EXPECT_EQ(hMean, refMean) << "Mean changed on run " << i;
+      EXPECT_EQ(hStdDev, refStdDev) << "StdDev changed on run " << i;
+    }
+  }
+  nppiFree(d_src);
+  cudaFree(d_buf);
+  cudaFree(d_mean);
+  cudaFree(d_stddev);
+}
+
+// Varying image sizes: different block/warp counts must all be stable.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_8u_C1R_VaryingSizes) {
+  struct { int w, h; } cases[] = {{1, 1}, {7, 3}, {64, 64}, {127, 89}, {512, 512}, {1024, 1}};
+  for (auto &sc : cases) {
+    std::vector<Npp8u> hostSrc(sc.w * sc.h);
+    std::mt19937 gen(static_cast<unsigned>(sc.w * 31 + sc.h));
+    std::uniform_int_distribution<int> dis(0, 255);
+    for (auto &v : hostSrc)
+      v = static_cast<Npp8u>(dis(gen));
+
+    int srcStep;
+    Npp8u *d_src = nppiMalloc_8u_C1(sc.w, sc.h, &srcStep);
+    ASSERT_NE(d_src, nullptr);
+    cudaMemcpy2D(d_src, srcStep, hostSrc.data(), sc.w, sc.w, sc.h, cudaMemcpyHostToDevice);
+
+    NppiSize roi = {sc.w, sc.h};
+    SIZE_TYPE bufSize = 0;
+    ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R(roi, &bufSize), NPP_SUCCESS);
+
+    Npp8u *d_buf = nullptr;
+    cudaMalloc(&d_buf, bufSize);
+    Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+    cudaMalloc(&d_mean, sizeof(Npp64f));
+    cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+    Npp64f refMean = 0, refStdDev = 0;
+    for (int i = 0; i < kStabilityRuns; ++i) {
+      ASSERT_EQ(nppiMean_StdDev_8u_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+      Npp64f hMean, hStdDev;
+      cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+      cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+      if (i == 0) {
+        refMean = hMean;
+        refStdDev = hStdDev;
+      } else {
+        EXPECT_EQ(hMean, refMean) << "Mean changed run " << i << " size " << sc.w << "x" << sc.h;
+        EXPECT_EQ(hStdDev, refStdDev) << "StdDev changed run " << i << " size " << sc.w << "x" << sc.h;
+      }
+    }
+    nppiFree(d_src);
+    cudaFree(d_buf);
+    cudaFree(d_mean);
+    cudaFree(d_stddev);
+  }
+}
+
+// Constant data: mean must equal the value, stddev must be 0, every run.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_8u_C1R_ConstantData) {
+  const int width = 128, height = 128;
+  std::vector<Npp8u> hostSrc(width * height, 200);
+
+  int srcStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  SIZE_TYPE bufSize = 0;
+  ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R(roi, &bufSize), NPP_SUCCESS);
+
+  Npp8u *d_buf = nullptr;
+  cudaMalloc(&d_buf, bufSize);
+  Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+  for (int i = 0; i < kStabilityRuns; ++i) {
+    ASSERT_EQ(nppiMean_StdDev_8u_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+    Npp64f hMean, hStdDev;
+    cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    EXPECT_NEAR(hMean, 200.0, 0.001) << "Mean wrong on run " << i;
+    EXPECT_NEAR(hStdDev, 0.0, 0.001) << "StdDev nonzero on run " << i;
+  }
+  nppiFree(d_src);
+  cudaFree(d_buf);
+  cudaFree(d_mean);
+  cudaFree(d_stddev);
+}
+
+// Constant 32f data.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_32f_C1R_ConstantData) {
+  const int width = 128, height = 128;
+  std::vector<Npp32f> hostSrc(width * height, 3.14159f);
+
+  int srcStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  SIZE_TYPE bufSize = 0;
+  ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_32f_C1R(roi, &bufSize), NPP_SUCCESS);
+
+  Npp8u *d_buf = nullptr;
+  cudaMalloc(&d_buf, bufSize);
+  Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+  for (int i = 0; i < kStabilityRuns; ++i) {
+    ASSERT_EQ(nppiMean_StdDev_32f_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+    Npp64f hMean, hStdDev;
+    cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    EXPECT_NEAR(hMean, 3.14159, 0.001) << "Mean wrong on run " << i;
+    EXPECT_NEAR(hStdDev, 0.0, 0.001) << "StdDev nonzero on run " << i;
+  }
+  nppiFree(d_src);
+  cudaFree(d_buf);
+  cudaFree(d_mean);
+  cudaFree(d_stddev);
+}
+
+// Large values: stress double-precision accumulation stability.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_32f_C1R_LargeValues) {
+  const int width = 256, height = 256;
+  std::mt19937 gen(999);
+  std::uniform_real_distribution<float> dis(1e6f, 1e7f);
+  std::vector<Npp32f> hostSrc(width * height);
+  for (auto &v : hostSrc)
+    v = dis(gen);
+
+  int srcStep;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width * sizeof(Npp32f), width * sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  SIZE_TYPE bufSize = 0;
+  ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_32f_C1R(roi, &bufSize), NPP_SUCCESS);
+
+  Npp8u *d_buf = nullptr;
+  cudaMalloc(&d_buf, bufSize);
+  Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+  Npp64f refMean = 0, refStdDev = 0;
+  for (int i = 0; i < kStabilityRuns; ++i) {
+    ASSERT_EQ(nppiMean_StdDev_32f_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+    Npp64f hMean, hStdDev;
+    cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    if (i == 0) {
+      refMean = hMean;
+      refStdDev = hStdDev;
+    } else {
+      EXPECT_EQ(hMean, refMean) << "Mean changed on run " << i;
+      EXPECT_EQ(hStdDev, refStdDev) << "StdDev changed on run " << i;
+    }
+  }
+  nppiFree(d_src);
+  cudaFree(d_buf);
+  cudaFree(d_mean);
+  cudaFree(d_stddev);
+}
+
+// Stream context: repeated runs on same stream must be stable.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_8u_C1R_Ctx_RepeatedRuns) {
+  const int width = 256, height = 256;
+  std::mt19937 gen(77);
+  std::uniform_int_distribution<int> dis(0, 255);
+  std::vector<Npp8u> hostSrc(width * height);
+  for (auto &v : hostSrc)
+    v = static_cast<Npp8u>(dis(gen));
+
+  int srcStep;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  cudaStream_t stream;
+  cudaStreamCreate(&stream);
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+  nppStreamCtx.hStream = stream;
+
+  NppiSize roi = {width, height};
+  SIZE_TYPE bufSize = 0;
+  ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(roi, &bufSize, nppStreamCtx), NPP_SUCCESS);
+
+  Npp8u *d_buf = nullptr;
+  cudaMalloc(&d_buf, bufSize);
+  Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+  Npp64f refMean = 0, refStdDev = 0;
+  for (int i = 0; i < kStabilityRuns; ++i) {
+    ASSERT_EQ(nppiMean_StdDev_8u_C1R_Ctx(d_src, srcStep, roi, d_buf, d_mean, d_stddev, nppStreamCtx), NPP_SUCCESS);
+    cudaStreamSynchronize(stream);
+    Npp64f hMean, hStdDev;
+    cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+    if (i == 0) {
+      refMean = hMean;
+      refStdDev = hStdDev;
+    } else {
+      EXPECT_EQ(hMean, refMean) << "Mean changed on run " << i;
+      EXPECT_EQ(hStdDev, refStdDev) << "StdDev changed on run " << i;
+    }
+  }
+  cudaStreamDestroy(stream);
+  nppiFree(d_src);
+  cudaFree(d_buf);
+  cudaFree(d_mean);
+  cudaFree(d_stddev);
+}
+
+// Multiple distributions: all-zero, all-max, bimodal, gradient.
+TEST_F(NppiMeanStdDevStabilityTest, Stability_8u_C1R_VaryingDistributions) {
+  const int width = 128, height = 128;
+
+  auto runStability = [&](const std::vector<Npp8u> &hostSrc, const char *label) {
+    int srcStep;
+    Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+    ASSERT_NE(d_src, nullptr);
+    cudaMemcpy2D(d_src, srcStep, hostSrc.data(), width, width, height, cudaMemcpyHostToDevice);
+
+    NppiSize roi = {width, height};
+    SIZE_TYPE bufSize = 0;
+    ASSERT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C1R(roi, &bufSize), NPP_SUCCESS);
+
+    Npp8u *d_buf = nullptr;
+    cudaMalloc(&d_buf, bufSize);
+    Npp64f *d_mean = nullptr, *d_stddev = nullptr;
+    cudaMalloc(&d_mean, sizeof(Npp64f));
+    cudaMalloc(&d_stddev, sizeof(Npp64f));
+
+    Npp64f refMean = 0, refStdDev = 0;
+    for (int i = 0; i < kStabilityRuns; ++i) {
+      ASSERT_EQ(nppiMean_StdDev_8u_C1R(d_src, srcStep, roi, d_buf, d_mean, d_stddev), NPP_SUCCESS);
+      Npp64f hMean, hStdDev;
+      cudaMemcpy(&hMean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+      cudaMemcpy(&hStdDev, d_stddev, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+      if (i == 0) {
+        refMean = hMean;
+        refStdDev = hStdDev;
+      } else {
+        EXPECT_EQ(hMean, refMean) << label << ": Mean changed on run " << i;
+        EXPECT_EQ(hStdDev, refStdDev) << label << ": StdDev changed on run " << i;
+      }
+    }
+    nppiFree(d_src);
+    cudaFree(d_buf);
+    cudaFree(d_mean);
+    cudaFree(d_stddev);
+  };
+
+  // All zeros
+  runStability(std::vector<Npp8u>(width * height, 0), "AllZeros");
+  // All max
+  runStability(std::vector<Npp8u>(width * height, 255), "AllMax");
+  // Bimodal
+  {
+    std::vector<Npp8u> data(width * height);
+    for (int i = 0; i < width * height; ++i)
+      data[i] = (i < width * height / 2) ? 0 : 255;
+    runStability(data, "Bimodal");
+  }
+  // Gradient
+  {
+    std::vector<Npp8u> data(width * height);
+    for (int y = 0; y < height; ++y)
+      for (int x = 0; x < width; ++x)
+        data[y * width + x] = static_cast<Npp8u>((x + y) % 256);
+    runStability(data, "Gradient");
+  }
+}

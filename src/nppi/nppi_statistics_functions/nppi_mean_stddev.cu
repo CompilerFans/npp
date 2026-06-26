@@ -18,8 +18,7 @@ __device__ __forceinline__ double warpReduceSum(double val) {
 
 // Block-level reduction for double precision
 
-__device__ __forceinline__ double blockReduceSum(double val) {
-  static __shared__ double shared[WARP_SIZE];
+__device__ __forceinline__ double blockReduceSum(double val, double *shared) {
   int lane = threadIdx.x % WARP_SIZE;
   int wid = threadIdx.x / WARP_SIZE;
 
@@ -35,12 +34,14 @@ __device__ __forceinline__ double blockReduceSum(double val) {
   if (wid == 0)
     val = warpReduceSum(val);
 
+  __syncthreads();
   return val;
 }
 
 // Mean and standard deviation kernel for 8-bit unsigned single channel
 __global__ void nppiMean_StdDev_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcStep, int width, int height,
                                                    double *pBlockSums, double *pBlockSumSquares) {
+  __shared__ double shared[WARP_SIZE];
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int totalPixels = width * height;
 
@@ -60,8 +61,8 @@ __global__ void nppiMean_StdDev_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcSt
   }
 
   // Reduce within block
-  localSum = blockReduceSum(localSum);
-  localSumSquares = blockReduceSum(localSumSquares);
+  localSum = blockReduceSum(localSum, shared);
+  localSumSquares = blockReduceSum(localSumSquares, shared);
 
   // Store block results
   if (threadIdx.x == 0) {
@@ -73,6 +74,7 @@ __global__ void nppiMean_StdDev_8u_C1R_kernel_impl(const Npp8u *pSrc, int nSrcSt
 // Final reduction kernel
 __global__ void finalReduction_kernel(double *pBlockSums, double *pBlockSumSquares, int numBlocks, int totalPixels,
                                       double *pMean, double *pStdDev) {
+  __shared__ double shared[WARP_SIZE];
   double totalSum = 0.0;
   double totalSumSquares = 0.0;
 
@@ -81,8 +83,8 @@ __global__ void finalReduction_kernel(double *pBlockSums, double *pBlockSumSquar
     totalSumSquares += pBlockSumSquares[i];
   }
 
-  totalSum = blockReduceSum(totalSum);
-  totalSumSquares = blockReduceSum(totalSumSquares);
+  totalSum = blockReduceSum(totalSum, shared);
+  totalSumSquares = blockReduceSum(totalSumSquares, shared);
 
   if (threadIdx.x == 0) {
     double mean = totalSum / totalPixels;
@@ -97,6 +99,7 @@ __global__ void finalReduction_kernel(double *pBlockSums, double *pBlockSumSquar
 // Final reduction kernel for masked versions
 __global__ void finalReductionMasked_kernel(double *pBlockSums, double *pBlockSumSquares, double *pValidCounts,
                                             int numBlocks, double *pMean, double *pStdDev) {
+  __shared__ double shared[WARP_SIZE];
   double totalSum = 0.0;
   double totalSumSquares = 0.0;
   double totalValidCount = 0.0;
@@ -107,9 +110,9 @@ __global__ void finalReductionMasked_kernel(double *pBlockSums, double *pBlockSu
     totalValidCount += pValidCounts[i];
   }
 
-  totalSum = blockReduceSum(totalSum);
-  totalSumSquares = blockReduceSum(totalSumSquares);
-  totalValidCount = blockReduceSum(totalValidCount);
+  totalSum = blockReduceSum(totalSum, shared);
+  totalSumSquares = blockReduceSum(totalSumSquares, shared);
+  totalValidCount = blockReduceSum(totalValidCount, shared);
 
   if (threadIdx.x == 0) {
     if (totalValidCount > 0) {
@@ -130,6 +133,7 @@ __global__ void finalReductionMasked_kernel(double *pBlockSums, double *pBlockSu
 // Mean and standard deviation kernel for 32-bit float single channel
 __global__ void nppiMean_StdDev_32f_C1R_kernel_impl(const Npp32f *pSrc, int nSrcStep, int width, int height,
                                                     double *pBlockSums, double *pBlockSumSquares) {
+  __shared__ double shared[WARP_SIZE];
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int totalPixels = width * height;
 
@@ -150,8 +154,8 @@ __global__ void nppiMean_StdDev_32f_C1R_kernel_impl(const Npp32f *pSrc, int nSrc
   }
 
   // Reduce within block
-  localSum = blockReduceSum(localSum);
-  localSumSquares = blockReduceSum(localSumSquares);
+  localSum = blockReduceSum(localSum, shared);
+  localSumSquares = blockReduceSum(localSumSquares, shared);
 
   // Store block results
   if (threadIdx.x == 0) {
@@ -229,6 +233,7 @@ cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp
 __global__ void nppiMean_StdDev_8u_C1MR_kernel_impl(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
                                                     int width, int height, double *pBlockSums, double *pBlockSumSquares,
                                                     double *pValidCounts) {
+  __shared__ double shared[WARP_SIZE];
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int totalPixels = width * height;
 
@@ -254,9 +259,9 @@ __global__ void nppiMean_StdDev_8u_C1MR_kernel_impl(const Npp8u *pSrc, int nSrcS
   }
 
   // Reduce within block
-  localSum = blockReduceSum(localSum);
-  localSumSquares = blockReduceSum(localSumSquares);
-  localValidCount = blockReduceSum(localValidCount);
+  localSum = blockReduceSum(localSum, shared);
+  localSumSquares = blockReduceSum(localSumSquares, shared);
+  localValidCount = blockReduceSum(localValidCount, shared);
 
   // Store block results
   if (threadIdx.x == 0) {
@@ -270,6 +275,7 @@ __global__ void nppiMean_StdDev_8u_C1MR_kernel_impl(const Npp8u *pSrc, int nSrcS
 __global__ void nppiMean_StdDev_32f_C1MR_kernel_impl(const Npp32f *pSrc, int nSrcStep, const Npp8u *pMask,
                                                      int nMaskStep, int width, int height, double *pBlockSums,
                                                      double *pBlockSumSquares, double *pValidCounts) {
+  __shared__ double shared[WARP_SIZE];
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   int totalPixels = width * height;
 
@@ -295,9 +301,9 @@ __global__ void nppiMean_StdDev_32f_C1MR_kernel_impl(const Npp32f *pSrc, int nSr
   }
 
   // Reduce within block
-  localSum = blockReduceSum(localSum);
-  localSumSquares = blockReduceSum(localSumSquares);
-  localValidCount = blockReduceSum(localValidCount);
+  localSum = blockReduceSum(localSum, shared);
+  localSumSquares = blockReduceSum(localSumSquares, shared);
+  localValidCount = blockReduceSum(localValidCount, shared);
 
   // Store block results
   if (threadIdx.x == 0) {
