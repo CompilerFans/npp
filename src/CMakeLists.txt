@@ -23,6 +23,9 @@ set_target_properties(npp PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+# Link MetaX runtime for CUDA fatbin symbols
+target_link_libraries(npp PRIVATE /opt/maca/lib/libmcruntime.so)
+
 # Add dynamic library specific configuration if shared
 if(BUILD_SHARED_LIBS)
     # Windows DLL export symbols
