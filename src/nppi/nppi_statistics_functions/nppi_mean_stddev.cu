@@ -326,6 +326,40 @@ cudaError_t nppiMean_16u_CxR_kernel(const Npp16u *pSrc, int nSrcStep, NppiSize o
   return cudaGetLastError();
 }
 
+cudaError_t nppiMean_16s_CxR_kernel(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, int nSourceChannels,
+                                    int nOutputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                                    cudaStream_t stream) {
+  const int totalPixels = oSizeROI.width * oSizeROI.height;
+  const int blockSize = 256;
+  const int numBlocks = (totalPixels + blockSize - 1) / blockSize;
+  double *pBlockSums = reinterpret_cast<double *>(pDeviceBuffer);
+  nppiMean_CxR_kernel_impl<Npp16s><<<numBlocks, blockSize, 0, stream>>>(
+      pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, nSourceChannels, nOutputChannels, pBlockSums);
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    return error;
+  }
+  finalMeanChannels_kernel<<<nOutputChannels, blockSize, 0, stream>>>(pBlockSums, numBlocks, totalPixels, pMean);
+  return cudaGetLastError();
+}
+
+cudaError_t nppiMean_32f_CxR_kernel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, int nSourceChannels,
+                                    int nOutputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                                    cudaStream_t stream) {
+  const int totalPixels = oSizeROI.width * oSizeROI.height;
+  const int blockSize = 256;
+  const int numBlocks = (totalPixels + blockSize - 1) / blockSize;
+  double *pBlockSums = reinterpret_cast<double *>(pDeviceBuffer);
+  nppiMean_CxR_kernel_impl<Npp32f><<<numBlocks, blockSize, 0, stream>>>(
+      pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, nSourceChannels, nOutputChannels, pBlockSums);
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    return error;
+  }
+  finalMeanChannels_kernel<<<nOutputChannels, blockSize, 0, stream>>>(pBlockSums, numBlocks, totalPixels, pMean);
+  return cudaGetLastError();
+}
+
 cudaError_t nppiAverageError_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                            NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer,
                                            cudaStream_t stream) {
