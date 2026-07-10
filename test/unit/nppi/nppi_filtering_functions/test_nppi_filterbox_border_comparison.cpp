@@ -82,7 +82,7 @@ public:
     // Analysis summary
     std::cout << "\nAnalysis Summary:\n";
     if (similarities[0].first > 95.0) {
-      std::cout << "STRONG MATCH: nppiFilterBox likely uses " << similarities[0].second << " border mode\n";
+      std::cout << "STRONG MATCH: supplied FilterBox halo matches " << similarities[0].second << " border mode\n";
     } else if (similarities[0].first > 80.0) {
       std::cout << "PROBABLE MATCH: nppiFilterBox probably uses " << similarities[0].second << " border mode\n";
     } else if (similarities[0].first > 50.0) {
@@ -272,22 +272,52 @@ public:
   }
 };
 
+template <typename T>
+std::vector<T> createReplicatedHalo(const BorderComparisonConfig &config, const std::vector<T> &input) {
+  const int padLeft = config.anchorX;
+  const int padRight = config.maskWidth - config.anchorX - 1;
+  const int padTop = config.anchorY;
+  const int padBottom = config.maskHeight - config.anchorY - 1;
+  const int expandedWidth = config.width + padLeft + padRight;
+  const int expandedHeight = config.height + padTop + padBottom;
+  std::vector<T> expanded(static_cast<size_t>(expandedWidth) * expandedHeight);
+  for (int y = 0; y < expandedHeight; ++y) {
+    const int sourceY = std::max(0, std::min(config.height - 1, y - padTop));
+    for (int x = 0; x < expandedWidth; ++x) {
+      const int sourceX = std::max(0, std::min(config.width - 1, x - padLeft));
+      expanded[static_cast<size_t>(y) * expandedWidth + x] = input[static_cast<size_t>(sourceY) * config.width + sourceX];
+    }
+  }
+  return expanded;
+}
+
 // Run border mode comparison for 8u data type
 void runBorderComparison8u(const BorderComparisonConfig &config, const std::string &patternName,
                            const std::vector<Npp8u> &input) {
   std::string testName = config.description + "_" + patternName;
 
-  // Get nppiFilterBox result
+  const int padLeft = config.anchorX;
+  const int padTop = config.anchorY;
+  const int expandedWidth = config.width + config.maskWidth - 1;
+  const auto expandedInput = createReplicatedHalo(config, input);
+
+  // FilterBox receives an interior pointer with a replicated halo. The Border
+  // variants below receive the original image and apply their own border mode.
+  Npp8u *d_filter_src = (Npp8u *)nppsMalloc_8u(expandedInput.size());
   Npp8u *d_src = (Npp8u *)nppsMalloc_8u(input.size());
   Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(input.size());
+  ASSERT_NE(d_filter_src, nullptr);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
+  cudaMemcpy(d_filter_src, expandedInput.data(), expandedInput.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
   cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, config.width * sizeof(Npp8u), d_dst, config.width * sizeof(Npp8u),
-                                          {config.width, config.height}, {config.maskWidth, config.maskHeight},
-                                          {config.anchorX, config.anchorY});
+  const Npp8u *d_filter_roi = d_filter_src + padTop * expandedWidth + padLeft;
+  NppStatus status =
+      nppiFilterBox_8u_C1R(d_filter_roi, expandedWidth * sizeof(Npp8u), d_dst, config.width * sizeof(Npp8u),
+                           {config.width, config.height}, {config.maskWidth, config.maskHeight},
+                           {config.anchorX, config.anchorY});
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> filterBoxResult(input.size());
@@ -316,6 +346,7 @@ void runBorderComparison8u(const BorderComparisonConfig &config, const std::stri
     }
   }
 
+  nppiFree(d_filter_src);
   nppiFree(d_src);
   nppiFree(d_dst);
 
@@ -329,17 +360,26 @@ void runBorderComparison32f(const BorderComparisonConfig &config, const std::str
                             const std::vector<Npp32f> &input) {
   std::string testName = config.description + "_" + patternName;
 
-  // Get nppiFilterBox result
+  const int padLeft = config.anchorX;
+  const int padTop = config.anchorY;
+  const int expandedWidth = config.width + config.maskWidth - 1;
+  const auto expandedInput = createReplicatedHalo(config, input);
+
+  Npp32f *d_filter_src = (Npp32f *)nppsMalloc_32f(expandedInput.size());
   Npp32f *d_src = (Npp32f *)nppsMalloc_32f(input.size());
   Npp32f *d_dst = (Npp32f *)nppsMalloc_32f(input.size());
+  ASSERT_NE(d_filter_src, nullptr);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
 
+  cudaMemcpy(d_filter_src, expandedInput.data(), expandedInput.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
   cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  NppStatus status = nppiFilterBox_32f_C1R(d_src, config.width * sizeof(Npp32f), d_dst, config.width * sizeof(Npp32f),
-                                           {config.width, config.height}, {config.maskWidth, config.maskHeight},
-                                           {config.anchorX, config.anchorY});
+  const Npp32f *d_filter_roi = d_filter_src + padTop * expandedWidth + padLeft;
+  NppStatus status =
+      nppiFilterBox_32f_C1R(d_filter_roi, expandedWidth * sizeof(Npp32f), d_dst, config.width * sizeof(Npp32f),
+                            {config.width, config.height}, {config.maskWidth, config.maskHeight},
+                            {config.anchorX, config.anchorY});
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> filterBoxResult(input.size());
@@ -368,6 +408,7 @@ void runBorderComparison32f(const BorderComparisonConfig &config, const std::str
     }
   }
 
+  nppiFree(d_filter_src);
   nppiFree(d_src);
   nppiFree(d_dst);
 

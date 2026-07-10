@@ -98,6 +98,22 @@ TEST_F(SupportFunctionsTest, SetGetStreamContext_BasicTest) {
   std::cout << "nppSetStreamContext validation tests passed" << std::endl;
 }
 
+TEST_F(SupportFunctionsTest, SetGetStream_BasicTest) {
+  const cudaStream_t originalStream = nppGetStream();
+  cudaStream_t customStream = nullptr;
+  ASSERT_EQ(cudaStreamCreate(&customStream), cudaSuccess);
+
+  ASSERT_EQ(nppSetStream(customStream), NPP_SUCCESS);
+  EXPECT_EQ(nppGetStream(), customStream);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  EXPECT_EQ(context.hStream, customStream);
+
+  EXPECT_EQ(nppSetStream(originalStream), NPP_SUCCESS);
+  EXPECT_EQ(cudaStreamDestroy(customStream), cudaSuccess);
+}
+
 TEST_F(SupportFunctionsTest, GetGpuDeviceProperties_BasicTest) {
   int maxThreadsPerSM, maxThreadsPerBlock, numSMs;
   int result = nppGetGpuDeviceProperties(&maxThreadsPerSM, &maxThreadsPerBlock, &numSMs);

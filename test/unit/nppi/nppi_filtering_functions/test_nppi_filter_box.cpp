@@ -24,12 +24,19 @@ protected:
     size.width = width;
     size.height = height;
 
-    // 使用NPP内置内存管理函数分配设备内存
-    d_src = nppiMalloc_8u_C1(width, height, &step_src);
+    sourceHalo = 2;
+    sourceWidth = width + 2 * sourceHalo;
+    sourceHeight = height + 2 * sourceHalo;
+
+    // FilterBox reads the mask halo around pSrc. Keep pSrc at the interior of a
+    // larger allocation so every test supplies valid surrounding pixels.
+    d_src_base = nppiMalloc_8u_C1(sourceWidth, sourceHeight, &step_src);
+    d_src = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(d_src_base) + sourceHalo * step_src) + sourceHalo;
     d_dst = nppiMalloc_8u_C1(width, height, &step_dst);
 
-    ASSERT_NE(d_src, nullptr) << "Failed to allocate src memory";
+    ASSERT_NE(d_src_base, nullptr) << "Failed to allocate src memory";
     ASSERT_NE(d_dst, nullptr) << "Failed to allocate dst memory";
+    ASSERT_EQ(cudaMemset2D(d_src_base, step_src, 0, sourceWidth, sourceHeight), cudaSuccess);
 
     // prepare test data
     h_src.resize(width * height);
@@ -38,22 +45,25 @@ protected:
 
   void TearDown() override {
     // 使用NPP内置函数释放内存
-    if (d_src)
-      nppiFree(d_src);
+    if (d_src_base)
+      nppiFree(d_src_base);
     if (d_dst)
       nppiFree(d_dst);
   }
 
   int width, height;
+  int sourceHalo, sourceWidth, sourceHeight;
   int step_src, step_dst;
   NppiSize size;
-  Npp8u *d_src, *d_dst;
+  Npp8u *d_src_base, *d_src, *d_dst;
   std::vector<Npp8u> h_src, h_dst;
 };
 
 TEST_F(FilterTest, FilterBox_3x3_Uniform) {
   // 创建一个更简单的测试 - 使用全100的图像
   std::fill(h_src.begin(), h_src.end(), 100);
+
+  ASSERT_EQ(cudaMemset2D(d_src_base, step_src, 100, sourceWidth, sourceHeight), cudaSuccess);
 
   // 上传数据
   cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width, width, height, cudaMemcpyHostToDevice);
@@ -89,6 +99,8 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
 TEST_F(FilterTest, FilterBox_5x5_EdgeHandling) {
   // 创建一个全白图像
   std::fill(h_src.begin(), h_src.end(), 100);
+
+  ASSERT_EQ(cudaMemset2D(d_src_base, step_src, 100, sourceWidth, sourceHeight), cudaSuccess);
 
   // 上传数据
   cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width, width, height, cudaMemcpyHostToDevice);
@@ -819,9 +831,9 @@ std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int wi
     }
   }
 
-  // Allocate GPU memory for expanded images
+  // Allocate GPU memory for the expanded source and the requested output ROI.
   Npp8u *d_src = (Npp8u *)nppsMalloc_8u(expandedWidth * expandedHeight);
-  Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(expandedWidth * expandedHeight);
+  Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(width * height);
 
   if (!d_src || !d_dst) {
     if (d_src)
@@ -834,13 +846,13 @@ std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int wi
   // Upload expanded input
   cudaMemcpy(d_src, expandedInput.data(), expandedInput.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-  // Execute filter on expanded image
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, expandedWidth * sizeof(Npp8u), d_dst, expandedWidth * sizeof(Npp8u),
-                                          {expandedWidth, expandedHeight}, {maskW, maskH}, {anchorX, anchorY});
+  const Npp8u *d_src_roi = d_src + padTop * expandedWidth + padLeft;
+  NppStatus status = nppiFilterBox_8u_C1R(d_src_roi, expandedWidth * sizeof(Npp8u), d_dst, width * sizeof(Npp8u),
+                                          {width, height}, {maskW, maskH}, {anchorX, anchorY});
 
-  std::vector<uint8_t> expandedOutput(expandedWidth * expandedHeight);
+  std::vector<uint8_t> output(width * height);
   if (status == NPP_SUCCESS) {
-    cudaMemcpy(expandedOutput.data(), d_dst, expandedOutput.size() * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+    cudaMemcpy(output.data(), d_dst, output.size() * sizeof(Npp8u), cudaMemcpyDeviceToHost);
   }
 
   nppiFree(d_src);
@@ -848,16 +860,6 @@ std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int wi
 
   if (status != NPP_SUCCESS) {
     throw std::runtime_error("FilterBox operation failed");
-  }
-
-  // Crop back to original size
-  std::vector<uint8_t> output(width * height);
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      int expandedY = y + padTop;
-      int expandedX = x + padLeft;
-      output[y * width + x] = expandedOutput[expandedY * expandedWidth + expandedX];
-    }
   }
 
   return output;
@@ -886,9 +888,9 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
     }
   }
 
-  // Allocate GPU memory for expanded images
+  // Allocate GPU memory for the expanded source and the requested output ROI.
   Npp32f *d_src = (Npp32f *)nppsMalloc_32f(expandedWidth * expandedHeight);
-  Npp32f *d_dst = (Npp32f *)nppsMalloc_32f(expandedWidth * expandedHeight);
+  Npp32f *d_dst = (Npp32f *)nppsMalloc_32f(width * height);
 
   if (!d_src || !d_dst) {
     if (d_src)
@@ -901,13 +903,13 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
   // Upload expanded input
   cudaMemcpy(d_src, expandedInput.data(), expandedInput.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  // Execute filter on expanded image
-  NppStatus status = nppiFilterBox_32f_C1R(d_src, expandedWidth * sizeof(Npp32f), d_dst, expandedWidth * sizeof(Npp32f),
-                                           {expandedWidth, expandedHeight}, {maskW, maskH}, {anchorX, anchorY});
+  const Npp32f *d_src_roi = d_src + padTop * expandedWidth + padLeft;
+  NppStatus status = nppiFilterBox_32f_C1R(d_src_roi, expandedWidth * sizeof(Npp32f), d_dst, width * sizeof(Npp32f),
+                                           {width, height}, {maskW, maskH}, {anchorX, anchorY});
 
-  std::vector<Npp32f> expandedOutput(expandedWidth * expandedHeight);
+  std::vector<Npp32f> output(width * height);
   if (status == NPP_SUCCESS) {
-    cudaMemcpy(expandedOutput.data(), d_dst, expandedOutput.size() * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+    cudaMemcpy(output.data(), d_dst, output.size() * sizeof(Npp32f), cudaMemcpyDeviceToHost);
   }
 
   nppiFree(d_src);
@@ -915,16 +917,6 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
 
   if (status != NPP_SUCCESS) {
     throw std::runtime_error("FilterBox operation failed");
-  }
-
-  // Crop back to original size
-  std::vector<Npp32f> output(width * height);
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      int expandedY = y + padTop;
-      int expandedX = x + padLeft;
-      output[y * width + x] = expandedOutput[expandedY * expandedWidth + expandedX];
-    }
   }
 
   return output;
@@ -962,7 +954,7 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
   Npp8u *d_src, *d_dst;
   int srcStep, dstStep;
   d_src = nppiMalloc_8u_C4(expandedWidth, expandedHeight, &srcStep);
-  d_dst = nppiMalloc_8u_C4(expandedWidth, expandedHeight, &dstStep);
+  d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
 
   if (!d_src || !d_dst) {
     if (d_src)
@@ -976,14 +968,14 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
   cudaMemcpy2D(d_src, srcStep, expandedInput.data(), expandedWidth * channels, expandedWidth * channels, expandedHeight,
                cudaMemcpyHostToDevice);
 
-  // Execute filter on expanded image
-  NppStatus status = nppiFilterBox_8u_C4R(d_src, srcStep, d_dst, dstStep, {expandedWidth, expandedHeight},
-                                          {maskW, maskH}, {anchorX, anchorY});
+  const Npp8u *d_src_roi =
+      reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(d_src) + padTop * srcStep) + padLeft * channels;
+  NppStatus status =
+      nppiFilterBox_8u_C4R(d_src_roi, srcStep, d_dst, dstStep, {width, height}, {maskW, maskH}, {anchorX, anchorY});
 
-  std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
+  std::vector<Npp8u> output(width * height * channels);
   if (status == NPP_SUCCESS) {
-    cudaMemcpy2D(expandedOutput.data(), expandedWidth * channels, d_dst, dstStep, expandedWidth * channels,
-                 expandedHeight, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(output.data(), width * channels, d_dst, dstStep, width * channels, height, cudaMemcpyDeviceToHost);
   }
 
   nppiFree(d_src);
@@ -991,19 +983,6 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
 
   if (status != NPP_SUCCESS) {
     throw std::runtime_error("FilterBox C4R operation failed");
-  }
-
-  // Crop back to original size
-  std::vector<Npp8u> output(width * height * channels);
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      int expandedY = y + padTop;
-      int expandedX = x + padLeft;
-
-      for (int c = 0; c < channels; c++) {
-        output[(y * width + x) * channels + c] = expandedOutput[(expandedY * expandedWidth + expandedX) * channels + c];
-      }
-    }
   }
 
   return output;
@@ -1495,6 +1474,7 @@ INSTANTIATE_TEST_SUITE_P(ReplicationAnalysis, FilterBoxReplicationTest, ::testin
 // Context version tests for OpenCV compatibility
 TEST_F(FilterTest, FilterBox_8u_C1R_Ctx) {
   std::fill(h_src.begin(), h_src.end(), 100);
+  ASSERT_EQ(cudaMemset2D(d_src_base, step_src, 100, sourceWidth, sourceHeight), cudaSuccess);
 
   cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width, width, height, cudaMemcpyHostToDevice);
   ASSERT_EQ(err, cudaSuccess);
@@ -1522,13 +1502,21 @@ TEST_F(FilterTest, FilterBox_32f_C1R_Ctx) {
   std::vector<Npp32f> h_src_32f(width * height, 0.5f);
   std::vector<Npp32f> h_dst_32f(width * height);
 
-  Npp32f *d_src_32f = nppiMalloc_32f_C1(width, height, &step_src);
-  Npp32f *d_dst_32f = nppiMalloc_32f_C1(width, height, &step_dst);
-  ASSERT_NE(d_src_32f, nullptr);
+  const int halo = 1;
+  const int expandedWidth = width + 2 * halo;
+  const int expandedHeight = height + 2 * halo;
+  int sourceStep = 0;
+  int destinationStep = 0;
+  Npp32f *d_src_32f_base = nppiMalloc_32f_C1(expandedWidth, expandedHeight, &sourceStep);
+  Npp32f *d_src_32f =
+      reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(d_src_32f_base) + halo * sourceStep) + halo;
+  Npp32f *d_dst_32f = nppiMalloc_32f_C1(width, height, &destinationStep);
+  ASSERT_NE(d_src_32f_base, nullptr);
   ASSERT_NE(d_dst_32f, nullptr);
 
-  cudaError_t err = cudaMemcpy2D(d_src_32f, step_src, h_src_32f.data(), width * sizeof(Npp32f), width * sizeof(Npp32f),
-                                 height, cudaMemcpyHostToDevice);
+  std::vector<Npp32f> expandedSource(static_cast<size_t>(expandedWidth) * expandedHeight, 0.5f);
+  cudaError_t err = cudaMemcpy2D(d_src_32f_base, sourceStep, expandedSource.data(), expandedWidth * sizeof(Npp32f),
+                                 expandedWidth * sizeof(Npp32f), expandedHeight, cudaMemcpyHostToDevice);
   ASSERT_EQ(err, cudaSuccess);
 
   NppiSize maskSize = {3, 3};
@@ -1538,11 +1526,11 @@ TEST_F(FilterTest, FilterBox_32f_C1R_Ctx) {
   nppStreamCtx.hStream = 0;
 
   NppStatus status =
-      nppiFilterBox_32f_C1R_Ctx(d_src_32f, step_src, d_dst_32f, step_dst, size, maskSize, anchor, nppStreamCtx);
+      nppiFilterBox_32f_C1R_Ctx(d_src_32f, sourceStep, d_dst_32f, destinationStep, size, maskSize, anchor, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
-  err = cudaMemcpy2D(h_dst_32f.data(), width * sizeof(Npp32f), d_dst_32f, step_dst, width * sizeof(Npp32f), height,
-                     cudaMemcpyDeviceToHost);
+  err = cudaMemcpy2D(h_dst_32f.data(), width * sizeof(Npp32f), d_dst_32f, destinationStep, width * sizeof(Npp32f),
+                     height, cudaMemcpyDeviceToHost);
   ASSERT_EQ(err, cudaSuccess);
 
   for (int y = 1; y < height - 1; y++) {
@@ -1551,7 +1539,7 @@ TEST_F(FilterTest, FilterBox_32f_C1R_Ctx) {
     }
   }
 
-  nppiFree(d_src_32f);
+  nppiFree(d_src_32f_base);
   nppiFree(d_dst_32f);
 }
 
@@ -1563,10 +1551,14 @@ protected:
     size.width = width;
     size.height = height;
 
-    d_src = nppiMalloc_8u_C4(width, height, &step_src);
+    sourceHalo = 1;
+    sourceWidth = width + 2 * sourceHalo;
+    sourceHeight = height + 2 * sourceHalo;
+    d_src_base = nppiMalloc_8u_C4(sourceWidth, sourceHeight, &step_src);
+    d_src = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(d_src_base) + sourceHalo * step_src) + sourceHalo * 4;
     d_dst = nppiMalloc_8u_C4(width, height, &step_dst);
 
-    ASSERT_NE(d_src, nullptr);
+    ASSERT_NE(d_src_base, nullptr);
     ASSERT_NE(d_dst, nullptr);
 
     h_src.resize(width * height * 4);
@@ -1574,21 +1566,23 @@ protected:
   }
 
   void TearDown() override {
-    if (d_src)
-      nppiFree(d_src);
+    if (d_src_base)
+      nppiFree(d_src_base);
     if (d_dst)
       nppiFree(d_dst);
   }
 
   int width, height;
+  int sourceHalo, sourceWidth, sourceHeight;
   int step_src, step_dst;
   NppiSize size;
-  Npp8u *d_src, *d_dst;
+  Npp8u *d_src_base, *d_src, *d_dst;
   std::vector<Npp8u> h_src, h_dst;
 };
 
 TEST_F(FilterTestC4, FilterBox_8u_C4R_Ctx) {
   std::fill(h_src.begin(), h_src.end(), 100);
+  ASSERT_EQ(cudaMemset2D(d_src_base, step_src, 100, sourceWidth * 4, sourceHeight), cudaSuccess);
 
   cudaError_t err = cudaMemcpy2D(d_src, step_src, h_src.data(), width * 4, width * 4, height, cudaMemcpyHostToDevice);
   ASSERT_EQ(err, cudaSuccess);

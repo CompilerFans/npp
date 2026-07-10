@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 static NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
+static cudaStream_t g_nppStream = nullptr;
 
 const NppLibraryVersion *nppGetLibVersion(void) { return &g_nppLibVersion; }
 
@@ -94,23 +95,10 @@ const char *nppGetGpuName(void) {
   return deviceName;
 }
 
-cudaStream_t nppGetStream(void) {
-  // Return the default stream (0)
-  // In a real application, the user should manage their own streams
-  return cudaStreamLegacy; // Use legacy default stream for compatibility
-}
+cudaStream_t nppGetStream(void) { return g_nppStream; }
 
 NppStatus nppSetStream(cudaStream_t hStream) {
-  // This function exists for API compatibility
-  // Users should use Runtime API directly to manage streams
-
-  // Special handling for known stream values
-  if (hStream == nullptr || hStream == cudaStreamLegacy || hStream == cudaStreamPerThread) {
-    return NPP_NO_ERROR;
-  }
-
-  // For other streams, we can't safely validate without potential segfault
-  // Just accept them - the actual GPU calls will fail if invalid
+  g_nppStream = hStream;
   return NPP_NO_ERROR;
 }
 
@@ -133,9 +121,8 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Fill stream context
-  // Use the default stream (user should manage their own streams)
-  pNppStreamContext->hStream = (cudaStream_t)0; // Default stream is 0
+  // Fill stream context using the current NPP-managed stream.
+  pNppStreamContext->hStream = g_nppStream;
   pNppStreamContext->nCudaDeviceId = deviceId;
   pNppStreamContext->nMultiProcessorCount = prop.multiProcessorCount;
   pNppStreamContext->nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
@@ -146,10 +133,13 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
   pNppStreamContext->nCudaDevAttrComputeCapabilityMajor = prop.major;
   pNppStreamContext->nCudaDevAttrComputeCapabilityMinor = prop.minor;
 
-  // Get stream flags for default stream
-  // Default stream (0) doesn't support cudaStreamGetFlags in some GPU versions
-  // Set to default blocking stream flags
   pNppStreamContext->nStreamFlags = cudaStreamDefault;
+  if (g_nppStream != nullptr && g_nppStream != cudaStreamLegacy && g_nppStream != cudaStreamPerThread) {
+    result = cudaStreamGetFlags(g_nppStream, &pNppStreamContext->nStreamFlags);
+    if (result != cudaSuccess) {
+      return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+  }
 
   // Reserved field
   pNppStreamContext->nReserved0 = 0;
@@ -194,6 +184,7 @@ NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
     }
   }
 
+  g_nppStream = nppStreamContext.hStream;
   return NPP_NO_ERROR;
 }
 

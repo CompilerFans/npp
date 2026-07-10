@@ -2,248 +2,86 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-#ifndef MPP_FILTERBOX_ZERO_PADDING
-#define MPP_FILTERBOX_ZERO_PADDING
-#endif
-// Define boundary handling mode
-// MPP_FILTERBOX_ZERO_PADDING: Use zero padding for out-of-bounds pixels
-// If not defined, assumes valid data exists outside boundaries
-// #define MPP_FILTERBOX_ZERO_PADDING
+template <typename T> struct FilterBoxAccumulator {
+  using Type = long long;
+};
+template <> struct FilterBoxAccumulator<Npp32f> {
+  using Type = double;
+};
+template <> struct FilterBoxAccumulator<Npp64f> {
+  using Type = double;
+};
 
-// IMPLEMENTATION NOTE:
-// This filter box implementation supports two boundary handling modes:
-//
-// 1. Zero Padding Mode (MPP_FILTERBOX_ZERO_PADDING defined):
-//    - Out-of-bounds pixels are treated as zeros
-//    - Safe for processing images without surrounding context
-//    - Slightly slower due to boundary checks
-//
-// 2. Direct Access Mode (default):
-//    - Assumes valid data exists outside the ROI boundaries
-//    - No bounds checking is performed
-//    - Faster but requires sufficient buffer around ROI
-//    - Suitable for processing sub-regions of larger images
-
-// Box filter kernel implementation with configurable boundary handling
-__global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
-                                                 int anchorY) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    // Compute filter coverage area
-    int startX = x - anchorX;
-    int startY = y - anchorY;
-    int endX = startX + maskWidth;
-    int endY = startY + maskHeight;
-
-    int sum = 0;
-    int totalMaskPixels = maskWidth * maskHeight;
-
-    for (int j = startY; j < endY; j++) {
-      for (int i = startX; i < endX; i++) {
-#ifdef MPP_FILTERBOX_ZERO_PADDING
-        // Check bounds and use zero for out-of-bounds pixels
-        if (i >= 0 && i < width && j >= 0 && j < height) {
-          const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
-          sum += pSrcRow[i];
-        }
-        // else: pixel is out of bounds, implicitly add 0
-#else
-        // Direct access without bounds checking
-        const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
-        sum += pSrcRow[i];
-#endif
-      }
-    }
-
-    // Compute average using total mask size with truncation (toward zero)
-    Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-    pDstRow[x] = sum / totalMaskPixels; // Integer division (truncation)
-  }
-}
-
-__global__ void nppiFilterBox_8u_C3R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
-                                                 int anchorY) {
+template <typename T>
+__global__ void nppiFilterBox_CxR_kernel_impl(const T *pSrc, Npp32s nSrcStep, T *pDst, Npp32s nDstStep, int width,
+                                              int height, int maskWidth, int maskHeight, int anchorX, int anchorY,
+                                              int channels, int filteredChannels) {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= width || y >= height) {
     return;
   }
-  int sums[3] = {0, 0, 0};
+  using Accumulator = typename FilterBoxAccumulator<T>::Type;
+  Accumulator sums[4] = {0, 0, 0, 0};
   for (int maskY = 0; maskY < maskHeight; ++maskY) {
     const int sourceY = y + maskY - anchorY;
     for (int maskX = 0; maskX < maskWidth; ++maskX) {
       const int sourceX = x + maskX - anchorX;
-      if (sourceX >= 0 && sourceX < width && sourceY >= 0 && sourceY < height) {
-        const Npp8u *sourceRow =
-            reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pSrc) + sourceY * nSrcStep);
-        for (int channel = 0; channel < 3; ++channel) {
-          sums[channel] += sourceRow[sourceX * 3 + channel];
-        }
+      const T *sourceRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + sourceY * nSrcStep);
+      for (int channel = 0; channel < filteredChannels; ++channel) {
+        sums[channel] += static_cast<Accumulator>(sourceRow[sourceX * channels + channel]);
       }
     }
   }
-  Npp8u *destinationRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
-  const int divisor = maskWidth * maskHeight;
-  for (int channel = 0; channel < 3; ++channel) {
-    destinationRow[x * 3 + channel] = static_cast<Npp8u>(sums[channel] / divisor);
+  T *destinationRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
+  const Accumulator divisor = static_cast<Accumulator>(maskWidth) * maskHeight;
+  for (int channel = 0; channel < filteredChannels; ++channel) {
+    destinationRow[x * channels + channel] = static_cast<T>(sums[channel] / divisor);
   }
 }
 
-// Box filter kernel for 4-channel 8-bit unsigned with configurable boundary handling
-__global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
-                                                 int anchorY) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    // Calculate filter coverage area
-    int startX = x - anchorX;
-    int startY = y - anchorY;
-    int endX = startX + maskWidth;
-    int endY = startY + maskHeight;
-
-    int sum[4] = {0, 0, 0, 0};
-    int totalMaskPixels = maskWidth * maskHeight;
-
-    for (int j = startY; j < endY; j++) {
-      for (int i = startX; i < endX; i++) {
-#ifdef MPP_FILTERBOX_ZERO_PADDING
-        // Check bounds and use zero for out-of-bounds pixels
-        if (i >= 0 && i < width && j >= 0 && j < height) {
-          const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
-          for (int c = 0; c < 4; c++) {
-            sum[c] += pSrcRow[i * 4 + c];
-          }
-        }
-        // else: pixel is out of bounds, implicitly add 0
-#else
-        // Direct access without bounds checking
-        const Npp8u *pSrcRow = (const Npp8u *)((const char *)pSrc + j * nSrcStep);
-        for (int c = 0; c < 4; c++) {
-          sum[c] += pSrcRow[i * 4 + c];
-        }
-#endif
-      }
-    }
-
-    // Calculate average using total mask size with truncation (toward zero)
-    Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
-    for (int c = 0; c < 4; c++) {
-      pDstRow[x * 4 + c] = sum[c] / totalMaskPixels; // Integer division (truncation)
-    }
-  }
-}
-
-// Box filter kernel for single-channel 32-bit float with configurable boundary handling
-__global__ void nppiFilterBox_32f_C1R_kernel_impl(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
-                                                  int anchorY) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (x < width && y < height) {
-    // Calculate filter coverage area
-    int startX = x - anchorX;
-    int startY = y - anchorY;
-    int endX = startX + maskWidth;
-    int endY = startY + maskHeight;
-
-    float sum = 0.0f;
-    int totalMaskPixels = maskWidth * maskHeight;
-
-    for (int j = startY; j < endY; j++) {
-      for (int i = startX; i < endX; i++) {
-#ifdef MPP_FILTERBOX_ZERO_PADDING
-        // Check bounds and use zero for out-of-bounds pixels
-        if (i >= 0 && i < width && j >= 0 && j < height) {
-          const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + j * nSrcStep);
-          sum += pSrcRow[i];
-        }
-        // else: pixel is out of bounds, implicitly add 0.0f
-#else
-        // Direct access without bounds checking
-        const Npp32f *pSrcRow = (const Npp32f *)((const char *)pSrc + j * nSrcStep);
-        sum += pSrcRow[i];
-#endif
-      }
-    }
-
-    // Calculate average using total mask size
-    Npp32f *pDstRow = (Npp32f *)((char *)pDst + y * nDstStep);
-    pDstRow[x] = sum / totalMaskPixels;
-  }
-}
-
-extern "C" {
-cudaError_t nppiFilterBox_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiFilterBox_8u_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                       oSizeROI.height, oMaskSize.width,
-                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
-
-  cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    if (stream == 0) {
-      cudaDeviceSynchronize();
-    }
-  }
-  return err;
-}
-
-cudaError_t nppiFilterBox_8u_C3R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
-                                        cudaStream_t stream) {
+template <typename T>
+cudaError_t launchFilterBoxCxR(const T *pSrc, Npp32s nSrcStep, T *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                               NppiSize oMaskSize, NppiPoint oAnchor, int channels, int filteredChannels,
+                               cudaStream_t stream) {
   const dim3 blockSize(16, 16);
   const dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
                       (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-  nppiFilterBox_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
+  nppiFilterBox_CxR_kernel_impl<T><<<gridSize, blockSize, 0, stream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, oMaskSize.width, oMaskSize.height, oAnchor.x,
-      oAnchor.y);
+      oAnchor.y, channels, filteredChannels);
   return cudaGetLastError();
 }
 
-cudaError_t nppiFilterBox_8u_C4R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, cudaStream_t stream) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiFilterBox_8u_C4R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                       oSizeROI.height, oMaskSize.width,
-                                                                       oMaskSize.height, oAnchor.x, oAnchor.y);
-
-  cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    if (stream == 0) {
-      cudaDeviceSynchronize();
-    }
-  }
-  return err;
+extern "C" {
+cudaError_t nppiFilterBox_8u_CxR_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, int nChannels,
+                                        int nFilteredChannels, cudaStream_t stream) {
+  return launchFilterBoxCxR(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nChannels,
+                            nFilteredChannels, stream);
 }
-
-cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
-                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
-                                         cudaStream_t stream) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-
-  nppiFilterBox_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                        oSizeROI.height, oMaskSize.width,
-                                                                        oMaskSize.height, oAnchor.x, oAnchor.y);
-
-  cudaError_t err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    if (stream == 0) {
-      cudaDeviceSynchronize();
-    }
-  }
-  return err;
+cudaError_t nppiFilterBox_16u_CxR_kernel(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep,
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, int nChannels,
+                                         int nFilteredChannels, cudaStream_t stream) {
+  return launchFilterBoxCxR(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nChannels,
+                            nFilteredChannels, stream);
+}
+cudaError_t nppiFilterBox_16s_CxR_kernel(const Npp16s *pSrc, Npp32s nSrcStep, Npp16s *pDst, Npp32s nDstStep,
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, int nChannels,
+                                         int nFilteredChannels, cudaStream_t stream) {
+  return launchFilterBoxCxR(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nChannels,
+                            nFilteredChannels, stream);
+}
+cudaError_t nppiFilterBox_32f_CxR_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, int nChannels,
+                                         int nFilteredChannels, cudaStream_t stream) {
+  return launchFilterBoxCxR(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nChannels,
+                            nFilteredChannels, stream);
+}
+cudaError_t nppiFilterBox_64f_CxR_kernel(const Npp64f *pSrc, Npp32s nSrcStep, Npp64f *pDst, Npp32s nDstStep,
+                                         NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor, int nChannels,
+                                         int nFilteredChannels, cudaStream_t stream) {
+  return launchFilterBoxCxR(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nChannels,
+                            nFilteredChannels, stream);
 }
 }
