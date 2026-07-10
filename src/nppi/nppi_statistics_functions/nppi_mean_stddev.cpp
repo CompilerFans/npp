@@ -10,6 +10,8 @@ cudaError_t nppiMean_StdDev_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiS
                                           Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream);
 cudaError_t nppiMean_StdDev_32f_C1R_kernel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
                                            Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream);
+cudaError_t nppiMean_StdDev_8u_C3CR_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int nCOI,
+                                           Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream);
 
 // Masked versions
 cudaError_t nppiMean_StdDev_8u_C1MR_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
@@ -18,7 +20,27 @@ cudaError_t nppiMean_StdDev_8u_C1MR_kernel(const Npp8u *pSrc, int nSrcStep, cons
 cudaError_t nppiMean_StdDev_32f_C1MR_kernel(const Npp32f *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
                                             NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev,
                                             cudaStream_t stream);
+cudaError_t nppiMean_StdDev_8u_C3CMR_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                            NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                                            Npp64f *pStdDev, cudaStream_t stream);
 }
+
+namespace {
+
+NppStatus meanStdDevBufferSize(NppiSize roi, size_t arraysPerBlock, size_t *bufferSize) {
+  if (!bufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (roi.width <= 0 || roi.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  const size_t pixels = static_cast<size_t>(roi.width) * static_cast<size_t>(roi.height);
+  const size_t blocks = (pixels + 255) / 256;
+  *bufferSize = blocks * arraysPerBlock * sizeof(double);
+  return NPP_SUCCESS;
+}
+
+} // namespace
 
 // ============ cuda 12.8 ===================
 // Buffer size calculation for 8u single channel
@@ -76,6 +98,26 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, size_t *hpB
   return nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CR_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
+                                                      NppStreamContext /*nppStreamCtx*/) {
+  return meanStdDevBufferSize(oSizeROI, 2, hpBufferSize);
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CR(NppiSize oSizeROI, size_t *hpBufferSize) {
+  NppStreamContext ctx{};
+  return nppiMeanStdDevGetBufferHostSize_8u_C3CR_Ctx(oSizeROI, hpBufferSize, ctx);
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CMR_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
+                                                       NppStreamContext /*nppStreamCtx*/) {
+  return meanStdDevBufferSize(oSizeROI, 3, hpBufferSize);
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CMR(NppiSize oSizeROI, size_t *hpBufferSize) {
+  NppStreamContext ctx{};
+  return nppiMeanStdDevGetBufferHostSize_8u_C3CMR_Ctx(oSizeROI, hpBufferSize, ctx);
+}
+
 // ================== below 12.8 ============================
 // Buffer size calculation for 8u single channel
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
@@ -107,6 +149,56 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, int *hpBuff
   auto ret = nppiMeanStdDevGetBufferHostSize_32f_C1R(oSizeROI, &size);
   *hpBufferSize = static_cast<int>(size);
   return ret;
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CR_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+                                                      NppStreamContext nppStreamCtx) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  size_t size = 0;
+  const NppStatus status = nppiMeanStdDevGetBufferHostSize_8u_C3CR_Ctx(oSizeROI, &size, nppStreamCtx);
+  if (status == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<int>(size);
+  }
+  return status;
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CR(NppiSize oSizeROI, int *hpBufferSize) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  size_t size = 0;
+  const NppStatus status = nppiMeanStdDevGetBufferHostSize_8u_C3CR(oSizeROI, &size);
+  if (status == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<int>(size);
+  }
+  return status;
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CMR_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  size_t size = 0;
+  const NppStatus status = nppiMeanStdDevGetBufferHostSize_8u_C3CMR_Ctx(oSizeROI, &size, nppStreamCtx);
+  if (status == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<int>(size);
+  }
+  return status;
+}
+
+NppStatus nppiMeanStdDevGetBufferHostSize_8u_C3CMR(NppiSize oSizeROI, int *hpBufferSize) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  size_t size = 0;
+  const NppStatus status = nppiMeanStdDevGetBufferHostSize_8u_C3CMR(oSizeROI, &size);
+  if (status == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<int>(size);
+  }
+  return status;
 }
 // ==========================
 
@@ -164,6 +256,32 @@ NppStatus nppiMean_StdDev_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize oSi
   NppStreamContext ctx;
   ctx.hStream = 0; // Default stream
   return nppiMean_StdDev_32f_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
+}
+
+NppStatus nppiMean_StdDev_8u_C3CR_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int nCOI,
+                                      Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev,
+                                      NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pDeviceBuffer || !pMean || !pStdDev) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
+  }
+  if (nCOI < 1 || nCOI > 3) {
+    return NPP_COI_ERROR;
+  }
+  const cudaError_t status = nppiMean_StdDev_8u_C3CR_kernel(pSrc, nSrcStep, oSizeROI, nCOI, pDeviceBuffer, pMean,
+                                                            pStdDev, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiMean_StdDev_8u_C3CR(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int nCOI,
+                                  Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
+  NppStreamContext ctx{};
+  return nppiMean_StdDev_8u_C3CR_Ctx(pSrc, nSrcStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev, ctx);
 }
 
 // ============ MASKED VERSIONS C1MR ===================
@@ -312,4 +430,32 @@ NppStatus nppiMean_StdDev_32f_C1MR(const Npp32f *pSrc, int nSrcStep, const Npp8u
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiMean_StdDev_32f_C1MR_Ctx(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
+}
+
+NppStatus nppiMean_StdDev_8u_C3CMR_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                       NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                                       Npp64f *pStdDev, NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pMask || !pDeviceBuffer || !pMean || !pStdDev) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < oSizeROI.width * 3 || nMaskStep < oSizeROI.width) {
+    return NPP_STEP_ERROR;
+  }
+  if (nCOI < 1 || nCOI > 3) {
+    return NPP_COI_ERROR;
+  }
+  const cudaError_t status = nppiMean_StdDev_8u_C3CMR_kernel(
+      pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiMean_StdDev_8u_C3CMR(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                   NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                                   Npp64f *pStdDev) {
+  NppStreamContext ctx{};
+  return nppiMean_StdDev_8u_C3CMR_Ctx(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev,
+                                      ctx);
 }
