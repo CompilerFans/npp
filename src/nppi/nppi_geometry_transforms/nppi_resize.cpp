@@ -15,6 +15,10 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
 NppStatus nppiResize_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                             NppiRect oSrcROI, Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                             double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                             int eInterpolation, NppStreamContext nppStreamCtx);
 NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
@@ -141,6 +145,44 @@ NppStatus nppiResize_8u_C4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, 
   nppStreamCtx.hStream = 0;
   return nppiResize_8u_C4R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                        Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
+                                        double nYFactor, double nXShift, double nYShift, int eInterpolation,
+                                        NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSrcSize.width < 2 || oSrcSize.height < 2 || oSrcROI.width <= 0 || oSrcROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (oDstROI.width <= 0 || oDstROI.height <= 0) {
+    return NPP_RESIZE_NO_OPERATION_ERROR;
+  }
+  if (nSrcStep < oSrcSize.width * 4 || nDstStep < (oDstROI.x + oDstROI.width) * 4) {
+    return NPP_STEP_ERROR;
+  }
+  if (oSrcROI.x < 0 || oSrcROI.y < 0 || oSrcROI.x + oSrcROI.width > oSrcSize.width ||
+      oSrcROI.y + oSrcROI.height > oSrcSize.height || oDstROI.x < 0 || oDstROI.y < 0) {
+    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  }
+  if (nXFactor <= 0.0 || nYFactor <= 0.0) {
+    return NPP_RESIZE_FACTOR_ERROR;
+  }
+  if (eInterpolation != NPPI_INTER_NN && eInterpolation != NPPI_INTER_LINEAR) {
+    return NPP_INTERPOLATION_ERROR;
+  }
+  return nppiResizeSqrPixel_8u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                            nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                    Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor, double nYFactor,
+                                    double nXShift, double nYShift, int eInterpolation) {
+  NppStreamContext context{};
+  return nppiResizeSqrPixel_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor,
+                                       nYFactor, nXShift, nYShift, eInterpolation, context);
 }
 
 // 16-bit unsigned single channel resize

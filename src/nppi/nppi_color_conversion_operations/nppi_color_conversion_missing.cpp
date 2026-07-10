@@ -1,5 +1,33 @@
 // Auto-generated stubs for missing nppi_color_conversion.h APIs
 #include "npp.h"
+#include <cuda_runtime.h>
+
+extern "C" {
+cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
+                                             int nSrcUVStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstU,
+                                             int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
+                                             cudaStream_t stream);
+cudaError_t nppiYUV420ToNV12_8u_P3P2R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU, int nSrcUStep,
+                                             const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstY, int nDstYStep,
+                                             Npp8u *pDstUV, int nDstUVStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiYCbCr420ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCb,
+                                              int nSrcCbStep, const Npp8u *pSrcCr, int nSrcCrStep, Npp8u *pDst,
+                                              int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+}
+
+namespace {
+
+NppStatus validate420Roi(NppiSize roi) {
+  if (roi.width <= 0 || roi.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if ((roi.width & 1) != 0 || (roi.height & 1) != 0) {
+    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  }
+  return NPP_SUCCESS;
+}
+
+} // namespace
 
 NppStatus nppiAlphaCompColorKey_8u_AC4R(const Npp8u * pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u * pSrc2, int nSrc2Step, Npp8u nAlpha2, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4], NppiAlphaOp nppAlphaOp) {
   (void)pSrc1;
@@ -5401,22 +5429,26 @@ NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], in
 }
 
 NppStatus nppiYCbCr420ToBGR_8u_P3C3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
+  NppStreamContext context{};
+  return nppiYCbCr420ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, context);
 }
 
 NppStatus nppiYCbCr420ToBGR_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
+  if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !rSrcStep || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  const NppStatus roiStatus = validate420Roi(oSizeROI);
+  if (roiStatus != NPP_SUCCESS) {
+    return roiStatus;
+  }
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
+      rSrcStep[2] < oSizeROI.width / 2 || nDstStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
+  }
+  const cudaError_t status = nppiYCbCr420ToBGR_8u_P3C3R_kernel(
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI,
+      nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiYCbCr420ToBGR_8u_P3C4R(const Npp8u * const pSrc[3], int rSrcStep[3],Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
@@ -5708,49 +5740,49 @@ NppStatus nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep
 }
 
 NppStatus nppiYCbCr420_8u_P2P3R(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrcY;
-  (void)nSrcYStep;
-  (void)pSrcCbCr;
-  (void)nSrcCbCrStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
+  NppStreamContext context{};
+  return nppiYCbCr420_8u_P2P3R_Ctx(pSrcY, nSrcYStep, pSrcCbCr, nSrcCbCrStep, pDst, rDstStep, oSizeROI, context);
 }
 
 NppStatus nppiYCbCr420_8u_P2P3R_Ctx(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcY;
-  (void)nSrcYStep;
-  (void)pSrcCbCr;
-  (void)nSrcCbCrStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
+  if (!pSrcY || !pSrcCbCr || !pDst || !pDst[0] || !pDst[1] || !pDst[2] || !rDstStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  const NppStatus roiStatus = validate420Roi(oSizeROI);
+  if (roiStatus != NPP_SUCCESS) {
+    return roiStatus;
+  }
+  if (nSrcYStep < oSizeROI.width || nSrcCbCrStep < oSizeROI.width || rDstStep[0] < oSizeROI.width ||
+      rDstStep[1] < oSizeROI.width / 2 || rDstStep[2] < oSizeROI.width / 2) {
+    return NPP_STEP_ERROR;
+  }
+  const cudaError_t status = nppiNV12ToYUV420_8u_P2P3R_kernel(
+      pSrcY, nSrcYStep, pSrcCbCr, nSrcCbCrStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1], pDst[2], rDstStep[2],
+      oSizeROI, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
+  NppStreamContext context{};
+  return nppiYCbCr420_8u_P3P2R_Ctx(pSrc, rSrcStep, pDstY, nDstYStep, pDstCbCr, nDstCbCrStep, oSizeROI, context);
 }
 
 NppStatus nppiYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
+  if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !rSrcStep || !pDstY || !pDstCbCr) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  const NppStatus roiStatus = validate420Roi(oSizeROI);
+  if (roiStatus != NPP_SUCCESS) {
+    return roiStatus;
+  }
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
+      rSrcStep[2] < oSizeROI.width / 2 || nDstYStep < oSizeROI.width || nDstCbCrStep < oSizeROI.width) {
+    return NPP_STEP_ERROR;
+  }
+  const cudaError_t status = nppiYUV420ToNV12_8u_P3P2R_kernel(
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDstY, nDstYStep, pDstCbCr,
+      nDstCbCrStep, oSizeROI, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {

@@ -23,6 +23,11 @@ cudaError_t nppiMean_StdDev_32f_C1MR_kernel(const Npp32f *pSrc, int nSrcStep, co
 cudaError_t nppiMean_StdDev_8u_C3CMR_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
                                             NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
                                             Npp64f *pStdDev, cudaStream_t stream);
+cudaError_t nppiMean_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                                   Npp64f *pMean, cudaStream_t stream);
+cudaError_t nppiAverageError_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                           NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer,
+                                           cudaStream_t stream);
 }
 
 namespace {
@@ -41,6 +46,87 @@ NppStatus meanStdDevBufferSize(NppiSize roi, size_t arraysPerBlock, size_t *buff
 }
 
 } // namespace
+
+NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+                                                NppStreamContext /*nppStreamCtx*/) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  size_t size = 0;
+  const NppStatus status = meanStdDevBufferSize(oSizeROI, 1, &size);
+  if (status == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<int>(size);
+  }
+  return status;
+}
+
+NppStatus nppiMeanGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, context);
+}
+
+NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
+                                                        NppStreamContext /*nppStreamCtx*/) {
+  if (!hpBufferSize) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  size_t size = 0;
+  const NppStatus status = meanStdDevBufferSize(oSizeROI, 1, &size);
+  if (status == NPP_SUCCESS) {
+    *hpBufferSize = static_cast<int>(size);
+  }
+  return status;
+}
+
+NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
+  NppStreamContext context{};
+  return nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, context);
+}
+
+NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                              Npp64f *pMean, NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pDeviceBuffer || !pMean) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < oSizeROI.width) {
+    return NPP_STEP_ERROR;
+  }
+  const cudaError_t status =
+      nppiMean_8u_C1R_kernel(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiMean_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
+                          Npp64f *pMean) {
+  NppStreamContext context{};
+  return nppiMean_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, context);
+}
+
+NppStatus nppiAverageError_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                      NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer,
+                                      NppStreamContext nppStreamCtx) {
+  if (!pSrc1 || !pSrc2 || !pError || !pDeviceBuffer) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrc1Step < oSizeROI.width || nSrc2Step < oSizeROI.width) {
+    return NPP_STEP_ERROR;
+  }
+  const cudaError_t status = nppiAverageError_8u_C1R_kernel(
+      pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError, pDeviceBuffer, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+NppStatus nppiAverageError_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
+                                  NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer) {
+  NppStreamContext context{};
+  return nppiAverageError_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError, pDeviceBuffer, context);
+}
 
 // ============ cuda 12.8 ===================
 // Buffer size calculation for 8u single channel

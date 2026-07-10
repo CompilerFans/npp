@@ -9,6 +9,8 @@ NppStatus nppiConvert_8u32f_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
                                          NppStreamContext nppStreamCtx);
 NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx);
+NppStatus nppiConvert_8u32f_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx);
 NppStatus nppiConvert_8u16u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                          NppStreamContext nppStreamCtx);
 NppStatus nppiConvert_32f8u_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -60,6 +62,26 @@ NppStatus nppiConvert_8u32f_C3R(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, i
   nppGetStreamContext(&nppStreamCtx);
 
   return nppiConvert_8u32f_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiConvert_8u32f_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    NppStreamContext nppStreamCtx) {
+  if (!pSrc || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < oSizeROI.width * 4 || nDstStep < static_cast<int>(oSizeROI.width * 4 * sizeof(Npp32f))) {
+    return NPP_STEP_ERROR;
+  }
+  return nppiConvert_8u32f_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
+}
+
+NppStatus nppiConvert_8u32f_C4R(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI) {
+  NppStreamContext context{};
+  nppGetStreamContext(&context);
+  return nppiConvert_8u32f_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, context);
 }
 
 NppStatus nppiConvert_8u16u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,

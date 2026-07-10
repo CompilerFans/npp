@@ -64,6 +64,35 @@ __global__ void nppiFilterBox_8u_C1R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcS
   }
 }
 
+__global__ void nppiFilterBox_8u_C3R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
+                                                 int width, int height, int maskWidth, int maskHeight, int anchorX,
+                                                 int anchorY) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
+    return;
+  }
+  int sums[3] = {0, 0, 0};
+  for (int maskY = 0; maskY < maskHeight; ++maskY) {
+    const int sourceY = y + maskY - anchorY;
+    for (int maskX = 0; maskX < maskWidth; ++maskX) {
+      const int sourceX = x + maskX - anchorX;
+      if (sourceX >= 0 && sourceX < width && sourceY >= 0 && sourceY < height) {
+        const Npp8u *sourceRow =
+            reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pSrc) + sourceY * nSrcStep);
+        for (int channel = 0; channel < 3; ++channel) {
+          sums[channel] += sourceRow[sourceX * 3 + channel];
+        }
+      }
+    }
+  }
+  Npp8u *destinationRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
+  const int divisor = maskWidth * maskHeight;
+  for (int channel = 0; channel < 3; ++channel) {
+    destinationRow[x * 3 + channel] = static_cast<Npp8u>(sums[channel] / divisor);
+  }
+}
+
 // Box filter kernel for 4-channel 8-bit unsigned with configurable boundary handling
 __global__ void nppiFilterBox_8u_C4R_kernel_impl(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
                                                  int width, int height, int maskWidth, int maskHeight, int anchorX,
@@ -167,6 +196,18 @@ cudaError_t nppiFilterBox_8u_C1R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8
     }
   }
   return err;
+}
+
+cudaError_t nppiFilterBox_8u_C3R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
+                                        NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
+                                        cudaStream_t stream) {
+  const dim3 blockSize(16, 16);
+  const dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
+                      (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  nppiFilterBox_8u_C3R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, oMaskSize.width, oMaskSize.height, oAnchor.x,
+      oAnchor.y);
+  return cudaGetLastError();
 }
 
 cudaError_t nppiFilterBox_8u_C4R_kernel(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,

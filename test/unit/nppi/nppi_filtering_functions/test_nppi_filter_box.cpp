@@ -1613,3 +1613,40 @@ TEST_F(FilterTestC4, FilterBox_8u_C4R_Ctx) {
     }
   }
 }
+
+TEST(FilterBox8uC3RTest, OneByOneMaskAndCtx) {
+  const int width = 13;
+  const int height = 7;
+  const int rowBytes = width * 3;
+  std::vector<Npp8u> source(static_cast<size_t>(rowBytes) * height);
+  for (size_t i = 0; i < source.size(); ++i) {
+    source[i] = static_cast<Npp8u>((i * 11 + 3) % 256);
+  }
+  Npp8u *deviceSource = nullptr;
+  Npp8u *deviceDestination = nullptr;
+  ASSERT_EQ(cudaMalloc(&deviceSource, source.size()), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&deviceDestination, source.size()), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(deviceSource, source.data(), source.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  const NppiSize roi{width, height};
+  const NppiSize mask{1, 1};
+  const NppiPoint anchor{0, 0};
+  ASSERT_EQ(nppiFilterBox_8u_C3R(deviceSource, rowBytes, deviceDestination, rowBytes, roi, mask, anchor),
+            NPP_SUCCESS);
+  std::vector<Npp8u> destination(source.size());
+  ASSERT_EQ(cudaMemcpy(destination.data(), deviceDestination, destination.size(), cudaMemcpyDeviceToHost),
+            cudaSuccess);
+  EXPECT_EQ(destination, source);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  EXPECT_EQ(nppiFilterBox_8u_C3R_Ctx(deviceSource, rowBytes, deviceDestination, rowBytes, roi, mask, anchor, context),
+            NPP_SUCCESS);
+  EXPECT_EQ(nppiFilterBox_8u_C3R(nullptr, rowBytes, deviceDestination, rowBytes, roi, mask, anchor),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiFilterBox_8u_C3R(deviceSource, rowBytes - 1, deviceDestination, rowBytes, roi, mask, anchor),
+            NPP_STEP_ERROR);
+
+  cudaFree(deviceSource);
+  cudaFree(deviceDestination);
+}

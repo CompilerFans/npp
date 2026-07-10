@@ -294,12 +294,57 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C4R_NearestNeighbor) {
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
   ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                              NPPI_INTER_NN),
+                             NPPI_INTER_NN),
+            NPP_SUCCESS);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  ASSERT_EQ(nppiResize_8u_C4R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                 NPPI_INTER_NN, context),
             NPP_SUCCESS);
 
   std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
   dst.copyToHost(dstData);
   validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C4 resize");
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_IdentityAndCtx) {
+  const int width = 5;
+  const int height = 4;
+  std::vector<Npp8u> sourceData(static_cast<size_t>(width) * height * 4);
+  for (size_t i = 0; i < sourceData.size(); ++i) {
+    sourceData[i] = static_cast<Npp8u>((i * 17 + 9) % 256);
+  }
+
+  NppImageMemory<Npp8u> source(width, height, 4);
+  NppImageMemory<Npp8u> destination(width, height, 4);
+  source.copyFromHost(sourceData);
+  const NppiSize sourceSize{width, height};
+  const NppiRect sourceRoi{0, 0, width, height};
+  const NppiRect destinationRoi{0, 0, width, height};
+
+  ASSERT_EQ(nppiResizeSqrPixel_8u_C4R(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
+                                     destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+            NPP_SUCCESS);
+  std::vector<Npp8u> destinationData(sourceData.size());
+  destination.copyToHost(destinationData);
+  EXPECT_EQ(destinationData, sourceData);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  ASSERT_EQ(nppiResizeSqrPixel_8u_C4R_Ctx(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
+                                         destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0,
+                                         NPPI_INTER_LINEAR, context),
+            NPP_SUCCESS);
+  destination.copyToHost(destinationData);
+  EXPECT_EQ(destinationData, sourceData);
+
+  EXPECT_EQ(nppiResizeSqrPixel_8u_C4R(nullptr, sourceSize, source.step(), sourceRoi, destination.get(),
+                                     destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiResizeSqrPixel_8u_C4R(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
+                                     destination.step(), destinationRoi, 0.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+            NPP_RESIZE_FACTOR_ERROR);
 }
 
 TEST_F(ResizeFunctionalTest, Resize_16u_C3R_LinearInterpolation) {
