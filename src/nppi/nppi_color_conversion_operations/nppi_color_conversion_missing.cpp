@@ -345,44 +345,6 @@ NppStatus nppiBGRToYCrCb420_709CSC_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCrCb420_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCrCb420_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCrCb420_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCrCb420_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 NppStatus nppiCFAToRGBA_16u_C1AC4R(const Npp16u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp16u * pDst, int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation, Npp16u nAlpha) {
   (void)pSrc;
   (void)nSrcStep;
@@ -5716,29 +5678,6 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCrCb420_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrcY;
-  (void)nSrcYStep;
-  (void)pSrcCbCr;
-  (void)nSrcCbCrStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcY;
-  (void)nSrcYStep;
-  (void)pSrcCbCr;
-  (void)nSrcCbCrStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
 NppStatus nppiYCbCr420_8u_P2P3R(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   NppStreamContext context{};
   return nppiYCbCr420_8u_P2P3R_Ctx(pSrcY, nSrcYStep, pSrcCbCr, nSrcCbCrStep, pDst, rDstStep, oSizeROI, context);
@@ -6534,29 +6473,6 @@ NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcS
 }
 
 NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCrCb420ToYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
