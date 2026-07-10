@@ -23,8 +23,21 @@ set_target_properties(npp PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-# Link MetaX runtime for CUDA fatbin symbols
-target_link_libraries(npp PRIVATE /opt/maca/lib/libmcruntime.so)
+# Link MetaX runtime for CUDA fatbin symbols.
+set(MACA_ROOT "$ENV{MACA_PATH}" CACHE PATH "MXMACA installation root")
+if(NOT MACA_ROOT)
+    set(MACA_ROOT "/opt/maca" CACHE PATH "MXMACA installation root" FORCE)
+endif()
+
+find_library(MACRUNTIME_LIBRARY
+    NAMES mcruntime
+    PATHS "${MACA_ROOT}/lib"
+    NO_DEFAULT_PATH
+)
+if(NOT MACRUNTIME_LIBRARY)
+    message(FATAL_ERROR "libmcruntime was not found under ${MACA_ROOT}/lib")
+endif()
+target_link_libraries(npp PRIVATE "${MACRUNTIME_LIBRARY}")
 
 # Add dynamic library specific configuration if shared
 if(BUILD_SHARED_LIBS)
