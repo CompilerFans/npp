@@ -33,6 +33,18 @@ cudaError_t nppiMean_16s_CxR_kernel(const Npp16s *pSrc, int nSrcStep, NppiSize o
                                     int nOutputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean, cudaStream_t stream);
 cudaError_t nppiMean_32f_CxR_kernel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, int nSourceChannels,
                                     int nOutputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean, cudaStream_t stream);
+cudaError_t nppiMean_8u_CxMR_kernel(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                    NppiSize oSizeROI, int nSourceChannels, int nCOI, Npp8u *pDeviceBuffer,
+                                    Npp64f *pMean, cudaStream_t stream);
+cudaError_t nppiMean_8s_CxMR_kernel(const Npp8s *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                    NppiSize oSizeROI, int nSourceChannels, int nCOI, Npp8u *pDeviceBuffer,
+                                    Npp64f *pMean, cudaStream_t stream);
+cudaError_t nppiMean_16u_CxMR_kernel(const Npp16u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                     NppiSize oSizeROI, int nSourceChannels, int nCOI, Npp8u *pDeviceBuffer,
+                                     Npp64f *pMean, cudaStream_t stream);
+cudaError_t nppiMean_32f_CxMR_kernel(const Npp32f *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
+                                     NppiSize oSizeROI, int nSourceChannels, int nCOI, Npp8u *pDeviceBuffer,
+                                     Npp64f *pMean, cudaStream_t stream);
 cudaError_t nppiAverageError_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                            NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer,
                                            cudaStream_t stream);
@@ -152,6 +164,31 @@ NppStatus mean32fMultiChannel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeRO
   }
   const cudaError_t status = nppiMean_32f_CxR_kernel(pSrc, nSrcStep, oSizeROI, sourceChannels, outputChannels,
                                                       pDeviceBuffer, pMean, nppStreamCtx.hStream);
+  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+}
+
+template <typename T>
+using MaskedMeanKernel = cudaError_t (*)(const T *, int, const Npp8u *, int, NppiSize, int, int, Npp8u *, Npp64f *,
+                                         cudaStream_t);
+
+template <typename T>
+NppStatus meanMasked(const T *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
+                     int sourceChannels, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                     NppStreamContext nppStreamCtx, MaskedMeanKernel<T> kernel) {
+  if (!pSrc || !pMask || !pDeviceBuffer || !pMean) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(T)) || nMaskStep < oSizeROI.width) {
+    return NPP_STEP_ERROR;
+  }
+  if (sourceChannels == 3 && (nCOI < 1 || nCOI > 3)) {
+    return NPP_COI_ERROR;
+  }
+  const cudaError_t status = kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, sourceChannels, nCOI, pDeviceBuffer,
+                                    pMean, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -388,6 +425,139 @@ NppStatus nppiMean_32f_AC4R_Ctx(const Npp32f *src, int step, NppiSize roi, Npp8u
 NppStatus nppiMean_32f_AC4R(const Npp32f *src, int step, NppiSize roi, Npp8u *buffer, Npp64f *mean) {
   NppStreamContext context{};
   return nppiMean_32f_AC4R_Ctx(src, step, roi, buffer, mean, context);
+}
+
+NppStatus nppiMeanGetBufferHostSize_8u_C1MR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_8u_C1MR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_8u_C1MR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_8u_C3CMR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_8u_C3CMR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_8u_C3CMR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_8s_C1MR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_8s_C1MR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_8s_C1MR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_8s_C3CMR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_8s_C3CMR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_8s_C3CMR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_16u_C1MR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_16u_C1MR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_16u_C1MR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_16u_C3CMR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_16u_C3CMR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_16u_C3CMR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_32f_C1MR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_32f_C1MR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_32f_C1MR_Ctx(roi, size, context);
+}
+NppStatus nppiMeanGetBufferHostSize_32f_C3CMR_Ctx(NppiSize roi, int *size, NppStreamContext) {
+  return meanMultiChannelBufferSize(roi, 2, size);
+}
+NppStatus nppiMeanGetBufferHostSize_32f_C3CMR(NppiSize roi, int *size) {
+  NppStreamContext context{};
+  return nppiMeanGetBufferHostSize_32f_C3CMR_Ctx(roi, size, context);
+}
+
+NppStatus nppiMean_8u_C1MR_Ctx(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                               Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 1, 1, buffer, mean, context, nppiMean_8u_CxMR_kernel);
+}
+NppStatus nppiMean_8u_C1MR(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                           Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_8u_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
+}
+NppStatus nppiMean_8u_C3CMR_Ctx(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                                int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_8u_CxMR_kernel);
+}
+NppStatus nppiMean_8u_C3CMR(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                            Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_8u_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, context);
+}
+
+NppStatus nppiMean_8s_C1MR_Ctx(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                               Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 1, 1, buffer, mean, context, nppiMean_8s_CxMR_kernel);
+}
+NppStatus nppiMean_8s_C1MR(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                           Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_8s_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
+}
+NppStatus nppiMean_8s_C3CMR_Ctx(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                                int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_8s_CxMR_kernel);
+}
+NppStatus nppiMean_8s_C3CMR(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                            Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_8s_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, context);
+}
+
+NppStatus nppiMean_16u_C1MR_Ctx(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                                Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 1, 1, buffer, mean, context, nppiMean_16u_CxMR_kernel);
+}
+NppStatus nppiMean_16u_C1MR(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                            Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_16u_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
+}
+NppStatus nppiMean_16u_C3CMR_Ctx(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                                 int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_16u_CxMR_kernel);
+}
+NppStatus nppiMean_16u_C3CMR(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                             Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_16u_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, context);
+}
+
+NppStatus nppiMean_32f_C1MR_Ctx(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                                Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 1, 1, buffer, mean, context, nppiMean_32f_CxMR_kernel);
+}
+NppStatus nppiMean_32f_C1MR(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                            Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_32f_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
+}
+NppStatus nppiMean_32f_C3CMR_Ctx(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
+                                 int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+  return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_32f_CxMR_kernel);
+}
+NppStatus nppiMean_32f_C3CMR(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                             Npp8u *buffer, Npp64f *mean) {
+  NppStreamContext context{};
+  return nppiMean_32f_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, context);
 }
 
 NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
