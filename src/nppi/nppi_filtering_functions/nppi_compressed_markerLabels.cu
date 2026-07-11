@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#include <map>
 #include <vector>
 
 // Contour direction constants (from nppdefs.h)
@@ -675,64 +676,70 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
 
 // Batch compress marker labels (advanced)
 NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
-    NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
+    NppiImageDescriptor *pSrcDstBatchListDev, NppiBufferDescriptor *pBufferListDev, unsigned int *pNewMaxLabelIDListDev,
     int nBatchSize, NppiSize oMaxSizeROI, int nLargestPerImageBufferSize, NppStreamContext nppStreamCtx) {
 
   cudaStream_t stream = nppStreamCtx.hStream;
+  (void)nLargestPerImageBufferSize; // Not used in this implementation
+  (void)oMaxSizeROI; // Not used in this implementation
 
-  // Estimate max label ID from buffer size
-  unsigned int nMaxMarkerLabelID = (unsigned int)(nLargestPerImageBufferSize / sizeof(Npp32u)) - 1;
-  if (nMaxMarkerLabelID == 0) {
-    nMaxMarkerLabelID = 65535; // Default max
-  }
+  // Copy descriptor lists from device to host
+  std::vector<NppiImageDescriptor> h_imgList(nBatchSize);
+  std::vector<NppiBufferDescriptor> h_bufList(nBatchSize);
+  std::vector<unsigned int> h_newMaxLabelIDList(nBatchSize);
 
-  (void)oMaxSizeROI; // Used for validation only
+  cudaMemcpy(h_imgList.data(), pSrcDstBatchListDev, nBatchSize * sizeof(NppiImageDescriptor), cudaMemcpyDeviceToHost);
+  cudaMemcpy(h_bufList.data(), pBufferListDev, nBatchSize * sizeof(NppiBufferDescriptor), cudaMemcpyDeviceToHost);
 
   for (int batch = 0; batch < nBatchSize; batch++) {
-    NppiImageDescriptor &img = pSrcDstBatchList[batch];
-    NppiBufferDescriptor &buf = pBufferList[batch];
+    NppiImageDescriptor &img = h_imgList[batch];
+    NppiBufferDescriptor &buf = h_bufList[batch];
 
     int width = img.oSize.width;
     int height = img.oSize.height;
+    int numPixels = width * height;
     Npp32u *pMarkerLabels = (Npp32u *)img.pData;
     int nStep = img.nStep;
 
-    // Allocate label mapping buffer from provided buffer
+    // Max label ID is width * height (from nppiLabelMarkersUF output)
+    unsigned int nMaxMarkerLabelID = (unsigned int)numPixels;
+
+    // Use provided buffer for label mapping on device
     Npp32u *pLabelMapping = (Npp32u *)buf.pData;
-    size_t mappingSize = (nMaxMarkerLabelID + 1) * sizeof(Npp32u);
 
-    // Initialize mapping to identity
-    std::vector<Npp32u> h_mapping(nMaxMarkerLabelID + 1);
-    for (unsigned int i = 0; i <= nMaxMarkerLabelID; i++) {
-      h_mapping[i] = i;
-    }
+    // Read image to host
+    std::vector<Npp32u> h_image(numPixels);
+    cudaMemcpy(h_image.data(), pMarkerLabels, numPixels * sizeof(Npp32u), cudaMemcpyDeviceToHost);
 
-    // Count labels in use
-    std::vector<bool> h_labelUsed(nMaxMarkerLabelID + 1, false);
-    std::vector<Npp32u> h_image(width * height);
-    cudaMemcpy(h_image.data(), pMarkerLabels, width * height * sizeof(Npp32u), cudaMemcpyDeviceToHost);
+    // Use a map for sparse label tracking (more memory efficient)
+    std::map<Npp32u, Npp32u> labelMap;
 
-    for (int i = 0; i < width * height; i++) {
+    // Collect unique labels (including label 0, which is valid)
+    for (int i = 0; i < numPixels; i++) {
       Npp32u label = h_image[i];
-      if (label > 0 && label <= nMaxMarkerLabelID) {
-        h_labelUsed[label] = true;
+      if (label <= nMaxMarkerLabelID) {
+        labelMap[label] = 0; // Mark as seen
       }
     }
 
-    // Create compressed mapping
+    // Assign compressed labels
     unsigned int newLabelID = 1;
-    for (unsigned int i = 1; i <= nMaxMarkerLabelID; i++) {
-      if (h_labelUsed[i]) {
-        h_mapping[i] = newLabelID++;
-      } else {
-        h_mapping[i] = 0;
-      }
+    for (auto &kv : labelMap) {
+      kv.second = newLabelID++;
     }
 
-    pNewMaxLabelIDList[batch] = newLabelID - 1;
+    h_newMaxLabelIDList[batch] = newLabelID - 1;
+
+    // Create full mapping array for GPU (initialize to 0)
+    std::vector<Npp32u> h_mapping(nMaxMarkerLabelID + 1, 0);
+    for (const auto &kv : labelMap) {
+      h_mapping[kv.first] = kv.second;
+    }
 
     // Copy mapping to device
-    cudaMemcpyAsync(pLabelMapping, h_mapping.data(), mappingSize, cudaMemcpyHostToDevice, stream);
+    cudaMemcpyAsync(pLabelMapping, h_mapping.data(), (nMaxMarkerLabelID + 1) * sizeof(Npp32u),
+                    cudaMemcpyHostToDevice, stream);
+    cudaStreamSynchronize(stream);
 
     // Apply mapping
     dim3 blockSize(16, 16);
@@ -740,7 +747,11 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
 
     batchCompressLabels_kernel<<<gridSize, blockSize, 0, stream>>>(pMarkerLabels, nStep, width, height, pLabelMapping,
                                                                    nMaxMarkerLabelID);
+    cudaStreamSynchronize(stream);
   }
+
+  // Copy results back to device
+  cudaMemcpy(pNewMaxLabelIDListDev, h_newMaxLabelIDList.data(), nBatchSize * sizeof(unsigned int), cudaMemcpyHostToDevice);
 
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
