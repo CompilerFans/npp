@@ -253,3 +253,411 @@ TEST_F(BgrToYCbCr420Test, BGRToYCbCr420_8u_AC4P3R_ExpectedValues) {
   nppiFree(d_cb);
   nppiFree(d_cr);
 }
+
+// ==================== YCbCr420ToBGR Tests ====================
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_RoundTrip) {
+  std::vector<Npp8u> hostBGR;
+  createPackedBGR(hostBGR);
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R(d_bgrSrc, srcStep, pDst, dstSteps, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R(pSrc, srcSteps, d_bgrDst, dstStep, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height * 3; ++i) {
+    int diff = std::abs(static_cast<int>(resultBGR[i]) - static_cast<int>(hostBGR[i]));
+    EXPECT_LE(diff, 20) << "Roundtrip mismatch at byte " << i;
+  }
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_RoundTrip_Ctx) {
+  std::vector<Npp8u> hostBGR;
+  createPackedBGR(hostBGR);
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ctx.hStream = 0;
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R_Ctx(d_bgrSrc, srcStep, pDst, dstSteps, roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R_Ctx(pSrc, srcSteps, d_bgrDst, dstStep, roi, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < width * height * 3; ++i) {
+    int diff = std::abs(static_cast<int>(resultBGR[i]) - static_cast<int>(hostBGR[i]));
+    EXPECT_LE(diff, 20) << "Ctx roundtrip mismatch at byte " << i;
+  }
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_ChannelOrder) {
+  std::vector<Npp8u> hostBGR(width * height * 3, 0);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      hostBGR[idx + 0] = 0;   // B
+      hostBGR[idx + 1] = 0;   // G
+      hostBGR[idx + 2] = 255; // R
+    }
+  }
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R(d_bgrSrc, srcStep, pDst, dstSteps, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R(pSrc, srcSteps, d_bgrDst, dstStep, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  int cx = width / 2;
+  int cy = height / 2;
+  int idx = (cy * width + cx) * 3;
+  EXPECT_LT(resultBGR[idx + 0], 30) << "B channel should be near 0 for red input";
+  EXPECT_LT(resultBGR[idx + 1], 30) << "G channel should be near 0 for red input";
+  EXPECT_GT(resultBGR[idx + 2], 220) << "R channel should be near 255 for red input";
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_DirectPixelValue_DarkImage) {
+  // Test with a dark image (all pixels near 0)
+  width = 8;
+  height = 8;
+  std::vector<Npp8u> hostBGR(width * height * 3);
+  for (int i = 0; i < width * height * 3; i++) {
+    hostBGR[i] = static_cast<Npp8u>(10 + (i % 5));
+  }
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R(d_bgrSrc, srcStep, pDst, dstSteps, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  // Verify Y values are in valid range for dark image
+  std::vector<Npp8u> hostY(yStep * height);
+  cudaMemcpy(hostY.data(), d_y, hostY.size(), cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      Npp8u yVal = hostY[y * (yStep) + x];
+      EXPECT_LT(yVal, 50) << "Y value too high for dark image at (" << x << "," << y << ")";
+    }
+  }
+
+  // Convert back to BGR
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R(pSrc, srcSteps, d_bgrDst, dstStep, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  // Dark image output should also be dark
+  for (int i = 0; i < width * height * 3; i++) {
+    EXPECT_LT(resultBGR[i], 60) << "Dark image output too bright at byte " << i;
+  }
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_DirectPixelValue_BrightImage) {
+  // Test with a bright image (all pixels near 255)
+  width = 8;
+  height = 8;
+  std::vector<Npp8u> hostBGR(width * height * 3);
+  for (int i = 0; i < width * height * 3; i++) {
+    hostBGR[i] = static_cast<Npp8u>(245 + (i % 5));
+  }
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R(d_bgrSrc, srcStep, pDst, dstSteps, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R(pSrc, srcSteps, d_bgrDst, dstStep, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  // Bright image output should also be bright
+  for (int i = 0; i < width * height * 3; i++) {
+    EXPECT_GT(resultBGR[i], 200) << "Bright image output too dark at byte " << i;
+  }
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_DirectPixelValue_NearGray) {
+  // Test with near-gray image (R=G=B)
+  width = 8;
+  height = 8;
+  std::vector<Npp8u> hostBGR(width * height * 3);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int idx = (y * width + x) * 3;
+      Npp8u gray = static_cast<Npp8u>(128 + (x + y) % 10);
+      hostBGR[idx + 0] = gray; // B
+      hostBGR[idx + 1] = gray; // G
+      hostBGR[idx + 2] = gray; // R
+    }
+  }
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R(d_bgrSrc, srcStep, pDst, dstSteps, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  // For gray image, Cb and Cr should be near 128 (neutral)
+  std::vector<Npp8u> hostCb(cbStep * (height / 2));
+  std::vector<Npp8u> hostCr(crStep * (height / 2));
+  cudaMemcpy(hostCb.data(), d_cb, hostCb.size(), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostCr.data(), d_cr, hostCr.size(), cudaMemcpyDeviceToHost);
+
+  for (int y = 0; y < height / 2; y++) {
+    for (int x = 0; x < width / 2; x++) {
+      Npp8u cb = hostCb[y * cbStep + x];
+      Npp8u cr = hostCr[y * crStep + x];
+      EXPECT_NEAR(cb, 128, 10) << "Cb should be near 128 for gray at (" << x << "," << y << ")";
+      EXPECT_NEAR(cr, 128, 10) << "Cr should be near 128 for gray at (" << x << "," << y << ")";
+    }
+  }
+
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R(pSrc, srcSteps, d_bgrDst, dstStep, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  // For gray input, output BGR channels should be nearly equal
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int idx = (y * width + x) * 3;
+      int b = resultBGR[idx + 0];
+      int g = resultBGR[idx + 1];
+      int r = resultBGR[idx + 2];
+      EXPECT_NEAR(b, g, 15) << "B!=G for gray at (" << x << "," << y << ")";
+      EXPECT_NEAR(g, r, 15) << "G!=R for gray at (" << x << "," << y << ")";
+    }
+  }
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}
+
+TEST_F(BgrToYCbCr420Test, YCbCr420ToBGR_MinimumSize_2x2) {
+  // Test with minimum valid size (2x2)
+  width = 2;
+  height = 2;
+  std::vector<Npp8u> hostBGR = {0, 0, 255, 0, 255, 0, 255, 0, 0, 128, 128, 128};
+
+  int srcStep = 0;
+  Npp8u *d_bgrSrc = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_bgrSrc, nullptr);
+
+  int yStep = 0, cbStep = 0, crStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_cb = nppiMalloc_8u_C1(width / 2, height / 2, &cbStep);
+  Npp8u *d_cr = nppiMalloc_8u_C1(width / 2, height / 2, &crStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_cb, nullptr);
+  ASSERT_NE(d_cr, nullptr);
+
+  int dstStep = 0;
+  Npp8u *d_bgrDst = nppiMalloc_8u_C3(width, height, &dstStep);
+  ASSERT_NE(d_bgrDst, nullptr);
+
+  cudaMemcpy2D(d_bgrSrc, srcStep, hostBGR.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice);
+
+  Npp8u *pDst[3] = {d_y, d_cb, d_cr};
+  int dstSteps[3] = {yStep, cbStep, crStep};
+  NppiSize roi = {width, height};
+  NppStatus status = nppiBGRToYCbCr420_8u_C3P3R(d_bgrSrc, srcStep, pDst, dstSteps, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  const Npp8u *pSrc[3] = {d_y, d_cb, d_cr};
+  int srcSteps[3] = {yStep, cbStep, crStep};
+  status = nppiYCbCr420ToBGR_8u_P3C3R(pSrc, srcSteps, d_bgrDst, dstStep, roi);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  std::vector<Npp8u> resultBGR(width * height * 3);
+  cudaMemcpy2D(resultBGR.data(), width * 3, d_bgrDst, dstStep, width * 3, height, cudaMemcpyDeviceToHost);
+
+  // Should not crash and produce valid output
+  for (int i = 0; i < width * height * 3; i++) {
+    EXPECT_GE(resultBGR[i], 0);
+    EXPECT_LE(resultBGR[i], 255);
+  }
+
+  nppiFree(d_bgrSrc);
+  nppiFree(d_y);
+  nppiFree(d_cb);
+  nppiFree(d_cr);
+  nppiFree(d_bgrDst);
+}

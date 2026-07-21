@@ -2603,3 +2603,275 @@ INSTANTIATE_TEST_SUITE_P(
                       ResizeParams{64, 64, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_2x_downscale_large"},
                       ResizeParams{48, 48, 16, 16, NPPI_INTER_LANCZOS, "LANCZOS_3x_downscale"},
                       ResizeParams{96, 96, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_3x_downscale_large"}));
+
+
+// ==================== ResizeSqrPixel Tests ====================
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_IdentityAndCtx) {
+  const int width = 5;
+  const int height = 4;
+  std::vector<Npp8u> sourceData(static_cast<size_t>(width) * height * 4);
+  for (size_t i = 0; i < sourceData.size(); ++i) {
+    sourceData[i] = static_cast<Npp8u>((i * 17 + 9) % 256);
+  }
+
+  NppImageMemory<Npp8u> source(width, height, 4);
+  NppImageMemory<Npp8u> destination(width, height, 4);
+  source.copyFromHost(sourceData);
+  const NppiSize sourceSize{width, height};
+  const NppiRect sourceRoi{0, 0, width, height};
+  const NppiRect destinationRoi{0, 0, width, height};
+
+  ASSERT_EQ(nppiResizeSqrPixel_8u_C4R(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
+                                       destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+            NPP_SUCCESS);
+  std::vector<Npp8u> destinationData(sourceData.size());
+  destination.copyToHost(destinationData);
+  EXPECT_EQ(destinationData, sourceData);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  ASSERT_EQ(nppiResizeSqrPixel_8u_C4R_Ctx(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
+                                           destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0,
+                                           NPPI_INTER_LINEAR, context),
+            NPP_SUCCESS);
+  destination.copyToHost(destinationData);
+  EXPECT_EQ(destinationData, sourceData);
+
+  EXPECT_EQ(nppiResizeSqrPixel_8u_C4R(nullptr, sourceSize, source.step(), sourceRoi, destination.get(),
+                                       destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiResizeSqrPixel_8u_C4R(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
+                                       destination.step(), destinationRoi, 0.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+            NPP_RESIZE_FACTOR_ERROR);
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_2xUpscale) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<Npp8u>(x * 30);
+      srcData[idx + 1] = static_cast<Npp8u>(y * 30);
+      srcData[idx + 2] = 128;
+      srcData[idx + 3] = 255;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), dstROI,
+                                                2.0, 2.0, 0.0, 0.0, NPPI_INTER_NN);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < dstWidth * dstHeight * 4; i += 4) {
+    EXPECT_GE(dstData[i + 0], 0);
+    EXPECT_LE(dstData[i + 0], 255);
+    EXPECT_EQ(dstData[i + 3], 255);
+  }
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_WithShift) {
+  const int srcWidth = 16, srcHeight = 16;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      Npp8u val = static_cast<Npp8u>(x * 16 + y);
+      srcData[idx + 0] = val;
+      srcData[idx + 1] = val;
+      srcData[idx + 2] = val;
+      srcData[idx + 3] = 255;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dstNoShift(dstWidth, dstHeight, 4);
+  NppImageMemory<Npp8u> dstWithShift(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dstNoShift.get(),
+                                                dstNoShift.step(), dstROI, 0.5, 0.5, 0.0, 0.0, NPPI_INTER_NN);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dstWithShift.get(), dstWithShift.step(),
+                                      dstROI, 0.5, 0.5, 4.0, 4.0, NPPI_INTER_NN);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> dataNoShift(dstWidth * dstHeight * 4);
+  std::vector<Npp8u> dataWithShift(dstWidth * dstHeight * 4);
+  dstNoShift.copyToHost(dataNoShift);
+  dstWithShift.copyToHost(dataWithShift);
+
+  bool foundDifference = false;
+  for (int i = 0; i < dstWidth * dstHeight * 4; i += 4) {
+    if (dataNoShift[i] != dataWithShift[i]) {
+      foundDifference = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(foundDifference) << "Shift should produce different output";
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_NN_2xDownscale) {
+  const int srcWidth = 16, srcHeight = 16;
+  const int dstWidth = 8, dstHeight = 8;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      Npp8u val = ((x / 2 + y / 2) % 2) ? 200 : 50;
+      srcData[idx + 0] = val;
+      srcData[idx + 1] = val;
+      srcData[idx + 2] = val;
+      srcData[idx + 3] = 255;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), dstROI,
+                                                0.5, 0.5, 0.0, 0.0, NPPI_INTER_NN);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+
+  for (int i = 0; i < dstWidth * dstHeight * 4; i += 4) {
+    Npp8u val = dstData[i];
+    EXPECT_TRUE(val == 50 || val == 200) << "NN should pick source values, got " << (int)val;
+  }
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_Linear_2xUpscale) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = (Npp8u)(x * 255 / (srcWidth - 1));
+      srcData[idx + 1] = (Npp8u)(y * 255 / (srcHeight - 1));
+      srcData[idx + 2] = 128;
+      srcData[idx + 3] = 255;
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), dstROI,
+                                                2.0, 2.0, 0.0, 0.0, NPPI_INTER_LINEAR);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 1; x < dstWidth - 1; x++) {
+      int idx = (y * dstWidth + x) * 4;
+      int prev_idx = (y * dstWidth + (x - 1)) * 4;
+      EXPECT_GE(dstData[idx], dstData[prev_idx] - 2) << "R gradient at (" << x << "," << y << ")";
+    }
+  }
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_NullPointer) {
+  NppiSize srcSize = {8, 8};
+  NppiRect srcROI = {0, 0, 8, 8};
+  NppiRect dstROI = {0, 0, 16, 16};
+
+  NppStatus status =
+      nppiResizeSqrPixel_8u_C4R(nullptr, srcSize, 32, srcROI, nullptr, 64, dstROI, 2.0, 2.0, 0.0, 0.0, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_NULL_POINTER_ERROR);
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_InvalidFactor) {
+  const int srcWidth = 8, srcHeight = 8;
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4, 100);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(srcWidth * 2, srcHeight * 2, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, srcWidth * 2, srcHeight * 2};
+
+  NppStatus status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), dstROI,
+                                                0.0, 2.0, 0.0, 0.0, NPPI_INTER_NN);
+  EXPECT_EQ(status, NPP_RESIZE_FACTOR_ERROR);
+}
+
+TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_AlphaPreservation) {
+  const int srcWidth = 8, srcHeight = 8;
+  const int dstWidth = 16, dstHeight = 16;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  for (int y = 0; y < srcHeight; y++) {
+    for (int x = 0; x < srcWidth; x++) {
+      int idx = (y * srcWidth + x) * 4;
+      srcData[idx + 0] = static_cast<Npp8u>(x * 30);
+      srcData[idx + 1] = static_cast<Npp8u>(y * 30);
+      srcData[idx + 2] = 128;
+      srcData[idx + 3] = static_cast<Npp8u>(100 + x + y);
+    }
+  }
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStatus status = nppiResizeSqrPixel_8u_C4R(src.get(), srcSize, src.step(), srcROI, dst.get(), dst.step(), dstROI,
+                                                2.0, 2.0, 0.0, 0.0, NPPI_INTER_NN);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+  dst.copyToHost(dstData);
+
+  for (int y = 0; y < dstHeight; y++) {
+    for (int x = 0; x < dstWidth; x++) {
+      int dstIdx = (y * dstWidth + x) * 4;
+      int srcX = x / 2;
+      int srcY = y / 2;
+      int srcIdx = (srcY * srcWidth + srcX) * 4;
+      EXPECT_EQ(dstData[dstIdx + 3], srcData[srcIdx + 3])
+          << "Alpha not preserved at dst(" << x << "," << y << ")";
+    }
+  }
+}

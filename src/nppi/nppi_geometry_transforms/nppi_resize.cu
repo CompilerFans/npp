@@ -400,100 +400,82 @@ NppStatus nppiResize_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize
 
 } // extern "C"
 
-template <typename T, int CHANNELS>
-__device__ void sampleNearest(const T *pSrc, int nSrcStep, const NppiRect &oSrcROI, float sx, float sy, T *dstPixel)
-{
-  int minX = oSrcROI.x;
-  int minY = oSrcROI.y;
-  int maxX = oSrcROI.x + oSrcROI.width - 1;
-  int maxY = oSrcROI.y + oSrcROI.height - 1;
+// ==================== ResizeSqrPixel ====================
+// sourceX = inverseXFactor * destinationX - adjustedXShift
+// adjustedXShift = nXShift * inverseXFactor + (1.0 - inverseXFactor) * 0.5
 
-  int ix = static_cast<int>(floorf(sx + 0.5f));
-  int iy = static_cast<int>(floorf(sy + 0.5f));
-
-  ix = max(minX, min(ix, maxX));
-  iy = max(minY, min(iy, maxY));
-
-  const T *srcRow = reinterpret_cast<const T*>(reinterpret_cast<const char*>(pSrc) + iy * nSrcStep);
-
-#pragma unroll
-  for (int c = 0; c < CHANNELS; ++c) {
-    dstPixel[c] = srcRow[ix * CHANNELS + c];
+template <int CHANNELS>
+__global__ void resizeSqrPixelKernel(const Npp8u *pSrc, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+                                     int nDstStep, NppiRect oDstROI, double inverseXFactor,
+                                     double inverseYFactor, double adjustedXShift, double adjustedYShift,
+                                     int interpolation) {
+  const int localX = blockIdx.x * blockDim.x + threadIdx.x;
+  const int localY = blockIdx.y * blockDim.y + threadIdx.y;
+  if (localX >= oDstROI.width || localY >= oDstROI.height) {
+    return;
   }
-}
+  const int destinationX = oDstROI.x + localX;
+  const int destinationY = oDstROI.y + localY;
+  const double sourceX = inverseXFactor * destinationX - adjustedXShift;
+  const double sourceY = inverseYFactor * destinationY - adjustedYShift;
 
-template <typename T, int CHANNELS>
-__device__ void sampleBilinear(const T *pSrc, int nSrcStep, const NppiRect &oSrcROI, float sx, float sy, T *dstPixel) {
-  int minX = oSrcROI.x;
-  int minY = oSrcROI.y;
-  int maxX = oSrcROI.x + oSrcROI.width - 1;
-  int maxY = oSrcROI.y + oSrcROI.height - 1;
+  // Clamp source coordinates to ROI bounds (don't skip out-of-bounds pixels)
+  double clampedX = sourceX;
+  double clampedY = sourceY;
+  if (clampedX < oSrcROI.x) clampedX = oSrcROI.x;
+  if (clampedY < oSrcROI.y) clampedY = oSrcROI.y;
+  if (clampedX >= oSrcROI.x + oSrcROI.width) clampedX = oSrcROI.x + oSrcROI.width - 1.0;
+  if (clampedY >= oSrcROI.y + oSrcROI.height) clampedY = oSrcROI.y + oSrcROI.height - 1.0;
 
-  sx = clampCoord(sx, static_cast<float>(minX), static_cast<float>(maxX));
-  sy = clampCoord(sy, static_cast<float>(minY), static_cast<float>(maxY));
-
-  int x1 = static_cast<int>(floorf(sx));
-  int y1 = static_cast<int>(floorf(sy));
-
-  x1 = max(minX, min(x1, maxX));
-  y1 = max(minY, min(y1, maxY));
-
-  int x2 = min(x1 + 1, maxX);
-  int y2 = min(y1 + 1, maxY);
-
-  float tx = sx - static_cast<float>(x1);
-  float ty = sy - static_cast<float>(y1);
-
-  const T *row1 = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep);
-  const T *row2 = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + y2 * nSrcStep);
-
-#pragma unroll
-  for (int c = 0; c < CHANNELS; ++c) {
-    float p11 = static_cast<float>(row1[x1 * CHANNELS + c]);
-    float p12 = static_cast<float>(row1[x2 * CHANNELS + c]);
-    float p21 = static_cast<float>(row2[x1 * CHANNELS + c]);
-    float p22 = static_cast<float>(row2[x2 * CHANNELS + c]);
-
-    float top = lerp(p11, p12, tx);
-    float bottom = lerp(p21, p22, tx);
-    float value = lerp(top, bottom, ty);
-    dstPixel[c] = static_cast<T>(value + 0.5f);
-  }
-}
-
-template <typename T, int CHANNELS>
-__global__ void resizeSqrPixelKernel(const T *pSrc, int nSrcStep, NppiRect oSrcROI, T *pDst, int nDstStep,
-                                     NppiRect oDstROI, float invScaleX, float invScaleY, float shiftX, float shiftY,
-                                     int eInterpolation) {
-  int dx = blockIdx.x * blockDim.x + threadIdx.x;
-  int dy = blockIdx.y * blockDim.y + threadIdx.y;
-
-  if (dx >= oDstROI.width || dy >= oDstROI.height) {
+  Npp8u *destinationRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pDst) + destinationY * nDstStep);
+  if (interpolation == NPPI_INTER_NN) {
+    int sourcePixelX = static_cast<int>(floor(clampedX + 0.5));
+    int sourcePixelY = static_cast<int>(floor(clampedY + 0.5));
+    sourcePixelX = min(sourcePixelX, oSrcROI.x + oSrcROI.width - 1);
+    sourcePixelY = min(sourcePixelY, oSrcROI.y + oSrcROI.height - 1);
+    sourcePixelX = max(sourcePixelX, oSrcROI.x);
+    sourcePixelY = max(sourcePixelY, oSrcROI.y);
+    const Npp8u *sourceRow =
+        reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pSrc) + sourcePixelY * nSrcStep);
+    for (int channel = 0; channel < CHANNELS; ++channel) {
+      destinationRow[destinationX * CHANNELS + channel] = sourceRow[sourcePixelX * CHANNELS + channel];
+    }
     return;
   }
 
-  int destX = dx + oDstROI.x;
-  int destY = dy + oDstROI.y;
-
-  float sx = (static_cast<float>(destX) + 0.5f) * invScaleX + shiftX + static_cast<float>(oSrcROI.x) - 0.5f;
-  float sy = (static_cast<float>(destY) + 0.5f) * invScaleY + shiftY + static_cast<float>(oSrcROI.y) - 0.5f;
-
-  float minX = static_cast<float>(oSrcROI.x);
-  float minY = static_cast<float>(oSrcROI.y);
-  float maxX = static_cast<float>(oSrcROI.x + oSrcROI.width - 1);
-  float maxY = static_cast<float>(oSrcROI.y + oSrcROI.height - 1);
-
-  sx = clampCoord(sx, minX, maxX);
-  sy = clampCoord(sy, minY, maxY);
-
-  T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pDst) + destY * nDstStep);
-  T *dstPixel = dstRow + destX * CHANNELS;
-
-  if (eInterpolation == NPPI_INTER_NN) {
-    sampleNearest<T, CHANNELS>(pSrc, nSrcStep, oSrcROI, sx, sy, dstPixel);
-  } else {
-    sampleBilinear<T, CHANNELS>(pSrc, nSrcStep, oSrcROI, sx, sy, dstPixel);
+  // Bilinear interpolation
+  const int x0 = static_cast<int>(floor(clampedX));
+  const int y0 = static_cast<int>(floor(clampedY));
+  const int x1 = min(x0 + 1, oSrcROI.x + oSrcROI.width - 1);
+  const int y1 = min(y0 + 1, oSrcROI.y + oSrcROI.height - 1);
+  const double xFraction = clampedX - x0;
+  const double yFraction = clampedY - y0;
+  const Npp8u *row0 = reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pSrc) + y0 * nSrcStep);
+  const Npp8u *row1 = reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pSrc) + y1 * nSrcStep);
+  for (int channel = 0; channel < CHANNELS; ++channel) {
+    const double top = row0[x0 * CHANNELS + channel] * (1.0 - xFraction) + row0[x1 * CHANNELS + channel] * xFraction;
+    const double bottom = row1[x0 * CHANNELS + channel] * (1.0 - xFraction) + row1[x1 * CHANNELS + channel] * xFraction;
+    destinationRow[destinationX * CHANNELS + channel] =
+        static_cast<Npp8u>(floor(top * (1.0 - yFraction) + bottom * yFraction + 0.5));
   }
+}
+
+
+template <int CHANNELS>
+NppStatus resizeSqrPixelImpl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                             Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                             double nXFactor, double nYFactor, double nXShift, double nYShift,
+                             int eInterpolation, NppStreamContext nppStreamCtx) {
+  const double inverseXFactor = 1.0 / nXFactor;
+  const double inverseYFactor = 1.0 / nYFactor;
+  const double adjustedXShift = nXShift * inverseXFactor + (1.0 - inverseXFactor) * 0.5;
+  const double adjustedYShift = nYShift * inverseYFactor + (1.0 - inverseYFactor) * 0.5;
+  const dim3 block(16, 16);
+  const dim3 grid((oDstROI.width + block.x - 1) / block.x, (oDstROI.height + block.y - 1) / block.y);
+  resizeSqrPixelKernel<CHANNELS><<<grid, block, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, inverseXFactor, inverseYFactor, adjustedXShift,
+      adjustedYShift, eInterpolation);
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 extern "C" {
@@ -501,35 +483,23 @@ NppStatus nppiResizeSqrPixel_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSiz
                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
                                              double nYFactor, double nXShift, double nYShift, int eInterpolation,
                                              NppStreamContext nppStreamCtx) {
-  (void)oSrcSize;
-  // printf("nppiResizeSqrPixel_8u_C1R: srcROI=%dx%d dstROI=%dx%d factors=(%.3f, %.3f) shifts=(%.3f, %.3f)\n",
-  //        oSrcROI.width, oSrcROI.height, oDstROI.width, oDstROI.height, nXFactor, nYFactor, nXShift, nYShift);
+  return resizeSqrPixelImpl<1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                               nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+}
 
-  if (nXFactor <= 0.0 || nYFactor <= 0.0) {
-    return NPP_RESIZE_FACTOR_ERROR;
-  }
+NppStatus nppiResizeSqrPixel_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                              double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  return resizeSqrPixelImpl<3>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                               nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+}
 
-  if (eInterpolation != NPPI_INTER_NN && eInterpolation != NPPI_INTER_LINEAR) {
-    return NPP_NOT_SUPPORTED_MODE_ERROR;
-  }
-
-  float invScaleX = 1.0f / static_cast<float>(nXFactor);
-  float invScaleY = 1.0f / static_cast<float>(nYFactor);
-  float shiftX = static_cast<float>(nXShift);
-  float shiftY = static_cast<float>(nYShift);
-
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x, (oDstROI.height + blockSize.y - 1) / blockSize.y);
-
-  resizeSqrPixelKernel<Npp8u, 1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, invScaleX, invScaleY, shiftX, shiftY, eInterpolation);
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    printf("ResizeSqrPixel kernel launch failed: %s (%d)", cudaGetErrorString(cudaStatus), cudaStatus);
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                              double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                              int eInterpolation, NppStreamContext nppStreamCtx) {
+  return resizeSqrPixelImpl<4>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                               nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
 }
 }

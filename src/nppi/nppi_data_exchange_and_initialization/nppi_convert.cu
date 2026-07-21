@@ -63,6 +63,23 @@ __global__ void convert_8u32f_C3R_kernel_scalar(const Npp8u *__restrict__ pSrc, 
   dstRow[x] = (Npp32f)srcRow[x];
 }
 
+__global__ void convert_8u32f_C4R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp32f *__restrict__ pDst,
+                                         int nDstStep, int width, int height) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
+    return;
+  }
+
+  const Npp8u *srcRow = reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+  Npp32f *dstRow = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(pDst) + y * nDstStep);
+  const int offset = x * 4;
+  dstRow[offset] = static_cast<Npp32f>(srcRow[offset]);
+  dstRow[offset + 1] = static_cast<Npp32f>(srcRow[offset + 1]);
+  dstRow[offset + 2] = static_cast<Npp32f>(srcRow[offset + 2]);
+  dstRow[offset + 3] = static_cast<Npp32f>(srcRow[offset + 3]);
+}
+
 __global__ void convert_8u16u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp16u *__restrict__ pDst,
                                          int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -224,6 +241,25 @@ NppStatus nppiConvert_8u32f_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
     convert_8u32f_C3R_kernel_scalar<<<gridScalar, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, rowElems, oSizeROI.height);
   }
+
+  // Check for kernel launch errors
+  cudaError_t cudaErr = cudaGetLastError();
+  if (cudaErr != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_NO_ERROR;
+}
+
+NppStatus nppiConvert_8u32f_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
+
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  // Launch kernel with the specified GPU stream
+  convert_8u32f_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                             oSizeROI.width, oSizeROI.height);
 
   // Check for kernel launch errors
   cudaError_t cudaErr = cudaGetLastError();

@@ -328,3 +328,115 @@ NppStatus nppiResize_32f_C4R(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSize
   return nppiResize_32f_C4R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI,
                                 eInterpolation, nppStreamCtx);
 }
+
+// Forward declarations for ResizeSqrPixel implementations
+extern "C" {
+NppStatus nppiResizeSqrPixel_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                              double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                              int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResizeSqrPixel_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                              double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                              int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                              Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                              double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                              int eInterpolation, NppStreamContext nppStreamCtx);
+}
+
+static inline NppStatus validateResizeSqrPixelInputs(const void *pSrc, NppiSize oSrcSize, int nSrcStep,
+                                                      NppiRect oSrcROI, void *pDst, int nDstStep, NppiRect oDstROI,
+                                                      double nXFactor, double nYFactor, int eInterpolation,
+                                                      int channels) {
+  if (!pSrc || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSrcSize.width < 2 || oSrcSize.height < 2 || oSrcROI.width <= 0 || oSrcROI.height <= 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (oDstROI.width <= 0 || oDstROI.height <= 0) {
+    return NPP_RESIZE_NO_OPERATION_ERROR;
+  }
+  if (nSrcStep < oSrcSize.width * channels || nDstStep < (oDstROI.x + oDstROI.width) * channels) {
+    return NPP_STEP_ERROR;
+  }
+  if (oSrcROI.x < 0 || oSrcROI.y < 0 || oSrcROI.x + oSrcROI.width > oSrcSize.width ||
+      oSrcROI.y + oSrcROI.height > oSrcSize.height || oDstROI.x < 0 || oDstROI.y < 0) {
+    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  }
+  if (nXFactor <= 0.0 || nYFactor <= 0.0) {
+    return NPP_RESIZE_FACTOR_ERROR;
+  }
+  if (eInterpolation != NPPI_INTER_NN && eInterpolation != NPPI_INTER_LINEAR) {
+    // TODO: CUBIC/SUPER/LANCZOS not yet supported for ResizeSqrPixel
+    printf("nppiResizeSqrPixel: interpolation mode %d not yet supported, falling back to LINEAR\n", eInterpolation);
+  }
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiResizeSqrPixel_8u_C1R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                         double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                         int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeSqrPixelInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                                   nXFactor, nYFactor, eInterpolation, 1);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResizeSqrPixel_8u_C1R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                              nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                     Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                     double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                     int eInterpolation) {
+  NppStreamContext context{};
+  return nppiResizeSqrPixel_8u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                        nXFactor, nYFactor, nXShift, nYShift, eInterpolation, context);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C3R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                         double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                         int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeSqrPixelInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                                   nXFactor, nYFactor, eInterpolation, 3);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResizeSqrPixel_8u_C3R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                              nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                     Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                     double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                     int eInterpolation) {
+  NppStreamContext context{};
+  return nppiResizeSqrPixel_8u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                        nXFactor, nYFactor, nXShift, nYShift, eInterpolation, context);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                         Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                         double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                         int eInterpolation, NppStreamContext nppStreamCtx) {
+  NppStatus status = validateResizeSqrPixelInputs(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                                   nXFactor, nYFactor, eInterpolation, 4);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+  return nppiResizeSqrPixel_8u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                              nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+}
+
+NppStatus nppiResizeSqrPixel_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                     Npp8u *pDst, int nDstStep, NppiRect oDstROI,
+                                     double nXFactor, double nYFactor, double nXShift, double nYShift,
+                                     int eInterpolation) {
+  NppStreamContext context{};
+  return nppiResizeSqrPixel_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                        nXFactor, nYFactor, nXShift, nYShift, eInterpolation, context);
+}
