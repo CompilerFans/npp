@@ -1,0 +1,4 @@
+interface:
+  display_name: "MPP Benchmark Workflow"
+  short_description: "Benchmark-guided NPP performance workflow"
+  default_prompt: "Use $mpp-benchmark-opt when adding benchmark programs, running benchmark build/run/compare flows, or doing benchmark-guided performance optimization in this NPP repository."

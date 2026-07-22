@@ -65,8 +65,37 @@ function(npp_create_test_target target_name sources library_target)
         # 定义宏标识使用NVIDIA NPP
         target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
+    elseif(USE_MACA_NPP)
+        # 查找MACA NPP库 - 只需要检查一个核心库的存在
+        find_library(MACA_NPPC_LIB
+            NAMES mppc
+            PATHS ${NPP_SDK_LIB_DIR} ${MACA_LIB_DIR} ${MACA_PATH}/lib
+        )
+
+        if(NOT MACA_NPPC_LIB)
+            message(FATAL_ERROR "MACA NPP libraries not found. Please check your MACA installation.")
+        endif()
+
+        # 链接MACA NPP库
+        target_link_directories(${target_name} PRIVATE ${NPP_SDK_LIB_DIR})
+        target_link_libraries(${target_name}
+            PRIVATE
+            gtest
+            gtest_main
+            mppial mppicc mppidei mppif mppig mppim mppist mppisu mppitc mpps mppc
+        )
+
+        # 使用MACA NPP头文件
+        target_include_directories(${target_name}
+            PRIVATE
+            ${NPP_SDK_INCLUDE_DIR}/mcmpp
+        )
+
+        # 定义宏标识使用MACA NPP
+        target_compile_definitions(${target_name} PRIVATE USE_MACA_NPP_TESTS)
+        message(STATUS "Test ${target_name} will use MACA NPP libraries")
     else()
-        # 链接OpenNPP库
+        # 链接MPP库
         target_link_libraries(${target_name}
             PRIVATE
             ${library_target}
@@ -81,10 +110,10 @@ function(npp_create_test_target target_name sources library_target)
     npp_setup_target(${target_name})
 
     # 添加包含目录
-    if(NOT USE_NVIDIA_NPP)
+    if(NOT USE_NVIDIA_NPP AND NOT USE_MACA_NPP)
         target_include_directories(${target_name}
             PRIVATE
-            ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于OpenNPP
+            ${CMAKE_SOURCE_DIR}     # 项目根目录，仅用于MPP
         )
     endif()
 

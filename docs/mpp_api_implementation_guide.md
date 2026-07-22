@@ -1,331 +1,268 @@
-# NPP 开发与优化总流程指南
+# NPP API 实现与修复指南
 
-本文档参考 `/local/m01019/mcmpp_perf/SKILL.md` 的组织方式编写，用于说明当前 NPP 工程中从覆盖率规划、测试验证、功能实现，到 MACA 适配和性能优化的一整套执行框架。文中的目录、构建路径、benchmark 脚本和分析工具均对齐当前仓库现状。
+本文档用于指导当前 NPP 工程中的单个 API 实现、修复、测试对齐与覆盖率更新工作。
 
 ## 1. 关键约束
 
 ### 1.1 严禁事项
 
-- **禁止脱离仓库工作流随意开发**：必须按规划、测试、实现、回归、覆盖率、移植、优化的顺序执行。
-- **禁止先实现后写测试**：所有功能开发默认测试优先。
-- **禁止跳过 `build-nvidia` 验证**：需要对齐 NVIDIA NPP 的行为，必须先在 `build-nvidia` 验证测试语义。
-- **禁止在正确性闭环前做性能优化**：性能工作永远是第二阶段。
-- **禁止把多个无关热点混在同一轮调优**：否则无法判断收益来源。
-- **禁止不更新覆盖率状态就宣称任务完成**：只要实现或测试状态变化，就应刷新。
+- **禁止先写实现后补测试**：测试必须先于实现存在，或者至少先被修到可信。
+- **禁止跳过 `build-nvidia` 验证**：只要目标行为需要对齐 NVIDIA NPP，就必须先在 `build-nvidia` 验证测试本身成立。
+- **禁止只测正常路径**：必须覆盖错误路径、ROI 边界、step / pitch 等关键行为。
+- **禁止把 `_Ctx` 与非 `_Ctx` 路径随意混写**：除非当前模块已有成熟统一模式。
+- **禁止在正确性未稳定时做性能优化**：单个 API 的第一目标是功能对齐，不是速度。
 
 ### 1.2 允许并推荐的做法
 
-- **允许从 `coverage.csv` 出发规划任务**：推荐按模块和批次组织工作。
-- **允许优先处理可复用的一批 API**：相邻 API 能共享测试或 helper 时，应批量推进。
-- **允许先做 baseline，再做 MACA porting**：baseline 稳定是移植的前提。
-- **允许在功能稳定后再进入 benchmark 闭环**：benchmark 和优化应建立在稳定实现上。
-- **允许优先复用仓库脚本链路**：优先使用 `build.sh`、`update_coverage.sh`、`benchmark_base/*.sh` 与分析脚本，而不是临时拼接新流程。
+- **允许复用近邻实现**：优先复用 `src/` 中相邻 API 的 helper、dispatch、边界处理模式。
+- **允许复用近邻测试**：优先复用 `test/unit/` 中现有 fixture、参数化模板和辅助函数。
+- **允许以 NVIDIA NPP 为功能基线**：除非仓库文档已明确声明故意偏离。
+- **允许先修测试再修实现**：当已有测试错误或不完整时，应先修测试。
+- **允许先用覆盖率文件定位落点**：单个 API 任务开始前，可先借助 `api_analysis/coverage.csv` 和 `tools/check_coverage.py` 找到实现文件与测试文件。
+- **允许用户提及不在几个API定义中的api时不进行实现**：用户提及不在几个API目录中定义的api时，告知用户nvidia npp库中不存在该api，不用进行实现。
 
 ## 2. 工作区结构
 
-围绕开发与优化总流程，重点关注以下目录：
+围绕单个 API 工作时，重点关注以下目录：
 
 ```text
 .
-├── API/ API-11.4/ API-12.2/ API-12.8/  # 多版本 API 头文件参考
-├── api_analysis/                       # coverage.csv、coverage_summary、热度分析
-├── src/nppcore/                        # nppcore 实现
-├── src/nppi/                           # nppi 模块实现
-├── src/npps/                           # npps 模块实现
-├── test/unit/framework/                # 测试公共基础设施
-├── test/unit/nppcore/                  # nppcore 测试
-├── test/unit/nppi/                     # nppi 模块测试
-├── test/unit/npps/                     # npps 模块测试
-├── build/                              # 默认 MPP 构建目录
-├── build-nvidia/                       # NVIDIA NPP 参考验证目录
-├── build-maca/                         # MACA NPP 验证目录（按需生成）
-├── benchmark_base/                     # benchmark 框架、脚本、对比工具
-└── docs/ ref_code/                     # 项目文档、专项分析、CPU 参考实现
+├── API/ API-11.4/ API-12.2/ API-12.8/   # 多版本 NPP 头文件参考
+├── api_analysis/                        # coverage.csv、api_functions_12.2.csv 等分析产物
+├── src/nppcore/                         # nppcore 实现
+├── src/nppi/                            # nppi 各子模块实现
+├── src/npps/                            # npps 各子模块实现
+├── test/unit/framework/                 # 公共测试基础设施
+├── test/unit/nppcore/                   # nppcore 测试
+├── test/unit/nppi/                      # nppi 各子模块测试
+├── test/unit/npps/                      # npps 各子模块测试
+├── build/                               # 默认 MPP 构建目录
+├── build-nvidia/                        # NVIDIA NPP 参考验证目录
+└── docs/ ref_code/                      # 专项分析、CPU 参考实现、行为说明
 ```
 
 ### 目录作用说明
 
-- **`api_analysis/`**：当前规划工作的核心入口，包含 `coverage.csv`、`coverage_summary.md`、`nppi_color_conversion_usage_heat.md` 等文件。
-- **`src/nppi/` 与 `src/npps/`**：实现已经按功能头文件拆成多个子模块，例如 `nppi_filtering_functions`、`nppi_geometry_transforms`、`npps_statistics_functions`。
-- **`test/unit/framework/`**：公共测试基座。新增测试前先看这里，通常比复制相邻测试文件更稳妥。
-- **`build/`**：`./build.sh` 默认输出目录，对应本仓库 MPP 实现。
-- **`build-nvidia/`**：`./build.sh --use-nvidia-npp` 输出目录，用来验证测试语义和行为基线。
-- **`build-maca/`**：`./build.sh --use-maca-npp` 或相关 MACA 构建路径的输出目录。
-- **`benchmark_base/`**：不只是脚本目录，还包含 benchmark 主程序、模板、自动 benchmark 文件和对比工具。
+- **`API/`、`API-12.2/`、`API-12.8/`**：查看目标 API 的声明、参数含义和不同版本函数签名。当前仓库很多分析脚本默认围绕 12.2 数据展开，因此 `api_analysis/api_functions_12.2.csv` 常作为检索入口。
+- **`src/nppi/` 与 `src/npps/`**：实现按模块拆分，例如 `src/nppi/nppi_color_conversion_operations/`、`src/nppi/nppi_geometry_transforms/`、`src/npps/npps_arithmetic_operations/`。
+- **`test/unit/framework/`**：公共 fixture 和测试基础设施所在目录。新增测试前应先检查这里是否已有通用基类和辅助工具。
+- **`test/unit/nppi/` 与 `test/unit/npps/`**：测试目录与 `src/` 模块基本一一对应，新增测试应尽量放到现有子目录。
+- **`api_analysis/coverage.csv`**：确认当前 API 是未实现、已实现未测试，还是已实现已测试。
+- **`docs/` 与 `ref_code/`**：当边界模式、CPU 参考实现或 NVIDIA 行为分析已有专项文档时，应先消费这些资料，再动手写测试。当实现新模块api时，功能分析总结到`docs/`下存档。
 
 ## 3. 统一工作流
 
-### 第 1 步：确定任务范围
+### 第 1 步：确认目标 API
 
-先明确本轮工作属于哪类：
+先确定以下信息：
 
-- 缺失实现
-- 缺失测试
-- 行为修复
-- 模块规划
-- MACA 适配
-- 性能优化
+- 精确函数签名
+- 数据类型
+- 通道布局
+- ROI 规则
+- step / pitch 规则
+- 错误码语义
 
-然后收集必要上下文：
+优先查看：
 
-- `api_analysis/coverage.csv`
-- `api_analysis/coverage_summary.md`
-- 相关头文件
-- 相关 `src/`
-- 相关 `test/unit/`
-- 相关 `docs/`
+- `API/`、`API-12.2/`、`API-12.8/`
+- `api_analysis/api_functions_12.2.csv`
+- NVIDIA NPP 头文件声明
 
-若目标模块是 `nppi_color_conversion.h` 一类已有热度分析的模块，还应额外收集 `api_analysis/nppi_color_conversion_usage_heat.md`。
+如果不同版本头文件存在差异，应在任务记录中明确本次采用的参考来源，避免测试和实现混用不同版本的签名。
 
-### 第 2 步：按模块规划
+### 第 2 步：找到最近邻实现和测试
 
-如果任务来自覆盖率或缺口扫描，应优先按模块推进，而不是随机挑单个 API。
+在改代码前，先找：
 
-建议先区分：
+- `src/nppi/...` 或 `src/npps/...` 中最相近的实现
+- `test/unit/nppi/...` 或 `test/unit/npps/...` 中最相近的测试
 
-- `implemented=no`
-- `implemented=yes,tested=no`
-- `implemented=yes,tested=yes`
+目标是复用，而不是重写一套新结构。当前工程里常见的匹配关系例如：
 
-排序时优先考虑：
+- 颜色转换：`src/nppi/nppi_color_conversion_operations/` 对应 `test/unit/nppi/nppi_color_conversion_operations/`
+- 几何变换：`src/nppi/nppi_geometry_transforms/` 对应 `test/unit/nppi/nppi_geometry_transforms/`
+- 阈值与比较：`src/nppi/nppi_threshold_and_compare_operations/` 对应 `test/unit/nppi/nppi_threshold_and_compare_operations/`
 
-1. 使用热度
-2. 复用价值
-3. 模块连续开发价值
-4. NVIDIA 对齐与移植风险
+### 第 3 步：先写测试或修测试
 
-当前仓库已经提供 `skills/npp-development-optimization/scripts/summarize_coverage.py`，建议优先用脚本生成候选清单，而不是手动 grep 整个 `coverage.csv`。
-
-### 第 3 步：测试先行
-
-进入具体开发前，先写或修测试。测试应覆盖：
+测试至少覆盖：
 
 - 正常输入
-- 多尺寸
-- 多数据类型
-- 多通道布局
-- 非法参数
-- 精度敏感场景
-- 边界条件
+- 非法指针
+- 非法 step / pitch
+- ROI 边界行为
+- 精度敏感或饱和行为
+- 同一函数族的通道 / 布局变体
 
-优先参数化 gtest，尽量复用已有 fixture 和 `test/unit/framework/`。
+优先使用参数化 gtest，并尽量复用 `test/unit/framework/` 和同模块已有 fixture。
 
 ### 第 4 步：在 `build-nvidia` 验证测试
 
-推荐命令：
+先证明测试程序是对的，可以达到测试功能的目的，再信任测试失败。运行单个API测试`TestAPI`执行命令：
 
 ```bash
 ./build.sh --use-nvidia-npp
 cd build-nvidia
 ctest --output-on-failure
-./test/unit/unit_tests --gtest_filter="*ApiOrModule*"
+./unit_tests --gtest_filter="*TestAPI*"
 ```
 
-这里的目标不是验证本地实现，而是验证测试是否可信。
+`build.sh --use-nvidia-npp` 会把构建目录切到 `build-nvidia/`，其意义是使用同一套测试代码去链接 NVIDIA NPP 作为参考实现。
 
-`build.sh` 当前支持 `--use-nvidia-npp`、`--use-maca-npp`、`--benchmark`、`--lib-only`、`--no-werror` 等选项。标准开发流程里最常用的是默认构建与 `--use-nvidia-npp` 两个入口。
+若失败，优先排查：
 
-### 第 5 步：修改 `src/` 实现
+1. 测试是否写错
+2. 预期是否理解错
+3. NVIDIA NPP 是否与当前假设不同
+4. 测试框架或 fixture 是否有问题
 
-测试被验证后，再改本地实现。建议顺序：
+### 第 5 步：修改本地实现
+
+只有测试通过 NVIDIA 路径验证后，才修改 `src/`。推荐实现顺序：
 
 1. 参数校验
 2. 类型 / 通道 / 布局分发
-3. 核心实现
-4. helper 抽取
+3. 核心计算逻辑
+4. 公共 helper 抽取
 5. 错误码与边界行为修正
 
-### 第 6 步：在 `build` 做回归
+当前仓库目录已经按模块拆得较细，新增文件应优先落到现有子目录，而不是再创建平行命名体系, 命名沿用仓库中已有的命名方式。
 
-推荐命令：
+### 第 6 步：在 `build` 做本地回归
+
+实现完成后，运行同一组聚焦测试：
 
 ```bash
 ./build.sh
 cd build
 ctest --output-on-failure
-./test/unit/unit_tests --gtest_filter="*ApiOrModule*"
+./unit_tests --gtest_filter="*TestAPI*"
 ```
 
-目标是确认新测试通过，且相邻模块没有被带坏。
+目标是确认本地实现是否与 NVIDIA NPP 行为对齐。
 
-如需先快速确认库是否能编过，可用 `./build.sh --lib-only`；但只要本次任务涉及测试或行为修复，最终仍应回到标准测试路径。
+如需缩小编译范围，可先用 `./build.sh --lib-only` 快速验证库构建；但只要本次任务涉及测试变更，最终仍应回到标准测试路径确认。
 
 ### 第 7 步：刷新覆盖率
 
-只要实现状态或测试状态变化，就执行：
+如果实现状态或测试状态发生变化，执行：
 
 ```bash
 ./update_coverage.sh
 ```
 
-并确认覆盖率结果变化正确。
+并确认对应 API 的覆盖率条目变化是否符合预期。
 
-当前 `update_coverage.sh` 还会为算术模块生成 `api_analysis/untested_arithmetic.txt` 与 `api_analysis/untested_arithmetic_summary.md`。因此 arithmetic 模块变更后，建议同步检查这两个文件。
-
-### 第 8 步：做 MACA 适配
-
-只有 baseline 稳定后，才进入 MACA 阶段。重点关注：
-
-- 工具链差异
-- 条件编译差异
-- 编译错误
-- 运行时行为差异
-
-仓库中既有 `build.sh --use-maca-npp`，也有单独的 `build_maca.sh`。除非任务明确指定其他方式，优先沿用主构建脚本以减少配置漂移。
-
-### 第 9 步：做 benchmark 和性能优化
-
-性能路径必须建立在正确性稳定之上。推荐闭环：
-
-1. 固定 benchmark 场景
-2. 采集 MPP 基线
-3. 采集 NVIDIA NPP 对标数据
-4. 排序热点
-5. 提出优化假设
-6. 小步修改
-7. 重新跑功能测试
-8. 重新跑 benchmark
-9. 记录结果并进入下一轮
-
-当前仓库里的 benchmark 能力主要集中在 `benchmark_base/`，其中已经有：
-
-- `build_benchmark.sh`：独立构建 benchmark
-- `run_benchmark.sh`：运行 benchmark、过滤 API、做 compare
-- `compare_csv.py`：生成对比 CSV 与 HTML 报告
-- `progress_report.py`：跟踪 MPP before/after 与 NVIDIA 目标之间的进展
+当前 `update_coverage.sh` 除了刷新 `api_analysis/coverage.csv` 和 `api_analysis/coverage_summary.md`，还会为算术模块生成 `api_analysis/untested_arithmetic.txt` 与 `api_analysis/untested_arithmetic_summary.md`。若本次工作位于 arithmetic 模块，则顺带检查这两个文件。
 
 ## 4. 工具命令参考
 
-### 4.1 覆盖率缺口扫描
-
-```bash
-python3 skills/npp-development-optimization/scripts/summarize_coverage.py \
-  --module nppi_color_conversion.h \
-  --tested no \
-  --heat api_analysis/nppi_color_conversion_usage_heat.md \
-  --limit 30
-```
-
-如果想直接看到实现文件和测试文件，可追加 `--show-files`。
-
-### 4.2 NVIDIA 路径测试
+### 4.1 NVIDIA 基线路径
 
 ```bash
 ./build.sh --use-nvidia-npp
 cd build-nvidia
 ctest --output-on-failure
-./test/unit/unit_tests --gtest_filter="*ApiOrModule*"
+./unit_tests --gtest_filter="*TestAPI*"
 ```
 
-### 4.3 本地实现测试
+### 4.2 本地实现路径
 
 ```bash
 ./build.sh
 cd build
 ctest --output-on-failure
-./test/unit/unit_tests --gtest_filter="*ApiOrModule*"
+./unit_tests --gtest_filter="*TestAPI*"
 ```
 
-### 4.4 覆盖率刷新
+### 4.3 覆盖率刷新
 
 ```bash
 ./update_coverage.sh
 ```
 
-### 4.5 benchmark 构建与运行
+### 4.4 模块状态快速扫描
 
 ```bash
-./benchmark_base/build_benchmark.sh --use-mpp
-./benchmark_base/build_benchmark.sh --use-nvidia-npp
-
-./benchmark_base/run_benchmark.sh --use-mpp -f Resize
-./benchmark_base/run_benchmark.sh --use-nvidia-npp -f Resize
+python3 tools/check_coverage.py
 ```
 
-### 4.6 benchmark 对比与报告
+这个脚本会直接输出 `api_analysis/coverage.csv` 和 `api_analysis/coverage_summary.md`，用于确定模块中api的覆盖情况。
 
-```bash
-python3 benchmark_base/compare_csv.py \
-  benchmark_compare_mpp.csv \
-  benchmark_compare_nvidia.csv \
-  --labels MPP "NVIDIA NPP" \
-  --html benchmark_compare_report.html
-```
+## 5. 实现检查清单
 
-如果是同一个 API 的 MPP 优化前后对比，也可以把两份 MPP CSV 直接喂给 `compare_csv.py`，只是输出列名仍保持 `mpp_*` / `nvidia_*` 的兼容格式。
+### 功能检查
 
-## 5. 工作检查清单
+- [ ] 已确认目标 API 的精确签名
+- [ ] 已确认使用的是哪一套头文件版本作为参考
+- [ ] 已确认 ROI / step / 错误码语义
+- [ ] 已找到最近邻实现
+- [ ] 已找到最近邻测试
+- [ ] 已检查 `test/unit/framework/` 中是否已有可复用基础设施
+- [ ] 已在 `build-nvidia` 下验证测试可信
+- [ ] 已在 `build` 下验证本地实现通过
+- [ ] 已确认是否需要更新覆盖率
 
-### 功能开发检查
+### 行为对齐检查
 
-- [ ] 已明确任务属于哪一类
-- [ ] 已完成模块或 API 范围界定
-- [ ] 已确认参考的头文件版本和模块目录
-- [ ] 已先写或修测试
-- [ ] 已检查 `test/unit/framework/` 是否已有可复用基础设施
-- [ ] 已在 `build-nvidia` 验证测试可信
-- [ ] 已在 `build` 验证本地实现
-- [ ] 已刷新覆盖率状态
+重点比对以下维度：
 
-### 性能优化检查
+- [ ] `NppStatus`
+- [ ] 输出值
+- [ ] alpha 通道保留规则
+- [ ] 是否支持原地操作
+- [ ] 饱和 / 舍入 / 截断规则
+- [ ] ROI 尺寸是否合法
+- [ ] buffer-size helper 行为
 
-- [ ] 正确性闭环已稳定
-- [ ] benchmark 场景已固定
-- [ ] 已采集 MPP 和 NVIDIA NPP 数据
-- [ ] 已明确 benchmark 使用的是 `build/`、`build-nvidia/` 还是 `build-bench/` 路径产物
-- [ ] 已明确优化假设
-- [ ] 已做回归验证
-- [ ] 已记录本轮收益与风险
+如果目标 API 所属模块在仓库内已有 CPU 参考实现、专项行为分析或边界模式文档，也应在这里补做人工核对。
 
 ## 6. 常见问题与处理方式
 
-### 任务开始就不知道先做什么
+### 测试在 `build-nvidia` 失败
 
-先看 `coverage.csv`、目标头文件、附近 `src/`、附近 `test/unit/`，先确定模块范围，再开始。
+优先判断：
 
-更稳妥的做法是先跑一遍 `summarize_coverage.py`，再决定本轮是做“实现缺口”还是“测试缺口”。
+- 测试本身错误
+- 预期理解错误
+- NVIDIA NPP 行为与假设不一致
+- fixture 或输入构造不合理
 
-### 测试在 `build-nvidia` 就失败
+### 本地实现在 `build` 失败
 
-优先怀疑测试本身，不要立即改 `src/`。先判断测试逻辑、预期理解和 fixture。
+优先判断：
 
-如果失败只发生在 `build-nvidia`，通常优先排查测试和输入构造；如果 `build-nvidia` 通过而 `build` 失败，再回头看本地实现。
+- 参数校验遗漏
+- 通道 / 类型 dispatch 错误
+- ROI 或 step 处理错误
+- 边界行为未与 NVIDIA NPP 对齐
+- 模块内已有 helper 复用方式不一致
 
-### 本地实现通过单测但覆盖率没变化
+### 测试通过但行为仍可疑
 
-优先检查：
+优先补充：
 
-- 是否忘了运行 `./update_coverage.sh`
-- 覆盖率条目是否对应错模块
-- 当前任务是否实际上只补了局部逻辑，没有改变统计口径
-- 当前模块是否属于 `update_coverage.sh` 额外摘要覆盖范围之外
-
-### 性能优化没有明显收益
-
-优先检查：
-
-- benchmark 场景是否固定
-- 热点是否选对
-- 修改是否过于分散
-- 是否遗漏了功能回归导致结果不可信
-- 是否误用了不同 build 目录下的 benchmark 可执行文件
+- 非法参数测试
+- 边界 ROI 测试
+- 饱和 / 精度敏感测试
+- 函数族变体测试
 
 ## 7. 完成标准
 
-一个完整的开发或优化任务完成，至少应满足：
+一个 API 实现或修复完成，至少应满足：
 
-- 测试在 `build-nvidia` 可验证
-- 本地实现在 `build` 通过回归
-- 覆盖率状态已刷新
-- 若涉及移植，MACA 状态明确
-- 若涉及性能优化，benchmark 收益和回归结果明确
-- 最终结果说明清楚本轮完成范围和剩余范围
+- 测试已在 `build-nvidia` 通过
+- 本地实现已在 `build` 通过同一组测试
+- 覆盖率状态已刷新（若本次任务影响覆盖率）
+- 结果中明确写出对齐了哪些 NVIDIA NPP 行为
+- 明确写出当前仍未覆盖或暂未处理的范围
 
 ## 8. 关键提醒
 
-1. 覆盖率、测试、实现、移植、优化不是并列关系，而是有先后依赖的链路。
-2. `build-nvidia` 的作用是验证测试，不是替代本地回归。
-3. baseline 稳定前不要急着做 MACA 和性能优化。
-4. benchmark 必须建立在同一场景上，否则结论不成立。
-5. 每轮工作都应该有可追溯结果，而不是只留下口头结论。
-6. 当前仓库已经有比较完整的脚本链路，优先复用已有脚本和目录结构，不要临时发明新流程。
+1. 单个 API 的任务首先是“行为对齐”，不是“快速写出一版实现”。
+2. 越接近已有实现族，越应该复用现有模式。
+3. 只看正常路径的测试结论没有意义。
+4. 编译`build-nvidia` 进行测试验证是判断测试可信度的关键步骤。
+5. 只要状态变化就应更新覆盖率。
+6. 当前仓库模块目录和测试目录已经较完整，新增文件优先贴合现有框架，而不是另起体系。

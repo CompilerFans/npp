@@ -1296,3 +1296,368 @@ TEST_F(NppiMeanStdDevComprehensiveTest, EdgeCases_AllAPIs) {
     }
   }
 }
+
+
+// ==================== nppiMean_8u_C1R Tests ====================
+
+using namespace npp_functional_test;
+
+class NppiMean8uC1RTest : public NppTestBase {
+protected:
+  void SetUp() override { NppTestBase::SetUp(); }
+  void TearDown() override { NppTestBase::TearDown(); }
+
+  double calculateReferenceMean(const std::vector<Npp8u> &data) {
+    double sum = 0.0;
+    for (const auto &val : data) {
+      sum += static_cast<double>(val);
+    }
+    return sum / data.size();
+  }
+};
+
+TEST_F(NppiMean8uC1RTest, MeanGetBufferHostSize_8u_C1R) {
+  NppiSize oSizeROI = {256, 256};
+  SIZE_TYPE bufferSize = 0;
+  NppStatus status = nppiMeanGetBufferHostSize_8u_C1R(oSizeROI, &bufferSize);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0);
+
+  NppiSize smallROI = {64, 64};
+  SIZE_TYPE smallBufferSize = 0;
+  status = nppiMeanGetBufferHostSize_8u_C1R(smallROI, &smallBufferSize);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(smallBufferSize, 0);
+}
+
+TEST_F(NppiMean8uC1RTest, MeanGetBufferHostSize_8u_C1R_Ctx) {
+  NppiSize oSizeROI = {256, 256};
+  SIZE_TYPE bufferSize = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+  NppStatus status = nppiMeanGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &bufferSize, ctx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+  EXPECT_GT(bufferSize, 0);
+}
+
+TEST_F(NppiMean8uC1RTest, Mean_8u_C1R_ConstantImage) {
+  const int width = 64, height = 64;
+  const Npp8u constantValue = 128;
+
+  int srcStep = 0;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+
+  std::vector<Npp8u> srcData(width * height, constantValue);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  SIZE_TYPE bufferSize = 0;
+  nppiMeanGetBufferHostSize_8u_C1R({width, height}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  ASSERT_NE(d_buffer, nullptr);
+
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  ASSERT_NE(d_mean, nullptr);
+
+  NppStatus status = nppiMean_8u_C1R(d_src, srcStep, {width, height}, d_buffer, d_mean);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  Npp64f mean = 0.0;
+  cudaMemcpy(&mean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  EXPECT_NEAR(mean, static_cast<double>(constantValue), 0.01);
+
+  nppiFree(d_src);
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+TEST_F(NppiMean8uC1RTest, Mean_8u_C1R_Ctx_ConstantImage) {
+  const int width = 64, height = 64;
+  const Npp8u constantValue = 200;
+
+  int srcStep = 0;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+
+  std::vector<Npp8u> srcData(width * height, constantValue);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  SIZE_TYPE bufferSize = 0;
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+  nppiMeanGetBufferHostSize_8u_C1R_Ctx({width, height}, &bufferSize, ctx);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  ASSERT_NE(d_buffer, nullptr);
+
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  ASSERT_NE(d_mean, nullptr);
+
+  NppStatus status = nppiMean_8u_C1R_Ctx(d_src, srcStep, {width, height}, d_buffer, d_mean, ctx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  Npp64f mean = 0.0;
+  cudaMemcpy(&mean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  EXPECT_NEAR(mean, static_cast<double>(constantValue), 0.01);
+
+  nppiFree(d_src);
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+TEST_F(NppiMean8uC1RTest, Mean_8u_C1R_GradientImage) {
+  const int width = 32, height = 32;
+  std::vector<Npp8u> srcData(width * height);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      srcData[y * width + x] = static_cast<Npp8u>((x + y) % 256);
+    }
+  }
+
+  int srcStep = 0;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, srcStep, srcData.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  SIZE_TYPE bufferSize = 0;
+  nppiMeanGetBufferHostSize_8u_C1R({width, height}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  ASSERT_NE(d_buffer, nullptr);
+
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+  ASSERT_NE(d_mean, nullptr);
+
+  NppStatus status = nppiMean_8u_C1R(d_src, srcStep, {width, height}, d_buffer, d_mean);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  Npp64f mean = 0.0;
+  cudaMemcpy(&mean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+
+  double expectedMean = calculateReferenceMean(srcData);
+  EXPECT_NEAR(mean, expectedMean, 1.0);
+
+  nppiFree(d_src);
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+TEST_F(NppiMean8uC1RTest, Mean_8u_C1R_NullPointer) {
+  SIZE_TYPE bufferSize = 0;
+  nppiMeanGetBufferHostSize_8u_C1R({64, 64}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+
+  EXPECT_EQ(nppiMean_8u_C1R(nullptr, 64, {64, 64}, d_buffer, d_mean), NPP_NULL_POINTER_ERROR);
+
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+// ==================== nppiMean_8u_C1R and nppiAverageError_8u_C1R Tests ====================
+
+TEST(NppiMeanAndAverageErrorTest, Mean_8u_C1R_And_Ctx) {
+  const int width = 29;
+  const int height = 11;
+  const NppiSize roi{width, height};
+  std::vector<Npp8u> source(static_cast<size_t>(width) * height);
+  double expected = 0.0;
+  for (size_t i = 0; i < source.size(); ++i) {
+    source[i] = static_cast<Npp8u>((i * 19 + 5) % 256);
+    expected += source[i];
+  }
+  expected /= source.size();
+
+  int step = 0;
+  Npp8u *dSource = nppiMalloc_8u_C1(width, height, &step);
+  ASSERT_NE(dSource, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(dSource, step, source.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  int bufferSize = 0;
+  ASSERT_EQ(nppiMeanGetBufferHostSize_8u_C1R(roi, &bufferSize), NPP_SUCCESS);
+  ASSERT_GT(bufferSize, 0);
+  Npp8u *dBuffer = nullptr;
+  Npp64f *dMean = nullptr;
+  ASSERT_EQ(cudaMalloc(&dBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&dMean, sizeof(Npp64f)), cudaSuccess);
+
+  ASSERT_EQ(nppiMean_8u_C1R(dSource, step, roi, dBuffer, dMean), NPP_SUCCESS);
+  double mean = 0.0;
+  ASSERT_EQ(cudaMemcpy(&mean, dMean, sizeof(mean), cudaMemcpyDeviceToHost), cudaSuccess);
+  EXPECT_NEAR(mean, expected, 1e-12);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  int contextBufferSize = 0;
+  ASSERT_EQ(nppiMeanGetBufferHostSize_8u_C1R_Ctx(roi, &contextBufferSize, context), NPP_SUCCESS);
+  EXPECT_GT(contextBufferSize, 0);
+  ASSERT_EQ(nppiMean_8u_C1R_Ctx(dSource, step, roi, dBuffer, dMean, context), NPP_SUCCESS);
+  EXPECT_EQ(nppiMean_8u_C1R(nullptr, step, roi, dBuffer, dMean), NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiMean_8u_C1R(dSource, width - 1, roi, dBuffer, dMean), NPP_STEP_ERROR);
+
+  nppiFree(dSource);
+  cudaFree(dBuffer);
+  cudaFree(dMean);
+}
+
+TEST(NppiMeanAndAverageErrorTest, AverageError_8u_C1R_And_Ctx) {
+  const int width = 31;
+  const int height = 9;
+  const NppiSize roi{width, height};
+  std::vector<Npp8u> source1(static_cast<size_t>(width) * height);
+  std::vector<Npp8u> source2(source1.size());
+  double expected = 0.0;
+  for (size_t i = 0; i < source1.size(); ++i) {
+    source1[i] = static_cast<Npp8u>((i * 7 + 23) % 256);
+    source2[i] = static_cast<Npp8u>((i * 13 + 3) % 256);
+    expected += std::abs(static_cast<int>(source1[i]) - static_cast<int>(source2[i]));
+  }
+  expected /= source1.size();
+
+  int step1 = 0;
+  int step2 = 0;
+  Npp8u *dSource1 = nppiMalloc_8u_C1(width, height, &step1);
+  Npp8u *dSource2 = nppiMalloc_8u_C1(width, height, &step2);
+  ASSERT_NE(dSource1, nullptr);
+  ASSERT_NE(dSource2, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(dSource1, step1, source1.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(dSource2, step2, source2.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  int bufferSize = 0;
+  ASSERT_EQ(nppiAverageErrorGetBufferHostSize_8u_C1R(roi, &bufferSize), NPP_SUCCESS);
+  ASSERT_GT(bufferSize, 0);
+  Npp8u *dBuffer = nullptr;
+  Npp64f *dError = nullptr;
+  ASSERT_EQ(cudaMalloc(&dBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&dError, sizeof(Npp64f)), cudaSuccess);
+
+  ASSERT_EQ(nppiAverageError_8u_C1R(dSource1, step1, dSource2, step2, roi, dError, dBuffer), NPP_SUCCESS);
+  double error = 0.0;
+  ASSERT_EQ(cudaMemcpy(&error, dError, sizeof(error), cudaMemcpyDeviceToHost), cudaSuccess);
+  EXPECT_NEAR(error, expected, 1e-12);
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  int contextBufferSize = 0;
+  ASSERT_EQ(nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(roi, &contextBufferSize, context), NPP_SUCCESS);
+  EXPECT_EQ(contextBufferSize, bufferSize);
+  EXPECT_EQ(nppiAverageError_8u_C1R_Ctx(dSource1, step1, dSource2, step2, roi, dError, dBuffer, context),
+            NPP_SUCCESS);
+  EXPECT_EQ(nppiAverageError_8u_C1R(nullptr, step1, dSource2, step2, roi, dError, dBuffer),
+            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiAverageError_8u_C1R(dSource1, width - 1, dSource2, step2, roi, dError, dBuffer), NPP_STEP_ERROR);
+
+  nppiFree(dSource1);
+  nppiFree(dSource2);
+  cudaFree(dBuffer);
+  cudaFree(dError);
+}
+
+TEST(NppiMeanAndAverageErrorTest, Mean_8u_C1R_AllZeros) {
+  const int width = 32, height = 32;
+  int step = 0;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &step);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemset2D(d_src, step, 0, width, height);
+
+  int bufferSize = 0;
+  nppiMeanGetBufferHostSize_8u_C1R({width, height}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+
+  ASSERT_EQ(nppiMean_8u_C1R(d_src, step, {width, height}, d_buffer, d_mean), NPP_SUCCESS);
+  Npp64f mean = -1.0;
+  cudaMemcpy(&mean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  EXPECT_DOUBLE_EQ(mean, 0.0);
+
+  nppiFree(d_src);
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+TEST(NppiMeanAndAverageErrorTest, Mean_8u_C1R_All255) {
+  const int width = 32, height = 32;
+  int step = 0;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &step);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemset2D(d_src, step, 255, width, height);
+
+  int bufferSize = 0;
+  nppiMeanGetBufferHostSize_8u_C1R({width, height}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+
+  ASSERT_EQ(nppiMean_8u_C1R(d_src, step, {width, height}, d_buffer, d_mean), NPP_SUCCESS);
+  Npp64f mean = -1.0;
+  cudaMemcpy(&mean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  EXPECT_DOUBLE_EQ(mean, 255.0);
+
+  nppiFree(d_src);
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+TEST(NppiMeanAndAverageErrorTest, Mean_8u_C1R_SinglePixel) {
+  const int width = 1, height = 1;
+  const Npp8u value = 200;
+  int step = 0;
+  Npp8u *d_src = nppiMalloc_8u_C1(width, height, &step);
+  ASSERT_NE(d_src, nullptr);
+  cudaMemcpy2D(d_src, step, &value, width, width, height, cudaMemcpyHostToDevice);
+
+  int bufferSize = 0;
+  nppiMeanGetBufferHostSize_8u_C1R({width, height}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  Npp64f *d_mean = nullptr;
+  cudaMalloc(&d_mean, sizeof(Npp64f));
+
+  ASSERT_EQ(nppiMean_8u_C1R(d_src, step, {width, height}, d_buffer, d_mean), NPP_SUCCESS);
+  Npp64f mean = -1.0;
+  cudaMemcpy(&mean, d_mean, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  EXPECT_DOUBLE_EQ(mean, static_cast<double>(value));
+
+  nppiFree(d_src);
+  cudaFree(d_buffer);
+  cudaFree(d_mean);
+}
+
+TEST(NppiMeanAndAverageErrorTest, AverageError_8u_C1R_ConstantDifference) {
+  const int width = 32, height = 32;
+  const Npp8u val1 = 100, val2 = 150;
+  std::vector<Npp8u> srcData1(width * height, val1);
+  std::vector<Npp8u> srcData2(width * height, val2);
+
+  int step1 = 0, step2 = 0;
+  Npp8u *d_src1 = nppiMalloc_8u_C1(width, height, &step1);
+  Npp8u *d_src2 = nppiMalloc_8u_C1(width, height, &step2);
+  ASSERT_NE(d_src1, nullptr);
+  ASSERT_NE(d_src2, nullptr);
+  cudaMemcpy2D(d_src1, step1, srcData1.data(), width, width, height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src2, step2, srcData2.data(), width, width, height, cudaMemcpyHostToDevice);
+
+  int bufferSize = 0;
+  nppiAverageErrorGetBufferHostSize_8u_C1R({width, height}, &bufferSize);
+  Npp8u *d_buffer = nullptr;
+  cudaMalloc(&d_buffer, bufferSize);
+  Npp64f *d_error = nullptr;
+  cudaMalloc(&d_error, sizeof(Npp64f));
+
+  ASSERT_EQ(nppiAverageError_8u_C1R(d_src1, step1, d_src2, step2, {width, height}, d_error, d_buffer), NPP_SUCCESS);
+  Npp64f error = 0.0;
+  cudaMemcpy(&error, d_error, sizeof(Npp64f), cudaMemcpyDeviceToHost);
+  EXPECT_NEAR(error, static_cast<double>(val2 - val1), 0.01);
+
+  nppiFree(d_src1);
+  nppiFree(d_src2);
+  cudaFree(d_buffer);
+  cudaFree(d_error);
+}

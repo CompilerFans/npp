@@ -1,19 +1,34 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 
-
-/**
- * CUDA kernels for NPP RGB to Grayscale Conversion Functions
- */
-
 // ITU-R BT.709 standard luminance weights
 #define WEIGHT_R 0.299f
 #define WEIGHT_G 0.587f
 #define WEIGHT_B 0.114f
 
-/**
- * CUDA kernel for converting RGB (3-channel) to grayscale (8-bit)
- */
+__device__ inline int round_to_int(float value) {
+  return static_cast<int>(value >= 0.0f ? value + 0.5f : value - 0.5f);
+}
+
+__device__ inline Npp16u clamp_u16(int value) {
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 65535) {
+    return 65535;
+  }
+  return static_cast<Npp16u>(value);
+}
+
+__device__ inline Npp16s clamp_s16(int value) {
+  if (value < -32768) {
+    return -32768;
+  }
+  if (value > 32767) {
+    return 32767;
+  }
+  return static_cast<Npp16s>(value);
+}
 __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                               int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -35,9 +50,25 @@ __global__ void nppiRGBToGray_8u_C3C1R_kernel(const Npp8u *pSrc, int nSrcStep, N
   }
 }
 
-/**
- * CUDA kernel for converting RGBA (4-channel) to grayscale (8-bit), ignoring alpha
- */
+__global__ void nppiRGBToGray_16u_C3C1R_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
+                                               int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_pixel = (const Npp16u *)((const char *)pSrc + y * nSrcStep) + x * 3;
+    Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x;
+
+    float r = static_cast<float>(src_pixel[0]);
+    float g = static_cast<float>(src_pixel[1]);
+    float b = static_cast<float>(src_pixel[2]);
+
+    float gray = WEIGHT_R * r + WEIGHT_G * g + WEIGHT_B * b;
+    int rounded = round_to_int(gray);
+    *dst_pixel = clamp_u16(rounded);
+  }
+}
+
 __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
                                                int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -60,9 +91,63 @@ __global__ void nppiRGBToGray_8u_AC4C1R_kernel(const Npp8u *pSrc, int nSrcStep, 
   }
 }
 
-/**
- * CUDA kernel for converting RGB (3-channel) to grayscale (32-bit float)
- */
+__global__ void nppiRGBToGray_16u_AC4C1R_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
+                                                int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16u *src_pixel = (const Npp16u *)((const char *)pSrc + y * nSrcStep) + x * 4;
+    Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x;
+
+    float r = static_cast<float>(src_pixel[0]);
+    float g = static_cast<float>(src_pixel[1]);
+    float b = static_cast<float>(src_pixel[2]);
+
+    float gray = WEIGHT_R * r + WEIGHT_G * g + WEIGHT_B * b;
+    int rounded = round_to_int(gray);
+    *dst_pixel = clamp_u16(rounded);
+  }
+}
+
+__global__ void nppiRGBToGray_16s_C3C1R_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
+                                               int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_pixel = (const Npp16s *)((const char *)pSrc + y * nSrcStep) + x * 3;
+    Npp16s *dst_pixel = (Npp16s *)((char *)pDst + y * nDstStep) + x;
+
+    float r = static_cast<float>(src_pixel[0]);
+    float g = static_cast<float>(src_pixel[1]);
+    float b = static_cast<float>(src_pixel[2]);
+
+    float gray = WEIGHT_R * r + WEIGHT_G * g + WEIGHT_B * b;
+    int rounded = round_to_int(gray);
+    *dst_pixel = clamp_s16(rounded);
+  }
+}
+
+__global__ void nppiRGBToGray_16s_AC4C1R_kernel(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, int width,
+                                                int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (x < width && y < height) {
+    const Npp16s *src_pixel = (const Npp16s *)((const char *)pSrc + y * nSrcStep) + x * 4;
+    Npp16s *dst_pixel = (Npp16s *)((char *)pDst + y * nDstStep) + x;
+
+    float r = static_cast<float>(src_pixel[0]);
+    float g = static_cast<float>(src_pixel[1]);
+    float b = static_cast<float>(src_pixel[2]);
+
+    float gray = WEIGHT_R * r + WEIGHT_G * g + WEIGHT_B * b;
+    int rounded = round_to_int(gray);
+    *dst_pixel = clamp_s16(rounded);
+  }
+}
+
 __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -83,9 +168,6 @@ __global__ void nppiRGBToGray_32f_C3C1R_kernel(const Npp32f *pSrc, int nSrcStep,
   }
 }
 
-/**
- * CUDA kernel for converting RGBA (4-channel) to grayscale (32-bit float), ignoring alpha
- */
 __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, int width,
                                                 int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -108,10 +190,6 @@ __global__ void nppiRGBToGray_32f_AC4C1R_kernel(const Npp32f *pSrc, int nSrcStep
 }
 
 extern "C" {
-
-/**
- * Convert 3-channel RGB to single-channel grayscale (8-bit)
- */
 NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                           NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -138,9 +216,31 @@ NppStatus nppiRGBToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
   return NPP_SUCCESS;
 }
 
-/**
- * Convert 4-channel RGBA to single-channel grayscale (8-bit), ignoring alpha channel
- */
+NppStatus nppiRGBToGray_16u_C3C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiRGBToGray_16u_C3C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                   oSizeROI.width, oSizeROI.height);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
 NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -167,9 +267,81 @@ NppStatus nppiRGBToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8
   return NPP_SUCCESS;
 }
 
-/**
- * Convert 3-channel RGB to single-channel grayscale (32-bit float)
- */
+NppStatus nppiRGBToGray_16u_AC4C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiRGBToGray_16u_AC4C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                    oSizeROI.width, oSizeROI.height);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiRGBToGray_16s_C3C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                           NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiRGBToGray_16s_C3C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                   oSizeROI.width, oSizeROI.height);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiRGBToGray_16s_AC4C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+
+  nppiRGBToGray_16s_AC4C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                    oSizeROI.width, oSizeROI.height);
+
+  cudaError_t cudaStatus = cudaGetLastError();
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  if (nppStreamCtx.hStream == 0) {
+    cudaStatus = cudaDeviceSynchronize();
+  } else {
+    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
+  }
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+
+  return NPP_SUCCESS;
+}
+
 NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -196,9 +368,6 @@ NppStatus nppiRGBToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp
   return NPP_SUCCESS;
 }
 
-/**
- * Convert 4-channel RGBA to single-channel grayscale (32-bit float), ignoring alpha channel
- */
 NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
@@ -224,5 +393,4 @@ NppStatus nppiRGBToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Np
 
   return NPP_SUCCESS;
 }
-
-} // extern "C"
+}

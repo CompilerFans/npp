@@ -31,5 +31,6 @@ target_include_directories(unit_tests
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/framework   # test framework
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src   # src root
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/include    # src include (npp_version_compat.h, etc.)
     ${CMAKE_CURRENT_SOURCE_DIR}             # ut root
 )

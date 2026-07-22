@@ -316,7 +316,7 @@ public:
         ptr_ = nppiMalloc_16u_C4(width, height, &step_);
     } else if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
       size_t pitch;
-      cudaError_t err = cudaMallocPitch(reinterpret_cast<void**>(&ptr_), &pitch, width * channels * sizeof(T), height);
+      cudaError_t err = cudaMallocPitch(reinterpret_cast<void **>(&ptr_), &pitch, width * channels * sizeof(T), height);
       if (err == cudaSuccess) {
         step_ = static_cast<int>(pitch);
       }
@@ -442,7 +442,7 @@ public:
     } else if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp32s>) {
       size_t pitch;
       for (int i = 0; i < NumPlanes; i++) {
-        cudaError_t err = cudaMallocPitch(reinterpret_cast<void**>(&planes_[i]), &pitch, width * sizeof(T), height);
+        cudaError_t err = cudaMallocPitch(reinterpret_cast<void **>(&planes_[i]), &pitch, width * sizeof(T), height);
         if (err != cudaSuccess)
           return false;
         step_ = static_cast<int>(pitch);
@@ -892,10 +892,14 @@ private:
     } else if constexpr (std::is_same_v<T, Npp16s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_16s_P3C3R((const Npp16s *const *)src, srcStep, dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16s_P4C4R((const Npp16s *const *)src, srcStep, dst, dstStep, roi);
       }
     } else if constexpr (std::is_same_v<T, Npp32s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_32s_P3C3R((const Npp32s *const *)src, srcStep, dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32s_P4C4R((const Npp32s *const *)src, srcStep, dst, dstStep, roi);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -925,10 +929,14 @@ private:
     } else if constexpr (std::is_same_v<T, Npp16s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_16s_P3C3R_Ctx((const Npp16s *const *)src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16s_P4C4R_Ctx((const Npp16s *const *)src, srcStep, dst, dstStep, roi, ctx);
       }
     } else if constexpr (std::is_same_v<T, Npp32s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_32s_P3C3R_Ctx((const Npp32s *const *)src, srcStep, dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32s_P4C4R_Ctx((const Npp32s *const *)src, srcStep, dst, dstStep, roi, ctx);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -958,10 +966,14 @@ private:
     } else if constexpr (std::is_same_v<T, Npp16s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_16s_C3P3R(src, srcStep, (Npp16s *const *)dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16s_C4P4R(src, srcStep, (Npp16s *const *)dst, dstStep, roi);
       }
     } else if constexpr (std::is_same_v<T, Npp32s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_32s_C3P3R(src, srcStep, (Npp32s *const *)dst, dstStep, roi);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32s_C4P4R(src, srcStep, (Npp32s *const *)dst, dstStep, roi);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -991,10 +1003,14 @@ private:
     } else if constexpr (std::is_same_v<T, Npp16s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_16s_C3P3R_Ctx(src, srcStep, (Npp16s *const *)dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_16s_C4P4R_Ctx(src, srcStep, (Npp16s *const *)dst, dstStep, roi, ctx);
       }
     } else if constexpr (std::is_same_v<T, Npp32s>) {
       if constexpr (NumPlanes == 3) {
         return nppiCopy_32s_C3P3R_Ctx(src, srcStep, (Npp32s *const *)dst, dstStep, roi, ctx);
+      } else if constexpr (NumPlanes == 4) {
+        return nppiCopy_32s_C4P4R_Ctx(src, srcStep, (Npp32s *const *)dst, dstStep, roi, ctx);
       }
     }
     return NPP_NOT_IMPLEMENTED_ERROR;
@@ -1215,6 +1231,14 @@ TEST_F(CopyTest, RoundTrip_16u_Packed_Planar_Packed_4Channel) {
   testRoundTripPackedToPlanarToPacked<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
 }
 
+TEST_F(CopyTest, RoundTrip_16s_Packed_Planar_Packed_4Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp16s, 4>(20, 18, CopyTestHelper<Npp16s>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, RoundTrip_32s_Packed_Planar_Packed_4Channel) {
+  testRoundTripPackedToPlanarToPacked<Npp32s, 4>(18, 20, CopyTestHelper<Npp32s>::DataPattern::RANDOM);
+}
+
 TEST_F(CopyTest, RoundTrip_32f_Packed_Planar_Packed_4Channel) {
   testRoundTripPackedToPlanarToPacked<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
 }
@@ -1247,6 +1271,14 @@ TEST_F(CopyTest, RoundTrip_8u_Planar_Packed_Planar_4Channel) {
 
 TEST_F(CopyTest, RoundTrip_16u_Planar_Packed_Planar_4Channel) {
   testRoundTripPlanarToPackedToPlanar<Npp16u, 4>(24, 24, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
+}
+
+TEST_F(CopyTest, RoundTrip_16s_Planar_Packed_Planar_4Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp16s, 4>(20, 18, CopyTestHelper<Npp16s>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, RoundTrip_32s_Planar_Packed_Planar_4Channel) {
+  testRoundTripPlanarToPackedToPlanar<Npp32s, 4>(18, 20, CopyTestHelper<Npp32s>::DataPattern::COORDINATE);
 }
 
 TEST_F(CopyTest, RoundTrip_32f_Planar_Packed_Planar_4Channel) {

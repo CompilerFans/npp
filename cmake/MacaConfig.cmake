@@ -22,5 +22,19 @@ function(npp_configure_maca)
     set(NPP_SDK_INCLUDE_DIR ${MACA_INCLUDE_DIR} CACHE PATH "MACA include dir")
     set(NPP_SDK_LIB_DIR ${MACA_LIB_DIR} CACHE PATH "MACA library dirs")
     set(NPP_COMPILER ${MACA_COMPILER} CACHE FILEPATH "MACA compiler")
-    #set(NPP_SDK_LINK_LIBS xxx CACHE STRING "MACA link libraries")
+    set(NPP_SDK_LINK_LIBS "" CACHE STRING "MACA link libraries")
+
+    if (GPU_TYPE STREQUAL "METAX_GPU")
+        set(METAX_TARGET_ARCH_FLAGS "--offload-arch=xcore1000 --offload-arch=xcore1100 --offload-arch=xcore1500 --offload-arch=xcore1520 --offload-arch=xcore1600")
+
+        if(WITHOUT_CU_BRIDGE)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  \
+                ${METAX_TARGET_ARCH_FLAGS}" )
+            message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+        else()
+            set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} \
+                ${METAX_TARGET_ARCH_FLAGS}" )
+            message(STATUS "CMAKE_CUDA_FLAGS: ${CMAKE_CUDA_FLAGS}")
+        endif()
+    endif()
 endfunction()

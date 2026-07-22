@@ -49,6 +49,7 @@ inline NppStatus checkCudaKernelError() {
 
 // Validate shift constants based on type bit width
 template <typename T> inline NppStatus validateShiftConstants(const Npp32u *aConstants, int channels) {
+  // constexpr Npp32u maxShift = sizeof(T) * 8 - 1;
   constexpr Npp32u typeBits = sizeof(T) * 8;
   constexpr Npp32u maxShift = (typeBits >= 32) ? 31 : typeBits;
   for (int i = 0; i < channels; i++) {
@@ -341,10 +342,20 @@ public:
   }
 };
 
+template <typename T, int Count> struct KernelConstantPack { T values[Count]; };
+
+template <typename T, int Count> inline KernelConstantPack<T, Count> makeKernelConstantPack(const T *constants) {
+  KernelConstantPack<T, Count> packed{};
+  for (int i = 0; i < Count; ++i) {
+    packed.values[i] = constants[i];
+  }
+  return packed;
+}
+
 // Multi-channel constant kernel
 template <typename T, int Channels, typename ConstOpType>
 __global__ void multiConstKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
-                                 const T *constants, int scaleFactor) {
+                                 KernelConstantPack<T, Channels> constants, int scaleFactor) {
   int x, y;
   if (!getThreadCoords(x, y, width, height))
     return;
@@ -353,12 +364,31 @@ __global__ void multiConstKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstS
   T *dstRow = getDstRow(pDst, y, nDstStep);
 
   if constexpr (Channels == 1) {
-    ConstOpType op(constants[0]);
+    ConstOpType op(constants.values[0]);
     dstRow[x] = op(srcRow[x], T{}, scaleFactor);
+  } else if constexpr (Channels == 3) {
+    int idx = x * 3;
+    ConstOpType op0(constants.values[0]);
+    ConstOpType op1(constants.values[1]);
+    ConstOpType op2(constants.values[2]);
+    dstRow[idx + 0] = op0(srcRow[idx + 0], T{}, scaleFactor);
+    dstRow[idx + 1] = op1(srcRow[idx + 1], T{}, scaleFactor);
+    dstRow[idx + 2] = op2(srcRow[idx + 2], T{}, scaleFactor);
+  } else if constexpr (Channels == 4) {
+    int idx = x * 4;
+    ConstOpType op0(constants.values[0]);
+    ConstOpType op1(constants.values[1]);
+    ConstOpType op2(constants.values[2]);
+    ConstOpType op3(constants.values[3]);
+    dstRow[idx + 0] = op0(srcRow[idx + 0], T{}, scaleFactor);
+    dstRow[idx + 1] = op1(srcRow[idx + 1], T{}, scaleFactor);
+    dstRow[idx + 2] = op2(srcRow[idx + 2], T{}, scaleFactor);
+    dstRow[idx + 3] = op3(srcRow[idx + 3], T{}, scaleFactor);
   } else {
     int idx = x * Channels;
+#pragma unroll
     for (int c = 0; c < Channels; c++) {
-      ConstOpType op(constants[c]);
+      ConstOpType op(constants.values[c]);
       dstRow[idx + c] = op(srcRow[idx + c], T{}, scaleFactor);
     }
   }
@@ -368,7 +398,7 @@ __global__ void multiConstKernel(const T *pSrc, int nSrcStep, T *pDst, int nDstS
 // Alpha in dst is left unchanged (matches NVIDIA NPP behavior)
 template <typename T, typename ConstOpType>
 __global__ void multiConstAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
-                                    const T *constants, int scaleFactor) {
+                                    KernelConstantPack<T, 3> constants, int scaleFactor) {
   int x, y;
   if (!getThreadCoords(x, y, width, height))
     return;
@@ -377,11 +407,12 @@ __global__ void multiConstAC4Kernel(const T *pSrc, int nSrcStep, T *pDst, int nD
   T *dstRow = getDstRow(pDst, y, nDstStep);
 
   int idx = x * 4;
-  // Process only first 3 channels, leave alpha (4th channel) unchanged
-  for (int c = 0; c < 3; c++) {
-    ConstOpType op(constants[c]);
-    dstRow[idx + c] = op(srcRow[idx + c], T{}, scaleFactor);
-  }
+  ConstOpType op0(constants.values[0]);
+  ConstOpType op1(constants.values[1]);
+  ConstOpType op2(constants.values[2]);
+  dstRow[idx + 0] = op0(srcRow[idx + 0], T{}, scaleFactor);
+  dstRow[idx + 1] = op1(srcRow[idx + 1], T{}, scaleFactor);
+  dstRow[idx + 2] = op2(srcRow[idx + 2], T{}, scaleFactor);
   // Alpha channel (idx + 3) is NOT modified
 }
 
@@ -390,6 +421,9 @@ template <typename T, int Channels, typename ConstOpType> class MultiConstOperat
 public:
   static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
                            cudaStream_t stream, const T *constants) {
+    if (constants == nullptr)
+      return NPP_NULL_POINTER_ERROR;
+
     // Validate parameters
     NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, Channels);
     if (status != NPP_NO_ERROR)
@@ -397,28 +431,15 @@ public:
     if (oSizeROI.width == 0 || oSizeROI.height == 0)
       return NPP_NO_ERROR;
 
-    // Copy constants to device
-    T *d_constants;
-    cudaError_t err = cudaMalloc(&d_constants, Channels * sizeof(T));
-    if (err != cudaSuccess)
-      return NPP_MEMORY_ALLOCATION_ERR;
-
-    err = cudaMemcpy(d_constants, constants, Channels * sizeof(T), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
-      cudaFree(d_constants);
-      return NPP_MEMORY_ALLOCATION_ERR;
-    }
+    const auto packedConstants = makeKernelConstantPack<T, Channels>(constants);
 
     // Launch kernel
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
     multiConstKernel<T, Channels, ConstOpType><<<grid, block, 0, stream>>>(
-        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_constants, scaleFactor);
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, packedConstants, scaleFactor);
 
-    cudaError_t kernelResult = cudaGetLastError();
-    cudaFree(d_constants);
-
-    return (kernelResult == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return checkCudaKernelError();
   }
 };
 
@@ -427,6 +448,9 @@ template <typename T, typename ConstOpType> class MultiConstAC4OperationExecutor
 public:
   static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, int scaleFactor,
                            cudaStream_t stream, const T *constants) {
+    if (constants == nullptr)
+      return NPP_NULL_POINTER_ERROR;
+
     // Validate parameters (use 4 channels for stride validation)
     NppStatus status = validateUnaryParameters(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, 4);
     if (status != NPP_NO_ERROR)
@@ -434,28 +458,15 @@ public:
     if (oSizeROI.width == 0 || oSizeROI.height == 0)
       return NPP_NO_ERROR;
 
-    // Copy 3 constants to device
-    T *d_constants;
-    cudaError_t err = cudaMalloc(&d_constants, 3 * sizeof(T));
-    if (err != cudaSuccess)
-      return NPP_MEMORY_ALLOCATION_ERR;
-
-    err = cudaMemcpy(d_constants, constants, 3 * sizeof(T), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
-      cudaFree(d_constants);
-      return NPP_MEMORY_ALLOCATION_ERR;
-    }
+    const auto packedConstants = makeKernelConstantPack<T, 3>(constants);
 
     // Launch kernel
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
     multiConstAC4Kernel<T, ConstOpType><<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                                    oSizeROI.height, d_constants, scaleFactor);
+                                                                    oSizeROI.height, packedConstants, scaleFactor);
 
-    cudaError_t kernelResult = cudaGetLastError();
-    cudaFree(d_constants);
-
-    return (kernelResult == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    return checkCudaKernelError();
   }
 };
 

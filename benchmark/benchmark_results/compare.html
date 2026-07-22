@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark Comparison Report</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 16px; color: #111827; }
+    .meta { color: #4b5563; margin-bottom: 12px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 1100px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fff; }
+    .pill { display: inline-block; padding: 1px 6px; border-radius: 10px; background: #f3f4f6; }
+    .small { font-size: 12px; color: #6b7280; }
+    input { padding: 6px 8px; }
+    input { width: 420px; max-width: 100%; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    th, td { border-bottom: 1px solid #eee; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: #fafafa; cursor: pointer; }
+    .ok { color: #166534; }
+    .bad { color: #991b1b; }
+    .na { color: #666; }
+    canvas { width: 100%; height: 280px; border: 1px solid #f0f0f0; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Benchmark Comparison</h2>
+  <div class="meta">
+    <div>Target: <span class="pill">mpp_opt</span> &nbsp; Baseline: <span class="pill">mpp_before</span></div>
+    <div class="small">Primary metric: mpp_opt_vs_mpp_before = (baseline ms / target ms) * 100. Higher is better; &gt;100 means target is faster.</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div><b>Top Performing Families</b> <span class="small">(highest mpp_opt_vs_mpp_before)</span></div>
+      <canvas id="familyCatchup"></canvas>
+    </div>
+  </div>
+
+  <div style="margin: 10px 0;">
+    <input id="q" placeholder="Filter by function name or family..." />
+  </div>
+
+  <table id="t">
+    <thead>
+      <tr>
+        <th data-k="function_name">Function</th>
+        <th data-k="family">Family</th>
+        <th data-k="size">Size</th>
+        <th data-k="variant_tags">Variant</th>
+        <th data-k="data_type">Type</th>
+        <th data-k="channels">Ch</th>
+        <th data-k="target_ms">Target (ms)</th>
+        <th data-k="baseline_ms">Baseline (ms)</th>
+        <th data-k="perf_pct">mpp_opt_vs_mpp_before</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const rows = [{"function_name": "nppiConvert_32f8u_C3R", "family": "Convert", "size": "1280x1024", "variant_tags": "", "data_type": "32f8u", "channels": "3", "target_ms": 0.0202214, "baseline_ms": 0.030999, "target_tp": 972.275, "baseline_tp": 634.239, "perf_pct": 153.29799123700633, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_32f8u_C3R", "family": "Convert", "size": "1280x720", "variant_tags": "", "data_type": "32f8u", "channels": "3", "target_ms": 0.0153293, "baseline_ms": 0.0220083, "target_tp": 901.804, "baseline_tp": 628.126, "perf_pct": 143.57015649768744, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_32f8u_C3R", "family": "Convert", "size": "1920x1080", "variant_tags": "", "data_type": "32f8u", "channels": "3", "target_ms": 0.0328602, "baseline_ms": 0.0487475, "target_tp": 946.557, "baseline_tp": 638.063, "perf_pct": 148.3481536935259, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_32f8u_C3R", "family": "Convert", "size": "3840x2160", "variant_tags": "", "data_type": "32f8u", "channels": "3", "target_ms": 0.103642, "baseline_ms": 0.181153, "target_tp": 1200.44, "baseline_tp": 686.8, "perf_pct": 174.78724841280564, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_32f8u_C3R", "family": "Convert", "size": "640x480", "variant_tags": "", "data_type": "32f8u", "channels": "3", "target_ms": 0.00684032, "baseline_ms": 0.0093568, "target_tp": 673.653, "baseline_tp": 492.476, "perf_pct": 136.7889221556886, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_8u32f_C3R", "family": "Convert", "size": "1280x1024", "variant_tags": "", "data_type": "8u32f", "channels": "3", "target_ms": 0.0167526, "baseline_ms": 0.0596864, "target_tp": 1173.59, "baseline_tp": 329.402, "perf_pct": 356.2814130343947, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_8u32f_C3R", "family": "Convert", "size": "1280x720", "variant_tags": "", "data_type": "8u32f", "channels": "3", "target_ms": 0.0167245, "baseline_ms": 0.0410829, "target_tp": 826.573, "baseline_tp": 336.491, "perf_pct": 245.64501180902266, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_8u32f_C3R", "family": "Convert", "size": "1920x1080", "variant_tags": "", "data_type": "8u32f", "channels": "3", "target_ms": 0.0247117, "baseline_ms": 0.0635034, "target_tp": 1258.68, "baseline_tp": 489.801, "perf_pct": 256.9770594495725, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_8u32f_C3R", "family": "Convert", "size": "3840x2160", "variant_tags": "", "data_type": "8u32f", "channels": "3", "target_ms": 0.0879667, "baseline_ms": 0.369718, "target_tp": 1414.35, "baseline_tp": 336.516, "perf_pct": 420.2931336517114, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiConvert_8u32f_C3R", "family": "Convert", "size": "640x480", "variant_tags": "", "data_type": "8u32f", "channels": "3", "target_ms": 0.0164966, "baseline_ms": 0.0103629, "target_tp": 279.33, "baseline_tp": 444.664, "perf_pct": 62.81839894281246, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiCopy_32f_C3P3R", "family": "Copy", "size": "1280x1024", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.04384, "baseline_ms": 0.0438349, "target_tp": 478.365, "baseline_tp": 478.421, "perf_pct": 99.98836678832119, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiCopy_32f_C3P3R", "family": "Copy", "size": "1280x720", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0322176, "baseline_ms": 0.0532378, "target_tp": 457.688, "baseline_tp": 276.976, "perf_pct": 165.24446265395315, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiCopy_32f_C3P3R", "family": "Copy", "size": "1920x1080", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0663194, "baseline_ms": 0.0664704, "target_tp": 500.27, "baseline_tp": 499.133, "perf_pct": 100.22768601645973, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiCopy_32f_P3C3R", "family": "Copy", "size": "1280x1024", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.150264, "baseline_ms": 0.16853, "target_tp": 139.564, "baseline_tp": 124.438, "perf_pct": 112.15593888090294, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiCopy_32f_P3C3R", "family": "Copy", "size": "1280x720", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.103281, "baseline_ms": 0.123766, "target_tp": 142.772, "baseline_tp": 119.141, "perf_pct": 119.83423863053224, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiCopy_32f_P3C3R", "family": "Copy", "size": "1920x1080", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.178189, "baseline_ms": 0.191337, "target_tp": 186.194, "baseline_tp": 173.399, "perf_pct": 107.37868218576905, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiDivC_32f_C3IR", "family": "DivC", "size": "1280x1024", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0970419, "baseline_ms": 0.163356, "target_tp": 324.162, "baseline_tp": 192.569, "perf_pct": 168.33553341391706, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiDivC_32f_C3IR", "family": "DivC", "size": "1280x720", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0640282, "baseline_ms": 0.128906, "target_tp": 345.448, "baseline_tp": 171.585, "perf_pct": 201.32691532793365, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiDivC_32f_C3IR", "family": "DivC", "size": "1920x1080", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.156019, "baseline_ms": 0.219533, "target_tp": 318.976, "baseline_tp": 226.692, "perf_pct": 140.70914439907963, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiDivC_32f_C3IR", "family": "DivC", "size": "3840x2160", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.616141, "baseline_ms": 0.687846, "target_tp": 323.085, "baseline_tp": 289.404, "perf_pct": 111.63775824040275, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiDivC_32f_C3IR", "family": "DivC", "size": "640x480", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0299366, "baseline_ms": 0.0969165, "target_tp": 246.28, "baseline_tp": 76.0738, "perf_pct": 323.73916877668137, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiMulC_32f_C3IR", "family": "MulC", "size": "1280x1024", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0907546, "baseline_ms": 0.290291, "target_tp": 346.619, "baseline_tp": 108.365, "perf_pct": 319.8636763315579, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiMulC_32f_C3IR", "family": "MulC", "size": "1280x720", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0597453, "baseline_ms": 0.290388, "target_tp": 370.212, "baseline_tp": 76.1683, "perf_pct": 486.0432536115812, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiMulC_32f_C3IR", "family": "MulC", "size": "1920x1080", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.149555, "baseline_ms": 0.400863, "target_tp": 332.763, "baseline_tp": 124.148, "perf_pct": 268.0371769583097, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiMulC_32f_C3IR", "family": "MulC", "size": "3840x2160", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.599905, "baseline_ms": 0.965174, "target_tp": 331.828, "baseline_tp": 206.248, "perf_pct": 160.8878072361457, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiMulC_32f_C3IR", "family": "MulC", "size": "640x480", "variant_tags": "", "data_type": "32f", "channels": "3", "target_ms": 0.0294554, "baseline_ms": 0.265352, "target_tp": 250.304, "baseline_tp": 27.785, "perf_pct": 900.8602836831276, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiResize_32f_C1R", "family": "Resize", "size": "1280x1024->2560x2048", "variant_tags": "", "data_type": "32f", "channels": "1", "target_ms": 0.0724659, "baseline_ms": 0.0867507, "target_tp": 361.748, "baseline_tp": 302.181, "perf_pct": 119.71244405989576, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiResize_32f_C1R", "family": "Resize", "size": "1280x1024->640x512", "variant_tags": "", "data_type": "32f", "channels": "1", "target_ms": 0.00749056, "baseline_ms": 0.00840704, "target_tp": 874.915, "baseline_tp": 779.537, "perf_pct": 112.23513328776484, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiResize_32f_C1R", "family": "Resize", "size": "1280x720->2560x1440", "variant_tags": "", "data_type": "32f", "channels": "1", "target_ms": 0.0519526, "baseline_ms": 0.0620083, "target_tp": 354.785, "baseline_tp": 297.25, "perf_pct": 119.3555279235303, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiResize_32f_C1R", "family": "Resize", "size": "1280x720->640x360", "variant_tags": "", "data_type": "32f", "channels": "1", "target_ms": 0.0061952, "baseline_ms": 0.0067328, "target_tp": 743.802, "baseline_tp": 684.411, "perf_pct": 108.67768595041323, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiResize_32f_C1R", "family": "Resize", "size": "1920x1080->3840x2160", "variant_tags": "", "data_type": "32f", "channels": "1", "target_ms": 0.111962, "baseline_ms": 0.135475, "target_tp": 370.413, "baseline_tp": 306.122, "perf_pct": 121.00087529697576, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}, {"function_name": "nppiResize_32f_C1R", "family": "Resize", "size": "1920x1080->960x540", "variant_tags": "", "data_type": "32f", "channels": "1", "target_ms": 0.00999168, "baseline_ms": 0.0121984, "target_tp": 1037.66, "baseline_tp": 849.947, "perf_pct": 122.08557519856522, "target_ok": true, "baseline_ok": true, "target_err": "", "baseline_err": ""}];
+    const familyRows = [{"family": "Convert", "perf_pct": 184.75993830672795, "count": 10}, {"family": "Copy", "perf_pct": 115.62832290519157, "count": 6}, {"family": "DivC", "perf_pct": 176.71819341235815, "count": 5}, {"family": "MulC", "perf_pct": 359.91760517647776, "count": 5}, {"family": "Resize", "perf_pct": 117.0713568208936, "count": 6}];
+    let sortKey = "perf_pct";
+    let sortDesc = true;
+
+    function safe(v) {
+      return String(v ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function num(v) {
+      return (v === null || v === undefined || v === "") ? NaN : Number(v);
+    }
+
+    function cmp(a, b) {
+      const av = a[sortKey], bv = b[sortKey];
+      const an = num(av), bn = num(bv);
+      if (!Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
+      return String(av ?? "").localeCompare(String(bv ?? ""));
+    }
+
+    function canvasSize(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      return dpr;
+    }
+
+    function drawBars(canvas, items, titleMode) {
+      const dpr = canvasSize(canvas);
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const padL = 14 * dpr, padR = 16 * dpr, padT = 20 * dpr, padB = 24 * dpr;
+      const w = canvas.width - padL - padR;
+      const h = canvas.height - padT - padB;
+      if (items.length === 0) {
+        ctx.fillStyle = "#666";
+        ctx.font = `${12 * dpr}px sans-serif`;
+        ctx.fillText("No comparable family data.", padL, padT + 20 * dpr);
+        return;
+      }
+        const maxV = Math.max(...items.map(x => Number(x.perf_pct)));
+      const barH = Math.max(10 * dpr, Math.floor(h / items.length) - 4 * dpr);
+      ctx.font = `${11 * dpr}px sans-serif`;
+      for (let i = 0; i < items.length; ++i) {
+        const row = items[i];
+        const value = Number(row.perf_pct);
+        const y = padT + i * (barH + 4 * dpr);
+        const bw = (value / maxV) * w;
+        ctx.fillStyle = value >= 100.0 ? "#16a34a" : "#dc2626";
+        ctx.fillRect(padL, y, bw, barH);
+        ctx.fillStyle = "#111";
+        ctx.fillText(`${row.family} (${row.count})`, padL, y - 2 * dpr);
+        ctx.fillText(value.toFixed(1) + "%", padL + bw + 6 * dpr, y + barH - 2 * dpr);
+      }
+      ctx.fillStyle = "#666";
+      ctx.font = `${10 * dpr}px sans-serif`;
+      ctx.fillText(titleMode, padL, canvas.height - 8 * dpr);
+    }
+
+    function renderTable() {
+      const query = document.getElementById("q").value.trim().toLowerCase();
+      const tbody = document.querySelector("#t tbody");
+      tbody.innerHTML = "";
+      let filtered = rows;
+      if (query) {
+        filtered = rows.filter(row =>
+          row.function_name.toLowerCase().includes(query) || row.family.toLowerCase().includes(query)
+        );
+      }
+      filtered = filtered.slice().sort((a, b) => {
+        const result = cmp(a, b);
+        return sortDesc ? -result : result;
+      });
+      for (const row of filtered) {
+        const perfPct = row.perf_pct;
+        const perfPctClass = perfPct === null ? "na" : (perfPct >= 100.0 ? "ok" : "bad");
+        const status = (row.target_ok && row.baseline_ok) ? "OK" : "Partial";
+        const statusDetail = (!row.target_ok || !row.baseline_ok)
+          ? `target=${row.target_ok} baseline=${row.baseline_ok}` : "";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${safe(row.function_name)}</td>
+          <td>${safe(row.family)}</td>
+          <td>${safe(row.size)}</td>
+          <td>${safe(row.variant_tags || "-")}</td>
+          <td>${safe(row.data_type)}</td>
+          <td>${safe(row.channels)}</td>
+          <td>${row.target_ms === null ? "N/A" : Number(row.target_ms).toFixed(4)}</td>
+          <td>${row.baseline_ms === null ? "N/A" : Number(row.baseline_ms).toFixed(4)}</td>
+          <td class="${perfPctClass}">${perfPct === null ? "N/A" : Number(perfPct).toFixed(2) + "%"}</td>
+          <td>${safe(status)}${statusDetail ? `<div class="small">${safe(statusDetail)}</div>` : ""}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function renderCharts() {
+      const catchup = familyRows
+        .slice()
+        .sort((a, b) => Number(b.perf_pct) - Number(a.perf_pct))
+        .slice(0, 12);
+      drawBars(document.getElementById("familyCatchup"), catchup, "Higher is better");
+    }
+
+    document.getElementById("q").addEventListener("input", renderTable);
+    document.querySelectorAll("th[data-k]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.getAttribute("data-k");
+        if (sortKey === key) sortDesc = !sortDesc;
+        else {
+          sortKey = key;
+          sortDesc = key === "perf_pct";
+        }
+        renderTable();
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      renderCharts();
+      renderTable();
+    });
+
+    renderTable();
+    renderCharts();
+  </script>
+</body>
+</html>

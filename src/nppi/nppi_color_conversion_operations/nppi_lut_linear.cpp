@@ -13,8 +13,8 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
 NppStatus nppiLUT_Linear_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                          const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
                                          NppStreamContext nppStreamCtx);
-NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                          NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
                                           NppStreamContext nppStreamCtx);
 }
 
@@ -68,11 +68,13 @@ NppStatus nppiLUT_Linear_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
   return nppiLUT_Linear_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
-// 8-bit unsigned three channel linear LUT
-NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
-                                    const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
-                                    NppStreamContext nppStreamCtx) {
-  // Validate basic parameters
+// ============================================================================
+// 8-bit unsigned 3-channel linear LUT
+// ============================================================================
+
+static inline NppStatus validateLUTLinearC3Inputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
+                                                   NppiSize oSizeROI, const Npp32s *pValues[3],
+                                                   const Npp32s *pLevels[3], int nLevels[3]) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -98,9 +100,18 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
       return NPP_LUT_NUMBER_OF_LEVELS_ERROR;
     }
   }
+  return NPP_SUCCESS;
+}
 
-  return nppiLUT_Linear_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
-                                        nppStreamCtx);
+NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                    NppStreamContext nppStreamCtx) {
+  NppStatus status = validateLUTLinearC3Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels);
+  if (status != NPP_SUCCESS) {
+    return status;
+  }
+
+  return nppiLUT_Linear_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
 NppStatus nppiLUT_Linear_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -110,7 +121,10 @@ NppStatus nppiLUT_Linear_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, in
   return nppiLUT_Linear_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
+// ============================================================================
 // 16-bit unsigned single channel linear LUT
+// ============================================================================
+
 NppStatus nppiLUT_Linear_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
                                      NppStreamContext nppStreamCtx) {
@@ -119,8 +133,7 @@ NppStatus nppiLUT_Linear_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *p
     return status;
   }
 
-  return nppiLUT_Linear_16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels,
-                                         nppStreamCtx);
+  return nppiLUT_Linear_16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
 NppStatus nppiLUT_Linear_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,

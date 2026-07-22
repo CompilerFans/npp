@@ -11,11 +11,13 @@ BUILD_TYPE="Release"
 BUILD_DIR="build"  # Default build directory
 
 BUILD_TESTS="ON"
+BUILD_BENCHMARK="OFF"
 WARNINGS_AS_ERRORS="ON"
 
 # CUDA/MACA SDK Relative
 # Check environment variable first, then use default
 USE_NVIDIA_NPP="${USE_NVIDIA_NPP:-OFF}"
+USE_MACA_NPP="${USE_MACA_NPP:-OFF}"
 GPU_TYPE="METAX_GPU"
 WITHOUT_CU_BRIDGE="OFF"
 CMAKE_NAME="cmake"
@@ -31,8 +33,13 @@ while [[ $# -gt 0 ]]; do
             JOBS="$2"
             shift 2
             ;;
+        --benchmark)
+            BUILD_BENCHMARK="ON"
+            shift
+            ;;
         --lib-only)
             BUILD_TESTS="OFF"
+            BUILD_BENCHMARK="OFF"
             shift
             ;;
         --no-werror)
@@ -45,6 +52,12 @@ while [[ $# -gt 0 ]]; do
             ;;
         --use-nvidia-npp)
             USE_NVIDIA_NPP="ON"
+            shift
+            ;;
+        --use-maca-npp)
+            USE_MACA_NPP="ON"
+            GPU_TYPE="METAX_GPU"
+            CMAKE_NAME="cmake_maca"
             shift
             ;;
         --maca)
@@ -69,11 +82,13 @@ while [[ $# -gt 0 ]]; do
             echo "  -d, --debug     Debug build"
             echo "  -j N            Use N parallel jobs"
             echo "  --lib-only      Build library only (no tests, no examples)"
+            echo "  --benchmark     Build performance benchmark (npp_benchmark)"
             echo "  --no-werror     Disable warnings as errors"
             echo "  --use-nvidia-npp Use NVIDIA NPP library for tests instead of MPP"
+            echo "  --use-maca-npp   Use MACA NPP library for tests instead of MPP"
             echo "  --cuda          Build with CUDA SDK"
             echo "  --maca          Build with MACA SDK"
-            echo "  --without-cu-bridge          Build with MACA SDK and no CU-BRIDGE dependency"
+            echo "  --without-cu-bridge        Build with MACA SDK and no CU-BRIDGE dependency"
             echo "  clean           Clean build directory"
             echo "  -h, --help      Show help"
             exit 0
@@ -89,6 +104,9 @@ done
 if [ "$USE_NVIDIA_NPP" = "ON" ]; then
     BUILD_DIR="build-nvidia"
     NPP_LIB_NAME="NVIDIA NPP"
+elif [ "$USE_MACA_NPP" = "ON" ]; then
+    BUILD_DIR="build-maca"
+    NPP_LIB_NAME="MACA NPP"
 else
     BUILD_DIR="build"
     NPP_LIB_NAME="MPP"
@@ -98,9 +116,10 @@ fi
 echo "Using $NPP_LIB_NAME library, build directory: $BUILD_DIR"
 echo "Configuring CMake ($BUILD_TYPE mode)..."
 echo "BUILD_TESTS=$BUILD_TESTS"
+echo "BUILD_BENCHMARK=$BUILD_BENCHMARK"
 echo "WARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS"
-echo "USE_NVIDIA_NPP=$USE_NVIDIA_NPP,CMAKE_NAME=$CMAKE_NAME"
-echo "GPU_TYPE=$WARNINGPU_TYPEGS_AS_ERRORS"
+echo "USE_NVIDIA_NPP=$USE_NVIDIA_NPP,USE_MACA_NPP=$USE_MACA_NPP,CMAKE_NAME=$CMAKE_NAME"
+echo "GPU_TYPE=$WARNINGPU_TYPEG_AS_ERRORS"
 echo "WITHOUT_CU_BRIDGE=$WITHOUT_CU_BRIDGE"
 echo "CMAKE_NAME=$CMAKE_NAME"
 
@@ -109,8 +128,10 @@ $CMAKE_NAME -S .\
     -G Ninja      \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     -DBUILD_TESTS="$BUILD_TESTS" \
+    -DBUILD_BENCHMARK="$BUILD_BENCHMARK" \
     -DNPP_WARNINGS_AS_ERRORS="$WARNINGS_AS_ERRORS" \
     -DUSE_NVIDIA_NPP="$USE_NVIDIA_NPP" \
+    -DUSE_MACA_NPP="$USE_MACA_NPP" \
     -DGPU_TYPE="$GPU_TYPE" \
     -DWITHOUT_CU_BRIDGE="$WITHOUT_CU_BRIDGE"
 

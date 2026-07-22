@@ -13,12 +13,18 @@ endif()
 
 # Build options
 option(BUILD_TESTS "Build tests" ON)
+option(BUILD_BENCHMARK "Build performance benchmarks" ON)
 option(NPP_WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 
 option(USE_NVIDIA_NPP "Use NVIDIA NPP library instead of MPP" OFF)
+option(USE_MACA_NPP "Use MACA NPP library instead of MPP" OFF)
 option(WITHOUT_CU_BRIDGE "Build with MACA SDK (no CUDA Toolkit dependency)" OFF)
 
 message("GPU_TYPE: ${GPU_TYPE}")
+
+if(USE_NVIDIA_NPP AND USE_MACA_NPP)
+    message(FATAL_ERROR "USE_NVIDIA_NPP and USE_MACA_NPP cannot both be ON")
+endif()
 
 # Include modular CMake configuration
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -43,18 +49,27 @@ endif()
 include(CommonConfig)
 include(InstallConfig)
 
-# build src folder --- core lib
-add_subdirectory(src)
+# build src folder --- core lib (skip when using external NPP)
+if(NOT USE_NVIDIA_NPP AND NOT USE_MACA_NPP)
+    add_subdirectory(src)
+endif()
 
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
-    add_subdirectory(examples)
+    # Examples depend on the in-tree MPP library
+    if(NOT USE_NVIDIA_NPP AND NOT USE_MACA_NPP)
+        add_subdirectory(examples)
+    endif()
 endif()
 
-# Install configuration only for MPP build
-npp_configure_install()
+if(BUILD_BENCHMARK)
+    add_subdirectory(benchmark benchmark)
+endif()
 
-# set cpack using param
-set( LIBRARY_NAME mcmpp )
-include(cmake/CCPack.cmake)
+# Install/packaging only for MPP build
+if(NOT USE_NVIDIA_NPP AND NOT USE_MACA_NPP)
+    npp_configure_install()
+    set( LIBRARY_NAME mcmpp )
+    include(cmake/CCPack.cmake)
+endif()
