@@ -376,3 +376,101 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3AC4R_AlphaClearedFromPreset) {
     ASSERT_EQ(dstData[i * 4 + 3], 0);
   }
 }
+
+TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C3R_CameraSize_640x480) {
+  const int camWidth = 640;
+  const int camHeight = 480;
+  std::vector<Npp8u> yPlane(static_cast<size_t>(camWidth) * camHeight);
+  std::vector<Npp8u> uPlane(static_cast<size_t>(camWidth / 2) * (camHeight / 2), 128);
+  std::vector<Npp8u> vPlane(static_cast<size_t>(camWidth / 2) * (camHeight / 2), 128);
+  for (size_t i = 0; i < yPlane.size(); ++i) {
+    yPlane[i] = static_cast<Npp8u>((i * 19 + 3) % 256);
+  }
+
+  NppImageMemory<Npp8u> y(camWidth, camHeight);
+  NppImageMemory<Npp8u> u(camWidth / 2, camHeight / 2);
+  NppImageMemory<Npp8u> v(camWidth / 2, camHeight / 2);
+  NppImageMemory<Npp8u> dst(camWidth, camHeight, 3);
+  y.copyFromHost(yPlane);
+  u.copyFromHost(uPlane);
+  v.copyFromHost(vPlane);
+
+  const Npp8u *srcPlanes[3] = {y.get(), u.get(), v.get()};
+  int srcSteps[3] = {y.step(), u.step(), v.step()};
+  const NppiSize roi{camWidth, camHeight};
+  ASSERT_EQ(nppiYUV420ToRGB_8u_P3C3R(srcPlanes, srcSteps, dst.get(), dst.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> dstData(static_cast<size_t>(camWidth) * camHeight * 3);
+  dst.copyToHost(dstData);
+  for (int i = 0; i < camWidth * camHeight; ++i) {
+    // Neutral chroma (128) means R == G == B == Y.
+    EXPECT_EQ(dstData[i * 3 + 0], yPlane[i]) << "R mismatch at " << i;
+    EXPECT_EQ(dstData[i * 3 + 1], yPlane[i]) << "G mismatch at " << i;
+    EXPECT_EQ(dstData[i * 3 + 2], yPlane[i]) << "B mismatch at " << i;
+  }
+
+  // Ctx variant must match the default-stream result exactly.
+  NppStreamContext ctx{};
+  nppGetStreamContext(&ctx);
+  ASSERT_EQ(nppiYUV420ToRGB_8u_P3C3R_Ctx(srcPlanes, srcSteps, dst.get(), dst.step(), roi, ctx), NPP_NO_ERROR);
+  std::vector<Npp8u> ctxData(static_cast<size_t>(camWidth) * camHeight * 3);
+  dst.copyToHost(ctxData);
+  for (size_t i = 0; i < ctxData.size(); ++i) {
+    EXPECT_EQ(ctxData[i], dstData[i]) << "Ctx mismatch at " << i;
+  }
+}
+
+TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C3R_PartialEvenROI) {
+  const int width = 128;
+  const int height = 128;
+  const int roiX = 32;
+  const int roiY = 16;
+  const int roiW = 64;
+  const int roiH = 48;
+
+  std::vector<Npp8u> yPlane(static_cast<size_t>(width) * height);
+  std::vector<Npp8u> uPlane(static_cast<size_t>(width / 2) * (height / 2));
+  std::vector<Npp8u> vPlane(static_cast<size_t>(width / 2) * (height / 2));
+  for (size_t i = 0; i < yPlane.size(); ++i) {
+    yPlane[i] = static_cast<Npp8u>((i * 41 + 9) % 256);
+  }
+  for (size_t i = 0; i < uPlane.size(); ++i) {
+    uPlane[i] = static_cast<Npp8u>(64 + (i * 13) % 127);
+    vPlane[i] = static_cast<Npp8u>(64 + (i * 17) % 127);
+  }
+
+  NppImageMemory<Npp8u> y(width, height);
+  NppImageMemory<Npp8u> u(width / 2, height / 2);
+  NppImageMemory<Npp8u> v(width / 2, height / 2);
+  NppImageMemory<Npp8u> fullDst(width, height, 3);
+  NppImageMemory<Npp8u> roiDst(roiW, roiH, 3);
+  y.copyFromHost(yPlane);
+  u.copyFromHost(uPlane);
+  v.copyFromHost(vPlane);
+
+  // Reference: full-image conversion, then take the same ROI window.
+  const Npp8u *fullPlanes[3] = {y.get(), u.get(), v.get()};
+  int fullSteps[3] = {y.step(), u.step(), v.step()};
+  const NppiSize fullRoi{width, height};
+  ASSERT_EQ(nppiYUV420ToRGB_8u_P3C3R(fullPlanes, fullSteps, fullDst.get(), fullDst.step(), fullRoi), NPP_NO_ERROR);
+
+  Npp8u *dRoiY = y.get() + static_cast<size_t>(roiY) * y.step() + roiX;
+  Npp8u *dRoiU = u.get() + static_cast<size_t>(roiY / 2) * u.step() + roiX / 2;
+  Npp8u *dRoiV = v.get() + static_cast<size_t>(roiY / 2) * v.step() + roiX / 2;
+  const Npp8u *roiPlanes[3] = {dRoiY, dRoiU, dRoiV};
+  const NppiSize roi{roiW, roiH};
+  ASSERT_EQ(nppiYUV420ToRGB_8u_P3C3R(roiPlanes, fullSteps, roiDst.get(), roiDst.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> fullData(static_cast<size_t>(width) * height * 3);
+  std::vector<Npp8u> roiData(static_cast<size_t>(roiW) * roiH * 3);
+  fullDst.copyToHost(fullData);
+  roiDst.copyToHost(roiData);
+  for (int i = 0; i < roiW * roiH; ++i) {
+    const int fullRow = roiY + i / roiW;
+    const int fullCol = roiX + i % roiW;
+    for (int c = 0; c < 3; ++c) {
+      EXPECT_EQ(roiData[i * 3 + c], fullData[(static_cast<size_t>(fullRow) * width + fullCol) * 3 + c])
+          << "ROI mismatch at pixel " << i << " channel " << c;
+    }
+  }
+}

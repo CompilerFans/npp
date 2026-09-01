@@ -630,3 +630,80 @@ TEST_F(SubC32fInplaceTest, SubC_32f_AC4IR) {
   d_srcdst.copyToHost(result);
   EXPECT_TRUE(ResultValidator::arraysEqual(result, expected, 1e-5f));
 }
+
+TEST_F(SubC32fInplaceTest, MulC_32f_C3IR_PartialROI) {
+  const int width = 128, height = 128, channels = 3;
+  const int roiX = 32, roiY = 16, roiW = 64, roiH = 48;
+  const int total = width * height * channels;
+
+  std::vector<Npp32f> src(total), expected(total);
+  TestDataGenerator::generateRandom(src, -100.0f, 100.0f, 12345);
+  expected = src;
+
+  const Npp32f aConstants[3] = {1.5f, -2.5f, 3.5f};
+  for (int y = roiY; y < roiY + roiH; ++y) {
+    for (int x = roiX; x < roiX + roiW; ++x) {
+      for (int c = 0; c < channels; ++c) {
+        expected[(y * width + x) * channels + c] -= aConstants[c];
+      }
+    }
+  }
+
+  NppImageMemory<Npp32f> d_srcdst(width * channels, height);
+  d_srcdst.copyFromHost(src);
+
+  // d_srcdst.step() is in bytes; offset the char pointer first.
+  Npp32f *pRoi = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(d_srcdst.get()) +
+                                            static_cast<size_t>(roiY) * d_srcdst.step()) +
+                 roiX * channels;
+  const NppiSize roi{roiW, roiH};
+  ASSERT_EQ(nppiSubC_32f_C3IR(aConstants, pRoi, d_srcdst.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp32f> result(total);
+  d_srcdst.copyToHost(result);
+  EXPECT_TRUE(ResultValidator::arraysEqual(result, expected, 1e-5f));
+}
+
+TEST_F(SubC32fInplaceTest, MulC_32f_C3IR_OddSize_15x15) {
+  const int width = 15, height = 15, channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp32f> src(total), expected(total);
+  TestDataGenerator::generateRandom(src, -100.0f, 100.0f, 54321);
+  const Npp32f aConstants[3] = {0.5f, -1.5f, 2.0f};
+  for (int i = 0; i < total; i++) {
+    expected[i] = src[i] - aConstants[i % channels];
+  }
+
+  NppImageMemory<Npp32f> d_srcdst(width * channels, height);
+  d_srcdst.copyFromHost(src);
+
+  const NppiSize roi{width, height};
+  ASSERT_EQ(nppiSubC_32f_C3IR(aConstants, d_srcdst.get(), d_srcdst.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp32f> result(total);
+  d_srcdst.copyToHost(result);
+  EXPECT_TRUE(ResultValidator::arraysEqual(result, expected, 1e-5f));
+}
+
+TEST_F(SubC32fInplaceTest, MulC_32f_C3IR_CameraSize_640x480) {
+  const int width = 640, height = 480, channels = 3;
+  const int total = width * height * channels;
+
+  std::vector<Npp32f> src(total), expected(total);
+  TestDataGenerator::generateRandom(src, -1.0f, 1.0f, 999);
+  const Npp32f aConstants[3] = {1.1f, 0.9f, -1.25f};
+  for (int i = 0; i < total; i++) {
+    expected[i] = src[i] - aConstants[i % channels];
+  }
+
+  NppImageMemory<Npp32f> d_srcdst(width * channels, height);
+  d_srcdst.copyFromHost(src);
+
+  const NppiSize roi{width, height};
+  ASSERT_EQ(nppiSubC_32f_C3IR(aConstants, d_srcdst.get(), d_srcdst.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp32f> result(total);
+  d_srcdst.copyToHost(result);
+  EXPECT_TRUE(ResultValidator::arraysEqual(result, expected, 1e-5f));
+}

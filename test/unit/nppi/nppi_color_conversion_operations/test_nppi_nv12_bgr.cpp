@@ -382,6 +382,191 @@ TEST_F(NV12ToBGRTest, ColorAccuracy_StrictGray) {
   nppiFree(d_bgr);
 }
 
+TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_CameraSize_1280x720) {
+  const int camWidth = 1280;
+  const int camHeight = 720;
+
+  std::vector<Npp8u> yData(static_cast<size_t>(camWidth) * camHeight);
+  std::vector<Npp8u> uvData(static_cast<size_t>(camWidth) * camHeight / 2);
+  for (int y = 0; y < camHeight; ++y) {
+    for (int x = 0; x < camWidth; ++x) {
+      yData[static_cast<size_t>(y) * camWidth + x] = static_cast<Npp8u>(16 + (x + y) * 219 / (camWidth + camHeight - 2));
+    }
+  }
+  for (int y = 0; y < camHeight / 2; ++y) {
+    for (int x = 0; x < camWidth; x += 2) {
+      const size_t idx = static_cast<size_t>(y) * camWidth + x;
+      uvData[idx] = static_cast<Npp8u>(64 + x * 128 / camWidth);
+      uvData[idx + 1] = static_cast<Npp8u>(64 + y * 128 / (camHeight / 2));
+    }
+  }
+
+  Npp8u *d_srcY = nppsMalloc_8u(static_cast<size_t>(camWidth) * camHeight);
+  Npp8u *d_srcUV = nppsMalloc_8u(static_cast<size_t>(camWidth) * camHeight / 2);
+  int bgrStep;
+  Npp8u *d_bgr = nppiMalloc_8u_C3(camWidth, camHeight, &bgrStep);
+  ASSERT_NE(d_srcY, nullptr);
+  ASSERT_NE(d_srcUV, nullptr);
+  ASSERT_NE(d_bgr, nullptr);
+  ASSERT_EQ(cudaMemcpy(d_srcY, yData.data(), yData.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(d_srcUV, uvData.data(), uvData.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  const Npp8u *pSrc[2] = {d_srcY, d_srcUV};
+  const NppiSize roi{camWidth, camHeight};
+  NppStreamContext nppStreamCtx{};
+  ASSERT_EQ(nppGetStreamContext(&nppStreamCtx), NPP_SUCCESS);
+  ASSERT_EQ(nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, camWidth, d_bgr, bgrStep, roi, nppStreamCtx), NPP_NO_ERROR);
+
+  std::vector<Npp8u> hostBGR(static_cast<size_t>(bgrStep) * camHeight);
+  ASSERT_EQ(cudaMemcpy(hostBGR.data(), d_bgr, hostBGR.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (int y = 0; y < camHeight; y += 32) {
+    for (int x = 0; x < camWidth; x += 32) {
+      const int idx = y * bgrStep + x * 3;
+      EXPECT_GE(hostBGR[idx], 0) << "Invalid B at (" << x << "," << y << ")";
+      EXPECT_GE(hostBGR[idx + 1], 0) << "Invalid G at (" << x << "," << y << ")";
+      EXPECT_GE(hostBGR[idx + 2], 0) << "Invalid R at (" << x << "," << y << ")";
+    }
+  }
+
+  nppsFree(d_srcY);
+  nppsFree(d_srcUV);
+  nppiFree(d_bgr);
+}
+
+TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_PaddedLineSize) {
+  const int width = 32;
+  const int height = 24;
+  const int pad = 32;
+  const int paddedStep = width + pad;
+
+  std::vector<Npp8u> yData(static_cast<size_t>(width) * height);
+  std::vector<Npp8u> uvData(static_cast<size_t>(width) * height / 2);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      yData[static_cast<size_t>(y) * width + x] = static_cast<Npp8u>(16 + (x * 2 + y) % 219);
+    }
+  }
+  for (int y = 0; y < height / 2; ++y) {
+    for (int x = 0; x < width; x += 2) {
+      const size_t idx = static_cast<size_t>(y) * width + x;
+      uvData[idx] = static_cast<Npp8u>(64 + x * 3 % 127);
+      uvData[idx + 1] = static_cast<Npp8u>(64 + y * 5 % 127);
+    }
+  }
+
+  // Reference: contiguous planes (no padding), step == width.
+  Npp8u *d_refY = nppsMalloc_8u(static_cast<size_t>(width) * height);
+  Npp8u *d_refUV = nppsMalloc_8u(static_cast<size_t>(width) * height / 2);
+  // Padded: same image content but row stride inflated by 32 bytes per row
+  // (video-frame AVFrame alignment scenario).
+  Npp8u *d_padY = nppsMalloc_8u(static_cast<size_t>(paddedStep) * height);
+  Npp8u *d_padUV = nppsMalloc_8u(static_cast<size_t>(paddedStep) * height / 2);
+  int refBgrStep;
+  int padBgrStep;
+  Npp8u *d_refBgr = nppiMalloc_8u_C3(width, height, &refBgrStep);
+  Npp8u *d_padBgr = nppiMalloc_8u_C3(width, height, &padBgrStep);
+  ASSERT_NE(d_refY, nullptr);
+  ASSERT_NE(d_refUV, nullptr);
+  ASSERT_NE(d_padY, nullptr);
+  ASSERT_NE(d_padUV, nullptr);
+  ASSERT_NE(d_refBgr, nullptr);
+  ASSERT_NE(d_padBgr, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(d_refY, width, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_refUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
+            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_padY, paddedStep, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_padUV, paddedStep, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
+            cudaSuccess);
+
+  const NppiSize roi{width, height};
+  const Npp8u *refSrc[2] = {d_refY, d_refUV};
+  const Npp8u *padSrc[2] = {d_padY, d_padUV};
+  ASSERT_EQ(nppiNV12ToBGR_709CSC_8u_P2C3R(refSrc, width, d_refBgr, refBgrStep, roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiNV12ToBGR_709CSC_8u_P2C3R(padSrc, paddedStep, d_padBgr, padBgrStep, roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> refBGR(static_cast<size_t>(refBgrStep) * height);
+  std::vector<Npp8u> padBGR(static_cast<size_t>(padBgrStep) * height);
+  ASSERT_EQ(cudaMemcpy(refBGR.data(), d_refBgr, refBGR.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(padBGR.data(), d_padBgr, padBGR.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width * 3; ++x) {
+      EXPECT_EQ(padBGR[static_cast<size_t>(y) * padBgrStep + x], refBGR[static_cast<size_t>(y) * refBgrStep + x])
+          << "Padded result differs from unpadded at (" << x << "," << y << ")";
+    }
+  }
+
+  nppsFree(d_refY);
+  nppsFree(d_refUV);
+  nppsFree(d_padY);
+  nppsFree(d_padUV);
+  nppiFree(d_refBgr);
+  nppiFree(d_padBgr);
+}
+
+TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_PartialEvenROI) {
+  const int width = 128;
+  const int height = 128;
+  const int roiX = 32;
+  const int roiY = 16;
+  const int roiW = 64;
+  const int roiH = 48;
+
+  std::vector<Npp8u> yData(static_cast<size_t>(width) * height);
+  std::vector<Npp8u> uvData(static_cast<size_t>(width) * height / 2);
+  for (size_t i = 0; i < yData.size(); ++i) {
+    yData[i] = static_cast<Npp8u>((i * 17 + 9) % 256);
+  }
+  for (int y = 0; y < height / 2; ++y) {
+    for (int x = 0; x < width; x += 2) {
+      const size_t idx = static_cast<size_t>(y) * width + x;
+      uvData[idx] = static_cast<Npp8u>(64 + (x / 2) * 13 % 127);
+      uvData[idx + 1] = static_cast<Npp8u>(64 + y * 29 % 127);
+    }
+  }
+
+  Npp8u *d_srcY = nppsMalloc_8u(static_cast<size_t>(width) * height);
+  Npp8u *d_srcUV = nppsMalloc_8u(static_cast<size_t>(width) * height / 2);
+  int fullBgrStep;
+  int roiBgrStep;
+  Npp8u *d_fullBgr = nppiMalloc_8u_C3(width, height, &fullBgrStep);
+  Npp8u *d_roiBgr = nppiMalloc_8u_C3(width, height, &roiBgrStep);
+  ASSERT_NE(d_srcY, nullptr);
+  ASSERT_NE(d_srcUV, nullptr);
+  ASSERT_NE(d_fullBgr, nullptr);
+  ASSERT_NE(d_roiBgr, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(d_srcY, width, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_srcUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
+            cudaSuccess);
+
+  // Reference: full-image conversion, then take the same ROI window.
+  const NppiSize fullRoi{width, height};
+  const NppiSize roi{roiW, roiH};
+  const Npp8u *fullSrc[2] = {d_srcY, d_srcUV};
+  ASSERT_EQ(nppiNV12ToBGR_709CSC_8u_P2C3R(fullSrc, width, d_fullBgr, fullBgrStep, fullRoi), NPP_NO_ERROR);
+  // Chroma pointer offset is half the Y offset (2x2 subsampling).
+  Npp8u *d_roiY = d_srcY + static_cast<size_t>(roiY) * width + roiX;
+  Npp8u *d_roiUV = d_srcUV + static_cast<size_t>(roiY / 2) * width + roiX;
+  const Npp8u *roiSrc[2] = {d_roiY, d_roiUV};
+  ASSERT_EQ(nppiNV12ToBGR_709CSC_8u_P2C3R(roiSrc, width, d_roiBgr, roiBgrStep, roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> fullBGR(static_cast<size_t>(fullBgrStep) * height);
+  std::vector<Npp8u> roiBGR(static_cast<size_t>(roiBgrStep) * height);
+  ASSERT_EQ(cudaMemcpy(fullBGR.data(), d_fullBgr, fullBGR.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(roiBGR.data(), d_roiBgr, roiBGR.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (int y = 0; y < roiH; ++y) {
+    for (int x = 0; x < roiW * 3; ++x) {
+      EXPECT_EQ(roiBGR[static_cast<size_t>(y) * roiBgrStep + x],
+                fullBGR[static_cast<size_t>(roiY + y) * fullBgrStep + (roiX * 3 + x)])
+          << "Partial ROI differs from full-image window at (" << x << "," << y << ")";
+    }
+  }
+
+  nppsFree(d_srcY);
+  nppsFree(d_srcUV);
+  nppiFree(d_fullBgr);
+  nppiFree(d_roiBgr);
+}
+
 TEST_F(NV12ToBGRTest, ColorAccuracy_StrictWhiteBlack) {
   const int width = 16, height = 16;
 

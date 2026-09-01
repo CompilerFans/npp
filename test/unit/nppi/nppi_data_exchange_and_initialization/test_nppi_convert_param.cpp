@@ -153,7 +153,21 @@ TEST_P(Convert32f8uParamTest, Convert_32f8u_C1R) {
 
   std::vector<Npp8u> expectedData(width * height);
   for (size_t i = 0; i < expectedData.size(); i++) {
-    expectedData[i] = convert<Npp8u, Npp32f>(srcData[i]);
+    const float value = srcData[i];
+    float rounded = 0.0f;
+    switch (param.rndMode) {
+    case NPP_RND_FINANCIAL:
+      rounded = std::round(value); // ties away from zero
+      break;
+    case NPP_RND_ZERO:
+      rounded = std::trunc(value); // truncation
+      break;
+    case NPP_RND_NEAR:
+    default:
+      rounded = std::nearbyint(value); // ties to even
+      break;
+    }
+    expectedData[i] = static_cast<Npp8u>(std::max(0.0f, std::min(255.0f, rounded)));
   }
 
   NppImageMemory<Npp32f> src(width, height);
@@ -180,7 +194,10 @@ TEST_P(Convert32f8uParamTest, Convert_32f8u_C1R) {
 INSTANTIATE_TEST_SUITE_P(Convert32f8u, Convert32f8uParamTest,
                          ::testing::Values(Convert32f8uParam{32, 32, NPP_RND_NEAR, false, "32x32_RndNear_noCtx"},
                                            Convert32f8uParam{32, 32, NPP_RND_NEAR, true, "32x32_RndNear_Ctx"},
-                                           Convert32f8uParam{64, 64, NPP_RND_NEAR, false, "64x64_RndNear_noCtx"}),
+                                           Convert32f8uParam{64, 64, NPP_RND_NEAR, false, "64x64_RndNear_noCtx"},
+                                           Convert32f8uParam{32, 32, NPP_RND_FINANCIAL, false, "32x32_RndFinancial_noCtx"},
+                                           Convert32f8uParam{32, 32, NPP_RND_FINANCIAL, true, "32x32_RndFinancial_Ctx"},
+                                           Convert32f8uParam{64, 64, NPP_RND_ZERO, false, "64x64_RndZero_noCtx"}),
                          [](const ::testing::TestParamInfo<Convert32f8uParam> &info) { return info.param.name; });
 
 // ==================== Convert 16u to 32f TEST_P ====================

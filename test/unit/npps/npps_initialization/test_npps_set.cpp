@@ -150,6 +150,34 @@ TEST_F(NPPSSetFunctionalTest, Set_32f_LargeSignal) {
   cudaFree(d_dst);
 }
 
+TEST_F(NPPSSetFunctionalTest, Set_32f_CtxVariant) {
+  const size_t nLength = 128;
+  const Npp32f setValue = -0.5f;
+
+  // 分配GPU内存
+  Npp32f *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp32f));
+  ASSERT_TRUE(d_dst) << "GPU memory allocation failed";
+
+  // 使用Ctx版本执行set操作
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+
+  NppStatus status = nppsSet_32f_Ctx(setValue, d_dst, nLength, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_32f_Ctx failed";
+
+  // 复制结果回主机并Validate
+  std::vector<Npp32f> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+
+  for (size_t i = 0; i < nLength; i++) {
+    EXPECT_FLOAT_EQ(result[i], setValue) << "Mismatch at index " << i;
+  }
+
+  // 清理GPU内存
+  cudaFree(d_dst);
+}
+
 // ==============================================================================
 // nppsSet_32fc Tests - 32-bit float complex set
 // ==============================================================================
@@ -209,5 +237,129 @@ TEST_F(NPPSSetFunctionalTest, Zero_32f_BasicOperation) {
   }
 
   // 清理GPU内存
+  cudaFree(d_dst);
+}
+
+// ==============================================================================
+// nppsZero_8u Tests - Zero initialization convenience function (8-bit)
+// ==============================================================================
+
+TEST_F(NPPSSetFunctionalTest, Zero_8u_BasicOperation) {
+  const size_t nLength = 256;
+
+  // 分配GPU内存
+  Npp8u *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp8u));
+  ASSERT_TRUE(d_dst) << "GPU memory allocation failed";
+
+  // 先设置非零值
+  NppStatus status = nppsSet_8u(42, d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  // 执行零初始化
+  status = nppsZero_8u(d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_8u failed";
+
+  // 复制结果回主机并Validate
+  std::vector<Npp8u> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+
+  for (size_t i = 0; i < nLength; i++) {
+    EXPECT_EQ(result[i], 0) << "Mismatch at index " << i;
+  }
+
+  // 清理GPU内存
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPSSetFunctionalTest, Zero_8u_CtxVariant) {
+  const size_t nLength = 128;
+
+  // 分配GPU内存
+  Npp8u *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp8u));
+  ASSERT_TRUE(d_dst) << "GPU memory allocation failed";
+
+  // 先设置非零值
+  NppStatus status = nppsSet_8u(99, d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  // 使用Ctx版本执行零初始化
+  NppStreamContext ctx;
+  nppGetStreamContext(&ctx);
+
+  status = nppsZero_8u_Ctx(d_dst, nLength, ctx);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_8u_Ctx failed";
+
+  // 复制结果回主机并Validate
+  std::vector<Npp8u> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+
+  for (size_t i = 0; i < nLength; i++) {
+    EXPECT_EQ(result[i], 0) << "Mismatch at index " << i;
+  }
+
+  // 清理GPU内存
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPSSetFunctionalTest, Set_32f_MinimalLength_1) {
+  const size_t nLength = 1;
+  const Npp32f setValue = 3.25f;
+
+  Npp32f *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp32f));
+  ASSERT_TRUE(d_dst);
+
+  NppStatus status = nppsSet_32f(setValue, d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_32f failed for length 1";
+
+  std::vector<Npp32f> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+  EXPECT_FLOAT_EQ(result[0], setValue);
+
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPSSetFunctionalTest, Set_32f_OddLength_999) {
+  const size_t nLength = 999;
+  const Npp32f setValue = -2.5f;
+
+  Npp32f *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp32f));
+  ASSERT_TRUE(d_dst);
+
+  NppStatus status = nppsSet_32f(setValue, d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsSet_32f failed for odd length";
+
+  std::vector<Npp32f> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost);
+  for (size_t i = 0; i < nLength; i++) {
+    EXPECT_FLOAT_EQ(result[i], setValue) << "Mismatch at index " << i;
+  }
+
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPSSetFunctionalTest, Zero_8u_OddLength_999) {
+  const size_t nLength = 999;
+
+  Npp8u *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp8u));
+  ASSERT_TRUE(d_dst);
+
+  // 先设置非零值
+  NppStatus status = nppsSet_8u(200, d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  status = nppsZero_8u(d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_8u failed for odd length";
+
+  std::vector<Npp8u> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+  for (size_t i = 0; i < nLength; i++) {
+    EXPECT_EQ(result[i], 0) << "Mismatch at index " << i;
+  }
+
   cudaFree(d_dst);
 }

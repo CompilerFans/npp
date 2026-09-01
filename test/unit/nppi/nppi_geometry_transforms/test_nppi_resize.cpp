@@ -308,6 +308,60 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C4R_NearestNeighbor) {
   validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C4 resize");
 }
 
+TEST_F(ResizeFunctionalTest, Resize_8u_C1R_NearestNeighbor_Ctx) {
+  const int srcWidth = 12, srcHeight = 10;
+  const int dstWidth = 24, dstHeight = 20;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+  fillCheckerboard<Npp8u, 1>(srcData, srcWidth, srcHeight, 2, 255, 0);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  ASSERT_EQ(nppiResize_8u_C1R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                  NPPI_INTER_NN, context),
+            NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight);
+  dst.copyToHost(resultData);
+  validateNonZeroCount(resultData, dstWidth * dstHeight / 4, dstWidth * dstHeight * 3 / 4);
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_NearestNeighbor_Ctx) {
+  const int srcWidth = 12, srcHeight = 10;
+  const int dstWidth = 24, dstHeight = 20;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+  fillCheckerboard<Npp8u, 3>(srcData, srcWidth, srcHeight, 2, 255, 0);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 3);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 3);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  NppStreamContext context{};
+  ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
+  ASSERT_EQ(nppiResize_8u_C3R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                  NPPI_INTER_NN, context),
+            NPP_SUCCESS);
+
+  std::vector<Npp8u> resultData(dstWidth * dstHeight * 3);
+  dst.copyToHost(resultData);
+  validateNonZeroCount(resultData, dstWidth * dstHeight * 3 / 4, dstWidth * dstHeight * 9 / 4);
+}
+
 TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_IdentityAndCtx) {
   const int width = 5;
   const int height = 4;
@@ -2648,3 +2702,137 @@ INSTANTIATE_TEST_SUITE_P(
                       ResizeParams{64, 64, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_2x_downscale_large"},
                       ResizeParams{48, 48, 16, 16, NPPI_INTER_LANCZOS, "LANCZOS_3x_downscale"},
                       ResizeParams{96, 96, 32, 32, NPPI_INTER_LANCZOS, "LANCZOS_3x_downscale_large"}));
+
+// ==============================================================================
+// Parameter-mode sweeps for 8u C1R/C4R (C3R covered by ResizeParametrizedTest)
+// and camera-resolution business shapes
+// ==============================================================================
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C4R_AllInterpolationModes) {
+  const int srcWidth = 128, srcHeight = 128;
+  const int dstWidth = 256, dstHeight = 256;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  fillCheckerboard<Npp8u, 4>(srcData, srcWidth, srcHeight, 8, 200, 40);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_SUPER, NPPI_INTER_LANCZOS};
+  for (int mode : modes) {
+    ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
+              NPP_SUCCESS);
+    std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+    dst.copyToHost(dstData);
+    validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C4 resize mode");
+    validateNonZeroCount(dstData, dstWidth * dstHeight, dstWidth * dstHeight * 4 + 1);
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C1R_AllInterpolationModes) {
+  const int srcWidth = 128, srcHeight = 128;
+  const int dstWidth = 256, dstHeight = 256;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight);
+  fillCheckerboard<Npp8u, 1>(srcData, srcWidth, srcHeight, 8, 200, 40);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_SUPER, NPPI_INTER_LANCZOS};
+  for (int mode : modes) {
+    ASSERT_EQ(nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
+              NPP_SUCCESS);
+    std::vector<Npp8u> dstData(dstWidth * dstHeight);
+    dst.copyToHost(dstData);
+    validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C1 resize mode");
+    validateNonZeroCount(dstData, dstWidth * dstHeight / 2, dstWidth * dstHeight + 1);
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C4R_CameraDownscale) {
+  const int srcWidth = 1280, srcHeight = 720;
+  const int dstWidth = 640, dstHeight = 480;
+
+  std::vector<Npp8u> srcData(srcWidth * srcHeight * 4);
+  fillCheckerboard<Npp8u, 4>(srcData, srcWidth, srcHeight, 16, 220, 30);
+
+  NppImageMemory<Npp8u> src(srcWidth, srcHeight, 4);
+  NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 4);
+  src.copyFromHost(srcData);
+
+  NppiSize srcSize = {srcWidth, srcHeight};
+  NppiSize dstSize = {dstWidth, dstHeight};
+  NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+  NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+
+  const int modes[] = {NPPI_INTER_NN, NPPI_INTER_LINEAR};
+  for (int mode : modes) {
+    ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
+              NPP_SUCCESS);
+    std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
+    dst.copyToHost(dstData);
+    validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C4 camera downscale");
+    validateNonZeroCount(dstData, dstWidth * dstHeight, dstWidth * dstHeight * 4 + 1);
+  }
+}
+
+TEST_F(ResizeFunctionalTest, Resize_8u_C3R_CameraShapes) {
+  // Upscale 640x480 -> 1280x720 (SD to HD, typical preprocess pipeline).
+  {
+    const int srcWidth = 640, srcHeight = 480;
+    const int dstWidth = 1280, dstHeight = 720;
+    std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+    fillHorizontalGradient<Npp8u, 3>(srcData, srcWidth, srcHeight, 0, 255);
+    NppImageMemory<Npp8u> src(srcWidth, srcHeight, 3);
+    NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 3);
+    src.copyFromHost(srcData);
+
+    NppiSize srcSize = {srcWidth, srcHeight};
+    NppiSize dstSize = {dstWidth, dstHeight};
+    NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+    NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+    ASSERT_EQ(nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                NPPI_INTER_LINEAR),
+              NPP_SUCCESS);
+    std::vector<Npp8u> dstData(dstWidth * dstHeight * 3);
+    dst.copyToHost(dstData);
+    validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C3 camera upscale");
+    validateHorizontalMonotonic<Npp8u, 3>(dstData, dstWidth, dstHeight);
+  }
+
+  // Downscale 1920x1080 -> 640x480 (1080p to VGA).
+  {
+    const int srcWidth = 1920, srcHeight = 1080;
+    const int dstWidth = 640, dstHeight = 480;
+    std::vector<Npp8u> srcData(srcWidth * srcHeight * 3);
+    fillVerticalGradient<Npp8u, 3>(srcData, srcWidth, srcHeight, 0, 255);
+    NppImageMemory<Npp8u> src(srcWidth, srcHeight, 3);
+    NppImageMemory<Npp8u> dst(dstWidth, dstHeight, 3);
+    src.copyFromHost(srcData);
+
+    NppiSize srcSize = {srcWidth, srcHeight};
+    NppiSize dstSize = {dstWidth, dstHeight};
+    NppiRect srcROI = {0, 0, srcWidth, srcHeight};
+    NppiRect dstROI = {0, 0, dstWidth, dstHeight};
+    ASSERT_EQ(nppiResize_8u_C3R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
+                                NPPI_INTER_LINEAR),
+              NPP_SUCCESS);
+    std::vector<Npp8u> dstData(dstWidth * dstHeight * 3);
+    dst.copyToHost(dstData);
+    validateRange(dstData, static_cast<Npp8u>(0), static_cast<Npp8u>(255), "8u C3 camera downscale");
+    validateVerticalMonotonic<Npp8u, 3>(dstData, dstWidth, dstHeight);
+  }
+}

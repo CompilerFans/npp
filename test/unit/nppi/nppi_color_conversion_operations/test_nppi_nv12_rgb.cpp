@@ -722,3 +722,73 @@ TEST_F(NV12ToRGBTest, ColorAccuracy_StrictWhiteBlack) {
   nppsFree(d_srcUV);
   nppiFree(d_rgb);
 }
+
+TEST_F(NV12ToRGBTest, NV12ToRGB_8u_P2C3R_PaddedLineSize) {
+  const int width = 32;
+  const int height = 24;
+  const int pad = 32;
+  const int paddedStep = width + pad;
+
+  std::vector<Npp8u> yData(static_cast<size_t>(width) * height);
+  std::vector<Npp8u> uvData(static_cast<size_t>(width) * height / 2);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      yData[static_cast<size_t>(y) * width + x] = static_cast<Npp8u>(16 + (x * 3 + y) % 219);
+    }
+  }
+  for (int y = 0; y < height / 2; ++y) {
+    for (int x = 0; x < width; x += 2) {
+      const size_t idx = static_cast<size_t>(y) * width + x;
+      uvData[idx] = static_cast<Npp8u>(64 + x * 5 % 127);
+      uvData[idx + 1] = static_cast<Npp8u>(64 + y * 7 % 127);
+    }
+  }
+
+  // Reference: contiguous planes (no padding), step == width.
+  Npp8u *d_refY = nppsMalloc_8u(static_cast<size_t>(width) * height);
+  Npp8u *d_refUV = nppsMalloc_8u(static_cast<size_t>(width) * height / 2);
+  // Padded: same image content but row stride inflated by 32 bytes per row
+  // (video-frame AVFrame alignment scenario).
+  Npp8u *d_padY = nppsMalloc_8u(static_cast<size_t>(paddedStep) * height);
+  Npp8u *d_padUV = nppsMalloc_8u(static_cast<size_t>(paddedStep) * height / 2);
+  int refRgbStep;
+  int padRgbStep;
+  Npp8u *d_refRgb = nppiMalloc_8u_C3(width, height, &refRgbStep);
+  Npp8u *d_padRgb = nppiMalloc_8u_C3(width, height, &padRgbStep);
+  ASSERT_NE(d_refY, nullptr);
+  ASSERT_NE(d_refUV, nullptr);
+  ASSERT_NE(d_padY, nullptr);
+  ASSERT_NE(d_padUV, nullptr);
+  ASSERT_NE(d_refRgb, nullptr);
+  ASSERT_NE(d_padRgb, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(d_refY, width, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_refUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
+            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_padY, paddedStep, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_padUV, paddedStep, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
+            cudaSuccess);
+
+  const NppiSize roi{width, height};
+  const Npp8u *refSrc[2] = {d_refY, d_refUV};
+  const Npp8u *padSrc[2] = {d_padY, d_padUV};
+  ASSERT_EQ(nppiNV12ToRGB_8u_P2C3R(refSrc, width, d_refRgb, refRgbStep, roi), NPP_NO_ERROR);
+  ASSERT_EQ(nppiNV12ToRGB_8u_P2C3R(padSrc, paddedStep, d_padRgb, padRgbStep, roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> refRGB(static_cast<size_t>(refRgbStep) * height);
+  std::vector<Npp8u> padRGB(static_cast<size_t>(padRgbStep) * height);
+  ASSERT_EQ(cudaMemcpy(refRGB.data(), d_refRgb, refRGB.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(padRGB.data(), d_padRgb, padRGB.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width * 3; ++x) {
+      EXPECT_EQ(padRGB[static_cast<size_t>(y) * padRgbStep + x], refRGB[static_cast<size_t>(y) * refRgbStep + x])
+          << "Padded result differs from unpadded at (" << x << "," << y << ")";
+    }
+  }
+
+  nppsFree(d_refY);
+  nppsFree(d_refUV);
+  nppsFree(d_padY);
+  nppsFree(d_padUV);
+  nppiFree(d_refRgb);
+  nppiFree(d_padRgb);
+}

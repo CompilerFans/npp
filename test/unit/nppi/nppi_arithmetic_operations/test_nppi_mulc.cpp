@@ -708,3 +708,52 @@ TEST_F(MulC16fTest, MulC_16f_C4IR_Ctx_InPlaceOperation) {
   EXPECT_TRUE(ResultValidator::arraysEqual16f(resultData, expectedData, 1e-2f))
       << "In-place MulC 16f C4 Ctx operation produced incorrect results";
 }
+
+TEST_P(MulC32fParamTest, MulC_32f_C1IR_PartialROI) {
+  const int width = 128, height = 128;
+  const int roiX = 32, roiY = 16, roiW = 64, roiH = 48;
+  const Npp32f constant = 1.75f;
+
+  std::vector<Npp32f> srcData(width * height), expectedData(width * height);
+  TestDataGenerator::generateRandom(srcData, -50.0f, 50.0f, 12345);
+  expectedData = srcData;
+  for (int y = roiY; y < roiY + roiH; ++y) {
+    for (int x = roiX; x < roiX + roiW; ++x) {
+      expectedData[y * width + x] = expect::mul_c<Npp32f>(srcData[y * width + x], constant);
+    }
+  }
+
+  NppImageMemory<Npp32f> src(width, height);
+  src.copyFromHost(srcData);
+
+  Npp32f *pRoi = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(src.get()) +
+                                            static_cast<size_t>(roiY) * src.step()) +
+                 roiX;
+  const NppiSize roi{roiW, roiH};
+  ASSERT_EQ(nppiMulC_32f_C1IR(constant, pRoi, src.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp32f> resultData(width * height);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-5f));
+}
+
+TEST_P(MulC32fParamTest, MulC_32f_C1IR_OddSize_15x15) {
+  const int width = 15, height = 15;
+  const Npp32f constant = -2.0f;
+
+  std::vector<Npp32f> srcData(width * height), expectedData(width * height);
+  TestDataGenerator::generateRandom(srcData, -50.0f, 50.0f, 54321);
+  for (size_t i = 0; i < expectedData.size(); i++) {
+    expectedData[i] = expect::mul_c<Npp32f>(srcData[i], constant);
+  }
+
+  NppImageMemory<Npp32f> src(width, height);
+  src.copyFromHost(srcData);
+
+  const NppiSize roi{width, height};
+  ASSERT_EQ(nppiMulC_32f_C1IR(constant, src.get(), src.step(), roi), NPP_NO_ERROR);
+
+  std::vector<Npp32f> resultData(width * height);
+  src.copyToHost(resultData);
+  EXPECT_TRUE(ResultValidator::arraysEqual(resultData, expectedData, 1e-5f));
+}

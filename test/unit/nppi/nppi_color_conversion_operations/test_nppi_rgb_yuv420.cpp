@@ -423,3 +423,125 @@ TEST_F(RGBToYUV420Test, BGRToYUV420_8u_AC4P3R) {
   nppiFree(d_u);
   nppiFree(d_v);
 }
+
+TEST_F(RGBToYUV420Test, RGBToYUV420_8u_C3P3R_CameraSize_640x480) {
+  const int camWidth = 640;
+  const int camHeight = 480;
+  std::vector<Npp8u> srcData(static_cast<size_t>(camWidth) * camHeight * 3);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = static_cast<Npp8u>((i * 11 + 37) % 256);
+  }
+
+  int srcStep = 0;
+  Npp8u *d_src = nppiMalloc_8u_C3(camWidth, camHeight, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(d_src, srcStep, srcData.data(), camWidth * 3, camWidth * 3, camHeight, cudaMemcpyHostToDevice),
+            cudaSuccess);
+
+  int yStep = 0;
+  int uStep = 0;
+  int vStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(camWidth, camHeight, &yStep);
+  Npp8u *d_u = nppiMalloc_8u_C1(camWidth / 2, camHeight / 2, &uStep);
+  Npp8u *d_v = nppiMalloc_8u_C1(camWidth / 2, camHeight / 2, &vStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_u, nullptr);
+  ASSERT_NE(d_v, nullptr);
+
+  Npp8u *pDst[3] = {d_y, d_u, d_v};
+  int dstSteps[3] = {yStep, uStep, vStep};
+  const NppiSize roi{camWidth, camHeight};
+  ASSERT_EQ(nppiRGBToYUV420_8u_C3P3R(d_src, srcStep, pDst, dstSteps, roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> hostY(static_cast<size_t>(yStep) * camHeight);
+  std::vector<Npp8u> hostU(static_cast<size_t>(uStep) * camHeight / 2);
+  std::vector<Npp8u> hostV(static_cast<size_t>(vStep) * camHeight / 2);
+  ASSERT_EQ(cudaMemcpy(hostY.data(), d_y, hostY.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(hostU.data(), d_u, hostU.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(hostV.data(), d_v, hostV.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (size_t i = 0; i < hostY.size(); ++i) {
+    EXPECT_GE(hostY[i], 0) << "Y out of range at " << i;
+    EXPECT_LE(hostY[i], 255) << "Y out of range at " << i;
+  }
+
+  // Ctx variant must match the default-stream result exactly.
+  NppStreamContext ctx{};
+  ASSERT_EQ(nppGetStreamContext(&ctx), NPP_SUCCESS);
+  ASSERT_EQ(nppiRGBToYUV420_8u_C3P3R_Ctx(d_src, srcStep, pDst, dstSteps, roi, ctx), NPP_NO_ERROR);
+  std::vector<Npp8u> ctxY(static_cast<size_t>(yStep) * camHeight);
+  ASSERT_EQ(cudaMemcpy(ctxY.data(), d_y, ctxY.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (size_t i = 0; i < ctxY.size(); ++i) {
+    EXPECT_EQ(ctxY[i], hostY[i]) << "Ctx Y mismatch at " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_y);
+  nppiFree(d_u);
+  nppiFree(d_v);
+}
+
+TEST_F(RGBToYUV420Test, RGBToYUV420_8u_C3P3R_PartialEvenROI) {
+  const int width = 128;
+  const int height = 128;
+  const int roiX = 32;
+  const int roiY = 16;
+  const int roiW = 64;
+  const int roiH = 48;
+  std::vector<Npp8u> srcData(static_cast<size_t>(width) * height * 3);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = static_cast<Npp8u>((i * 17 + 61) % 256);
+  }
+
+  int srcStep = 0;
+  Npp8u *d_src = nppiMalloc_8u_C3(width, height, &srcStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_EQ(cudaMemcpy2D(d_src, srcStep, srcData.data(), width * 3, width * 3, height, cudaMemcpyHostToDevice),
+            cudaSuccess);
+
+  int yStep = 0;
+  int uStep = 0;
+  int vStep = 0;
+  Npp8u *d_y = nppiMalloc_8u_C1(width, height, &yStep);
+  Npp8u *d_u = nppiMalloc_8u_C1(width / 2, height / 2, &uStep);
+  Npp8u *d_v = nppiMalloc_8u_C1(width / 2, height / 2, &vStep);
+  Npp8u *d_roiY = nppiMalloc_8u_C1(roiW, roiH, &yStep);
+  Npp8u *d_roiU = nppiMalloc_8u_C1(roiW / 2, roiH / 2, &uStep);
+  Npp8u *d_roiV = nppiMalloc_8u_C1(roiW / 2, roiH / 2, &vStep);
+  ASSERT_NE(d_y, nullptr);
+  ASSERT_NE(d_u, nullptr);
+  ASSERT_NE(d_v, nullptr);
+  ASSERT_NE(d_roiY, nullptr);
+  ASSERT_NE(d_roiU, nullptr);
+  ASSERT_NE(d_roiV, nullptr);
+
+  // Reference: full-image conversion, then take the same ROI window.
+  Npp8u *pDst[3] = {d_y, d_u, d_v};
+  int dstSteps[3] = {yStep, uStep, vStep};
+  const NppiSize fullRoi{width, height};
+  ASSERT_EQ(nppiRGBToYUV420_8u_C3P3R(d_src, srcStep, pDst, dstSteps, fullRoi), NPP_NO_ERROR);
+
+  Npp8u *d_roiSrc = d_src + static_cast<size_t>(roiY) * srcStep + roiX * 3;
+  Npp8u *roiDst[3] = {d_roiY, d_roiU, d_roiV};
+  const NppiSize roi{roiW, roiH};
+  ASSERT_EQ(nppiRGBToYUV420_8u_C3P3R(d_roiSrc, srcStep, roiDst, dstSteps, roi), NPP_NO_ERROR);
+
+  std::vector<Npp8u> hostY(static_cast<size_t>(yStep) * height);
+  std::vector<Npp8u> roiYv(static_cast<size_t>(yStep) * roiH);
+  ASSERT_EQ(cudaMemcpy(hostY.data(), d_y, hostY.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(roiYv.data(), d_roiY, roiYv.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  for (int i = 0; i < roiW * roiH; ++i) {
+    const int fullRow = roiY + i / roiW;
+    const int fullCol = roiX + i % roiW;
+    EXPECT_EQ(roiYv[static_cast<size_t>(i / roiW) * yStep + i % roiW],
+              hostY[static_cast<size_t>(fullRow) * yStep + fullCol])
+        << "Y ROI mismatch at " << i;
+  }
+
+  nppiFree(d_src);
+  nppiFree(d_y);
+  nppiFree(d_u);
+  nppiFree(d_v);
+  nppiFree(d_roiY);
+  nppiFree(d_roiU);
+  nppiFree(d_roiV);
+}

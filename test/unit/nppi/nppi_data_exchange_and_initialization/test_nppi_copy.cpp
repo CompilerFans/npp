@@ -1284,3 +1284,106 @@ TEST_F(CopyTest, RoundTrip_32s_Planar_Packed_Planar_4Channel) {
 TEST_F(CopyTest, RoundTrip_32f_Planar_Packed_Planar_4Channel) {
   testRoundTripPlanarToPackedToPlanar<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::SINE_WAVE);
 }
+
+TEST_F(CopyTest, Copy_32f_C3P3R_WithContext) {
+  const int width = 32;
+  const int height = 24;
+  std::vector<Npp32f> srcData(static_cast<size_t>(width) * height * 3);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = (i % 1000) / 1000.0f;
+  }
+
+  GPUMemoryManager<Npp32f> src(width, height, 3);
+  GPUMemoryManager<Npp32f> plane0(width, height, 1);
+  GPUMemoryManager<Npp32f> plane1(width, height, 1);
+  GPUMemoryManager<Npp32f> plane2(width, height, 1);
+  ASSERT_TRUE(src.isValid());
+  ASSERT_TRUE(plane0.isValid());
+  ASSERT_TRUE(plane1.isValid());
+  ASSERT_TRUE(plane2.isValid());
+  ASSERT_TRUE(src.copyFromHost(srcData, width, height, 3));
+
+  Npp32f *planes[3] = {plane0.get(), plane1.get(), plane2.get()};
+  NppStreamContext ctx{};
+  ASSERT_EQ(nppGetStreamContext(&ctx), NPP_SUCCESS);
+  const NppStatus copyStatus =
+      nppiCopy_32f_C3P3R_Ctx(src.get(), src.step(), planes, plane0.step(), NppiSize{width, height}, ctx);
+  ASSERT_EQ(copyStatus, NPP_SUCCESS);
+
+  std::vector<Npp32f> p0, p1, p2;
+  ASSERT_TRUE(plane0.copyToHost(p0, width, height, 1));
+  ASSERT_TRUE(plane1.copyToHost(p1, width, height, 1));
+  ASSERT_TRUE(plane2.copyToHost(p2, width, height, 1));
+  for (int i = 0; i < width * height; ++i) {
+    EXPECT_FLOAT_EQ(p0[i], srcData[i * 3 + 0]) << "Plane0 mismatch at " << i;
+    EXPECT_FLOAT_EQ(p1[i], srcData[i * 3 + 1]) << "Plane1 mismatch at " << i;
+    EXPECT_FLOAT_EQ(p2[i], srcData[i * 3 + 2]) << "Plane2 mismatch at " << i;
+  }
+}
+
+TEST_F(CopyTest, Copy_32f_C3P3R_PartialROI) {
+  const int width = 128;
+  const int height = 128;
+  const int roiX = 32;
+  const int roiY = 16;
+  const int roiW = 64;
+  const int roiH = 48;
+  std::vector<Npp32f> srcData(static_cast<size_t>(width) * height * 3);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = (i % 997) / 997.0f;
+  }
+
+  GPUMemoryManager<Npp32f> src(width, height, 3);
+  GPUMemoryManager<Npp32f> plane0(width, height, 1);
+  GPUMemoryManager<Npp32f> plane1(width, height, 1);
+  GPUMemoryManager<Npp32f> plane2(width, height, 1);
+  ASSERT_TRUE(src.isValid());
+  ASSERT_TRUE(plane0.isValid());
+  ASSERT_TRUE(plane1.isValid());
+  ASSERT_TRUE(plane2.isValid());
+  ASSERT_TRUE(src.copyFromHost(srcData, width, height, 3));
+
+  // src.step() is in bytes; offset the char pointer first, then advance by
+  // roiX * 3 float elements.
+  Npp32f *pRoi = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(src.get()) + static_cast<size_t>(roiY) * src.step()) +
+                 roiX * 3;
+  Npp32f *planes[3] = {plane0.get(), plane1.get(), plane2.get()};
+  const NppStatus copyStatus = nppiCopy_32f_C3P3R(pRoi, src.step(), planes, plane0.step(), NppiSize{roiW, roiH});
+  ASSERT_EQ(copyStatus, NPP_SUCCESS);
+
+  std::vector<Npp32f> p0, p1, p2;
+  ASSERT_TRUE(plane0.copyToHost(p0, width, height, 1));
+  ASSERT_TRUE(plane1.copyToHost(p1, width, height, 1));
+  ASSERT_TRUE(plane2.copyToHost(p2, width, height, 1));
+  // Planes are full width x height buffers; the ROI occupies the top-left
+  // roiW x roiH corner, read back as flat arrays with row width == width.
+  for (int row = 0; row < roiH; ++row) {
+    for (int col = 0; col < roiW; ++col) {
+      const int srcIdx = ((roiY + row) * width + roiX + col) * 3;
+      EXPECT_FLOAT_EQ(p0[row * width + col], srcData[srcIdx + 0]) << "Plane0 mismatch at " << row << "," << col;
+      EXPECT_FLOAT_EQ(p1[row * width + col], srcData[srcIdx + 1]) << "Plane1 mismatch at " << row << "," << col;
+      EXPECT_FLOAT_EQ(p2[row * width + col], srcData[srcIdx + 2]) << "Plane2 mismatch at " << row << "," << col;
+    }
+  }
+}
+
+TEST_F(CopyTest, Copy_8u_C1R_CameraSize_640x480) {
+  const int camWidth = 640;
+  const int camHeight = 480;
+  std::vector<Npp8u> srcData(static_cast<size_t>(camWidth) * camHeight);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = static_cast<Npp8u>((i * 13 + 61) % 256);
+  }
+
+  GPUMemoryManager<Npp8u> src(camWidth, camHeight, 1);
+  GPUMemoryManager<Npp8u> dst(camWidth, camHeight, 1);
+  ASSERT_TRUE(src.isValid());
+  ASSERT_TRUE(dst.isValid());
+  ASSERT_TRUE(src.copyFromHost(srcData, camWidth, camHeight, 1));
+
+  const NppiSize roi{camWidth, camHeight};
+  ASSERT_EQ(nppiCopy_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi), NPP_SUCCESS);
+  std::vector<Npp8u> result;
+  ASSERT_TRUE(dst.copyToHost(result, camWidth, camHeight, 1));
+  EXPECT_EQ(result, srcData);
+}

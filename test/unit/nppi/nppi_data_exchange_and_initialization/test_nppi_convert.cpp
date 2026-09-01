@@ -496,3 +496,67 @@ INSTANTIATE_TEST_SUITE_P(SizeVariations, ConvertSizeTest,
                                            std::make_tuple(256, 256, 3),  // Medium
                                            std::make_tuple(1920, 1080, 3) // HD
                                            ));
+
+TEST_F(ConvertTest, Convert_8u32f_C3R_WithContext) {
+  testConversion<Npp8u, Npp32f, 3>(32, 32, ConvertTestHelper<Npp8u, Npp32f>::DataPattern::COLOR_GRADIENT, true);
+}
+
+TEST_F(ConvertTest, Convert_8u32f_C3R_PartialROI) {
+  constexpr int kWidth = 128;
+  constexpr int kHeight = 128;
+  constexpr int kRoiX = 32;
+  constexpr int kRoiY = 16;
+  constexpr int kRoiW = 64;
+  constexpr int kRoiH = 48;
+
+  std::vector<Npp8u> srcData(kWidth * kHeight * 3);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = static_cast<Npp8u>((i * 23 + 7) % 256);
+  }
+
+  GPUMemoryManager<Npp8u> src(kWidth, kHeight, 3);
+  GPUMemoryManager<Npp32f> dst(kWidth, kHeight, 3);
+  ASSERT_TRUE(src.isValid());
+  ASSERT_TRUE(dst.isValid());
+  ASSERT_TRUE(src.copyFromHost(srcData, kWidth, kHeight, 3));
+
+  Npp8u *pRoi = src.get() + static_cast<size_t>(kRoiY) * src.step() + kRoiX * 3;
+  const NppiSize roi{kRoiW, kRoiH};
+  ASSERT_EQ(nppiConvert_8u32f_C3R(pRoi, src.step(), dst.get(), dst.step(), roi), NPP_SUCCESS);
+
+  std::vector<Npp32f> result;
+  ASSERT_TRUE(dst.copyToHost(result, kWidth, kHeight, 3));
+  // dst is a full kWidth x kHeight buffer; the ROI occupies its top-left
+  // kRoiW x kRoiH corner, read back as a flat array with row width kWidth*3.
+  for (int row = 0; row < kRoiH; ++row) {
+    for (int col = 0; col < kRoiW * 3; ++col) {
+      const Npp8u srcVal = srcData[static_cast<size_t>(kRoiY + row) * kWidth * 3 + kRoiX * 3 + col];
+      EXPECT_FLOAT_EQ(result[row * (kWidth * 3) + col], static_cast<Npp32f>(srcVal))
+          << "Convert mismatch at row " << row << " col " << col;
+    }
+  }
+}
+
+TEST_F(ConvertTest, Convert_8u32f_C3R_OddSize_15x15) {
+  constexpr int kWidth = 15;
+  constexpr int kHeight = 15;
+  std::vector<Npp8u> srcData(kWidth * kHeight * 3);
+  for (size_t i = 0; i < srcData.size(); ++i) {
+    srcData[i] = static_cast<Npp8u>((i * 31 + 13) % 256);
+  }
+
+  GPUMemoryManager<Npp8u> src(kWidth, kHeight, 3);
+  GPUMemoryManager<Npp32f> dst(kWidth, kHeight, 3);
+  ASSERT_TRUE(src.isValid());
+  ASSERT_TRUE(dst.isValid());
+  ASSERT_TRUE(src.copyFromHost(srcData, kWidth, kHeight, 3));
+
+  const NppiSize roi{kWidth, kHeight};
+  ASSERT_EQ(nppiConvert_8u32f_C3R(src.get(), src.step(), dst.get(), dst.step(), roi), NPP_SUCCESS);
+
+  std::vector<Npp32f> result;
+  ASSERT_TRUE(dst.copyToHost(result, kWidth, kHeight, 3));
+  for (size_t i = 0; i < result.size(); ++i) {
+    EXPECT_FLOAT_EQ(result[i], static_cast<Npp32f>(srcData[i])) << "Convert mismatch at " << i;
+  }
+}

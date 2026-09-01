@@ -214,3 +214,52 @@ TEST_F(SetFunctionalTest, Set_32f_C3R_Ctx_Basic) {
     EXPECT_FLOAT_EQ(dstData[i * 3 + 2], aValue[2]);
   }
 }
+
+TEST_F(SetFunctionalTest, Set_32f_C1R_PartialROI) {
+  const int width = 64, height = 64;
+  const Npp32f setValue = -0.75f;
+  const Npp32f bgValue = 1.25f;
+
+  NppImageMemory<Npp32f> dst(width, height);
+  dst.fill(bgValue);
+
+  const NppiSize oSizeROI = {32, 32};
+  const int xOffset = 16;
+  const int yOffset = 16;
+
+  NppStreamContext nppStreamCtx;
+  nppGetStreamContext(&nppStreamCtx);
+
+  Npp32f *pDstROI = dst.get() + static_cast<size_t>(yOffset) * dst.step() / sizeof(Npp32f) + xOffset;
+  NppStatus status = nppiSet_32f_C1R_Ctx(setValue, pDstROI, dst.step(), oSizeROI, nppStreamCtx);
+  ASSERT_EQ(status, NPP_SUCCESS);
+
+  cudaStreamSynchronize(nppStreamCtx.hStream);
+  std::vector<Npp32f> dstData(width * height);
+  dst.copyToHost(dstData);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      const int idx = y * width + x;
+      if (x >= xOffset && x < xOffset + 32 && y >= yOffset && y < yOffset + 32) {
+        EXPECT_FLOAT_EQ(dstData[idx], setValue);
+      } else {
+        EXPECT_FLOAT_EQ(dstData[idx], bgValue);
+      }
+    }
+  }
+}
+
+TEST_F(SetFunctionalTest, Set_8u_C1R_OddSize_15x15) {
+  const int width = 15, height = 15;
+  const Npp8u setValue = 177;
+
+  NppImageMemory<Npp8u> dst(width, height);
+  const NppiSize roi{width, height};
+  ASSERT_EQ(nppiSet_8u_C1R(setValue, dst.get(), dst.step(), roi), NPP_SUCCESS);
+
+  std::vector<Npp8u> dstData(width * height);
+  dst.copyToHost(dstData);
+  for (size_t i = 0; i < dstData.size(); ++i) {
+    EXPECT_EQ(dstData[i], setValue) << "Mismatch at " << i;
+  }
+}
