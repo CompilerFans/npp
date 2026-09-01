@@ -100,6 +100,12 @@ NppStatus nppsSet_32fc(Npp32fc nValue, Npp32fc *pDst, NppSignalLength nLength) {
   return nppsSet_32fc_Ctx(nValue, pDst, nLength, defaultContext);
 }
 
+NppStatus nppsZero_8u_Ctx(Npp8u *pDst, NppSignalLength nLength, NppStreamContext nppStreamCtx) {
+  return nppsSet_8u_Ctx(0, pDst, nLength, nppStreamCtx);
+}
+
+NppStatus nppsZero_8u(Npp8u *pDst, NppSignalLength nLength) { return nppsSet_8u(0, pDst, nLength); }
+
 NppStatus nppsZero_32f_Ctx(Npp32f *pDst, NppSignalLength nLength, NppStreamContext nppStreamCtx) {
   return nppsSet_32f_Ctx(0.0f, pDst, nLength, nppStreamCtx);
 }
