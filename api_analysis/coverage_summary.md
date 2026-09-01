@@ -1,9 +1,9 @@
 # Coverage Summary
 
 - Total API Functions: 12500
-- Implemented: 4125 (33.0%)
-- Tested: 3754 (30.0%)
-- Implemented but not tested: 371
+- Implemented: 4387 (35.1%)
+- Tested: 4115 (32.9%)
+- Implemented but not tested: 368
 
 ## By Module
 
@@ -16,13 +16,13 @@
 - Total: 1040, Impl: 1040 (100.0%), Test: 957 (92.0%)
 
 **nppi_data_exchange_and_initialization.h**
-- Total: 966, Impl: 208 (21.5%), Test: 197 (20.4%)
+- Total: 966, Impl: 210 (21.7%), Test: 199 (20.6%)
 
 **nppi_filtering_functions.h**
-- Total: 1895, Impl: 88 (4.6%), Test: 52 (2.7%)
+- Total: 1895, Impl: 116 (6.1%), Test: 80 (4.2%)
 
 **nppi_geometry_transforms.h**
-- Total: 705, Impl: 342 (48.5%), Test: 167 (23.7%)
+- Total: 705, Impl: 344 (48.8%), Test: 171 (24.3%)
 
 **nppi_linear_transforms.h**
 - Total: 4, Impl: 4 (100.0%), Test: 4 (100.0%)
@@ -31,7 +31,7 @@
 - Total: 292, Impl: 24 (8.2%), Test: 20 (6.8%)
 
 **nppi_statistics_functions.h**
-- Total: 3244, Impl: 159 (4.9%), Test: 115 (3.5%)
+- Total: 3244, Impl: 387 (11.9%), Test: 439 (13.5%)
 
 **nppi_support_functions.h**
 - Total: 31, Impl: 31 (100.0%), Test: 31 (100.0%)
@@ -51,7 +51,7 @@
 - Total: 3, Impl: 3 (100.0%), Test: 3 (100.0%)
 
 **npps_initialization.h**
-- Total: 70, Impl: 8 (11.4%), Test: 4 (5.7%)
+- Total: 70, Impl: 10 (14.3%), Test: 7 (10.0%)
 
 **npps_statistics_functions.h**
 - Total: 766, Impl: 8 (1.0%), Test: 4 (0.5%)
