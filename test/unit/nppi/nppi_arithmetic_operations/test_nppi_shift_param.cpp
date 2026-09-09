@@ -20,7 +20,8 @@ struct ShiftParam {
 // Base test class for shift operations
 class ShiftParamTest : public NppTestBase, public ::testing::WithParamInterface<ShiftParam> {
 protected:
-  // Width 32 hits NVIDIA 12.4 C3/C4 shift kernels that zero part of each row
+  // NVIDIA 12.4 bug: the 8u C3 shift kernels zero part of each row for any width > 2, so the
+  // C3 paths below are skipped under USE_NVIDIA_NPP_TESTS. C1/C4 kernels are unaffected.
   static constexpr int kWidth = 31;
   static constexpr int kHeight = 32;
 

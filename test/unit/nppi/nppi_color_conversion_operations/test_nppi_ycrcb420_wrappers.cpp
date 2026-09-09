@@ -283,8 +283,9 @@ TEST_F(YCrCb420WrappersTest, P2AndP3LayoutsRoundTripByteForByteWithIndependentSt
 }
 
 TEST_F(YCrCb420WrappersTest, ValidatesPointersStepsAndEvenRoi) {
-  // NVIDIA NPP 12.4 YCrCb420 wrappers do not validate most arguments (null pointers crash the library and
-  // zero/odd ROIs are accepted), so these checks only run against MPP.
+  // NVIDIA NPP 12.4 bug: YCrCb420 wrappers skip nearly all argument validation (null pointers
+  // crash the library, zero/odd ROIs are accepted silently). MPP validates them, so these checks
+  // are MPP-only.
 #ifndef USE_NVIDIA_NPP_TESTS
   constexpr int width = 4;
   constexpr int height = 4;

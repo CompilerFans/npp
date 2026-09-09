@@ -200,7 +200,8 @@ template <typename Api> void runMaskedCase(MaskedLayout layout, int coi, bool em
   EXPECT_EQ(Api::buffer(layout, roi, nullptr, context, true), NPP_NULL_POINTER_ERROR);
 #endif
   if (layout == MaskedLayout::C3CMR) {
-    // NVIDIA NPP accepts out-of-range COI and returns a zero mean
+    // NVIDIA NPP 12.4 bug: out-of-range COI is silently accepted (zero mean written) instead of
+    // returning NPP_COI_ERROR. MPP mirrors this for compatibility; treat as unsupported usage.
     EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
                            roi, 0, deviceBuffer, deviceMean, context, false),
               NPP_SUCCESS);

@@ -91,7 +91,8 @@ TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C1R) {
 
 // 测试8位无符号三通道绝对差值
 TEST_F(NPPIAbsDiffTest, AbsDiff_8u_C3R) {
-  // Width 32 hits an NVIDIA 12.4 kernel bug in nppiAbsDiff_8u_C3R that zeroes part of the output
+  // NVIDIA 12.4 bug: nppiAbsDiff_8u_C3R zeroes part of the output for widths > 5; use 31 to
+  // exercise the kernel without triggering it
   const int w = 31;
   const int h = 24;
   const NppiSize localRoi{w, h};

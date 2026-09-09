@@ -91,7 +91,9 @@ NppStatus nppiYUV420ToRGB_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[
     return status;
   }
 
-  // Alpha behavior matches NVIDIA NPP: alpha is cleared to 0 for RGB P3C4R (12.4 device behavior).
+  // Alpha is cleared to 0 for RGB P3C4R. NVIDIA NPP 12.4 device code does this, contradicting its
+  // header which documents constant 0xFF; the BGR variant does fill 0xFF, so the RGB clear is
+  // likely a library bug. We follow the observed 12.4 behavior for compatibility.
   cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3C4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
                                                            rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -111,7 +113,7 @@ NppStatus nppiYUV420ToRGB_8u_P3AC4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep
     return status;
   }
 
-  // Alpha behavior matches NVIDIA NPP: alpha is cleared to 0 for P3AC4R.
+  // Alpha is cleared to 0 for P3AC4R (documented and observed in NVIDIA NPP).
   cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3AC4R_kernel(
       pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -150,7 +152,7 @@ NppStatus nppiYUV420ToBGR_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[
     return status;
   }
 
-  // Alpha behavior matches NVIDIA NPP: alpha is set to 0xFF for BGR P3C4R.
+  // Alpha is set to 0xFF for BGR P3C4R (documented and observed in NVIDIA NPP).
   cudaError_t cudaStatus = nppiYUV420ToBGR_8u_P3C4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
                                                            rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;

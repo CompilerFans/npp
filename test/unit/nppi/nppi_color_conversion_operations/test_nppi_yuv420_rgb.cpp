@@ -239,7 +239,9 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_Alpha) {
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
   std::vector<Npp8u> baseData = dstData;
-  // NVIDIA 12.4 clears alpha for most pixels but writes luma into the first 4 columns of each row
+  // NVIDIA NPP 12.4 bug: the RGB P3C4R kernel clears alpha for most pixels but leaks luma into the
+  // first 4 columns of each row (its header documents constant 0xFF). MPP clears alpha uniformly;
+  // the NVIDIA-side expectation models the buggy device behavior exactly.
 #ifdef USE_NVIDIA_NPP_TESTS
   for (int i = 0; i < width * height; i++) {
     const int expectAlpha = (i % width) < 4 ? yPlane[i] : 0;
@@ -295,7 +297,8 @@ TEST_F(YUV420ToRGBTest, YUV420ToRGB_8u_P3C4R_AlphaCleared) {
 
   std::vector<Npp8u> dstData(width * height * 4);
   dst.copyToHost(dstData);
-  // NVIDIA 12.4 clears alpha to 0 for RGB P3C4R despite the header documenting constant 0xFF
+  // NVIDIA 12.4 clears alpha to 0 for RGB P3C4R despite its header documenting constant 0xFF;
+  // likely a library bug (the BGR variant fills 0xFF). MPP follows the observed behavior.
   for (int i = 0; i < width * height; i++) {
     ASSERT_EQ(dstData[i * 4 + 3], 0);
   }

@@ -211,8 +211,9 @@ template <typename Api> void runBoxCase(BoxLayout layout, double tolerance, Nppi
     }
   }
 
-  // NVIDIA NPP 12.4 FilterBox does not validate most arguments (zero masks, bad anchors and bad steps are
-  // accepted silently), so these checks only run against MPP.
+  // NVIDIA NPP 12.4 FilterBox does not validate most arguments (zero masks, bad anchors and bad
+  // steps are accepted silently and can even corrupt the CUDA context downstream). MPP keeps the
+  // stricter validation, so these checks are MPP-only.
 #ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(Api::call(layout, nullptr, static_cast<int>(sourceStep), deviceDestination,
                       static_cast<int>(destinationStep), roi, maskSize, anchor, context, false),

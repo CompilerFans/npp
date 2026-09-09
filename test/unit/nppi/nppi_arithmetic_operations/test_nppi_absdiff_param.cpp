@@ -185,7 +185,7 @@ class AbsDiff8uC3ParamTest : public NppTestBase, public ::testing::WithParamInte
 
 TEST_P(AbsDiff8uC3ParamTest, AbsDiff_8u_C3R) {
   const auto &param = GetParam();
-  // Width 32 hits an NVIDIA 12.4 kernel bug in nppiAbsDiff_8u_C3R that zeroes part of the output
+  // NVIDIA 12.4 bug: nppiAbsDiff_8u_C3R zeroes part of the output for widths > 5
   const int width = param.width == 32 ? 31 : param.width;
   const int height = param.height;
   const int channels = 3;

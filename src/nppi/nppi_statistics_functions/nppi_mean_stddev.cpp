@@ -68,6 +68,7 @@ NppStatus meanStdDevBufferSize(NppiSize roi, size_t arraysPerBlock, size_t *buff
   if (roi.width < 0 || roi.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI is accepted (buffer size 0, NPP_SUCCESS), matching NVIDIA NPP 12.4.
   const size_t pixels = static_cast<size_t>(roi.width) * static_cast<size_t>(roi.height);
   const size_t blocks = (pixels + 255) / 256;
   *bufferSize = blocks * arraysPerBlock * sizeof(double);
@@ -116,6 +117,7 @@ NppStatus mean8uMultiChannel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI,
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width * sourceChannels) {
     return NPP_STEP_ERROR;
   }
@@ -132,6 +134,7 @@ NppStatus mean16uMultiChannel(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeRO
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(Npp16u))) {
     return NPP_STEP_ERROR;
   }
@@ -148,6 +151,7 @@ NppStatus mean16sMultiChannel(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeRO
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(Npp16s))) {
     return NPP_STEP_ERROR;
   }
@@ -164,6 +168,7 @@ NppStatus mean32fMultiChannel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeRO
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(Npp32f))) {
     return NPP_STEP_ERROR;
   }
@@ -190,7 +195,9 @@ NppStatus meanMasked(const T *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskS
     return NPP_STEP_ERROR;
   }
   if (sourceChannels == 3 && (nCOI < 1 || nCOI > 3)) {
-    // NVIDIA NPP accepts out-of-range COI and writes a zero mean
+    // NVIDIA NPP 12.4 silently accepts out-of-range COI here and writes a zero mean instead of
+    // returning NPP_COI_ERROR. This is treated as a library bug (missing validation), but we mirror
+    // it for bit-level compatibility. Callers should not rely on this path.
     const cudaError_t status = cudaMemsetAsync(pMean, 0, sizeof(Npp64f), nppStreamCtx.hStream);
     return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -218,6 +225,10 @@ NppStatus meanStdDevGeneric(const T *pSrc, int nSrcStep, const Npp8u *pMask, int
     return NPP_STEP_ERROR;
   }
   if (sourceChannels == 3 && (nCOI < 1 || nCOI > 3)) {
+    // Note: NVIDIA NPP 12.4 accepts out-of-range COI here too (writes zero mean), but for the
+    // mean+stddev entry points we keep the stricter NPP_COI_ERROR since the test suite pins this
+    // behavior and callers benefit from the validation. Masked-mean entry points above mirror
+    // NVIDIA exactly for compatibility.
     return NPP_COI_ERROR;
   }
   const cudaError_t status = kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, sourceChannels, nCOI, pDeviceBuffer,
@@ -797,6 +808,7 @@ NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
@@ -819,6 +831,7 @@ NppStatus nppiAverageError_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const N
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrc1Step < oSizeROI.width || nSrc2Step < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
@@ -844,6 +857,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI yields a zero buffer size with NPP_SUCCESS, matching NVIDIA NPP 12.4.
 
   // Calculate required buffer size for reduction operations
   // We need space for sum, sum of squares, and temporary reduction buffers
@@ -872,6 +886,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, size_t 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI yields a zero buffer size with NPP_SUCCESS, matching NVIDIA NPP 12.4.
 
   // Calculate required buffer size for reduction operations
   size_t numPixels = static_cast<size_t>(oSizeROI.width) * static_cast<size_t>(oSizeROI.height);
@@ -1003,6 +1018,7 @@ NppStatus nppiMean_StdDev_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize o
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
@@ -1031,6 +1047,7 @@ NppStatus nppiMean_StdDev_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) {
     return NPP_STEP_ERROR;
   }
@@ -1058,6 +1075,7 @@ NppStatus nppiMean_StdDev_8u_C3CR_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width * 3) {
     return NPP_STEP_ERROR;
   }
@@ -1088,6 +1106,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, size_t 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI yields a zero buffer size with NPP_SUCCESS, matching NVIDIA NPP 12.4.
 
   // Masked versions need extra space for valid counts
   size_t numPixels = static_cast<size_t>(oSizeROI.width) * static_cast<size_t>(oSizeROI.height);
@@ -1115,6 +1134,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, size_t
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI yields a zero buffer size with NPP_SUCCESS, matching NVIDIA NPP 12.4.
 
   // Masked versions need extra space for valid counts
   size_t numPixels = static_cast<size_t>(oSizeROI.width) * static_cast<size_t>(oSizeROI.height);
@@ -1176,6 +1196,7 @@ NppStatus nppiMean_StdDev_8u_C1MR_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width || nMaskStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
@@ -1205,6 +1226,7 @@ NppStatus nppiMean_StdDev_32f_C1MR_Ctx(const Npp32f *pSrc, int nSrcStep, const N
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nMaskStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
@@ -1232,6 +1254,7 @@ NppStatus nppiMean_StdDev_8u_C3CMR_Ctx(const Npp8u *pSrc, int nSrcStep, const Np
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
+  // Zero ROI returns success without touching outputs, matching NVIDIA NPP 12.4.
   if (nSrcStep < oSizeROI.width * 3 || nMaskStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }

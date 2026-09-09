@@ -61,9 +61,11 @@ __global__ void yuv420_to_rgb_p3c3_kernel(const uint8_t *__restrict__ srcY, int 
   dst[dst_offset + 2] = B;
 }
 
-// Alpha behavior matches NVIDIA NPP:
-// - RGB P3C4R: alpha = 0 (12.4 behavior, header documents 0xFF but device code clears it)
-// - RGB P3AC4R: alpha = 0
+// Alpha behavior:
+// - RGB P3C4R: alpha = 0. NVIDIA NPP 12.4 device code clears alpha, contradicting its own header
+//   which documents constant 0xFF. We follow the 12.4 device behavior for compatibility; the
+//   BGR variant fills 0xFF, so the RGB clear is likely a library bug. Revisit on NPP upgrade.
+// - RGB P3AC4R: alpha = 0 (documented and observed).
 __global__ void yuv420_to_rgb_p3c4_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                           const uint8_t *__restrict__ srcU, int srcUStep,
                                           const uint8_t *__restrict__ srcV, int srcVStep, uint8_t *__restrict__ dst,
@@ -195,7 +197,7 @@ extern "C" cudaError_t nppiYUV420ToRGB_8u_P3C4R_kernel(const Npp8u *pSrcY, int n
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  // NVIDIA 12.4 clears alpha to 0 for RGB P3C4R
+  // NVIDIA 12.4 clears alpha to 0 for RGB P3C4R (contradicts its header; see note above)
   yuv420_to_rgb_p3c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
                                                                 pDst, nDstStep, oSizeROI.width, oSizeROI.height, 2);
   return cudaGetLastError();

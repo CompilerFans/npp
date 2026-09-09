@@ -2725,7 +2725,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C4R_AllInterpolationModes) {
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
   const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
-  // NVIDIA 12.4 rejects NPPI_INTER_SUPER for upscale with NPP_RESIZE_FACTOR_ERROR
+  // NPPI_INTER_SUPER (area-average super sampling) is only meaningful for downscale; NVIDIA 12.4
+  // rejects it for upscale with NPP_RESIZE_FACTOR_ERROR. MPP keeps this restriction consistent.
   for (int mode : modes) {
     ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
               NPP_SUCCESS);
@@ -2753,7 +2754,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_AllInterpolationModes) {
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
   const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
-  // NVIDIA 12.4 rejects NPPI_INTER_SUPER for upscale with NPP_RESIZE_FACTOR_ERROR
+  // NPPI_INTER_SUPER (area-average super sampling) is only meaningful for downscale; NVIDIA 12.4
+  // rejects it for upscale with NPP_RESIZE_FACTOR_ERROR. MPP keeps this restriction consistent.
   for (int mode : modes) {
     ASSERT_EQ(nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
               NPP_SUCCESS);
