@@ -37,10 +37,13 @@ TEST(NppiConvertC4Test, Convert_8u32f_C4R_And_Ctx) {
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
   EXPECT_EQ(nppiConvert_8u32f_C4R_Ctx(dSource, srcStep, dDestination, dstStep, roi, context), NPP_SUCCESS);
   EXPECT_EQ(nppiConvert_8u32f_C4R(nullptr, srcStep, dDestination, dstStep, roi), NPP_NULL_POINTER_ERROR);
+  // NVIDIA 12.4 does not validate the 8u source step for C4 convert
+#ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(nppiConvert_8u32f_C4R(dSource, width * 4 - 1, dDestination, dstStep, roi), NPP_STEP_ERROR);
-  EXPECT_EQ(nppiConvert_8u32f_C4R(dSource, srcStep, dDestination,
-                                 static_cast<int>(width * 4 * sizeof(Npp32f)) - 1, roi),
-            NPP_STEP_ERROR);
+#endif
+  EXPECT_EQ(
+      nppiConvert_8u32f_C4R(dSource, srcStep, dDestination, static_cast<int>(width * 4 * sizeof(Npp32f)) - 1, roi),
+      NPP_STEP_ERROR);
 
   nppiFree(dSource);
   nppiFree(dDestination);

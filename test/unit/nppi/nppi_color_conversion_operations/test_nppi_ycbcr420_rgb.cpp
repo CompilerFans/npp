@@ -27,8 +27,7 @@ protected:
     }
   }
 
-  template <typename T>
-  void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
+  template <typename T> void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
     std::cout << label << " = {";
     for (int i = 0; i < count; ++i) {
       if (i) {
@@ -132,10 +131,9 @@ TEST_F(YCbCr420Test, RGBToYCbCr420_And_Back_ExpectedValues) {
   const Npp8u kExpectedYCbCr420Y[16] = {32, 46, 61, 75, 41, 55, 69, 83, 49, 64, 78, 92, 58, 72, 86, 101};
   const Npp8u kExpectedYCbCr420Cb[4] = {135, 124, 138, 127};
   const Npp8u kExpectedYCbCr420Cr[4] = {125, 141, 121, 138};
-  const Npp8u kExpectedYCbCr420ToRGB[48] = {13,  18,  32,  30,  34,  49,  73,  43,  44,  89,  59,  60,
-                                           24,  28,  43,  40,  45,  59,  82,  52,  53,  98,  68,  69,
-                                           27,  40,  58,  44,  57,  76,  88,  64,  70,  104, 80,  86,
-                                           37,  50,  69,  54,  66,  85,  97,  73,  79,  114, 91,  96};
+  const Npp8u kExpectedYCbCr420ToRGB[48] = {13, 18,  32, 30, 34, 49, 73, 43, 44, 89, 59, 60, 24, 28,  43, 40,
+                                            45, 59,  82, 52, 53, 98, 68, 69, 27, 40, 58, 44, 57, 76,  88, 64,
+                                            70, 104, 80, 86, 37, 50, 69, 54, 66, 85, 97, 73, 79, 114, 91, 96};
 
   ASSERT_EQ(16, static_cast<int>(sizeof(kExpectedYCbCr420Y) / sizeof(kExpectedYCbCr420Y[0])));
   ASSERT_EQ(4, static_cast<int>(sizeof(kExpectedYCbCr420Cb) / sizeof(kExpectedYCbCr420Cb[0])));

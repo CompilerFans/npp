@@ -1,5 +1,5 @@
-#include "npp.h"
 #include "framework/npp_test_base.h"
+#include "npp.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -57,12 +57,8 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R) {
 
   src.copyFromHost(srcData);
 
-  NppStatus status = nppiLUT_Linear_8u_C1R(
-      src.get(), src.step(),
-      dst.get(), dst.step(),
-      roi,
-      d_pValues, d_pLevels, nLevels
-  );
+  NppStatus status =
+      nppiLUT_Linear_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, d_pValues, d_pLevels, nLevels);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -110,13 +106,8 @@ TEST_F(NPPILUTTest, LUT_Linear_8u_C1R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status = nppiLUT_Linear_8u_C1R_Ctx(
-      src.get(), src.step(),
-      dst.get(), dst.step(),
-      roi,
-      d_pValues, d_pLevels, nLevels,
-      nppStreamCtx
-  );
+  NppStatus status = nppiLUT_Linear_8u_C1R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, d_pValues, d_pLevels,
+                                               nLevels, nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 

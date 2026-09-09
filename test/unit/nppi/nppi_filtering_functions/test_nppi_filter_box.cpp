@@ -1508,8 +1508,7 @@ TEST_F(FilterTest, FilterBox_32f_C1R_Ctx) {
   int sourceStep = 0;
   int destinationStep = 0;
   Npp32f *d_src_32f_base = nppiMalloc_32f_C1(expandedWidth, expandedHeight, &sourceStep);
-  Npp32f *d_src_32f =
-      reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(d_src_32f_base) + halo * sourceStep) + halo;
+  Npp32f *d_src_32f = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(d_src_32f_base) + halo * sourceStep) + halo;
   Npp32f *d_dst_32f = nppiMalloc_32f_C1(width, height, &destinationStep);
   ASSERT_NE(d_src_32f_base, nullptr);
   ASSERT_NE(d_dst_32f, nullptr);
@@ -1525,8 +1524,8 @@ TEST_F(FilterTest, FilterBox_32f_C1R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status =
-      nppiFilterBox_32f_C1R_Ctx(d_src_32f, sourceStep, d_dst_32f, destinationStep, size, maskSize, anchor, nppStreamCtx);
+  NppStatus status = nppiFilterBox_32f_C1R_Ctx(d_src_32f, sourceStep, d_dst_32f, destinationStep, size, maskSize,
+                                               anchor, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   err = cudaMemcpy2D(h_dst_32f.data(), width * sizeof(Npp32f), d_dst_32f, destinationStep, width * sizeof(Npp32f),
@@ -1625,11 +1624,9 @@ TEST(FilterBox8uC3RTest, OneByOneMaskAndCtx) {
   const NppiSize roi{width, height};
   const NppiSize mask{1, 1};
   const NppiPoint anchor{0, 0};
-  ASSERT_EQ(nppiFilterBox_8u_C3R(deviceSource, rowBytes, deviceDestination, rowBytes, roi, mask, anchor),
-            NPP_SUCCESS);
+  ASSERT_EQ(nppiFilterBox_8u_C3R(deviceSource, rowBytes, deviceDestination, rowBytes, roi, mask, anchor), NPP_SUCCESS);
   std::vector<Npp8u> destination(source.size());
-  ASSERT_EQ(cudaMemcpy(destination.data(), deviceDestination, destination.size(), cudaMemcpyDeviceToHost),
-            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(destination.data(), deviceDestination, destination.size(), cudaMemcpyDeviceToHost), cudaSuccess);
   EXPECT_EQ(destination, source);
 
   NppStreamContext context{};
@@ -1638,8 +1635,11 @@ TEST(FilterBox8uC3RTest, OneByOneMaskAndCtx) {
             NPP_SUCCESS);
   EXPECT_EQ(nppiFilterBox_8u_C3R(nullptr, rowBytes, deviceDestination, rowBytes, roi, mask, anchor),
             NPP_NULL_POINTER_ERROR);
+  // NVIDIA NPP 12.4 accepts an undersized source step for the 1x1-mask fast path
+#ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(nppiFilterBox_8u_C3R(deviceSource, rowBytes - 1, deviceDestination, rowBytes, roi, mask, anchor),
             NPP_STEP_ERROR);
+#endif
 
   cudaFree(deviceSource);
   cudaFree(deviceDestination);

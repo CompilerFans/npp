@@ -1,9 +1,9 @@
 #pragma once
 
-#include "npp.h"  
+#include "npp.h"
 #include "npp_test_memory.h"
-#include "npp_test_result_validator.h"
 #include "npp_test_rand_gen.h"
+#include "npp_test_result_validator.h"
 #include "npp_test_utils.h"
 #include <gtest/gtest.h>
 

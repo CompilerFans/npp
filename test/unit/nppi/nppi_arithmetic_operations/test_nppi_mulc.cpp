@@ -726,9 +726,8 @@ TEST_P(MulC32fParamTest, MulC_32f_C1IR_PartialROI) {
   NppImageMemory<Npp32f> src(width, height);
   src.copyFromHost(srcData);
 
-  Npp32f *pRoi = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(src.get()) +
-                                            static_cast<size_t>(roiY) * src.step()) +
-                 roiX;
+  Npp32f *pRoi =
+      reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(src.get()) + static_cast<size_t>(roiY) * src.step()) + roiX;
   const NppiSize roi{roiW, roiH};
   ASSERT_EQ(nppiMulC_32f_C1IR(constant, pRoi, src.step(), roi), NPP_NO_ERROR);
 

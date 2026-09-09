@@ -46,8 +46,8 @@ static inline NppStatus validateYCbCr422C2Inputs(const void *pSrc, int nSrcStep,
   return NPP_SUCCESS;
 }
 
-static inline NppStatus validateYCbCr422ToPlanarInputs(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3],
-                                                       int rDstStep[3], NppiSize oSizeROI, int srcChannels) {
+static inline NppStatus validateYCbCr422ToPlanarInputs(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                                       NppiSize oSizeROI, int srcChannels) {
   if (!pSrc || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -60,8 +60,8 @@ static inline NppStatus validateYCbCr422ToPlanarInputs(const Npp8u *pSrc, int nS
   if ((oSizeROI.width % 2) != 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
-  if (nSrcStep < oSizeROI.width * srcChannels || rDstStep[0] < oSizeROI.width ||
-      rDstStep[1] < oSizeROI.width / 2 || rDstStep[2] < oSizeROI.width / 2) {
+  if (nSrcStep < oSizeROI.width * srcChannels || rDstStep[0] < oSizeROI.width || rDstStep[1] < oSizeROI.width / 2 ||
+      rDstStep[2] < oSizeROI.width / 2) {
     return NPP_STEP_ERROR;
   }
   return NPP_SUCCESS;
@@ -88,96 +88,91 @@ static inline NppStatus validateYCbCr422FromPlanarInputs(const Npp8u *const pSrc
   return NPP_SUCCESS;
 }
 
-NppStatus nppiRGBToYCbCr422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCbCr422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr422C2Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
   }
 
-  cudaError_t cudaStatus = nppiRGBToYCbCr422_8u_C3C2R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiRGBToYCbCr422_8u_C3C2R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr422_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                     NppiSize oSizeROI) {
+NppStatus nppiRGBToYCbCr422_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiRGBToYCbCr422_8u_C3C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-NppStatus nppiYCbCr422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr422C2Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYCbCr422ToRGB_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiYCbCr422ToRGB_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGB_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                     NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToRGB_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiYCbCr422ToRGB_8u_C2C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-NppStatus nppiBGRToYCbCr422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr422C2Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
   }
 
-  cudaError_t cudaStatus = nppiBGRToYCbCr422_8u_C3C2R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiBGRToYCbCr422_8u_C3C2R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr422_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                     NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr422_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiBGRToYCbCr422_8u_C3C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-NppStatus nppiYCbCr422ToBGR_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToBGR_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr422C2Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYCbCr422ToBGR_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiYCbCr422ToBGR_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiYCbCr422ToBGR_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                     NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToBGR_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiYCbCr422ToBGR_8u_C2C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-NppStatus nppiBGRToYCbCr422_8u_AC4C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                          NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr422_8u_AC4C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr422C2Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
   }
 
-  cudaError_t cudaStatus = nppiBGRToYCbCr422_8u_AC4C2R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                             nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiBGRToYCbCr422_8u_AC4C2R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr422_8u_AC4C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                      NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr422_8u_AC4C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiBGRToYCbCr422_8u_AC4C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
@@ -190,9 +185,8 @@ NppStatus nppiRGBToYCbCr422_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
     return status;
   }
 
-  cudaError_t cudaStatus = nppiRGBToYCbCr422_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1],
-                                                            rDstStep[1], pDst[2], rDstStep[2], oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiRGBToYCbCr422_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1],
+                                                             pDst[2], rDstStep[2], oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -210,9 +204,8 @@ NppStatus nppiBGRToYCbCr422_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
     return status;
   }
 
-  cudaError_t cudaStatus = nppiBGRToYCbCr422_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1],
-                                                            rDstStep[1], pDst[2], rDstStep[2], oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiBGRToYCbCr422_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1],
+                                                             pDst[2], rDstStep[2], oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -230,9 +223,8 @@ NppStatus nppiYCbCr422ToRGB_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcSte
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYCbCr422ToRGB_8u_P3C3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                            rSrcStep[2], pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiYCbCr422ToRGB_8u_P3C3R_kernel(
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -250,9 +242,8 @@ NppStatus nppiYCbCr422ToBGR_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcSte
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYCbCr422ToBGR_8u_P3C3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                            rSrcStep[2], pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiYCbCr422ToBGR_8u_P3C3R_kernel(
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -263,20 +254,20 @@ NppStatus nppiYCbCr422ToBGR_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3]
   return nppiYCbCr422ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
-NppStatus nppiYCbCr422ToBGR_8u_C2C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                         NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToBGR_8u_C2C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         Npp8u nAval, NppStreamContext nppStreamCtx) {
   NppStatus status = validateYCbCr422C2Inputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYCbCr422ToBGR_8u_C2C4R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nAval,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiYCbCr422ToBGR_8u_C2C4R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nAval, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiYCbCr422ToBGR_8u_C2C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                     NppiSize oSizeROI, Npp8u nAval) {
+NppStatus nppiYCbCr422ToBGR_8u_C2C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     Npp8u nAval) {
   NppStreamContext ctx;
   ctx.hStream = 0;
   return nppiYCbCr422ToBGR_8u_C2C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nAval, ctx);

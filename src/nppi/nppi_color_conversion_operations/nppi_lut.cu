@@ -16,9 +16,8 @@ __device__ inline int findLUTIndex(int input, const Npp32s *pLevels, int nLevels
 }
 
 // Kernel for 8-bit unsigned single channel LUT (no interpolation)
-__global__ void nppiLUT_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                       int width, int height, const Npp32s *pValues,
-                                       const Npp32s *pLevels, int nLevels) {
+__global__ void nppiLUT_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width, int height,
+                                      const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -37,11 +36,10 @@ __global__ void nppiLUT_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
 }
 
 // Kernel for 8-bit unsigned 3-channel LUT (no interpolation)
-__global__ void nppiLUT_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                       int width, int height,
-                                       const Npp32s *pValues0, const Npp32s *pLevels0, int nLevels0,
-                                       const Npp32s *pValues1, const Npp32s *pLevels1, int nLevels1,
-                                       const Npp32s *pValues2, const Npp32s *pLevels2, int nLevels2) {
+__global__ void nppiLUT_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width, int height,
+                                      const Npp32s *pValues0, const Npp32s *pLevels0, int nLevels0,
+                                      const Npp32s *pValues1, const Npp32s *pLevels1, int nLevels1,
+                                      const Npp32s *pValues2, const Npp32s *pLevels2, int nLevels2) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -73,12 +71,11 @@ __global__ void nppiLUT_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
 }
 
 // Kernel for 8-bit unsigned 4-channel LUT (no interpolation)
-__global__ void nppiLUT_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                       int width, int height,
-                                       const Npp32s *pValues0, const Npp32s *pLevels0, int nLevels0,
-                                       const Npp32s *pValues1, const Npp32s *pLevels1, int nLevels1,
-                                       const Npp32s *pValues2, const Npp32s *pLevels2, int nLevels2,
-                                       const Npp32s *pValues3, const Npp32s *pLevels3, int nLevels3) {
+__global__ void nppiLUT_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width, int height,
+                                      const Npp32s *pValues0, const Npp32s *pLevels0, int nLevels0,
+                                      const Npp32s *pValues1, const Npp32s *pLevels1, int nLevels1,
+                                      const Npp32s *pValues2, const Npp32s *pLevels2, int nLevels2,
+                                      const Npp32s *pValues3, const Npp32s *pLevels3, int nLevels3) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -116,9 +113,8 @@ __global__ void nppiLUT_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
 }
 
 // Kernel for 16-bit unsigned single channel LUT (no interpolation)
-__global__ void nppiLUT_16u_C1R_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                        int width, int height, const Npp32s *pValues,
-                                        const Npp32s *pLevels, int nLevels) {
+__global__ void nppiLUT_16u_C1R_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, int width,
+                                       int height, const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -139,9 +135,9 @@ __global__ void nppiLUT_16u_C1R_kernel(const Npp16u *pSrc, int nSrcStep, Npp16u 
 extern "C" {
 
 // 8u C1R implementation
-NppStatus nppiLUT_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                   NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels,
-                                   int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                  NppStreamContext nppStreamCtx) {
   Npp32s *d_pValues, *d_pLevels;
   size_t lutSize = nLevels * sizeof(Npp32s);
 
@@ -152,8 +148,7 @@ NppStatus nppiLUT_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
   cudaMemcpy(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice);
 
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiLUT_8u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_pValues, d_pLevels, nLevels);
@@ -174,9 +169,9 @@ NppStatus nppiLUT_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
 }
 
 // 8u C3R implementation
-NppStatus nppiLUT_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                   NppiSize oSizeROI, const Npp32s *pValues[3], const Npp32s *pLevels[3],
-                                   int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                  NppStreamContext nppStreamCtx) {
   Npp32s *d_pValues[3], *d_pLevels[3];
 
   for (int i = 0; i < 3; ++i) {
@@ -188,14 +183,11 @@ NppStatus nppiLUT_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
   }
 
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiLUT_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      d_pValues[0], d_pLevels[0], nLevels[0],
-      d_pValues[1], d_pLevels[1], nLevels[1],
-      d_pValues[2], d_pLevels[2], nLevels[2]);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_pValues[0], d_pLevels[0], nLevels[0],
+      d_pValues[1], d_pLevels[1], nLevels[1], d_pValues[2], d_pLevels[2], nLevels[2]);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -217,9 +209,9 @@ NppStatus nppiLUT_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
 }
 
 // 8u C4R implementation
-NppStatus nppiLUT_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                   NppiSize oSizeROI, const Npp32s *pValues[4], const Npp32s *pLevels[4],
-                                   int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                  NppStreamContext nppStreamCtx) {
   Npp32s *d_pValues[4], *d_pLevels[4];
 
   for (int i = 0; i < 4; ++i) {
@@ -231,15 +223,12 @@ NppStatus nppiLUT_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
   }
 
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiLUT_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height,
-      d_pValues[0], d_pLevels[0], nLevels[0],
-      d_pValues[1], d_pLevels[1], nLevels[1],
-      d_pValues[2], d_pLevels[2], nLevels[2],
-      d_pValues[3], d_pLevels[3], nLevels[3]);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_pValues[0], d_pLevels[0], nLevels[0],
+      d_pValues[1], d_pLevels[1], nLevels[1], d_pValues[2], d_pLevels[2], nLevels[2], d_pValues[3], d_pLevels[3],
+      nLevels[3]);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -261,9 +250,9 @@ NppStatus nppiLUT_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
 }
 
 // 16u C1R implementation
-NppStatus nppiLUT_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                    NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels,
-                                    int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                   NppStreamContext nppStreamCtx) {
   Npp32s *d_pValues, *d_pLevels;
   size_t lutSize = nLevels * sizeof(Npp32s);
 
@@ -274,8 +263,7 @@ NppStatus nppiLUT_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDs
   cudaMemcpy(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice);
 
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiLUT_16u_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_pValues, d_pLevels, nLevels);
@@ -294,5 +282,4 @@ NppStatus nppiLUT_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDs
 
   return NPP_SUCCESS;
 }
-
 }

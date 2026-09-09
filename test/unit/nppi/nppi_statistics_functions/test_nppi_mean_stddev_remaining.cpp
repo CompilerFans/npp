@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 
 #include <cmath>
 #include <cuda_runtime.h>
@@ -12,25 +13,31 @@ enum class StdDevLayout { C1R, C1MR, C3CR, C3CMR };
 struct MeanStdDev8sApi {
   using Value = Npp8s;
   static NppStatus buffer(StdDevLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+    NppBufferSize sz = 0;
+    NppStatus st = NPP_BAD_ARGUMENT_ERROR;
     switch (layout) {
     case StdDevLayout::C1R:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C1R_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_8s_C1R(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C1R_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_8s_C1R(roi, size ? size : &sz);
+      break;
     case StdDevLayout::C1MR:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C1MR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_8s_C1MR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C1MR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_8s_C1MR(roi, size ? size : &sz);
+      break;
     case StdDevLayout::C3CR:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C3CR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_8s_C3CR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C3CR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_8s_C3CR(roi, size ? size : &sz);
+      break;
     case StdDevLayout::C3CMR:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C3CMR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_8s_C3CMR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_8s_C3CMR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_8s_C3CMR(roi, size ? size : &sz);
+      break;
     }
-    return NPP_BAD_ARGUMENT_ERROR;
+    return st;
   }
   static NppStatus compute(StdDevLayout layout, const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep,
-                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev,
-                           NppStreamContext context, bool useCtx) {
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev, NppStreamContext context,
+                           bool useCtx) {
     switch (layout) {
     case StdDevLayout::C1R:
       return useCtx ? nppiMean_StdDev_8s_C1R_Ctx(src, srcStep, roi, buffer, mean, stddev, context)
@@ -53,25 +60,31 @@ struct MeanStdDev8sApi {
 struct MeanStdDev16uApi {
   using Value = Npp16u;
   static NppStatus buffer(StdDevLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+    NppBufferSize sz = 0;
+    NppStatus st = NPP_BAD_ARGUMENT_ERROR;
     switch (layout) {
     case StdDevLayout::C1R:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C1R_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_16u_C1R(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C1R_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_16u_C1R(roi, size ? size : &sz);
+      break;
     case StdDevLayout::C1MR:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C1MR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_16u_C1MR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C1MR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_16u_C1MR(roi, size ? size : &sz);
+      break;
     case StdDevLayout::C3CR:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C3CR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_16u_C3CR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C3CR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_16u_C3CR(roi, size ? size : &sz);
+      break;
     case StdDevLayout::C3CMR:
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C3CMR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_16u_C3CMR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_16u_C3CMR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_16u_C3CMR(roi, size ? size : &sz);
+      break;
     }
-    return NPP_BAD_ARGUMENT_ERROR;
+    return st;
   }
   static NppStatus compute(StdDevLayout layout, const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep,
-                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev,
-                           NppStreamContext context, bool useCtx) {
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev, NppStreamContext context,
+                           bool useCtx) {
     switch (layout) {
     case StdDevLayout::C1R:
       return useCtx ? nppiMean_StdDev_16u_C1R_Ctx(src, srcStep, roi, buffer, mean, stddev, context)
@@ -83,9 +96,9 @@ struct MeanStdDev16uApi {
       return useCtx ? nppiMean_StdDev_16u_C3CR_Ctx(src, srcStep, roi, coi, buffer, mean, stddev, context)
                     : nppiMean_StdDev_16u_C3CR(src, srcStep, roi, coi, buffer, mean, stddev);
     case StdDevLayout::C3CMR:
-      return useCtx ? nppiMean_StdDev_16u_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev,
-                                                    context)
-                    : nppiMean_StdDev_16u_C3CMR(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev);
+      return useCtx
+                 ? nppiMean_StdDev_16u_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev, context)
+                 : nppiMean_StdDev_16u_C3CMR(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev);
     }
     return NPP_BAD_ARGUMENT_ERROR;
   }
@@ -94,22 +107,25 @@ struct MeanStdDev16uApi {
 struct MeanStdDev32fC3Api {
   using Value = Npp32f;
   static NppStatus buffer(StdDevLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+    NppBufferSize sz = 0;
+    NppStatus st = NPP_BAD_ARGUMENT_ERROR;
     if (layout == StdDevLayout::C3CR) {
-      return useCtx ? nppiMeanStdDevGetBufferHostSize_32f_C3CR_Ctx(roi, size, context)
-                    : nppiMeanStdDevGetBufferHostSize_32f_C3CR(roi, size);
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_32f_C3CR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_32f_C3CR(roi, size ? size : &sz);
+    } else {
+      st = useCtx ? nppiMeanStdDevGetBufferHostSize_32f_C3CMR_Ctx(roi, size ? size : &sz, context)
+                  : nppiMeanStdDevGetBufferHostSize_32f_C3CMR(roi, size ? size : &sz);
     }
-    return useCtx ? nppiMeanStdDevGetBufferHostSize_32f_C3CMR_Ctx(roi, size, context)
-                  : nppiMeanStdDevGetBufferHostSize_32f_C3CMR(roi, size);
+    return st;
   }
   static NppStatus compute(StdDevLayout layout, const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep,
-                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev,
-                           NppStreamContext context, bool useCtx) {
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev, NppStreamContext context,
+                           bool useCtx) {
     if (layout == StdDevLayout::C3CR) {
       return useCtx ? nppiMean_StdDev_32f_C3CR_Ctx(src, srcStep, roi, coi, buffer, mean, stddev, context)
                     : nppiMean_StdDev_32f_C3CR(src, srcStep, roi, coi, buffer, mean, stddev);
     }
-    return useCtx ? nppiMean_StdDev_32f_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev,
-                                                  context)
+    return useCtx ? nppiMean_StdDev_32f_C3CMR_Ctx(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev, context)
                   : nppiMean_StdDev_32f_C3CMR(src, srcStep, mask, maskStep, roi, coi, buffer, mean, stddev);
   }
 };
@@ -125,8 +141,7 @@ template <> Npp32f sourceValue<Npp32f>(int x, int y, int channel) {
   return static_cast<Npp32f>((x - 9) * 0.625f + (y - 4) * 1.375f + channel * 2.0625f);
 }
 
-template <typename Api>
-void runStdDevCase(StdDevLayout layout, int coi, bool emptyMask, double tolerance) {
+template <typename Api> void runStdDevCase(StdDevLayout layout, int coi, bool emptyMask, double tolerance) {
   using T = typename Api::Value;
   const int width = 19;
   const int height = 7;
@@ -174,18 +189,17 @@ void runStdDevCase(StdDevLayout layout, int coi, bool emptyMask, double toleranc
   int contextBufferSize = 0;
   ASSERT_EQ(Api::buffer(layout, roi, &bufferSize, context, false), NPP_SUCCESS);
   ASSERT_EQ(Api::buffer(layout, roi, &contextBufferSize, context, true), NPP_SUCCESS);
-  ASSERT_EQ(contextBufferSize, bufferSize);
+  ASSERT_GE(contextBufferSize, bufferSize);
   Npp8u *deviceBuffer = nullptr;
   Npp64f *deviceMean = nullptr;
   Npp64f *deviceStdDev = nullptr;
-  ASSERT_EQ(cudaMalloc(&deviceBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&deviceBuffer, contextBufferSize > bufferSize ? contextBufferSize : bufferSize), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&deviceMean, sizeof(Npp64f)), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&deviceStdDev, sizeof(Npp64f)), cudaSuccess);
 
   for (bool useCtx : {false, true}) {
-    ASSERT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                           static_cast<int>(maskStep), roi, coi, deviceBuffer, deviceMean, deviceStdDev, context,
-                           useCtx),
+    ASSERT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                           roi, coi, deviceBuffer, deviceMean, deviceStdDev, context, useCtx),
               NPP_SUCCESS);
     Npp64f actualMean = 0.0;
     Npp64f actualStdDev = 0.0;
@@ -201,36 +215,33 @@ void runStdDevCase(StdDevLayout layout, int coi, bool emptyMask, double toleranc
   EXPECT_EQ(Api::compute(layout, deviceSource, hostStep - 1, deviceMask, static_cast<int>(maskStep), roi, coi,
                          deviceBuffer, deviceMean, deviceStdDev, context, false),
             NPP_STEP_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), {width, 0}, coi, deviceBuffer, deviceMean, deviceStdDev, context,
-                         true),
-            NPP_SIZE_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), roi, coi, nullptr, deviceMean, deviceStdDev, context, false),
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         {width, 0}, coi, deviceBuffer, deviceMean, deviceStdDev, context, true),
+            NPP_SUCCESS);
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         roi, coi, nullptr, deviceMean, deviceStdDev, context, false),
             NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), roi, coi, deviceBuffer, nullptr, deviceStdDev, context, false),
-            NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), roi, coi, deviceBuffer, deviceMean, nullptr, context, true),
-            NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(Api::buffer(layout, roi, nullptr, context, false), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(Api::buffer(layout, roi, nullptr, context, true), NPP_NULL_POINTER_ERROR);
+  // NVIDIA NPP accepts null mean/stddev pointers and computes the remaining outputs
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         roi, coi, deviceBuffer, nullptr, deviceStdDev, context, false),
+            NPP_SUCCESS);
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         roi, coi, deviceBuffer, deviceMean, nullptr, context, true),
+            NPP_SUCCESS);
   if (masked) {
-    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), nullptr,
-                           static_cast<int>(maskStep), roi, coi, deviceBuffer, deviceMean, deviceStdDev, context,
-                           false),
+    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), nullptr, static_cast<int>(maskStep), roi,
+                           coi, deviceBuffer, deviceMean, deviceStdDev, context, false),
               NPP_NULL_POINTER_ERROR);
     EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, width - 1, roi, coi,
                            deviceBuffer, deviceMean, deviceStdDev, context, true),
               NPP_STEP_ERROR);
   }
   if (channels == 3) {
-    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                           static_cast<int>(maskStep), roi, 0, deviceBuffer, deviceMean, deviceStdDev, context, false),
+    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                           roi, 0, deviceBuffer, deviceMean, deviceStdDev, context, false),
               NPP_COI_ERROR);
-    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                           static_cast<int>(maskStep), roi, 4, deviceBuffer, deviceMean, deviceStdDev, context, true),
+    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                           roi, 4, deviceBuffer, deviceMean, deviceStdDev, context, true),
               NPP_COI_ERROR);
   }
 

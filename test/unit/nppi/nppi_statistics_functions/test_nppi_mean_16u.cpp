@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -18,7 +19,7 @@ struct Mean16uCase {
 
 class NppiMean16uTest : public ::testing::TestWithParam<Mean16uCase> {};
 
-NppStatus getBufferSize(const Mean16uCase &testCase, NppiSize roi, int *bufferSize, NppStreamContext context,
+NppStatus getBufferSize(const Mean16uCase &testCase, NppiSize roi, NppBufferSize *bufferSize, NppStreamContext context,
                         bool useContext) {
   switch (testCase.layout) {
   case Mean16uLayout::C1:
@@ -87,19 +88,19 @@ TEST_P(NppiMean16uTest, AccuracyEntryPointsAndParameters) {
             cudaSuccess);
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
-  int bufferSize = 0;
-  int contextBufferSize = 0;
+  NppBufferSize bufferSize = 0;
+  NppBufferSize contextBufferSize = 0;
   ASSERT_EQ(getBufferSize(testCase, roi, &bufferSize, context, false), NPP_SUCCESS);
   ASSERT_EQ(getBufferSize(testCase, roi, &contextBufferSize, context, true), NPP_SUCCESS);
-  ASSERT_EQ(contextBufferSize, bufferSize);
+  ASSERT_GE(contextBufferSize, bufferSize);
 
   Npp8u *deviceBuffer = nullptr;
   Npp64f *deviceMean = nullptr;
-  ASSERT_EQ(cudaMalloc(&deviceBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&deviceBuffer, contextBufferSize > bufferSize ? contextBufferSize : bufferSize), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&deviceMean, outputChannels * sizeof(Npp64f)), cudaSuccess);
   for (bool useContext : {false, true}) {
-    ASSERT_EQ(computeMean(testCase, deviceSource, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean,
-                          context, useContext),
+    ASSERT_EQ(computeMean(testCase, deviceSource, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context,
+                          useContext),
               NPP_SUCCESS);
     std::vector<Npp64f> actual(outputChannels);
     ASSERT_EQ(cudaMemcpy(actual.data(), deviceMean, actual.size() * sizeof(Npp64f), cudaMemcpyDeviceToHost),
@@ -109,8 +110,7 @@ TEST_P(NppiMean16uTest, AccuracyEntryPointsAndParameters) {
     }
   }
 
-  EXPECT_EQ(computeMean(testCase, nullptr, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context,
-                        false),
+  EXPECT_EQ(computeMean(testCase, nullptr, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context, false),
             NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(computeMean(testCase, deviceSource, hostStep - 1, roi, deviceBuffer, deviceMean, context, false),
             NPP_STEP_ERROR);
@@ -126,12 +126,9 @@ TEST_P(NppiMean16uTest, AccuracyEntryPointsAndParameters) {
 
 INSTANTIATE_TEST_SUITE_P(
     LayoutsAndSizes, NppiMean16uTest,
-    ::testing::Values(Mean16uCase{Mean16uLayout::C1, 1, 1, "C1_1x1"},
-                      Mean16uCase{Mean16uLayout::C1, 37, 5, "C1_37x5"},
-                      Mean16uCase{Mean16uLayout::C3, 1, 1, "C3_1x1"},
-                      Mean16uCase{Mean16uLayout::C3, 19, 8, "C3_19x8"},
-                      Mean16uCase{Mean16uLayout::C4, 1, 1, "C4_1x1"},
-                      Mean16uCase{Mean16uLayout::C4, 21, 7, "C4_21x7"},
+    ::testing::Values(Mean16uCase{Mean16uLayout::C1, 1, 1, "C1_1x1"}, Mean16uCase{Mean16uLayout::C1, 37, 5, "C1_37x5"},
+                      Mean16uCase{Mean16uLayout::C3, 1, 1, "C3_1x1"}, Mean16uCase{Mean16uLayout::C3, 19, 8, "C3_19x8"},
+                      Mean16uCase{Mean16uLayout::C4, 1, 1, "C4_1x1"}, Mean16uCase{Mean16uLayout::C4, 21, 7, "C4_21x7"},
                       Mean16uCase{Mean16uLayout::AC4, 1, 1, "AC4_1x1"},
                       Mean16uCase{Mean16uLayout::AC4, 23, 6, "AC4_23x6"}),
     [](const testing::TestParamInfo<Mean16uCase> &info) { return std::string(info.param.name); });

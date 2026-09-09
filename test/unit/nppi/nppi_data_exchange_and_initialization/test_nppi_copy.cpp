@@ -1345,8 +1345,9 @@ TEST_F(CopyTest, Copy_32f_C3P3R_PartialROI) {
 
   // src.step() is in bytes; offset the char pointer first, then advance by
   // roiX * 3 float elements.
-  Npp32f *pRoi = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(src.get()) + static_cast<size_t>(roiY) * src.step()) +
-                 roiX * 3;
+  Npp32f *pRoi =
+      reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(src.get()) + static_cast<size_t>(roiY) * src.step()) +
+      roiX * 3;
   Npp32f *planes[3] = {plane0.get(), plane1.get(), plane2.get()};
   const NppStatus copyStatus = nppiCopy_32f_C3P3R(pRoi, src.step(), planes, plane0.step(), NppiSize{roiW, roiH});
   ASSERT_EQ(copyStatus, NPP_SUCCESS);

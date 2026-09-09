@@ -75,16 +75,15 @@ TEST_F(YCbCr420LayoutTest, P2P3RAndP3P2RRoundTrip) {
   for (int row = 0; row < height / 2; ++row) {
     for (int x = 0; x < width / 2; ++x) {
       EXPECT_EQ(outCb[static_cast<size_t>(row) * dstCbStep + x], cbcr[static_cast<size_t>(row) * width + x * 2]);
-      EXPECT_EQ(outCr[static_cast<size_t>(row) * dstCrStep + x],
-                cbcr[static_cast<size_t>(row) * width + x * 2 + 1]);
+      EXPECT_EQ(outCr[static_cast<size_t>(row) * dstCrStep + x], cbcr[static_cast<size_t>(row) * width + x * 2 + 1]);
     }
   }
 
   const Npp8u *srcPlanes[3] = {dDstY, dDstCb, dDstCr};
   int srcSteps[3] = {dstYStep, dstCbStep, dstCrStep};
-  ASSERT_EQ(nppiYCbCr420_8u_P3P2R_Ctx(srcPlanes, srcSteps, dMergedY, mergedYStep, dMergedCbCr, mergedCbCrStep, roi,
-                                      context),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiYCbCr420_8u_P3P2R_Ctx(srcPlanes, srcSteps, dMergedY, mergedYStep, dMergedCbCr, mergedCbCrStep, roi, context),
+      NPP_SUCCESS);
   ASSERT_EQ(nppiYCbCr420_8u_P3P2R(srcPlanes, srcSteps, dMergedY, mergedYStep, dMergedCbCr, mergedCbCrStep, roi),
             NPP_SUCCESS);
 
@@ -120,8 +119,8 @@ TEST_F(YCbCr420LayoutTest, YCbCr420ToBGRMatchesKnownValues) {
   const Npp8u y[16] = {32, 46, 61, 75, 41, 55, 69, 83, 49, 64, 78, 92, 58, 72, 86, 101};
   const Npp8u cb[4] = {135, 124, 138, 127};
   const Npp8u cr[4] = {125, 141, 121, 138};
-  const Npp8u expected[48] = {32, 18, 13, 49, 34, 30, 44, 43, 73, 60, 59, 89, 43, 28, 24, 59,
-                              45, 40, 53, 52, 82, 69, 68, 98, 58, 40, 27, 76, 57, 44, 70, 64,
+  const Npp8u expected[48] = {32, 18, 13, 49,  34, 30, 44, 43, 73, 60, 59, 89, 43, 28, 24, 59,
+                              45, 40, 53, 52,  82, 69, 68, 98, 58, 40, 27, 76, 57, 44, 70, 64,
                               88, 86, 80, 104, 69, 50, 37, 85, 66, 54, 79, 73, 97, 96, 91, 114};
 
   int yStep = 0;
@@ -223,8 +222,7 @@ TEST_F(YCbCr420LayoutTest, P2P3R_CameraSizes_RoundTrip) {
     for (int row = 0; row < height / 2; ++row) {
       for (int x = 0; x < width / 2; ++x) {
         EXPECT_EQ(outCb[static_cast<size_t>(row) * dstCbStep + x], cbcr[static_cast<size_t>(row) * width + x * 2]);
-        EXPECT_EQ(outCr[static_cast<size_t>(row) * dstCrStep + x],
-                  cbcr[static_cast<size_t>(row) * width + x * 2 + 1]);
+        EXPECT_EQ(outCr[static_cast<size_t>(row) * dstCrStep + x], cbcr[static_cast<size_t>(row) * width + x * 2 + 1]);
       }
     }
 
@@ -402,8 +400,7 @@ TEST_F(YCbCr420LayoutTest, P2P3R_PaddedPlaneSteps) {
   for (int row = 0; row < height / 2; ++row) {
     for (int x = 0; x < width / 2; ++x) {
       EXPECT_EQ(outCb[static_cast<size_t>(row) * dstCbStep + x], cbcr[static_cast<size_t>(row) * width + x * 2]);
-      EXPECT_EQ(outCr[static_cast<size_t>(row) * dstCrStep + x],
-                cbcr[static_cast<size_t>(row) * width + x * 2 + 1]);
+      EXPECT_EQ(outCr[static_cast<size_t>(row) * dstCrStep + x], cbcr[static_cast<size_t>(row) * width + x * 2 + 1]);
     }
   }
 
@@ -418,8 +415,11 @@ TEST_F(YCbCr420LayoutTest, ValidatesArguments) {
   Npp8u *planes[3] = {nullptr, nullptr, nullptr};
   int steps[3] = {8, 4, 4};
   EXPECT_EQ(nppiYCbCr420_8u_P2P3R(nullptr, 8, nullptr, 8, planes, steps, {8, 4}), NPP_NULL_POINTER_ERROR);
+  // NVIDIA NPP 12.4 crashes on null pointers for these two functions instead of returning an error
+#ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(nppiYCbCr420_8u_P3P2R(nullptr, steps, nullptr, 8, nullptr, 8, {8, 4}), NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(nppiYCbCr420ToBGR_8u_P3C3R(nullptr, steps, nullptr, 24, {8, 4}), NPP_NULL_POINTER_ERROR);
+#endif
 }
 
 } // namespace

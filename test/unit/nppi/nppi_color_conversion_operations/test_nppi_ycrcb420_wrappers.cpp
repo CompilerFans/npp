@@ -107,7 +107,8 @@ TEST_F(YCrCb420WrappersTest, BGRAndBGRAProduceYCrCbPlanesWithIndependentSteps) {
   constexpr int width = 4;
   constexpr int height = 4;
   constexpr int srcC3Step = width * 3 + 5;
-  constexpr int srcAC4Step = width * 4 + 5;
+  // AC4 step must stay a multiple of 4: NVIDIA NPP 12.4 rejects it with NPP_NOT_EVEN_STEP_ERROR otherwise
+  constexpr int srcAC4Step = width * 4 + 8;
   constexpr int yStep = width + 3;
   constexpr int crStep = width / 2 + 3;
   constexpr int cbStep = width / 2 + 5;
@@ -132,8 +133,7 @@ TEST_F(YCrCb420WrappersTest, BGRAndBGRAProduceYCrCbPlanesWithIndependentSteps) {
     }
   }
 
-  const std::vector<Npp8u> expectedY = {32, 46, 61, 75, 41, 55, 69, 83,
-                                        49, 64, 78, 92, 58, 72, 86, 101};
+  const std::vector<Npp8u> expectedY = {32, 46, 61, 75, 41, 55, 69, 83, 49, 64, 78, 92, 58, 72, 86, 101};
   const std::vector<Npp8u> expectedCr = {125, 141, 121, 138};
   const std::vector<Npp8u> expectedCb = {135, 124, 138, 127};
 
@@ -242,8 +242,7 @@ TEST_F(YCrCb420WrappersTest, P2AndP3LayoutsRoundTripByteForByteWithIndependentSt
   ASSERT_NE(managedStream.get(), nullptr);
   Npp8u *dst[3] = {dstY.get(), dstCr.get(), dstCb.get()};
   int dstSteps[3] = {dstYStep, dstCrStep, dstCbStep};
-  ASSERT_EQ(nppiYCbCr420ToYCrCb420_8u_P2P3R(srcY.get(), srcYStep, srcCbCr.get(), srcCbCrStep, dst, dstSteps,
-                                            roi),
+  ASSERT_EQ(nppiYCbCr420ToYCrCb420_8u_P2P3R(srcY.get(), srcYStep, srcCbCr.get(), srcCbCrStep, dst, dstSteps, roi),
             NPP_SUCCESS);
   ASSERT_EQ(cudaStreamSynchronize(managedStream.get()), cudaSuccess);
   expectPlane(dstY.get(), dstYStep, width, height, y);
@@ -256,8 +255,8 @@ TEST_F(YCrCb420WrappersTest, P2AndP3LayoutsRoundTripByteForByteWithIndependentSt
   clearBuffer(dstY, dstYStep, height);
   clearBuffer(dstCr, dstCrStep, height / 2);
   clearBuffer(dstCb, dstCbStep, height / 2);
-  ASSERT_EQ(nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx(srcY.get(), srcYStep, srcCbCr.get(), srcCbCrStep, dst, dstSteps,
-                                                roi, context),
+  ASSERT_EQ(nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx(srcY.get(), srcYStep, srcCbCr.get(), srcCbCrStep, dst, dstSteps, roi,
+                                                context),
             NPP_SUCCESS);
   ASSERT_EQ(cudaStreamSynchronize(stream.get()), cudaSuccess);
   expectPlane(dstY.get(), dstYStep, width, height, y);
@@ -266,9 +265,9 @@ TEST_F(YCrCb420WrappersTest, P2AndP3LayoutsRoundTripByteForByteWithIndependentSt
 
   const Npp8u *src[3] = {dstY.get(), dstCr.get(), dstCb.get()};
   int srcSteps[3] = {dstYStep, dstCrStep, dstCbStep};
-  ASSERT_EQ(nppiYCrCb420ToYCbCr420_8u_P3P2R(src, srcSteps, mergedY.get(), mergedYStep, mergedCbCr.get(),
-                                            mergedCbCrStep, roi),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiYCrCb420ToYCbCr420_8u_P3P2R(src, srcSteps, mergedY.get(), mergedYStep, mergedCbCr.get(), mergedCbCrStep, roi),
+      NPP_SUCCESS);
   ASSERT_EQ(cudaStreamSynchronize(managedStream.get()), cudaSuccess);
   expectPlane(mergedY.get(), mergedYStep, width, height, y);
   expectPlane(mergedCbCr.get(), mergedCbCrStep, width, height / 2, cbcr);
@@ -284,6 +283,9 @@ TEST_F(YCrCb420WrappersTest, P2AndP3LayoutsRoundTripByteForByteWithIndependentSt
 }
 
 TEST_F(YCrCb420WrappersTest, ValidatesPointersStepsAndEvenRoi) {
+  // NVIDIA NPP 12.4 YCrCb420 wrappers do not validate most arguments (null pointers crash the library and
+  // zero/odd ROIs are accepted), so these checks only run against MPP.
+#ifndef USE_NVIDIA_NPP_TESTS
   constexpr int width = 4;
   constexpr int height = 4;
   constexpr int srcC3Step = width * 3;
@@ -313,8 +315,7 @@ TEST_F(YCrCb420WrappersTest, ValidatesPointersStepsAndEvenRoi) {
   NppStreamContext context{};
 
   EXPECT_EQ(nppiBGRToYCrCb420_8u_C3P3R(nullptr, srcC3Step, dst, dstSteps, roi), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(nppiBGRToYCrCb420_8u_C3P3R(srcC3.get(), srcC3Step, nullptr, dstSteps, roi),
-            NPP_NULL_POINTER_ERROR);
+  EXPECT_EQ(nppiBGRToYCrCb420_8u_C3P3R(srcC3.get(), srcC3Step, nullptr, dstSteps, roi), NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(nppiBGRToYCrCb420_8u_C3P3R(srcC3.get(), srcC3Step, dst, nullptr, roi), NPP_STEP_ERROR);
   Npp8u *nullDst[3] = {y.get(), nullptr, cb.get()};
   EXPECT_EQ(nppiBGRToYCrCb420_8u_AC4P3R_Ctx(srcAC4.get(), srcAC4Step, nullDst, dstSteps, roi, context),
@@ -328,8 +329,7 @@ TEST_F(YCrCb420WrappersTest, ValidatesPointersStepsAndEvenRoi) {
   EXPECT_EQ(nppiYCbCr420ToYCrCb420_8u_P2P3R(y.get(), yStep, cbcr.get(), cbcrStep, dst, nullptr, roi),
             NPP_NULL_POINTER_ERROR);
   const Npp8u *nullSrc[3] = {y.get(), cr.get(), nullptr};
-  EXPECT_EQ(nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx(nullSrc, srcSteps, y.get(), yStep, cbcr.get(), cbcrStep, roi,
-                                                context),
+  EXPECT_EQ(nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx(nullSrc, srcSteps, y.get(), yStep, cbcr.get(), cbcrStep, roi, context),
             NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(nppiYCrCb420ToYCbCr420_8u_P3P2R(nullptr, srcSteps, y.get(), yStep, cbcr.get(), cbcrStep, roi),
             NPP_NULL_POINTER_ERROR);
@@ -368,12 +368,13 @@ TEST_F(YCrCb420WrappersTest, ValidatesPointersStepsAndEvenRoi) {
             NPP_WRONG_INTERSECTION_ROI_ERROR);
   EXPECT_EQ(nppiBGRToYCrCb420_8u_AC4P3R_Ctx(srcAC4.get(), srcAC4Step, dst, dstSteps, {width, height - 1}, context),
             NPP_WRONG_INTERSECTION_ROI_ERROR);
-  EXPECT_EQ(nppiYCbCr420ToYCrCb420_8u_P2P3R(srcC3.get(), yStep, cbcr.get(), cbcrStep, dst, dstSteps,
-                                            {width - 1, height}),
-            NPP_WRONG_INTERSECTION_ROI_ERROR);
+  EXPECT_EQ(
+      nppiYCbCr420ToYCrCb420_8u_P2P3R(srcC3.get(), yStep, cbcr.get(), cbcrStep, dst, dstSteps, {width - 1, height}),
+      NPP_WRONG_INTERSECTION_ROI_ERROR);
   EXPECT_EQ(nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx(src, srcSteps, y.get(), yStep, cbcr.get(), cbcrStep,
                                                 {width, height - 1}, context),
             NPP_WRONG_INTERSECTION_ROI_ERROR);
+#endif
 }
 
 } // namespace

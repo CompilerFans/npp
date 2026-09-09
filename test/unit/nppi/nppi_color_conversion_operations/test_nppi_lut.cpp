@@ -17,13 +17,9 @@ struct LutCase {
 
 class LutTestBase : public npp_functional_test::NppTestBase {
 protected:
-  void SetUp() override {
-    npp_functional_test::NppTestBase::SetUp();
-  }
+  void SetUp() override { npp_functional_test::NppTestBase::SetUp(); }
 
-  void TearDown() override {
-    npp_functional_test::NppTestBase::TearDown();
-  }
+  void TearDown() override { npp_functional_test::NppTestBase::TearDown(); }
 
   void fillU8(std::vector<Npp8u> &data, int seed) {
     std::mt19937 rng(static_cast<unsigned int>(seed));
@@ -49,11 +45,8 @@ class Lut8uC3RParamTest : public LutTestBase, public ::testing::WithParamInterfa
 class Lut8uC4RParamTest : public LutTestBase, public ::testing::WithParamInterface<LutCase> {};
 class Lut16uC1RParamTest : public LutTestBase, public ::testing::WithParamInterface<LutCase> {};
 
-
 template <typename T> T clampToType(Npp32s value);
-template <> Npp8u clampToType<Npp8u>(Npp32s value) {
-  return static_cast<Npp8u>(std::min(std::max(value, 0), 255));
-}
+template <> Npp8u clampToType<Npp8u>(Npp32s value) { return static_cast<Npp8u>(std::min(std::max(value, 0), 255)); }
 template <> Npp16u clampToType<Npp16u>(Npp32s value) {
   return static_cast<Npp16u>(std::min(std::max(value, 0), 65535));
 }
@@ -72,8 +65,7 @@ T applyLutNoInterpolation(T input, const std::vector<Npp32s> &values, const std:
   return clampToType<T>(values[static_cast<size_t>(index)]);
 }
 
-template <typename T>
-bool allocAndCopyToDevice(const std::vector<T> &host, T **devicePtr) {
+template <typename T> bool allocAndCopyToDevice(const std::vector<T> &host, T **devicePtr) {
   *devicePtr = nullptr;
   if (host.empty()) {
     return false;
@@ -157,7 +149,6 @@ TEST_P(Lut8uC1RParamTest, LUT_NoInterpolation) {
   cudaMemcpy2D(out_ctx.data(), width, d_dst, dstStep, width, height, cudaMemcpyDeviceToHost);
   EXPECT_EQ(out_ctx, expected);
 
-
   cudaFree(d_values);
   cudaFree(d_levels);
   nppiFree(d_src);
@@ -206,12 +197,18 @@ TEST_P(Lut8uC3RParamTest, LUT_NoInterpolation) {
   if (!allocAndCopyToDevice(values0, &d_values0) || !allocAndCopyToDevice(values1, &d_values1) ||
       !allocAndCopyToDevice(values2, &d_values2) || !allocAndCopyToDevice(levelPos0, &d_levelPos0) ||
       !allocAndCopyToDevice(levelPos1, &d_levelPos1) || !allocAndCopyToDevice(levelPos2, &d_levelPos2)) {
-    if (d_values0) cudaFree(d_values0);
-    if (d_values1) cudaFree(d_values1);
-    if (d_values2) cudaFree(d_values2);
-    if (d_levelPos0) cudaFree(d_levelPos0);
-    if (d_levelPos1) cudaFree(d_levelPos1);
-    if (d_levelPos2) cudaFree(d_levelPos2);
+    if (d_values0)
+      cudaFree(d_values0);
+    if (d_values1)
+      cudaFree(d_values1);
+    if (d_values2)
+      cudaFree(d_values2);
+    if (d_levelPos0)
+      cudaFree(d_levelPos0);
+    if (d_levelPos1)
+      cudaFree(d_levelPos1);
+    if (d_levelPos2)
+      cudaFree(d_levelPos2);
     nppiFree(d_src);
     nppiFree(d_dst);
     GTEST_FAIL() << "Failed to allocate LUT device memory";
@@ -300,14 +297,22 @@ TEST_P(Lut8uC4RParamTest, LUT_NoInterpolation) {
       !allocAndCopyToDevice(values2, &d_values2) || !allocAndCopyToDevice(values3, &d_values3) ||
       !allocAndCopyToDevice(levelPos0, &d_levelPos0) || !allocAndCopyToDevice(levelPos1, &d_levelPos1) ||
       !allocAndCopyToDevice(levelPos2, &d_levelPos2) || !allocAndCopyToDevice(levelPos3, &d_levelPos3)) {
-    if (d_values0) cudaFree(d_values0);
-    if (d_values1) cudaFree(d_values1);
-    if (d_values2) cudaFree(d_values2);
-    if (d_values3) cudaFree(d_values3);
-    if (d_levelPos0) cudaFree(d_levelPos0);
-    if (d_levelPos1) cudaFree(d_levelPos1);
-    if (d_levelPos2) cudaFree(d_levelPos2);
-    if (d_levelPos3) cudaFree(d_levelPos3);
+    if (d_values0)
+      cudaFree(d_values0);
+    if (d_values1)
+      cudaFree(d_values1);
+    if (d_values2)
+      cudaFree(d_values2);
+    if (d_values3)
+      cudaFree(d_values3);
+    if (d_levelPos0)
+      cudaFree(d_levelPos0);
+    if (d_levelPos1)
+      cudaFree(d_levelPos1);
+    if (d_levelPos2)
+      cudaFree(d_levelPos2);
+    if (d_levelPos3)
+      cudaFree(d_levelPos3);
     nppiFree(d_src);
     nppiFree(d_dst);
     GTEST_FAIL() << "Failed to allocate LUT device memory";

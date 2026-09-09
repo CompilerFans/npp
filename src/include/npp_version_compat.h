@@ -43,4 +43,12 @@ using NppSignalLength = size_t;
 using NppSignalLength = int;
 #endif
 
+// Buffer size type for GetBufferHostSize functions
+// CUDA SDK 12.8+ uses size_t, earlier versions use int
+#if CUDA_SDK_AT_LEAST(12, 8)
+using NppBufferSize = size_t;
+#else
+using NppBufferSize = int;
+#endif
+
 #endif // NPP_VERSION_COMPAT_H

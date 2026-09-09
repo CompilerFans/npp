@@ -1,12 +1,12 @@
-#include "npp_version_compat.h"
 #include "npp.h"
+#include "npp_version_compat.h"
 #include <cuda_runtime.h>
 
 // Forward declaration for CUDA implementation
 extern "C" {
 NppStatus nppiRectStdDev_32s32f_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr, int nSqrStep,
-                                              Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiRect oRect,
-                                              NppStreamContext nppStreamCtx);
+                                             Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiRect oRect,
+                                             NppStreamContext nppStreamCtx);
 }
 
 //=============================================================================
@@ -14,8 +14,8 @@ NppStatus nppiRectStdDev_32s32f_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, c
 //=============================================================================
 
 NppStatus nppiRectStdDev_32s32f_C1R_Ctx(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr, int nSqrStep,
-                                         Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiRect oRect,
-                                         NppStreamContext nppStreamCtx) {
+                                        Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiRect oRect,
+                                        NppStreamContext nppStreamCtx) {
   // Validate input parameters
   if (!pSrc || !pSqr || !pDst) {
     return NPP_NULL_POINTER_ERROR;
@@ -39,11 +39,11 @@ NppStatus nppiRectStdDev_32s32f_C1R_Ctx(const Npp32s *pSrc, int nSrcStep, const 
 
   // Call CUDA implementation
   return nppiRectStdDev_32s32f_C1R_Ctx_impl(pSrc, nSrcStep, pSqr, nSqrStep, pDst, nDstStep, oSizeROI, oRect,
-                                             nppStreamCtx);
+                                            nppStreamCtx);
 }
 
-NppStatus nppiRectStdDev_32s32f_C1R(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr, int nSqrStep,
-                                     Npp32f *pDst, int nDstStep, NppiSize oSizeROI, NppiRect oRect) {
+NppStatus nppiRectStdDev_32s32f_C1R(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr, int nSqrStep, Npp32f *pDst,
+                                    int nDstStep, NppiSize oSizeROI, NppiRect oRect) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
   return nppiRectStdDev_32s32f_C1R_Ctx(pSrc, nSrcStep, pSqr, nSqrStep, pDst, nDstStep, oSizeROI, oRect, nppStreamCtx);

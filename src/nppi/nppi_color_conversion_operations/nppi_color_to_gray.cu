@@ -48,8 +48,7 @@ __global__ void color_to_gray_8u_c4_kernel(const Npp8u *pSrc, int nSrcStep, Npp8
     const Npp8u *src_pixel = pSrc + y * nSrcStep + x * 4;
     Npp8u *dst_pixel = pDst + y * nDstStep + x;
 
-    float gray = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] +
-                 coeffs.w * src_pixel[3];
+    float gray = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] + coeffs.w * src_pixel[3];
     *dst_pixel = clamp_to_8u(gray);
   }
 }
@@ -109,8 +108,7 @@ __global__ void color_to_gray_16u_c4_kernel(const Npp16u *pSrc, int nSrcStep, Np
     const Npp16u *src_pixel = (const Npp16u *)((const char *)pSrc + y * nSrcStep) + x * 4;
     Npp16u *dst_pixel = (Npp16u *)((char *)pDst + y * nDstStep) + x;
 
-    float gray = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] +
-                 coeffs.w * src_pixel[3];
+    float gray = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] + coeffs.w * src_pixel[3];
     *dst_pixel = clamp_to_16u(gray);
   }
 }
@@ -152,8 +150,7 @@ __global__ void color_to_gray_16s_c4_kernel(const Npp16s *pSrc, int nSrcStep, Np
     const Npp16s *src_pixel = (const Npp16s *)((const char *)pSrc + y * nSrcStep) + x * 4;
     Npp16s *dst_pixel = (Npp16s *)((char *)pDst + y * nDstStep) + x;
 
-    float gray = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] +
-                 coeffs.w * src_pixel[3];
+    float gray = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] + coeffs.w * src_pixel[3];
     *dst_pixel = clamp_to_16s(gray);
   }
 }
@@ -193,23 +190,19 @@ __global__ void color_to_gray_32f_c4_kernel(const Npp32f *pSrc, int nSrcStep, Np
     const Npp32f *src_pixel = (const Npp32f *)((const char *)pSrc + y * nSrcStep) + x * 4;
     Npp32f *dst_pixel = (Npp32f *)((char *)pDst + y * nDstStep) + x;
 
-    *dst_pixel = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] +
-                 coeffs.w * src_pixel[3];
+    *dst_pixel = coeffs.x * src_pixel[0] + coeffs.y * src_pixel[1] + coeffs.z * src_pixel[2] + coeffs.w * src_pixel[3];
   }
 }
 
 extern "C" {
 NppStatus nppiColorToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                            NppiSize oSizeROI, const Npp32f aCoeffs[3],
-                                            NppStreamContext nppStreamCtx) {
+                                            NppiSize oSizeROI, const Npp32f aCoeffs[3], NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
   color_to_gray_8u_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                               oSizeROI.width, oSizeROI.height,
-                                                                               coeffs);
+                                                                               oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -232,13 +225,11 @@ NppStatus nppiColorToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
                                              NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_8u_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_8u_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -258,16 +249,13 @@ NppStatus nppiColorToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
 }
 
 NppStatus nppiColorToGray_8u_C4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                            NppiSize oSizeROI, const Npp32f aCoeffs[4],
-                                            NppStreamContext nppStreamCtx) {
+                                            NppiSize oSizeROI, const Npp32f aCoeffs[4], NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float4 coeffs = make_float4(aCoeffs[0], aCoeffs[1], aCoeffs[2], aCoeffs[3]);
   color_to_gray_8u_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                               oSizeROI.width, oSizeROI.height,
-                                                                               coeffs);
+                                                                               oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -290,13 +278,11 @@ NppStatus nppiColorToGray_16u_C3C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, N
                                              NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_16u_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_16u_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -319,13 +305,11 @@ NppStatus nppiColorToGray_16u_AC4C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, 
                                               NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                               NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_16u_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                 oSizeROI.width, oSizeROI.height,
-                                                                                 coeffs);
+  color_to_gray_16u_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -348,13 +332,11 @@ NppStatus nppiColorToGray_16u_C4C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, N
                                              NppiSize oSizeROI, const Npp32f aCoeffs[4],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float4 coeffs = make_float4(aCoeffs[0], aCoeffs[1], aCoeffs[2], aCoeffs[3]);
-  color_to_gray_16u_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_16u_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -377,13 +359,11 @@ NppStatus nppiColorToGray_16s_C3C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, N
                                              NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_16s_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_16s_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -406,13 +386,11 @@ NppStatus nppiColorToGray_16s_AC4C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, 
                                               NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                               NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_16s_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                 oSizeROI.width, oSizeROI.height,
-                                                                                 coeffs);
+  color_to_gray_16s_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -435,13 +413,11 @@ NppStatus nppiColorToGray_16s_C4C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, N
                                              NppiSize oSizeROI, const Npp32f aCoeffs[4],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float4 coeffs = make_float4(aCoeffs[0], aCoeffs[1], aCoeffs[2], aCoeffs[3]);
-  color_to_gray_16s_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_16s_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -464,13 +440,11 @@ NppStatus nppiColorToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, N
                                              NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_32f_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_32f_c3_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -493,13 +467,11 @@ NppStatus nppiColorToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, 
                                               NppiSize oSizeROI, const Npp32f aCoeffs[3],
                                               NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float3 coeffs = make_float3(aCoeffs[0], aCoeffs[1], aCoeffs[2]);
-  color_to_gray_32f_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                 oSizeROI.width, oSizeROI.height,
-                                                                                 coeffs);
+  color_to_gray_32f_ac4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -522,13 +494,11 @@ NppStatus nppiColorToGray_32f_C4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, N
                                              NppiSize oSizeROI, const Npp32f aCoeffs[4],
                                              NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   float4 coeffs = make_float4(aCoeffs[0], aCoeffs[1], aCoeffs[2], aCoeffs[3]);
-  color_to_gray_32f_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                oSizeROI.width, oSizeROI.height,
-                                                                                coeffs);
+  color_to_gray_32f_c4_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, coeffs);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {

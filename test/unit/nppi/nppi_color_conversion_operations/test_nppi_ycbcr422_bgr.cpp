@@ -29,8 +29,7 @@ protected:
     }
   }
 
-  template <typename T>
-  void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
+  template <typename T> void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
     std::cout << label << " = {";
     for (int i = 0; i < count; ++i) {
       if (i) {
@@ -103,13 +102,11 @@ TEST_F(BgrYCbCr422Test, BGRToYCbCr422_And_Back_ExpectedValues) {
     GTEST_SKIP();
   }
 
-  const Npp8u kExpectedBGRYCbCr422C2[32] = {41, 138, 53, 119, 65, 131, 78, 130, 48, 141, 60, 117, 73,
-                                            134, 85, 128, 55, 143, 68, 115, 80, 136, 92, 126, 62, 145,
-                                            75, 113, 87, 138, 99, 124};
-  const Npp8u kExpectedYCbCr422ToBGR[48] = {49, 32, 14, 63, 46, 28, 63, 54, 60, 78, 69, 75,
-                                            63, 41, 19, 77, 55, 33, 78, 63, 66, 92, 77, 80,
-                                            75, 50, 24, 90, 65, 39, 90, 72, 71, 104, 86, 85,
-                                            87, 59, 29, 102, 74, 44, 102, 81, 76, 116, 95, 90};
+  const Npp8u kExpectedBGRYCbCr422C2[32] = {41, 138, 53, 119, 65, 131, 78, 130, 48, 141, 60, 117, 73, 134, 85, 128,
+                                            55, 143, 68, 115, 80, 136, 92, 126, 62, 145, 75, 113, 87, 138, 99, 124};
+  const Npp8u kExpectedYCbCr422ToBGR[48] = {49, 32,  14, 63, 46, 28, 63, 54,  60, 78, 69,  75, 63, 41,  19, 77,
+                                            55, 33,  78, 63, 66, 92, 77, 80,  75, 50, 24,  90, 65, 39,  90, 72,
+                                            71, 104, 86, 85, 87, 59, 29, 102, 74, 44, 102, 81, 76, 116, 95, 90};
 
   for (int i = 0; i < width * height * 2; ++i) {
     EXPECT_EQ(flatC2[i], kExpectedBGRYCbCr422C2[i]) << "C2 mismatch at " << i;

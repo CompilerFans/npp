@@ -271,8 +271,8 @@ NppStatus nppiNV21ToRGB_8u_P2C4R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  cudaError_t cudaStatus = nppiNV21ToRGB_8u_P2C4R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
-                                                         oSizeROI, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiNV21ToRGB_8u_P2C4R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep, oSizeROI,
+                                                         nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -305,8 +305,8 @@ NppStatus nppiNV21ToBGR_8u_P2C4R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
   }
 
-  cudaError_t cudaStatus = nppiNV21ToBGR_8u_P2C4R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
-                                                         oSizeROI, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiNV21ToBGR_8u_P2C4R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep, oSizeROI,
+                                                         nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

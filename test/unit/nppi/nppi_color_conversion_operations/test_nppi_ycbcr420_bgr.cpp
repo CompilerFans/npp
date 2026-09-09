@@ -46,8 +46,7 @@ protected:
     }
   }
 
-  template <typename T>
-  void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
+  template <typename T> void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
     std::cout << label << " = {";
     for (int i = 0; i < count; ++i) {
       if (i) {

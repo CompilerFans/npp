@@ -69,21 +69,18 @@ NppStatus nppiFilterBox_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterBox_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  return nppiFilterBox_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor,
-                                  currentStreamContext());
+  return nppiFilterBox_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, currentStreamContext());
 }
 
-NppStatus nppiFilterBox_8u_C3R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                                   NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor,
-                                   NppStreamContext nppStreamCtx) {
+NppStatus nppiFilterBox_8u_C3R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                                   NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx) {
   return filterBoxGeneric(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, 3, 3, nppStreamCtx,
                           nppiFilterBox_8u_CxR_kernel);
 }
 
-NppStatus nppiFilterBox_8u_C3R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep,
-                               NppiSize oSizeROI, NppiSize oMaskSize, NppiPoint oAnchor) {
-  return nppiFilterBox_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor,
-                                  currentStreamContext());
+NppStatus nppiFilterBox_8u_C3R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
+                               NppiSize oMaskSize, NppiPoint oAnchor) {
+  return nppiFilterBox_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, currentStreamContext());
 }
 
 // nppiFilterBox_8u_C4R implementation
@@ -95,8 +92,7 @@ NppStatus nppiFilterBox_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterBox_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  return nppiFilterBox_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor,
-                                  currentStreamContext());
+  return nppiFilterBox_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, currentStreamContext());
 }
 
 // nppiFilterBox_32f_C1R implementation
@@ -115,8 +111,7 @@ NppStatus nppiFilterBox_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDs
 
 NppStatus nppiFilterBox_8u_AC4R_Ctx(const Npp8u *src, Npp32s srcStep, Npp8u *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context,
-                          nppiFilterBox_8u_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context, nppiFilterBox_8u_CxR_kernel);
 }
 NppStatus nppiFilterBox_8u_AC4R(const Npp8u *src, Npp32s srcStep, Npp8u *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -125,8 +120,7 @@ NppStatus nppiFilterBox_8u_AC4R(const Npp8u *src, Npp32s srcStep, Npp8u *dst, Np
 
 NppStatus nppiFilterBox_16u_C1R_Ctx(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 1, 1, context,
-                          nppiFilterBox_16u_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 1, 1, context, nppiFilterBox_16u_CxR_kernel);
 }
 NppStatus nppiFilterBox_16u_C1R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -134,8 +128,7 @@ NppStatus nppiFilterBox_16u_C1R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, 
 }
 NppStatus nppiFilterBox_16u_C3R_Ctx(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 3, 3, context,
-                          nppiFilterBox_16u_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 3, 3, context, nppiFilterBox_16u_CxR_kernel);
 }
 NppStatus nppiFilterBox_16u_C3R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -143,8 +136,7 @@ NppStatus nppiFilterBox_16u_C3R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, 
 }
 NppStatus nppiFilterBox_16u_C4R_Ctx(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 4, context,
-                          nppiFilterBox_16u_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 4, context, nppiFilterBox_16u_CxR_kernel);
 }
 NppStatus nppiFilterBox_16u_C4R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -152,8 +144,7 @@ NppStatus nppiFilterBox_16u_C4R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, 
 }
 NppStatus nppiFilterBox_16u_AC4R_Ctx(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                      NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context,
-                          nppiFilterBox_16u_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context, nppiFilterBox_16u_CxR_kernel);
 }
 NppStatus nppiFilterBox_16u_AC4R(const Npp16u *src, Npp32s srcStep, Npp16u *dst, Npp32s dstStep, NppiSize roi,
                                  NppiSize mask, NppiPoint anchor) {
@@ -162,8 +153,7 @@ NppStatus nppiFilterBox_16u_AC4R(const Npp16u *src, Npp32s srcStep, Npp16u *dst,
 
 NppStatus nppiFilterBox_16s_C1R_Ctx(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 1, 1, context,
-                          nppiFilterBox_16s_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 1, 1, context, nppiFilterBox_16s_CxR_kernel);
 }
 NppStatus nppiFilterBox_16s_C1R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -171,8 +161,7 @@ NppStatus nppiFilterBox_16s_C1R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, 
 }
 NppStatus nppiFilterBox_16s_C3R_Ctx(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 3, 3, context,
-                          nppiFilterBox_16s_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 3, 3, context, nppiFilterBox_16s_CxR_kernel);
 }
 NppStatus nppiFilterBox_16s_C3R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -180,8 +169,7 @@ NppStatus nppiFilterBox_16s_C3R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, 
 }
 NppStatus nppiFilterBox_16s_C4R_Ctx(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 4, context,
-                          nppiFilterBox_16s_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 4, context, nppiFilterBox_16s_CxR_kernel);
 }
 NppStatus nppiFilterBox_16s_C4R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -189,8 +177,7 @@ NppStatus nppiFilterBox_16s_C4R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, 
 }
 NppStatus nppiFilterBox_16s_AC4R_Ctx(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                      NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context,
-                          nppiFilterBox_16s_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context, nppiFilterBox_16s_CxR_kernel);
 }
 NppStatus nppiFilterBox_16s_AC4R(const Npp16s *src, Npp32s srcStep, Npp16s *dst, Npp32s dstStep, NppiSize roi,
                                  NppiSize mask, NppiPoint anchor) {
@@ -199,8 +186,7 @@ NppStatus nppiFilterBox_16s_AC4R(const Npp16s *src, Npp32s srcStep, Npp16s *dst,
 
 NppStatus nppiFilterBox_32f_C3R_Ctx(const Npp32f *src, Npp32s srcStep, Npp32f *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 3, 3, context,
-                          nppiFilterBox_32f_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 3, 3, context, nppiFilterBox_32f_CxR_kernel);
 }
 NppStatus nppiFilterBox_32f_C3R(const Npp32f *src, Npp32s srcStep, Npp32f *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -208,8 +194,7 @@ NppStatus nppiFilterBox_32f_C3R(const Npp32f *src, Npp32s srcStep, Npp32f *dst, 
 }
 NppStatus nppiFilterBox_32f_C4R_Ctx(const Npp32f *src, Npp32s srcStep, Npp32f *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 4, context,
-                          nppiFilterBox_32f_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 4, context, nppiFilterBox_32f_CxR_kernel);
 }
 NppStatus nppiFilterBox_32f_C4R(const Npp32f *src, Npp32s srcStep, Npp32f *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {
@@ -217,8 +202,7 @@ NppStatus nppiFilterBox_32f_C4R(const Npp32f *src, Npp32s srcStep, Npp32f *dst, 
 }
 NppStatus nppiFilterBox_32f_AC4R_Ctx(const Npp32f *src, Npp32s srcStep, Npp32f *dst, Npp32s dstStep, NppiSize roi,
                                      NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context,
-                          nppiFilterBox_32f_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 4, 3, context, nppiFilterBox_32f_CxR_kernel);
 }
 NppStatus nppiFilterBox_32f_AC4R(const Npp32f *src, Npp32s srcStep, Npp32f *dst, Npp32s dstStep, NppiSize roi,
                                  NppiSize mask, NppiPoint anchor) {
@@ -227,8 +211,7 @@ NppStatus nppiFilterBox_32f_AC4R(const Npp32f *src, Npp32s srcStep, Npp32f *dst,
 
 NppStatus nppiFilterBox_64f_C1R_Ctx(const Npp64f *src, Npp32s srcStep, Npp64f *dst, Npp32s dstStep, NppiSize roi,
                                     NppiSize mask, NppiPoint anchor, NppStreamContext context) {
-  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 1, 1, context,
-                          nppiFilterBox_64f_CxR_kernel);
+  return filterBoxGeneric(src, srcStep, dst, dstStep, roi, mask, anchor, 1, 1, context, nppiFilterBox_64f_CxR_kernel);
 }
 NppStatus nppiFilterBox_64f_C1R(const Npp64f *src, Npp32s srcStep, Npp64f *dst, Npp32s dstStep, NppiSize roi,
                                 NppiSize mask, NppiPoint anchor) {

@@ -2,17 +2,13 @@
 
 extern "C" {
 NppStatus nppiGradientColorToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                    NppiSize oSizeROI, NppiNorm eNorm,
-                                                    NppStreamContext nppStreamCtx);
+                                                    NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx);
 NppStatus nppiGradientColorToGray_16u_C3C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                                     NppiSize oSizeROI, NppiNorm eNorm,
-                                                     NppStreamContext nppStreamCtx);
+                                                     NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx);
 NppStatus nppiGradientColorToGray_16s_C3C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                                     NppiSize oSizeROI, NppiNorm eNorm,
-                                                     NppStreamContext nppStreamCtx);
+                                                     NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx);
 NppStatus nppiGradientColorToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                     NppiSize oSizeROI, NppiNorm eNorm,
-                                                     NppStreamContext nppStreamCtx);
+                                                     NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx);
 }
 
 static inline NppStatus validateGradientColorToGrayInputs(const void *pSrc, int nSrcStep, void *pDst, int nDstStep,
@@ -37,8 +33,7 @@ static inline NppStatus validateGradientColorToGrayInputs(const void *pSrc, int 
 }
 
 NppStatus nppiGradientColorToGray_8u_C3C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                               NppiSize oSizeROI, NppiNorm eNorm,
-                                               NppStreamContext nppStreamCtx) {
+                                               NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   NppStatus status = validateGradientColorToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm);
   if (status != NPP_SUCCESS) {
     return status;
@@ -55,8 +50,7 @@ NppStatus nppiGradientColorToGray_8u_C3C1R(const Npp8u *pSrc, int nSrcStep, Npp8
 }
 
 NppStatus nppiGradientColorToGray_16u_C3C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiNorm eNorm,
-                                                NppStreamContext nppStreamCtx) {
+                                                NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   NppStatus status = validateGradientColorToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm);
   if (status != NPP_SUCCESS) {
     return status;
@@ -73,8 +67,7 @@ NppStatus nppiGradientColorToGray_16u_C3C1R(const Npp16u *pSrc, int nSrcStep, Np
 }
 
 NppStatus nppiGradientColorToGray_16s_C3C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiNorm eNorm,
-                                                NppStreamContext nppStreamCtx) {
+                                                NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   NppStatus status = validateGradientColorToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm);
   if (status != NPP_SUCCESS) {
     return status;
@@ -91,8 +84,7 @@ NppStatus nppiGradientColorToGray_16s_C3C1R(const Npp16s *pSrc, int nSrcStep, Np
 }
 
 NppStatus nppiGradientColorToGray_32f_C3C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                NppiSize oSizeROI, NppiNorm eNorm,
-                                                NppStreamContext nppStreamCtx) {
+                                                NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   NppStatus status = validateGradientColorToGrayInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm);
   if (status != NPP_SUCCESS) {
     return status;

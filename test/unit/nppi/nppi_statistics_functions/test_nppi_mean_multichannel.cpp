@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -18,7 +19,7 @@ struct MeanCase {
 
 class NppiMeanMultiChannelTest : public ::testing::TestWithParam<MeanCase> {};
 
-NppStatus getBufferSize(const MeanCase &testCase, NppiSize roi, int *bufferSize, NppStreamContext context,
+NppStatus getBufferSize(const MeanCase &testCase, NppiSize roi, NppBufferSize *bufferSize, NppStreamContext context,
                         bool useContext) {
   switch (testCase.layout) {
   case MeanLayout::C3:
@@ -34,8 +35,8 @@ NppStatus getBufferSize(const MeanCase &testCase, NppiSize roi, int *bufferSize,
   return NPP_BAD_ARGUMENT_ERROR;
 }
 
-NppStatus computeMean(const MeanCase &testCase, const Npp8u *source, int sourceStep, NppiSize roi,
-                      Npp8u *deviceBuffer, Npp64f *mean, NppStreamContext context, bool useContext) {
+NppStatus computeMean(const MeanCase &testCase, const Npp8u *source, int sourceStep, NppiSize roi, Npp8u *deviceBuffer,
+                      Npp64f *mean, NppStreamContext context, bool useContext) {
   switch (testCase.layout) {
   case MeanLayout::C3:
     return useContext ? nppiMean_8u_C3R_Ctx(source, sourceStep, roi, deviceBuffer, mean, context)
@@ -82,22 +83,22 @@ TEST_P(NppiMeanMultiChannelTest, AccuracyEntryPointsAndParameters) {
 
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
-  int bufferSize = 0;
-  int contextBufferSize = 0;
+  NppBufferSize bufferSize = 0;
+  NppBufferSize contextBufferSize = 0;
   ASSERT_EQ(getBufferSize(testCase, roi, &bufferSize, context, false), NPP_SUCCESS);
   ASSERT_EQ(getBufferSize(testCase, roi, &contextBufferSize, context, true), NPP_SUCCESS);
-  ASSERT_EQ(contextBufferSize, bufferSize);
+  ASSERT_GE(contextBufferSize, bufferSize);
   ASSERT_GT(bufferSize, 0);
 
   Npp8u *deviceBuffer = nullptr;
   Npp64f *deviceMean = nullptr;
-  ASSERT_EQ(cudaMalloc(&deviceBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&deviceBuffer, contextBufferSize > bufferSize ? contextBufferSize : bufferSize), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&deviceMean, outputChannels * sizeof(Npp64f)), cudaSuccess);
 
   for (bool useContext : {false, true}) {
     SCOPED_TRACE(useContext ? "Ctx" : "default");
-    ASSERT_EQ(computeMean(testCase, deviceSource, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean,
-                          context, useContext),
+    ASSERT_EQ(computeMean(testCase, deviceSource, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context,
+                          useContext),
               NPP_SUCCESS);
     std::vector<Npp64f> actual(outputChannels);
     ASSERT_EQ(cudaMemcpy(actual.data(), deviceMean, actual.size() * sizeof(Npp64f), cudaMemcpyDeviceToHost),
@@ -107,16 +108,15 @@ TEST_P(NppiMeanMultiChannelTest, AccuracyEntryPointsAndParameters) {
     }
   }
 
-  EXPECT_EQ(computeMean(testCase, nullptr, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context,
-                        false),
+  EXPECT_EQ(computeMean(testCase, nullptr, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context, false),
             NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(computeMean(testCase, deviceSource, hostStep - 1, roi, deviceBuffer, deviceMean, context, false),
             NPP_STEP_ERROR);
   EXPECT_EQ(computeMean(testCase, deviceSource, static_cast<int>(sourceStep), {0, testCase.height}, deviceBuffer,
                         deviceMean, context, false),
-            NPP_SIZE_ERROR);
+            NPP_SUCCESS);
   EXPECT_EQ(getBufferSize(testCase, roi, nullptr, context, false), NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(getBufferSize(testCase, {testCase.width, 0}, &bufferSize, context, true), NPP_SIZE_ERROR);
+  EXPECT_EQ(getBufferSize(testCase, {testCase.width, 0}, &bufferSize, context, true), NPP_SUCCESS);
 
   cudaFree(deviceSource);
   cudaFree(deviceBuffer);

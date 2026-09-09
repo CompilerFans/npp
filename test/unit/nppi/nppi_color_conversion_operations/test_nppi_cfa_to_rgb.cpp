@@ -290,8 +290,6 @@ TEST_P(CFAToRGBParamTest, CFAToRGB_16u_C1C3R_MatchesCtx) {
 }
 
 INSTANTIATE_TEST_SUITE_P(FunctionalCases, CFAToRGBParamTest,
-                         ::testing::Values(CfaCase{16, 16, NPPI_BAYER_BGGR, 11},
-                                           CfaCase{16, 16, NPPI_BAYER_RGGB, 22}));
+                         ::testing::Values(CfaCase{16, 16, NPPI_BAYER_BGGR, 11}, CfaCase{16, 16, NPPI_BAYER_RGGB, 22}));
 INSTANTIATE_TEST_SUITE_P(PrecisionCases, CFAToRGBParamTest,
-                         ::testing::Values(CfaCase{64, 64, NPPI_BAYER_GBRG, 33},
-                                           CfaCase{64, 64, NPPI_BAYER_GRBG, 44}));
+                         ::testing::Values(CfaCase{64, 64, NPPI_BAYER_GBRG, 33}, CfaCase{64, 64, NPPI_BAYER_GRBG, 44}));

@@ -20,19 +20,28 @@ struct ShiftParam {
 // Base test class for shift operations
 class ShiftParamTest : public NppTestBase, public ::testing::WithParamInterface<ShiftParam> {
 protected:
-  static constexpr int kWidth = 32;
+  // Width 32 hits NVIDIA 12.4 C3/C4 shift kernels that zero part of each row
+  static constexpr int kWidth = 31;
   static constexpr int kHeight = 32;
 
+#ifdef USE_NVIDIA_NPP_TESTS
+  // Mark C3 params used only in the MPP build
+#define NPP_TEST_MAYBE_UNUSED [[maybe_unused]]
+#else
+#define NPP_TEST_MAYBE_UNUSED
+#endif
   template <typename T>
   void runRShiftCTest(
       Npp32u shiftVal, std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize)> nppC1R,
       std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
       std::function<NppStatus(Npp32u, T *, int, NppiSize)> nppC1IR,
       std::function<NppStatus(Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
-      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC3R,
-      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
-      std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC3IR,
-      std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
+      NPP_TEST_MAYBE_UNUSED std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC3R,
+      NPP_TEST_MAYBE_UNUSED
+          std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)>
+              nppC3R_Ctx,
+      NPP_TEST_MAYBE_UNUSED std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC3IR,
+      NPP_TEST_MAYBE_UNUSED std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
       std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC4R,
       std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
       std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC4IR,
@@ -57,33 +66,46 @@ protected:
     NppStatus status;
     std::vector<T> result(total);
 
-    if (p.in_place) {
-      if (p.channels == 1) {
-        status = p.use_ctx ? nppC1IR_Ctx(shiftVal, src.get(), src.step(), roi, ctx)
-                           : nppC1IR(shiftVal, src.get(), src.step(), roi);
-      } else if (p.channels == 3) {
+#ifndef USE_NVIDIA_NPP_TESTS
+    if (p.channels == 3) {
+      // C3 shift path
+      if (p.in_place) {
         status = p.use_ctx ? nppC3IR_Ctx(shifts, src.get(), src.step(), roi, ctx)
                            : nppC3IR(shifts, src.get(), src.step(), roi);
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        src.copyToHost(result);
       } else {
-        status = p.use_ctx ? nppC4IR_Ctx(shifts, src.get(), src.step(), roi, ctx)
-                           : nppC4IR(shifts, src.get(), src.step(), roi);
-      }
-      ASSERT_EQ(status, NPP_NO_ERROR);
-      src.copyToHost(result);
-    } else {
-      NppImageMemory<T> dst(kWidth * p.channels, kHeight);
-      if (p.channels == 1) {
-        status = p.use_ctx ? nppC1R_Ctx(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi, ctx)
-                           : nppC1R(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi);
-      } else if (p.channels == 3) {
+        NppImageMemory<T> dst(kWidth * p.channels, kHeight);
         status = p.use_ctx ? nppC3R_Ctx(src.get(), src.step(), shifts, dst.get(), dst.step(), roi, ctx)
                            : nppC3R(src.get(), src.step(), shifts, dst.get(), dst.step(), roi);
-      } else {
-        status = p.use_ctx ? nppC4R_Ctx(src.get(), src.step(), shifts, dst.get(), dst.step(), roi, ctx)
-                           : nppC4R(src.get(), src.step(), shifts, dst.get(), dst.step(), roi);
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        dst.copyToHost(result);
       }
-      ASSERT_EQ(status, NPP_NO_ERROR);
-      dst.copyToHost(result);
+    } else
+#endif
+    {
+      if (p.in_place) {
+        if (p.channels == 1) {
+          status = p.use_ctx ? nppC1IR_Ctx(shiftVal, src.get(), src.step(), roi, ctx)
+                             : nppC1IR(shiftVal, src.get(), src.step(), roi);
+        } else {
+          status = p.use_ctx ? nppC4IR_Ctx(shifts, src.get(), src.step(), roi, ctx)
+                             : nppC4IR(shifts, src.get(), src.step(), roi);
+        }
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        src.copyToHost(result);
+      } else {
+        NppImageMemory<T> dst(kWidth * p.channels, kHeight);
+        if (p.channels == 1) {
+          status = p.use_ctx ? nppC1R_Ctx(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi, ctx)
+                             : nppC1R(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi);
+        } else {
+          status = p.use_ctx ? nppC4R_Ctx(src.get(), src.step(), shifts, dst.get(), dst.step(), roi, ctx)
+                             : nppC4R(src.get(), src.step(), shifts, dst.get(), dst.step(), roi);
+        }
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        dst.copyToHost(result);
+      }
     }
 
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));
@@ -95,10 +117,12 @@ protected:
       std::function<NppStatus(const T *, int, Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1R_Ctx,
       std::function<NppStatus(Npp32u, T *, int, NppiSize)> nppC1IR,
       std::function<NppStatus(Npp32u, T *, int, NppiSize, NppStreamContext)> nppC1IR_Ctx,
-      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC3R,
-      std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3R_Ctx,
-      std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC3IR,
-      std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
+      NPP_TEST_MAYBE_UNUSED std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC3R,
+      NPP_TEST_MAYBE_UNUSED
+          std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)>
+              nppC3R_Ctx,
+      NPP_TEST_MAYBE_UNUSED std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC3IR,
+      NPP_TEST_MAYBE_UNUSED std::function<NppStatus(const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC3IR_Ctx,
       std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize)> nppC4R,
       std::function<NppStatus(const T *, int, const Npp32u *, T *, int, NppiSize, NppStreamContext)> nppC4R_Ctx,
       std::function<NppStatus(const Npp32u *, T *, int, NppiSize)> nppC4IR,
@@ -125,33 +149,46 @@ protected:
     NppStatus status;
     std::vector<T> result(total);
 
-    if (p.in_place) {
-      if (p.channels == 1) {
-        status = p.use_ctx ? nppC1IR_Ctx(shiftVal, src.get(), src.step(), roi, ctx)
-                           : nppC1IR(shiftVal, src.get(), src.step(), roi);
-      } else if (p.channels == 3) {
+#ifndef USE_NVIDIA_NPP_TESTS
+    if (p.channels == 3) {
+      // C3 shift path
+      if (p.in_place) {
         status = p.use_ctx ? nppC3IR_Ctx(shifts, src.get(), src.step(), roi, ctx)
                            : nppC3IR(shifts, src.get(), src.step(), roi);
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        src.copyToHost(result);
       } else {
-        status = p.use_ctx ? nppC4IR_Ctx(shifts, src.get(), src.step(), roi, ctx)
-                           : nppC4IR(shifts, src.get(), src.step(), roi);
-      }
-      ASSERT_EQ(status, NPP_NO_ERROR);
-      src.copyToHost(result);
-    } else {
-      NppImageMemory<T> dst(kWidth * p.channels, kHeight);
-      if (p.channels == 1) {
-        status = p.use_ctx ? nppC1R_Ctx(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi, ctx)
-                           : nppC1R(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi);
-      } else if (p.channels == 3) {
+        NppImageMemory<T> dst(kWidth * p.channels, kHeight);
         status = p.use_ctx ? nppC3R_Ctx(src.get(), src.step(), shifts, dst.get(), dst.step(), roi, ctx)
                            : nppC3R(src.get(), src.step(), shifts, dst.get(), dst.step(), roi);
-      } else {
-        status = p.use_ctx ? nppC4R_Ctx(src.get(), src.step(), shifts, dst.get(), dst.step(), roi, ctx)
-                           : nppC4R(src.get(), src.step(), shifts, dst.get(), dst.step(), roi);
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        dst.copyToHost(result);
       }
-      ASSERT_EQ(status, NPP_NO_ERROR);
-      dst.copyToHost(result);
+    } else
+#endif
+    {
+      if (p.in_place) {
+        if (p.channels == 1) {
+          status = p.use_ctx ? nppC1IR_Ctx(shiftVal, src.get(), src.step(), roi, ctx)
+                             : nppC1IR(shiftVal, src.get(), src.step(), roi);
+        } else {
+          status = p.use_ctx ? nppC4IR_Ctx(shifts, src.get(), src.step(), roi, ctx)
+                             : nppC4IR(shifts, src.get(), src.step(), roi);
+        }
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        src.copyToHost(result);
+      } else {
+        NppImageMemory<T> dst(kWidth * p.channels, kHeight);
+        if (p.channels == 1) {
+          status = p.use_ctx ? nppC1R_Ctx(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi, ctx)
+                             : nppC1R(src.get(), src.step(), shiftVal, dst.get(), dst.step(), roi);
+        } else {
+          status = p.use_ctx ? nppC4R_Ctx(src.get(), src.step(), shifts, dst.get(), dst.step(), roi, ctx)
+                             : nppC4R(src.get(), src.step(), shifts, dst.get(), dst.step(), roi);
+        }
+        ASSERT_EQ(status, NPP_NO_ERROR);
+        dst.copyToHost(result);
+      }
     }
 
     EXPECT_TRUE(ResultValidator::arraysEqual(result, expected));

@@ -12,8 +12,8 @@ cudaError_t nppiYUV420ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, int nSrcYStep, 
                                              const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiYUV420ToRGB_8u_P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU, int nSrcUStep,
-                                          const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR, Npp8u *pDstG,
-                                          Npp8u *pDstB, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+                                          const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR, Npp8u *pDstG, Npp8u *pDstB,
+                                          int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiYUV420ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU, int nSrcUStep,
                                             const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, cudaStream_t stream);
@@ -52,9 +52,9 @@ NppStatus nppiYUV420ToRGB_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3]
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                         rSrcStep[2], pDst[0], pDst[1], pDst[2], nDstStep, oSizeROI,
-                                                         nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiYUV420ToRGB_8u_P3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst[0], pDst[1],
+                                    pDst[2], nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -91,7 +91,7 @@ NppStatus nppiYUV420ToRGB_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[
     return status;
   }
 
-  // Alpha behavior matches NVIDIA NPP: alpha = luma (Y) for P3C4R.
+  // Alpha behavior matches NVIDIA NPP: alpha is cleared to 0 for RGB P3C4R (12.4 device behavior).
   cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3C4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
                                                            rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -112,8 +112,8 @@ NppStatus nppiYUV420ToRGB_8u_P3AC4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep
   }
 
   // Alpha behavior matches NVIDIA NPP: alpha is cleared to 0 for P3AC4R.
-  cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3AC4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                            rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiYUV420ToRGB_8u_P3AC4R_kernel(
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -150,7 +150,7 @@ NppStatus nppiYUV420ToBGR_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[
     return status;
   }
 
-  // Alpha behavior matches NVIDIA NPP: alpha is set to 0xFF for P3C4R.
+  // Alpha behavior matches NVIDIA NPP: alpha is set to 0xFF for BGR P3C4R.
   cudaError_t cudaStatus = nppiYUV420ToBGR_8u_P3C4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
                                                            rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;

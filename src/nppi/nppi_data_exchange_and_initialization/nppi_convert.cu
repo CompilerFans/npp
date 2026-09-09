@@ -193,7 +193,7 @@ NppStatus nppiConvert_8u32f_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32f
   const dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
                       (oSizeROI.height + blockSize.y - 1) / blockSize.y);
   convert_8u32f_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                            oSizeROI.width, oSizeROI.height);
+                                                                             oSizeROI.width, oSizeROI.height);
   return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -243,8 +243,7 @@ NppStatus nppiConvert_32f8u_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u
     return NPP_NO_ERROR;
 
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   convert_32f8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eRoundMode);

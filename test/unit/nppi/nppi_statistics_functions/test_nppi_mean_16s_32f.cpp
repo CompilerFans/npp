@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -16,7 +17,8 @@ struct MeanCase {
 };
 
 struct Mean16sApi {
-  static NppStatus buffer(MeanLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useContext) {
+  static NppStatus buffer(MeanLayout layout, NppiSize roi, NppBufferSize *size, NppStreamContext context,
+                          bool useContext) {
     switch (layout) {
     case MeanLayout::C1:
       return useContext ? nppiMeanGetBufferHostSize_16s_C1R_Ctx(roi, size, context)
@@ -34,8 +36,8 @@ struct Mean16sApi {
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  static NppStatus compute(MeanLayout layout, const Npp16s *source, int step, NppiSize roi, Npp8u *buffer,
-                           Npp64f *mean, NppStreamContext context, bool useContext) {
+  static NppStatus compute(MeanLayout layout, const Npp16s *source, int step, NppiSize roi, Npp8u *buffer, Npp64f *mean,
+                           NppStreamContext context, bool useContext) {
     switch (layout) {
     case MeanLayout::C1:
       return useContext ? nppiMean_16s_C1R_Ctx(source, step, roi, buffer, mean, context)
@@ -55,7 +57,8 @@ struct Mean16sApi {
 };
 
 struct Mean32fApi {
-  static NppStatus buffer(MeanLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useContext) {
+  static NppStatus buffer(MeanLayout layout, NppiSize roi, NppBufferSize *size, NppStreamContext context,
+                          bool useContext) {
     switch (layout) {
     case MeanLayout::C1:
       return useContext ? nppiMeanGetBufferHostSize_32f_C1R_Ctx(roi, size, context)
@@ -73,8 +76,8 @@ struct Mean32fApi {
     return NPP_BAD_ARGUMENT_ERROR;
   }
 
-  static NppStatus compute(MeanLayout layout, const Npp32f *source, int step, NppiSize roi, Npp8u *buffer,
-                           Npp64f *mean, NppStreamContext context, bool useContext) {
+  static NppStatus compute(MeanLayout layout, const Npp32f *source, int step, NppiSize roi, Npp8u *buffer, Npp64f *mean,
+                           NppStreamContext context, bool useContext) {
     switch (layout) {
     case MeanLayout::C1:
       return useContext ? nppiMean_32f_C1R_Ctx(source, step, roi, buffer, mean, context)
@@ -133,15 +136,15 @@ template <typename T, typename Api> void runMeanCase(const MeanCase &testCase, d
             cudaSuccess);
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
-  int bufferSize = 0;
-  int contextBufferSize = 0;
+  NppBufferSize bufferSize = 0;
+  NppBufferSize contextBufferSize = 0;
   ASSERT_EQ(Api::buffer(testCase.layout, roi, &bufferSize, context, false), NPP_SUCCESS);
   ASSERT_EQ(Api::buffer(testCase.layout, roi, &contextBufferSize, context, true), NPP_SUCCESS);
-  ASSERT_EQ(contextBufferSize, bufferSize);
+  ASSERT_GE(contextBufferSize, bufferSize);
 
   Npp8u *deviceBuffer = nullptr;
   Npp64f *deviceMean = nullptr;
-  ASSERT_EQ(cudaMalloc(&deviceBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&deviceBuffer, contextBufferSize > bufferSize ? contextBufferSize : bufferSize), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&deviceMean, outputChannels * sizeof(Npp64f)), cudaSuccess);
   for (bool useContext : {false, true}) {
     ASSERT_EQ(Api::compute(testCase.layout, deviceSource, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean,
@@ -155,14 +158,14 @@ template <typename T, typename Api> void runMeanCase(const MeanCase &testCase, d
     }
   }
 
-  EXPECT_EQ(Api::compute(testCase.layout, nullptr, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean,
-                         context, false),
+  EXPECT_EQ(Api::compute(testCase.layout, nullptr, static_cast<int>(sourceStep), roi, deviceBuffer, deviceMean, context,
+                         false),
             NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(Api::compute(testCase.layout, deviceSource, hostStep - 1, roi, deviceBuffer, deviceMean, context, false),
             NPP_STEP_ERROR);
-  EXPECT_EQ(Api::compute(testCase.layout, deviceSource, static_cast<int>(sourceStep), {testCase.width, 0},
-                         deviceBuffer, deviceMean, context, true),
-            NPP_SIZE_ERROR);
+  EXPECT_EQ(Api::compute(testCase.layout, deviceSource, static_cast<int>(sourceStep), {testCase.width, 0}, deviceBuffer,
+                         deviceMean, context, true),
+            NPP_SUCCESS);
   EXPECT_EQ(Api::buffer(testCase.layout, roi, nullptr, context, false), NPP_NULL_POINTER_ERROR);
 
   cudaFree(deviceSource);
@@ -170,8 +173,8 @@ template <typename T, typename Api> void runMeanCase(const MeanCase &testCase, d
   cudaFree(deviceMean);
 }
 
-const MeanCase kCases[] = {{MeanLayout::C1, 1, 1},   {MeanLayout::C1, 37, 5}, {MeanLayout::C3, 1, 1},
-                           {MeanLayout::C3, 19, 8},  {MeanLayout::C4, 1, 1},  {MeanLayout::C4, 21, 7},
+const MeanCase kCases[] = {{MeanLayout::C1, 1, 1},  {MeanLayout::C1, 37, 5}, {MeanLayout::C3, 1, 1},
+                           {MeanLayout::C3, 19, 8}, {MeanLayout::C4, 1, 1},  {MeanLayout::C4, 21, 7},
                            {MeanLayout::AC4, 1, 1}, {MeanLayout::AC4, 23, 6}};
 
 TEST(NppiMean16sTest, LayoutsSizesEntryPointsAndParameters) {

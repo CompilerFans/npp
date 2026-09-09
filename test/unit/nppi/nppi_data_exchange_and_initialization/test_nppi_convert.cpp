@@ -330,8 +330,8 @@ protected:
                                                                         dstGPU.step(), roi, rndMode, ctx);
       cudaStreamSynchronize(ctx.hStream);
     } else {
-      status = performConversion<SrcType, DstType, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(), roi,
-                                                            rndMode);
+      status = performConversion<SrcType, DstType, Channels>(srcGPU.get(), srcGPU.step(), dstGPU.get(), dstGPU.step(),
+                                                             roi, rndMode);
     }
 
     ASSERT_EQ(status, NPP_SUCCESS) << "Conversion failed";
@@ -413,24 +413,20 @@ TEST_F(ConvertTest, Convert_8u32f_C1R_WithContext) {
 
 TEST_F(ConvertTest, Convert_32f8u_C3R_Near) {
   testConversion<Npp32f, Npp8u, 3>(64, 64, ConvertTestHelper<Npp32f, Npp8u>::DataPattern::COLOR_GRADIENT, false,
-                                    NPP_RND_NEAR);
+                                   NPP_RND_NEAR);
 }
 
 TEST_F(ConvertTest, Convert_32f8u_C3R_FinancialWithContext) {
   testConversion<Npp32f, Npp8u, 3>(32, 32, ConvertTestHelper<Npp32f, Npp8u>::DataPattern::COLOR_GRADIENT, true,
-                                    NPP_RND_FINANCIAL);
+                                   NPP_RND_FINANCIAL);
 }
 
 TEST_F(ConvertTest, Convert_32f8u_C3R_RoundingAndClampBehavior) {
   constexpr int kWidth = 3;
   constexpr int kHeight = 2;
   std::vector<Npp32f> srcData = {
-      -1.0f, 0.49f, 0.50f,
-      1.50f, 2.50f, 3.50f,
-      127.49f, 127.50f, 128.50f,
-      254.50f, 255.49f, 300.0f,
-      -12.5f, -0.5f, 42.5f,
-      43.5f, 254.6f, 255.6f,
+      -1.0f,   0.49f,   0.50f,  1.50f,  2.50f, 3.50f, 127.49f, 127.50f, 128.50f,
+      254.50f, 255.49f, 300.0f, -12.5f, -0.5f, 42.5f, 43.5f,   254.6f,  255.6f,
   };
 
   auto runCase = [&](NppRoundMode rndMode, const std::vector<Npp8u> &expected) {

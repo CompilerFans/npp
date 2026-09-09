@@ -8,6 +8,8 @@ MPP is an open-source CUDA implementation library providing 100% API compatibili
 
 **Goal**: Functionally equivalent, open-source alternative to NVIDIA's closed-source NPP library with identical APIs and behavior.
 
+> **AGENTS.md** (repo root) contains additional agent execution rules and the current development plan (e.g., color-conversion API coverage). Read it before starting new feature work.
+
 ## Architecture
 
 ### Module Organization
@@ -53,14 +55,21 @@ All modules compile into a single library target `npp` (output: `libmpp`).
 ./build.sh --use-nvidia-npp   # Build tests against NVIDIA NPP (build-nvidia/)
 ./build.sh -d                 # Debug build
 ./build.sh --lib-only         # Library only (skip tests/examples)
+./build.sh --no-tests --no-examples  # Skip tests/examples individually
 ./build.sh --benchmark        # Build benchmark suite
 ./build.sh -j 8               # Parallel jobs
 ./build.sh clean              # Remove both build/ and build-nvidia/
+./build_maca.sh               # MACA/MetaX build (build-maca/, --target ARCH, default shared libs)
+./run_all.sh                  # Build + run both NVIDIA NPP tests and MPP tests
 ```
+
+`build_nvidia.sh` is a convenience wrapper for `./build.sh --use-nvidia-npp`.
 
 ### Dual Build System
 - **build/**: MPP implementation + tests
 - **build-nvidia/**: Tests linked against NVIDIA's NPP (validation)
+
+Three-way validation (per README): MPP output is compared against NVIDIA NPP output and CPU reference implementations, with per-type precision tolerances.
 
 ### Running Tests
 ```bash

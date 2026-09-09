@@ -105,5 +105,4 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
   return NPP_SUCCESS;
 }
-
 }

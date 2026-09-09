@@ -293,14 +293,14 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C4R_NearestNeighbor) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                             NPPI_INTER_NN),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, NPPI_INTER_NN),
+      NPP_SUCCESS);
 
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
   ASSERT_EQ(nppiResize_8u_C4R_Ctx(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI,
-                                 NPPI_INTER_NN, context),
+                                  NPPI_INTER_NN, context),
             NPP_SUCCESS);
 
   std::vector<Npp8u> dstData(dstWidth * dstHeight * 4);
@@ -378,7 +378,7 @@ TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_IdentityAndCtx) {
   const NppiRect destinationRoi{0, 0, width, height};
 
   ASSERT_EQ(nppiResizeSqrPixel_8u_C4R(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
-                                     destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+                                      destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
             NPP_SUCCESS);
   std::vector<Npp8u> destinationData(sourceData.size());
   destination.copyToHost(destinationData);
@@ -387,17 +387,17 @@ TEST_F(ResizeFunctionalTest, ResizeSqrPixel_8u_C4R_IdentityAndCtx) {
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
   ASSERT_EQ(nppiResizeSqrPixel_8u_C4R_Ctx(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
-                                         destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0,
-                                         NPPI_INTER_LINEAR, context),
+                                          destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_LINEAR,
+                                          context),
             NPP_SUCCESS);
   destination.copyToHost(destinationData);
   EXPECT_EQ(destinationData, sourceData);
 
   EXPECT_EQ(nppiResizeSqrPixel_8u_C4R(nullptr, sourceSize, source.step(), sourceRoi, destination.get(),
-                                     destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+                                      destination.step(), destinationRoi, 1.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
             NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(nppiResizeSqrPixel_8u_C4R(source.get(), sourceSize, source.step(), sourceRoi, destination.get(),
-                                     destination.step(), destinationRoi, 0.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
+                                      destination.step(), destinationRoi, 0.0, 1.0, 0.0, 0.0, NPPI_INTER_NN),
             NPP_RESIZE_FACTOR_ERROR);
 }
 
@@ -2724,7 +2724,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C4R_AllInterpolationModes) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_SUPER, NPPI_INTER_LANCZOS};
+  const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
+  // NVIDIA 12.4 rejects NPPI_INTER_SUPER for upscale with NPP_RESIZE_FACTOR_ERROR
   for (int mode : modes) {
     ASSERT_EQ(nppiResize_8u_C4R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
               NPP_SUCCESS);
@@ -2751,7 +2752,8 @@ TEST_F(ResizeFunctionalTest, Resize_8u_C1R_AllInterpolationModes) {
   NppiRect srcROI = {0, 0, srcWidth, srcHeight};
   NppiRect dstROI = {0, 0, dstWidth, dstHeight};
 
-  const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_SUPER, NPPI_INTER_LANCZOS};
+  const int modes[] = {NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, NPPI_INTER_LANCZOS};
+  // NVIDIA 12.4 rejects NPPI_INTER_SUPER for upscale with NPP_RESIZE_FACTOR_ERROR
   for (int mode : modes) {
     ASSERT_EQ(nppiResize_8u_C1R(src.get(), src.step(), srcSize, srcROI, dst.get(), dst.step(), dstSize, dstROI, mode),
               NPP_SUCCESS);

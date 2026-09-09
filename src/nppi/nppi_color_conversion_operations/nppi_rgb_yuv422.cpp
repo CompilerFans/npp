@@ -2,9 +2,9 @@
 #include <cuda_runtime.h>
 
 extern "C" {
-cudaError_t nppiRGBToYUV422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
-                                            Npp8u *pDstU, int nDstUStep, Npp8u *pDstV, int nDstVStep,
-                                            NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiRGBToYUV422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstU,
+                                            int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
+                                            cudaStream_t stream);
 
 cudaError_t nppiRGBToYUV422_8u_P3R_kernel(const Npp8u *pSrcR, const Npp8u *pSrcG, const Npp8u *pSrcB, int nSrcStep,
                                           Npp8u *pDstY, int nDstYStep, Npp8u *pDstU, int nDstUStep, Npp8u *pDstV,
@@ -46,9 +46,8 @@ NppStatus nppiRGBToYUV422_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
     return status;
   }
 
-  cudaError_t cudaStatus =
-      nppiRGBToYUV422_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1], pDst[2],
-                                      rDstStep[2], oSizeROI, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiRGBToYUV422_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1],
+                                                           pDst[2], rDstStep[2], oSizeROI, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
@@ -81,8 +80,8 @@ NppStatus nppiRGBToYUV422_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u
   return nppiRGBToYUV422_8u_P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
-NppStatus nppiRGBToYUV422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                       NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYUV422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                       NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }

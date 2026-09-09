@@ -23,8 +23,8 @@ static inline void yuv_to_rgb_bt601_ref(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp
   b = static_cast<Npp8u>(b_val);
 }
 
-static inline void yuv422_yuyv_pixel(const std::vector<Npp8u> &src, int srcStep, int x, int y, Npp8u &Y,
-                                     Npp8u &U, Npp8u &V) {
+static inline void yuv422_yuyv_pixel(const std::vector<Npp8u> &src, int srcStep, int x, int y, Npp8u &Y, Npp8u &U,
+                                     Npp8u &V) {
   const Npp8u *row = src.data() + y * srcStep;
   int pair = (x / 2) * 4;
   Npp8u y0 = row[pair + 0];

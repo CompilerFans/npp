@@ -33,9 +33,8 @@ static inline void ycbcr_to_rgb_ref(Npp8u y, Npp8u cb, Npp8u cr, Npp8u &r, Npp8u
   b = clamp_to_u8(bf);
 }
 
-static void fill_ycbcr_inputs(std::vector<Npp8u> &packed, std::vector<Npp8u> &y_plane,
-                              std::vector<Npp8u> &cb_plane, std::vector<Npp8u> &cr_plane, int width, int height,
-                              std::vector<YCbCrPixel> &pixels) {
+static void fill_ycbcr_inputs(std::vector<Npp8u> &packed, std::vector<Npp8u> &y_plane, std::vector<Npp8u> &cb_plane,
+                              std::vector<Npp8u> &cr_plane, int width, int height, std::vector<YCbCrPixel> &pixels) {
   pixels = {
       {16, 128, 128},
       {200, 90, 240},

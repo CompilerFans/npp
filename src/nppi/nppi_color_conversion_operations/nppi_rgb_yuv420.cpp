@@ -2,17 +2,17 @@
 #include <cuda_runtime.h>
 
 extern "C" {
-cudaError_t nppiRGBToYUV420_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
-                                            Npp8u *pDstU, int nDstUStep, Npp8u *pDstV, int nDstVStep,
-                                            NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiRGBToYUV420_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstU,
+                                            int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
+                                            cudaStream_t stream);
 
 cudaError_t nppiRGBToYUV420_8u_P3R_kernel(const Npp8u *pSrcR, const Npp8u *pSrcG, const Npp8u *pSrcB, int nSrcStep,
                                           Npp8u *pDstY, int nDstYStep, Npp8u *pDstU, int nDstUStep, Npp8u *pDstV,
                                           int nDstVStep, NppiSize oSizeROI, cudaStream_t stream);
 
-cudaError_t nppiBGRToYUV420_8u_AC4P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
-                                             Npp8u *pDstU, int nDstUStep, Npp8u *pDstV, int nDstVStep,
-                                             NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiBGRToYUV420_8u_AC4P3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstU,
+                                             int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
+                                             cudaStream_t stream);
 }
 
 static NppStatus validateYUV420Inputs(const Npp8u *const pDst[3], const int rDstStep[3], NppiSize oSizeROI) {
@@ -45,9 +45,8 @@ NppStatus nppiRGBToYUV420_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
     return status;
   }
 
-  cudaError_t cudaStatus =
-      nppiRGBToYUV420_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1], pDst[2],
-                                      rDstStep[2], oSizeROI, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiRGBToYUV420_8u_C3P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1],
+                                                           pDst[2], rDstStep[2], oSizeROI, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
@@ -101,9 +100,8 @@ NppStatus nppiBGRToYUV420_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *
     return status;
   }
 
-  cudaError_t cudaStatus =
-      nppiBGRToYUV420_8u_AC4P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1], pDst[2],
-                                       rDstStep[2], oSizeROI, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiBGRToYUV420_8u_AC4P3R_kernel(pSrc, nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1],
+                                                            pDst[2], rDstStep[2], oSizeROI, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }

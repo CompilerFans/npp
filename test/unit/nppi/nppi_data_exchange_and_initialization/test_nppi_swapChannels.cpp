@@ -1,7 +1,7 @@
-#include "npp.h"
 #include "framework/npp_test_base.h"
-#include <gtest/gtest.h>
+#include "npp.h"
 #include <array>
+#include <gtest/gtest.h>
 #include <type_traits>
 #include <vector>
 
@@ -213,8 +213,7 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_8u_C4R) {
   src.copyFromHost(srcData);
 
   int aDstOrder[4] = {2, 1, 0, 3};
-  NppStatus status = nppiSwapChannels_8u_C4R(
-      src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
+  NppStatus status = nppiSwapChannels_8u_C4R(src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -244,8 +243,8 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_8u_C4R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status = nppiSwapChannels_8u_C4R_Ctx(
-      src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder, nppStreamCtx);
+  NppStatus status =
+      nppiSwapChannels_8u_C4R_Ctx(src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder, nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -301,8 +300,7 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_8u_C4IR_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status = nppiSwapChannels_8u_C4IR_Ctx(
-      srcDst.get(), srcDst.step(), roi, aDstOrder, nppStreamCtx);
+  NppStatus status = nppiSwapChannels_8u_C4IR_Ctx(srcDst.get(), srcDst.step(), roi, aDstOrder, nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -329,8 +327,7 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_8u_C3R) {
   src.copyFromHost(srcData);
 
   int aDstOrder[3] = {2, 1, 0};
-  NppStatus status = nppiSwapChannels_8u_C3R(
-      src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
+  NppStatus status = nppiSwapChannels_8u_C3R(src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -382,8 +379,7 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_32f_C4C3R) {
   src.copyFromHost(srcData);
 
   int aDstOrder[3] = {2, 1, 0};
-  NppStatus status = nppiSwapChannels_32f_C4C3R(
-      src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
+  NppStatus status = nppiSwapChannels_32f_C4C3R(src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -410,8 +406,7 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_8u_C3C4R) {
 
   int aDstOrder[4] = {2, 1, 0, 3};
   Npp8u fillValue = 255;
-  NppStatus status = nppiSwapChannels_8u_C3C4R(
-      src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder, fillValue);
+  NppStatus status = nppiSwapChannels_8u_C3C4R(src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder, fillValue);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -446,8 +441,7 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_16u_C4R) {
   src.copyFromHost(srcData);
 
   int aDstOrder[4] = {3, 2, 1, 0};
-  NppStatus status = nppiSwapChannels_16u_C4R(
-      src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
+  NppStatus status = nppiSwapChannels_16u_C4R(src.get(), src.step(), dst.get(), dst.step(), roi, aDstOrder);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -484,114 +478,114 @@ TEST_F(NPPISwapChannelsTest, SwapChannels_32f_C3IR) {
 }
 
 #define NPPI_SWAP_C3R_TEST(TEST_NAME, TYPE, API)                                                                       \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runC3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                    \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runC3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                     \
       return API(src, srcStep, dst, dstStep, roi, order);                                                              \
-    });                                                                                                                 \
+    });                                                                                                                \
   }
 
 #define NPPI_SWAP_C3R_CTX_TEST(TEST_NAME, TYPE, API)                                                                   \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runC3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                    \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runC3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                     \
       return API(src, srcStep, dst, dstStep, roi, order, ctx);                                                         \
-    });                                                                                                                 \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+    });                                                                                                                \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 #define NPPI_SWAP_C4R_TEST(TEST_NAME, TYPE, API)                                                                       \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                    \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                     \
       return API(src, srcStep, dst, dstStep, roi, order);                                                              \
-    });                                                                                                                 \
+    });                                                                                                                \
   }
 
 #define NPPI_SWAP_C4R_CTX_TEST(TEST_NAME, TYPE, API)                                                                   \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                    \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                     \
       return API(src, srcStep, dst, dstStep, roi, order, ctx);                                                         \
-    });                                                                                                                 \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+    });                                                                                                                \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 #define NPPI_SWAP_C3IR_TEST(TEST_NAME, TYPE, API)                                                                      \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runC3IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order); });       \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runC3IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order); });        \
   }
 
 #define NPPI_SWAP_C3IR_CTX_TEST(TEST_NAME, TYPE, API)                                                                  \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runC3IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order, ctx); });  \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runC3IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order, ctx); });   \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 #define NPPI_SWAP_C4IR_TEST(TEST_NAME, TYPE, API)                                                                      \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runC4IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order); });       \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runC4IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order); });        \
   }
 
 #define NPPI_SWAP_C4IR_CTX_TEST(TEST_NAME, TYPE, API)                                                                  \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runC4IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order, ctx); });  \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runC4IRTest<TYPE>([&](TYPE *srcDst, int step, const int *order) { return API(srcDst, step, roi, order, ctx); });   \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 #define NPPI_SWAP_C4C3R_TEST(TEST_NAME, TYPE, API)                                                                     \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runC4C3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                  \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runC4C3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                   \
       return API(src, srcStep, dst, dstStep, roi, order);                                                              \
-    });                                                                                                                 \
+    });                                                                                                                \
   }
 
 #define NPPI_SWAP_C4C3R_CTX_TEST(TEST_NAME, TYPE, API)                                                                 \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runC4C3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                  \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runC4C3RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                   \
       return API(src, srcStep, dst, dstStep, roi, order, ctx);                                                         \
-    });                                                                                                                 \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+    });                                                                                                                \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 #define NPPI_SWAP_C3C4R_TEST(TEST_NAME, TYPE, API)                                                                     \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runC3C4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order, TYPE fill) {       \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runC3C4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order, TYPE fill) {        \
       return API(src, srcStep, dst, dstStep, roi, order, fill);                                                        \
-    });                                                                                                                 \
+    });                                                                                                                \
   }
 
 #define NPPI_SWAP_C3C4R_CTX_TEST(TEST_NAME, TYPE, API)                                                                 \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runC3C4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order, TYPE fill) {       \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runC3C4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order, TYPE fill) {        \
       return API(src, srcStep, dst, dstStep, roi, order, fill, ctx);                                                   \
-    });                                                                                                                 \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+    });                                                                                                                \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 #define NPPI_SWAP_AC4R_TEST(TEST_NAME, TYPE, API)                                                                      \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    runAC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                   \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    runAC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                    \
       return API(src, srcStep, dst, dstStep, roi, order);                                                              \
-    });                                                                                                                 \
+    });                                                                                                                \
   }
 
 #define NPPI_SWAP_AC4R_CTX_TEST(TEST_NAME, TYPE, API)                                                                  \
-  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                             \
-    NppStreamContext ctx;                                                                                               \
-    nppGetStreamContext(&ctx);                                                                                          \
-    runAC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                   \
+  TEST_F(NPPISwapChannelsTest, TEST_NAME) {                                                                            \
+    NppStreamContext ctx;                                                                                              \
+    nppGetStreamContext(&ctx);                                                                                         \
+    runAC4RTest<TYPE>([&](const TYPE *src, int srcStep, TYPE *dst, int dstStep, const int *order) {                    \
       return API(src, srcStep, dst, dstStep, roi, order, ctx);                                                         \
-    });                                                                                                                 \
-    cudaStreamSynchronize(ctx.hStream);                                                                                 \
+    });                                                                                                                \
+    cudaStreamSynchronize(ctx.hStream);                                                                                \
   }
 
 NPPI_SWAP_AC4R_TEST(SwapChannels_8u_AC4R, Npp8u, nppiSwapChannels_8u_AC4R)

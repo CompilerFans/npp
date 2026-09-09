@@ -105,8 +105,7 @@ protected:
     }
   }
 
-  template <typename T>
-  void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
+  template <typename T> void dumpExpected(const char *label, const std::vector<T> &values, int count) const {
     std::cout << label << " = {";
     for (int i = 0; i < count; ++i) {
       if (i) {
@@ -279,13 +278,11 @@ TEST_F(YCbCr422Test, RGBToYCbCr422_And_Back_ExpectedValues) {
     GTEST_SKIP();
   }
 
-  const Npp8u kExpectedYCbCr422C2[32] = {41, 138, 53, 119, 65, 131, 78, 130, 48, 141, 60, 117, 73,
-                                         134, 85, 128, 55, 143, 68, 115, 80, 136, 92, 126, 62, 145,
-                                         75, 113, 87, 138, 99, 124};
-  const Npp8u kExpectedYCbCr422ToRGB[48] = {14, 32, 49, 28, 46, 63, 60, 54, 63, 75, 69, 78,
-                                            19, 41, 63, 33, 55, 77, 66, 63, 78, 80, 77, 92,
-                                            24, 50, 75, 39, 65, 90, 71, 72, 90, 85, 86, 104,
-                                            29, 59, 87, 44, 74, 102, 76, 81, 102, 90, 95, 116};
+  const Npp8u kExpectedYCbCr422C2[32] = {41, 138, 53, 119, 65, 131, 78, 130, 48, 141, 60, 117, 73, 134, 85, 128,
+                                         55, 143, 68, 115, 80, 136, 92, 126, 62, 145, 75, 113, 87, 138, 99, 124};
+  const Npp8u kExpectedYCbCr422ToRGB[48] = {14, 32, 49, 28,  46, 63, 60, 54, 63, 75,  69, 78, 19,  41, 63, 33,
+                                            55, 77, 66, 63,  78, 80, 77, 92, 24, 50,  75, 39, 65,  90, 71, 72,
+                                            90, 85, 86, 104, 29, 59, 87, 44, 74, 102, 76, 81, 102, 90, 95, 116};
 
   for (int i = 0; i < width * height * 2; ++i) {
     EXPECT_EQ(flatC2[i], kExpectedYCbCr422C2[i]) << "C2 mismatch at " << i;
@@ -487,9 +484,8 @@ TEST_P(YCbCr422PlanarParamTest, YCbCr422ToRGB_P3C3R_ExactMatch) {
   int tolerance = use_random ? 1 : 0;
   for (int i = 0; i < width * height * 3; ++i) {
     int diff = std::abs(static_cast<int>(flatRGB[i]) - static_cast<int>(expectedRGB[i]));
-    EXPECT_LE(diff, tolerance) << "RGB mismatch at " << i
-                               << " (got " << static_cast<int>(flatRGB[i])
-                               << ", expected " << static_cast<int>(expectedRGB[i]) << ")";
+    EXPECT_LE(diff, tolerance) << "RGB mismatch at " << i << " (got " << static_cast<int>(flatRGB[i]) << ", expected "
+                               << static_cast<int>(expectedRGB[i]) << ")";
   }
 
   NppStreamContext ctx{};
@@ -511,8 +507,7 @@ TEST_P(YCbCr422PlanarParamTest, YCbCr422ToRGB_P3C3R_ExactMatch) {
 
   for (int i = 0; i < width * height * 3; ++i) {
     int diff = std::abs(static_cast<int>(flatRGB[i]) - static_cast<int>(expectedRGB[i]));
-    EXPECT_LE(diff, tolerance) << "Ctx RGB mismatch at " << i
-                               << " (got " << static_cast<int>(flatRGB[i])
+    EXPECT_LE(diff, tolerance) << "Ctx RGB mismatch at " << i << " (got " << static_cast<int>(flatRGB[i])
                                << ", expected " << static_cast<int>(expectedRGB[i]) << ")";
   }
 

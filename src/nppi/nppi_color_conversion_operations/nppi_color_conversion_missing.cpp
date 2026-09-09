@@ -3,16 +3,15 @@
 #include <cuda_runtime.h>
 
 extern "C" {
-cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV,
-                                             int nSrcUVStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstU,
-                                             int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
-                                             cudaStream_t stream);
+cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
+                                             Npp8u *pDstY, int nDstYStep, Npp8u *pDstU, int nDstUStep, Npp8u *pDstV,
+                                             int nDstVStep, NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiYUV420ToNV12_8u_P3P2R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU, int nSrcUStep,
                                              const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstY, int nDstYStep,
                                              Npp8u *pDstUV, int nDstUVStep, NppiSize oSizeROI, cudaStream_t stream);
-cudaError_t nppiYCbCr420ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCb,
-                                              int nSrcCbStep, const Npp8u *pSrcCr, int nSrcCrStep, Npp8u *pDst,
-                                              int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+cudaError_t nppiYCbCr420ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCb, int nSrcCbStep,
+                                              const Npp8u *pSrcCr, int nSrcCrStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, cudaStream_t stream);
 }
 
 namespace {
@@ -29,7 +28,9 @@ NppStatus validate420Roi(NppiSize roi) {
 
 } // namespace
 
-NppStatus nppiAlphaCompColorKey_8u_AC4R(const Npp8u * pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u * pSrc2, int nSrc2Step, Npp8u nAlpha2, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4], NppiAlphaOp nppAlphaOp) {
+NppStatus nppiAlphaCompColorKey_8u_AC4R(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2,
+                                        int nSrc2Step, Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        Npp8u nColorKeyConst[4], NppiAlphaOp nppAlphaOp) {
   (void)pSrc1;
   (void)nSrc1Step;
   (void)nAlpha1;
@@ -44,7 +45,10 @@ NppStatus nppiAlphaCompColorKey_8u_AC4R(const Npp8u * pSrc1, int nSrc1Step, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiAlphaCompColorKey_8u_AC4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u * pSrc2, int nSrc2Step, Npp8u nAlpha2, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4], NppiAlphaOp nppAlphaOp, NppStreamContext nppStreamCtx) {
+NppStatus nppiAlphaCompColorKey_8u_AC4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, Npp8u nAlpha1, const Npp8u *pSrc2,
+                                            int nSrc2Step, Npp8u nAlpha2, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                            Npp8u nColorKeyConst[4], NppiAlphaOp nppAlphaOp,
+                                            NppStreamContext nppStreamCtx) {
   (void)pSrc1;
   (void)nSrc1Step;
   (void)nAlpha1;
@@ -60,7 +64,8 @@ NppStatus nppiAlphaCompColorKey_8u_AC4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToCbYCr422_709HDTV_8u_AC4C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiBGRToCbYCr422_709HDTV_8u_AC4C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -69,26 +74,8 @@ NppStatus nppiBGRToCbYCr422_709HDTV_8u_AC4C2R(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToCbYCr422_709HDTV_8u_AC4C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToCbYCr422_709HDTV_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToCbYCr422_709HDTV_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToCbYCr422_709HDTV_8u_AC4C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -98,7 +85,8 @@ NppStatus nppiBGRToCbYCr422_709HDTV_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToCbYCr422_8u_AC4C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiBGRToCbYCr422_709HDTV_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -107,7 +95,8 @@ NppStatus nppiBGRToCbYCr422_8u_AC4C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToCbYCr422_8u_AC4C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToCbYCr422_709HDTV_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -117,7 +106,28 @@ NppStatus nppiBGRToCbYCr422_8u_AC4C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr420_709CSC_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiBGRToCbYCr422_8u_AC4C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToCbYCr422_8u_AC4C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                          NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr420_709CSC_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                             NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -126,7 +136,8 @@ NppStatus nppiBGRToYCbCr420_709CSC_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, N
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr420_709CSC_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr420_709CSC_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -136,7 +147,8 @@ NppStatus nppiBGRToYCbCr420_709CSC_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr420_709CSC_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr420_709CSC_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                            NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -145,26 +157,8 @@ NppStatus nppiBGRToYCbCr420_709CSC_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr420_709CSC_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCbCr420_709HDTV_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCbCr420_709HDTV_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr420_709CSC_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -174,7 +168,29 @@ NppStatus nppiBGRToYCbCr420_709HDTV_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcSt
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr420_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr420_709HDTV_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr420_709HDTV_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr420_JPEG_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -183,26 +199,8 @@ NppStatus nppiBGRToYCbCr420_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr420_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)aDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCbCr420_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)aDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr420_JPEG_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -212,26 +210,8 @@ NppStatus nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr422_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCbCr422_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCbCr422_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr420_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -240,7 +220,8 @@ NppStatus nppiBGRToYCbCr422_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr422_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -250,7 +231,29 @@ NppStatus nppiBGRToYCbCr422_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr422_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr422_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                      NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr422_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr422_JPEG_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -259,7 +262,8 @@ NppStatus nppiBGRToYCbCr422_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr422_JPEG_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -269,7 +273,29 @@ NppStatus nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr444_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr422_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)aDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)aDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCbCr444_JPEG_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -278,7 +304,8 @@ NppStatus nppiBGRToYCbCr444_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -288,7 +315,8 @@ NppStatus nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr444_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiBGRToYCbCr444_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -297,7 +325,8 @@ NppStatus nppiBGRToYCbCr444_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -307,7 +336,8 @@ NppStatus nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCrCb420_709CSC_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiBGRToYCrCb420_709CSC_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                             NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -316,26 +346,8 @@ NppStatus nppiBGRToYCrCb420_709CSC_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, N
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiBGRToYCrCb420_709CSC_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCrCb420_709CSC_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiBGRToYCrCb420_709CSC_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiBGRToYCrCb420_709CSC_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -345,7 +357,30 @@ NppStatus nppiBGRToYCrCb420_709CSC_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCFAToRGBA_16u_C1AC4R(const Npp16u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp16u * pDst, int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation, Npp16u nAlpha) {
+NppStatus nppiBGRToYCrCb420_709CSC_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                            NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiBGRToYCrCb420_709CSC_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCFAToRGBA_16u_C1AC4R(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp16u *pDst,
+                                   int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation,
+                                   Npp16u nAlpha) {
   (void)pSrc;
   (void)nSrcStep;
   (void)oSrcSize;
@@ -358,7 +393,10 @@ NppStatus nppiCFAToRGBA_16u_C1AC4R(const Npp16u * pSrc, int nSrcStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCFAToRGBA_16u_C1AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp16u * pDst, int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation, Npp16u nAlpha, NppStreamContext nppStreamCtx) {
+NppStatus nppiCFAToRGBA_16u_C1AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI,
+                                       Npp16u *pDst, int nDstStep, NppiBayerGridPosition eGrid,
+                                       NppiInterpolationMode eInterpolation, Npp16u nAlpha,
+                                       NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)oSrcSize;
@@ -372,7 +410,9 @@ NppStatus nppiCFAToRGBA_16u_C1AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, NppiSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCFAToRGBA_8u_C1AC4R(const Npp8u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u * pDst, int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation, Npp8u nAlpha) {
+NppStatus nppiCFAToRGBA_8u_C1AC4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u *pDst,
+                                  int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation,
+                                  Npp8u nAlpha) {
   (void)pSrc;
   (void)nSrcStep;
   (void)oSrcSize;
@@ -385,7 +425,9 @@ NppStatus nppiCFAToRGBA_8u_C1AC4R(const Npp8u * pSrc, int nSrcStep, NppiSize oSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCFAToRGBA_8u_C1AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u * pDst, int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation, Npp8u nAlpha, NppStreamContext nppStreamCtx) {
+NppStatus nppiCFAToRGBA_8u_C1AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u *pDst,
+                                      int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation,
+                                      Npp8u nAlpha, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)oSrcSize;
@@ -399,7 +441,8 @@ NppStatus nppiCFAToRGBA_8u_C1AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -408,26 +451,8 @@ NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R(const Npp8u * pSrc[4], int nSrcStep,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -437,7 +462,8 @@ NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx(const Npp8u * pSrc[4], int nSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -446,26 +472,8 @@ NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R(const Npp8u * pSrc[4], int nSrcStep,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -475,7 +483,8 @@ NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx(const Npp8u * pSrc[4], int nSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -484,7 +493,8 @@ NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C3R(const Npp8u * pSrc, int nSrcStep, N
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -494,7 +504,50 @@ NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C3R_Ctx(const Npp8u * pSrc, int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
+NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                 NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             NppiSize oSizeROI, Npp8u nAval) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -504,28 +557,8 @@ NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C4R(const Npp8u * pSrc, int nSrcStep, N
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nAval;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCbYCr422ToBGR_8u_C2C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nAval;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCbYCr422ToBGR_8u_C2C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
+NppStatus nppiCbYCr422ToBGR_709HDTV_8u_C2C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                 NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -536,7 +569,30 @@ NppStatus nppiCbYCr422ToBGR_8u_C2C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToRGB_8u_C2C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiCbYCr422ToBGR_8u_C2C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     Npp8u nAval) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nAval;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToBGR_8u_C2C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         Npp8u nAval, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nAval;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToRGB_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -545,7 +601,8 @@ NppStatus nppiCbYCr422ToRGB_8u_C2C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * p
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToRGB_8u_C2C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCbYCr422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -555,7 +612,8 @@ NppStatus nppiCbYCr422ToRGB_8u_C2C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr411_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiCbYCr422ToYCbCr411_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -564,7 +622,8 @@ NppStatus nppiCbYCr422ToYCbCr411_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCbYCr422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -574,7 +633,8 @@ NppStatus nppiCbYCr422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr420_8u_C2P2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiCbYCr422ToYCbCr420_8u_C2P2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstCbCr,
+                                          int nDstCbCrStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDstY;
@@ -585,7 +645,9 @@ NppStatus nppiCbYCr422ToYCbCr420_8u_C2P2R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr420_8u_C2P2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCbYCr422ToYCbCr420_8u_C2P2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDstY;
@@ -597,7 +659,8 @@ NppStatus nppiCbYCr422ToYCbCr420_8u_C2P2R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiCbYCr422ToYCbCr420_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -606,26 +669,8 @@ NppStatus nppiCbYCr422ToYCbCr420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCbYCr422ToYCbCr422_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCbYCr422ToYCbCr422_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCbYCr422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -635,26 +680,8 @@ NppStatus nppiCbYCr422ToYCbCr422_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCbCr422_8u_C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCbYCr422ToYCbCr422_8u_C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCbYCr422ToYCrCb420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiCbYCr422ToYCbCr422_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -663,7 +690,8 @@ NppStatus nppiCbYCr422ToYCrCb420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCbYCr422ToYCrCb420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiCbYCr422ToYCbCr422_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -673,7 +701,49 @@ NppStatus nppiCbYCr422ToYCrCb420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist32fC_16f_C4IR(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
+NppStatus nppiCbYCr422ToYCbCr422_8u_C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToYCbCr422_8u_C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToYCrCb420_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCbYCr422ToYCrCb420_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32fC_16f_C4IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4],
+                                      const Npp32f aConstants[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -682,1003 +752,9 @@ NppStatus nppiColorTwist32fC_16f_C4IR(Npp16f * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist32fC_16f_C4IR_Ctx(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32fC_16f_C4R(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32fC_16f_C4R_Ctx(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32fC_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32fC_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32fC_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32fC_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C1IR(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C1IR_Ctx(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C1R(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C1R_Ctx(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C2IR(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C2IR_Ctx(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C2R(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C2R_Ctx(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C3IR(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C3IR_Ctx(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C3R(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C3R_Ctx(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C4IR(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C4IR_Ctx(Npp16f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C4R(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_16f_C4R_Ctx(const Npp16f * pSrc, int nSrcStep, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_AC4IR(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_AC4IR_Ctx(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_AC4R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_AC4R_Ctx(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C1IR(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C1IR_Ctx(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C1R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C1R_Ctx(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C2IR(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C2IR_Ctx(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C2R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C2R_Ctx(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C3IR(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C3IR_Ctx(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C3R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C3R_Ctx(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C4IR(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C4IR_Ctx(Npp8s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C4R(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_C4R_Ctx(const Npp8s * pSrc, int nSrcStep, Npp8s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_IP3R(Npp8s * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_IP3R_Ctx(Npp8s * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_P3R(const Npp8s * const pSrc[3], int nSrcStep, Npp8s * const pDst[3], int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist32f_8s_P3R_Ctx(const Npp8s * const pSrc[3], int nSrcStep, Npp8s * const pDst[3], int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_16f_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_16f_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_16f_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_16f_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_8u_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_8u_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_8u_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32fC_8u_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C1IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C1IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C1R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C1R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C3IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C3IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C3R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C3R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_16f_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_AC4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_AC4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_AC4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_AC4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C1IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C1IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C1R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C1R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C3IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C3IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C3R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C3R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch32f_8u_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32fC_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32fC_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32fC_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32fC_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_AC4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_AC4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_AC4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_AC4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C1IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C1IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C1R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C1R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C3IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C3IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C3R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C3R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwistBatch_32f_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR * pBatchList, int nBatchSize, NppStreamContext nppStreamCtx) {
-  (void)nMin;
-  (void)nMax;
-  (void)oSizeROI;
-  (void)pBatchList;
-  (void)nBatchSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32fC_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)aConstants;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32fC_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32fC_16f_C4IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
+                                          const Npp32f aTwist[4][4], const Npp32f aConstants[4],
+                                          NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1688,7 +764,8 @@ NppStatus nppiColorTwist_32fC_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32fC_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
+NppStatus nppiColorTwist32fC_16f_C4R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1699,7 +776,9 @@ NppStatus nppiColorTwist_32fC_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32fC_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32fC_16f_C4R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep,
+                                         NppiSize oSizeROI, const Npp32f aTwist[4][4], const Npp32f aConstants[4],
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1711,7 +790,54 @@ NppStatus nppiColorTwist_32fC_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32fC_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4],
+                                     const Npp32f aConstants[4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32fC_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4],
+                                         const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32fC_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32fC_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[4][4], const Npp32f aConstants[4],
+                                        NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_16f_C1IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1719,7 +845,8 @@ NppStatus nppiColorTwist_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16f_C1IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1728,7 +855,8 @@ NppStatus nppiColorTwist_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16f_C1R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[3][4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1738,83 +866,8 @@ NppStatus nppiColorTwist_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C2IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C2IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C2R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C2R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16f_C1R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1825,7 +878,7 @@ NppStatus nppiColorTwist_32f_C2R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16f_C2IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1833,7 +886,8 @@ NppStatus nppiColorTwist_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16f_C2IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1842,7 +896,8 @@ NppStatus nppiColorTwist_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16f_C2R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[3][4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1852,45 +907,8 @@ NppStatus nppiColorTwist_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)aTwist;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiColorTwist_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16f_C2R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1901,7 +919,7 @@ NppStatus nppiColorTwist_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_IP3R(Npp32f * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16f_C3IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1909,7 +927,8 @@ NppStatus nppiColorTwist_32f_IP3R(Npp32f * const pSrcDst[3], int nSrcDstStep, Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_IP3R_Ctx(Npp32f * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16f_C3IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -1918,7 +937,8 @@ NppStatus nppiColorTwist_32f_IP3R_Ctx(Npp32f * const pSrcDst[3], int nSrcDstStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_P3R(const Npp32f * const pSrc[3], int nSrcStep, Npp32f * const pDst[3], int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16f_C3R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[3][4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1928,7 +948,8 @@ NppStatus nppiColorTwist_32f_P3R(const Npp32f * const pSrc[3], int nSrcStep, Npp
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiColorTwist_32f_P3R_Ctx(const Npp32f * const pSrc[3], int nSrcStep, Npp32f * const pDst[3], int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16f_C3R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -1939,7 +960,1206 @@ NppStatus nppiColorTwist_32f_P3R_Ctx(const Npp32f * const pSrc[3], int nSrcStep,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCompColorKey_8u_C1R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst) {
+NppStatus nppiColorTwist32f_16f_C4IR(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_16f_C4IR_Ctx(Npp16f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_16f_C4R(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_16f_C4R_Ctx(const Npp16f *pSrc, int nSrcStep, Npp16f *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_AC4IR(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_AC4IR_Ctx(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_AC4R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_AC4R_Ctx(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C1IR(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C1IR_Ctx(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C1R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C1R_Ctx(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C2IR(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C2IR_Ctx(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C2R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C2R_Ctx(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C3IR(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C3IR_Ctx(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C3R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C3R_Ctx(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C4IR(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C4IR_Ctx(Npp8s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C4R(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_C4R_Ctx(const Npp8s *pSrc, int nSrcStep, Npp8s *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_IP3R(Npp8s *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                    const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_IP3R_Ctx(Npp8s *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_P3R(const Npp8s *const pSrc[3], int nSrcStep, Npp8s *const pDst[3], int nDstStep,
+                                   NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist32f_8s_P3R_Ctx(const Npp8s *const pSrc[3], int nSrcStep, Npp8s *const pDst[3], int nDstStep,
+                                       NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_16f_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                           NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_16f_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                               NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                               NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_16f_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_16f_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                              NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                              NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_8u_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_8u_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                              NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                              NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_8u_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32fC_8u_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C1IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C1IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                              NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                              NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C1R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C1R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C3IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C3IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                              NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                              NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C3R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C3R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                              NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                              NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_16f_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_AC4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_AC4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                              NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                              NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_AC4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_AC4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C1IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C1IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C1R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                        int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C1R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                            NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                            NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C3IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C3IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C3R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                        int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C3R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                            NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                            NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                         NppiColorTwistBatchCXR *pBatchList, int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                             NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                             NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                        int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch32f_8u_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                            NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                            NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32fC_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                        int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32fC_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                            NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                            NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32fC_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                       int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32fC_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                           NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                           NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_AC4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                        int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_AC4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                            NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                            NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_AC4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                       int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_AC4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                           NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                           NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C1IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                       int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C1IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                           NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                           NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C1R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                      int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C1R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                          NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C3IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                       int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C3IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                           NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                           NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C3R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                      int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C3R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                          NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C4IR(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                       int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C4IR_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                           NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                           NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C4R(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList,
+                                      int nBatchSize) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwistBatch_32f_C4R_Ctx(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI,
+                                          NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
+                                          NppStreamContext nppStreamCtx) {
+  (void)nMin;
+  (void)nMax;
+  (void)oSizeROI;
+  (void)pBatchList;
+  (void)nBatchSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32fC_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4],
+                                   const Npp32f aConstants[4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32fC_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[4][4],
+                                       const Npp32f aConstants[4], NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32fC_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32f aTwist[4][4], const Npp32f aConstants[4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32fC_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                      const Npp32f aTwist[4][4], const Npp32f aConstants[4],
+                                      NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)aConstants;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                       NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                      const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C1IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C1IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                      NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C2IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C2IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                      NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C2R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C2R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C3IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C3IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                      NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C3R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                      NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_IP3R(Npp32f *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                  const Npp32f aTwist[3][4]) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_IP3R_Ctx(Npp32f *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                      const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_P3R(const Npp32f *const pSrc[3], int nSrcStep, Npp32f *const pDst[3], int nDstStep,
+                                 NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiColorTwist_32f_P3R_Ctx(const Npp32f *const pSrc[3], int nSrcStep, Npp32f *const pDst[3], int nDstStep,
+                                     NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)aTwist;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCompColorKey_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst) {
   (void)pSrc1;
   (void)nSrc1Step;
   (void)pSrc2;
@@ -1951,7 +2171,9 @@ NppStatus nppiCompColorKey_8u_C1R(const Npp8u * pSrc1, int nSrc1Step, const Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCompColorKey_8u_C1R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst, NppStreamContext nppStreamCtx) {
+NppStatus nppiCompColorKey_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                      int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst,
+                                      NppStreamContext nppStreamCtx) {
   (void)pSrc1;
   (void)nSrc1Step;
   (void)pSrc2;
@@ -1964,7 +2186,8 @@ NppStatus nppiCompColorKey_8u_C1R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCompColorKey_8u_C3R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[3]) {
+NppStatus nppiCompColorKey_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[3]) {
   (void)pSrc1;
   (void)nSrc1Step;
   (void)pSrc2;
@@ -1976,32 +2199,9 @@ NppStatus nppiCompColorKey_8u_C3R(const Npp8u * pSrc1, int nSrc1Step, const Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiCompColorKey_8u_C3R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[3], NppStreamContext nppStreamCtx) {
-  (void)pSrc1;
-  (void)nSrc1Step;
-  (void)pSrc2;
-  (void)nSrc2Step;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nColorKeyConst;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCompColorKey_8u_C4R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4]) {
-  (void)pSrc1;
-  (void)nSrc1Step;
-  (void)pSrc2;
-  (void)nSrc2Step;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nColorKeyConst;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiCompColorKey_8u_C4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiCompColorKey_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                      int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[3],
+                                      NppStreamContext nppStreamCtx) {
   (void)pSrc1;
   (void)nSrc1Step;
   (void)pSrc2;
@@ -2014,14 +2214,43 @@ NppStatus nppiCompColorKey_8u_C4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiGammaFwd_8u_IP3R(Npp8u * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI) {
+NppStatus nppiCompColorKey_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                  int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4]) {
+  (void)pSrc1;
+  (void)nSrc1Step;
+  (void)pSrc2;
+  (void)nSrc2Step;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nColorKeyConst;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiCompColorKey_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
+                                      int nDstStep, NppiSize oSizeROI, Npp8u nColorKeyConst[4],
+                                      NppStreamContext nppStreamCtx) {
+  (void)pSrc1;
+  (void)nSrc1Step;
+  (void)pSrc2;
+  (void)nSrc2Step;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nColorKeyConst;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiGammaFwd_8u_IP3R(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiGammaFwd_8u_IP3R_Ctx(Npp8u * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiGammaFwd_8u_IP3R_Ctx(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2029,7 +2258,8 @@ NppStatus nppiGammaFwd_8u_IP3R_Ctx(Npp8u * const pSrcDst[3], int nSrcDstStep, Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiGammaFwd_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiGammaFwd_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                              NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2038,41 +2268,8 @@ NppStatus nppiGammaFwd_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiGammaFwd_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiGammaInv_8u_IP3R(Npp8u * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiGammaInv_8u_IP3R_Ctx(Npp8u * const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcDst;
-  (void)nSrcDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiGammaInv_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiGammaInv_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiGammaFwd_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2082,7 +2279,45 @@ NppStatus nppiGammaInv_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPaletteSwap_16u_C3A0C4R(const Npp16u * pSrc, int nSrcStep, int nAlphaValue, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[3], int nBitSize) {
+NppStatus nppiGammaInv_8u_IP3R(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiGammaInv_8u_IP3R_Ctx(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  (void)pSrcDst;
+  (void)nSrcDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiGammaInv_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                              NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiGammaInv_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                  NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPaletteSwap_16u_C3A0C4R(const Npp16u *pSrc, int nSrcStep, int nAlphaValue, Npp16u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, const Npp16u *pTables[3], int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)nAlphaValue;
@@ -2094,7 +2329,9 @@ NppStatus nppiLUTPaletteSwap_16u_C3A0C4R(const Npp16u * pSrc, int nSrcStep, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPaletteSwap_16u_C3A0C4R_Ctx(const Npp16u * pSrc, int nSrcStep, int nAlphaValue, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPaletteSwap_16u_C3A0C4R_Ctx(const Npp16u *pSrc, int nSrcStep, int nAlphaValue, Npp16u *pDst,
+                                             int nDstStep, NppiSize oSizeROI, const Npp16u *pTables[3], int nBitSize,
+                                             NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)nAlphaValue;
@@ -2107,7 +2344,8 @@ NppStatus nppiLUTPaletteSwap_16u_C3A0C4R_Ctx(const Npp16u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPaletteSwap_8u_C3A0C4R(const Npp8u * pSrc, int nSrcStep, int nAlphaValue, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[3], int nBitSize) {
+NppStatus nppiLUTPaletteSwap_8u_C3A0C4R(const Npp8u *pSrc, int nSrcStep, int nAlphaValue, Npp8u *pDst, int nDstStep,
+                                        NppiSize oSizeROI, const Npp8u *pTables[3], int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)nAlphaValue;
@@ -2119,7 +2357,9 @@ NppStatus nppiLUTPaletteSwap_8u_C3A0C4R(const Npp8u * pSrc, int nSrcStep, int nA
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPaletteSwap_8u_C3A0C4R_Ctx(const Npp8u * pSrc, int nSrcStep, int nAlphaValue, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPaletteSwap_8u_C3A0C4R_Ctx(const Npp8u *pSrc, int nSrcStep, int nAlphaValue, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, const Npp8u *pTables[3], int nBitSize,
+                                            NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)nAlphaValue;
@@ -2132,7 +2372,8 @@ NppStatus nppiLUTPaletteSwap_8u_C3A0C4R_Ctx(const Npp8u * pSrc, int nSrcStep, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u24u_C1R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize) {
+NppStatus nppiLUTPalette_16u24u_C1R(const Npp16u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp8u *pTable, int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2143,30 +2384,8 @@ NppStatus nppiLUTPalette_16u24u_C1R(const Npp16u * pSrc, int nSrcStep, Npp8u * p
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u24u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTable;
-  (void)nBitSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u32u_C1R(const Npp16u * pSrc, int nSrcStep, Npp32u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32u * pTable, int nBitSize) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTable;
-  (void)nBitSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u32u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp32u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_16u24u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp8u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2178,7 +2397,8 @@ NppStatus nppiLUTPalette_16u32u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp32
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u8u_C1R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize) {
+NppStatus nppiLUTPalette_16u32u_C1R(const Npp16u *pSrc, int nSrcStep, Npp32u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32u *pTable, int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2189,7 +2409,8 @@ NppStatus nppiLUTPalette_16u8u_C1R(const Npp16u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u8u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_16u32u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp32u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2201,7 +2422,33 @@ NppStatus nppiLUTPalette_16u8u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[3], int nBitSize) {
+NppStatus nppiLUTPalette_16u8u_C1R(const Npp16u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp8u *pTable, int nBitSize) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTable;
+  (void)nBitSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_16u8u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp8u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTable;
+  (void)nBitSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp16u *pTables[3], int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2212,53 +2459,8 @@ NppStatus nppiLUTPalette_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u_C1R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTable, int nBitSize) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTable;
-  (void)nBitSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTable;
-  (void)nBitSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[3], int nBitSize) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                      const Npp16u *pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2270,30 +2472,8 @@ NppStatus nppiLUTPalette_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[4], int nBitSize) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u * pTables[4], int nBitSize, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_8u24u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize) {
+NppStatus nppiLUTPalette_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp16u *pTable, int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2304,7 +2484,8 @@ NppStatus nppiLUTPalette_8u24u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u24u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp16u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2316,7 +2497,58 @@ NppStatus nppiLUTPalette_8u24u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u32u_C1R(const Npp8u * pSrc, int nSrcStep, Npp32u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32u * pTable, int nBitSize) {
+NppStatus nppiLUTPalette_16u_C3R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp16u *pTables[3], int nBitSize) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp16u *pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_16u_C4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp16u *pTables[4], int nBitSize) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp16u *pTables[4], int nBitSize, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_8u24u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp8u *pTable, int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2327,7 +2559,8 @@ NppStatus nppiLUTPalette_8u32u_C1R(const Npp8u * pSrc, int nSrcStep, Npp32u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u32u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_8u24u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp8u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2339,30 +2572,8 @@ NppStatus nppiLUTPalette_8u32u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32u 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[3], int nBitSize) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_8u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize) {
+NppStatus nppiLUTPalette_8u32u_C1R(const Npp8u *pSrc, int nSrcStep, Npp32u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32u *pTable, int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2373,7 +2584,8 @@ NppStatus nppiLUTPalette_8u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_8u32u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp32u *pDst, int nDstStep, NppiSize oSizeROI,
+                                       const Npp32u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2385,7 +2597,8 @@ NppStatus nppiLUTPalette_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[3], int nBitSize) {
+NppStatus nppiLUTPalette_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp8u *pTables[3], int nBitSize) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2396,30 +2609,8 @@ NppStatus nppiLUTPalette_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUTPalette_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[4], int nBitSize) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pTables;
-  (void)nBitSize;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUTPalette_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u * pTables[4], int nBitSize, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUTPalette_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp8u *pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2431,7 +2622,83 @@ NppStatus nppiLUTPalette_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_AC4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUTPalette_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp8u *pTable, int nBitSize) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTable;
+  (void)nBitSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp8u *pTable, int nBitSize, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTable;
+  (void)nBitSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp8u *pTables[3], int nBitSize) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp8u *pTables[3], int nBitSize, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp8u *pTables[4], int nBitSize) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUTPalette_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp8u *pTables[4], int nBitSize, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pTables;
+  (void)nBitSize;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUT_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                            const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2441,7 +2708,8 @@ NppStatus nppiLUT_16s_AC4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2452,7 +2720,8 @@ NppStatus nppiLUT_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_AC4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                           const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2464,7 +2733,9 @@ NppStatus nppiLUT_16s_AC4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                               const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                               NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2477,7 +2748,8 @@ NppStatus nppiLUT_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C1IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                           const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2487,7 +2759,8 @@ NppStatus nppiLUT_16s_C1IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                               const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2498,7 +2771,8 @@ NppStatus nppiLUT_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2510,7 +2784,9 @@ NppStatus nppiLUT_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2523,7 +2799,8 @@ NppStatus nppiLUT_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C3IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                           const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2533,7 +2810,8 @@ NppStatus nppiLUT_16s_C3IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                               const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2544,7 +2822,8 @@ NppStatus nppiLUT_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C3R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2556,7 +2835,9 @@ NppStatus nppiLUT_16s_C3R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2569,7 +2850,8 @@ NppStatus nppiLUT_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_16s_C4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                           const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2579,7 +2861,8 @@ NppStatus nppiLUT_16s_C4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_C4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                               const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2590,7 +2873,8 @@ NppStatus nppiLUT_16s_C4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2602,7 +2886,9 @@ NppStatus nppiLUT_16s_C4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2615,7 +2901,8 @@ NppStatus nppiLUT_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_AC4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16u_AC4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                            const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2625,7 +2912,8 @@ NppStatus nppiLUT_16u_AC4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_AC4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2636,7 +2924,8 @@ NppStatus nppiLUT_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                           const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2648,7 +2937,9 @@ NppStatus nppiLUT_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                               const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                               NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2661,7 +2952,8 @@ NppStatus nppiLUT_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C1IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_16u_C1IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                           const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2671,7 +2963,8 @@ NppStatus nppiLUT_16u_C1IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_C1IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                               const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2682,7 +2975,8 @@ NppStatus nppiLUT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16u_C3IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                           const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2692,7 +2986,8 @@ NppStatus nppiLUT_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_C3IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                               const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2703,7 +2998,8 @@ NppStatus nppiLUT_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_16u_C3R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2715,7 +3011,9 @@ NppStatus nppiLUT_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2728,7 +3026,8 @@ NppStatus nppiLUT_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_16u_C4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                           const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2738,7 +3037,8 @@ NppStatus nppiLUT_16u_C4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_C4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                               const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2749,7 +3049,8 @@ NppStatus nppiLUT_16u_C4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_16u_C4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2761,7 +3062,9 @@ NppStatus nppiLUT_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2774,7 +3077,8 @@ NppStatus nppiLUT_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                            const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2784,7 +3088,8 @@ NppStatus nppiLUT_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                const Npp32f *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2795,7 +3100,8 @@ NppStatus nppiLUT_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                           const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2807,7 +3113,9 @@ NppStatus nppiLUT_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                               const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3],
+                               NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2820,7 +3128,8 @@ NppStatus nppiLUT_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels) {
+NppStatus nppiLUT_32f_C1IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues,
+                           const Npp32f *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2830,7 +3139,8 @@ NppStatus nppiLUT_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_C1IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues,
+                               const Npp32f *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2841,7 +3151,8 @@ NppStatus nppiLUT_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels) {
+NppStatus nppiLUT_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32f *pValues, const Npp32f *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2853,7 +3164,9 @@ NppStatus nppiLUT_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32f *pValues, const Npp32f *pLevels, int nLevels,
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2866,7 +3179,8 @@ NppStatus nppiLUT_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_32f_C3IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                           const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2876,7 +3190,8 @@ NppStatus nppiLUT_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_C3IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                               const Npp32f *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2887,7 +3202,8 @@ NppStatus nppiLUT_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_32f_C3R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2899,7 +3215,9 @@ NppStatus nppiLUT_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2912,7 +3230,8 @@ NppStatus nppiLUT_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[4],
+                           const Npp32f *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2922,7 +3241,8 @@ NppStatus nppiLUT_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[4],
+                               const Npp32f *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2933,7 +3253,8 @@ NppStatus nppiLUT_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32f *pValues[4], const Npp32f *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2945,7 +3266,9 @@ NppStatus nppiLUT_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32f *pValues[4], const Npp32f *pLevels[4], int nLevels[4],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2958,7 +3281,8 @@ NppStatus nppiLUT_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                           const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2968,7 +3292,8 @@ NppStatus nppiLUT_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                               const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -2979,7 +3304,8 @@ NppStatus nppiLUT_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeR
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                          const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -2991,7 +3317,9 @@ NppStatus nppiLUT_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                              const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3004,7 +3332,8 @@ NppStatus nppiLUT_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C1IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                          const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3014,7 +3343,8 @@ NppStatus nppiLUT_8u_C1IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, c
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                              const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3025,7 +3355,8 @@ NppStatus nppiLUT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeRO
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                          const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3035,7 +3366,8 @@ NppStatus nppiLUT_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, c
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                              const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3046,7 +3378,8 @@ NppStatus nppiLUT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeRO
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                          const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3056,7 +3389,8 @@ NppStatus nppiLUT_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, c
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                              const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3067,7 +3401,8 @@ NppStatus nppiLUT_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeRO
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_AC4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                  const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3077,7 +3412,8 @@ NppStatus nppiLUT_Cubic_16s_AC4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                      const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3088,7 +3424,8 @@ NppStatus nppiLUT_Cubic_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_AC4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3100,7 +3437,9 @@ NppStatus nppiLUT_Cubic_16s_AC4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3113,7 +3452,8 @@ NppStatus nppiLUT_Cubic_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C1IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                 const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3123,7 +3463,8 @@ NppStatus nppiLUT_Cubic_16s_C1IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                     const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3134,7 +3475,8 @@ NppStatus nppiLUT_Cubic_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3146,7 +3488,9 @@ NppStatus nppiLUT_Cubic_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3159,7 +3503,8 @@ NppStatus nppiLUT_Cubic_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C3IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                 const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3169,7 +3514,8 @@ NppStatus nppiLUT_Cubic_16s_C3IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                     const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3180,7 +3526,8 @@ NppStatus nppiLUT_Cubic_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C3R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3192,7 +3539,9 @@ NppStatus nppiLUT_Cubic_16s_C3R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3205,7 +3554,8 @@ NppStatus nppiLUT_Cubic_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_16s_C4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                 const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3215,7 +3565,8 @@ NppStatus nppiLUT_Cubic_16s_C4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_C4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                     const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3226,7 +3577,8 @@ NppStatus nppiLUT_Cubic_16s_C4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3238,7 +3590,9 @@ NppStatus nppiLUT_Cubic_16s_C4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3251,7 +3605,8 @@ NppStatus nppiLUT_Cubic_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_AC4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16u_AC4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                  const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3261,7 +3616,8 @@ NppStatus nppiLUT_Cubic_16u_AC4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_AC4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                      const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3272,7 +3628,8 @@ NppStatus nppiLUT_Cubic_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3284,7 +3641,9 @@ NppStatus nppiLUT_Cubic_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3297,7 +3656,8 @@ NppStatus nppiLUT_Cubic_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C1IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_16u_C1IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                 const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3307,7 +3667,8 @@ NppStatus nppiLUT_Cubic_16u_C1IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_C1IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                     const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3318,7 +3679,8 @@ NppStatus nppiLUT_Cubic_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C1R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3330,7 +3692,9 @@ NppStatus nppiLUT_Cubic_16u_C1R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3343,7 +3707,8 @@ NppStatus nppiLUT_Cubic_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16u_C3IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                 const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3353,7 +3718,8 @@ NppStatus nppiLUT_Cubic_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_C3IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                     const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3364,7 +3730,8 @@ NppStatus nppiLUT_Cubic_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_16u_C3R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3376,7 +3743,9 @@ NppStatus nppiLUT_Cubic_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3389,7 +3758,8 @@ NppStatus nppiLUT_Cubic_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_16u_C4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                 const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3399,7 +3769,8 @@ NppStatus nppiLUT_Cubic_16u_C4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_C4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                     const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3410,7 +3781,8 @@ NppStatus nppiLUT_Cubic_16u_C4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_16u_C4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3422,7 +3794,9 @@ NppStatus nppiLUT_Cubic_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3435,7 +3809,8 @@ NppStatus nppiLUT_Cubic_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                  const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3445,7 +3820,8 @@ NppStatus nppiLUT_Cubic_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                      const Npp32f *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3456,7 +3832,8 @@ NppStatus nppiLUT_Cubic_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3468,7 +3845,9 @@ NppStatus nppiLUT_Cubic_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3481,7 +3860,8 @@ NppStatus nppiLUT_Cubic_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_32f_C1IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues,
+                                 const Npp32f *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3491,7 +3871,8 @@ NppStatus nppiLUT_Cubic_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_C1IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues,
+                                     const Npp32f *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3502,7 +3883,8 @@ NppStatus nppiLUT_Cubic_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32f *pValues, const Npp32f *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3514,7 +3896,9 @@ NppStatus nppiLUT_Cubic_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f *pValues, const Npp32f *pLevels, int nLevels,
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3527,7 +3911,8 @@ NppStatus nppiLUT_Cubic_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_32f_C3IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                 const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3537,7 +3922,8 @@ NppStatus nppiLUT_Cubic_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_C3IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                     const Npp32f *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3548,7 +3934,8 @@ NppStatus nppiLUT_Cubic_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_32f_C3R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3560,7 +3947,9 @@ NppStatus nppiLUT_Cubic_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3573,7 +3962,8 @@ NppStatus nppiLUT_Cubic_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[4],
+                                 const Npp32f *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3583,7 +3973,8 @@ NppStatus nppiLUT_Cubic_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[4],
+                                     const Npp32f *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3594,7 +3985,8 @@ NppStatus nppiLUT_Cubic_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32f *pValues[4], const Npp32f *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3606,7 +3998,9 @@ NppStatus nppiLUT_Cubic_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32f *pValues[4], const Npp32f *pLevels[4], int nLevels[4],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3619,7 +4013,8 @@ NppStatus nppiLUT_Cubic_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                 const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3629,7 +4024,8 @@ NppStatus nppiLUT_Cubic_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                     const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3640,7 +4036,8 @@ NppStatus nppiLUT_Cubic_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3652,7 +4049,9 @@ NppStatus nppiLUT_Cubic_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3665,7 +4064,8 @@ NppStatus nppiLUT_Cubic_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C1IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3675,7 +4075,8 @@ NppStatus nppiLUT_Cubic_8u_C1IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                    const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3686,7 +4087,8 @@ NppStatus nppiLUT_Cubic_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Cubic_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                               const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3698,7 +4100,9 @@ NppStatus nppiLUT_Cubic_8u_C1R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, i
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3711,7 +4115,8 @@ NppStatus nppiLUT_Cubic_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3721,7 +4126,8 @@ NppStatus nppiLUT_Cubic_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                    const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3732,7 +4138,8 @@ NppStatus nppiLUT_Cubic_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Cubic_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                               const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3744,7 +4151,9 @@ NppStatus nppiLUT_Cubic_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, i
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3757,7 +4166,8 @@ NppStatus nppiLUT_Cubic_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3767,7 +4177,8 @@ NppStatus nppiLUT_Cubic_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                    const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3778,7 +4189,8 @@ NppStatus nppiLUT_Cubic_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Cubic_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                               const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3790,7 +4202,9 @@ NppStatus nppiLUT_Cubic_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, i
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Cubic_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Cubic_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3803,7 +4217,8 @@ NppStatus nppiLUT_Cubic_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_AC4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                   const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3813,7 +4228,8 @@ NppStatus nppiLUT_Linear_16s_AC4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                       const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3824,7 +4240,8 @@ NppStatus nppiLUT_Linear_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_AC4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3836,7 +4253,9 @@ NppStatus nppiLUT_Linear_16s_AC4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                      const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                      NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3849,7 +4268,8 @@ NppStatus nppiLUT_Linear_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C1IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                  const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3859,7 +4279,8 @@ NppStatus nppiLUT_Linear_16s_C1IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                      const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3870,7 +4291,8 @@ NppStatus nppiLUT_Linear_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3882,7 +4304,9 @@ NppStatus nppiLUT_Linear_16s_C1R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3895,7 +4319,8 @@ NppStatus nppiLUT_Linear_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C3IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                  const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3905,7 +4330,8 @@ NppStatus nppiLUT_Linear_16s_C3IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                      const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3916,7 +4342,8 @@ NppStatus nppiLUT_Linear_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C3R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3928,7 +4355,9 @@ NppStatus nppiLUT_Linear_16s_C3R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3941,7 +4370,8 @@ NppStatus nppiLUT_Linear_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_16s_C4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                  const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3951,7 +4381,8 @@ NppStatus nppiLUT_Linear_16s_C4IR(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_C4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                      const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3962,7 +4393,8 @@ NppStatus nppiLUT_Linear_16s_C4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3974,7 +4406,9 @@ NppStatus nppiLUT_Linear_16s_C4R(const Npp16s * pSrc, int nSrcStep, Npp16s * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -3987,7 +4421,8 @@ NppStatus nppiLUT_Linear_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_AC4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16u_AC4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                   const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -3997,7 +4432,8 @@ NppStatus nppiLUT_Linear_16u_AC4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_AC4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                       const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4008,7 +4444,8 @@ NppStatus nppiLUT_Linear_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4020,7 +4457,9 @@ NppStatus nppiLUT_Linear_16u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                      const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                      NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4033,7 +4472,8 @@ NppStatus nppiLUT_Linear_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C1IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_16u_C1IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                  const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4043,7 +4483,8 @@ NppStatus nppiLUT_Linear_16u_C1IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_C1IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                      const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4054,7 +4495,8 @@ NppStatus nppiLUT_Linear_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C1R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4066,7 +4508,9 @@ NppStatus nppiLUT_Linear_16u_C1R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues, const Npp32s *pLevels, int nLevels,
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4079,7 +4523,8 @@ NppStatus nppiLUT_Linear_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16u_C3IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                  const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4089,7 +4534,8 @@ NppStatus nppiLUT_Linear_16u_C3IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_C3IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                      const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4100,7 +4546,8 @@ NppStatus nppiLUT_Linear_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_16u_C3R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4112,7 +4559,9 @@ NppStatus nppiLUT_Linear_16u_C3R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4125,7 +4574,8 @@ NppStatus nppiLUT_Linear_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_16u_C4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                  const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4135,7 +4585,8 @@ NppStatus nppiLUT_Linear_16u_C4IR(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_C4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                      const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4146,7 +4597,8 @@ NppStatus nppiLUT_Linear_16u_C4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_16u_C4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4158,7 +4610,9 @@ NppStatus nppiLUT_Linear_16u_C4R(const Npp16u * pSrc, int nSrcStep, Npp16u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_16u_C4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4171,7 +4625,8 @@ NppStatus nppiLUT_Linear_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                   const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4181,7 +4636,8 @@ NppStatus nppiLUT_Linear_32f_AC4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize o
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                       const Npp32f *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4192,7 +4648,8 @@ NppStatus nppiLUT_Linear_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                  const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4204,7 +4661,9 @@ NppStatus nppiLUT_Linear_32f_AC4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                      const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3],
+                                      NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4217,7 +4676,8 @@ NppStatus nppiLUT_Linear_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_32f_C1IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues,
+                                  const Npp32f *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4227,7 +4687,8 @@ NppStatus nppiLUT_Linear_32f_C1IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_C1IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues,
+                                      const Npp32f *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4238,7 +4699,8 @@ NppStatus nppiLUT_Linear_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f *pValues, const Npp32f *pLevels, int nLevels) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4250,7 +4712,9 @@ NppStatus nppiLUT_Linear_32f_C1R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues, const Npp32f * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f *pValues, const Npp32f *pLevels, int nLevels,
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4263,7 +4727,8 @@ NppStatus nppiLUT_Linear_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_32f_C3IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                  const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4273,7 +4738,8 @@ NppStatus nppiLUT_Linear_32f_C3IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_C3IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[3],
+                                      const Npp32f *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4284,7 +4750,8 @@ NppStatus nppiLUT_Linear_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_32f_C3R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4296,7 +4763,9 @@ NppStatus nppiLUT_Linear_32f_C3R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[3], const Npp32f * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_C3R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f *pValues[3], const Npp32f *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4309,7 +4778,8 @@ NppStatus nppiLUT_Linear_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_32f_C4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[4],
+                                  const Npp32f *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4319,7 +4789,8 @@ NppStatus nppiLUT_Linear_32f_C4IR(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_C4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f *pValues[4],
+                                      const Npp32f *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4330,7 +4801,8 @@ NppStatus nppiLUT_Linear_32f_C4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_32f_C4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32f *pValues[4], const Npp32f *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4342,7 +4814,9 @@ NppStatus nppiLUT_Linear_32f_C4R(const Npp32f * pSrc, int nSrcStep, Npp32f * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pValues[4], const Npp32f * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_32f_C4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f *pValues[4], const Npp32f *pLevels[4], int nLevels[4],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4355,7 +4829,8 @@ NppStatus nppiLUT_Linear_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                  const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4365,7 +4840,8 @@ NppStatus nppiLUT_Linear_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSi
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                      const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4376,7 +4852,8 @@ NppStatus nppiLUT_Linear_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                 const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4388,7 +4865,9 @@ NppStatus nppiLUT_Linear_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                     NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4401,7 +4880,8 @@ NppStatus nppiLUT_Linear_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * p
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C1IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels) {
+NppStatus nppiLUT_Linear_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                 const Npp32s *pLevels, int nLevels) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4411,7 +4891,8 @@ NppStatus nppiLUT_Linear_8u_C1IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues, const Npp32s * pLevels, int nLevels, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues,
+                                     const Npp32s *pLevels, int nLevels, NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4422,7 +4903,8 @@ NppStatus nppiLUT_Linear_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                 const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4432,7 +4914,8 @@ NppStatus nppiLUT_Linear_8u_C3IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[3],
+                                     const Npp32s *pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4443,7 +4926,8 @@ NppStatus nppiLUT_Linear_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3]) {
+NppStatus nppiLUT_Linear_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4455,7 +4939,9 @@ NppStatus nppiLUT_Linear_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[3], const Npp32s * pLevels[3], int nLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4468,7 +4954,8 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                 const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4478,7 +4965,8 @@ NppStatus nppiLUT_Linear_8u_C4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSiz
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32s *pValues[4],
+                                     const Npp32s *pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4489,7 +4977,8 @@ NppStatus nppiLUT_Linear_8u_C4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4]) {
+NppStatus nppiLUT_Linear_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4501,7 +4990,9 @@ NppStatus nppiLUT_Linear_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Linear_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32s * pValues[4], const Npp32s * pLevels[4], int nLevels[4], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Linear_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4],
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4514,7 +5005,8 @@ NppStatus nppiLUT_Linear_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Trilinear_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp32u * pValues, Npp8u * pLevels[3], int aLevels[3]) {
+NppStatus nppiLUT_Trilinear_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp32u *pValues,
+                                     Npp8u *pLevels[3], int aLevels[3]) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4524,7 +5016,8 @@ NppStatus nppiLUT_Trilinear_8u_AC4IR(Npp8u * pSrcDst, int nSrcDstStep, NppiSize 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Trilinear_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp32u * pValues, Npp8u * pLevels[3], int aLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Trilinear_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp32u *pValues,
+                                         Npp8u *pLevels[3], int aLevels[3], NppStreamContext nppStreamCtx) {
   (void)pSrcDst;
   (void)nSrcDstStep;
   (void)oSizeROI;
@@ -4535,7 +5028,8 @@ NppStatus nppiLUT_Trilinear_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Trilinear_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32u * pValues, Npp8u * pLevels[3], int aLevels[3]) {
+NppStatus nppiLUT_Trilinear_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                    Npp32u *pValues, Npp8u *pLevels[3], int aLevels[3]) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4547,32 +5041,9 @@ NppStatus nppiLUT_Trilinear_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUT_Trilinear_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32u * pValues, Npp8u * pLevels[3], int aLevels[3], NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)aLevels;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_Trilinear_8u_C4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32u * pValues, Npp8u * pLevels[3], int aLevels[3]) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)pValues;
-  (void)pLevels;
-  (void)aLevels;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiLUT_Trilinear_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32u * pValues, Npp8u * pLevels[3], int aLevels[3], NppStreamContext nppStreamCtx) {
+NppStatus nppiLUT_Trilinear_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        Npp32u *pValues, Npp8u *pLevels[3], int aLevels[3],
+                                        NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4585,7 +5056,35 @@ NppStatus nppiLUT_Trilinear_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUVToRGB_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiLUT_Trilinear_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   Npp32u *pValues, Npp8u *pLevels[3], int aLevels[3]) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pValues;
+  (void)pLevels;
+  (void)aLevels;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUT_Trilinear_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                       Npp32u *pValues, Npp8u *pLevels[3], int aLevels[3],
+                                       NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)pValues;
+  (void)pLevels;
+  (void)aLevels;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiLUVToRGB_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4594,7 +5093,8 @@ NppStatus nppiLUVToRGB_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, i
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUVToRGB_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUVToRGB_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4604,7 +5104,7 @@ NppStatus nppiLUVToRGB_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUVToRGB_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiLUVToRGB_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4613,26 +5113,8 @@ NppStatus nppiLUVToRGB_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiLUVToRGB_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToCbYCr422Gamma_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToCbYCr422Gamma_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiLUVToRGB_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4642,7 +5124,8 @@ NppStatus nppiRGBToCbYCr422Gamma_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToCbYCr422_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToCbYCr422Gamma_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4651,26 +5134,8 @@ NppStatus nppiRGBToCbYCr422_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * p
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToCbYCr422_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToLUV_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToLUV_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToCbYCr422Gamma_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4680,7 +5145,7 @@ NppStatus nppiRGBToLUV_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToLUV_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToCbYCr422_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4689,26 +5154,8 @@ NppStatus nppiRGBToLUV_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToLUV_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToXYZ_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToXYZ_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToCbYCr422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4718,7 +5165,7 @@ NppStatus nppiRGBToXYZ_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToXYZ_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToLUV_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4727,26 +5174,8 @@ NppStatus nppiRGBToXYZ_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToXYZ_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCC_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCC_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToLUV_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4756,7 +5185,7 @@ NppStatus nppiRGBToYCC_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCC_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToLUV_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4765,7 +5194,8 @@ NppStatus nppiRGBToYCC_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCC_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToLUV_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4775,7 +5205,88 @@ NppStatus nppiRGBToYCC_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr420_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiRGBToXYZ_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToXYZ_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToXYZ_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToXYZ_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCC_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCC_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCC_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCC_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr420_JPEG_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4784,64 +5295,8 @@ NppStatus nppiRGBToYCbCr420_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)aDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr420_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)aDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)aDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr422_8u_P3C2R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr422_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)aDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4851,7 +5306,8 @@ NppStatus nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr422_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiRGBToYCbCr420_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4860,7 +5316,8 @@ NppStatus nppiRGBToYCbCr422_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4870,7 +5327,8 @@ NppStatus nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr444_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToYCbCr422_8u_P3C2R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                     NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4879,26 +5337,8 @@ NppStatus nppiRGBToYCbCr444_JPEG_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr444_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCbCr444_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCbCr422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4908,7 +5348,92 @@ NppStatus nppiRGBToYCbCr444_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCrCb420_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiRGBToYCbCr422_JPEG_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)aDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)aDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr422_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)aDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)aDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr444_JPEG_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr444_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCbCr444_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiRGBToYCrCb420_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                      NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4917,7 +5442,8 @@ NppStatus nppiRGBToYCrCb420_8u_AC4P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCrCb420_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCrCb420_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4927,7 +5453,7 @@ NppStatus nppiRGBToYCrCb420_8u_AC4P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCrCb422_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToYCrCb422_8u_C3C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4936,26 +5462,8 @@ NppStatus nppiRGBToYCrCb422_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * p
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiRGBToYCrCb422_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCrCb422_8u_P3C2R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiRGBToYCrCb422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCrCb422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4965,7 +5473,8 @@ NppStatus nppiRGBToYCrCb422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int nSrcSt
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiXYZToRGB_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiRGBToYCrCb422_8u_P3C2R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                     NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -4974,26 +5483,8 @@ NppStatus nppiXYZToRGB_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, i
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiXYZToRGB_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiXYZToRGB_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiXYZToRGB_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiRGBToYCrCb422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -5003,7 +5494,7 @@ NppStatus nppiXYZToRGB_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCCKToCMYK_JPEG_601_8u_P4R(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst[4], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiXYZToRGB_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -5012,26 +5503,8 @@ NppStatus nppiYCCKToCMYK_JPEG_601_8u_P4R(const Npp8u * pSrc[4], int nSrcStep, Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCCKToCMYK_JPEG_601_8u_P4R_Ctx(const Npp8u * pSrc[4], int nSrcStep, Npp8u * pDst[4], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCCToRGB_8u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCCToRGB_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiXYZToRGB_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -5041,7 +5514,7 @@ NppStatus nppiYCCToRGB_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCCToRGB_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiXYZToRGB_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -5050,7 +5523,8 @@ NppStatus nppiYCCToRGB_8u_C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCCToRGB_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiXYZToRGB_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -5060,7 +5534,69 @@ NppStatus nppiYCCToRGB_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr420_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCCKToCMYK_JPEG_601_8u_P4R(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst[4], int nDstStep,
+                                         NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCCKToCMYK_JPEG_601_8u_P4R_Ctx(const Npp8u *pSrc[4], int nSrcStep, Npp8u *pDst[4], int nDstStep,
+                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCCToRGB_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCCToRGB_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                   NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCCToRGB_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCCToRGB_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411ToYCbCr420_8u_P2P3R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5071,7 +5607,9 @@ NppStatus nppiYCbCr411ToYCbCr420_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5083,7 +5621,8 @@ NppStatus nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCbCr420_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                          Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -5094,7 +5633,9 @@ NppStatus nppiYCbCr411ToYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCbCr420_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -5106,7 +5647,8 @@ NppStatus nppiYCbCr411ToYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int r
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr420_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCbCr420_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int nDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5115,7 +5657,8 @@ NppStatus nppiYCbCr411ToYCbCr420_8u_P3R(const Npp8u * const pSrc[3], int rSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr420_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCbCr420_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5125,7 +5668,8 @@ NppStatus nppiYCbCr411ToYCbCr420_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr422_8u_P2C2R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P2C2R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5136,7 +5680,9 @@ NppStatus nppiYCbCr411ToYCbCr422_8u_P2C2R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr422_8u_P2C2R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P2C2R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5148,68 +5694,8 @@ NppStatus nppiYCbCr411ToYCbCr422_8u_P2C2R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCbCr422_8u_P2P3R(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrcY;
-  (void)nSrcYStep;
-  (void)pSrcCbCr;
-  (void)nSrcCbCrStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCbCr422_8u_P2P3R_Ctx(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcY;
-  (void)nSrcYStep;
-  (void)pSrcCbCr;
-  (void)nSrcCbCrStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCbCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCbCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCbCr422_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCbCr422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCrCb420_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P2P3R(const Npp8u *const pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                          int nSrcCbCrStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5220,7 +5706,9 @@ NppStatus nppiYCbCr411ToYCrCb420_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P2P3R_Ctx(const Npp8u *const pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5232,7 +5720,8 @@ NppStatus nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCrCb422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P3C2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5241,26 +5730,8 @@ NppStatus nppiYCbCr411ToYCrCb422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411ToYCrCb422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCrCb422_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr411ToYCrCb422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5270,7 +5741,29 @@ NppStatus nppiYCbCr411ToYCrCb422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCbCr422_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int nDstStep[3],
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411ToYCbCr422_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411ToYCrCb420_8u_P2P3R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5281,7 +5774,9 @@ NppStatus nppiYCbCr411_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5293,7 +5788,75 @@ NppStatus nppiYCbCr411_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr411ToYCrCb422_8u_P3C2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411ToYCrCb422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411ToYCrCb422_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int nDstStep[3],
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411ToYCrCb422_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411_8u_P2P3R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+  (void)pSrcY;
+  (void)nSrcYStep;
+  (void)pSrcCbCr;
+  (void)nSrcCbCrStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411_8u_P2P3R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                    Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrcY;
+  (void)nSrcYStep;
+  (void)pSrcCbCr;
+  (void)nSrcCbCrStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr411_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -5304,7 +5867,9 @@ NppStatus nppiYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr411_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                    Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                    NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -5316,7 +5881,8 @@ NppStatus nppiYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3]
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                          NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5324,7 +5890,9 @@ NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrc
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                   NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                   NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5332,7 +5900,9 @@ NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * c
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                       NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                       NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5341,7 +5911,9 @@ NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5350,7 +5922,8 @@ NppStatus nppiYCbCr420ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_709CSC_8u_P3C3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToBGR_709CSC_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5359,7 +5932,8 @@ NppStatus nppiYCbCr420ToBGR_709CSC_8u_P3C3R(const Npp8u * const pSrc[3], int rSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                                NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5369,7 +5943,8 @@ NppStatus nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
+NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                             NppiSize oSizeROI, Npp8u nAval) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5379,7 +5954,8 @@ NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R(const Npp8u * const pSrc[3], int rS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                                 NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5390,12 +5966,14 @@ NppStatus nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], in
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_8u_P3C3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToBGR_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                     NppiSize oSizeROI) {
   NppStreamContext context{};
   return nppiYCbCr420ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, context);
 }
 
-NppStatus nppiYCbCr420ToBGR_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGR_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !rSrcStep || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -5403,17 +5981,17 @@ NppStatus nppiYCbCr420ToBGR_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int rSrcSt
   if (roiStatus != NPP_SUCCESS) {
     return roiStatus;
   }
-  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
-      rSrcStep[2] < oSizeROI.width / 2 || nDstStep < oSizeROI.width * 3) {
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 || rSrcStep[2] < oSizeROI.width / 2 ||
+      nDstStep < oSizeROI.width * 3) {
     return NPP_STEP_ERROR;
   }
   const cudaError_t status = nppiYCbCr420ToBGR_8u_P3C3R_kernel(
-      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI,
-      nppStreamCtx.hStream);
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_8u_P3C4R(const Npp8u * const pSrc[3], int rSrcStep[3],Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
+NppStatus nppiYCbCr420ToBGR_8u_P3C4R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                     NppiSize oSizeROI, Npp8u nAval) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5423,7 +6001,8 @@ NppStatus nppiYCbCr420ToBGR_8u_P3C4R(const Npp8u * const pSrc[3], int rSrcStep[3
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3],Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGR_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5434,7 +6013,8 @@ NppStatus nppiYCbCr420ToBGR_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], int rSrcSt
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3C3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5443,26 +6023,8 @@ NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5472,7 +6034,29 @@ NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToCbYCr422_8u_P2C2R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr420ToCbYCr422_8u_P2C2R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5483,7 +6067,9 @@ NppStatus nppiYCbCr420ToCbYCr422_8u_P2C2R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToCbYCr422_8u_P2C2R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToCbYCr422_8u_P2C2R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5495,7 +6081,8 @@ NppStatus nppiYCbCr420ToCbYCr422_8u_P2C2R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                          NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5503,24 +6090,30 @@ NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrc
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oMaxSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                   NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                   NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
   (void)oMaxSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                       NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                       NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oMaxSizeROI;
   (void)nppStreamCtx;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5529,7 +6122,8 @@ NppStatus nppiYCbCr420ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3C3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5538,26 +6132,8 @@ NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5567,7 +6143,29 @@ NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr411_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u* pSrcCbCr, int nSrcCbCrStep, Npp8u* pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr420ToYCbCr411_8u_P2P3R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5578,7 +6176,9 @@ NppStatus nppiYCbCr420ToYCbCr411_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u* pSrcCbCr, int nSrcCbCrStep, Npp8u* pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5590,7 +6190,8 @@ NppStatus nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u* pDstY, int nDstYStep, Npp8u* pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToYCbCr411_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                          Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -5601,7 +6202,9 @@ NppStatus nppiYCbCr420ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u* pDstY, int nDstYStep, Npp8u* pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -5613,7 +6216,8 @@ NppStatus nppiYCbCr420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int r
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr422_8u_P2C2R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToYCbCr422_8u_P2C2R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5624,7 +6228,9 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P2C2R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr422_8u_P2C2R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToYCbCr422_8u_P2C2R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5636,7 +6242,8 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P2C2R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr422_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToYCbCr422_8u_P2P3R(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                          Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5647,7 +6254,9 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P2P3R(const Npp8u * pSrcY, int nSrcYStep, co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr,
+                                              int nSrcCbCrStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcY;
   (void)nSrcYStep;
   (void)pSrcCbCr;
@@ -5659,7 +6268,8 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx(const Npp8u * pSrcY, int nSrcYStep
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr422_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr420ToYCbCr422_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int nDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5668,7 +6278,8 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P3R(const Npp8u * const pSrc[3], int rSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420ToYCbCr422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420ToYCbCr422_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -5678,12 +6289,14 @@ NppStatus nppiYCbCr420ToYCbCr422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr420_8u_P2P3R(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr420_8u_P2P3R(const Npp8u *const pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
   NppStreamContext context{};
   return nppiYCbCr420_8u_P2P3R_Ctx(pSrcY, nSrcYStep, pSrcCbCr, nSrcCbCrStep, pDst, rDstStep, oSizeROI, context);
 }
 
-NppStatus nppiYCbCr420_8u_P2P3R_Ctx(const Npp8u * const pSrcY, int nSrcYStep, const Npp8u * pSrcCbCr, int nSrcCbCrStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420_8u_P2P3R_Ctx(const Npp8u *const pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, int nSrcCbCrStep,
+                                    Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   if (!pSrcY || !pSrcCbCr || !pDst || !pDst[0] || !pDst[1] || !pDst[2] || !rDstStep) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -5695,18 +6308,21 @@ NppStatus nppiYCbCr420_8u_P2P3R_Ctx(const Npp8u * const pSrcY, int nSrcYStep, co
       rDstStep[1] < oSizeROI.width / 2 || rDstStep[2] < oSizeROI.width / 2) {
     return NPP_STEP_ERROR;
   }
-  const cudaError_t status = nppiNV12ToYUV420_8u_P2P3R_kernel(
-      pSrcY, nSrcYStep, pSrcCbCr, nSrcCbCrStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1], pDst[2], rDstStep[2],
-      oSizeROI, nppStreamCtx.hStream);
+  const cudaError_t status =
+      nppiNV12ToYUV420_8u_P2P3R_kernel(pSrcY, nSrcYStep, pSrcCbCr, nSrcCbCrStep, pDst[0], rDstStep[0], pDst[1],
+                                       rDstStep[1], pDst[2], rDstStep[2], oSizeROI, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr420_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
   NppStreamContext context{};
   return nppiYCbCr420_8u_P3P2R_Ctx(pSrc, rSrcStep, pDstY, nDstYStep, pDstCbCr, nDstCbCrStep, oSizeROI, context);
 }
 
-NppStatus nppiYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr420_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                    Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                    NppStreamContext nppStreamCtx) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !rSrcStep || !pDstY || !pDstCbCr) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -5714,17 +6330,18 @@ NppStatus nppiYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3]
   if (roiStatus != NPP_SUCCESS) {
     return roiStatus;
   }
-  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
-      rSrcStep[2] < oSizeROI.width / 2 || nDstYStep < oSizeROI.width || nDstCbCrStep < oSizeROI.width) {
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 || rSrcStep[2] < oSizeROI.width / 2 ||
+      nDstYStep < oSizeROI.width || nDstCbCrStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
-  const cudaError_t status = nppiYUV420ToNV12_8u_P3P2R_kernel(
-      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDstY, nDstYStep, pDstCbCr,
-      nDstCbCrStep, oSizeROI, nppStreamCtx.hStream);
+  const cudaError_t status =
+      nppiYUV420ToNV12_8u_P3P2R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDstY,
+                                       nDstYStep, pDstCbCr, nDstCbCrStep, oSizeROI, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                          NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5732,98 +6349,9 @@ NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrc
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oMaxSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oMaxSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)aSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToCbYCr422_8u_C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToCbYCr422_8u_C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                   NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                   NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5831,7 +6359,9 @@ NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * c
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                       NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                       NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5840,7 +6370,9 @@ NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -5849,26 +6381,8 @@ NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGB_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToRGB_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3C3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5877,7 +6391,8 @@ NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int aSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5887,7 +6402,8 @@ NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int a
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3R(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5896,7 +6412,8 @@ NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3R(const Npp8u * const pSrc[3], int aSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToBGR_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)aSrcStep;
   (void)pDst;
@@ -5906,51 +6423,133 @@ NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int aSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr411_8u_C2P2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToCbYCr422_8u_C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
+  (void)pDst;
+  (void)nDstStep;
   (void)oSizeROI;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr411_8u_C2P2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToCbYCr422_8u_C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
+  (void)pDst;
+  (void)nDstStep;
   (void)oSizeROI;
   (void)nppStreamCtx;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr411_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
+NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                          NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
   (void)oSizeROI;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
+NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                   NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                   NppiSize oMaxSizeROI) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oMaxSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                       NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                       NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oMaxSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
   (void)oSizeROI;
   (void)nppStreamCtx;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToRGB_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
-  (void)rSrcStep;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGB_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3C3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3R(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)aSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCbCr411_8u_C2P2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstCbCr,
+                                          int nDstCbCrStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
   (void)pDstY;
   (void)nDstYStep;
   (void)pDstCbCr;
@@ -5959,49 +6558,9 @@ NppStatus nppiYCbCr422ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCbCr411_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCbCr411_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCbCr420_8u_C2P2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDstY;
-  (void)nDstYStep;
-  (void)pDstCbCr;
-  (void)nDstCbCrStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCbCr420_8u_C2P2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_C2P2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDstY;
@@ -6013,7 +6572,8 @@ NppStatus nppiYCbCr422ToYCbCr420_8u_C2P2R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6022,7 +6582,8 @@ NppStatus nppiYCbCr422ToYCbCr420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6032,7 +6593,8 @@ NppStatus nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                          Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -6043,7 +6605,9 @@ NppStatus nppiYCbCr422ToYCbCr420_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -6055,26 +6619,55 @@ NppStatus nppiYCbCr422ToYCbCr420_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int r
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr420_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int rDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
-  (void)nDstStep;
+  (void)rDstStep;
   (void)oSizeROI;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCbCr420_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCbCr411_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
-  (void)nDstStep;
+  (void)rDstStep;
   (void)oSizeROI;
   (void)nppStreamCtx;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCrCb420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCbCr420_8u_C2P2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep, Npp8u *pDstCbCr,
+                                          int nDstCbCrStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDstY;
+  (void)nDstYStep;
+  (void)pDstCbCr;
+  (void)nDstCbCrStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCbCr420_8u_C2P2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDstY;
+  (void)nDstYStep;
+  (void)pDstCbCr;
+  (void)nDstCbCrStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCbCr420_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6083,64 +6676,8 @@ NppStatus nppiYCbCr422ToYCrCb420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCrCb422_8u_C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCrCb422_8u_C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCrCb422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422ToYCrCb422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)rSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr422_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6150,7 +6687,34 @@ NppStatus nppiYCbCr422_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCbCr420_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                          Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDstY;
+  (void)nDstYStep;
+  (void)pDstCbCr;
+  (void)nDstCbCrStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCbCr420_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDstY;
+  (void)nDstYStep;
+  (void)pDstCbCr;
+  (void)nDstCbCrStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCbCr420_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int nDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6159,7 +6723,8 @@ NppStatus nppiYCbCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Np
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCbCr420_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int nDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6169,7 +6734,28 @@ NppStatus nppiYCbCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3]
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCrCb420_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCrCb422_8u_C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6178,7 +6764,8 @@ NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int nSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr422ToYCrCb422_8u_C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6188,7 +6775,70 @@ NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int n
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr422ToYCrCb422_8u_P3C2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422ToYCrCb422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3], NppiSize oSizeROI,
+                                    NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422_8u_P3C2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                    NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)rSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3C3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6197,7 +6847,8 @@ NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6207,7 +6858,8 @@ NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6216,26 +6868,8 @@ NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3C3R(const Npp8u * const pSrc[3], int nSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCr444ToBGR_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6245,7 +6879,50 @@ NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3C3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                        NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCr444ToRGB_JPEG_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                            NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)nDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCrToBGRBatch_8u_C3R(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                     int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6253,7 +6930,9 @@ NppStatus nppiYCbCrToBGRBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, N
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYCbCrToBGRBatch_8u_C3R_Advanced(const NppiImageDescriptor *pSrcBatchList,
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                              NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6261,7 +6940,9 @@ NppStatus nppiYCbCrToBGRBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBat
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToBGRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor *pSrcBatchList,
+                                                  NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                  NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6270,7 +6951,8 @@ NppStatus nppiYCbCrToBGRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToBGRBatch_8u_C3R_Ctx(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                         int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6279,7 +6961,8 @@ NppStatus nppiYCbCrToBGRBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchLis
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCbCrToBGRBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                       NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6287,7 +6970,9 @@ NppStatus nppiYCbCrToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBat
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6295,7 +6980,9 @@ NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * cons
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                    NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                    NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6304,7 +6991,9 @@ NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                           NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                           NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6313,7 +7002,8 @@ NppStatus nppiYCbCrToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGR_709CSC_8u_P3C3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCrToBGR_709CSC_8u_P3C3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6322,7 +7012,8 @@ NppStatus nppiYCbCrToBGR_709CSC_8u_P3C3R(const Npp8u * const pSrc[3], int nSrcSt
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGR_709CSC_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToBGR_709CSC_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6332,7 +7023,8 @@ NppStatus nppiYCbCrToBGR_709CSC_8u_P3C3R_Ctx(const Npp8u * const pSrc[3], int nS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGR_709CSC_8u_P3C4R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
+NppStatus nppiYCbCrToBGR_709CSC_8u_P3C4R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, Npp8u nAval) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6342,7 +7034,8 @@ NppStatus nppiYCbCrToBGR_709CSC_8u_P3C4R(const Npp8u * const pSrc[3], int nSrcSt
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToBGR_709CSC_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToBGR_709CSC_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                             NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6353,7 +7046,8 @@ NppStatus nppiYCbCrToBGR_709CSC_8u_P3C4R_Ctx(const Npp8u * const pSrc[3], int nS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToRGBBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCbCrToRGBBatch_8u_C3R(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                     int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6361,7 +7055,9 @@ NppStatus nppiYCbCrToRGBBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, N
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToRGBBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYCbCrToRGBBatch_8u_C3R_Advanced(const NppiImageDescriptor *pSrcBatchList,
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                              NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6369,41 +7065,9 @@ NppStatus nppiYCbCrToRGBBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBat
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToRGBBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oMaxSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCrToRGBBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCrToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
-  (void)pSrcBatchList;
-  (void)pDstBatchList;
-  (void)nBatchSize;
-  (void)oMaxSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToRGBBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor *pSrcBatchList,
+                                                  NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                  NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6412,7 +7076,8 @@ NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCbCrToRGBBatch_8u_C3R_Ctx(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                         int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6421,7 +7086,49 @@ NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToCbYCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCbCrToRGBBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                       NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                NppiSize oMaxSizeROI) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oMaxSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                    NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                    NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oMaxSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCbCrToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                           NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                           NppStreamContext nppStreamCtx) {
+  (void)pSrcBatchList;
+  (void)pDstBatchList;
+  (void)nBatchSize;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCrCb420ToCbYCr422_8u_P3C2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6430,7 +7137,8 @@ NppStatus nppiYCrCb420ToCbYCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6440,7 +7148,8 @@ NppStatus nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int r
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToRGB_8u_P3C4R(const Npp8u * const pSrc[3],int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval) {
+NppStatus nppiYCrCb420ToRGB_8u_P3C4R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                     NppiSize oSizeROI, Npp8u nAval) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6450,7 +7159,8 @@ NppStatus nppiYCrCb420ToRGB_8u_P3C4R(const Npp8u * const pSrc[3],int rSrcStep[3]
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToRGB_8u_P3C4R_Ctx(const Npp8u * const pSrc[3],int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb420ToRGB_8u_P3C4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                         NppiSize oSizeROI, Npp8u nAval, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6461,7 +7171,8 @@ NppStatus nppiYCrCb420ToRGB_8u_P3C4R_Ctx(const Npp8u * const pSrc[3],int rSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
+NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                          Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -6472,7 +7183,9 @@ NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDstY, int nDstYStep, Npp8u * pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDstY, int nDstYStep,
+                                              Npp8u *pDstCbCr, int nDstCbCrStep, NppiSize oSizeROI,
+                                              NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDstY;
@@ -6484,7 +7197,8 @@ NppStatus nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx(const Npp8u * const pSrc[3], int r
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToYCbCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCrCb420ToYCbCr422_8u_P3C2R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6493,7 +7207,8 @@ NppStatus nppiYCrCb420ToYCbCr422_8u_P3C2R(const Npp8u * const pSrc[3], int rSrcS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToYCbCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb420ToYCbCr422_8u_P3C2R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6503,7 +7218,8 @@ NppStatus nppiYCrCb420ToYCbCr422_8u_P3C2R_Ctx(const Npp8u * const pSrc[3], int r
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToYCbCr422_8u_P3R(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCrCb420ToYCbCr422_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3], int rDstStep[3],
+                                        NppiSize oSizeROI) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6512,7 +7228,8 @@ NppStatus nppiYCrCb420ToYCbCr422_8u_P3R(const Npp8u * const pSrc[3], int rSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb420ToYCbCr422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSrcStep[3], Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb420ToYCbCr422_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst[3],
+                                            int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)rSrcStep;
   (void)pDst;
@@ -6522,7 +7239,7 @@ NppStatus nppiYCrCb420ToYCbCr422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int rSr
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb422ToRGB_8u_C2C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
+NppStatus nppiYCrCb422ToRGB_8u_C2C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6531,26 +7248,8 @@ NppStatus nppiYCrCb422ToRGB_8u_C2C3R(const Npp8u * pSrc, int nSrcStep, Npp8u * p
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb422ToRGB_8u_C2C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCrCb422ToRGB_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)nDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCrCb422ToRGB_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6560,45 +7259,28 @@ NppStatus nppiYCrCb422ToRGB_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb422ToYCbCr411_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCrCb422ToRGB_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep, NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
-  (void)rDstStep;
+  (void)nDstStep;
   (void)oSizeROI;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb422ToRGB_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep,
+                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  (void)nppStreamCtx;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCrCb422ToYCbCr420_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
-  (void)oSizeROI;
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)pSrc;
-  (void)nSrcStep;
-  (void)pDst;
-  (void)rDstStep;
+  (void)nDstStep;
   (void)oSizeROI;
   (void)nppStreamCtx;
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb422ToYCbCr422_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
+NppStatus nppiYCrCb422ToYCbCr411_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6607,7 +7289,8 @@ NppStatus nppiYCrCb422ToYCbCr422_8u_C2P3R(const Npp8u * pSrc, int nSrcStep, Npp8
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrc;
   (void)nSrcStep;
   (void)pDst;
@@ -6617,7 +7300,50 @@ NppStatus nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYCrCb422ToYCbCr420_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCrCb422ToYCbCr422_8u_C2P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                          NppiSize oSizeROI) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
+                                              NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  (void)pSrc;
+  (void)nSrcStep;
+  (void)pDst;
+  (void)rDstStep;
+  (void)oSizeROI;
+  (void)nppStreamCtx;
+  return NPP_NOT_IMPLEMENTED_ERROR;
+}
+
+NppStatus nppiYUV420ToBGRBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                        NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6625,7 +7351,9 @@ NppStatus nppiYUV420ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBa
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                 NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                 NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6633,7 +7361,9 @@ NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * con
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                     NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                     NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6642,7 +7372,9 @@ NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                            NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                            NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6651,7 +7383,8 @@ NppStatus nppiYUV420ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUV420ToRGBBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                        NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6659,7 +7392,9 @@ NppStatus nppiYUV420ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBa
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                 NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                 NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6667,7 +7402,9 @@ NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * con
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                     NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                     NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6676,7 +7413,9 @@ NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                            NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                            NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6685,7 +7424,8 @@ NppStatus nppiYUV420ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUV422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                        NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6693,7 +7433,9 @@ NppStatus nppiYUV422ToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBa
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                 NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                 NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6701,7 +7443,9 @@ NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * con
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                     NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                     NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6710,7 +7454,9 @@ NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                            NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                            NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6719,7 +7465,8 @@ NppStatus nppiYUV422ToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUV422ToRGBBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                        NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6727,7 +7474,9 @@ NppStatus nppiYUV422ToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBa
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                 NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                 NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6735,7 +7484,9 @@ NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * con
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                     NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                     NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6744,7 +7495,9 @@ NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                            NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                            NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6753,7 +7506,8 @@ NppStatus nppiYUV422ToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pS
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUVToBGRBatch_8u_C3R(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                   int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6761,7 +7515,8 @@ NppStatus nppiYUVToBGRBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, Npp
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUVToBGRBatch_8u_C3R_Advanced(const NppiImageDescriptor *pSrcBatchList,
+                                            NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6769,7 +7524,9 @@ NppStatus nppiYUVToBGRBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBatch
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToBGRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor *pSrcBatchList,
+                                                NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6778,7 +7535,8 @@ NppStatus nppiYUVToBGRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSrcB
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToBGRBatch_8u_C3R_Ctx(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                       int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6787,7 +7545,8 @@ NppStatus nppiYUVToBGRBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchList,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUVToBGRBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                     NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6795,7 +7554,9 @@ NppStatus nppiYUVToBGRBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatch
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUVToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                              NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6803,7 +7564,9 @@ NppStatus nppiYUVToBGRBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                  NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                  NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6812,7 +7575,9 @@ NppStatus nppiYUVToBGRBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                         NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6821,7 +7586,8 @@ NppStatus nppiYUVToBGRBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcB
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUVToRGBBatch_8u_C3R(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                   int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6829,7 +7595,8 @@ NppStatus nppiYUVToRGBBatch_8u_C3R(const NppiImageDescriptor* pSrcBatchList, Npp
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUVToRGBBatch_8u_C3R_Advanced(const NppiImageDescriptor *pSrcBatchList,
+                                            NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6837,7 +7604,9 @@ NppStatus nppiYUVToRGBBatch_8u_C3R_Advanced(const NppiImageDescriptor* pSrcBatch
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToRGBBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor *pSrcBatchList,
+                                                NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6846,7 +7615,8 @@ NppStatus nppiYUVToRGBBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor* pSrcB
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchList, NppiImageDescriptor* pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToRGBBatch_8u_C3R_Ctx(const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList,
+                                       int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6855,7 +7625,8 @@ NppStatus nppiYUVToRGBBatch_8u_C3R_Ctx(const NppiImageDescriptor* pSrcBatchList,
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
+NppStatus nppiYUVToRGBBatch_8u_P3C3R(const NppiImageDescriptor *const pSrcBatchList[3],
+                                     NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6863,7 +7634,9 @@ NppStatus nppiYUVToRGBBatch_8u_P3C3R(const NppiImageDescriptor * const pSrcBatch
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI) {
+NppStatus nppiYUVToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor *const pSrcBatchList[3],
+                                              NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                              NppiSize oMaxSizeROI) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6871,7 +7644,9 @@ NppStatus nppiYUVToRGBBatch_8u_P3C3R_Advanced(const NppiImageDescriptor * const 
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                                  NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                                  NppiSize oMaxSizeROI, NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;
@@ -6880,7 +7655,9 @@ NppStatus nppiYUVToRGBBatch_8u_P3C3R_Advanced_Ctx(const NppiImageDescriptor * co
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-NppStatus nppiYUVToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor * const pSrcBatchList[3], NppiImageDescriptor * pDstBatchList, int nBatchSize, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+NppStatus nppiYUVToRGBBatch_8u_P3C3R_Ctx(const NppiImageDescriptor *const pSrcBatchList[3],
+                                         NppiImageDescriptor *pDstBatchList, int nBatchSize, NppiSize oSizeROI,
+                                         NppStreamContext nppStreamCtx) {
   (void)pSrcBatchList;
   (void)pDstBatchList;
   (void)nBatchSize;

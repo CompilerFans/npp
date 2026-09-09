@@ -39,24 +39,75 @@ protected:
   }
 
   void cleanupDeviceMemory() {
-    if (d_src_8u) { cudaFree(d_src_8u); d_src_8u = nullptr; }
-    if (d_src_16u) { cudaFree(d_src_16u); d_src_16u = nullptr; }
-    if (d_src_16s) { cudaFree(d_src_16s); d_src_16s = nullptr; }
-    if (d_src_32f) { cudaFree(d_src_32f); d_src_32f = nullptr; }
-    if (d_src_8u_c4) { cudaFree(d_src_8u_c4); d_src_8u_c4 = nullptr; }
-    if (d_src_16u_c4) { cudaFree(d_src_16u_c4); d_src_16u_c4 = nullptr; }
-    if (d_src_16s_c4) { cudaFree(d_src_16s_c4); d_src_16s_c4 = nullptr; }
-    if (d_src_32f_c4) { cudaFree(d_src_32f_c4); d_src_32f_c4 = nullptr; }
-    if (d_hist) { cudaFree(d_hist); d_hist = nullptr; }
-    if (d_buffer) { cudaFree(d_buffer); d_buffer = nullptr; }
-    if (d_levels_8u) { cudaFree(d_levels_8u); d_levels_8u = nullptr; }
-    if (d_levels_16) { cudaFree(d_levels_16); d_levels_16 = nullptr; }
-    if (d_levels_32f) { cudaFree(d_levels_32f); d_levels_32f = nullptr; }
+    if (d_src_8u) {
+      cudaFree(d_src_8u);
+      d_src_8u = nullptr;
+    }
+    if (d_src_16u) {
+      cudaFree(d_src_16u);
+      d_src_16u = nullptr;
+    }
+    if (d_src_16s) {
+      cudaFree(d_src_16s);
+      d_src_16s = nullptr;
+    }
+    if (d_src_32f) {
+      cudaFree(d_src_32f);
+      d_src_32f = nullptr;
+    }
+    if (d_src_8u_c4) {
+      cudaFree(d_src_8u_c4);
+      d_src_8u_c4 = nullptr;
+    }
+    if (d_src_16u_c4) {
+      cudaFree(d_src_16u_c4);
+      d_src_16u_c4 = nullptr;
+    }
+    if (d_src_16s_c4) {
+      cudaFree(d_src_16s_c4);
+      d_src_16s_c4 = nullptr;
+    }
+    if (d_src_32f_c4) {
+      cudaFree(d_src_32f_c4);
+      d_src_32f_c4 = nullptr;
+    }
+    if (d_hist) {
+      cudaFree(d_hist);
+      d_hist = nullptr;
+    }
+    if (d_buffer) {
+      cudaFree(d_buffer);
+      d_buffer = nullptr;
+    }
+    if (d_levels_8u) {
+      cudaFree(d_levels_8u);
+      d_levels_8u = nullptr;
+    }
+    if (d_levels_16) {
+      cudaFree(d_levels_16);
+      d_levels_16 = nullptr;
+    }
+    if (d_levels_32f) {
+      cudaFree(d_levels_32f);
+      d_levels_32f = nullptr;
+    }
     for (int c = 0; c < 4; c++) {
-      if (d_hist_c4[c]) { cudaFree(d_hist_c4[c]); d_hist_c4[c] = nullptr; }
-      if (d_levels_8u_c4[c]) { cudaFree(d_levels_8u_c4[c]); d_levels_8u_c4[c] = nullptr; }
-      if (d_levels_16_c4[c]) { cudaFree(d_levels_16_c4[c]); d_levels_16_c4[c] = nullptr; }
-      if (d_levels_32f_c4[c]) { cudaFree(d_levels_32f_c4[c]); d_levels_32f_c4[c] = nullptr; }
+      if (d_hist_c4[c]) {
+        cudaFree(d_hist_c4[c]);
+        d_hist_c4[c] = nullptr;
+      }
+      if (d_levels_8u_c4[c]) {
+        cudaFree(d_levels_8u_c4[c]);
+        d_levels_8u_c4[c] = nullptr;
+      }
+      if (d_levels_16_c4[c]) {
+        cudaFree(d_levels_16_c4[c]);
+        d_levels_16_c4[c] = nullptr;
+      }
+      if (d_levels_32f_c4[c]) {
+        cudaFree(d_levels_32f_c4[c]);
+        d_levels_32f_c4[c] = nullptr;
+      }
     }
   }
 
@@ -93,7 +144,8 @@ protected:
     }
     nSrcStep_16u = width * sizeof(Npp16u);
     ASSERT_EQ(cudaMalloc(&d_src_16u, totalPixels * sizeof(Npp16u)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_src_16u, h_src_16u.data(), totalPixels * sizeof(Npp16u), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_src_16u, h_src_16u.data(), totalPixels * sizeof(Npp16u), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void allocateTestData16s() {
@@ -103,7 +155,8 @@ protected:
     }
     nSrcStep_16s = width * sizeof(Npp16s);
     ASSERT_EQ(cudaMalloc(&d_src_16s, totalPixels * sizeof(Npp16s)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_src_16s, h_src_16s.data(), totalPixels * sizeof(Npp16s), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_src_16s, h_src_16s.data(), totalPixels * sizeof(Npp16s), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void allocateTestData8uC4() {
@@ -116,7 +169,8 @@ protected:
     }
     nSrcStep_8u_c4 = width * 4 * sizeof(Npp8u);
     ASSERT_EQ(cudaMalloc(&d_src_8u_c4, totalPixels * 4 * sizeof(Npp8u)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_src_8u_c4, h_src_8u_c4.data(), totalPixels * 4 * sizeof(Npp8u), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_src_8u_c4, h_src_8u_c4.data(), totalPixels * 4 * sizeof(Npp8u), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void allocateTestData16uC4() {
@@ -129,7 +183,8 @@ protected:
     }
     nSrcStep_16u_c4 = width * 4 * sizeof(Npp16u);
     ASSERT_EQ(cudaMalloc(&d_src_16u_c4, totalPixels * 4 * sizeof(Npp16u)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_src_16u_c4, h_src_16u_c4.data(), totalPixels * 4 * sizeof(Npp16u), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_src_16u_c4, h_src_16u_c4.data(), totalPixels * 4 * sizeof(Npp16u), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void allocateTestData16sC4() {
@@ -142,7 +197,8 @@ protected:
     }
     nSrcStep_16s_c4 = width * 4 * sizeof(Npp16s);
     ASSERT_EQ(cudaMalloc(&d_src_16s_c4, totalPixels * 4 * sizeof(Npp16s)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_src_16s_c4, h_src_16s_c4.data(), totalPixels * 4 * sizeof(Npp16s), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_src_16s_c4, h_src_16s_c4.data(), totalPixels * 4 * sizeof(Npp16s), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void allocateTestData32fC4() {
@@ -155,7 +211,8 @@ protected:
     }
     nSrcStep_32f_c4 = width * 4 * sizeof(Npp32f);
     ASSERT_EQ(cudaMalloc(&d_src_32f_c4, totalPixels * 4 * sizeof(Npp32f)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_src_32f_c4, h_src_32f_c4.data(), totalPixels * 4 * sizeof(Npp32f), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_src_32f_c4, h_src_32f_c4.data(), totalPixels * 4 * sizeof(Npp32f), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void setupLevels8u() {
@@ -188,7 +245,8 @@ protected:
       h_levels_16[i] = static_cast<Npp32s>(i * 65535 / (nLevels - 1));
     }
     ASSERT_EQ(cudaMalloc(&d_levels_16, nLevels * sizeof(Npp32s)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_levels_16, h_levels_16.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_levels_16, h_levels_16.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void setupLevels16s() {
@@ -197,7 +255,8 @@ protected:
       h_levels_16[i] = static_cast<Npp32s>(-16384 + i * 32767 / (nLevels - 1));
     }
     ASSERT_EQ(cudaMalloc(&d_levels_16, nLevels * sizeof(Npp32s)), cudaSuccess);
-    ASSERT_EQ(cudaMemcpy(d_levels_16, h_levels_16.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(d_levels_16, h_levels_16.data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice),
+              cudaSuccess);
   }
 
   void setupLevelsC4_8u() {
@@ -208,7 +267,9 @@ protected:
         h_levels_8u_c4[c][i] = static_cast<Npp32s>(i * 255 / (nLevels - 1));
       }
       ASSERT_EQ(cudaMalloc(&d_levels_8u_c4[c], nLevels * sizeof(Npp32s)), cudaSuccess);
-      ASSERT_EQ(cudaMemcpy(d_levels_8u_c4[c], h_levels_8u_c4[c].data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice), cudaSuccess);
+      ASSERT_EQ(
+          cudaMemcpy(d_levels_8u_c4[c], h_levels_8u_c4[c].data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice),
+          cudaSuccess);
     }
   }
 
@@ -220,7 +281,9 @@ protected:
         h_levels_16_c4[c][i] = static_cast<Npp32s>(i * 65535 / (nLevels - 1));
       }
       ASSERT_EQ(cudaMalloc(&d_levels_16_c4[c], nLevels * sizeof(Npp32s)), cudaSuccess);
-      ASSERT_EQ(cudaMemcpy(d_levels_16_c4[c], h_levels_16_c4[c].data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice), cudaSuccess);
+      ASSERT_EQ(
+          cudaMemcpy(d_levels_16_c4[c], h_levels_16_c4[c].data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice),
+          cudaSuccess);
     }
   }
 
@@ -232,7 +295,9 @@ protected:
         h_levels_16_c4[c][i] = static_cast<Npp32s>(-16384 + i * 32767 / (nLevels - 1));
       }
       ASSERT_EQ(cudaMalloc(&d_levels_16_c4[c], nLevels * sizeof(Npp32s)), cudaSuccess);
-      ASSERT_EQ(cudaMemcpy(d_levels_16_c4[c], h_levels_16_c4[c].data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice), cudaSuccess);
+      ASSERT_EQ(
+          cudaMemcpy(d_levels_16_c4[c], h_levels_16_c4[c].data(), nLevels * sizeof(Npp32s), cudaMemcpyHostToDevice),
+          cudaSuccess);
     }
   }
 
@@ -244,7 +309,9 @@ protected:
         h_levels_32f_c4[c][i] = static_cast<Npp32f>(i) / static_cast<Npp32f>(nLevels - 1);
       }
       ASSERT_EQ(cudaMalloc(&d_levels_32f_c4[c], nLevels * sizeof(Npp32f)), cudaSuccess);
-      ASSERT_EQ(cudaMemcpy(d_levels_32f_c4[c], h_levels_32f_c4[c].data(), nLevels * sizeof(Npp32f), cudaMemcpyHostToDevice), cudaSuccess);
+      ASSERT_EQ(
+          cudaMemcpy(d_levels_32f_c4[c], h_levels_32f_c4[c].data(), nLevels * sizeof(Npp32f), cudaMemcpyHostToDevice),
+          cudaSuccess);
     }
   }
 
@@ -555,22 +622,24 @@ TEST_F(HistogramRangeTest, BufferSize_16u_C1R) {
   BufferSizeType bufferSize;
   EXPECT_EQ(nppiHistogramRangeGetBufferSize_16u_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
-  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(oSizeROI, nLevels, &bufferSize, NppStreamContext{}), NPP_SUCCESS);
+
+  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16u_C1R_Ctx(oSizeROI, nLevels, &bufferSize, NppStreamContext{}),
+            NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
 
 TEST_F(HistogramRangeTest, HistogramRange_16u_C1R_Basic) {
   allocateTestData16u();
   setupLevels16u();
-  
+
   h_hist.resize(nLevels - 1, 0);
   ASSERT_EQ(cudaMalloc(&d_hist, (nLevels - 1) * sizeof(Npp32s)), cudaSuccess);
   BufferSizeType bufferSize;
   ASSERT_EQ(nppiHistogramRangeGetBufferSize_16u_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
 
-  EXPECT_EQ(nppiHistogramRange_16u_C1R(d_src_16u, nSrcStep_16u, oSizeROI, d_hist, d_levels_16, nLevels, d_buffer), NPP_SUCCESS);
+  EXPECT_EQ(nppiHistogramRange_16u_C1R(d_src_16u, nSrcStep_16u, oSizeROI, d_hist, d_levels_16, nLevels, d_buffer),
+            NPP_SUCCESS);
 
   ASSERT_EQ(cudaMemcpy(h_hist.data(), d_hist, (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
 
@@ -590,22 +659,24 @@ TEST_F(HistogramRangeTest, BufferSize_16s_C1R) {
   BufferSizeType bufferSize;
   EXPECT_EQ(nppiHistogramRangeGetBufferSize_16s_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
-  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(oSizeROI, nLevels, &bufferSize, NppStreamContext{}), NPP_SUCCESS);
+
+  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16s_C1R_Ctx(oSizeROI, nLevels, &bufferSize, NppStreamContext{}),
+            NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
 
 TEST_F(HistogramRangeTest, HistogramRange_16s_C1R_Basic) {
   allocateTestData16s();
   setupLevels16s();
-  
+
   h_hist.resize(nLevels - 1, 0);
   ASSERT_EQ(cudaMalloc(&d_hist, (nLevels - 1) * sizeof(Npp32s)), cudaSuccess);
   BufferSizeType bufferSize;
   ASSERT_EQ(nppiHistogramRangeGetBufferSize_16s_C1R(oSizeROI, nLevels, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
 
-  EXPECT_EQ(nppiHistogramRange_16s_C1R(d_src_16s, nSrcStep_16s, oSizeROI, d_hist, d_levels_16, nLevels, d_buffer), NPP_SUCCESS);
+  EXPECT_EQ(nppiHistogramRange_16s_C1R(d_src_16s, nSrcStep_16s, oSizeROI, d_hist, d_levels_16, nLevels, d_buffer),
+            NPP_SUCCESS);
 
   ASSERT_EQ(cudaMemcpy(h_hist.data(), d_hist, (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
 
@@ -626,8 +697,9 @@ TEST_F(HistogramRangeTest, BufferSize_8u_C4R) {
   BufferSizeType bufferSize;
   EXPECT_EQ(nppiHistogramRangeGetBufferSize_8u_C4R(oSizeROI, nLevelsTest, &bufferSize), NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
-  EXPECT_EQ(nppiHistogramRangeGetBufferSize_8u_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}), NPP_SUCCESS);
+
+  EXPECT_EQ(nppiHistogramRangeGetBufferSize_8u_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}),
+            NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
 
@@ -640,12 +712,14 @@ TEST_F(HistogramRangeTest, HistogramRange_8u_C4R_Basic) {
   ASSERT_EQ(nppiHistogramRangeGetBufferSize_8u_C4R(oSizeROI, nLevelsArray, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
 
-  EXPECT_EQ(nppiHistogramRange_8u_C4R(d_src_8u_c4, nSrcStep_8u_c4, oSizeROI, d_hist_c4, (const Npp32s **)d_levels_8u_c4, nLevelsArray, d_buffer), 
+  EXPECT_EQ(nppiHistogramRange_8u_C4R(d_src_8u_c4, nSrcStep_8u_c4, oSizeROI, d_hist_c4, (const Npp32s **)d_levels_8u_c4,
+                                      nLevelsArray, d_buffer),
             NPP_SUCCESS);
 
   for (int c = 0; c < 4; c++) {
-    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
-    
+    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost),
+              cudaSuccess);
+
     int totalCount = 0;
     for (int i = 0; i < nLevels - 1; i++) {
       totalCount += h_hist_c4[c][i];
@@ -664,8 +738,9 @@ TEST_F(HistogramRangeTest, BufferSize_16u_C4R) {
   BufferSizeType bufferSize;
   EXPECT_EQ(nppiHistogramRangeGetBufferSize_16u_C4R(oSizeROI, nLevelsTest, &bufferSize), NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
-  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16u_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}), NPP_SUCCESS);
+
+  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16u_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}),
+            NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
 
@@ -678,12 +753,14 @@ TEST_F(HistogramRangeTest, HistogramRange_16u_C4R_Basic) {
   ASSERT_EQ(nppiHistogramRangeGetBufferSize_16u_C4R(oSizeROI, nLevelsArray, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
 
-  EXPECT_EQ(nppiHistogramRange_16u_C4R(d_src_16u_c4, nSrcStep_16u_c4, oSizeROI, d_hist_c4, (const Npp32s **)d_levels_16_c4, nLevelsArray, d_buffer), 
+  EXPECT_EQ(nppiHistogramRange_16u_C4R(d_src_16u_c4, nSrcStep_16u_c4, oSizeROI, d_hist_c4,
+                                       (const Npp32s **)d_levels_16_c4, nLevelsArray, d_buffer),
             NPP_SUCCESS);
 
   for (int c = 0; c < 4; c++) {
-    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
-    
+    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost),
+              cudaSuccess);
+
     int totalCount = 0;
     for (int i = 0; i < nLevels - 1; i++) {
       totalCount += h_hist_c4[c][i];
@@ -702,8 +779,9 @@ TEST_F(HistogramRangeTest, BufferSize_16s_C4R) {
   BufferSizeType bufferSize;
   EXPECT_EQ(nppiHistogramRangeGetBufferSize_16s_C4R(oSizeROI, nLevelsTest, &bufferSize), NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
-  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16s_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}), NPP_SUCCESS);
+
+  EXPECT_EQ(nppiHistogramRangeGetBufferSize_16s_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}),
+            NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
 
@@ -716,12 +794,14 @@ TEST_F(HistogramRangeTest, HistogramRange_16s_C4R_Basic) {
   ASSERT_EQ(nppiHistogramRangeGetBufferSize_16s_C4R(oSizeROI, nLevelsArray, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
 
-  EXPECT_EQ(nppiHistogramRange_16s_C4R(d_src_16s_c4, nSrcStep_16s_c4, oSizeROI, d_hist_c4, (const Npp32s **)d_levels_16_c4, nLevelsArray, d_buffer), 
+  EXPECT_EQ(nppiHistogramRange_16s_C4R(d_src_16s_c4, nSrcStep_16s_c4, oSizeROI, d_hist_c4,
+                                       (const Npp32s **)d_levels_16_c4, nLevelsArray, d_buffer),
             NPP_SUCCESS);
 
   for (int c = 0; c < 4; c++) {
-    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
-    
+    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost),
+              cudaSuccess);
+
     int totalCount = 0;
     for (int i = 0; i < nLevels - 1; i++) {
       totalCount += h_hist_c4[c][i];
@@ -740,8 +820,9 @@ TEST_F(HistogramRangeTest, BufferSize_32f_C4R) {
   BufferSizeType bufferSize;
   EXPECT_EQ(nppiHistogramRangeGetBufferSize_32f_C4R(oSizeROI, nLevelsTest, &bufferSize), NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
-  
-  EXPECT_EQ(nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}), NPP_SUCCESS);
+
+  EXPECT_EQ(nppiHistogramRangeGetBufferSize_32f_C4R_Ctx(oSizeROI, nLevelsTest, &bufferSize, NppStreamContext{}),
+            NPP_SUCCESS);
   EXPECT_GT(bufferSize, 0);
 }
 
@@ -754,12 +835,14 @@ TEST_F(HistogramRangeTest, HistogramRange_32f_C4R_Basic) {
   ASSERT_EQ(nppiHistogramRangeGetBufferSize_32f_C4R(oSizeROI, nLevelsArray, &bufferSize), NPP_SUCCESS);
   ASSERT_EQ(cudaMalloc(&d_buffer, bufferSize), cudaSuccess);
 
-  EXPECT_EQ(nppiHistogramRange_32f_C4R(d_src_32f_c4, nSrcStep_32f_c4, oSizeROI, d_hist_c4, (const Npp32f **)d_levels_32f_c4, nLevelsArray, d_buffer), 
+  EXPECT_EQ(nppiHistogramRange_32f_C4R(d_src_32f_c4, nSrcStep_32f_c4, oSizeROI, d_hist_c4,
+                                       (const Npp32f **)d_levels_32f_c4, nLevelsArray, d_buffer),
             NPP_SUCCESS);
 
   for (int c = 0; c < 4; c++) {
-    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost), cudaSuccess);
-    
+    ASSERT_EQ(cudaMemcpy(h_hist_c4[c].data(), d_hist_c4[c], (nLevels - 1) * sizeof(Npp32s), cudaMemcpyDeviceToHost),
+              cudaSuccess);
+
     int totalCount = 0;
     for (int i = 0; i < nLevels - 1; i++) {
       totalCount += h_hist_c4[c][i];
@@ -768,4 +851,3 @@ TEST_F(HistogramRangeTest, HistogramRange_32f_C4R_Basic) {
     EXPECT_LE(totalCount, totalPixels) << "Channel " << c;
   }
 }
-

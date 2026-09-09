@@ -115,11 +115,10 @@ __global__ void yuv422_to_rgb_c2c3_kernel(const Npp8u *__restrict__ src, int src
 }
 
 extern "C" cudaError_t nppiYUV422ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
-                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
-                                                        int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+                                                       int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                       int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv422_to_rgb_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
                                                                 pDst, nDstStep, oSizeROI.width, oSizeROI.height);
@@ -127,12 +126,11 @@ extern "C" cudaError_t nppiYUV422ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, int n
 }
 
 extern "C" cudaError_t nppiYUV422ToRGB_8u_P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
-                                                      int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR,
-                                                      Npp8u *pDstG, Npp8u *pDstB, int nDstStep, NppiSize oSizeROI,
-                                                      cudaStream_t stream) {
+                                                     int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR,
+                                                     Npp8u *pDstG, Npp8u *pDstB, int nDstStep, NppiSize oSizeROI,
+                                                     cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv422_to_rgb_p3p3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
                                                                 pDstR, pDstG, pDstB, nDstStep, oSizeROI.width,
@@ -141,11 +139,10 @@ extern "C" cudaError_t nppiYUV422ToRGB_8u_P3R_kernel(const Npp8u *pSrcY, int nSr
 }
 
 extern "C" cudaError_t nppiYUV422ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
-                                                         int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
-                                                         int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
+                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst,
+                                                        int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv422_to_rgb_p3ac4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcU, nSrcUStep, pSrcV, nSrcVStep,
                                                                  pDst, nDstStep, oSizeROI.width, oSizeROI.height);
@@ -153,10 +150,9 @@ extern "C" cudaError_t nppiYUV422ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, int 
 }
 
 extern "C" cudaError_t nppiYUV422ToRGB_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                        NppiSize oSizeROI, cudaStream_t stream) {
+                                                       NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   yuv422_to_rgb_c2c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                 oSizeROI.height);

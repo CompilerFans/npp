@@ -38,21 +38,12 @@ template <> struct ExpectedOutputs<Npp32f> {
 };
 
 template <typename T> struct NppTypeTraits {};
-template <> struct NppTypeTraits<Npp8u> {
-  using DstType = Npp8u;
-};
-template <> struct NppTypeTraits<Npp16u> {
-  using DstType = Npp16u;
-};
-template <> struct NppTypeTraits<Npp16s> {
-  using DstType = Npp16s;
-};
-template <> struct NppTypeTraits<Npp32f> {
-  using DstType = Npp32f;
-};
+template <> struct NppTypeTraits<Npp8u> { using DstType = Npp8u; };
+template <> struct NppTypeTraits<Npp16u> { using DstType = Npp16u; };
+template <> struct NppTypeTraits<Npp16s> { using DstType = Npp16s; };
+template <> struct NppTypeTraits<Npp32f> { using DstType = Npp32f; };
 
-template <typename T>
-void fillInput(std::vector<T> &src, int width, int height) {
+template <typename T> void fillInput(std::vector<T> &src, int width, int height) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       int idx = (y * width + x) * 3;
@@ -71,8 +62,7 @@ void fillInput(std::vector<T> &src, int width, int height) {
   }
 }
 
-template <typename T>
-std::vector<typename NppTypeTraits<T>::DstType> runGradientToGray(NppiNorm norm) {
+template <typename T> std::vector<typename NppTypeTraits<T>::DstType> runGradientToGray(NppiNorm norm) {
   constexpr int width = 4;
   constexpr int height = 4;
   NppiSize roi{width, height};
@@ -141,8 +131,7 @@ std::vector<typename NppTypeTraits<T>::DstType> runGradientToGray(NppiNorm norm)
   return hostDst;
 }
 
-template <typename T>
-std::vector<typename NppTypeTraits<T>::DstType> runGradientToGrayCtx(NppiNorm norm) {
+template <typename T> std::vector<typename NppTypeTraits<T>::DstType> runGradientToGrayCtx(NppiNorm norm) {
   constexpr int width = 4;
   constexpr int height = 4;
   NppiSize roi{width, height};
@@ -215,8 +204,7 @@ std::vector<typename NppTypeTraits<T>::DstType> runGradientToGrayCtx(NppiNorm no
   return hostDst;
 }
 
-template <typename T>
-void dumpOutputs(const char *label, const std::vector<typename NppTypeTraits<T>::DstType> &vals) {
+template <typename T> void dumpOutputs(const char *label, const std::vector<typename NppTypeTraits<T>::DstType> &vals) {
   std::cout << label << " = {";
   for (size_t i = 0; i < vals.size(); ++i) {
     if (i) {
@@ -379,10 +367,10 @@ const Npp16u ExpectedOutputs<Npp16u>::kInf[kSize] = {0, 10, 20, 30, 11, 13, 23, 
 const Npp16s ExpectedOutputs<Npp16s>::kL1[kSize] = {-11, -6, 0, 5, -4, 1, 6, 12, 2, 8, 13, 19, 9, 15, 20, 26};
 const Npp16s ExpectedOutputs<Npp16s>::kL2[kSize] = {13, 6, 0, 6, 10, 6, 7, 12, 12, 12, 14, 19, 18, 19, 22, 27};
 const Npp16s ExpectedOutputs<Npp16s>::kInf[kSize] = {-5, -3, 0, 10, 6, 8, 10, 13, 17, 19, 21, 23, 28, 30, 32, 34};
-const Npp32f ExpectedOutputs<Npp32f>::kL1[kSize] = {0.0f, 17.0f, 34.0f, 51.0f, 21.0f, 38.0f, 55.0f, 72.0f,
+const Npp32f ExpectedOutputs<Npp32f>::kL1[kSize] = {0.0f,  17.0f, 34.0f, 51.0f, 21.0f, 38.0f, 55.0f, 72.0f,
                                                     42.0f, 59.0f, 76.0f, 93.0f, 63.0f, 80.0f, 97.0f, 114.0f};
-const Npp32f ExpectedOutputs<Npp32f>::kL2[kSize] = {0.0f, 11.357817f, 22.715633f, 34.073448f, 13.379088f, 21.954498f,
-                                                    32.295509f, 43.150898f, 26.758177f, 34.539833f, 43.908997f,
-                                                    54.046276f, 40.137264f, 47.560490f, 56.311634f, 65.863495f};
-const Npp32f ExpectedOutputs<Npp32f>::kInf[kSize] = {0.0f, 10.0f, 20.0f, 30.0f, 11.0f, 13.0f, 23.0f, 33.0f,
+const Npp32f ExpectedOutputs<Npp32f>::kL2[kSize] = {
+    0.0f,       11.357817f, 22.715633f, 34.073448f, 13.379088f, 21.954498f, 32.295509f, 43.150898f,
+    26.758177f, 34.539833f, 43.908997f, 54.046276f, 40.137264f, 47.560490f, 56.311634f, 65.863495f};
+const Npp32f ExpectedOutputs<Npp32f>::kInf[kSize] = {0.0f,  10.0f, 20.0f, 30.0f, 11.0f, 13.0f, 23.0f, 33.0f,
                                                      22.0f, 24.0f, 26.0f, 36.0f, 33.0f, 35.0f, 37.0f, 39.0f};

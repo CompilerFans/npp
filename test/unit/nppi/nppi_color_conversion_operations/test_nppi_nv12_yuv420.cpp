@@ -35,8 +35,8 @@ protected:
     }
   }
 
-  void computeExpected(const std::vector<Npp8u> &yPlane, const std::vector<Npp8u> &uvPlane,
-                       std::vector<Npp8u> &expY, std::vector<Npp8u> &expU, std::vector<Npp8u> &expV) const {
+  void computeExpected(const std::vector<Npp8u> &yPlane, const std::vector<Npp8u> &uvPlane, std::vector<Npp8u> &expY,
+                       std::vector<Npp8u> &expU, std::vector<Npp8u> &expV) const {
     expY = yPlane;
     expU.resize((width / 2) * (height / 2));
     expV.resize((width / 2) * (height / 2));

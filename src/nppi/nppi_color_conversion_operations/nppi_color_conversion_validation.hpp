@@ -17,8 +17,8 @@ static inline NppStatus validatePackedInput(const Npp8u *pSrc, int nSrcStep, Npp
   return NPP_SUCCESS;
 }
 
-static inline NppStatus validatePackedToPlanarInput(const Npp8u *pSrc, int nSrcStep, Npp8u *const pDst[],
-                                                    int nDstStep, int planes, NppiSize oSizeROI, int srcChannels) {
+static inline NppStatus validatePackedToPlanarInput(const Npp8u *pSrc, int nSrcStep, Npp8u *const pDst[], int nDstStep,
+                                                    int planes, NppiSize oSizeROI, int srcChannels) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -36,8 +36,8 @@ static inline NppStatus validatePackedToPlanarInput(const Npp8u *pSrc, int nSrcS
   return NPP_SUCCESS;
 }
 
-static inline NppStatus validatePlanarToPackedInput(const Npp8u *const pSrc[], int nSrcStep, Npp8u *pDst,
-                                                    int nDstStep, NppiSize oSizeROI, int dstChannels, int planes) {
+static inline NppStatus validatePlanarToPackedInput(const Npp8u *const pSrc[], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                    NppiSize oSizeROI, int dstChannels, int planes) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -55,8 +55,8 @@ static inline NppStatus validatePlanarToPackedInput(const Npp8u *const pSrc[], i
   return NPP_SUCCESS;
 }
 
-static inline NppStatus validatePlanarToPackedInput(const Npp8u *const pSrc[], int nSrcStep, Npp8u *pDst,
-                                                    int nDstStep, NppiSize oSizeROI, int dstChannels) {
+static inline NppStatus validatePlanarToPackedInput(const Npp8u *const pSrc[], int nSrcStep, Npp8u *pDst, int nDstStep,
+                                                    NppiSize oSizeROI, int dstChannels) {
   return validatePlanarToPackedInput(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, dstChannels, 3);
 }
 

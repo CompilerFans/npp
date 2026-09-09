@@ -125,8 +125,7 @@ template <> Npp64f sourceValue<Npp64f>(int x, int y, int channel) {
 
 template <typename T> T averagedValue(double value) { return static_cast<T>(value); }
 
-template <typename Api>
-void runBoxCase(BoxLayout layout, double tolerance, NppiSize maskSize, NppiPoint anchor) {
+template <typename Api> void runBoxCase(BoxLayout layout, double tolerance, NppiSize maskSize, NppiPoint anchor) {
   using T = typename Api::Value;
   const int width = 5;
   const int height = 4;
@@ -159,8 +158,8 @@ void runBoxCase(BoxLayout layout, double tolerance, NppiSize maskSize, NppiPoint
   ASSERT_EQ(cudaMemcpy2D(deviceSourceBase, sourceStep, source.data(), sourceRowBytes, sourceRowBytes, expandedHeight,
                          cudaMemcpyHostToDevice),
             cudaSuccess);
-  T *deviceSource = reinterpret_cast<T *>(reinterpret_cast<char *>(deviceSourceBase) + haloTop * sourceStep) +
-                    haloLeft * channels;
+  T *deviceSource =
+      reinterpret_cast<T *>(reinterpret_cast<char *>(deviceSourceBase) + haloTop * sourceStep) + haloLeft * channels;
   const cudaStream_t originalStream = nppGetStream();
   cudaStream_t managedStream = nullptr;
   cudaStream_t contextStream = nullptr;
@@ -181,8 +180,8 @@ void runBoxCase(BoxLayout layout, double tolerance, NppiSize maskSize, NppiPoint
               NPP_SUCCESS);
     ASSERT_EQ(cudaStreamSynchronize(useCtx ? contextStream : managedStream), cudaSuccess);
     std::vector<T> actual(initialDestination.size());
-    ASSERT_EQ(cudaMemcpy2D(actual.data(), destinationRowBytes, deviceDestination, destinationStep,
-                           destinationRowBytes, height, cudaMemcpyDeviceToHost),
+    ASSERT_EQ(cudaMemcpy2D(actual.data(), destinationRowBytes, deviceDestination, destinationStep, destinationRowBytes,
+                           height, cudaMemcpyDeviceToHost),
               cudaSuccess);
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
@@ -212,17 +211,20 @@ void runBoxCase(BoxLayout layout, double tolerance, NppiSize maskSize, NppiPoint
     }
   }
 
+  // NVIDIA NPP 12.4 FilterBox does not validate most arguments (zero masks, bad anchors and bad steps are
+  // accepted silently), so these checks only run against MPP.
+#ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(Api::call(layout, nullptr, static_cast<int>(sourceStep), deviceDestination,
                       static_cast<int>(destinationStep), roi, maskSize, anchor, context, false),
             NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(Api::call(layout, deviceSource, static_cast<int>(sourceStep), nullptr,
-                      static_cast<int>(destinationStep), roi, maskSize, anchor, context, true),
+  EXPECT_EQ(Api::call(layout, deviceSource, static_cast<int>(sourceStep), nullptr, static_cast<int>(destinationStep),
+                      roi, maskSize, anchor, context, true),
             NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(Api::call(layout, deviceSource, destinationRowBytes - 1, deviceDestination,
                       static_cast<int>(destinationStep), roi, maskSize, anchor, context, false),
             NPP_STEP_ERROR);
-  EXPECT_EQ(Api::call(layout, deviceSource, static_cast<int>(sourceStep), deviceDestination,
-                      destinationRowBytes - 1, roi, maskSize, anchor, context, true),
+  EXPECT_EQ(Api::call(layout, deviceSource, static_cast<int>(sourceStep), deviceDestination, destinationRowBytes - 1,
+                      roi, maskSize, anchor, context, true),
             NPP_STEP_ERROR);
   EXPECT_EQ(Api::call(layout, deviceSource, static_cast<int>(sourceStep), deviceDestination,
                       static_cast<int>(destinationStep), {0, height}, maskSize, anchor, context, true),
@@ -242,6 +244,7 @@ void runBoxCase(BoxLayout layout, double tolerance, NppiSize maskSize, NppiPoint
   EXPECT_EQ(Api::call(layout, deviceSource, static_cast<int>(sourceStep), deviceDestination,
                       static_cast<int>(destinationStep), roi, maskSize, {-1, anchor.y}, context, false),
             NPP_ANCHOR_ERROR);
+#endif
 
   EXPECT_EQ(nppSetStream(originalStream), NPP_SUCCESS);
   cudaStreamDestroy(contextStream);

@@ -1,5 +1,5 @@
-#include "npp.h"
 #include "framework/npp_test_base.h"
+#include "npp.h"
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <vector>
@@ -37,10 +37,10 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R) {
   // Generate test data with known distribution
   std::vector<Npp16u> srcData(dataSize);
   for (size_t i = 0; i < dataSize; i += 4) {
-    srcData[i + 0] = 100;  // Channel 0
-    srcData[i + 1] = 200;  // Channel 1
-    srcData[i + 2] = 300;  // Channel 2
-    srcData[i + 3] = 400;  // Channel 3
+    srcData[i + 0] = 100; // Channel 0
+    srcData[i + 1] = 200; // Channel 1
+    srcData[i + 2] = 300; // Channel 2
+    srcData[i + 3] = 400; // Channel 3
   }
 
   NppImageMemory<Npp16u> src(width, height, 4);
@@ -50,7 +50,7 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R) {
   cudaDeviceSynchronize();
 
   // Setup histogram parameters
-  int nLevels[4] = {257, 257, 257, 257};  // nLevels must be nBins + 1
+  int nLevels[4] = {257, 257, 257, 257}; // nLevels must be nBins + 1
   Npp32s nLowerLevel[4] = {0, 0, 0, 0};
   Npp32s nUpperLevel[4] = {512, 512, 512, 512};
 
@@ -72,11 +72,8 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R) {
   deviceBuffer.allocate(bufferSize);
 
   // Compute histogram
-  status = nppiHistogramEven_16u_C4R(
-      src.get(), src.step(),
-      roi, pHist, nLevels, nLowerLevel, nUpperLevel,
-      deviceBuffer.get()
-  );
+  status = nppiHistogramEven_16u_C4R(src.get(), src.step(), roi, pHist, nLevels, nLowerLevel, nUpperLevel,
+                                     deviceBuffer.get());
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -93,7 +90,8 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R) {
   // All pixels in channel 0 have value 100
   // bin = (value - lowerLevel) * (nLevels - 1) / (upperLevel - lowerLevel)
   int expectedBin0 = ((100 - nLowerLevel[0]) * (nLevels[0] - 1)) / (nUpperLevel[0] - nLowerLevel[0]);
-  if (expectedBin0 >= nLevels[0] - 1) expectedBin0 = nLevels[0] - 2;
+  if (expectedBin0 >= nLevels[0] - 1)
+    expectedBin0 = nLevels[0] - 2;
   EXPECT_EQ(histData0[expectedBin0], width * height) << "All pixels should be in bin " << expectedBin0;
 
   // Verify other bins are empty for channel 0
@@ -105,17 +103,20 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R) {
 
   // All pixels in channel 1 have value 200
   int expectedBin1 = ((200 - nLowerLevel[1]) * (nLevels[1] - 1)) / (nUpperLevel[1] - nLowerLevel[1]);
-  if (expectedBin1 >= nLevels[1] - 1) expectedBin1 = nLevels[1] - 2;
+  if (expectedBin1 >= nLevels[1] - 1)
+    expectedBin1 = nLevels[1] - 2;
   EXPECT_EQ(histData1[expectedBin1], width * height) << "All pixels should be in bin " << expectedBin1;
 
   // All pixels in channel 2 have value 300
   int expectedBin2 = ((300 - nLowerLevel[2]) * (nLevels[2] - 1)) / (nUpperLevel[2] - nLowerLevel[2]);
-  if (expectedBin2 >= nLevels[2] - 1) expectedBin2 = nLevels[2] - 2;
+  if (expectedBin2 >= nLevels[2] - 1)
+    expectedBin2 = nLevels[2] - 2;
   EXPECT_EQ(histData2[expectedBin2], width * height) << "All pixels should be in bin " << expectedBin2;
 
   // All pixels in channel 3 have value 400
   int expectedBin3 = ((400 - nLowerLevel[3]) * (nLevels[3] - 1)) / (nUpperLevel[3] - nLowerLevel[3]);
-  if (expectedBin3 >= nLevels[3] - 1) expectedBin3 = nLevels[3] - 2;
+  if (expectedBin3 >= nLevels[3] - 1)
+    expectedBin3 = nLevels[3] - 2;
   EXPECT_EQ(histData3[expectedBin3], width * height) << "All pixels should be in bin " << expectedBin3;
 }
 
@@ -141,7 +142,7 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R_Ctx) {
   // Ensure data is copied before histogram computation
   cudaDeviceSynchronize();
 
-  int nLevels[4] = {257, 257, 257, 257};  // nLevels must be nBins + 1
+  int nLevels[4] = {257, 257, 257, 257}; // nLevels must be nBins + 1
   Npp32s nLowerLevel[4] = {0, 0, 0, 0};
   Npp32s nUpperLevel[4] = {512, 512, 512, 512};
 
@@ -163,11 +164,8 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R_Ctx) {
   DeviceMemory<Npp8u> deviceBuffer;
   deviceBuffer.allocate(bufferSize);
 
-  status = nppiHistogramEven_16u_C4R_Ctx(
-      src.get(), src.step(),
-      roi, pHist, nLevels, nLowerLevel, nUpperLevel,
-      deviceBuffer.get(), nppStreamCtx
-  );
+  status = nppiHistogramEven_16u_C4R_Ctx(src.get(), src.step(), roi, pHist, nLevels, nLowerLevel, nUpperLevel,
+                                         deviceBuffer.get(), nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -183,30 +181,38 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16u_C4R_Ctx) {
 
   // Channel 0: value 100
   int expectedBin0 = ((100 - nLowerLevel[0]) * (nLevels[0] - 1)) / (nUpperLevel[0] - nLowerLevel[0]);
-  if (expectedBin0 >= nLevels[0] - 1) expectedBin0 = nLevels[0] - 2;
+  if (expectedBin0 >= nLevels[0] - 1)
+    expectedBin0 = nLevels[0] - 2;
   EXPECT_EQ(histData0[expectedBin0], width * height) << "Channel 0: All pixels should be in bin " << expectedBin0;
 
   // Channel 1: value 200
   int expectedBin1 = ((200 - nLowerLevel[1]) * (nLevels[1] - 1)) / (nUpperLevel[1] - nLowerLevel[1]);
-  if (expectedBin1 >= nLevels[1] - 1) expectedBin1 = nLevels[1] - 2;
+  if (expectedBin1 >= nLevels[1] - 1)
+    expectedBin1 = nLevels[1] - 2;
   EXPECT_EQ(histData1[expectedBin1], width * height) << "Channel 1: All pixels should be in bin " << expectedBin1;
 
   // Channel 2: value 300
   int expectedBin2 = ((300 - nLowerLevel[2]) * (nLevels[2] - 1)) / (nUpperLevel[2] - nLowerLevel[2]);
-  if (expectedBin2 >= nLevels[2] - 1) expectedBin2 = nLevels[2] - 2;
+  if (expectedBin2 >= nLevels[2] - 1)
+    expectedBin2 = nLevels[2] - 2;
   EXPECT_EQ(histData2[expectedBin2], width * height) << "Channel 2: All pixels should be in bin " << expectedBin2;
 
   // Channel 3: value 400
   int expectedBin3 = ((400 - nLowerLevel[3]) * (nLevels[3] - 1)) / (nUpperLevel[3] - nLowerLevel[3]);
-  if (expectedBin3 >= nLevels[3] - 1) expectedBin3 = nLevels[3] - 2;
+  if (expectedBin3 >= nLevels[3] - 1)
+    expectedBin3 = nLevels[3] - 2;
   EXPECT_EQ(histData3[expectedBin3], width * height) << "Channel 3: All pixels should be in bin " << expectedBin3;
 
   // Verify total counts
   int totalCount0 = 0, totalCount1 = 0, totalCount2 = 0, totalCount3 = 0;
-  for (int i = 0; i < nLevels[0] - 1; i++) totalCount0 += histData0[i];
-  for (int i = 0; i < nLevels[1] - 1; i++) totalCount1 += histData1[i];
-  for (int i = 0; i < nLevels[2] - 1; i++) totalCount2 += histData2[i];
-  for (int i = 0; i < nLevels[3] - 1; i++) totalCount3 += histData3[i];
+  for (int i = 0; i < nLevels[0] - 1; i++)
+    totalCount0 += histData0[i];
+  for (int i = 0; i < nLevels[1] - 1; i++)
+    totalCount1 += histData1[i];
+  for (int i = 0; i < nLevels[2] - 1; i++)
+    totalCount2 += histData2[i];
+  for (int i = 0; i < nLevels[3] - 1; i++)
+    totalCount3 += histData3[i];
 
   EXPECT_EQ(totalCount0, width * height) << "Channel 0: Total count mismatch";
   EXPECT_EQ(totalCount1, width * height) << "Channel 1: Total count mismatch";
@@ -226,10 +232,10 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R) {
   // Generate test data with signed values (stored as unsigned for C4 support)
   std::vector<Npp16u> srcData(dataSize);
   for (size_t i = 0; i < dataSize; i += 4) {
-    srcData[i + 0] = static_cast<Npp16u>(static_cast<Npp16s>(-100));  // Channel 0
-    srcData[i + 1] = 0;     // Channel 1
-    srcData[i + 2] = 100;   // Channel 2
-    srcData[i + 3] = 200;   // Channel 3
+    srcData[i + 0] = static_cast<Npp16u>(static_cast<Npp16s>(-100)); // Channel 0
+    srcData[i + 1] = 0;                                              // Channel 1
+    srcData[i + 2] = 100;                                            // Channel 2
+    srcData[i + 3] = 200;                                            // Channel 3
   }
 
   NppImageMemory<Npp16u> src(width, height, 4);
@@ -239,7 +245,7 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R) {
   cudaDeviceSynchronize();
 
   // Setup histogram parameters for signed data
-  int nLevels[4] = {257, 257, 257, 257};  // nLevels must be nBins + 1
+  int nLevels[4] = {257, 257, 257, 257}; // nLevels must be nBins + 1
   Npp32s nLowerLevel[4] = {-256, -256, -256, -256};
   Npp32s nUpperLevel[4] = {256, 256, 256, 256};
 
@@ -258,11 +264,8 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R) {
   DeviceMemory<Npp8u> deviceBuffer;
   deviceBuffer.allocate(bufferSize);
 
-  status = nppiHistogramEven_16s_C4R(
-      reinterpret_cast<const Npp16s*>(src.get()), src.step(),
-      roi, pHist, nLevels, nLowerLevel, nUpperLevel,
-      deviceBuffer.get()
-  );
+  status = nppiHistogramEven_16s_C4R(reinterpret_cast<const Npp16s *>(src.get()), src.step(), roi, pHist, nLevels,
+                                     nLowerLevel, nUpperLevel, deviceBuffer.get());
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -281,31 +284,44 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R) {
   Npp16s signedVal0 = -100;
   int pixelValue0 = static_cast<int>(signedVal0);
   int expectedBin0 = ((pixelValue0 - nLowerLevel[0]) * (nLevels[0] - 1)) / (nUpperLevel[0] - nLowerLevel[0]);
-  if (expectedBin0 >= nLevels[0] - 1) expectedBin0 = nLevels[0] - 2;
-  if (expectedBin0 < 0) expectedBin0 = 0;
-  EXPECT_EQ(histData0[expectedBin0], width * height) << "Channel 0: All pixels with value -100 should be in bin " << expectedBin0;
+  if (expectedBin0 >= nLevels[0] - 1)
+    expectedBin0 = nLevels[0] - 2;
+  if (expectedBin0 < 0)
+    expectedBin0 = 0;
+  EXPECT_EQ(histData0[expectedBin0], width * height)
+      << "Channel 0: All pixels with value -100 should be in bin " << expectedBin0;
 
   // Channel 1: value 0
   int expectedBin1 = ((0 - nLowerLevel[1]) * (nLevels[1] - 1)) / (nUpperLevel[1] - nLowerLevel[1]);
-  if (expectedBin1 >= nLevels[1] - 1) expectedBin1 = nLevels[1] - 2;
-  EXPECT_EQ(histData1[expectedBin1], width * height) << "Channel 1: All pixels with value 0 should be in bin " << expectedBin1;
+  if (expectedBin1 >= nLevels[1] - 1)
+    expectedBin1 = nLevels[1] - 2;
+  EXPECT_EQ(histData1[expectedBin1], width * height)
+      << "Channel 1: All pixels with value 0 should be in bin " << expectedBin1;
 
   // Channel 2: value 100
   int expectedBin2 = ((100 - nLowerLevel[2]) * (nLevels[2] - 1)) / (nUpperLevel[2] - nLowerLevel[2]);
-  if (expectedBin2 >= nLevels[2] - 1) expectedBin2 = nLevels[2] - 2;
-  EXPECT_EQ(histData2[expectedBin2], width * height) << "Channel 2: All pixels with value 100 should be in bin " << expectedBin2;
+  if (expectedBin2 >= nLevels[2] - 1)
+    expectedBin2 = nLevels[2] - 2;
+  EXPECT_EQ(histData2[expectedBin2], width * height)
+      << "Channel 2: All pixels with value 100 should be in bin " << expectedBin2;
 
   // Channel 3: value 200
   int expectedBin3 = ((200 - nLowerLevel[3]) * (nLevels[3] - 1)) / (nUpperLevel[3] - nLowerLevel[3]);
-  if (expectedBin3 >= nLevels[3] - 1) expectedBin3 = nLevels[3] - 2;
-  EXPECT_EQ(histData3[expectedBin3], width * height) << "Channel 3: All pixels with value 200 should be in bin " << expectedBin3;
+  if (expectedBin3 >= nLevels[3] - 1)
+    expectedBin3 = nLevels[3] - 2;
+  EXPECT_EQ(histData3[expectedBin3], width * height)
+      << "Channel 3: All pixels with value 200 should be in bin " << expectedBin3;
 
   // Verify total counts for all channels
   int totalCount0 = 0, totalCount1 = 0, totalCount2 = 0, totalCount3 = 0;
-  for (int i = 0; i < nLevels[0] - 1; i++) totalCount0 += histData0[i];
-  for (int i = 0; i < nLevels[1] - 1; i++) totalCount1 += histData1[i];
-  for (int i = 0; i < nLevels[2] - 1; i++) totalCount2 += histData2[i];
-  for (int i = 0; i < nLevels[3] - 1; i++) totalCount3 += histData3[i];
+  for (int i = 0; i < nLevels[0] - 1; i++)
+    totalCount0 += histData0[i];
+  for (int i = 0; i < nLevels[1] - 1; i++)
+    totalCount1 += histData1[i];
+  for (int i = 0; i < nLevels[2] - 1; i++)
+    totalCount2 += histData2[i];
+  for (int i = 0; i < nLevels[3] - 1; i++)
+    totalCount3 += histData3[i];
 
   EXPECT_EQ(totalCount0, width * height) << "Channel 0: Total count should equal number of pixels";
   EXPECT_EQ(totalCount1, width * height) << "Channel 1: Total count should equal number of pixels";
@@ -336,7 +352,7 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R_Ctx) {
   // Ensure data is copied before histogram computation
   cudaDeviceSynchronize();
 
-  int nLevels[4] = {257, 257, 257, 257};  // nLevels must be nBins + 1
+  int nLevels[4] = {257, 257, 257, 257}; // nLevels must be nBins + 1
   Npp32s nLowerLevel[4] = {-256, -256, -256, -256};
   Npp32s nUpperLevel[4] = {256, 256, 256, 256};
 
@@ -358,11 +374,8 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R_Ctx) {
   DeviceMemory<Npp8u> deviceBuffer;
   deviceBuffer.allocate(bufferSize);
 
-  status = nppiHistogramEven_16s_C4R_Ctx(
-      reinterpret_cast<const Npp16s*>(src.get()), src.step(),
-      roi, pHist, nLevels, nLowerLevel, nUpperLevel,
-      deviceBuffer.get(), nppStreamCtx
-  );
+  status = nppiHistogramEven_16s_C4R_Ctx(reinterpret_cast<const Npp16s *>(src.get()), src.step(), roi, pHist, nLevels,
+                                         nLowerLevel, nUpperLevel, deviceBuffer.get(), nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -380,31 +393,44 @@ TEST_F(NPPIHistogramEvenC4RTest, HistogramEven_16s_C4R_Ctx) {
   Npp16s signedVal0 = -100;
   int pixelValue0 = static_cast<int>(signedVal0);
   int expectedBin0 = ((pixelValue0 - nLowerLevel[0]) * (nLevels[0] - 1)) / (nUpperLevel[0] - nLowerLevel[0]);
-  if (expectedBin0 >= nLevels[0] - 1) expectedBin0 = nLevels[0] - 2;
-  if (expectedBin0 < 0) expectedBin0 = 0;
-  EXPECT_EQ(histData0[expectedBin0], width * height) << "Channel 0: All pixels with value -100 should be in bin " << expectedBin0;
+  if (expectedBin0 >= nLevels[0] - 1)
+    expectedBin0 = nLevels[0] - 2;
+  if (expectedBin0 < 0)
+    expectedBin0 = 0;
+  EXPECT_EQ(histData0[expectedBin0], width * height)
+      << "Channel 0: All pixels with value -100 should be in bin " << expectedBin0;
 
   // Channel 1: value 0
   int expectedBin1 = ((0 - nLowerLevel[1]) * (nLevels[1] - 1)) / (nUpperLevel[1] - nLowerLevel[1]);
-  if (expectedBin1 >= nLevels[1] - 1) expectedBin1 = nLevels[1] - 2;
-  EXPECT_EQ(histData1[expectedBin1], width * height) << "Channel 1: All pixels with value 0 should be in bin " << expectedBin1;
+  if (expectedBin1 >= nLevels[1] - 1)
+    expectedBin1 = nLevels[1] - 2;
+  EXPECT_EQ(histData1[expectedBin1], width * height)
+      << "Channel 1: All pixels with value 0 should be in bin " << expectedBin1;
 
   // Channel 2: value 100
   int expectedBin2 = ((100 - nLowerLevel[2]) * (nLevels[2] - 1)) / (nUpperLevel[2] - nLowerLevel[2]);
-  if (expectedBin2 >= nLevels[2] - 1) expectedBin2 = nLevels[2] - 2;
-  EXPECT_EQ(histData2[expectedBin2], width * height) << "Channel 2: All pixels with value 100 should be in bin " << expectedBin2;
+  if (expectedBin2 >= nLevels[2] - 1)
+    expectedBin2 = nLevels[2] - 2;
+  EXPECT_EQ(histData2[expectedBin2], width * height)
+      << "Channel 2: All pixels with value 100 should be in bin " << expectedBin2;
 
   // Channel 3: value 200
   int expectedBin3 = ((200 - nLowerLevel[3]) * (nLevels[3] - 1)) / (nUpperLevel[3] - nLowerLevel[3]);
-  if (expectedBin3 >= nLevels[3] - 1) expectedBin3 = nLevels[3] - 2;
-  EXPECT_EQ(histData3[expectedBin3], width * height) << "Channel 3: All pixels with value 200 should be in bin " << expectedBin3;
+  if (expectedBin3 >= nLevels[3] - 1)
+    expectedBin3 = nLevels[3] - 2;
+  EXPECT_EQ(histData3[expectedBin3], width * height)
+      << "Channel 3: All pixels with value 200 should be in bin " << expectedBin3;
 
   // Verify total counts for all channels
   int totalCount0 = 0, totalCount1 = 0, totalCount2 = 0, totalCount3 = 0;
-  for (int i = 0; i < nLevels[0] - 1; i++) totalCount0 += histData0[i];
-  for (int i = 0; i < nLevels[1] - 1; i++) totalCount1 += histData1[i];
-  for (int i = 0; i < nLevels[2] - 1; i++) totalCount2 += histData2[i];
-  for (int i = 0; i < nLevels[3] - 1; i++) totalCount3 += histData3[i];
+  for (int i = 0; i < nLevels[0] - 1; i++)
+    totalCount0 += histData0[i];
+  for (int i = 0; i < nLevels[1] - 1; i++)
+    totalCount1 += histData1[i];
+  for (int i = 0; i < nLevels[2] - 1; i++)
+    totalCount2 += histData2[i];
+  for (int i = 0; i < nLevels[3] - 1; i++)
+    totalCount3 += histData3[i];
 
   EXPECT_EQ(totalCount0, width * height) << "Channel 0: Total count should equal number of pixels";
   EXPECT_EQ(totalCount1, width * height) << "Channel 1: Total count should equal number of pixels";

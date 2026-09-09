@@ -65,7 +65,7 @@ NppStatus meanStdDevBufferSize(NppiSize roi, size_t arraysPerBlock, size_t *buff
   if (!bufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (roi.width <= 0 || roi.height <= 0) {
+  if (roi.width < 0 || roi.height < 0) {
     return NPP_SIZE_ERROR;
   }
   const size_t pixels = static_cast<size_t>(roi.width) * static_cast<size_t>(roi.height);
@@ -77,7 +77,7 @@ NppStatus meanStdDevBufferSize(NppiSize roi, size_t arraysPerBlock, size_t *buff
 } // namespace
 
 NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
-                                                NppStreamContext /*nppStreamCtx*/) {
+                                               NppStreamContext /*nppStreamCtx*/) {
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -108,71 +108,67 @@ NppStatus meanMultiChannelBufferSize(NppiSize roi, int channels, int *bufferSize
   return status;
 }
 
-NppStatus mean8uMultiChannel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int sourceChannels,
-                             int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean,
-                             NppStreamContext nppStreamCtx) {
+NppStatus mean8uMultiChannel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int sourceChannels, int outputChannels,
+                             Npp8u *pDeviceBuffer, Npp64f *pMean, NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDeviceBuffer || !pMean) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * sourceChannels) {
     return NPP_STEP_ERROR;
   }
   const cudaError_t status = nppiMean_8u_CxR_kernel(pSrc, nSrcStep, oSizeROI, sourceChannels, outputChannels,
-                                                     pDeviceBuffer, pMean, nppStreamCtx.hStream);
+                                                    pDeviceBuffer, pMean, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus mean16uMultiChannel(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, int sourceChannels,
-                              int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean,
-                              NppStreamContext nppStreamCtx) {
+                              int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean, NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDeviceBuffer || !pMean) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(Npp16u))) {
     return NPP_STEP_ERROR;
   }
   const cudaError_t status = nppiMean_16u_CxR_kernel(pSrc, nSrcStep, oSizeROI, sourceChannels, outputChannels,
-                                                      pDeviceBuffer, pMean, nppStreamCtx.hStream);
+                                                     pDeviceBuffer, pMean, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus mean16sMultiChannel(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, int sourceChannels,
-                              int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean,
-                              NppStreamContext nppStreamCtx) {
+                              int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean, NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDeviceBuffer || !pMean) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(Npp16s))) {
     return NPP_STEP_ERROR;
   }
   const cudaError_t status = nppiMean_16s_CxR_kernel(pSrc, nSrcStep, oSizeROI, sourceChannels, outputChannels,
-                                                      pDeviceBuffer, pMean, nppStreamCtx.hStream);
+                                                     pDeviceBuffer, pMean, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus mean32fMultiChannel(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, int sourceChannels,
-                              int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean,
-                              NppStreamContext nppStreamCtx) {
+                              int outputChannels, Npp8u *pDeviceBuffer, Npp64f *pMean, NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDeviceBuffer || !pMean) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(Npp32f))) {
     return NPP_STEP_ERROR;
   }
   const cudaError_t status = nppiMean_32f_CxR_kernel(pSrc, nSrcStep, oSizeROI, sourceChannels, outputChannels,
-                                                      pDeviceBuffer, pMean, nppStreamCtx.hStream);
+                                                     pDeviceBuffer, pMean, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -182,19 +178,21 @@ using MaskedMeanKernel = cudaError_t (*)(const T *, int, const Npp8u *, int, Npp
 
 template <typename T>
 NppStatus meanMasked(const T *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
-                     int sourceChannels, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
-                     NppStreamContext nppStreamCtx, MaskedMeanKernel<T> kernel) {
+                     int sourceChannels, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean, NppStreamContext nppStreamCtx,
+                     MaskedMeanKernel<T> kernel) {
   if (!pSrc || !pMask || !pDeviceBuffer || !pMean) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(T)) || nMaskStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
   if (sourceChannels == 3 && (nCOI < 1 || nCOI > 3)) {
-    return NPP_COI_ERROR;
+    // NVIDIA NPP accepts out-of-range COI and writes a zero mean
+    const cudaError_t status = cudaMemsetAsync(pMean, 0, sizeof(Npp64f), nppStreamCtx.hStream);
+    return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
   const cudaError_t status = kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, sourceChannels, nCOI, pDeviceBuffer,
                                     pMean, nppStreamCtx.hStream);
@@ -209,10 +207,10 @@ template <typename T>
 NppStatus meanStdDevGeneric(const T *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
                             int sourceChannels, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev,
                             NppStreamContext nppStreamCtx, MeanStdDevGenericKernel<T> kernel) {
-  if (!pSrc || !pDeviceBuffer || !pMean || !pStdDev || (pMask == nullptr && nMaskStep != 0)) {
+  if (!pSrc || !pDeviceBuffer || (pMask == nullptr && nMaskStep != 0)) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * sourceChannels * static_cast<int>(sizeof(T)) ||
@@ -523,13 +521,13 @@ NppStatus nppiMean_8u_C1MR_Ctx(const Npp8u *src, int srcStep, const Npp8u *mask,
                                Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
   return meanMasked(src, srcStep, mask, maskStep, roi, 1, 1, buffer, mean, context, nppiMean_8u_CxMR_kernel);
 }
-NppStatus nppiMean_8u_C1MR(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
-                           Npp8u *buffer, Npp64f *mean) {
+NppStatus nppiMean_8u_C1MR(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, Npp8u *buffer,
+                           Npp64f *mean) {
   NppStreamContext context{};
   return nppiMean_8u_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
 }
-NppStatus nppiMean_8u_C3CMR_Ctx(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
-                                int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+NppStatus nppiMean_8u_C3CMR_Ctx(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
   return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_8u_CxMR_kernel);
 }
 NppStatus nppiMean_8u_C3CMR(const Npp8u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
@@ -542,13 +540,13 @@ NppStatus nppiMean_8s_C1MR_Ctx(const Npp8s *src, int srcStep, const Npp8u *mask,
                                Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
   return meanMasked(src, srcStep, mask, maskStep, roi, 1, 1, buffer, mean, context, nppiMean_8s_CxMR_kernel);
 }
-NppStatus nppiMean_8s_C1MR(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
-                           Npp8u *buffer, Npp64f *mean) {
+NppStatus nppiMean_8s_C1MR(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, Npp8u *buffer,
+                           Npp64f *mean) {
   NppStreamContext context{};
   return nppiMean_8s_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
 }
-NppStatus nppiMean_8s_C3CMR_Ctx(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
-                                int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+NppStatus nppiMean_8s_C3CMR_Ctx(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
   return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_8s_CxMR_kernel);
 }
 NppStatus nppiMean_8s_C3CMR(const Npp8s *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
@@ -566,8 +564,8 @@ NppStatus nppiMean_16u_C1MR(const Npp16u *src, int srcStep, const Npp8u *mask, i
   NppStreamContext context{};
   return nppiMean_16u_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
 }
-NppStatus nppiMean_16u_C3CMR_Ctx(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
-                                 int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+NppStatus nppiMean_16u_C3CMR_Ctx(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                 Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
   return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_16u_CxMR_kernel);
 }
 NppStatus nppiMean_16u_C3CMR(const Npp16u *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
@@ -585,8 +583,8 @@ NppStatus nppiMean_32f_C1MR(const Npp32f *src, int srcStep, const Npp8u *mask, i
   NppStreamContext context{};
   return nppiMean_32f_C1MR_Ctx(src, srcStep, mask, maskStep, roi, buffer, mean, context);
 }
-NppStatus nppiMean_32f_C3CMR_Ctx(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi,
-                                 int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
+NppStatus nppiMean_32f_C3CMR_Ctx(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                 Npp8u *buffer, Npp64f *mean, NppStreamContext context) {
   return meanMasked(src, srcStep, mask, maskStep, roi, 3, coi, buffer, mean, context, nppiMean_32f_CxMR_kernel);
 }
 NppStatus nppiMean_32f_C3CMR(const Npp32f *src, int srcStep, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
@@ -688,8 +686,8 @@ NppStatus nppiMean_StdDev_8s_C1MR(const Npp8s *src, int step, const Npp8u *mask,
   NppStreamContext context{};
   return nppiMean_StdDev_8s_C1MR_Ctx(src, step, mask, maskStep, roi, buffer, mean, stddev, context);
 }
-NppStatus nppiMean_StdDev_8s_C3CR_Ctx(const Npp8s *src, int step, NppiSize roi, int coi, Npp8u *buffer,
-                                      Npp64f *mean, Npp64f *stddev, NppStreamContext context) {
+NppStatus nppiMean_StdDev_8s_C3CR_Ctx(const Npp8s *src, int step, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
+                                      Npp64f *stddev, NppStreamContext context) {
   return meanStdDevGeneric(src, step, nullptr, 0, roi, 3, coi, buffer, mean, stddev, context,
                            nppiMeanStdDev_8s_CxR_kernel);
 }
@@ -699,13 +697,12 @@ NppStatus nppiMean_StdDev_8s_C3CR(const Npp8s *src, int step, NppiSize roi, int 
   return nppiMean_StdDev_8s_C3CR_Ctx(src, step, roi, coi, buffer, mean, stddev, context);
 }
 NppStatus nppiMean_StdDev_8s_C3CMR_Ctx(const Npp8s *src, int step, const Npp8u *mask, int maskStep, NppiSize roi,
-                                       int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev,
-                                       NppStreamContext context) {
+                                       int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev, NppStreamContext context) {
   return meanStdDevGeneric(src, step, mask, maskStep, roi, 3, coi, buffer, mean, stddev, context,
                            nppiMeanStdDev_8s_CxR_kernel);
 }
-NppStatus nppiMean_StdDev_8s_C3CMR(const Npp8s *src, int step, const Npp8u *mask, int maskStep, NppiSize roi,
-                                   int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev) {
+NppStatus nppiMean_StdDev_8s_C3CMR(const Npp8s *src, int step, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                   Npp8u *buffer, Npp64f *mean, Npp64f *stddev) {
   NppStreamContext context{};
   return nppiMean_StdDev_8s_C3CMR_Ctx(src, step, mask, maskStep, roi, coi, buffer, mean, stddev, context);
 }
@@ -730,13 +727,13 @@ NppStatus nppiMean_StdDev_16u_C1MR(const Npp16u *src, int step, const Npp8u *mas
   NppStreamContext context{};
   return nppiMean_StdDev_16u_C1MR_Ctx(src, step, mask, maskStep, roi, buffer, mean, stddev, context);
 }
-NppStatus nppiMean_StdDev_16u_C3CR_Ctx(const Npp16u *src, int step, NppiSize roi, int coi, Npp8u *buffer,
-                                       Npp64f *mean, Npp64f *stddev, NppStreamContext context) {
+NppStatus nppiMean_StdDev_16u_C3CR_Ctx(const Npp16u *src, int step, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
+                                       Npp64f *stddev, NppStreamContext context) {
   return meanStdDevGeneric(src, step, nullptr, 0, roi, 3, coi, buffer, mean, stddev, context,
                            nppiMeanStdDev_16u_CxR_kernel);
 }
-NppStatus nppiMean_StdDev_16u_C3CR(const Npp16u *src, int step, NppiSize roi, int coi, Npp8u *buffer,
-                                   Npp64f *mean, Npp64f *stddev) {
+NppStatus nppiMean_StdDev_16u_C3CR(const Npp16u *src, int step, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
+                                   Npp64f *stddev) {
   NppStreamContext context{};
   return nppiMean_StdDev_16u_C3CR_Ctx(src, step, roi, coi, buffer, mean, stddev, context);
 }
@@ -746,19 +743,19 @@ NppStatus nppiMean_StdDev_16u_C3CMR_Ctx(const Npp16u *src, int step, const Npp8u
   return meanStdDevGeneric(src, step, mask, maskStep, roi, 3, coi, buffer, mean, stddev, context,
                            nppiMeanStdDev_16u_CxR_kernel);
 }
-NppStatus nppiMean_StdDev_16u_C3CMR(const Npp16u *src, int step, const Npp8u *mask, int maskStep, NppiSize roi,
-                                    int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev) {
+NppStatus nppiMean_StdDev_16u_C3CMR(const Npp16u *src, int step, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                    Npp8u *buffer, Npp64f *mean, Npp64f *stddev) {
   NppStreamContext context{};
   return nppiMean_StdDev_16u_C3CMR_Ctx(src, step, mask, maskStep, roi, coi, buffer, mean, stddev, context);
 }
 
-NppStatus nppiMean_StdDev_32f_C3CR_Ctx(const Npp32f *src, int step, NppiSize roi, int coi, Npp8u *buffer,
-                                       Npp64f *mean, Npp64f *stddev, NppStreamContext context) {
+NppStatus nppiMean_StdDev_32f_C3CR_Ctx(const Npp32f *src, int step, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
+                                       Npp64f *stddev, NppStreamContext context) {
   return meanStdDevGeneric(src, step, nullptr, 0, roi, 3, coi, buffer, mean, stddev, context,
                            nppiMeanStdDev_32f_CxR_kernel);
 }
-NppStatus nppiMean_StdDev_32f_C3CR(const Npp32f *src, int step, NppiSize roi, int coi, Npp8u *buffer,
-                                   Npp64f *mean, Npp64f *stddev) {
+NppStatus nppiMean_StdDev_32f_C3CR(const Npp32f *src, int step, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
+                                   Npp64f *stddev) {
   NppStreamContext context{};
   return nppiMean_StdDev_32f_C3CR_Ctx(src, step, roi, coi, buffer, mean, stddev, context);
 }
@@ -768,14 +765,14 @@ NppStatus nppiMean_StdDev_32f_C3CMR_Ctx(const Npp32f *src, int step, const Npp8u
   return meanStdDevGeneric(src, step, mask, maskStep, roi, 3, coi, buffer, mean, stddev, context,
                            nppiMeanStdDev_32f_CxR_kernel);
 }
-NppStatus nppiMean_StdDev_32f_C3CMR(const Npp32f *src, int step, const Npp8u *mask, int maskStep, NppiSize roi,
-                                    int coi, Npp8u *buffer, Npp64f *mean, Npp64f *stddev) {
+NppStatus nppiMean_StdDev_32f_C3CMR(const Npp32f *src, int step, const Npp8u *mask, int maskStep, NppiSize roi, int coi,
+                                    Npp8u *buffer, Npp64f *mean, Npp64f *stddev) {
   NppStreamContext context{};
   return nppiMean_StdDev_32f_C3CMR_Ctx(src, step, mask, maskStep, roi, coi, buffer, mean, stddev, context);
 }
 
 NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
-                                                        NppStreamContext /*nppStreamCtx*/) {
+                                                       NppStreamContext /*nppStreamCtx*/) {
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -792,12 +789,12 @@ NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBuf
   return nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, context);
 }
 
-NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
-                              Npp64f *pMean, NppStreamContext nppStreamCtx) {
+NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean,
+                              NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDeviceBuffer || !pMean) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width) {
@@ -808,8 +805,7 @@ NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiMean_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
-                          Npp64f *pMean) {
+NppStatus nppiMean_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean) {
   NppStreamContext context{};
   return nppiMean_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, context);
 }
@@ -820,14 +816,14 @@ NppStatus nppiAverageError_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const N
   if (!pSrc1 || !pSrc2 || !pError || !pDeviceBuffer) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrc1Step < oSizeROI.width || nSrc2Step < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
-  const cudaError_t status = nppiAverageError_8u_C1R_kernel(
-      pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError, pDeviceBuffer, nppStreamCtx.hStream);
+  const cudaError_t status = nppiAverageError_8u_C1R_kernel(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError,
+                                                            pDeviceBuffer, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -845,7 +841,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -873,7 +869,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, size_t 
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -1004,7 +1000,7 @@ NppStatus nppiMean_StdDev_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize o
   if (!pSrc || !pDeviceBuffer || !pMean || !pStdDev) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width) {
@@ -1032,7 +1028,7 @@ NppStatus nppiMean_StdDev_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize
   if (!pSrc || !pDeviceBuffer || !pMean || !pStdDev) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f))) {
@@ -1059,7 +1055,7 @@ NppStatus nppiMean_StdDev_8u_C3CR_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize 
   if (!pSrc || !pDeviceBuffer || !pMean || !pStdDev) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * 3) {
@@ -1073,8 +1069,8 @@ NppStatus nppiMean_StdDev_8u_C3CR_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize 
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-NppStatus nppiMean_StdDev_8u_C3CR(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int nCOI,
-                                  Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
+NppStatus nppiMean_StdDev_8u_C3CR(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer,
+                                  Npp64f *pMean, Npp64f *pStdDev) {
   NppStreamContext ctx{};
   return nppiMean_StdDev_8u_C3CR_Ctx(pSrc, nSrcStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev, ctx);
 }
@@ -1089,7 +1085,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, size_t 
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -1116,7 +1112,7 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, size_t
   if (!hpBufferSize) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
 
@@ -1177,7 +1173,7 @@ NppStatus nppiMean_StdDev_8u_C1MR_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp
   if (!pSrc || !pMask || !pDeviceBuffer || !pMean || !pStdDev) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width || nMaskStep < oSizeROI.width) {
@@ -1206,7 +1202,7 @@ NppStatus nppiMean_StdDev_32f_C1MR_Ctx(const Npp32f *pSrc, int nSrcStep, const N
   if (!pSrc || !pMask || !pDeviceBuffer || !pMean || !pStdDev) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < static_cast<int>(oSizeROI.width * sizeof(Npp32f)) || nMaskStep < oSizeROI.width) {
@@ -1233,7 +1229,7 @@ NppStatus nppiMean_StdDev_8u_C3CMR_Ctx(const Npp8u *pSrc, int nSrcStep, const Np
   if (!pSrc || !pMask || !pDeviceBuffer || !pMean || !pStdDev) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
   if (nSrcStep < oSizeROI.width * 3 || nMaskStep < oSizeROI.width) {
@@ -1242,14 +1238,13 @@ NppStatus nppiMean_StdDev_8u_C3CMR_Ctx(const Npp8u *pSrc, int nSrcStep, const Np
   if (nCOI < 1 || nCOI > 3) {
     return NPP_COI_ERROR;
   }
-  const cudaError_t status = nppiMean_StdDev_8u_C3CMR_kernel(
-      pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream);
+  const cudaError_t status = nppiMean_StdDev_8u_C3CMR_kernel(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, nCOI,
+                                                             pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream);
   return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus nppiMean_StdDev_8u_C3CMR(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
-                                   NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean,
-                                   Npp64f *pStdDev) {
+                                   NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
   NppStreamContext ctx{};
   return nppiMean_StdDev_8u_C3CMR_Ctx(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev,
                                       ctx);

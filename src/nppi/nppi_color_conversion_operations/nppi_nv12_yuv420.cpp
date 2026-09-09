@@ -3,12 +3,12 @@
 
 extern "C" {
 cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcUV, int nSrcUVStep,
-                                             Npp8u *pDstY, int nDstYStep, Npp8u *pDstU, int nDstUStep,
-                                             Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI, cudaStream_t stream);
+                                             Npp8u *pDstY, int nDstYStep, Npp8u *pDstU, int nDstUStep, Npp8u *pDstV,
+                                             int nDstVStep, NppiSize oSizeROI, cudaStream_t stream);
 }
 
-static NppStatus validateNV12ToYUV420Inputs(const Npp8u *const pSrc[2], int nSrcStep, Npp8u *pDst[3],
-                                            int aDstStep[3], NppiSize oSizeROI) {
+static NppStatus validateNV12ToYUV420Inputs(const Npp8u *const pSrc[2], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
+                                            NppiSize oSizeROI) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -34,9 +34,9 @@ NppStatus nppiNV12ToYUV420_8u_P2P3R_Ctx(const Npp8u *const pSrc[2], int nSrcStep
     return status;
   }
 
-  cudaError_t cudaStatus = nppiNV12ToYUV420_8u_P2P3R_kernel(pSrc[0], nSrcStep, pSrc[1], nSrcStep, pDst[0], aDstStep[0],
-                                                            pDst[1], aDstStep[1], pDst[2], aDstStep[2], oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiNV12ToYUV420_8u_P2P3R_kernel(pSrc[0], nSrcStep, pSrc[1], nSrcStep, pDst[0], aDstStep[0], pDst[1], aDstStep[1],
+                                       pDst[2], aDstStep[2], oSizeROI, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }

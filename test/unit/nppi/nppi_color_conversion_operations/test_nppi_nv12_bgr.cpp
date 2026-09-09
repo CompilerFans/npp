@@ -390,7 +390,8 @@ TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_CameraSize_1280x720) {
   std::vector<Npp8u> uvData(static_cast<size_t>(camWidth) * camHeight / 2);
   for (int y = 0; y < camHeight; ++y) {
     for (int x = 0; x < camWidth; ++x) {
-      yData[static_cast<size_t>(y) * camWidth + x] = static_cast<Npp8u>(16 + (x + y) * 219 / (camWidth + camHeight - 2));
+      yData[static_cast<size_t>(y) * camWidth + x] =
+          static_cast<Npp8u>(16 + (x + y) * 219 / (camWidth + camHeight - 2));
     }
   }
   for (int y = 0; y < camHeight / 2; ++y) {
@@ -472,8 +473,7 @@ TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_PaddedLineSize) {
   ASSERT_NE(d_refBgr, nullptr);
   ASSERT_NE(d_padBgr, nullptr);
   ASSERT_EQ(cudaMemcpy2D(d_refY, width, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy2D(d_refUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_refUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice), cudaSuccess);
   ASSERT_EQ(cudaMemcpy2D(d_padY, paddedStep, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
   ASSERT_EQ(cudaMemcpy2D(d_padUV, paddedStep, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
             cudaSuccess);
@@ -535,8 +535,7 @@ TEST_F(NV12ToBGRTest, NV12ToBGR_709CSC_PartialEvenROI) {
   ASSERT_NE(d_fullBgr, nullptr);
   ASSERT_NE(d_roiBgr, nullptr);
   ASSERT_EQ(cudaMemcpy2D(d_srcY, width, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy2D(d_srcUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_srcUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice), cudaSuccess);
 
   // Reference: full-image conversion, then take the same ROI window.
   const NppiSize fullRoi{width, height};

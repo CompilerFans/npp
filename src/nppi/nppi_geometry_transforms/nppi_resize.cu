@@ -143,10 +143,9 @@ NppStatus resizeImpl(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oS
   return NPP_SUCCESS;
 }
 
-__global__ void resizeSqrPixel8uC4Kernel(const Npp8u *pSrc, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                         int nDstStep, NppiRect oDstROI, double inverseXFactor,
-                                         double inverseYFactor, double adjustedXShift, double adjustedYShift,
-                                         int interpolation) {
+__global__ void resizeSqrPixel8uC4Kernel(const Npp8u *pSrc, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst, int nDstStep,
+                                         NppiRect oDstROI, double inverseXFactor, double inverseYFactor,
+                                         double adjustedXShift, double adjustedYShift, int interpolation) {
   const int localX = blockIdx.x * blockDim.x + threadIdx.x;
   const int localY = blockIdx.y * blockDim.y + threadIdx.y;
   if (localX >= oDstROI.width || localY >= oDstROI.height) {
@@ -161,8 +160,7 @@ __global__ void resizeSqrPixel8uC4Kernel(const Npp8u *pSrc, int nSrcStep, NppiRe
     return;
   }
 
-  Npp8u *destinationRow =
-      reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pDst) + destinationY * nDstStep);
+  Npp8u *destinationRow = reinterpret_cast<Npp8u *>(reinterpret_cast<char *>(pDst) + destinationY * nDstStep);
   if (interpolation == NPPI_INTER_NN) {
     int sourcePixelX = static_cast<int>(floor(sourceX + 0.5));
     int sourcePixelY = static_cast<int>(floor(sourceY + 0.5));
@@ -224,19 +222,19 @@ NppStatus nppiResize_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
                               eInterpolation, nppStreamCtx);
 }
 
-NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize /*oSrcSize*/, int nSrcStep,
-                                             NppiRect oSrcROI, Npp8u *pDst, int nDstStep, NppiRect oDstROI,
-                                             double nXFactor, double nYFactor, double nXShift, double nYShift,
-                                             int eInterpolation, NppStreamContext nppStreamCtx) {
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize /*oSrcSize*/, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
+                                             double nYFactor, double nXShift, double nYShift, int eInterpolation,
+                                             NppStreamContext nppStreamCtx) {
   const double inverseXFactor = 1.0 / nXFactor;
   const double inverseYFactor = 1.0 / nYFactor;
   const double adjustedXShift = nXShift * inverseXFactor + (1.0 - inverseXFactor) * 0.5;
   const double adjustedYShift = nYShift * inverseYFactor + (1.0 - inverseYFactor) * 0.5;
   const dim3 block(16, 16);
   const dim3 grid((oDstROI.width + block.x - 1) / block.x, (oDstROI.height + block.y - 1) / block.y);
-  resizeSqrPixel8uC4Kernel<<<grid, block, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, inverseXFactor, inverseYFactor, adjustedXShift,
-      adjustedYShift, eInterpolation);
+  resizeSqrPixel8uC4Kernel<<<grid, block, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
+                                                                     inverseXFactor, inverseYFactor, adjustedXShift,
+                                                                     adjustedYShift, eInterpolation);
   return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 

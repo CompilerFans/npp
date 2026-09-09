@@ -689,7 +689,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_shared(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
       int range = nUpperLevel0 - nLowerLevel0;
       long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
-      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      if (bin >= nLevels0 - 1)
+        bin = nLevels0 - 2;
       atomicAdd(&shared_hist_16u_c4[bin], 1);
     }
 
@@ -698,7 +699,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_shared(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
       int range = nUpperLevel1 - nLowerLevel1;
       long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
-      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      if (bin >= nLevels1 - 1)
+        bin = nLevels1 - 2;
       atomicAdd(&shared_hist_16u_c4[(nLevels0 - 1) + bin], 1);
     }
 
@@ -707,7 +709,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_shared(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
       int range = nUpperLevel2 - nLowerLevel2;
       long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
-      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      if (bin >= nLevels2 - 1)
+        bin = nLevels2 - 2;
       atomicAdd(&shared_hist_16u_c4[(nLevels0 - 1) + (nLevels1 - 1) + bin], 1);
     }
 
@@ -716,7 +719,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_shared(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
       int range = nUpperLevel3 - nLowerLevel3;
       long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
-      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      if (bin >= nLevels3 - 1)
+        bin = nLevels3 - 2;
       atomicAdd(&shared_hist_16u_c4[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + bin], 1);
     }
   }
@@ -753,7 +757,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_global(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
       int range = nUpperLevel0 - nLowerLevel0;
       long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
-      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      if (bin >= nLevels0 - 1)
+        bin = nLevels0 - 2;
       atomicAdd(&pHist0[bin], 1);
     }
 
@@ -761,7 +766,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_global(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
       int range = nUpperLevel1 - nLowerLevel1;
       long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
-      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      if (bin >= nLevels1 - 1)
+        bin = nLevels1 - 2;
       atomicAdd(&pHist1[bin], 1);
     }
 
@@ -769,7 +775,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_global(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
       int range = nUpperLevel2 - nLowerLevel2;
       long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
-      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      if (bin >= nLevels2 - 1)
+        bin = nLevels2 - 2;
       atomicAdd(&pHist2[bin], 1);
     }
 
@@ -777,7 +784,8 @@ __global__ void nppiHistogramEven_16u_C4R_kernel_global(const Npp16u *pSrc, int 
     if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
       int range = nUpperLevel3 - nLowerLevel3;
       long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
-      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      if (bin >= nLevels3 - 1)
+        bin = nLevels3 - 2;
       atomicAdd(&pHist3[bin], 1);
     }
   }
@@ -815,7 +823,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_shared(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
       int range = nUpperLevel0 - nLowerLevel0;
       long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
-      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      if (bin >= nLevels0 - 1)
+        bin = nLevels0 - 2;
       atomicAdd(&shared_hist_16s_c4[bin], 1);
     }
 
@@ -823,7 +832,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_shared(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
       int range = nUpperLevel1 - nLowerLevel1;
       long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
-      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      if (bin >= nLevels1 - 1)
+        bin = nLevels1 - 2;
       atomicAdd(&shared_hist_16s_c4[(nLevels0 - 1) + bin], 1);
     }
 
@@ -831,7 +841,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_shared(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
       int range = nUpperLevel2 - nLowerLevel2;
       long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
-      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      if (bin >= nLevels2 - 1)
+        bin = nLevels2 - 2;
       atomicAdd(&shared_hist_16s_c4[(nLevels0 - 1) + (nLevels1 - 1) + bin], 1);
     }
 
@@ -839,7 +850,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_shared(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
       int range = nUpperLevel3 - nLowerLevel3;
       long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
-      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      if (bin >= nLevels3 - 1)
+        bin = nLevels3 - 2;
       atomicAdd(&shared_hist_16s_c4[(nLevels0 - 1) + (nLevels1 - 1) + (nLevels2 - 1) + bin], 1);
     }
   }
@@ -876,7 +888,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_global(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel0 && pixel_value < nUpperLevel0) {
       int range = nUpperLevel0 - nLowerLevel0;
       long long bin = ((long long)(pixel_value - nLowerLevel0) * (nLevels0 - 1)) / range;
-      if (bin >= nLevels0 - 1) bin = nLevels0 - 2;
+      if (bin >= nLevels0 - 1)
+        bin = nLevels0 - 2;
       atomicAdd(&pHist0[bin], 1);
     }
 
@@ -884,7 +897,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_global(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel1 && pixel_value < nUpperLevel1) {
       int range = nUpperLevel1 - nLowerLevel1;
       long long bin = ((long long)(pixel_value - nLowerLevel1) * (nLevels1 - 1)) / range;
-      if (bin >= nLevels1 - 1) bin = nLevels1 - 2;
+      if (bin >= nLevels1 - 1)
+        bin = nLevels1 - 2;
       atomicAdd(&pHist1[bin], 1);
     }
 
@@ -892,7 +906,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_global(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel2 && pixel_value < nUpperLevel2) {
       int range = nUpperLevel2 - nLowerLevel2;
       long long bin = ((long long)(pixel_value - nLowerLevel2) * (nLevels2 - 1)) / range;
-      if (bin >= nLevels2 - 1) bin = nLevels2 - 2;
+      if (bin >= nLevels2 - 1)
+        bin = nLevels2 - 2;
       atomicAdd(&pHist2[bin], 1);
     }
 
@@ -900,7 +915,8 @@ __global__ void nppiHistogramEven_16s_C4R_kernel_global(const Npp16s *pSrc, int 
     if (pixel_value >= nLowerLevel3 && pixel_value < nUpperLevel3) {
       int range = nUpperLevel3 - nLowerLevel3;
       long long bin = ((long long)(pixel_value - nLowerLevel3) * (nLevels3 - 1)) / range;
-      if (bin >= nLevels3 - 1) bin = nLevels3 - 2;
+      if (bin >= nLevels3 - 1)
+        bin = nLevels3 - 2;
       atomicAdd(&pHist3[bin], 1);
     }
   }
@@ -1117,8 +1133,8 @@ __global__ void nppiHistogramRange_16s_C1R_kernel_global(const Npp16s *pSrc, int
 __global__ void nppiHistogramRange_8u_C4R_kernel_shared(const Npp8u *pSrc, int nSrcStep, int width, int height,
                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                         const Npp32s *pLevels0, const Npp32s *pLevels1,
-                                                        const Npp32s *pLevels2, const Npp32s *pLevels3,
-                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                        const Npp32s *pLevels2, const Npp32s *pLevels3, int nLevels0,
+                                                        int nLevels1, int nLevels2, int nLevels3) {
   extern __shared__ int shared_hist_8u_c4r[];
 
   int tid = threadIdx.x + threadIdx.y * blockDim.x;
@@ -1194,8 +1210,8 @@ __global__ void nppiHistogramRange_8u_C4R_kernel_shared(const Npp8u *pSrc, int n
 __global__ void nppiHistogramRange_8u_C4R_kernel_global(const Npp8u *pSrc, int nSrcStep, int width, int height,
                                                         Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                         const Npp32s *pLevels0, const Npp32s *pLevels1,
-                                                        const Npp32s *pLevels2, const Npp32s *pLevels3,
-                                                        int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                        const Npp32s *pLevels2, const Npp32s *pLevels3, int nLevels0,
+                                                        int nLevels1, int nLevels2, int nLevels3) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1247,8 +1263,8 @@ __global__ void nppiHistogramRange_8u_C4R_kernel_global(const Npp8u *pSrc, int n
 __global__ void nppiHistogramRange_16u_C4R_kernel_shared(const Npp16u *pSrc, int nSrcStep, int width, int height,
                                                          Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                          const Npp32s *pLevels0, const Npp32s *pLevels1,
-                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
-                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3, int nLevels0,
+                                                         int nLevels1, int nLevels2, int nLevels3) {
   extern __shared__ int shared_hist_16u_c4r[];
 
   int tid = threadIdx.x + threadIdx.y * blockDim.x;
@@ -1326,8 +1342,8 @@ __global__ void nppiHistogramRange_16u_C4R_kernel_shared(const Npp16u *pSrc, int
 __global__ void nppiHistogramRange_16u_C4R_kernel_global(const Npp16u *pSrc, int nSrcStep, int width, int height,
                                                          Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                          const Npp32s *pLevels0, const Npp32s *pLevels1,
-                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
-                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3, int nLevels0,
+                                                         int nLevels1, int nLevels2, int nLevels3) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1379,8 +1395,8 @@ __global__ void nppiHistogramRange_16u_C4R_kernel_global(const Npp16u *pSrc, int
 __global__ void nppiHistogramRange_16s_C4R_kernel_shared(const Npp16s *pSrc, int nSrcStep, int width, int height,
                                                          Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                          const Npp32s *pLevels0, const Npp32s *pLevels1,
-                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
-                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3, int nLevels0,
+                                                         int nLevels1, int nLevels2, int nLevels3) {
   extern __shared__ int shared_hist_16s_c4r[];
 
   int tid = threadIdx.x + threadIdx.y * blockDim.x;
@@ -1458,8 +1474,8 @@ __global__ void nppiHistogramRange_16s_C4R_kernel_shared(const Npp16s *pSrc, int
 __global__ void nppiHistogramRange_16s_C4R_kernel_global(const Npp16s *pSrc, int nSrcStep, int width, int height,
                                                          Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                          const Npp32s *pLevels0, const Npp32s *pLevels1,
-                                                         const Npp32s *pLevels2, const Npp32s *pLevels3,
-                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                         const Npp32s *pLevels2, const Npp32s *pLevels3, int nLevels0,
+                                                         int nLevels1, int nLevels2, int nLevels3) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1511,8 +1527,8 @@ __global__ void nppiHistogramRange_16s_C4R_kernel_global(const Npp16s *pSrc, int
 __global__ void nppiHistogramRange_32f_C4R_kernel_shared(const Npp32f *pSrc, int nSrcStep, int width, int height,
                                                          Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                          const Npp32f *pLevels0, const Npp32f *pLevels1,
-                                                         const Npp32f *pLevels2, const Npp32f *pLevels3,
-                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                         const Npp32f *pLevels2, const Npp32f *pLevels3, int nLevels0,
+                                                         int nLevels1, int nLevels2, int nLevels3) {
   extern __shared__ int shared_hist_32f_c4r[];
 
   int tid = threadIdx.x + threadIdx.y * blockDim.x;
@@ -1590,8 +1606,8 @@ __global__ void nppiHistogramRange_32f_C4R_kernel_shared(const Npp32f *pSrc, int
 __global__ void nppiHistogramRange_32f_C4R_kernel_global(const Npp32f *pSrc, int nSrcStep, int width, int height,
                                                          Npp32s *pHist0, Npp32s *pHist1, Npp32s *pHist2, Npp32s *pHist3,
                                                          const Npp32f *pLevels0, const Npp32f *pLevels1,
-                                                         const Npp32f *pLevels2, const Npp32f *pLevels3,
-                                                         int nLevels0, int nLevels1, int nLevels2, int nLevels3) {
+                                                         const Npp32f *pLevels2, const Npp32f *pLevels3, int nLevels0,
+                                                         int nLevels1, int nLevels2, int nLevels3) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1712,12 +1728,12 @@ NppStatus nppiHistogramRange_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
   if (totalBins <= 512 && imageSize < 1024 * 1024) {
     size_t sharedMemSize = totalBins * sizeof(int);
     nppiHistogramRange_8u_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   } else {
     nppiHistogramRange_8u_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   }
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -1744,12 +1760,12 @@ NppStatus nppiHistogramRange_16u_C4R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, 
   if (totalBins <= 512 && imageSize < 1024 * 1024) {
     size_t sharedMemSize = totalBins * sizeof(int);
     nppiHistogramRange_16u_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   } else {
     nppiHistogramRange_16u_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   }
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -1776,12 +1792,12 @@ NppStatus nppiHistogramRange_16s_C4R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, 
   if (totalBins <= 512 && imageSize < 1024 * 1024) {
     size_t sharedMemSize = totalBins * sizeof(int);
     nppiHistogramRange_16s_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   } else {
     nppiHistogramRange_16s_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   }
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -1808,12 +1824,12 @@ NppStatus nppiHistogramRange_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, 
   if (totalBins <= 512 && imageSize < 1024 * 1024) {
     size_t sharedMemSize = totalBins * sizeof(int);
     nppiHistogramRange_32f_C4R_kernel_shared<<<gridSize, blockSize, sharedMemSize, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   } else {
     nppiHistogramRange_32f_C4R_kernel_global<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0],
-        pLevels[1], pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
+        pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, pHist[0], pHist[1], pHist[2], pHist[3], pLevels[0], pLevels[1],
+        pLevels[2], pLevels[3], nLevels[0], nLevels[1], nLevels[2], nLevels[3]);
   }
 
   cudaError_t cudaStatus = cudaGetLastError();
@@ -1823,5 +1839,4 @@ NppStatus nppiHistogramRange_32f_C4R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, 
 
   return NPP_SUCCESS;
 }
-
 }

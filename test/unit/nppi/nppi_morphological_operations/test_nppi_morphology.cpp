@@ -104,8 +104,8 @@ PaddedBufferC4_32f *allocateWithPaddingC4_32f(int width, int height, int padding
   cudaMemset2D(buffer->base_ptr, buffer->step, 0, paddedWidth * 4 * sizeof(Npp32f), paddedHeight);
 
   // Calculate data pointer (points to start of actual ROI within padded buffer)
-  buffer->data_ptr = reinterpret_cast<Npp32f *>(
-      reinterpret_cast<char *>(buffer->base_ptr) + padding * buffer->step + padding * 4 * sizeof(Npp32f));
+  buffer->data_ptr = reinterpret_cast<Npp32f *>(reinterpret_cast<char *>(buffer->base_ptr) + padding * buffer->step +
+                                                padding * 4 * sizeof(Npp32f));
 
   return buffer;
 }

@@ -161,9 +161,8 @@ NppStatus nppiColorTwist32f_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
   return nppiColorTwist32f_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -196,8 +195,8 @@ NppStatus nppiColorTwist32f_8u_C2R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
   return nppiColorTwist32f_8u_C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -206,15 +205,14 @@ NppStatus nppiColorTwist32f_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSiz
   return nppiColorTwist32f_8u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                    const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_8u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -223,15 +221,14 @@ NppStatus nppiColorTwist32f_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSiz
   return nppiColorTwist32f_8u_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                    const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_8u_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -240,15 +237,14 @@ NppStatus nppiColorTwist32f_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSiz
   return nppiColorTwist32f_8u_C4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                    const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_8u_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C2IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_8u_C2IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                        NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -257,15 +253,14 @@ NppStatus nppiColorTwist32f_8u_C2IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSiz
   return nppiColorTwist32f_8u_C2IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_C2IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                    const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_8u_C2IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_8u_C2IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -274,16 +269,14 @@ NppStatus nppiColorTwist32f_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSi
   return nppiColorTwist32f_8u_AC4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_8u_AC4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
 NppStatus nppiColorTwist32f_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *const pDst[3], int nDstStep,
-                                       NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                       NppStreamContext nppStreamCtx) {
+                                       NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -324,9 +317,8 @@ NppStatus nppiColorTwist32f_8u_IP3R(Npp8u *const pSrcDst[3], int nSrcDstStep, Np
   return nppiColorTwist32f_8u_IP3R_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -341,9 +333,8 @@ NppStatus nppiColorTwist32f_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pD
   return nppiColorTwist32f_16u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C2R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16u_C2R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -358,9 +349,8 @@ NppStatus nppiColorTwist32f_16u_C2R(const Npp16u *pSrc, int nSrcStep, Npp16u *pD
   return nppiColorTwist32f_16u_C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16u_C3R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -376,8 +366,7 @@ NppStatus nppiColorTwist32f_16u_C3R(const Npp16u *pSrc, int nSrcStep, Npp16u *pD
 }
 
 NppStatus nppiColorTwist32f_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                         NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                         NppStreamContext nppStreamCtx) {
+                                         NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -385,16 +374,15 @@ NppStatus nppiColorTwist32f_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16
   return nppiColorTwist32f_16u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                     NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16u_AC4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
 NppStatus nppiColorTwist32f_16u_P3R_Ctx(const Npp16u *const pSrc[3], int nSrcStep, Npp16u *const pDst[3], int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+                                        NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -412,8 +400,8 @@ NppStatus nppiColorTwist32f_16u_P3R(const Npp16u *const pSrc[3], int nSrcStep, N
   return nppiColorTwist32f_16u_P3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C1IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16u_C1IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -421,15 +409,14 @@ NppStatus nppiColorTwist32f_16u_C1IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiS
   return nppiColorTwist32f_16u_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C1IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16u_C1IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C2IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16u_C2IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -437,15 +424,14 @@ NppStatus nppiColorTwist32f_16u_C2IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiS
   return nppiColorTwist32f_16u_C2IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C2IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16u_C2IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16u_C2IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C3IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16u_C3IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -453,8 +439,7 @@ NppStatus nppiColorTwist32f_16u_C3IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiS
   return nppiColorTwist32f_16u_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_C3IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16u_C3IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16u_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
@@ -469,8 +454,7 @@ NppStatus nppiColorTwist32f_16u_AC4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, Nppi
   return nppiColorTwist32f_16u_AC4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16u_AC4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                      const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16u_AC4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16u_AC4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
@@ -495,9 +479,8 @@ NppStatus nppiColorTwist32f_16u_IP3R(Npp16u *const pSrcDst[3], int nSrcDstStep, 
   return nppiColorTwist32f_16u_IP3R_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -512,9 +495,8 @@ NppStatus nppiColorTwist32f_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pD
   return nppiColorTwist32f_16s_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C2R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16s_C2R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -529,9 +511,8 @@ NppStatus nppiColorTwist32f_16s_C2R(const Npp16s *pSrc, int nSrcStep, Npp16s *pD
   return nppiColorTwist32f_16s_C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                        const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -547,8 +528,7 @@ NppStatus nppiColorTwist32f_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pD
 }
 
 NppStatus nppiColorTwist32f_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                         NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                         NppStreamContext nppStreamCtx) {
+                                         NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -556,16 +536,15 @@ NppStatus nppiColorTwist32f_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16
   return nppiColorTwist32f_16s_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                     NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
+                                     const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16s_AC4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
 NppStatus nppiColorTwist32f_16s_P3R_Ctx(const Npp16s *const pSrc[3], int nSrcStep, Npp16s *const pDst[3], int nDstStep,
-                                        NppiSize oSizeROI, const Npp32f aTwist[3][4],
-                                        NppStreamContext nppStreamCtx) {
+                                        NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -583,8 +562,8 @@ NppStatus nppiColorTwist32f_16s_P3R(const Npp16s *const pSrc[3], int nSrcStep, N
   return nppiColorTwist32f_16s_P3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -592,15 +571,14 @@ NppStatus nppiColorTwist32f_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiS
   return nppiColorTwist32f_16s_C1IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16s_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C2IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16s_C2IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -608,15 +586,14 @@ NppStatus nppiColorTwist32f_16s_C2IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiS
   return nppiColorTwist32f_16s_C2IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C2IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16s_C2IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16s_C2IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                         const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
+NppStatus nppiColorTwist32f_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4],
+                                         NppStreamContext nppStreamCtx) {
   NppStatus status = validateColorTwistInputs(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist);
   if (status != NPP_SUCCESS) {
     return status;
@@ -624,8 +601,7 @@ NppStatus nppiColorTwist32f_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiS
   return nppiColorTwist32f_16s_C3IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                     const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16s_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
@@ -640,8 +616,7 @@ NppStatus nppiColorTwist32f_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, Nppi
   return nppiColorTwist32f_16s_AC4IR_Ctx_impl(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
-NppStatus nppiColorTwist32f_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
-                                      const Npp32f aTwist[3][4]) {
+NppStatus nppiColorTwist32f_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
   return nppiColorTwist32f_16s_AC4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);

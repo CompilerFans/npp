@@ -8,8 +8,7 @@ namespace {
 
 constexpr float kInvSqrt3 = 0.5773502691896257f;
 
-template <typename DstT>
-__device__ inline DstT convertValue(float value) {
+template <typename DstT> __device__ inline DstT convertValue(float value) {
   if constexpr (std::is_same_v<DstT, Npp8u>) {
     if (value < 0.0f) {
       value = 0.0f;
@@ -77,11 +76,9 @@ __global__ void nppiGradientColorToGray_C3C1R_kernel(const SrcT *pSrc, int nSrcS
 
 template <typename SrcT, typename DstT, bool kScale>
 NppStatus nppiGradientColorToGray_C3C1R_Ctx_impl(const SrcT *pSrc, int nSrcStep, DstT *pDst, int nDstStep,
-                                                 NppiSize oSizeROI, NppiNorm eNorm,
-                                                 NppStreamContext nppStreamCtx) {
+                                                 NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiGradientColorToGray_C3C1R_kernel<SrcT, DstT, kScale><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, eNorm);
@@ -107,30 +104,26 @@ NppStatus nppiGradientColorToGray_C3C1R_Ctx_impl(const SrcT *pSrc, int nSrcStep,
 
 extern "C" {
 NppStatus nppiGradientColorToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                    NppiSize oSizeROI, NppiNorm eNorm,
-                                                    NppStreamContext nppStreamCtx) {
+                                                    NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   return nppiGradientColorToGray_C3C1R_Ctx_impl<Npp8u, Npp8u, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm,
-                                                                   nppStreamCtx);
+                                                                    nppStreamCtx);
 }
 
 NppStatus nppiGradientColorToGray_16u_C3C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
-                                                     NppiSize oSizeROI, NppiNorm eNorm,
-                                                     NppStreamContext nppStreamCtx) {
+                                                     NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   return nppiGradientColorToGray_C3C1R_Ctx_impl<Npp16u, Npp16u, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm,
-                                                                     nppStreamCtx);
+                                                                      nppStreamCtx);
 }
 
 NppStatus nppiGradientColorToGray_16s_C3C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep,
-                                                     NppiSize oSizeROI, NppiNorm eNorm,
-                                                     NppStreamContext nppStreamCtx) {
+                                                     NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   return nppiGradientColorToGray_C3C1R_Ctx_impl<Npp16s, Npp16s, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm,
-                                                                     nppStreamCtx);
+                                                                      nppStreamCtx);
 }
 
 NppStatus nppiGradientColorToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
-                                                     NppiSize oSizeROI, NppiNorm eNorm,
-                                                     NppStreamContext nppStreamCtx) {
+                                                     NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
   return nppiGradientColorToGray_C3C1R_Ctx_impl<Npp32f, Npp32f, false>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm,
-                                                                      nppStreamCtx);
+                                                                       nppStreamCtx);
 }
 }

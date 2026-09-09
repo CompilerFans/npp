@@ -2,8 +2,8 @@
 
 #include "npp.h"
 #include "npp_test_base.h"
-#include "npp_test_result_validator.h"
 #include "npp_test_rand_gen.h"
+#include "npp_test_result_validator.h"
 #include <cmath>
 #include <functional>
 #include <gtest/gtest.h>

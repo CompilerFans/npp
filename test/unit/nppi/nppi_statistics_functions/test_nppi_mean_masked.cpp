@@ -1,4 +1,5 @@
 #include "npp.h"
+#include "npp_version_compat.h"
 
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
@@ -10,7 +11,8 @@ enum class MaskedLayout { C1MR, C3CMR };
 
 struct Mean8uApi {
   using Value = Npp8u;
-  static NppStatus buffer(MaskedLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+  static NppStatus buffer(MaskedLayout layout, NppiSize roi, NppBufferSize *size, NppStreamContext context,
+                          bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMeanGetBufferHostSize_8u_C1MR_Ctx(roi, size, context)
                     : nppiMeanGetBufferHostSize_8u_C1MR(roi, size);
@@ -18,9 +20,8 @@ struct Mean8uApi {
     return useCtx ? nppiMeanGetBufferHostSize_8u_C3CMR_Ctx(roi, size, context)
                   : nppiMeanGetBufferHostSize_8u_C3CMR(roi, size);
   }
-  static NppStatus compute(MaskedLayout layout, const Npp8u *source, int sourceStep, const Npp8u *mask,
-                           int maskStep, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
-                           NppStreamContext context, bool useCtx) {
+  static NppStatus compute(MaskedLayout layout, const Npp8u *source, int sourceStep, const Npp8u *mask, int maskStep,
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context, bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMean_8u_C1MR_Ctx(source, sourceStep, mask, maskStep, roi, buffer, mean, context)
                     : nppiMean_8u_C1MR(source, sourceStep, mask, maskStep, roi, buffer, mean);
@@ -32,7 +33,8 @@ struct Mean8uApi {
 
 struct Mean8sApi {
   using Value = Npp8s;
-  static NppStatus buffer(MaskedLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+  static NppStatus buffer(MaskedLayout layout, NppiSize roi, NppBufferSize *size, NppStreamContext context,
+                          bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMeanGetBufferHostSize_8s_C1MR_Ctx(roi, size, context)
                     : nppiMeanGetBufferHostSize_8s_C1MR(roi, size);
@@ -40,9 +42,8 @@ struct Mean8sApi {
     return useCtx ? nppiMeanGetBufferHostSize_8s_C3CMR_Ctx(roi, size, context)
                   : nppiMeanGetBufferHostSize_8s_C3CMR(roi, size);
   }
-  static NppStatus compute(MaskedLayout layout, const Npp8s *source, int sourceStep, const Npp8u *mask,
-                           int maskStep, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
-                           NppStreamContext context, bool useCtx) {
+  static NppStatus compute(MaskedLayout layout, const Npp8s *source, int sourceStep, const Npp8u *mask, int maskStep,
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context, bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMean_8s_C1MR_Ctx(source, sourceStep, mask, maskStep, roi, buffer, mean, context)
                     : nppiMean_8s_C1MR(source, sourceStep, mask, maskStep, roi, buffer, mean);
@@ -54,7 +55,8 @@ struct Mean8sApi {
 
 struct Mean16uApi {
   using Value = Npp16u;
-  static NppStatus buffer(MaskedLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+  static NppStatus buffer(MaskedLayout layout, NppiSize roi, NppBufferSize *size, NppStreamContext context,
+                          bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMeanGetBufferHostSize_16u_C1MR_Ctx(roi, size, context)
                     : nppiMeanGetBufferHostSize_16u_C1MR(roi, size);
@@ -62,9 +64,8 @@ struct Mean16uApi {
     return useCtx ? nppiMeanGetBufferHostSize_16u_C3CMR_Ctx(roi, size, context)
                   : nppiMeanGetBufferHostSize_16u_C3CMR(roi, size);
   }
-  static NppStatus compute(MaskedLayout layout, const Npp16u *source, int sourceStep, const Npp8u *mask,
-                           int maskStep, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
-                           NppStreamContext context, bool useCtx) {
+  static NppStatus compute(MaskedLayout layout, const Npp16u *source, int sourceStep, const Npp8u *mask, int maskStep,
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context, bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMean_16u_C1MR_Ctx(source, sourceStep, mask, maskStep, roi, buffer, mean, context)
                     : nppiMean_16u_C1MR(source, sourceStep, mask, maskStep, roi, buffer, mean);
@@ -76,7 +77,8 @@ struct Mean16uApi {
 
 struct Mean32fApi {
   using Value = Npp32f;
-  static NppStatus buffer(MaskedLayout layout, NppiSize roi, int *size, NppStreamContext context, bool useCtx) {
+  static NppStatus buffer(MaskedLayout layout, NppiSize roi, NppBufferSize *size, NppStreamContext context,
+                          bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMeanGetBufferHostSize_32f_C1MR_Ctx(roi, size, context)
                     : nppiMeanGetBufferHostSize_32f_C1MR(roi, size);
@@ -84,9 +86,8 @@ struct Mean32fApi {
     return useCtx ? nppiMeanGetBufferHostSize_32f_C3CMR_Ctx(roi, size, context)
                   : nppiMeanGetBufferHostSize_32f_C3CMR(roi, size);
   }
-  static NppStatus compute(MaskedLayout layout, const Npp32f *source, int sourceStep, const Npp8u *mask,
-                           int maskStep, NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean,
-                           NppStreamContext context, bool useCtx) {
+  static NppStatus compute(MaskedLayout layout, const Npp32f *source, int sourceStep, const Npp8u *mask, int maskStep,
+                           NppiSize roi, int coi, Npp8u *buffer, Npp64f *mean, NppStreamContext context, bool useCtx) {
     if (layout == MaskedLayout::C1MR) {
       return useCtx ? nppiMean_32f_C1MR_Ctx(source, sourceStep, mask, maskStep, roi, buffer, mean, context)
                     : nppiMean_32f_C1MR(source, sourceStep, mask, maskStep, roi, buffer, mean);
@@ -110,8 +111,7 @@ template <> Npp32f sourceValue<Npp32f>(int x, int y, int channel) {
   return static_cast<Npp32f>((x - 9) * 0.625f + (y - 4) * 1.375f + channel * 2.0625f);
 }
 
-template <typename Api>
-void runMaskedCase(MaskedLayout layout, int coi, bool emptyMask, double tolerance) {
+template <typename Api> void runMaskedCase(MaskedLayout layout, int coi, bool emptyMask, double tolerance) {
   using T = typename Api::Value;
   const int width = 19;
   const int height = 7;
@@ -149,25 +149,24 @@ void runMaskedCase(MaskedLayout layout, int coi, bool emptyMask, double toleranc
   ASSERT_EQ(cudaMemcpy2D(deviceSource, sourceStep, source.data(), hostSourceStep, hostSourceStep, height,
                          cudaMemcpyHostToDevice),
             cudaSuccess);
-  ASSERT_EQ(cudaMemcpy2D(deviceMask, maskStep, mask.data(), width, width, height, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(deviceMask, maskStep, mask.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
 
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
-  int bufferSize = 0;
-  int contextBufferSize = 0;
+  NppBufferSize bufferSize = 0;
+  NppBufferSize contextBufferSize = 0;
   ASSERT_EQ(Api::buffer(layout, roi, &bufferSize, context, false), NPP_SUCCESS);
   ASSERT_EQ(Api::buffer(layout, roi, &contextBufferSize, context, true), NPP_SUCCESS);
-  ASSERT_EQ(contextBufferSize, bufferSize);
+  ASSERT_GE(contextBufferSize, bufferSize);
   ASSERT_GT(bufferSize, 0);
   Npp8u *deviceBuffer = nullptr;
   Npp64f *deviceMean = nullptr;
-  ASSERT_EQ(cudaMalloc(&deviceBuffer, bufferSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(&deviceBuffer, contextBufferSize > bufferSize ? contextBufferSize : bufferSize), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&deviceMean, sizeof(Npp64f)), cudaSuccess);
 
   for (bool useCtx : {false, true}) {
-    ASSERT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                           static_cast<int>(maskStep), roi, coi, deviceBuffer, deviceMean, context, useCtx),
+    ASSERT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                           roi, coi, deviceBuffer, deviceMean, context, useCtx),
               NPP_SUCCESS);
     Npp64f actual = 0.0;
     ASSERT_EQ(cudaMemcpy(&actual, deviceMean, sizeof(actual), cudaMemcpyDeviceToHost), cudaSuccess);
@@ -186,24 +185,28 @@ void runMaskedCase(MaskedLayout layout, int coi, bool emptyMask, double toleranc
   EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, width - 1, roi, coi,
                          deviceBuffer, deviceMean, context, true),
             NPP_STEP_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), {0, height}, coi, deviceBuffer, deviceMean, context, false),
-            NPP_SIZE_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), roi, coi, nullptr, deviceMean, context, false),
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         {0, height}, coi, deviceBuffer, deviceMean, context, false),
+            NPP_SUCCESS);
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         roi, coi, nullptr, deviceMean, context, false),
             NPP_NULL_POINTER_ERROR);
-  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                         static_cast<int>(maskStep), roi, coi, deviceBuffer, nullptr, context, true),
+  EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                         roi, coi, deviceBuffer, nullptr, context, true),
             NPP_NULL_POINTER_ERROR);
+  // NVIDIA NPP 12.4 masked buffer-size functions crash on null size pointer instead of returning an error
+#ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(Api::buffer(layout, roi, nullptr, context, false), NPP_NULL_POINTER_ERROR);
   EXPECT_EQ(Api::buffer(layout, roi, nullptr, context, true), NPP_NULL_POINTER_ERROR);
+#endif
   if (layout == MaskedLayout::C3CMR) {
-    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                           static_cast<int>(maskStep), roi, 0, deviceBuffer, deviceMean, context, false),
-              NPP_COI_ERROR);
-    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask,
-                           static_cast<int>(maskStep), roi, 4, deviceBuffer, deviceMean, context, true),
-              NPP_COI_ERROR);
+    // NVIDIA NPP accepts out-of-range COI and returns a zero mean
+    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                           roi, 0, deviceBuffer, deviceMean, context, false),
+              NPP_SUCCESS);
+    EXPECT_EQ(Api::compute(layout, deviceSource, static_cast<int>(sourceStep), deviceMask, static_cast<int>(maskStep),
+                           roi, 4, deviceBuffer, deviceMean, context, true),
+              NPP_SUCCESS);
   }
 
   cudaFree(deviceSource);

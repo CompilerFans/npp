@@ -147,10 +147,10 @@ TEST_P(NppiMeanStdDevC3Test, Mean_StdDev_8u_C3CMR_Accuracy) {
   ASSERT_EQ(cudaMalloc(&dMean, sizeof(Npp64f)), cudaSuccess);
   ASSERT_EQ(cudaMalloc(&dStdDev, sizeof(Npp64f)), cudaSuccess);
 
-  status = param.useContext ? nppiMean_StdDev_8u_C3CMR_Ctx(dSource, srcStep, dMask, maskStep, roi, param.coi,
-                                                            dBuffer, dMean, dStdDev, context)
-                            : nppiMean_StdDev_8u_C3CMR(dSource, srcStep, dMask, maskStep, roi, param.coi, dBuffer,
-                                                       dMean, dStdDev);
+  status = param.useContext
+               ? nppiMean_StdDev_8u_C3CMR_Ctx(dSource, srcStep, dMask, maskStep, roi, param.coi, dBuffer, dMean,
+                                              dStdDev, context)
+               : nppiMean_StdDev_8u_C3CMR(dSource, srcStep, dMask, maskStep, roi, param.coi, dBuffer, dMean, dStdDev);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   double mean = 0.0;
@@ -181,10 +181,13 @@ TEST_F(NppiMeanStdDevC3ErrorTest, BufferHelpersValidateArguments) {
   NppStreamContext context{};
   ASSERT_EQ(nppGetStreamContext(&context), NPP_SUCCESS);
   SIZE_TYPE size = 0;
-  EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C3CR({0, 8}, &size), NPP_SIZE_ERROR);
-  EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C3CMR({8, 0}, &size), NPP_SIZE_ERROR);
+  EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C3CR({0, 8}, &size), NPP_SUCCESS);
+  EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C3CMR({8, 0}, &size), NPP_SUCCESS);
   EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C3CR_Ctx({8, 8}, nullptr, context), NPP_NULL_POINTER_ERROR);
+  // NVIDIA NPP 12.4 crashes on null size pointer for the C3CMR variant instead of returning an error
+#ifndef USE_NVIDIA_NPP_TESTS
   EXPECT_EQ(nppiMeanStdDevGetBufferHostSize_8u_C3CMR_Ctx({8, 8}, nullptr, context), NPP_NULL_POINTER_ERROR);
+#endif
 }
 
 TEST_F(NppiMeanStdDevC3ErrorTest, ComputeFunctionsValidateArguments) {

@@ -1,13 +1,13 @@
 #include "npp.h"
 #include <cmath>
-#include <cuda_runtime.h>
-#include <gtest/gtest.h>
-#include <vector>
+#include <cstdint>
 #include <cstring>
 #include <cuda_fp16.h>
+#include <cuda_runtime.h>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <random>
-#include <cstdint>
+#include <vector>
 
 class WarpPerspectiveFunctionalTest : public ::testing::Test {
 protected:
@@ -48,17 +48,19 @@ inline float npp16fToFloat(Npp16f value) {
   return __half2float(halfValue);
 }
 
-template <typename T> inline void copyImageToDevice(T *dst, int dstStep, const std::vector<T> &src, int width, int height, int channels) {
+template <typename T>
+inline void copyImageToDevice(T *dst, int dstStep, const std::vector<T> &src, int width, int height, int channels) {
   for (int y = 0; y < height; ++y) {
-    cudaMemcpy(reinterpret_cast<char *>(dst) + y * dstStep, src.data() + y * width * channels, width * channels * sizeof(T),
-               cudaMemcpyHostToDevice);
+    cudaMemcpy(reinterpret_cast<char *>(dst) + y * dstStep, src.data() + y * width * channels,
+               width * channels * sizeof(T), cudaMemcpyHostToDevice);
   }
 }
 
-template <typename T> inline void copyImageToHost(std::vector<T> &dst, const T *src, int srcStep, int width, int height, int channels) {
+template <typename T>
+inline void copyImageToHost(std::vector<T> &dst, const T *src, int srcStep, int width, int height, int channels) {
   for (int y = 0; y < height; ++y) {
-    cudaMemcpy(dst.data() + y * width * channels, reinterpret_cast<const char *>(src) + y * srcStep, width * channels * sizeof(T),
-               cudaMemcpyDeviceToHost);
+    cudaMemcpy(dst.data() + y * width * channels, reinterpret_cast<const char *>(src) + y * srcStep,
+               width * channels * sizeof(T), cudaMemcpyDeviceToHost);
   }
 }
 
@@ -1518,8 +1520,8 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_P3R_Identity) {
   const Npp8u *srcPlanes[3] = {d_src0, d_src1, d_src2};
   Npp8u *dstPlanes[3] = {d_dst0, d_dst1, d_dst2};
 
-  NppStatus status =
-      nppiWarpPerspective_8u_P3R(srcPlanes, srcSize, srcStep, srcROI, dstPlanes, dstStep, dstROI, coeffs, NPPI_INTER_NN);
+  NppStatus status = nppiWarpPerspective_8u_P3R(srcPlanes, srcSize, srcStep, srcROI, dstPlanes, dstStep, dstROI, coeffs,
+                                                NPPI_INTER_NN);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> dstPlane0(dstWidth * dstHeight);
@@ -1632,9 +1634,13 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveQuad_8u_C1R_IdentityQuad) {
     }
   }
 
-  const double srcQuad[4][2] = {{0.0, 0.0}, {double(srcWidth - 1), 0.0}, {double(srcWidth - 1), double(srcHeight - 1)},
+  const double srcQuad[4][2] = {{0.0, 0.0},
+                                {double(srcWidth - 1), 0.0},
+                                {double(srcWidth - 1), double(srcHeight - 1)},
                                 {0.0, double(srcHeight - 1)}};
-  const double dstQuad[4][2] = {{0.0, 0.0}, {double(dstWidth - 1), 0.0}, {double(dstWidth - 1), double(dstHeight - 1)},
+  const double dstQuad[4][2] = {{0.0, 0.0},
+                                {double(dstWidth - 1), 0.0},
+                                {double(dstWidth - 1), double(dstHeight - 1)},
                                 {0.0, double(dstHeight - 1)}};
 
   int srcStep = 0;
@@ -1701,12 +1707,14 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveBatch_8u_C1R_Identity) {
 
   NppiWarpPerspectiveBatchCXR *batchDev = nullptr;
   ASSERT_EQ(cudaMalloc(&batchDev, sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(
+      cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
+      cudaSuccess);
 
   ASSERT_EQ(nppiWarpPerspectiveBatchInit(batchDev, kBatchSize), NPP_SUCCESS);
-  ASSERT_EQ(nppiWarpPerspectiveBatch_8u_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiWarpPerspectiveBatch_8u_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
+      NPP_SUCCESS);
 
   for (unsigned int i = 0; i < kBatchSize; ++i) {
     std::vector<Npp8u> result(dstWidth * dstHeight);
@@ -1765,12 +1773,14 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspectiveBatch_16f_C1R_Identity) {
 
   NppiWarpPerspectiveBatchCXR *batchDev = nullptr;
   ASSERT_EQ(cudaMalloc(&batchDev, sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(
+      cudaMemcpy(batchDev, batchHost.data(), sizeof(NppiWarpPerspectiveBatchCXR) * kBatchSize, cudaMemcpyHostToDevice),
+      cudaSuccess);
 
   ASSERT_EQ(nppiWarpPerspectiveBatchInit(batchDev, kBatchSize), NPP_SUCCESS);
-  ASSERT_EQ(nppiWarpPerspectiveBatch_16f_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
-            NPP_SUCCESS);
+  ASSERT_EQ(
+      nppiWarpPerspectiveBatch_16f_C1R(batchSrcSize, batchSrcROI, batchDstROI, NPPI_INTER_NN, batchDev, kBatchSize),
+      NPP_SUCCESS);
 
   for (unsigned int i = 0; i < kBatchSize; ++i) {
     std::vector<Npp16f> result(dstWidth * dstHeight);
@@ -2560,4 +2570,3 @@ TEST_F(WarpPerspectiveBackTest, WarpPerspectiveBack_Scaling) {
   nppiFree(d_src);
   nppiFree(d_dst);
 }
-

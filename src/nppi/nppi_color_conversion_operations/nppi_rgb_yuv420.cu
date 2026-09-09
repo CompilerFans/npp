@@ -206,8 +206,7 @@ extern "C" cudaError_t nppiRGBToYUV420_8u_C3P3R_kernel(const Npp8u *pSrc, int nS
                                                        Npp8u *pDstU, int nDstUStep, Npp8u *pDstV, int nDstVStep,
                                                        NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   rgb_to_yuv420_y_c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, oSizeROI.width,
                                                                 oSizeROI.height);
@@ -225,8 +224,7 @@ extern "C" cudaError_t nppiRGBToYUV420_8u_P3R_kernel(const Npp8u *pSrcR, const N
                                                      int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
                                                      cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   rgb_to_yuv420_y_p3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcR, pSrcG, pSrcB, nSrcStep, pDstY, nDstYStep,
                                                                 oSizeROI.width, oSizeROI.height);
@@ -234,8 +232,7 @@ extern "C" cudaError_t nppiRGBToYUV420_8u_P3R_kernel(const Npp8u *pSrcR, const N
   dim3 uvGridSize(((oSizeROI.width / 2) + blockSize.x - 1) / blockSize.x,
                   ((oSizeROI.height / 2) + blockSize.y - 1) / blockSize.y);
   rgb_to_yuv420_uv_p3_kernel<<<uvGridSize, blockSize, 0, stream>>>(pSrcR, pSrcG, pSrcB, nSrcStep, pDstU, nDstUStep,
-                                                                   pDstV, nDstVStep, oSizeROI.width,
-                                                                   oSizeROI.height);
+                                                                   pDstV, nDstVStep, oSizeROI.width, oSizeROI.height);
 
   return cudaGetLastError();
 }
@@ -244,8 +241,7 @@ extern "C" cudaError_t nppiBGRToYUV420_8u_AC4P3R_kernel(const Npp8u *pSrc, int n
                                                         Npp8u *pDstU, int nDstUStep, Npp8u *pDstV, int nDstVStep,
                                                         NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   bgr_to_yuv420_y_ac4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, oSizeROI.width,
                                                                  oSizeROI.height);

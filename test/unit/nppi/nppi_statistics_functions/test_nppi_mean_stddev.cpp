@@ -1391,7 +1391,9 @@ TEST_F(NppiMeanStdDevStabilityTest, Stability_32f_C1R_RepeatedRuns) {
 
 // Varying image sizes: different block/warp counts must all be stable.
 TEST_F(NppiMeanStdDevStabilityTest, Stability_8u_C1R_VaryingSizes) {
-  struct { int w, h; } cases[] = {{1, 1}, {7, 3}, {64, 64}, {127, 89}, {512, 512}, {1024, 1}};
+  struct {
+    int w, h;
+  } cases[] = {{1, 1}, {7, 3}, {64, 64}, {127, 89}, {512, 512}, {1024, 1}};
   for (auto &sc : cases) {
     std::vector<Npp8u> hostSrc(sc.w * sc.h);
     std::mt19937 gen(static_cast<unsigned>(sc.w * 31 + sc.h));

@@ -1,8 +1,8 @@
-#include "npp.h"
 #include "framework/npp_test_base.h"
+#include "npp.h"
+#include <cmath>
 #include <gtest/gtest.h>
 #include <vector>
-#include <cmath>
 
 using namespace npp_functional_test;
 
@@ -24,9 +24,12 @@ protected:
 
   void TearDown() override {
     // Clean up device memory
-    if (d_src) cudaFree(d_src);
-    if (d_sqr) cudaFree(d_sqr);
-    if (d_dst) cudaFree(d_dst);
+    if (d_src)
+      cudaFree(d_src);
+    if (d_sqr)
+      cudaFree(d_sqr);
+    if (d_dst)
+      cudaFree(d_dst);
     d_src = nullptr;
     d_sqr = nullptr;
     d_dst = nullptr;
@@ -52,7 +55,7 @@ TEST_F(NPPIRectStdDevTest, RectStdDev_32s32f_C1R) {
 
   // Calculate required image size based on API requirements:
   // Size needed = (oSizeROI.width + oRect.x + oRect.width, oSizeROI.height + oRect.y + oRect.height)
-  int srcWidth = roi.width + rect.x + rect.width;   // 16 + 0 + 3 = 19
+  int srcWidth = roi.width + rect.x + rect.width;    // 16 + 0 + 3 = 19
   int srcHeight = roi.height + rect.y + rect.height; // 16 + 0 + 3 = 19
   size_t srcDataSize = srcWidth * srcHeight;
   size_t dstDataSize = width * height;
@@ -78,12 +81,7 @@ TEST_F(NPPIRectStdDevTest, RectStdDev_32s32f_C1R) {
   ASSERT_EQ(cudaMemcpy(d_src, srcData.data(), srcDataSize * sizeof(Npp32s), cudaMemcpyHostToDevice), cudaSuccess);
   ASSERT_EQ(cudaMemcpy(d_sqr, sqrData.data(), srcDataSize * sizeof(Npp64f), cudaMemcpyHostToDevice), cudaSuccess);
 
-  NppStatus status = nppiRectStdDev_32s32f_C1R(
-      d_src, srcStep,
-      d_sqr, sqrStep,
-      d_dst, dstStep,
-      roi, rect
-  );
+  NppStatus status = nppiRectStdDev_32s32f_C1R(d_src, srcStep, d_sqr, sqrStep, d_dst, dstStep, roi, rect);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -134,13 +132,8 @@ TEST_F(NPPIRectStdDevTest, RectStdDev_32s32f_C1R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status = nppiRectStdDev_32s32f_C1R_Ctx(
-      d_src, srcStep,
-      d_sqr, sqrStep,
-      d_dst, dstStep,
-      roi, rect,
-      nppStreamCtx
-  );
+  NppStatus status =
+      nppiRectStdDev_32s32f_C1R_Ctx(d_src, srcStep, d_sqr, sqrStep, d_dst, dstStep, roi, rect, nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 

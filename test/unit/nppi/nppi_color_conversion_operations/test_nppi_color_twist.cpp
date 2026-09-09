@@ -439,8 +439,8 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_P3R_Ctx_Identity) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
 
-  NppStatus status = nppiColorTwist32f_8u_P3R_Ctx(pSrc, srcPlaneR.step(), pDst, dstPlaneR.step(), oSizeROI, aTwist,
-                                                  nppStreamCtx);
+  NppStatus status =
+      nppiColorTwist32f_8u_P3R_Ctx(pSrc, srcPlaneR.step(), pDst, dstPlaneR.step(), oSizeROI, aTwist, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   cudaStreamSynchronize(nppStreamCtx.hStream);
@@ -490,8 +490,7 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_8u_IP3R_Ctx_Brightness) {
   NppStreamContext nppStreamCtx;
   nppGetStreamContext(&nppStreamCtx);
 
-  NppStatus status =
-      nppiColorTwist32f_8u_IP3R_Ctx(pSrcDst, planeR.step(), oSizeROI, aTwist, nppStreamCtx);
+  NppStatus status = nppiColorTwist32f_8u_IP3R_Ctx(pSrcDst, planeR.step(), oSizeROI, aTwist, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   cudaStreamSynchronize(nppStreamCtx.hStream);

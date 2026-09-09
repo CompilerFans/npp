@@ -1,13 +1,13 @@
 #include "npp.h"
-#include <cuda_runtime.h>
 #include <cmath>
+#include <cuda_runtime.h>
 
 // CUDA kernel for computing rectangular standard deviation
 // This computes the standard deviation within a rectangular window for each pixel
 // For each output pixel (x, y), the window in source image starts at (x + rect.x, y + rect.y)
 // and has dimensions rect.width × rect.height
 __global__ void rectStdDevKernel_32s32f_C1R(const Npp32s *pSrc, int srcStep, const Npp64f *pSqr, int sqrStep,
-                                             Npp32f *pDst, int dstStep, int width, int height, NppiRect rect) {
+                                            Npp32f *pDst, int dstStep, int width, int height, NppiRect rect) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -54,8 +54,8 @@ __global__ void rectStdDevKernel_32s32f_C1R(const Npp32s *pSrc, int srcStep, con
 }
 
 extern "C" NppStatus nppiRectStdDev_32s32f_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr,
-                                                         int nSqrStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
-                                                         NppiRect oRect, NppStreamContext nppStreamCtx) {
+                                                        int nSqrStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
+                                                        NppiRect oRect, NppStreamContext nppStreamCtx) {
   // Configure kernel launch parameters
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

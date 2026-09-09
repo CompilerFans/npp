@@ -6,8 +6,8 @@ cudaError_t nppiYUV422ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep, c
                                             const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst, int nDstStep,
                                             NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiYUV422ToRGB_8u_P3R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU, int nSrcUStep,
-                                          const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR, Npp8u *pDstG,
-                                          Npp8u *pDstB, int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
+                                          const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstR, Npp8u *pDstG, Npp8u *pDstB,
+                                          int nDstStep, NppiSize oSizeROI, cudaStream_t stream);
 cudaError_t nppiYUV422ToRGB_8u_P3AC4R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU, int nSrcUStep,
                                              const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDst, int nDstStep,
                                              NppiSize oSizeROI, cudaStream_t stream);
@@ -81,9 +81,9 @@ NppStatus nppiYUV422ToRGB_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3]
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYUV422ToRGB_8u_P3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                         rSrcStep[2], pDst[0], pDst[1], pDst[2], nDstStep, oSizeROI,
-                                                         nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiYUV422ToRGB_8u_P3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst[0], pDst[1],
+                                    pDst[2], nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -101,9 +101,8 @@ NppStatus nppiYUV422ToRGB_8u_P3AC4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYUV422ToRGB_8u_P3AC4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
-                                                            rSrcStep[2], pDst, nDstStep, oSizeROI,
-                                                            nppStreamCtx.hStream);
+  cudaError_t cudaStatus = nppiYUV422ToRGB_8u_P3AC4R_kernel(
+      pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2], rSrcStep[2], pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -121,8 +120,8 @@ NppStatus nppiYUV422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
     return status;
   }
 
-  cudaError_t cudaStatus = nppiYUV422ToRGB_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
-                                                           nppStreamCtx.hStream);
+  cudaError_t cudaStatus =
+      nppiYUV422ToRGB_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream);
   return (cudaStatus == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 

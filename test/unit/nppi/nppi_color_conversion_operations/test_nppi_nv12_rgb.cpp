@@ -762,8 +762,7 @@ TEST_F(NV12ToRGBTest, NV12ToRGB_8u_P2C3R_PaddedLineSize) {
   ASSERT_NE(d_refRgb, nullptr);
   ASSERT_NE(d_padRgb, nullptr);
   ASSERT_EQ(cudaMemcpy2D(d_refY, width, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
-  ASSERT_EQ(cudaMemcpy2D(d_refUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
-            cudaSuccess);
+  ASSERT_EQ(cudaMemcpy2D(d_refUV, width, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice), cudaSuccess);
   ASSERT_EQ(cudaMemcpy2D(d_padY, paddedStep, yData.data(), width, width, height, cudaMemcpyHostToDevice), cudaSuccess);
   ASSERT_EQ(cudaMemcpy2D(d_padUV, paddedStep, uvData.data(), width, width, height / 2, cudaMemcpyHostToDevice),
             cudaSuccess);

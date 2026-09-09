@@ -16,8 +16,7 @@ __global__ void nv12_to_yuv420_y_kernel(const Npp8u *__restrict__ srcY, int srcY
 }
 
 __global__ void nv12_to_yuv420_uv_kernel(const Npp8u *__restrict__ srcUV, int srcUVStep, Npp8u *__restrict__ dstU,
-                                         int dstUStep, Npp8u *__restrict__ dstV, int dstVStep, int width,
-                                         int height) {
+                                         int dstUStep, Npp8u *__restrict__ dstV, int dstVStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -38,9 +37,9 @@ __global__ void nv12_to_yuv420_uv_kernel(const Npp8u *__restrict__ srcUV, int sr
   dstRowV[x] = v;
 }
 
-__global__ void yuv420_to_nv12_uv_kernel(const Npp8u *__restrict__ srcU, int srcUStep,
-                                         const Npp8u *__restrict__ srcV, int srcVStep, Npp8u *__restrict__ dstUV,
-                                         int dstUVStep, int width, int height) {
+__global__ void yuv420_to_nv12_uv_kernel(const Npp8u *__restrict__ srcU, int srcUStep, const Npp8u *__restrict__ srcV,
+                                         int srcVStep, Npp8u *__restrict__ dstUV, int dstUVStep, int width,
+                                         int height) {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   const int uvWidth = width >> 1;
@@ -61,8 +60,7 @@ extern "C" cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int 
                                                         int nDstUStep, Npp8u *pDstV, int nDstVStep, NppiSize oSizeROI,
                                                         cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
   nv12_to_yuv420_y_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pDstY, nDstYStep, oSizeROI.width,
                                                               oSizeROI.height);
 
@@ -75,9 +73,9 @@ extern "C" cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int 
 }
 
 extern "C" cudaError_t nppiYUV420ToNV12_8u_P3P2R_kernel(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcU,
-                                                         int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep,
-                                                         Npp8u *pDstY, int nDstYStep, Npp8u *pDstUV, int nDstUVStep,
-                                                         NppiSize oSizeROI, cudaStream_t stream) {
+                                                        int nSrcUStep, const Npp8u *pSrcV, int nSrcVStep, Npp8u *pDstY,
+                                                        int nDstYStep, Npp8u *pDstUV, int nDstUVStep, NppiSize oSizeROI,
+                                                        cudaStream_t stream) {
   const dim3 blockSize(16, 16);
   const dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
                       (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -86,7 +84,7 @@ extern "C" cudaError_t nppiYUV420ToNV12_8u_P3P2R_kernel(const Npp8u *pSrcY, int 
 
   const dim3 uvGridSize(((oSizeROI.width / 2) + blockSize.x - 1) / blockSize.x,
                         ((oSizeROI.height / 2) + blockSize.y - 1) / blockSize.y);
-  yuv420_to_nv12_uv_kernel<<<uvGridSize, blockSize, 0, stream>>>(pSrcU, nSrcUStep, pSrcV, nSrcVStep, pDstUV,
-                                                                 nDstUVStep, oSizeROI.width, oSizeROI.height);
+  yuv420_to_nv12_uv_kernel<<<uvGridSize, blockSize, 0, stream>>>(pSrcU, nSrcUStep, pSrcV, nSrcVStep, pDstUV, nDstUVStep,
+                                                                 oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
 }

@@ -34,28 +34,25 @@ template <> struct GrayCtxTraits<Npp8u> {
   static Npp8u *mallocC4(int w, int h, int *step) { return nppiMalloc_8u_C4(w, h, step); }
   static Npp8u *mallocC1(int w, int h, int *step) { return nppiMalloc_8u_C1(w, h, step); }
   static void freeMem(Npp8u *ptr) { nppiFree(ptr); }
-  static NppStatus c3c1(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c3c1(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_8u_C3C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c3c1Ctx(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c3c1Ctx(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_8u_C3C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus ac4c1(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi,
-                         const Npp32f *coeffs) {
+  static NppStatus ac4c1(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_8u_AC4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus ac4c1Ctx(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi,
-                            const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus ac4c1Ctx(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                            NppStreamContext ctx) {
     return nppiColorToGray_8u_AC4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus c4c1(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c4c1(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_8u_C4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c4c1Ctx(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c4c1Ctx(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_8u_C4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
 };
@@ -66,28 +63,25 @@ template <> struct GrayCtxTraits<Npp16u> {
   static Npp16u *mallocC4(int w, int h, int *step) { return nppiMalloc_16u_C4(w, h, step); }
   static Npp16u *mallocC1(int w, int h, int *step) { return nppiMalloc_16u_C1(w, h, step); }
   static void freeMem(Npp16u *ptr) { nppiFree(ptr); }
-  static NppStatus c3c1(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c3c1(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_16u_C3C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c3c1Ctx(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c3c1Ctx(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_16u_C3C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus ac4c1(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi,
-                         const Npp32f *coeffs) {
+  static NppStatus ac4c1(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_16u_AC4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
   static NppStatus ac4c1Ctx(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi,
                             const Npp32f *coeffs, NppStreamContext ctx) {
     return nppiColorToGray_16u_AC4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus c4c1(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c4c1(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_16u_C4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c4c1Ctx(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c4c1Ctx(const Npp16u *src, int srcStep, Npp16u *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_16u_C4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
 };
@@ -110,28 +104,25 @@ template <> struct GrayCtxTraits<Npp16s> {
   }
   static Npp16s *mallocC1(int w, int h, int *step) { return nppiMalloc_16s_C1(w, h, step); }
   static void freeMem(Npp16s *ptr) { cudaFree(ptr); }
-  static NppStatus c3c1(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c3c1(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_16s_C3C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c3c1Ctx(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c3c1Ctx(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_16s_C3C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus ac4c1(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi,
-                         const Npp32f *coeffs) {
+  static NppStatus ac4c1(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_16s_AC4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
   static NppStatus ac4c1Ctx(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi,
                             const Npp32f *coeffs, NppStreamContext ctx) {
     return nppiColorToGray_16s_AC4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus c4c1(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c4c1(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_16s_C4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c4c1Ctx(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c4c1Ctx(const Npp16s *src, int srcStep, Npp16s *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_16s_C4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
 };
@@ -142,34 +133,30 @@ template <> struct GrayCtxTraits<Npp32f> {
   static Npp32f *mallocC4(int w, int h, int *step) { return nppiMalloc_32f_C4(w, h, step); }
   static Npp32f *mallocC1(int w, int h, int *step) { return nppiMalloc_32f_C1(w, h, step); }
   static void freeMem(Npp32f *ptr) { nppiFree(ptr); }
-  static NppStatus c3c1(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c3c1(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_32f_C3C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c3c1Ctx(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c3c1Ctx(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_32f_C3C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus ac4c1(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi,
-                         const Npp32f *coeffs) {
+  static NppStatus ac4c1(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_32f_AC4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
   static NppStatus ac4c1Ctx(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi,
                             const Npp32f *coeffs, NppStreamContext ctx) {
     return nppiColorToGray_32f_AC4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
-  static NppStatus c4c1(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi,
-                        const Npp32f *coeffs) {
+  static NppStatus c4c1(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi, const Npp32f *coeffs) {
     return nppiColorToGray_32f_C4C1R(src, srcStep, dst, dstStep, roi, coeffs);
   }
-  static NppStatus c4c1Ctx(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi,
-                           const Npp32f *coeffs, NppStreamContext ctx) {
+  static NppStatus c4c1Ctx(const Npp32f *src, int srcStep, Npp32f *dst, int dstStep, NppiSize roi, const Npp32f *coeffs,
+                           NppStreamContext ctx) {
     return nppiColorToGray_32f_C4C1R_Ctx(src, srcStep, dst, dstStep, roi, coeffs, ctx);
   }
 };
 
-template <typename T>
-void fill_random(std::vector<T> &data, std::mt19937 &rng, int width, int height, int channels) {
+template <typename T> void fill_random(std::vector<T> &data, std::mt19937 &rng, int width, int height, int channels) {
   data.resize(static_cast<size_t>(width) * height * channels);
   if constexpr (std::is_same_v<T, Npp32f>) {
     std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
@@ -194,8 +181,7 @@ void fill_random(std::vector<T> &data, std::mt19937 &rng, int width, int height,
   }
 }
 
-template <typename T>
-void expect_equal(const std::vector<T> &a, const std::vector<T> &b) {
+template <typename T> void expect_equal(const std::vector<T> &a, const std::vector<T> &b) {
   ASSERT_EQ(a.size(), b.size());
   if constexpr (std::is_same_v<T, Npp32f>) {
     for (size_t i = 0; i < a.size(); ++i) {
@@ -208,8 +194,7 @@ void expect_equal(const std::vector<T> &a, const std::vector<T> &b) {
   }
 }
 
-template <typename T, typename Traits>
-void run_gray_ctx_case(const GrayCtxCase &param, int channels, bool use_ac4) {
+template <typename T, typename Traits> void run_gray_ctx_case(const GrayCtxCase &param, int channels, bool use_ac4) {
   constexpr Npp32f kCoeff3[3] = {0.3f, 0.59f, 0.11f};
   constexpr Npp32f kCoeff4[4] = {0.25f, 0.25f, 0.25f, 0.25f};
 
@@ -236,8 +221,8 @@ void run_gray_ctx_case(const GrayCtxCase &param, int channels, bool use_ac4) {
   ASSERT_NE(d_dst, nullptr);
   ASSERT_NE(d_ctx, nullptr);
 
-  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), param.width * sizeof(T) * channels,
-               param.width * sizeof(T) * channels, param.height, cudaMemcpyHostToDevice);
+  cudaMemcpy2D(d_src, srcStep, hostSrc.data(), param.width * sizeof(T) * channels, param.width * sizeof(T) * channels,
+               param.height, cudaMemcpyHostToDevice);
 
   NppiSize roi{param.width, param.height};
   NppStatus status = NPP_SUCCESS;
@@ -282,8 +267,7 @@ void run_gray_ctx_case(const GrayCtxCase &param, int channels, bool use_ac4) {
 
 } // namespace
 
-template <typename T>
-class ColorToGrayCtxParamTest : public ::testing::TestWithParam<GrayCtxCase> {};
+template <typename T> class ColorToGrayCtxParamTest : public ::testing::TestWithParam<GrayCtxCase> {};
 
 using ColorToGrayCtxParamTest8u = ColorToGrayCtxParamTest<Npp8u>;
 using ColorToGrayCtxParamTest16u = ColorToGrayCtxParamTest<Npp16u>;
@@ -704,8 +688,8 @@ TEST_F(ColorToGrayTest, ColorToGray_16s_C3C1R_IdentityCoeff) {
   size_t srcStepBytes = 0;
   int dstStep = 0;
   Npp16s *d_src = nullptr;
-  cudaError_t cudaStatus = cudaMallocPitch(reinterpret_cast<void **>(&d_src), &srcStepBytes,
-                                           width * sizeof(Npp16s) * 3, height);
+  cudaError_t cudaStatus =
+      cudaMallocPitch(reinterpret_cast<void **>(&d_src), &srcStepBytes, width * sizeof(Npp16s) * 3, height);
   ASSERT_EQ(cudaStatus, cudaSuccess);
   Npp16s *d_dst = nppiMalloc_16s_C1(width, height, &dstStep);
   ASSERT_NE(d_dst, nullptr);

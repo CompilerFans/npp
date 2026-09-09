@@ -242,10 +242,7 @@ TEST_F(NppiRShiftCTest, RShiftC_8s_C3R_BasicOperation) {
   const int channels = 3;
   const int totalPixels = width * height * channels;
 
-  std::vector<Npp8s> hostSrc = {
-      -128, 64,  -32,
-      96,   -48, 24
-  };
+  std::vector<Npp8s> hostSrc = {-128, 64, -32, 96, -48, 24};
   Npp32u shiftConstants[3] = {1, 2, 3};
   std::vector<Npp8s> expected(totalPixels);
   for (int i = 0; i < totalPixels; ++i) {
@@ -396,10 +393,7 @@ TEST_F(NppiRShiftCTest, RShiftC_8s_C4R_BasicOperation) {
   const int channels = 4;
   const int totalPixels = width * height * channels;
 
-  std::vector<Npp8s> hostSrc = {
-      -128, 64,  -32, 16,
-      96,   -48, 24,  -8
-  };
+  std::vector<Npp8s> hostSrc = {-128, 64, -32, 16, 96, -48, 24, -8};
   Npp32u shiftConstants[4] = {1, 2, 3, 0};
   std::vector<Npp8s> expected(totalPixels);
   for (int i = 0; i < totalPixels; ++i) {

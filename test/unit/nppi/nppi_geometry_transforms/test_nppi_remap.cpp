@@ -59,7 +59,8 @@ template <typename T> std::vector<T> makePlanarIdentityData(int width, int heigh
   return data;
 }
 
-template <typename MapT> void fillIdentityMaps(std::vector<MapT> &xMapData, std::vector<MapT> &yMapData, int width, int height) {
+template <typename MapT>
+void fillIdentityMaps(std::vector<MapT> &xMapData, std::vector<MapT> &yMapData, int width, int height) {
   xMapData.resize(width * height);
   yMapData.resize(width * height);
   for (int y = 0; y < height; ++y) {
@@ -71,8 +72,7 @@ template <typename MapT> void fillIdentityMaps(std::vector<MapT> &xMapData, std:
   }
 }
 
-template <typename T>
-void expectVectorsEqual(const std::vector<T> &expected, const std::vector<T> &actual) {
+template <typename T> void expectVectorsEqual(const std::vector<T> &expected, const std::vector<T> &actual) {
   ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < expected.size(); ++i) {
     if constexpr (std::is_floating_point_v<T>) {
@@ -84,10 +84,11 @@ void expectVectorsEqual(const std::vector<T> &expected, const std::vector<T> &ac
 }
 
 template <typename T>
-void copyImageToDevice(DeviceMemory<T> &device, int dstStepBytes, const std::vector<T> &hostData, int width, int height, int channels) {
+void copyImageToDevice(DeviceMemory<T> &device, int dstStepBytes, const std::vector<T> &hostData, int width, int height,
+                       int channels) {
   ASSERT_EQ(hostData.size(), static_cast<size_t>(width * height * channels));
-  ASSERT_EQ(cudaMemcpy2D(device.get(), dstStepBytes, hostData.data(), width * channels * sizeof(T), width * channels * sizeof(T),
-                         height, cudaMemcpyHostToDevice),
+  ASSERT_EQ(cudaMemcpy2D(device.get(), dstStepBytes, hostData.data(), width * channels * sizeof(T),
+                         width * channels * sizeof(T), height, cudaMemcpyHostToDevice),
             cudaSuccess);
 }
 
@@ -134,11 +135,11 @@ void runPackedIdentityCase(int width, int height, int channels, CtxFn ctxFn, Pla
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(), srcStep,
-                    dstSizeROI, NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(),
+                    srcStep, dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
-    ASSERT_EQ(plainFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlain.get(), srcStep,
-                      dstSizeROI, NPPI_INTER_NN),
+    ASSERT_EQ(plainFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlain.get(),
+                      srcStep, dstSizeROI, NPPI_INTER_NN),
               NPP_SUCCESS);
 
     cudaStreamSynchronize(ctx.hStream);
@@ -170,11 +171,11 @@ void runPackedIdentityCase(int width, int height, int channels, CtxFn ctxFn, Pla
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(), srcStep,
-                    dstSizeROI, NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(),
+                    srcStep, dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
-    ASSERT_EQ(plainFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlain.get(), srcStep,
-                      dstSizeROI, NPPI_INTER_NN),
+    ASSERT_EQ(plainFn(src.get(), srcSize, srcStep, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlain.get(),
+                      srcStep, dstSizeROI, NPPI_INTER_NN),
               NPP_SUCCESS);
 
     cudaStreamSynchronize(ctx.hStream);
@@ -199,13 +200,12 @@ void runPackedIdentityCase(int width, int height, int channels, CtxFn ctxFn, Pla
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(), dstCtx.get(),
-                    dstCtx.step(), dstSizeROI, NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(),
+                    dstCtx.get(), dstCtx.step(), dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
-    ASSERT_EQ(
-        plainFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(), dstPlain.get(),
-                dstPlain.step(), dstSizeROI, NPPI_INTER_NN),
-        NPP_SUCCESS);
+    ASSERT_EQ(plainFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(),
+                      dstPlain.get(), dstPlain.step(), dstSizeROI, NPPI_INTER_NN),
+              NPP_SUCCESS);
 
     cudaStreamSynchronize(ctx.hStream);
     std::vector<T> ctxResult(width * height * channels);
@@ -251,8 +251,8 @@ void runAC4IdentityCase(int width, int height, CtxFn ctxFn, PlainFn plainFn) {
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(src.get(), srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(), step, dstSizeROI,
-                    NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(src.get(), srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(), step,
+                    dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
     ASSERT_EQ(plainFn(src.get(), srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlain.get(), step,
                       dstSizeROI, NPPI_INTER_NN),
@@ -296,8 +296,8 @@ void runAC4IdentityCase(int width, int height, CtxFn ctxFn, PlainFn plainFn) {
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(src.get(), srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(), step, dstSizeROI,
-                    NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(src.get(), srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtx.get(), step,
+                    dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
     ASSERT_EQ(plainFn(src.get(), srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlain.get(), step,
                       dstSizeROI, NPPI_INTER_NN),
@@ -334,13 +334,12 @@ void runAC4IdentityCase(int width, int height, CtxFn ctxFn, PlainFn plainFn) {
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(), dstCtx.get(),
-                    dstCtx.step(), dstSizeROI, NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(),
+                    dstCtx.get(), dstCtx.step(), dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
-    ASSERT_EQ(
-        plainFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(), dstPlain.get(),
-                dstPlain.step(), dstSizeROI, NPPI_INTER_NN),
-        NPP_SUCCESS);
+    ASSERT_EQ(plainFn(src.get(), srcSize, src.step(), srcROI, xMap.get(), xMap.step(), yMap.get(), yMap.step(),
+                      dstPlain.get(), dstPlain.step(), dstSizeROI, NPPI_INTER_NN),
+              NPP_SUCCESS);
 
     cudaStreamSynchronize(ctx.hStream);
     std::vector<T> ctxResult(width * height * 4);
@@ -428,8 +427,8 @@ void runPlanarIdentityCase(int width, int height, CtxFn ctxFn, PlainFn plainFn) 
     NppStreamContext ctx;
     nppGetStreamContext(&ctx);
 
-    ASSERT_EQ(ctxFn(srcPtrs, srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtxPtrs, step, dstSizeROI,
-                    NPPI_INTER_NN, ctx),
+    ASSERT_EQ(ctxFn(srcPtrs, srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstCtxPtrs, step,
+                    dstSizeROI, NPPI_INTER_NN, ctx),
               NPP_SUCCESS);
     ASSERT_EQ(plainFn(srcPtrs, srcSize, step, srcROI, xMap.get(), mapStep, yMap.get(), mapStep, dstPlainPtrs, step,
                       dstSizeROI, NPPI_INTER_NN),
@@ -497,20 +496,14 @@ void runPlanarIdentityCase(int width, int height, CtxFn ctxFn, PlainFn plainFn) 
   }
 }
 
-#define REMAP_PACKED_TEST(TEST_NAME, TYPE, MAPTYPE, CHANNELS, CTX_FN, FN)                                                      \
-  TEST_F(RemapFunctionalTest, TEST_NAME) {                                                                                      \
-    runPackedIdentityCase<TYPE, MAPTYPE>(17, 13, CHANNELS, CTX_FN, FN);                                                        \
-  }
+#define REMAP_PACKED_TEST(TEST_NAME, TYPE, MAPTYPE, CHANNELS, CTX_FN, FN)                                              \
+  TEST_F(RemapFunctionalTest, TEST_NAME) { runPackedIdentityCase<TYPE, MAPTYPE>(17, 13, CHANNELS, CTX_FN, FN); }
 
-#define REMAP_AC4_TEST(TEST_NAME, TYPE, MAPTYPE, CTX_FN, FN)                                                                    \
-  TEST_F(RemapFunctionalTest, TEST_NAME) {                                                                                      \
-    runAC4IdentityCase<TYPE, MAPTYPE>(17, 13, CTX_FN, FN);                                                                     \
-  }
+#define REMAP_AC4_TEST(TEST_NAME, TYPE, MAPTYPE, CTX_FN, FN)                                                           \
+  TEST_F(RemapFunctionalTest, TEST_NAME) { runAC4IdentityCase<TYPE, MAPTYPE>(17, 13, CTX_FN, FN); }
 
-#define REMAP_PLANAR_TEST(TEST_NAME, TYPE, MAPTYPE, PLANES, CTX_FN, FN)                                                         \
-  TEST_F(RemapFunctionalTest, TEST_NAME) {                                                                                      \
-    runPlanarIdentityCase<TYPE, MAPTYPE, PLANES>(19, 11, CTX_FN, FN);                                                          \
-  }
+#define REMAP_PLANAR_TEST(TEST_NAME, TYPE, MAPTYPE, PLANES, CTX_FN, FN)                                                \
+  TEST_F(RemapFunctionalTest, TEST_NAME) { runPlanarIdentityCase<TYPE, MAPTYPE, PLANES>(19, 11, CTX_FN, FN); }
 
 } // namespace
 

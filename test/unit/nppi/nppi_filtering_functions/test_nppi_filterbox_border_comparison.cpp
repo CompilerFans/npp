@@ -285,7 +285,8 @@ std::vector<T> createReplicatedHalo(const BorderComparisonConfig &config, const 
     const int sourceY = std::max(0, std::min(config.height - 1, y - padTop));
     for (int x = 0; x < expandedWidth; ++x) {
       const int sourceX = std::max(0, std::min(config.width - 1, x - padLeft));
-      expanded[static_cast<size_t>(y) * expandedWidth + x] = input[static_cast<size_t>(sourceY) * config.width + sourceX];
+      expanded[static_cast<size_t>(y) * expandedWidth + x] =
+          input[static_cast<size_t>(sourceY) * config.width + sourceX];
     }
   }
   return expanded;
@@ -314,10 +315,9 @@ void runBorderComparison8u(const BorderComparisonConfig &config, const std::stri
   cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
   const Npp8u *d_filter_roi = d_filter_src + padTop * expandedWidth + padLeft;
-  NppStatus status =
-      nppiFilterBox_8u_C1R(d_filter_roi, expandedWidth * sizeof(Npp8u), d_dst, config.width * sizeof(Npp8u),
-                           {config.width, config.height}, {config.maskWidth, config.maskHeight},
-                           {config.anchorX, config.anchorY});
+  NppStatus status = nppiFilterBox_8u_C1R(d_filter_roi, expandedWidth * sizeof(Npp8u), d_dst,
+                                          config.width * sizeof(Npp8u), {config.width, config.height},
+                                          {config.maskWidth, config.maskHeight}, {config.anchorX, config.anchorY});
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> filterBoxResult(input.size());
@@ -376,10 +376,9 @@ void runBorderComparison32f(const BorderComparisonConfig &config, const std::str
   cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
   const Npp32f *d_filter_roi = d_filter_src + padTop * expandedWidth + padLeft;
-  NppStatus status =
-      nppiFilterBox_32f_C1R(d_filter_roi, expandedWidth * sizeof(Npp32f), d_dst, config.width * sizeof(Npp32f),
-                            {config.width, config.height}, {config.maskWidth, config.maskHeight},
-                            {config.anchorX, config.anchorY});
+  NppStatus status = nppiFilterBox_32f_C1R(d_filter_roi, expandedWidth * sizeof(Npp32f), d_dst,
+                                           config.width * sizeof(Npp32f), {config.width, config.height},
+                                           {config.maskWidth, config.maskHeight}, {config.anchorX, config.anchorY});
   ASSERT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> filterBoxResult(input.size());

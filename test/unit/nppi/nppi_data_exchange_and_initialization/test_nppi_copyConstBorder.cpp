@@ -1,5 +1,5 @@
-#include "npp.h"
 #include "framework/npp_test_base.h"
+#include "npp.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -42,8 +42,8 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R) {
   // Destination with borders: 2 pixels on each side
   int topBorder = 2;
   int leftBorder = 2;
-  int dstWidth = width + leftBorder + 2;   // left + right
-  int dstHeight = height + topBorder + 2;  // top + bottom
+  int dstWidth = width + leftBorder + 2;  // left + right
+  int dstHeight = height + topBorder + 2; // top + bottom
   NppiSize dstRoi = {dstWidth, dstHeight};
   Npp8u borderValue = 255;
 
@@ -52,11 +52,8 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R) {
 
   src.copyFromHost(srcData);
 
-  NppStatus status = nppiCopyConstBorder_8u_C1R(
-      src.get(), src.step(), srcRoi,
-      dst.get(), dst.step(), dstRoi,
-      topBorder, leftBorder, borderValue
-  );
+  NppStatus status = nppiCopyConstBorder_8u_C1R(src.get(), src.step(), srcRoi, dst.get(), dst.step(), dstRoi, topBorder,
+                                                leftBorder, borderValue);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -101,12 +98,8 @@ TEST_F(NPPICopyConstBorderTest, CopyConstBorder_8u_C1R_Ctx) {
   NppStreamContext nppStreamCtx;
   nppStreamCtx.hStream = 0;
 
-  NppStatus status = nppiCopyConstBorder_8u_C1R_Ctx(
-      src.get(), src.step(), srcRoi,
-      dst.get(), dst.step(), dstRoi,
-      topBorder, leftBorder, borderValue,
-      nppStreamCtx
-  );
+  NppStatus status = nppiCopyConstBorder_8u_C1R_Ctx(src.get(), src.step(), srcRoi, dst.get(), dst.step(), dstRoi,
+                                                    topBorder, leftBorder, borderValue, nppStreamCtx);
 
   EXPECT_EQ(status, NPP_SUCCESS);
 

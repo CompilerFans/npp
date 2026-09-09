@@ -2,8 +2,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-template <typename T>
-__global__ void nppiSet_C1R_kernel(T nValue, T *pDst, int nDstStep, int width, int height) {
+template <typename T> __global__ void nppiSet_C1R_kernel(T nValue, T *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -39,7 +38,7 @@ NppStatus launchSetScalar(T nValue, T *pDst, int nDstStep, NppiSize oSizeROI, Np
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiSet_C1R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(nValue, pDst, nDstStep, oSizeROI.width,
-                                                                        oSizeROI.height);
+                                                                       oSizeROI.height);
 
   return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
@@ -61,8 +60,8 @@ NppStatus launchSetVector(const T *aValue, T *pDst, int nDstStep, NppiSize oSize
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiSet_CxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(dValue, pDst, nDstStep,
-                                                                                      oSizeROI.width, oSizeROI.height);
+  nppiSet_CxR_kernel<T, CHANNELS>
+      <<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(dValue, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
 
   status = cudaGetLastError();
   cudaStreamSynchronize(nppStreamCtx.hStream);

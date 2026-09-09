@@ -175,8 +175,8 @@ __global__ void bgr_to_ycbcr422_y_c3_kernel(const Npp8u *src, int srcStep, Npp8u
   dstRowY[x] = yv;
 }
 
-__global__ void rgb_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstCb, int dstCbStep,
-                                               Npp8u *dstCr, int dstCrStep, int width, int height) {
+__global__ void rgb_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstCb, int dstCbStep, Npp8u *dstCr,
+                                               int dstCrStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -201,8 +201,8 @@ __global__ void rgb_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Np
   dstRowCr[x] = static_cast<Npp8u>((cr0 + cr1) / 2);
 }
 
-__global__ void bgr_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstCb, int dstCbStep,
-                                               Npp8u *dstCr, int dstCrStep, int width, int height) {
+__global__ void bgr_to_ycbcr422_cbcr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *dstCb, int dstCbStep, Npp8u *dstCr,
+                                               int dstCrStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -339,8 +339,8 @@ __global__ void ycbcr422_to_bgr_c3_kernel(const Npp8u *src, int srcStep, Npp8u *
   dstRow[outIdx + 2] = r;
 }
 
-__global__ void ycbcr422_to_bgr_c4_kernel(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, int width,
-                                          int height, Npp8u alpha) {
+__global__ void ycbcr422_to_bgr_c4_kernel(const Npp8u *src, int srcStep, Npp8u *dst, int dstStep, int width, int height,
+                                          Npp8u alpha) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -415,8 +415,7 @@ cudaError_t nppiRGBToYCbCr422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, N
   rgb_to_ycbcr422_y_c3_kernel<<<gridY, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, oSizeROI.width,
                                                                oSizeROI.height);
 
-  dim3 gridCb((oSizeROI.width / 2 + blockSize.x - 1) / blockSize.x,
-              (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridCb((oSizeROI.width / 2 + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
   rgb_to_ycbcr422_cbcr_c3_kernel<<<gridCb, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstCb, nDstCbStep, pDstCr,
                                                                    nDstCrStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
@@ -431,8 +430,7 @@ cudaError_t nppiBGRToYCbCr422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, N
   bgr_to_ycbcr422_y_c3_kernel<<<gridY, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstY, nDstYStep, oSizeROI.width,
                                                                oSizeROI.height);
 
-  dim3 gridCb((oSizeROI.width / 2 + blockSize.x - 1) / blockSize.x,
-              (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridCb((oSizeROI.width / 2 + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
   bgr_to_ycbcr422_cbcr_c3_kernel<<<gridCb, blockSize, 0, stream>>>(pSrc, nSrcStep, pDstCb, nDstCbStep, pDstCr,
                                                                    nDstCrStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
@@ -441,8 +439,7 @@ cudaError_t nppiBGRToYCbCr422_8u_C3P3R_kernel(const Npp8u *pSrc, int nSrcStep, N
 cudaError_t nppiYCbCr422ToRGB_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   ycbcr422_to_rgb_c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                 oSizeROI.height);
@@ -455,17 +452,15 @@ cudaError_t nppiYCbCr422ToRGB_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep,
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  ycbcr422_to_rgb_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcCb, nSrcCbStep, pSrcCr,
-                                                                  nSrcCrStep, pDst, nDstStep, oSizeROI.width,
-                                                                  oSizeROI.height);
+  ycbcr422_to_rgb_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(
+      pSrcY, nSrcYStep, pSrcCb, nSrcCbStep, pSrcCr, nSrcCrStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
 }
 
 cudaError_t nppiYCbCr422ToBGR_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   ycbcr422_to_bgr_c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                 oSizeROI.height);
@@ -478,17 +473,15 @@ cudaError_t nppiYCbCr422ToBGR_8u_P3C3R_kernel(const Npp8u *pSrcY, int nSrcYStep,
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  ycbcr422_to_bgr_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcCb, nSrcCbStep, pSrcCr,
-                                                                  nSrcCrStep, pDst, nDstStep, oSizeROI.width,
-                                                                  oSizeROI.height);
+  ycbcr422_to_bgr_p3c3_kernel<<<gridSize, blockSize, 0, stream>>>(
+      pSrcY, nSrcYStep, pSrcCb, nSrcCbStep, pSrcCr, nSrcCrStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   return cudaGetLastError();
 }
 
 cudaError_t nppiYCbCr422ToBGR_8u_C2C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, Npp8u alpha, cudaStream_t stream) {
   dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
-                (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   ycbcr422_to_bgr_c4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                 oSizeROI.height, alpha);

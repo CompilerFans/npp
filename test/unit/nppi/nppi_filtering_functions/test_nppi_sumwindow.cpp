@@ -475,7 +475,7 @@ TEST_F(NppiSumWindowTest, SumWindowRow_BoundaryHandling) {
 
   int y = 0;
   // 检查中心像素 (4,3)
-  y = height / 2;           // 3
+  y = height / 2; // 3
 
   // 检查边界像素的实际计算
   float cornerValue = hostDstGpu[0];

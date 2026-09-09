@@ -212,7 +212,7 @@ cudaError_t nppiRGBToHSV_8u_AC4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   rgb_to_hsv_ac4_kernel<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
-                                                           oSizeROI.height);
+                                                            oSizeROI.height);
   return cudaGetLastError();
 }
 

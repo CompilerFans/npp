@@ -15,10 +15,10 @@ NppStatus nppiResize_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize o
 NppStatus nppiResize_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                      int eInterpolation, NppStreamContext nppStreamCtx);
-NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep,
-                                             NppiRect oSrcROI, Npp8u *pDst, int nDstStep, NppiRect oDstROI,
-                                             double nXFactor, double nYFactor, double nXShift, double nYShift,
-                                             int eInterpolation, NppStreamContext nppStreamCtx);
+NppStatus nppiResizeSqrPixel_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
+                                             Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
+                                             double nYFactor, double nXShift, double nYShift, int eInterpolation,
+                                             NppStreamContext nppStreamCtx);
 NppStatus nppiResize_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcRectROI,
                                       Npp16u *pDst, int nDstStep, NppiSize oDstSize, NppiRect oDstRectROI,
                                       int eInterpolation, NppStreamContext nppStreamCtx);
@@ -148,8 +148,8 @@ NppStatus nppiResize_8u_C4R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, 
 }
 
 NppStatus nppiResizeSqrPixel_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                        Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor,
-                                        double nYFactor, double nXShift, double nYShift, int eInterpolation,
+                                        Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor, double nYFactor,
+                                        double nXShift, double nYShift, int eInterpolation,
                                         NppStreamContext nppStreamCtx) {
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
@@ -173,16 +173,16 @@ NppStatus nppiResizeSqrPixel_8u_C4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, in
   if (eInterpolation != NPPI_INTER_NN && eInterpolation != NPPI_INTER_LINEAR) {
     return NPP_INTERPOLATION_ERROR;
   }
-  return nppiResizeSqrPixel_8u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
-                                            nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+  return nppiResizeSqrPixel_8u_C4R_Ctx_impl(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor,
+                                            nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
 }
 
-NppStatus nppiResizeSqrPixel_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
-                                    Npp8u *pDst, int nDstStep, NppiRect oDstROI, double nXFactor, double nYFactor,
-                                    double nXShift, double nYShift, int eInterpolation) {
+NppStatus nppiResizeSqrPixel_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
+                                    int nDstStep, NppiRect oDstROI, double nXFactor, double nYFactor, double nXShift,
+                                    double nYShift, int eInterpolation) {
   NppStreamContext context{};
-  return nppiResizeSqrPixel_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor,
-                                       nYFactor, nXShift, nYShift, eInterpolation, context);
+  return nppiResizeSqrPixel_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nXFactor, nYFactor,
+                                       nXShift, nYShift, eInterpolation, context);
 }
 
 // 16-bit unsigned single channel resize

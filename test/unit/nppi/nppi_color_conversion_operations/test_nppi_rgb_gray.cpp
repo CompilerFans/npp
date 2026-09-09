@@ -305,8 +305,7 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_StreamContext) {
 }
 
 namespace {
-template <typename T>
-void dumpExpected(const char *label, const std::vector<T> &values) {
+template <typename T> void dumpExpected(const char *label, const std::vector<T> &values) {
   std::cout << label << " = {";
   for (size_t i = 0; i < values.size(); ++i) {
     if (i) {
@@ -341,8 +340,8 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16u_C3C1R_ExpectedValues) {
   ASSERT_NE(d_dst, nullptr);
 
   for (int y = 0; y < testHeight; ++y) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * testWidth * 3,
-               testWidth * 3 * sizeof(Npp16u), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * testWidth * 3, testWidth * 3 * sizeof(Npp16u),
+               cudaMemcpyHostToDevice);
   }
 
   NppStatus status = nppiRGBToGray_16u_C3C1R(d_src, srcStep, d_dst, dstStep, testRoi);
@@ -359,8 +358,7 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16u_C3C1R_ExpectedValues) {
     GTEST_SKIP();
   }
 
-  const Npp16u kExpectedRGBToGray16uC3[] = {1815, 1823, 1831, 1839, 1847, 1855,
-                                            1863, 1871, 1879, 1887, 1895, 1903};
+  const Npp16u kExpectedRGBToGray16uC3[] = {1815, 1823, 1831, 1839, 1847, 1855, 1863, 1871, 1879, 1887, 1895, 1903};
   ASSERT_EQ(resultData.size(), sizeof(kExpectedRGBToGray16uC3) / sizeof(kExpectedRGBToGray16uC3[0]));
   for (size_t i = 0; i < resultData.size(); ++i) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16uC3[i]) << "Mismatch at " << i;
@@ -410,8 +408,8 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16u_AC4C1R_ExpectedValues) {
   ASSERT_NE(d_dst, nullptr);
 
   for (int y = 0; y < testHeight; ++y) {
-    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * testWidth * 4,
-               testWidth * 4 * sizeof(Npp16u), cudaMemcpyHostToDevice);
+    cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * testWidth * 4, testWidth * 4 * sizeof(Npp16u),
+               cudaMemcpyHostToDevice);
   }
 
   NppStatus status = nppiRGBToGray_16u_AC4C1R(d_src, srcStep, d_dst, dstStep, testRoi);
@@ -428,8 +426,7 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16u_AC4C1R_ExpectedValues) {
     GTEST_SKIP();
   }
 
-  const Npp16u kExpectedRGBToGray16uAC4[] = {1815, 1823, 1831, 1839, 1847, 1855,
-                                             1863, 1871, 1879, 1887, 1895, 1903};
+  const Npp16u kExpectedRGBToGray16uAC4[] = {1815, 1823, 1831, 1839, 1847, 1855, 1863, 1871, 1879, 1887, 1895, 1903};
   ASSERT_EQ(resultData.size(), sizeof(kExpectedRGBToGray16uAC4) / sizeof(kExpectedRGBToGray16uAC4[0]));
   for (size_t i = 0; i < resultData.size(); ++i) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16uAC4[i]) << "Mismatch at " << i;
@@ -497,8 +494,7 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16s_C3C1R_ExpectedValues) {
     GTEST_SKIP();
   }
 
-  const Npp16s kExpectedRGBToGray16sC3[] = {-50, -43, -37, -30, -24, -18,
-                                            -11, -5, 2, 8, 15, 21};
+  const Npp16s kExpectedRGBToGray16sC3[] = {-50, -43, -37, -30, -24, -18, -11, -5, 2, 8, 15, 21};
   ASSERT_EQ(resultData.size(), sizeof(kExpectedRGBToGray16sC3) / sizeof(kExpectedRGBToGray16sC3[0]));
   for (size_t i = 0; i < resultData.size(); ++i) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16sC3[i]) << "Mismatch at " << i;
@@ -566,8 +562,7 @@ TEST_F(RGBToGrayFunctionalTest, RGBToGray_16s_AC4C1R_ExpectedValues) {
     GTEST_SKIP();
   }
 
-  const Npp16s kExpectedRGBToGray16sAC4[] = {-50, -43, -37, -30, -24, -18,
-                                             -11, -5, 2, 8, 15, 21};
+  const Npp16s kExpectedRGBToGray16sAC4[] = {-50, -43, -37, -30, -24, -18, -11, -5, 2, 8, 15, 21};
   ASSERT_EQ(resultData.size(), sizeof(kExpectedRGBToGray16sAC4) / sizeof(kExpectedRGBToGray16sAC4[0]));
   for (size_t i = 0; i < resultData.size(); ++i) {
     EXPECT_EQ(resultData[i], kExpectedRGBToGray16sAC4[i]) << "Mismatch at " << i;

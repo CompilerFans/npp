@@ -66,8 +66,8 @@ __global__ void nppiColorTwist32f_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep,
 }
 
 // Color twist kernel for AC4 (alpha output zero)
-__global__ void nppiColorTwist32f_8u_AC4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
-                                                 int width, int height, const float *twist) {
+__global__ void nppiColorTwist32f_8u_AC4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
+                                                 int height, const float *twist) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -1154,13 +1154,13 @@ NppStatus nppiColorTwist32f_16u_C3IR_Ctx_impl(Npp16u *pSrcDst, int nSrcDstStep, 
 
 NppStatus nppiColorTwist32f_16u_AC4IR_Ctx_impl(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                                const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  return nppiColorTwist32f_16u_AC4R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
+  return nppiColorTwist32f_16u_AC4R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist,
+                                             nppStreamCtx);
 }
 
 NppStatus nppiColorTwist32f_16u_IP3R_Ctx_impl(Npp16u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
                                               const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  return nppiColorTwist32f_16u_P3R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist,
-                                            nppStreamCtx);
+  return nppiColorTwist32f_16u_P3R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 
 NppStatus nppiColorTwist32f_16s_C1IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
@@ -1180,12 +1180,12 @@ NppStatus nppiColorTwist32f_16s_C3IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, 
 
 NppStatus nppiColorTwist32f_16s_AC4IR_Ctx_impl(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                                const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  return nppiColorTwist32f_16s_AC4R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
+  return nppiColorTwist32f_16s_AC4R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist,
+                                             nppStreamCtx);
 }
 
 NppStatus nppiColorTwist32f_16s_IP3R_Ctx_impl(Npp16s *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI,
                                               const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
-  return nppiColorTwist32f_16s_P3R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist,
-                                            nppStreamCtx);
+  return nppiColorTwist32f_16s_P3R_Ctx_impl(pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, aTwist, nppStreamCtx);
 }
 }
