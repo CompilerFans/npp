@@ -461,7 +461,9 @@ TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_AlignmentVerification) {
 
       if (ptr != nullptr) {
         EXPECT_TRUE(isAligned(ptr, 256)) << "C1 pointer not aligned for width " << width;
-        EXPECT_EQ(step % 512, 0) << "C1 step not aligned for width " << width;
+        // Pitch granularity is platform-specific (CUDA rounds to 512 bytes, MACA to 256);
+        // only 256-byte alignment is guaranteed across backends.
+        EXPECT_EQ(step % 256, 0) << "C1 step not aligned for width " << width;
 
         nppiFree(ptr);
       }
@@ -474,7 +476,7 @@ TEST_F(NppiMemoryManagementTest, nppiMalloc_32f_AlignmentVerification) {
 
       if (ptr != nullptr) {
         EXPECT_TRUE(isAligned(ptr, 256)) << "C3 pointer not aligned for width " << width;
-        EXPECT_EQ(step % 512, 0) << "C3 step not aligned for width " << width;
+        EXPECT_EQ(step % 256, 0) << "C3 step not aligned for width " << width;
 
         nppiFree(ptr);
       }
