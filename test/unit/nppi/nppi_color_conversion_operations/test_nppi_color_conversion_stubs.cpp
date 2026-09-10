@@ -986,18 +986,6 @@ TEST(ColorConversionMissingStubs, DISABLED_ReturnsNotImplemented) {
   EXPECT_EQ(nppiYCbCr422ToYCrCb420_8u_C2P3R(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}, NppStreamContext{}),
             NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422ToYCrCb422_8u_C2R(nullptr, 0, nullptr, 0, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422ToYCrCb422_8u_C2R_Ctx(nullptr, 0, nullptr, 0, NppiSize{0, 0}, NppStreamContext{}),
-            NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422ToYCrCb422_8u_P3C2R(nullptr, nullptr, nullptr, 0, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422ToYCrCb422_8u_P3C2R_Ctx(nullptr, nullptr, nullptr, 0, NppiSize{0, 0}, NppStreamContext{}),
-            NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422_8u_C2P3R(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422_8u_C2P3R_Ctx(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}, NppStreamContext{}),
-            NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422_8u_P3C2R(nullptr, nullptr, nullptr, 0, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCbCr422_8u_P3C2R_Ctx(nullptr, nullptr, nullptr, 0, NppiSize{0, 0}, NppStreamContext{}),
-            NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYCbCr444ToBGR_JPEG_8u_P3C3R(nullptr, 0, nullptr, 0, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx(nullptr, 0, nullptr, 0, NppiSize{0, 0}, NppStreamContext{}),
             NPP_NOT_IMPLEMENTED_ERROR);
@@ -1069,9 +1057,6 @@ TEST(ColorConversionMissingStubs, DISABLED_ReturnsNotImplemented) {
             NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYCrCb422ToYCbCr420_8u_C2P3R(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}, NppStreamContext{}),
-            NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCrCb422ToYCbCr422_8u_C2P3R(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
-  EXPECT_EQ(nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx(nullptr, 0, nullptr, nullptr, NppiSize{0, 0}, NppStreamContext{}),
             NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYUV420ToBGRBatch_8u_P3C3R(nullptr, nullptr, 0, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
   EXPECT_EQ(nppiYUV420ToBGRBatch_8u_P3C3R_Advanced(nullptr, nullptr, 0, NppiSize{0, 0}), NPP_NOT_IMPLEMENTED_ERROR);
