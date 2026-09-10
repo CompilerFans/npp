@@ -180,6 +180,79 @@ TEST_F(NPPSSetFunctionalTest, Set_32fc_BasicOperation) {
   cudaFree(d_dst);
 }
 
+
+// ==============================================================================
+// nppsZero_8u Tests - Zero initialization convenience function
+// ==============================================================================
+
+TEST_F(NPPSSetFunctionalTest, Zero_8u_BasicOperation) {
+  const size_t nLength = 200;
+
+  // 分配GPU内存
+  Npp8u *d_dst = nullptr;
+  cudaMalloc(&d_dst, nLength * sizeof(Npp8u));
+  ASSERT_TRUE(d_dst) << "GPU memory allocation failed";
+
+  // 先设置非零值
+  NppStatus status = nppsSet_8u(42, d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR);
+
+  // 执行零初始化
+  status = nppsZero_8u(d_dst, nLength);
+  ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_8u failed";
+
+  // 复制结果回主机并Validate
+  std::vector<Npp8u> result(nLength);
+  cudaMemcpy(result.data(), d_dst, nLength * sizeof(Npp8u), cudaMemcpyDeviceToHost);
+
+  for (size_t i = 0; i < nLength; i++) {
+    EXPECT_EQ(result[i], 0) << "Mismatch at index " << i;
+  }
+
+  // 清理GPU内存
+  cudaFree(d_dst);
+}
+
+TEST_F(NPPSSetFunctionalTest, Zero_8u_BasicOperation_Ctx) {
+    const size_t nLength = 200;
+
+    // 创建 CUDA 流
+    cudaStream_t stream = nullptr;
+    cudaStreamCreate(&stream);
+
+    // 初始化 NppStreamContext
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    nppStreamCtx.hStream = stream; // 绑定自定义流
+
+    // 分配GPU内存
+    Npp8u *d_dst = nullptr;
+    cudaMalloc(&d_dst, nLength * sizeof(Npp8u));
+    ASSERT_TRUE(d_dst) << "GPU memory allocation failed";
+
+    // 先设置非零值
+    NppStatus status = nppsSet_8u_Ctx(42, d_dst, nLength, nppStreamCtx);
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    // 执行零初始化
+    status = nppsZero_8u_Ctx(d_dst, nLength, nppStreamCtx);
+    ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_8u_Ctx failed";
+
+    // 复制结果回主机并Validate
+    std::vector<Npp8u> result(nLength);
+    // 【修正】原图代码此处写成了 sizeof(Npp32f)，会导致缓冲区溢出，改为 sizeof(Npp8u)
+    cudaMemcpyAsync(result.data(), d_dst, nLength * sizeof(Npp8u), cudaMemcpyDeviceToHost, stream);
+    cudaStreamSynchronize(stream); // 同步流，确保拷贝完成
+
+    for (size_t i = 0; i < nLength; i++) {
+        EXPECT_EQ(result[i], 0) << "Mismatch at index " << i;
+    }
+
+    // 清理GPU内存和流
+    cudaFree(d_dst);
+    cudaStreamDestroy(stream);
+}
+
 // ==============================================================================
 // nppsZero_32f Tests - Zero initialization convenience function
 // ==============================================================================
@@ -210,4 +283,43 @@ TEST_F(NPPSSetFunctionalTest, Zero_32f_BasicOperation) {
 
   // 清理GPU内存
   cudaFree(d_dst);
+}
+
+TEST_F(NPPSSetFunctionalTest, Zero_32f_BasicOperation_Ctx) {
+    const size_t nLength = 200;
+
+    // 创建 CUDA 流
+    cudaStream_t stream = nullptr;
+    cudaStreamCreate(&stream);
+
+    // 初始化 NppStreamContext
+    NppStreamContext nppStreamCtx;
+    nppGetStreamContext(&nppStreamCtx);
+    nppStreamCtx.hStream = stream; // 绑定自定义流
+
+    // 分配GPU内存
+    Npp32f *d_dst = nullptr;
+    cudaMalloc(&d_dst, nLength * sizeof(Npp32f));
+    ASSERT_TRUE(d_dst) << "GPU memory allocation failed";
+
+    // 先设置非零值
+    NppStatus status = nppsSet_32f_Ctx(42.0f, d_dst, nLength, nppStreamCtx);
+    ASSERT_EQ(status, NPP_NO_ERROR);
+
+    // 执行零初始化
+    status = nppsZero_32f_Ctx(d_dst, nLength, nppStreamCtx);
+    ASSERT_EQ(status, NPP_NO_ERROR) << "nppsZero_32f_Ctx failed";
+
+    // 复制结果回主机并Validate
+    std::vector<Npp32f> result(nLength);
+    cudaMemcpyAsync(result.data(), d_dst, nLength * sizeof(Npp32f), cudaMemcpyDeviceToHost, stream);
+    cudaStreamSynchronize(stream); // 同步流，确保拷贝完成
+
+    for (size_t i = 0; i < nLength; i++) {
+        EXPECT_FLOAT_EQ(result[i], 0.0f) << "Mismatch at index " << i;
+    }
+
+    // 清理GPU内存和流
+    cudaFree(d_dst);
+    cudaStreamDestroy(stream);
 }
