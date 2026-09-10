@@ -18,12 +18,15 @@ __global__ void nppiFilterBox_CxR_kernel_impl(const T *pSrc, Npp32s nSrcStep, T 
   using Accumulator = typename FilterBoxAccumulator<T>::Type;
   Accumulator sums[4] = {0, 0, 0, 0};
   for (int maskY = 0; maskY < maskHeight; ++maskY) {
+    // Raw window read matching NVIDIA: the plain CxR variant applies no
+    // border handling, so callers supply halo rows/columns when needed
+    // (use FilterBoxBorder variants for in-ROI border support).
     const int sourceY = y + maskY - anchorY;
+    const T *sourceRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + sourceY * nSrcStep);
     for (int maskX = 0; maskX < maskWidth; ++maskX) {
-      const int sourceX = x + maskX - anchorX;
-      const T *sourceRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + sourceY * nSrcStep);
+      const int sourceX = (x + maskX - anchorX) * channels;
       for (int channel = 0; channel < filteredChannels; ++channel) {
-        sums[channel] += static_cast<Accumulator>(sourceRow[sourceX * channels + channel]);
+        sums[channel] += static_cast<Accumulator>(sourceRow[sourceX + channel]);
       }
     }
   }

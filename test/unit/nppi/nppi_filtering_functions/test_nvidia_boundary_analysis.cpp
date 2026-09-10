@@ -215,16 +215,40 @@ public:
 private:
   static std::vector<uint8_t> runNPPFilterBox(const std::vector<uint8_t> &input, int width, int height, int maskW,
                                               int maskH, int anchorX, int anchorY) {
+    // The plain FilterBox variant applies no border handling, so taps outside
+    // the ROI read adjacent halo rows/columns. Pad the source allocation with
+    // one mask-radius halo on each side (edge-replicated) so those reads stay
+    // inside mapped memory on platforms with strict address translation.
+    const int halo = maskW > maskH ? maskW : maskH;
+    const int paddedWidth = width + 2 * halo;
+    const int paddedHeight = height + 2 * halo;
+    std::vector<uint8_t> padded(static_cast<size_t>(paddedWidth) * paddedHeight, 0);
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        padded[(y + halo) * paddedWidth + (x + halo)] = input[y * width + x];
+      }
+    }
+    // Replicate edges into the halo
+    for (int y = 0; y < paddedHeight; ++y) {
+      for (int x = 0; x < paddedWidth; ++x) {
+        const int srcX = std::min(std::max(x - halo, 0), width - 1) + halo;
+        const int srcY = std::min(std::max(y - halo, 0), height - 1) + halo;
+        padded[y * paddedWidth + x] = padded[srcY * paddedWidth + srcX];
+      }
+    }
+
     // Allocate device memory
-    Npp8u *d_src = (Npp8u *)nppsMalloc_8u(width * height);
+    Npp8u *d_src = (Npp8u *)nppsMalloc_8u(paddedWidth * paddedHeight);
     Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(width * height);
 
     // Copy to device
-    cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_src, padded.data(), padded.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
 
-    // Apply filter
-    NppStatus status = nppiFilterBox_8u_C1R(d_src, width * sizeof(Npp8u), d_dst, width * sizeof(Npp8u), {width, height},
-                                            {maskW, maskH}, {anchorX, anchorY});
+    // Apply filter over the interior ROI, with the source pointer advanced to
+    // the first interior pixel so the ROI coordinates are unchanged
+    Npp8u *srcRoi = d_src + halo * paddedWidth + halo;
+    NppStatus status = nppiFilterBox_8u_C1R(srcRoi, paddedWidth * sizeof(Npp8u), d_dst, width * sizeof(Npp8u),
+                                            {width, height}, {maskW, maskH}, {anchorX, anchorY});
 
     if (status != NPP_SUCCESS) {
       nppiFree(d_src);

@@ -262,6 +262,13 @@ NppStatus nppiSegmentWatershed_8u_C1IR_Ctx_impl(Npp8u *pSrcDst, Npp32s nSrcDstSt
     if (h_count == 0)
       break; // No more pixels to process
 
+    // The kernel rejects queue pushes beyond capacity but its atomicAdd
+    // counter still counts them, so clamp the launch count to the queue
+    // capacity to keep reads inside pDeviceBuffer.
+    if (h_count > (int)imageSize) {
+      h_count = (int)imageSize;
+    }
+
     // Clear next queue
     cudaMemsetAsync(nextCount, 0, sizeof(int), nppStreamCtx.hStream);
 
