@@ -6,3 +6,5 @@ Testing/
 *.so
 *.zip
 api_analysis/api_inventory.json
+.omc/
+cuda_compat/
