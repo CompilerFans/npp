@@ -47,7 +47,7 @@ static inline NppStatus validateSwapChannelsInputs(const void *pPtr, int nStep, 
                                                                                                                        \
     int step = oSizeROI.width * CHANNELS * sizeof(Npp##TYPE);                                                          \
     Npp##TYPE *pTemp;                                                                                                  \
-    cudaError_t err = cudaMalloc(&pTemp, step * oSizeROI.height);                                                      \
+    cudaError_t err = cudaMallocAsync(&pTemp, step * oSizeROI.height, nppStreamCtx.hStream);                                                      \
     if (err != cudaSuccess) {                                                                                          \
       return NPP_MEMORY_ALLOCATION_ERR;                                                                                \
     }                                                                                                                  \
@@ -55,15 +55,15 @@ static inline NppStatus validateSwapChannelsInputs(const void *pPtr, int nStep, 
     err = cudaMemcpy2DAsync(pTemp, step, pSrcDst, nSrcDstStep, oSizeROI.width * CHANNELS * sizeof(Npp##TYPE),          \
                             oSizeROI.height, cudaMemcpyDeviceToDevice, nppStreamCtx.hStream);                          \
     if (err != cudaSuccess) {                                                                                          \
-      cudaFree(pTemp);                                                                                                 \
+      cudaFreeAsync(pTemp, nppStreamCtx.hStream);                                                                                                 \
       return NPP_MEMORY_ALLOCATION_ERR;                                                                                \
     }                                                                                                                  \
                                                                                                                        \
     status = nppiSwapChannels_impl<Npp##TYPE, CHANNELS, CHANNELS>(pTemp, step, pSrcDst, nSrcDstStep, oSizeROI,         \
                                                                   aDstOrder, 0, nppStreamCtx);                         \
                                                                                                                        \
-    cudaStreamSynchronize(nppStreamCtx.hStream);                                                                       \
-    cudaFree(pTemp);                                                                                                   \
+                                                                           \
+    cudaFreeAsync(pTemp, nppStreamCtx.hStream);                                                                                                   \
     return status;                                                                                                     \
   }                                                                                                                    \
                                                                                                                        \

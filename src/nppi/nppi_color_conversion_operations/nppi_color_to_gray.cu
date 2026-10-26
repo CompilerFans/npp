@@ -209,14 +209,6 @@ NppStatus nppiColorToGray_8u_C3C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -236,14 +228,6 @@ NppStatus nppiColorToGray_8u_AC4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -262,14 +246,6 @@ NppStatus nppiColorToGray_8u_C4C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -289,14 +265,6 @@ NppStatus nppiColorToGray_16u_C3C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, N
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -316,14 +284,6 @@ NppStatus nppiColorToGray_16u_AC4C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -343,14 +303,6 @@ NppStatus nppiColorToGray_16u_C4C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, N
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -370,14 +322,6 @@ NppStatus nppiColorToGray_16s_C3C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, N
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -397,14 +341,6 @@ NppStatus nppiColorToGray_16s_AC4C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -424,14 +360,6 @@ NppStatus nppiColorToGray_16s_C4C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, N
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -451,14 +379,6 @@ NppStatus nppiColorToGray_32f_C3C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, N
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -478,14 +398,6 @@ NppStatus nppiColorToGray_32f_AC4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -505,14 +417,6 @@ NppStatus nppiColorToGray_32f_C4C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, N
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }

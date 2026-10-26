@@ -77,11 +77,11 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
   Npp32s *d_pValues, *d_pLevels;
   size_t lutSize = nLevels * sizeof(Npp32s);
 
-  cudaMalloc(&d_pValues, lutSize);
-  cudaMalloc(&d_pLevels, lutSize);
+  cudaMallocAsync(&d_pValues, lutSize, nppStreamCtx.hStream);
+  cudaMallocAsync(&d_pLevels, lutSize, nppStreamCtx.hStream);
 
-  cudaMemcpy(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice);
+  cudaMemcpyAsync(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  cudaMemcpyAsync(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -91,17 +91,15 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
-    cudaFree(d_pValues);
-    cudaFree(d_pLevels);
+    cudaFreeAsync(d_pValues, nppStreamCtx.hStream);
+    cudaFreeAsync(d_pLevels, nppStreamCtx.hStream);
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
   // CRITICAL: Synchronize before freeing memory used by kernel
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-
   // Cleanup device memory
-  cudaFree(d_pValues);
-  cudaFree(d_pLevels);
+  cudaFreeAsync(d_pValues, nppStreamCtx.hStream);
+  cudaFreeAsync(d_pLevels, nppStreamCtx.hStream);
 
   return NPP_SUCCESS;
 }

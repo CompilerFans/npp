@@ -110,14 +110,14 @@ NppStatus nppiFilter_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
   // Copy kernel to device memory
   Npp32s *d_kernel;
   int kernelSizeBytes = oKernelSize.width * oKernelSize.height * sizeof(Npp32s);
-  cudaError_t cudaStatus = cudaMalloc(&d_kernel, kernelSizeBytes);
+  cudaError_t cudaStatus = cudaMallocAsync(&d_kernel, kernelSizeBytes, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  cudaStatus = cudaMemcpy(d_kernel, pKernel, kernelSizeBytes, cudaMemcpyHostToDevice);
+  cudaStatus = cudaMemcpyAsync(d_kernel, pKernel, kernelSizeBytes, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
-    cudaFree(d_kernel);
+    cudaFreeAsync(d_kernel, nppStreamCtx.hStream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
@@ -129,7 +129,7 @@ NppStatus nppiFilter_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
       oAnchor.x, oAnchor.y, nDivisor);
 
   cudaStatus = cudaGetLastError();
-  cudaFree(d_kernel);
+  cudaFreeAsync(d_kernel, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -145,14 +145,14 @@ NppStatus nppiFilter_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
   // Copy kernel to device memory
   Npp32s *d_kernel;
   int kernelSizeBytes = oKernelSize.width * oKernelSize.height * sizeof(Npp32s);
-  cudaError_t cudaStatus = cudaMalloc(&d_kernel, kernelSizeBytes);
+  cudaError_t cudaStatus = cudaMallocAsync(&d_kernel, kernelSizeBytes, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  cudaStatus = cudaMemcpy(d_kernel, pKernel, kernelSizeBytes, cudaMemcpyHostToDevice);
+  cudaStatus = cudaMemcpyAsync(d_kernel, pKernel, kernelSizeBytes, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
-    cudaFree(d_kernel);
+    cudaFreeAsync(d_kernel, nppStreamCtx.hStream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
@@ -164,7 +164,7 @@ NppStatus nppiFilter_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
       oAnchor.x, oAnchor.y, nDivisor);
 
   cudaStatus = cudaGetLastError();
-  cudaFree(d_kernel);
+  cudaFreeAsync(d_kernel, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -180,14 +180,14 @@ NppStatus nppiFilter_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *
   // Copy kernel to device memory
   Npp32f *d_kernel;
   int kernelSizeBytes = oKernelSize.width * oKernelSize.height * sizeof(Npp32f);
-  cudaError_t cudaStatus = cudaMalloc(&d_kernel, kernelSizeBytes);
+  cudaError_t cudaStatus = cudaMallocAsync(&d_kernel, kernelSizeBytes, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  cudaStatus = cudaMemcpy(d_kernel, pKernel, kernelSizeBytes, cudaMemcpyHostToDevice);
+  cudaStatus = cudaMemcpyAsync(d_kernel, pKernel, kernelSizeBytes, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
-    cudaFree(d_kernel);
+    cudaFreeAsync(d_kernel, nppStreamCtx.hStream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
@@ -199,7 +199,7 @@ NppStatus nppiFilter_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *
       oAnchor.x, oAnchor.y);
 
   cudaStatus = cudaGetLastError();
-  cudaFree(d_kernel);
+  cudaFreeAsync(d_kernel, nppStreamCtx.hStream);
 
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;

@@ -56,8 +56,8 @@ NppStatus nppiColorToGray_8u_C3C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 
 NppStatus nppiColorToGray_8u_C3C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_8u_C3C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -73,8 +73,8 @@ NppStatus nppiColorToGray_8u_AC4C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *
 
 NppStatus nppiColorToGray_8u_AC4C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_8u_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -90,8 +90,8 @@ NppStatus nppiColorToGray_8u_C4C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 
 NppStatus nppiColorToGray_8u_C4C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    const Npp32f aCoeffs[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_8u_C4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -107,8 +107,8 @@ NppStatus nppiColorToGray_16u_C3C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u
 
 NppStatus nppiColorToGray_16u_C3C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_16u_C3C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -124,8 +124,8 @@ NppStatus nppiColorToGray_16u_AC4C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16
 
 NppStatus nppiColorToGray_16u_AC4C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_16u_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -141,8 +141,8 @@ NppStatus nppiColorToGray_16u_C4C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u
 
 NppStatus nppiColorToGray_16u_C4C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_16u_C4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -158,8 +158,8 @@ NppStatus nppiColorToGray_16s_C3C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s
 
 NppStatus nppiColorToGray_16s_C3C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_16s_C3C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -175,8 +175,8 @@ NppStatus nppiColorToGray_16s_AC4C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16
 
 NppStatus nppiColorToGray_16s_AC4C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_16s_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -192,8 +192,8 @@ NppStatus nppiColorToGray_16s_C4C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s
 
 NppStatus nppiColorToGray_16s_C4C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_16s_C4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -209,8 +209,8 @@ NppStatus nppiColorToGray_32f_C3C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f
 
 NppStatus nppiColorToGray_32f_C3C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_32f_C3C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -226,8 +226,8 @@ NppStatus nppiColorToGray_32f_AC4C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32
 
 NppStatus nppiColorToGray_32f_AC4C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp32f aCoeffs[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_32f_AC4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }
 
@@ -243,7 +243,7 @@ NppStatus nppiColorToGray_32f_C4C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f
 
 NppStatus nppiColorToGray_32f_C4C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp32f aCoeffs[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiColorToGray_32f_C4C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, aCoeffs, nppStreamCtx);
 }

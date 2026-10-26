@@ -1,5 +1,11 @@
 #include "npp.h"
 #include <cuda_runtime.h>
+
+struct NppiThresholdValues8u {
+  Npp8u threshold[4];
+  Npp8u value[4];
+};
+
 #include <device_launch_parameters.h>
 
 // Device function for threshold operation
@@ -145,7 +151,7 @@ __global__ void nppiThreshold_LTVal_32f_C1R_kernel(const Npp32f *pSrc, int nSrcS
 
 // C3 Threshold_LTVal kernels
 __global__ void nppiThreshold_LTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
-                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
+                                                  int height, NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -155,13 +161,13 @@ __global__ void nppiThreshold_LTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      dst_row[idx + c] = (src_row[idx + c] < thresholds[c]) ? values[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] < tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
     }
   }
 }
 
 __global__ void nppiThreshold_LTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                   const Npp8u *thresholds, const Npp8u *values) {
+                                                   NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -170,14 +176,14 @@ __global__ void nppiThreshold_LTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      row[idx + c] = (row[idx + c] < thresholds[c]) ? values[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] < tv.threshold[c]) ? tv.value[c] : row[idx + c];
     }
   }
 }
 
 // C4 Threshold_LTVal kernels
 __global__ void nppiThreshold_LTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
-                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
+                                                  int height, NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -187,13 +193,13 @@ __global__ void nppiThreshold_LTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      dst_row[idx + c] = (src_row[idx + c] < thresholds[c]) ? values[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] < tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
     }
   }
 }
 
 __global__ void nppiThreshold_LTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                   const Npp8u *thresholds, const Npp8u *values) {
+                                                   NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -202,14 +208,14 @@ __global__ void nppiThreshold_LTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      row[idx + c] = (row[idx + c] < thresholds[c]) ? values[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] < tv.threshold[c]) ? tv.value[c] : row[idx + c];
     }
   }
 }
 
 // C3 Threshold_GTVal kernels
 __global__ void nppiThreshold_GTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
-                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
+                                                  int height, NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -219,13 +225,13 @@ __global__ void nppiThreshold_GTVal_8u_C3R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      dst_row[idx + c] = (src_row[idx + c] > thresholds[c]) ? values[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] > tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
     }
   }
 }
 
 __global__ void nppiThreshold_GTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                   const Npp8u *thresholds, const Npp8u *values) {
+                                                   NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -234,14 +240,14 @@ __global__ void nppiThreshold_GTVal_8u_C3IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 3;
 
     for (int c = 0; c < 3; c++) {
-      row[idx + c] = (row[idx + c] > thresholds[c]) ? values[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] > tv.threshold[c]) ? tv.value[c] : row[idx + c];
     }
   }
 }
 
 // C4 Threshold_GTVal kernels
 __global__ void nppiThreshold_GTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
-                                                  int height, const Npp8u *thresholds, const Npp8u *values) {
+                                                  int height, NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -251,13 +257,13 @@ __global__ void nppiThreshold_GTVal_8u_C4R_kernel(const Npp8u *pSrc, int nSrcSte
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      dst_row[idx + c] = (src_row[idx + c] > thresholds[c]) ? values[c] : src_row[idx + c];
+      dst_row[idx + c] = (src_row[idx + c] > tv.threshold[c]) ? tv.value[c] : src_row[idx + c];
     }
   }
 }
 
 __global__ void nppiThreshold_GTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstStep, int width, int height,
-                                                   const Npp8u *thresholds, const Npp8u *values) {
+                                                   NppiThresholdValues8u tv) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -266,7 +272,7 @@ __global__ void nppiThreshold_GTVal_8u_C4IR_kernel(Npp8u *pSrcDst, int nSrcDstSt
     int idx = x * 4;
 
     for (int c = 0; c < 4; c++) {
-      row[idx + c] = (row[idx + c] > thresholds[c]) ? values[c] : row[idx + c];
+      row[idx + c] = (row[idx + c] > tv.threshold[c]) ? tv.value[c] : row[idx + c];
     }
   }
 }
@@ -436,21 +442,18 @@ NppStatus nppiThreshold_LTVal_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep,
 NppStatus nppiThreshold_LTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
                                               NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 3 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 3; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_LTVal_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -463,21 +466,18 @@ NppStatus nppiThreshold_LTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                                const Npp8u *pThresholds, const Npp8u *pValues,
                                                NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 3 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 3; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_LTVal_8u_C3IR_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -491,21 +491,18 @@ NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 NppStatus nppiThreshold_LTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
                                               NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 4 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 4; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_LTVal_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -518,21 +515,18 @@ NppStatus nppiThreshold_LTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                                const Npp8u *pThresholds, const Npp8u *pValues,
                                                NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 4 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 4; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_LTVal_8u_C4IR_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -546,21 +540,18 @@ NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 NppStatus nppiThreshold_GTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
                                               NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 3 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 3; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_GTVal_8u_C3R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -573,21 +564,18 @@ NppStatus nppiThreshold_GTVal_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                                const Npp8u *pThresholds, const Npp8u *pValues,
                                                NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 3 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 3 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 3 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 3; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_GTVal_8u_C3IR_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -601,21 +589,18 @@ NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, 
 NppStatus nppiThreshold_GTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                                               NppiSize oSizeROI, const Npp8u *pThresholds, const Npp8u *pValues,
                                               NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 4 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 4; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_GTVal_8u_C4R_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -628,21 +613,18 @@ NppStatus nppiThreshold_GTVal_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, N
 NppStatus nppiThreshold_GTVal_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                                const Npp8u *pThresholds, const Npp8u *pValues,
                                                NppStreamContext nppStreamCtx) {
-  Npp8u *d_thresholds, *d_values;
-  cudaMalloc(&d_thresholds, 4 * sizeof(Npp8u));
-  cudaMalloc(&d_values, 4 * sizeof(Npp8u));
-  cudaMemcpyAsync(d_thresholds, pThresholds, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  cudaMemcpyAsync(d_values, pValues, 4 * sizeof(Npp8u), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  NppiThresholdValues8u tv{};
+  for (int c = 0; c < 4; ++c) {
+    tv.threshold[c] = pThresholds[c];
+    tv.value[c] = pValues[c];
+  }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   nppiThreshold_GTVal_8u_C4IR_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, d_thresholds, d_values);
+      pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, tv);
 
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_thresholds);
-  cudaFree(d_values);
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {

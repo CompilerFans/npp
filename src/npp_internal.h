@@ -23,12 +23,12 @@ static inline NppStreamContext nppCreateDefaultStreamContext(void) {
   if (cudaGetDeviceProperties(&prop, deviceId) != cudaSuccess) {
     // Set safe defaults if we can't get properties
     memset(&ctx, 0, sizeof(NppStreamContext));
-    ctx.hStream = (cudaStream_t)0;
+    ctx.hStream = nppGetStream();
     return ctx;
   }
 
   // Initialize all fields
-  ctx.hStream = (cudaStream_t)0; // Default stream
+  ctx.hStream = nppGetStream(); // Default stream
   ctx.nCudaDeviceId = deviceId;
   ctx.nMultiProcessorCount = prop.multiProcessorCount;
   ctx.nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;

@@ -64,9 +64,8 @@ NppStatus nppiSumWindowRow_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp
 NppStatus nppiSumWindowRow_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oROI,
                                      Npp32s nMaskSize, Npp32s nAnchor) {
 
-  NppStreamContext nppStreamCtx;
-  memset(&nppStreamCtx, 0, sizeof(NppStreamContext));
-  nppStreamCtx.hStream = 0; // default stream
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
 
   return nppiSumWindowRow_8u32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oROI, nMaskSize, nAnchor, nppStreamCtx);
 }
@@ -87,9 +86,8 @@ NppStatus nppiSumWindowColumn_8u32f_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, 
 NppStatus nppiSumWindowColumn_8u32f_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep,
                                         NppiSize oROI, Npp32s nMaskSize, Npp32s nAnchor) {
 
-  NppStreamContext nppStreamCtx;
-  memset(&nppStreamCtx, 0, sizeof(NppStreamContext));
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
 
   return nppiSumWindowColumn_8u32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oROI, nMaskSize, nAnchor, nppStreamCtx);
 }

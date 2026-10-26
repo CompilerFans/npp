@@ -1,6 +1,7 @@
 #pragma once
 
 #include "npp.h"
+#include "npp_stream_compat.h"
 #include "npp_test_memory.h"
 #include "npp_test_rand_gen.h"
 #include "npp_test_result_validator.h"

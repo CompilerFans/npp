@@ -41,3 +41,19 @@ target_compile_definitions(unit_tests
     PRIVATE
     GOLDEN_DATA_DIR="${CMAKE_SOURCE_DIR}/test/golden"
 )
+
+# NPP 13 removed the non-Ctx entry points, so the full suite cannot link against
+# the reference NPP.  The stream tests only use Ctx entry points; build them as
+# a separate target so they can still run against CUDA SDK NPP.
+if(USE_NVIDIA_NPP)
+    npp_create_test_target(stream_sync_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_npp_stream_sync.cpp"
+        "NVIDIA_NPP_PLACEHOLDER")
+    target_include_directories(stream_sync_tests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/framework
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/include
+    )
+    npp_register_test(stream_sync stream_sync_tests)
+endif()

@@ -3,7 +3,6 @@
 #include <cuda_runtime.h>
 
 static NppLibraryVersion g_nppLibVersion = {NPP_VER_MAJOR, NPP_VER_MINOR, NPP_VER_BUILD};
-static cudaStream_t g_nppStream = nullptr;
 
 const NppLibraryVersion *nppGetLibVersion(void) { return &g_nppLibVersion; }
 
@@ -93,127 +92,6 @@ const char *nppGetGpuName(void) {
   }
 
   return deviceName;
-}
-
-cudaStream_t nppGetStream(void) { return g_nppStream; }
-
-NppStatus nppSetStream(cudaStream_t hStream) {
-  g_nppStream = hStream;
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
-  if (!pNppStreamContext) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
-  // Get current device ID
-  int deviceId;
-  cudaError_t result = cudaGetDevice(&deviceId);
-  if (result != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  // Get device properties
-  cudaDeviceProp prop;
-  result = cudaGetDeviceProperties(&prop, deviceId);
-  if (result != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  // Fill stream context using the current NPP-managed stream.
-  pNppStreamContext->hStream = g_nppStream;
-  pNppStreamContext->nCudaDeviceId = deviceId;
-  pNppStreamContext->nMultiProcessorCount = prop.multiProcessorCount;
-  pNppStreamContext->nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
-  pNppStreamContext->nMaxThreadsPerBlock = prop.maxThreadsPerBlock;
-  pNppStreamContext->nSharedMemPerBlock = prop.sharedMemPerBlock;
-
-  // Get compute capability
-  pNppStreamContext->nCudaDevAttrComputeCapabilityMajor = prop.major;
-  pNppStreamContext->nCudaDevAttrComputeCapabilityMinor = prop.minor;
-
-  pNppStreamContext->nStreamFlags = cudaStreamDefault;
-  if (g_nppStream != nullptr && g_nppStream != cudaStreamLegacy && g_nppStream != cudaStreamPerThread) {
-    result = cudaStreamGetFlags(g_nppStream, &pNppStreamContext->nStreamFlags);
-    if (result != cudaSuccess) {
-      return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-    }
-  }
-
-  // Reserved field
-  pNppStreamContext->nReserved0 = 0;
-
-  return NPP_NO_ERROR;
-}
-
-NppStatus nppSetStreamContext(NppStreamContext nppStreamContext) {
-  // Validate device ID
-  int deviceCount;
-  cudaError_t result = cudaGetDeviceCount(&deviceCount);
-  if (result != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamContext.nCudaDeviceId < 0 || nppStreamContext.nCudaDeviceId >= deviceCount) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
-  // Check if we need to switch device
-  int currentDevice;
-  result = cudaGetDevice(&currentDevice);
-  if (result != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (currentDevice != nppStreamContext.nCudaDeviceId) {
-    result = cudaSetDevice(nppStreamContext.nCudaDeviceId);
-    if (result != cudaSuccess) {
-      return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-    }
-  }
-
-  // Validate stream if not null
-  if (nppStreamContext.hStream != nullptr) {
-    // Query stream flags to validate it exists
-    unsigned int flags;
-    result = cudaStreamGetFlags(nppStreamContext.hStream, &flags);
-    if (result != cudaSuccess) {
-      // Stream might be invalid, but we can't be sure
-      // Accept it for now as GPU will fail later if invalid
-    }
-  }
-
-  g_nppStream = nppStreamContext.hStream;
-  return NPP_NO_ERROR;
-}
-
-unsigned int nppGetStreamNumSMs(void) {
-  int deviceId;
-  if (cudaGetDevice(&deviceId) != cudaSuccess) {
-    return 0;
-  }
-
-  cudaDeviceProp prop;
-  if (cudaGetDeviceProperties(&prop, deviceId) != cudaSuccess) {
-    return 0;
-  }
-
-  return static_cast<unsigned int>(prop.multiProcessorCount);
-}
-
-unsigned int nppGetStreamMaxThreadsPerSM(void) {
-  int deviceId;
-  if (cudaGetDevice(&deviceId) != cudaSuccess) {
-    return 0;
-  }
-
-  cudaDeviceProp prop;
-  if (cudaGetDeviceProperties(&prop, deviceId) != cudaSuccess) {
-    return 0;
-  }
-
-  return static_cast<unsigned int>(prop.maxThreadsPerMultiProcessor);
 }
 
 NppStatus nppGetGpuComputeCapability(int *pMajor, int *pMinor) {
@@ -397,12 +275,12 @@ NppStreamContext nppCreateDefaultStreamContext(void) {
   if (cudaGetDeviceProperties(&prop, deviceId) != cudaSuccess) {
     // Set safe defaults if we can't get properties
     memset(&ctx, 0, sizeof(NppStreamContext));
-    ctx.hStream = (cudaStream_t)0;
+    ctx.hStream = nppGetStream();
     return ctx;
   }
 
   // Initialize all fields
-  ctx.hStream = (cudaStream_t)0; // Default stream
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   ctx.nCudaDeviceId = deviceId;
   ctx.nMultiProcessorCount = prop.multiProcessorCount;
   ctx.nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;

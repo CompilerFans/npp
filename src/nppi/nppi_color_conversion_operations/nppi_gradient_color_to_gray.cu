@@ -88,14 +88,6 @@ NppStatus nppiGradientColorToGray_C3C1R_Ctx_impl(const SrcT *pSrc, int nSrcStep,
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }

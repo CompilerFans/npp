@@ -113,7 +113,7 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R(const Npp8u *pSrc, int nSrcS
                                                     NppiNorm eNorm, NppiBorderType eBorderType) {
 
   NppStreamContext nppStreamCtx = nppCreateDefaultStreamContext();
-  nppStreamCtx.hStream = 0;
+  nppStreamCtx.hStream = nppGetStream();
 
   return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY,
                                                        nDstYStep, pDstMag, nDstMagStep, pDstAngle, nDstAngleStep,
@@ -141,8 +141,8 @@ NppStatus nppiGradientVectorPrewittBorder_8u16s_C1R_magdir(const Npp8u *pSrc, in
                                                            NppiPoint oSrcOffset, Npp16s *pDstMag, int nDstMagStep,
                                                            Npp16s *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                            NppiMaskSize eMaskSize, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx_magdir(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag,
                                                               nDstMagStep, pDstDir, nDstDirStep, oDstSizeROI, eMaskSize,
                                                               eBorderType, nppStreamCtx);
@@ -169,8 +169,8 @@ NppStatus nppiGradientVectorPrewittBorder_8u32f_C1R(const Npp8u *pSrc, int nSrcS
                                                     NppiPoint oSrcOffset, Npp32f *pDstMag, int nDstMagStep,
                                                     Npp32f *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                     NppiMaskSize eMaskSize, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiGradientVectorPrewittBorder_8u32f_C1R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag, nDstMagStep,
                                                        pDstDir, nDstDirStep, oDstSizeROI, eMaskSize, eBorderType,
                                                        nppStreamCtx);
@@ -197,8 +197,8 @@ NppStatus nppiGradientVectorPrewittBorder_16s_C1R(const Npp16s *pSrc, int nSrcSt
                                                   NppiPoint oSrcOffset, Npp16s *pDstMag, int nDstMagStep,
                                                   Npp16s *pDstDir, int nDstDirStep, NppiSize oDstSizeROI,
                                                   NppiMaskSize eMaskSize, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiGradientVectorPrewittBorder_16s_C1R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDstMag, nDstMagStep,
                                                      pDstDir, nDstDirStep, oDstSizeROI, eMaskSize, eBorderType,
                                                      nppStreamCtx);

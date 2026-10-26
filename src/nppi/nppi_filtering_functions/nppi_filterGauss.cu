@@ -188,15 +188,6 @@ NppStatus nppiFilterGauss_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Synchronize and wait for kernel completion
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -236,15 +227,6 @@ NppStatus nppiFilterGauss_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Synchronize and wait for kernel completion
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }
@@ -284,15 +266,6 @@ NppStatus nppiFilterGauss_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  // Synchronize and wait for kernel completion
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
 
   return NPP_SUCCESS;
 }

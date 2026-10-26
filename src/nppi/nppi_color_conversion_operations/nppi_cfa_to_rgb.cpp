@@ -58,8 +58,8 @@ NppStatus nppiCFAToRGB_8u_C1C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oS
 
 NppStatus nppiCFAToRGB_8u_C1C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp8u *pDst,
                                 int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCFAToRGB_8u_C1C3R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
                                    nppStreamCtx);
 }
@@ -78,8 +78,8 @@ NppStatus nppiCFAToRGB_16u_C1C3R_Ctx(const Npp16u *pSrc, int nSrcStep, NppiSize 
 
 NppStatus nppiCFAToRGB_16u_C1C3R(const Npp16u *pSrc, int nSrcStep, NppiSize oSrcSize, NppiRect oSrcROI, Npp16u *pDst,
                                  int nDstStep, NppiBayerGridPosition eGrid, NppiInterpolationMode eInterpolation) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCFAToRGB_16u_C1C3R_Ctx(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation,
                                     nppStreamCtx);
 }

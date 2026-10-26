@@ -525,7 +525,11 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
 
   int width = oSizeROI.width;
   int height = oSizeROI.height;
-  (void)nppStreamCtx; // Stream context reserved for future async support
+  // The geometry lists are produced on the host, so all work previously
+  // submitted to the application stream must be complete before reading it.
+  if (cudaStreamSynchronize(nppStreamCtx.hStream) != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
 
   // Copy direction image to host for processing
   size_t dirImageSize = (size_t)width * height * sizeof(NppiContourPixelDirectionInfo);
@@ -689,6 +693,11 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
   (void)oMaxSizeROI; // Used for validation only
 
   for (int batch = 0; batch < nBatchSize; batch++) {
+    // The label image is read on the host below.
+    if (cudaStreamSynchronize(stream) != cudaSuccess) {
+      return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+    }
+
     NppiImageDescriptor &img = pSrcDstBatchList[batch];
     NppiBufferDescriptor &buf = pBufferList[batch];
 
