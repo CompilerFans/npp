@@ -21,8 +21,8 @@ NppStatus nppiBGRToLab_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
 }
 
 NppStatus nppiBGRToLab_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiBGRToLab_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -38,7 +38,7 @@ NppStatus nppiLabToBGR_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, 
 }
 
 NppStatus nppiLabToBGR_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiLabToBGR_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }

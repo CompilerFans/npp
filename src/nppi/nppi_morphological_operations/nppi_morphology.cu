@@ -1549,8 +1549,8 @@ NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
   dim3 blockSize(32, 8);
   if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-    nppiErode_8u_C1R_3x3_kernel<32, 8>
-        <<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask);
+    nppiErode_8u_C1R_3x3_kernel<32, 8><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask);
     cudaError_t cudaStatus = cudaGetLastError();
     return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -1656,8 +1656,8 @@ NppStatus nppiDilate_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 
   if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-    nppiDilate_8u_C1R_3x3_kernel<32, 8>
-        <<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask);
+    nppiDilate_8u_C1R_3x3_kernel<32, 8><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask);
     cudaError_t cudaStatus = cudaGetLastError();
     return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

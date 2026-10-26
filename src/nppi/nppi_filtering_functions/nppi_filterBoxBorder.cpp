@@ -75,8 +75,8 @@ NppStatus nppiFilterBoxBorder_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
 NppStatus nppiFilterBoxBorder_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI, NppiSize oMaskSize,
                                      NppiPoint oAnchor, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiFilterBoxBorder_8u_C1R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI, oMaskSize,
                                         oAnchor, eBorderType, nppStreamCtx);
 }
@@ -98,8 +98,8 @@ NppStatus nppiFilterBoxBorder_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSi
 NppStatus nppiFilterBoxBorder_8u_C3R(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                      Npp8u *pDst, int nDstStep, NppiSize oDstSizeROI, NppiSize oMaskSize,
                                      NppiPoint oAnchor, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiFilterBoxBorder_8u_C3R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI, oMaskSize,
                                         oAnchor, eBorderType, nppStreamCtx);
 }
@@ -122,8 +122,8 @@ NppStatus nppiFilterBoxBorder_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Nppi
 NppStatus nppiFilterBoxBorder_16s_C1R(const Npp16s *pSrc, int nSrcStep, NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                       Npp16s *pDst, int nDstStep, NppiSize oDstSizeROI, NppiSize oMaskSize,
                                       NppiPoint oAnchor, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiFilterBoxBorder_16s_C1R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
                                          oMaskSize, oAnchor, eBorderType, nppStreamCtx);
 }
@@ -146,8 +146,8 @@ NppStatus nppiFilterBoxBorder_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Nppi
 NppStatus nppiFilterBoxBorder_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize oSrcSizeROI, NppiPoint oSrcOffset,
                                       Npp32f *pDst, int nDstStep, NppiSize oDstSizeROI, NppiSize oMaskSize,
                                       NppiPoint oAnchor, NppiBorderType eBorderType) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiFilterBoxBorder_32f_C1R_Ctx(pSrc, nSrcStep, oSrcSizeROI, oSrcOffset, pDst, nDstStep, oDstSizeROI,
                                          oMaskSize, oAnchor, eBorderType, nppStreamCtx);
 }

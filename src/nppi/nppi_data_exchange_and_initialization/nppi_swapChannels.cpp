@@ -56,7 +56,7 @@ NppStatus nppiSwapChannels_##API_SUFFIX##_##SUFFIX##IR_Ctx( \
   \
   int step = oSizeROI.width * CHANNELS * sizeof(DATA_TYPE); \
   DATA_TYPE *pTemp; \
-  cudaError_t err = cudaMalloc(&pTemp, step * oSizeROI.height); \
+  cudaError_t err = cudaMallocAsync(reinterpret_cast<void **>(&pTemp), step * oSizeROI.height, nppStreamCtx.hStream); \
   if (err != cudaSuccess) { \
     return NPP_MEMORY_ALLOCATION_ERR; \
   } \
@@ -65,15 +65,14 @@ NppStatus nppiSwapChannels_##API_SUFFIX##_##SUFFIX##IR_Ctx( \
                           oSizeROI.width * CHANNELS * sizeof(DATA_TYPE), oSizeROI.height, \
                           cudaMemcpyDeviceToDevice, nppStreamCtx.hStream); \
   if (err != cudaSuccess) { \
-    cudaFree(pTemp); \
+    cudaFreeAsync(pTemp, nppStreamCtx.hStream); \
     return NPP_MEMORY_ALLOCATION_ERR; \
   } \
   \
   status = nppiSwapChannels_impl<DATA_TYPE, CHANNELS, CHANNELS>( \
       pTemp, step, pSrcDst, nSrcDstStep, oSizeROI, aDstOrder, 0, nppStreamCtx); \
   \
-  cudaStreamSynchronize(nppStreamCtx.hStream); \
-  cudaFree(pTemp); \
+  cudaFreeAsync(pTemp, nppStreamCtx.hStream); \
   return status; \
 } \
 \

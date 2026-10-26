@@ -105,8 +105,8 @@ NppStatus nppiThreshold_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
 
 NppStatus nppiThreshold_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                const Npp8u nThreshold, NppCmpOp eComparisonOperation) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
                                   nppStreamCtx);
 }
@@ -124,8 +124,8 @@ NppStatus nppiThreshold_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oS
 
 NppStatus nppiThreshold_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold,
                                 NppCmpOp eComparisonOperation) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_8u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
@@ -144,8 +144,8 @@ NppStatus nppiThreshold_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pD
 
 NppStatus nppiThreshold_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                 const Npp32f nThreshold, NppCmpOp eComparisonOperation) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation,
                                    nppStreamCtx);
 }
@@ -187,8 +187,8 @@ NppStatus nppiThreshold_LTVal_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiThreshold_LTVal_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      Npp8u nThreshold, Npp8u nValue) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -204,8 +204,8 @@ NppStatus nppiThreshold_LTVal_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiS
 
 NppStatus nppiThreshold_LTVal_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp8u nThreshold,
                                       Npp8u nValue) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_8u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -222,8 +222,8 @@ NppStatus nppiThreshold_GTVal_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiThreshold_GTVal_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      Npp8u nThreshold, Npp8u nValue) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_GTVal_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -239,8 +239,8 @@ NppStatus nppiThreshold_GTVal_8u_C1IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiS
 
 NppStatus nppiThreshold_GTVal_8u_C1IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, Npp8u nThreshold,
                                       Npp8u nValue) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_GTVal_8u_C1IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -258,8 +258,8 @@ NppStatus nppiThreshold_LTValGTVal_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, N
 
 NppStatus nppiThreshold_LTValGTVal_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                           Npp8u nThresholdLT, Npp8u nValueLT, Npp8u nThresholdGT, Npp8u nValueGT) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTValGTVal_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT,
                                              nThresholdGT, nValueGT, nppStreamCtx);
 }
@@ -278,8 +278,8 @@ NppStatus nppiThreshold_LTVal_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp3
 
 NppStatus nppiThreshold_LTVal_32f_C1R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                       Npp32f nThreshold, Npp32f nValue) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -296,8 +296,8 @@ NppStatus nppiThreshold_LTVal_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiThreshold_LTVal_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u pThresholds[3], const Npp8u pValues[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -312,8 +312,8 @@ NppStatus nppiThreshold_LTVal_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiS
 
 NppStatus nppiThreshold_LTVal_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u pThresholds[3],
                                       const Npp8u pValues[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_8u_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -330,8 +330,8 @@ NppStatus nppiThreshold_GTVal_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiThreshold_GTVal_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u pThresholds[3], const Npp8u pValues[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_GTVal_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -346,8 +346,8 @@ NppStatus nppiThreshold_GTVal_8u_C3IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiS
 
 NppStatus nppiThreshold_GTVal_8u_C3IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u pThresholds[3],
                                       const Npp8u pValues[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_GTVal_8u_C3IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -364,8 +364,8 @@ NppStatus nppiThreshold_LTVal_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiThreshold_LTVal_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u pThresholds[4], const Npp8u pValues[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -380,8 +380,8 @@ NppStatus nppiThreshold_LTVal_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiS
 
 NppStatus nppiThreshold_LTVal_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u pThresholds[4],
                                       const Npp8u pValues[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_LTVal_8u_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -398,8 +398,8 @@ NppStatus nppiThreshold_GTVal_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiThreshold_GTVal_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u pThresholds[4], const Npp8u pValues[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_GTVal_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }
 
@@ -414,7 +414,7 @@ NppStatus nppiThreshold_GTVal_8u_C4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiS
 
 NppStatus nppiThreshold_GTVal_8u_C4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u pThresholds[4],
                                       const Npp8u pValues[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiThreshold_GTVal_8u_C4IR_Ctx(pSrcDst, nSrcDstStep, oSizeROI, pThresholds, pValues, nppStreamCtx);
 }

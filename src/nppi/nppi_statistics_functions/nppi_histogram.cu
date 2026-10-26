@@ -466,7 +466,7 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
                                             int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                             NppStreamContext nppStreamCtx) {
   // Initialize histogram to zero
-  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -499,7 +499,7 @@ NppStatus nppiHistogramEven_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
 NppStatus nppiHistogramEven_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
                                              int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                              NppStreamContext nppStreamCtx) {
-  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -528,7 +528,7 @@ NppStatus nppiHistogramEven_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, N
 NppStatus nppiHistogramEven_16s_C1R_Ctx_impl(const Npp16s *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
                                              int nLevels, Npp32s nLowerLevel, Npp32s nUpperLevel, Npp8u *pDeviceBuffer,
                                              NppStreamContext nppStreamCtx) {
-  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -559,7 +559,7 @@ NppStatus nppiHistogramEven_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp
                                             Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
   // Clear all channel histograms
   for (int c = 0; c < 4; c++) {
-    cudaMemset(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s));
+    cudaMemsetAsync(pHist[c], 0, (nLevels[c] - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
   }
 
   dim3 blockSize(16, 16);
@@ -599,7 +599,7 @@ NppStatus nppiHistogramRange_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
                                              const Npp32s *pLevels, int nLevels, Npp8u *pDeviceBuffer,
                                              NppStreamContext nppStreamCtx) {
   // Initialize histogram to zero
-  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -631,7 +631,7 @@ NppStatus nppiHistogramRange_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Np
 NppStatus nppiHistogramRange_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp32s *pHist,
                                               const Npp32f *pLevels, int nLevels, Npp8u *pDeviceBuffer,
                                               NppStreamContext nppStreamCtx) {
-  cudaMemset(pHist, 0, (nLevels - 1) * sizeof(Npp32s));
+  cudaMemsetAsync(pHist, 0, (nLevels - 1) * sizeof(Npp32s), nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);

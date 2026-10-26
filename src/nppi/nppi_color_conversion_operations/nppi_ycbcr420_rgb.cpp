@@ -74,8 +74,8 @@ NppStatus nppiRGBToYCbCr420_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiRGBToYCbCr420_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
                                      NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiRGBToYCbCr420_8u_C3P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
@@ -101,8 +101,8 @@ NppStatus nppiBGRToYCbCr420_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u 
 
 NppStatus nppiBGRToYCbCr420_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
                                      NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiBGRToYCbCr420_8u_C3P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
@@ -128,8 +128,8 @@ NppStatus nppiBGRToYCbCr420_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u
 
 NppStatus nppiBGRToYCbCr420_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
                                       NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiBGRToYCbCr420_8u_AC4P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
@@ -148,8 +148,8 @@ NppStatus nppiYCbCr420ToRGB_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcSte
 
 NppStatus nppiYCbCr420ToRGB_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
                                      NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiYCbCr420ToRGB_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -174,7 +174,7 @@ NppStatus nppiYCbCr420ToBGR_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcSte
 
 NppStatus nppiYCbCr420ToBGR_8u_P3C3R(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
                                       NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiYCbCr420ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }

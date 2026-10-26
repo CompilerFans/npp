@@ -57,8 +57,8 @@ NppStatus nppiCompare_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
 
 NppStatus nppiCompare_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                              int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -74,8 +74,8 @@ NppStatus nppiCompare_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
 
 NppStatus nppiCompare_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_16u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -91,8 +91,8 @@ NppStatus nppiCompare_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp3
 
 NppStatus nppiCompare_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_32f_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -109,8 +109,8 @@ NppStatus nppiCompare_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
 
 NppStatus nppiCompare_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                              int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_8u_C3R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -126,8 +126,8 @@ NppStatus nppiCompare_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
 
 NppStatus nppiCompare_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_16u_C3R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -143,8 +143,8 @@ NppStatus nppiCompare_32f_C3R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp3
 
 NppStatus nppiCompare_32f_C3R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_32f_C3R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -161,8 +161,8 @@ NppStatus nppiCompare_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u 
 
 NppStatus nppiCompare_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                              int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_8u_C4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -178,8 +178,8 @@ NppStatus nppiCompare_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp1
 
 NppStatus nppiCompare_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_16u_C4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }
 
@@ -195,7 +195,7 @@ NppStatus nppiCompare_32f_C4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp3
 
 NppStatus nppiCompare_32f_C4R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp8u *pDst,
                               int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiCompare_32f_C4R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp, nppStreamCtx);
 }

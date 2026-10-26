@@ -119,10 +119,17 @@ __global__ void nppiCopy_CxPxR_kernel_optimized(const T *pSrc, int nSrcStep, T *
   }
 }
 
+// Pointers passed to the planar <-> packed fallback kernels by value, so the
+// Ctx entry points stay asynchronous and do not need a temporary device buffer.
+template <typename T, int CHANNELS>
+struct NppiCopyPointers {
+  T *p[CHANNELS];
+};
+
 // Legacy kernel for C4P4R
 template <typename T, int CHANNELS>
-__global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, T *const *pDst, int nDstStep, int width,
-                                      int height) {
+__global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, NppiCopyPointers<T, CHANNELS> pDst, int nDstStep,
+                                      int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -133,7 +140,7 @@ __global__ void nppiCopy_CxPxR_kernel(const T *pSrc, int nSrcStep, T *const *pDs
 
 #pragma unroll
   for (int c = 0; c < CHANNELS; c++) {
-    T *dst_row = (T *)((char *)pDst[c] + y * nDstStep);
+    T *dst_row = (T *)((char *)pDst.p[c] + y * nDstStep);
     dst_row[x] = src_row[x * CHANNELS + c];
   }
 }
@@ -224,7 +231,8 @@ __global__ void nppiCopy_PxCxR_kernel_optimized(const T *pSrc0, const T *pSrc1, 
 
 // Legacy kernel for P4C4R
 template <typename T, int CHANNELS>
-__global__ void nppiCopy_PxCxR_kernel(T *const *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height) {
+__global__ void nppiCopy_PxCxR_kernel(NppiCopyPointers<T, CHANNELS> pSrc, int nSrcStep, T *pDst, int nDstStep,
+                                      int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -235,7 +243,7 @@ __global__ void nppiCopy_PxCxR_kernel(T *const *pSrc, int nSrcStep, T *pDst, int
 
 #pragma unroll
   for (int c = 0; c < CHANNELS; c++) {
-    const T *src_row = (const T *)((const char *)pSrc[c] + y * nSrcStep);
+    const T *src_row = (const T *)((const char *)pSrc.p[c] + y * nSrcStep);
     dst_row[x * CHANNELS + c] = src_row[x];
   }
 }
@@ -401,33 +409,18 @@ NppStatus nppiCopy_C3P3R_impl_optimized(const T *pSrc, int nSrcStep, T *const pD
 template <typename T, int CHANNELS>
 NppStatus nppiCopy_CxPxR_impl(const T *pSrc, int nSrcStep, T *const pDst[], int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
-  T **d_pDst;
-
-  cudaError_t cudaStatus = cudaMalloc(&d_pDst, CHANNELS * sizeof(T *));
-  if (cudaStatus != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  cudaStatus = cudaMemcpy(d_pDst, pDst, CHANNELS * sizeof(T *), cudaMemcpyHostToDevice);
-  if (cudaStatus != cudaSuccess) {
-    cudaFree(d_pDst);
-    return NPP_MEMORY_ALLOCATION_ERR;
+  NppiCopyPointers<T, CHANNELS> dst{};
+  for (int c = 0; c < CHANNELS; ++c) {
+    dst.p[c] = pDst[c];
   }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiCopy_CxPxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, d_pDst, nDstStep,
-                                                                                       oSizeROI.width, oSizeROI.height);
+  nppiCopy_CxPxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      pSrc, nSrcStep, dst, nDstStep, oSizeROI.width, oSizeROI.height);
 
-  cudaStatus = cudaGetLastError();
-  cudaFree(d_pDst);
-
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 // Optimized P3C3R for 32f with ultra-vectorized operations
@@ -476,33 +469,18 @@ NppStatus nppiCopy_P3C3R_impl_optimized(T *const pSrc[3], int nSrcStep, T *pDst,
 template <typename T, int CHANNELS>
 NppStatus nppiCopy_PxCxR_impl(T *const pSrc[], int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
                               NppStreamContext nppStreamCtx) {
-  T **d_pSrc;
-
-  cudaError_t cudaStatus = cudaMalloc(&d_pSrc, CHANNELS * sizeof(T *));
-  if (cudaStatus != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  cudaStatus = cudaMemcpy(d_pSrc, pSrc, CHANNELS * sizeof(T *), cudaMemcpyHostToDevice);
-  if (cudaStatus != cudaSuccess) {
-    cudaFree(d_pSrc);
-    return NPP_MEMORY_ALLOCATION_ERR;
+  NppiCopyPointers<T, CHANNELS> src{};
+  for (int c = 0; c < CHANNELS; ++c) {
+    src.p[c] = pSrc[c];
   }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiCopy_PxCxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(d_pSrc, nSrcStep, pDst, nDstStep,
-                                                                                       oSizeROI.width, oSizeROI.height);
+  nppiCopy_PxCxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      src, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
 
-  cudaStatus = cudaGetLastError();
-  cudaFree(d_pSrc);
-
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  return NPP_SUCCESS;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 extern "C" {

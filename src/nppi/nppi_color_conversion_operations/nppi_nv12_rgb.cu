@@ -271,17 +271,21 @@ extern "C" cudaError_t nppiNV12ToRGB_709CSC_8u_P2C3R_kernel(const Npp8u *pSrcY, 
   return cudaGetLastError();
 }
 
+struct Nv12ColorTwistValues {
+  float m[12];
+};
+
 __device__ inline void nv12_to_rgb_colortwist_pixel(uint8_t y, uint8_t u, uint8_t v, uint8_t &r, uint8_t &g, uint8_t &b,
-                                                    const float *twist) {
+                                                    Nv12ColorTwistValues twist) {
   // Convert to floating point (no offset applied - handled in matrix)
   float fy = (float)y;
   float fu = (float)u;
   float fv = (float)v;
 
   // Apply custom color twist matrix: RGB = [twist] * [Y U V 1]^T
-  float fr = twist[0] * fy + twist[1] * fu + twist[2] * fv + twist[3];
-  float fg = twist[4] * fy + twist[5] * fu + twist[6] * fv + twist[7];
-  float fb = twist[8] * fy + twist[9] * fu + twist[10] * fv + twist[11];
+  float fr = twist.m[0] * fy + twist.m[1] * fu + twist.m[2] * fv + twist.m[3];
+  float fg = twist.m[4] * fy + twist.m[5] * fu + twist.m[6] * fv + twist.m[7];
+  float fb = twist.m[8] * fy + twist.m[9] * fu + twist.m[10] * fv + twist.m[11];
 
   // Clamp and convert back to 8-bit
   r = (uint8_t)fmaxf(0.0f, fminf(255.0f, fr + 0.5f));
@@ -292,7 +296,7 @@ __device__ inline void nv12_to_rgb_colortwist_pixel(uint8_t y, uint8_t u, uint8_
 __global__ void nv12_to_rgb_colortwist_kernel(const uint8_t *__restrict__ srcY, int srcYStep,
                                               const uint8_t *__restrict__ srcUV, int srcUVStep,
                                               uint8_t *__restrict__ dst, int dstStep, int width, int height,
-                                              const float *__restrict__ twist) {
+                                              Nv12ColorTwistValues twist) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -324,25 +328,11 @@ extern "C" cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *
                                                                    const Npp8u *pSrcUV, int nSrcUVStep, Npp8u *pDst,
                                                                    int nDstStep, NppiSize oSizeROI,
                                                                    const Npp32f aTwist[3][4], cudaStream_t stream) {
-  // 将ColorTwist矩阵复制到GPU常量内存或设备内存
-  // 为了简化，我们将矩阵数据作为参数传递
-  float *d_twist;
-  cudaError_t err = cudaMalloc(&d_twist, 12 * sizeof(float));
-  if (err != cudaSuccess)
-    return err;
-
-  // 将3x4矩阵展开为一维数组
-  float h_twist[12];
+  Nv12ColorTwistValues twistValues{};
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 4; j++) {
-      h_twist[i * 4 + j] = aTwist[i][j];
+      twistValues.m[i * 4 + j] = aTwist[i][j];
     }
-  }
-
-  err = cudaMemcpyAsync(d_twist, h_twist, 12 * sizeof(float), cudaMemcpyHostToDevice, stream);
-  if (err != cudaSuccess) {
-    cudaFree(d_twist);
-    return err;
   }
 
   // Compute grid and block sizes
@@ -351,15 +341,9 @@ extern "C" cudaError_t nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_kernel(const Npp8u *
 
   // 启动ColorTwistkernel
   nv12_to_rgb_colortwist_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pSrcUV, nSrcUVStep, pDst,
-                                                                    nDstStep, oSizeROI.width, oSizeROI.height, d_twist);
+                                                                    nDstStep, oSizeROI.width, oSizeROI.height, twistValues);
 
-  err = cudaGetLastError();
-
-  // 同步并清理内存
-  cudaStreamSynchronize(stream);
-  cudaFree(d_twist);
-
-  return err;
+  return cudaGetLastError();
 }
 
 // BGR kernel wrappers

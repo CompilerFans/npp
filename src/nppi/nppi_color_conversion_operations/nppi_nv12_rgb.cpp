@@ -62,8 +62,8 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
 
 NppStatus nppiNV12ToRGB_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -102,8 +102,8 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
 
 NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -114,8 +114,8 @@ NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSr
 
 NppStatus nppiNV12ToRGB_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -165,8 +165,8 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u *const pSrc[2], i
 
 NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u *const pSrc[2], int aSrcStep[2], Npp8u *pDst, int nDstStep,
                                                NppiSize oSizeROI, const Npp32f aTwist[3][4]) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(pSrc, aSrcStep, pDst, nDstStep, oSizeROI, aTwist, ctx);
 }
 
@@ -208,8 +208,8 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
 
 NppStatus nppiNV12ToBGR_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -248,8 +248,8 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
 
 NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -282,8 +282,8 @@ NppStatus nppiNV21ToRGB_8u_P2C4R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
 
 NppStatus nppiNV21ToRGB_8u_P2C4R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiNV21ToRGB_8u_P2C4R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -316,8 +316,8 @@ NppStatus nppiNV21ToBGR_8u_P2C4R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
 
 NppStatus nppiNV21ToBGR_8u_P2C4R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                  NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiNV21ToBGR_8u_P2C4R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }
 
@@ -328,7 +328,7 @@ NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSr
 
 NppStatus nppiNV12ToBGR_709HDTV_8u_P2C3R(const Npp8u *const pSrc[2], int rSrcStep, Npp8u *pDst, int nDstStep,
                                          NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, ctx);
 }

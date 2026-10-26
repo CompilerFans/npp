@@ -34,3 +34,18 @@ target_include_directories(unit_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/include    # src include (npp_version_compat.h, etc.)
     ${CMAKE_CURRENT_SOURCE_DIR}             # ut root
 )
+
+# NPP 13 removed the non-Ctx entry points, so the full suite cannot link against
+# the reference NPP.  The stream tests only use Ctx entry points; build them as
+# a separate target so they can still run against CUDA SDK NPP.
+if(USE_NVIDIA_NPP)
+    npp_create_test_target(stream_sync_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_npp_stream_sync.cpp"
+        npp)
+    target_include_directories(stream_sync_tests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/framework
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    npp_register_test(stream_sync stream_sync_tests)
+endif()

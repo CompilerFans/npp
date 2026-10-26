@@ -1,6 +1,7 @@
 #pragma once
 
 #include "npp.h"
+#include "npp_stream_compat.h"
 #include "npp_version_compat.h"
 #include <cuda_fp16.h>
 #include <cuda_runtime.h>

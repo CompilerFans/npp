@@ -132,32 +132,32 @@ template <typename T>
 NppStatus launch_mirror_inplace_kernel(T *pSrcDst, int nSrcDstStep, int width, int height, NppiAxis flip, int channels,
                                        cudaStream_t stream) {
 
-  // Use pitched temporary copy to preserve row stride and avoid read-after-write hazards
-  size_t tempPitchBytes = 0;
+  // Use a stream-ordered temporary copy to preserve row stride and avoid
+  // read-after-write hazards without synchronizing the host.
+  const size_t rowBytes = static_cast<size_t>(width) * channels * sizeof(T);
+  const size_t tempPitchBytes = (rowBytes + 255) & ~static_cast<size_t>(255);
+  if (tempPitchBytes > static_cast<size_t>(INT_MAX)) {
+    return NPP_STEP_ERROR;
+  }
+
   T *d_temp = nullptr;
-  cudaError_t cudaErr =
-      cudaMallocPitch(reinterpret_cast<void **>(&d_temp), &tempPitchBytes, width * channels * sizeof(T), height);
+  cudaError_t cudaErr = cudaMallocAsync(reinterpret_cast<void **>(&d_temp), tempPitchBytes * height, stream);
   if (cudaErr != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
-  cudaErr = cudaMemcpy2DAsync(d_temp, tempPitchBytes, pSrcDst, nSrcDstStep, width * channels * sizeof(T), height,
+  cudaErr = cudaMemcpy2DAsync(d_temp, tempPitchBytes, pSrcDst, nSrcDstStep, rowBytes, height,
                               cudaMemcpyDeviceToDevice, stream);
   if (cudaErr != cudaSuccess) {
-    cudaFree(d_temp);
+    cudaFreeAsync(d_temp, stream);
     return NPP_MEMCPY_ERROR;
-  }
-
-  if (tempPitchBytes > static_cast<size_t>(INT_MAX)) {
-    cudaFree(d_temp);
-    return NPP_STEP_ERROR;
   }
 
   NppStatus status =
       launch_mirror_kernel<T>(d_temp, static_cast<int>(tempPitchBytes), pSrcDst, nSrcDstStep, width, height, flip,
                               channels, stream);
 
-  cudaFree(d_temp);
+  cudaFreeAsync(d_temp, stream);
   return status;
 }
 

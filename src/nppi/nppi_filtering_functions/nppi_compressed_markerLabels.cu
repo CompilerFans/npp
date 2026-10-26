@@ -727,35 +727,35 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
 
   auto cleanup = [&]() {
     if (dInternalContoursImage != nullptr) {
-      cudaFree(dInternalContoursImage);
+      cudaFreeAsync(dInternalContoursImage, stream);
     }
     if (dPixelCounts != nullptr) {
-      cudaFree(dPixelCounts);
+      cudaFreeAsync(dPixelCounts, stream);
     }
     if (dContourCounts != nullptr) {
-      cudaFree(dContourCounts);
+      cudaFreeAsync(dContourCounts, stream);
     }
     if (dMinX != nullptr) {
-      cudaFree(dMinX);
+      cudaFreeAsync(dMinX, stream);
     }
     if (dMinY != nullptr) {
-      cudaFree(dMinY);
+      cudaFreeAsync(dMinY, stream);
     }
     if (dMaxX != nullptr) {
-      cudaFree(dMaxX);
+      cudaFreeAsync(dMaxX, stream);
     }
     if (dMaxY != nullptr) {
-      cudaFree(dMaxY);
+      cudaFreeAsync(dMaxY, stream);
     }
     if (dFirstContourEncoded != nullptr) {
-      cudaFree(dFirstContourEncoded);
+      cudaFreeAsync(dFirstContourEncoded, stream);
     }
   };
 
   Npp8u *contoursImageForKernels = pContoursImage;
   Npp32s contoursStepForKernels = nContoursImageStep;
   if (contoursImageForKernels == nullptr) {
-    if (cudaMalloc(&dInternalContoursImage, pixelCount * sizeof(Npp8u)) != cudaSuccess) {
+    if (cudaMallocAsync(reinterpret_cast<void **>(&dInternalContoursImage), pixelCount * sizeof(Npp8u), stream) != cudaSuccess) {
       cleanup();
       return NPP_MEMORY_ALLOCATION_ERR;
     }
@@ -763,10 +763,10 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
     contoursStepForKernels = static_cast<Npp32s>(width * sizeof(Npp8u));
   }
 
-  if (cudaMalloc(&dPixelCounts, countsSizeBytes) != cudaSuccess || cudaMalloc(&dContourCounts, countsSizeBytes) != cudaSuccess ||
-      cudaMalloc(&dMinX, bboxSizeBytes) != cudaSuccess || cudaMalloc(&dMinY, bboxSizeBytes) != cudaSuccess ||
-      cudaMalloc(&dMaxX, bboxSizeBytes) != cudaSuccess || cudaMalloc(&dMaxY, bboxSizeBytes) != cudaSuccess ||
-      cudaMalloc(&dFirstContourEncoded, bboxSizeBytes) != cudaSuccess) {
+  if (cudaMallocAsync(reinterpret_cast<void **>(&dPixelCounts), countsSizeBytes, stream) != cudaSuccess || cudaMallocAsync(reinterpret_cast<void **>(&dContourCounts), countsSizeBytes, stream) != cudaSuccess ||
+      cudaMallocAsync(reinterpret_cast<void **>(&dMinX), bboxSizeBytes, stream) != cudaSuccess || cudaMallocAsync(reinterpret_cast<void **>(&dMinY), bboxSizeBytes, stream) != cudaSuccess ||
+      cudaMallocAsync(reinterpret_cast<void **>(&dMaxX), bboxSizeBytes, stream) != cudaSuccess || cudaMallocAsync(reinterpret_cast<void **>(&dMaxY), bboxSizeBytes, stream) != cudaSuccess ||
+      cudaMallocAsync(reinterpret_cast<void **>(&dFirstContourEncoded), bboxSizeBytes, stream) != cudaSuccess) {
     cleanup();
     return NPP_MEMORY_ALLOCATION_ERR;
   }
@@ -942,7 +942,11 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
     Npp32u nFirstContourGeometryListID, Npp32u nLastContourGeometryListID,
     NppiContourBlockSegment *pContoursBlockSegmentListDev, NppiContourBlockSegment *pContoursBlockSegmentListHost,
     Npp32u bOutputInCounterclockwiseOrder, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  (void)nppStreamCtx;
+  // The geometry lists are produced on the host, so all work previously
+  // submitted to the application stream must be complete before reading it.
+  if (cudaStreamSynchronize(nppStreamCtx.hStream) != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
   const int width = oSizeROI.width;
   const int height = oSizeROI.height;
   const size_t labelListSize = static_cast<size_t>(nMaxMarkerLabelID + 1);
@@ -1187,6 +1191,12 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
                                h_newMaxLabelIDList.size() * sizeof(unsigned int), cudaMemcpyHostToDevice, stream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMCPY_ERROR;
+  }
+  // h_newMaxLabelIDList is local to this host-driven API; wait until the copy
+  // has consumed it before returning.
+  cudaStatus = cudaStreamSynchronize(stream);
+  if (cudaStatus != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
   return NPP_SUCCESS;

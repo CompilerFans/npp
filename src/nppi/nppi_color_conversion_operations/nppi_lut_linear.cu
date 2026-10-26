@@ -133,11 +133,11 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
   Npp32s *d_pValues, *d_pLevels;
   size_t lutSize = nLevels * sizeof(Npp32s);
 
-  cudaMalloc(&d_pValues, lutSize);
-  cudaMalloc(&d_pLevels, lutSize);
+  cudaMallocAsync(reinterpret_cast<void **>(&d_pValues), lutSize, nppStreamCtx.hStream);
+  cudaMallocAsync(reinterpret_cast<void **>(&d_pLevels), lutSize, nppStreamCtx.hStream);
 
-  cudaMemcpy(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice);
+  cudaMemcpyAsync(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  cudaMemcpyAsync(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -146,9 +146,8 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_pValues, d_pLevels, nLevels);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_pValues);
-  cudaFree(d_pLevels);
+  cudaFreeAsync(d_pValues, nppStreamCtx.hStream);
+  cudaFreeAsync(d_pLevels, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
@@ -160,10 +159,10 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
   Npp32s *d_pValues[3], *d_pLevels[3];
   for (int c = 0; c < 3; c++) {
     size_t lutSize = nLevels[c] * sizeof(Npp32s);
-    cudaMalloc(&d_pValues[c], lutSize);
-    cudaMalloc(&d_pLevels[c], lutSize);
-    cudaMemcpy(d_pValues[c], pValues[c], lutSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_pLevels[c], pLevels[c], lutSize, cudaMemcpyHostToDevice);
+    cudaMallocAsync(reinterpret_cast<void **>(&d_pValues[c]), lutSize, nppStreamCtx.hStream);
+    cudaMallocAsync(reinterpret_cast<void **>(&d_pLevels[c]), lutSize, nppStreamCtx.hStream);
+    cudaMemcpyAsync(d_pValues[c], pValues[c], lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+    cudaMemcpyAsync(d_pLevels[c], pLevels[c], lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
   }
 
   dim3 blockSize(16, 16);
@@ -175,10 +174,9 @@ NppStatus nppiLUT_Linear_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
       nLevels[0], nLevels[1], nLevels[2]);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  cudaStreamSynchronize(nppStreamCtx.hStream);
   for (int c = 0; c < 3; c++) {
-    cudaFree(d_pValues[c]);
-    cudaFree(d_pLevels[c]);
+    cudaFreeAsync(d_pValues[c], nppStreamCtx.hStream);
+    cudaFreeAsync(d_pLevels[c], nppStreamCtx.hStream);
   }
 
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -195,11 +193,11 @@ NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp1
   Npp32s *d_pValues, *d_pLevels;
   size_t lutSize = nLevels * sizeof(Npp32s);
 
-  cudaMalloc(&d_pValues, lutSize);
-  cudaMalloc(&d_pLevels, lutSize);
+  cudaMallocAsync(reinterpret_cast<void **>(&d_pValues), lutSize, nppStreamCtx.hStream);
+  cudaMallocAsync(reinterpret_cast<void **>(&d_pLevels), lutSize, nppStreamCtx.hStream);
 
-  cudaMemcpy(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice);
+  cudaMemcpyAsync(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
+  cudaMemcpyAsync(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -208,9 +206,8 @@ NppStatus nppiLUT_Linear_16u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp1
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_pValues, d_pLevels, nLevels);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(d_pValues);
-  cudaFree(d_pLevels);
+  cudaFreeAsync(d_pValues, nppStreamCtx.hStream);
+  cudaFreeAsync(d_pLevels, nppStreamCtx.hStream);
 
   return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }

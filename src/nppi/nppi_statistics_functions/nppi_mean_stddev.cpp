@@ -51,8 +51,8 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *
 }
 
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiMeanStdDevGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
@@ -78,8 +78,8 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, size_t 
 }
 
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiMeanStdDevGetBufferHostSize_32f_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
@@ -140,8 +140,8 @@ NppStatus nppiMean_StdDev_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize o
 
 NppStatus nppiMean_StdDev_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
                                  Npp64f *pMean, Npp64f *pStdDev) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiMean_StdDev_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
 }
 
@@ -168,8 +168,8 @@ NppStatus nppiMean_StdDev_32f_C1R_Ctx(const Npp32f *pSrc, int nSrcStep, NppiSize
 
 NppStatus nppiMean_StdDev_32f_C1R(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
                                   Npp64f *pMean, Npp64f *pStdDev) {
-  NppStreamContext ctx;
-  ctx.hStream = 0; // Default stream
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return nppiMean_StdDev_32f_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
 }
 
@@ -198,8 +198,8 @@ NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(NppiSize oSizeROI, size_t 
 }
 
 NppStatus nppiMeanStdDevGetBufferHostSize_8u_C1MR(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiMeanStdDevGetBufferHostSize_8u_C1MR_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
@@ -225,8 +225,8 @@ NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(NppiSize oSizeROI, size_t
 }
 
 NppStatus nppiMeanStdDevGetBufferHostSize_32f_C1MR(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiMeanStdDevGetBufferHostSize_32f_C1MR_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
@@ -287,8 +287,8 @@ NppStatus nppiMean_StdDev_8u_C1MR_Ctx(const Npp8u *pSrc, int nSrcStep, const Npp
 
 NppStatus nppiMean_StdDev_8u_C1MR(const Npp8u *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
                                   Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiMean_StdDev_8u_C1MR_Ctx(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
 }
 
@@ -316,8 +316,8 @@ NppStatus nppiMean_StdDev_32f_C1MR_Ctx(const Npp32f *pSrc, int nSrcStep, const N
 
 NppStatus nppiMean_StdDev_32f_C1MR(const Npp32f *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep,
                                    NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiMean_StdDev_32f_C1MR_Ctx(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, ctx);
 }
 
@@ -343,8 +343,8 @@ NppStatus nppiMeanGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBuff
 }
 
 NppStatus nppiMeanGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiMeanGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
@@ -386,8 +386,8 @@ NppStatus nppiMean_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI
 
 NppStatus nppiMean_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
                            Npp64f *pMean) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiMean_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, ctx);
 }
 
@@ -415,8 +415,8 @@ NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t
 }
 
 NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
 }
 
@@ -459,7 +459,7 @@ NppStatus nppiAverageError_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const N
 
 NppStatus nppiAverageError_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                    NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiAverageError_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError, pDeviceBuffer, ctx);
 }

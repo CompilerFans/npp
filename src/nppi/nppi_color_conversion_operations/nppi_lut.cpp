@@ -61,8 +61,8 @@ NppStatus nppiLUT_8u_C1R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
 
 NppStatus nppiLUT_8u_C1R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                           NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiLUT_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
@@ -93,8 +93,8 @@ NppStatus nppiLUT_8u_C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
 
 NppStatus nppiLUT_8u_C3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                           NppiSize oSizeROI, const Npp32s *pValues[3], const Npp32s *pLevels[3], int nLevels[3]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiLUT_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
@@ -125,8 +125,8 @@ NppStatus nppiLUT_8u_C4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int n
 
 NppStatus nppiLUT_8u_C4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep,
                           NppiSize oSizeROI, const Npp32s *pValues[4], const Npp32s *pLevels[4], int nLevels[4]) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiLUT_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }
 
@@ -144,7 +144,7 @@ NppStatus nppiLUT_16u_C1R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, in
 
 NppStatus nppiLUT_16u_C1R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep,
                            NppiSize oSizeROI, const Npp32s *pValues, const Npp32s *pLevels, int nLevels) {
-  NppStreamContext nppStreamCtx;
-  nppStreamCtx.hStream = 0;
+  NppStreamContext nppStreamCtx{};
+  nppStreamCtx.hStream = nppGetStream();
   return nppiLUT_16u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx);
 }

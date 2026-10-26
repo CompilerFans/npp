@@ -114,8 +114,8 @@ static inline NppStatus validateCopyInputs(const void *pSrc, int nSrcStep, void 
                                                                                                                        \
   NppStatus nppiCopy_##SUFFIX##_##CHANNEL(const TYPE *pSrc, Npp32s nSrcStep, TYPE *pDst, Npp32s nDstStep,              \
                                           NppiSize oSizeROI) {                                                         \
-    NppStreamContext nppStreamCtx;                                                                                     \
-    nppStreamCtx.hStream = 0;                                                                                          \
+    NppStreamContext nppStreamCtx{};                                                                                     \
+    nppStreamCtx.hStream = nppGetStream();                                                                             \
     return nppiCopy_##SUFFIX##_##CHANNEL##_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);                \
   }
 
@@ -211,8 +211,8 @@ static inline NppStatus validatePlanarInputs_PxCxR(const void *const pSrc[], int
                                                                                                                        \
   NppStatus nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R(                                                           \
       const TYPE *pSrc, Npp32s nSrcStep, TYPE *const pDst[CHANNELS], Npp32s nDstStep, NppiSize oSizeROI) {             \
-    NppStreamContext nppStreamCtx;                                                                                     \
-    nppStreamCtx.hStream = 0;                                                                                          \
+    NppStreamContext nppStreamCtx{};                                                                                     \
+    nppStreamCtx.hStream = nppGetStream();                                                                             \
     return nppiCopy_##SUFFIX##_C##CHANNELS##P##CHANNELS##R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,               \
                                                                nppStreamCtx);                                          \
   }
@@ -232,8 +232,8 @@ static inline NppStatus validatePlanarInputs_PxCxR(const void *const pSrc[], int
                                                                                                                        \
   NppStatus nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R(const TYPE *const pSrc[CHANNELS], Npp32s nSrcStep,         \
                                                             TYPE *pDst, Npp32s nDstStep, NppiSize oSizeROI) {          \
-    NppStreamContext nppStreamCtx;                                                                                     \
-    nppStreamCtx.hStream = 0;                                                                                          \
+    NppStreamContext nppStreamCtx{};                                                                                     \
+    nppStreamCtx.hStream = nppGetStream();                                                                             \
     return nppiCopy_##SUFFIX##_P##CHANNELS##C##CHANNELS##R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,               \
                                                                nppStreamCtx);                                          \
   }

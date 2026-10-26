@@ -1117,15 +1117,6 @@ NppStatus nppiWarpPerspective_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -1145,15 +1136,6 @@ NppStatus nppiWarpPerspective_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
       eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -1181,15 +1163,6 @@ NppStatus nppiWarpPerspective_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrc
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 NppStatus nppiWarpPerspective_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
@@ -1208,15 +1181,6 @@ NppStatus nppiWarpPerspective_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrc
       eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -1244,15 +1208,6 @@ NppStatus nppiWarpPerspective_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrc
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -1272,15 +1227,6 @@ NppStatus nppiWarpPerspective_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize oSrc
       eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -1308,15 +1254,6 @@ NppStatus nppiWarpPerspective_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrc
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -1336,15 +1273,6 @@ NppStatus nppiWarpPerspective_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize oSrc
       eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -1372,15 +1300,6 @@ NppStatus nppiWarpPerspective_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrc
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -1400,15 +1319,6 @@ NppStatus nppiWarpPerspective_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrc
       eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -1436,15 +1346,6 @@ NppStatus nppiWarpPerspective_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize oSrc
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -1464,15 +1365,6 @@ NppStatus nppiWarpPerspective_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSi
       eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2340,15 +2232,6 @@ NppStatus nppiWarpPerspectiveBack_8u_C1R_Ctx_impl(const Npp8u *pSrc, NppiSize oS
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -2365,15 +2248,6 @@ NppStatus nppiWarpPerspectiveBack_8u_C3R_Ctx_impl(const Npp8u *pSrc, NppiSize oS
       aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2398,15 +2272,6 @@ NppStatus nppiWarpPerspectiveBack_8u_C4R_Ctx_impl(const Npp8u *pSrc, NppiSize oS
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -2423,15 +2288,6 @@ NppStatus nppiWarpPerspectiveBack_16u_C1R_Ctx_impl(const Npp16u *pSrc, NppiSize 
       aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2456,15 +2312,6 @@ NppStatus nppiWarpPerspectiveBack_16u_C3R_Ctx_impl(const Npp16u *pSrc, NppiSize 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -2481,15 +2328,6 @@ NppStatus nppiWarpPerspectiveBack_16u_C4R_Ctx_impl(const Npp16u *pSrc, NppiSize 
       aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2514,15 +2352,6 @@ NppStatus nppiWarpPerspectiveBack_32f_C1R_Ctx_impl(const Npp32f *pSrc, NppiSize 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -2539,15 +2368,6 @@ NppStatus nppiWarpPerspectiveBack_32f_C3R_Ctx_impl(const Npp32f *pSrc, NppiSize 
       aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2572,15 +2392,6 @@ NppStatus nppiWarpPerspectiveBack_32f_C4R_Ctx_impl(const Npp32f *pSrc, NppiSize 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -2597,15 +2408,6 @@ NppStatus nppiWarpPerspectiveBack_32s_C1R_Ctx_impl(const Npp32s *pSrc, NppiSize 
       aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2630,15 +2432,6 @@ NppStatus nppiWarpPerspectiveBack_32s_C3R_Ctx_impl(const Npp32s *pSrc, NppiSize 
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
   return NPP_SUCCESS;
 }
 
@@ -2655,15 +2448,6 @@ NppStatus nppiWarpPerspectiveBack_32s_C4R_Ctx_impl(const Npp32s *pSrc, NppiSize 
       aCoeffs[1][0], aCoeffs[1][1], aCoeffs[1][2], aCoeffs[2][0], aCoeffs[2][1], aCoeffs[2][2], eInterpolation);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
-  if (nppStreamCtx.hStream == 0) {
-    cudaStatus = cudaDeviceSynchronize();
-  } else {
-    cudaStatus = cudaStreamSynchronize(nppStreamCtx.hStream);
-  }
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
@@ -2791,12 +2575,7 @@ static NppStatus mergeAlphaLaunch(const T *pSrcWarped, T *pDst, int nDstStep, Np
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
   mergeAlphaChannelC4Kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrcWarped, pDst, nDstStep,
                                                                               oSizeROI.width, oSizeROI.height);
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
-  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, typename WarpFn>
@@ -2805,7 +2584,7 @@ static NppStatus warpPerspectiveAC4CtxImplCommon(const T *pSrc, NppiSize oSrcSiz
                                                  int eInterpolation, NppStreamContext nppStreamCtx, WarpFn warpFn) {
   T *pTmp = nullptr;
   size_t tmpBytes = static_cast<size_t>(nDstStep) * oDstROI.height;
-  cudaError_t cudaStatus = cudaMalloc(reinterpret_cast<void **>(&pTmp), tmpBytes);
+  cudaError_t cudaStatus = cudaMallocAsync(reinterpret_cast<void **>(&pTmp), tmpBytes, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
@@ -2816,7 +2595,7 @@ static NppStatus warpPerspectiveAC4CtxImplCommon(const T *pSrc, NppiSize oSrcSiz
     status = mergeAlphaLaunch(pTmp, pDst, nDstStep, {oDstROI.width, oDstROI.height}, nppStreamCtx);
   }
 
-  cudaFree(pTmp);
+  cudaFreeAsync(pTmp, nppStreamCtx.hStream);
   return status;
 }
 
@@ -2833,8 +2612,7 @@ NppStatus nppiWarpPerspective_16f_C1R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrc
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
-  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
-  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_SUCCESS;
 }
 
 NppStatus nppiWarpPerspective_16f_C3R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
@@ -2849,8 +2627,7 @@ NppStatus nppiWarpPerspective_16f_C3R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrc
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
-  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
-  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_SUCCESS;
 }
 
 NppStatus nppiWarpPerspective_16f_C4R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,
@@ -2865,8 +2642,7 @@ NppStatus nppiWarpPerspective_16f_C4R_Ctx_impl(const Npp16f *pSrc, NppiSize oSrc
   if (cudaStatus != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
-  cudaStatus = nppStreamCtx.hStream == 0 ? cudaDeviceSynchronize() : cudaStreamSynchronize(nppStreamCtx.hStream);
-  return cudaStatus == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_SUCCESS;
 }
 
 NppStatus nppiWarpPerspective_8u_AC4R_Ctx_impl(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI,

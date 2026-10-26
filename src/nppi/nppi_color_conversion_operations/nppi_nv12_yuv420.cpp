@@ -43,7 +43,7 @@ NppStatus nppiNV12ToYUV420_8u_P2P3R_Ctx(const Npp8u *const pSrc[2], int nSrcStep
 
 NppStatus nppiNV12ToYUV420_8u_P2P3R(const Npp8u *const pSrc[2], int nSrcStep, Npp8u *pDst[3], int aDstStep[3],
                                     NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiNV12ToYUV420_8u_P2P3R_Ctx(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, ctx);
 }

@@ -26,10 +26,10 @@ NppStatus nppiGammaInv_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oS
 // ============================================================================
 
 static inline NppStreamContext createDefaultStreamContext() {
-  NppStreamContext ctx;
+  NppStreamContext ctx{};
   // FIX: Zero-initialize entire structure to avoid uninitialized fields
   memset(&ctx, 0, sizeof(NppStreamContext));
-  ctx.hStream = 0; // Use default CUDA stream
+  ctx.hStream = nppGetStream(); // NPP managed stream (nppSetStream)
   return ctx;
 }
 

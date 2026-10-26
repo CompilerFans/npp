@@ -723,14 +723,14 @@ cudaError_t nppiFilterBox_32f_C1R_kernel(const Npp32f *pSrc, Npp32s nSrcStep, Np
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
   if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
-    nppiFilterBox_32f_C1R_3x3_shared<<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                              oSizeROI.width, oSizeROI.height);
+    nppiFilterBox_32f_C1R_3x3_shared<<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   } else if (oMaskSize.width == 5 && oMaskSize.height == 5 && oAnchor.x == 2 && oAnchor.y == 2) {
-    nppiFilterBox_32f_C1R_5x5_shared<<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                              oSizeROI.width, oSizeROI.height);
+    nppiFilterBox_32f_C1R_5x5_shared<<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   } else if (oMaskSize.width == 7 && oMaskSize.height == 7 && oAnchor.x == 3 && oAnchor.y == 3) {
-    nppiFilterBox_32f_C1R_7x7_shared<<<gridSize, blockSize>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                              oSizeROI.width, oSizeROI.height);
+    nppiFilterBox_32f_C1R_7x7_shared<<<gridSize, blockSize, 0, stream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
   } else {
     nppiFilterBox_32f_C1R_kernel_impl<<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                           oSizeROI.height, oMaskSize.width,

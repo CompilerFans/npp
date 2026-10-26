@@ -59,8 +59,8 @@ NppStatus nppiFilterMax_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterMax_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -83,8 +83,8 @@ NppStatus nppiFilterMax_8u_C3R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterMax_8u_C3R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -107,8 +107,8 @@ NppStatus nppiFilterMax_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterMax_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -133,8 +133,8 @@ NppStatus nppiFilterMax_8u_AC4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *p
 
 NppStatus nppiFilterMax_8u_AC4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_8u_AC4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -158,8 +158,8 @@ NppStatus nppiFilterMax_16u_C1R_Ctx(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u 
 
 NppStatus nppiFilterMax_16u_C1R(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_16u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -185,8 +185,8 @@ NppStatus nppiFilterMax_16s_C1R_Ctx(const Npp16s *pSrc, Npp32s nSrcStep, Npp16s 
 
 NppStatus nppiFilterMax_16s_C1R(const Npp16s *pSrc, Npp32s nSrcStep, Npp16s *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_16s_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -210,8 +210,8 @@ NppStatus nppiFilterMax_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
 
 NppStatus nppiFilterMax_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -235,8 +235,8 @@ NppStatus nppiFilterMax_32f_C3R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
 
 NppStatus nppiFilterMax_32f_C3R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMax_32f_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -263,8 +263,8 @@ NppStatus nppiFilterMin_8u_C1R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterMin_8u_C1R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_8u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -287,8 +287,8 @@ NppStatus nppiFilterMin_8u_C3R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterMin_8u_C3R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_8u_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -311,8 +311,8 @@ NppStatus nppiFilterMin_8u_C4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pD
 
 NppStatus nppiFilterMin_8u_C4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_8u_C4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -335,8 +335,8 @@ NppStatus nppiFilterMin_8u_AC4R_Ctx(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *p
 
 NppStatus nppiFilterMin_8u_AC4R(const Npp8u *pSrc, Npp32s nSrcStep, Npp8u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_8u_AC4R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -360,8 +360,8 @@ NppStatus nppiFilterMin_16u_C1R_Ctx(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u 
 
 NppStatus nppiFilterMin_16u_C1R(const Npp16u *pSrc, Npp32s nSrcStep, Npp16u *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_16u_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -385,8 +385,8 @@ NppStatus nppiFilterMin_16s_C1R_Ctx(const Npp16s *pSrc, Npp32s nSrcStep, Npp16s 
 
 NppStatus nppiFilterMin_16s_C1R(const Npp16s *pSrc, Npp32s nSrcStep, Npp16s *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_16s_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -410,8 +410,8 @@ NppStatus nppiFilterMin_32f_C1R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
 
 NppStatus nppiFilterMin_32f_C1R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_32f_C1R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }
 
@@ -435,7 +435,7 @@ NppStatus nppiFilterMin_32f_C3R_Ctx(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f 
 
 NppStatus nppiFilterMin_32f_C3R(const Npp32f *pSrc, Npp32s nSrcStep, Npp32f *pDst, Npp32s nDstStep, NppiSize oSizeROI,
                                 NppiSize oMaskSize, NppiPoint oAnchor) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiFilterMin_32f_C3R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, ctx);
 }

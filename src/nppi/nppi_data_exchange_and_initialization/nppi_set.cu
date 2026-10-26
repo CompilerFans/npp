@@ -15,7 +15,12 @@ __global__ void nppiSet_C1R_kernel(T nValue, T *pDst, int nDstStep, int width, i
 }
 
 template <typename T, int CHANNELS>
-__global__ void nppiSet_CxR_kernel(const T *aValue, T *pDst, int nDstStep, int width, int height) {
+struct NppiSetValue {
+  T v[CHANNELS];
+};
+
+template <typename T, int CHANNELS>
+__global__ void nppiSet_CxR_kernel(NppiSetValue<T, CHANNELS> value, T *pDst, int nDstStep, int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -28,7 +33,7 @@ __global__ void nppiSet_CxR_kernel(const T *aValue, T *pDst, int nDstStep, int w
 
 #pragma unroll
   for (int c = 0; c < CHANNELS; ++c) {
-    dstRow[idx + c] = aValue[c];
+    dstRow[idx + c] = value.v[c];
   }
 }
 
@@ -45,29 +50,20 @@ NppStatus launchSetScalar(T nValue, T *pDst, int nDstStep, NppiSize oSizeROI, Np
 
 template <typename T, int CHANNELS>
 NppStatus launchSetVector(const T *aValue, T *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  T *dValue = nullptr;
-  cudaError_t status = cudaMalloc(&dValue, CHANNELS * sizeof(T));
-  if (status != cudaSuccess) {
-    return NPP_MEMORY_ALLOCATION_ERR;
-  }
-
-  status = cudaMemcpyAsync(dValue, aValue, CHANNELS * sizeof(T), cudaMemcpyHostToDevice, nppStreamCtx.hStream);
-  if (status != cudaSuccess) {
-    cudaFree(dValue);
-    return NPP_MEMORY_ALLOCATION_ERR;
+  // Pass the channel values by value so the Ctx entry point stays asynchronous
+  // and can be used inside a CUDA graph capture (no device allocation/copy).
+  NppiSetValue<T, CHANNELS> value{};
+  for (int c = 0; c < CHANNELS; ++c) {
+    value.v[c] = aValue[c];
   }
 
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiSet_CxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(dValue, pDst, nDstStep,
+  nppiSet_CxR_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(value, pDst, nDstStep,
                                                                                       oSizeROI.width, oSizeROI.height);
 
-  status = cudaGetLastError();
-  cudaStreamSynchronize(nppStreamCtx.hStream);
-  cudaFree(dValue);
-
-  return status == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return cudaGetLastError() == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 extern "C" {

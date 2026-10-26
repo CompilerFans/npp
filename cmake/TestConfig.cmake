@@ -64,6 +64,14 @@ function(npp_create_test_target target_name sources library_target)
 
         # 定义宏标识使用NVIDIA NPP
         target_compile_definitions(${target_name} PRIVATE USE_NVIDIA_NPP_TESTS)
+
+        # NPP 13 dropped the managed-stream declarations from its headers while
+        # libnppc still exports them; pre-include a compatibility header so every
+        # test translation unit sees the declarations.
+        target_compile_options(${target_name}
+            PRIVATE
+            -include ${CMAKE_SOURCE_DIR}/test/unit/framework/npp_stream_compat.h
+        )
         message(STATUS "Test ${target_name} will use NVIDIA NPP libraries")
     elseif(USE_MACA_NPP)
         # 查找MACA NPP库 - 只需要检查一个核心库的存在

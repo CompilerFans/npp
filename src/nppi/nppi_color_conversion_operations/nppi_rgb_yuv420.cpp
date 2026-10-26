@@ -54,8 +54,8 @@ NppStatus nppiRGBToYUV420_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 
 NppStatus nppiRGBToYUV420_8u_C3P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
                                    NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiRGBToYUV420_8u_C3P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
@@ -82,8 +82,8 @@ NppStatus nppiRGBToYUV420_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, N
 
 NppStatus nppiRGBToYUV420_8u_P3R(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
                                  NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiRGBToYUV420_8u_P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
 
@@ -110,7 +110,7 @@ NppStatus nppiBGRToYUV420_8u_AC4P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *
 
 NppStatus nppiBGRToYUV420_8u_AC4P3R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int rDstStep[3],
                                     NppiSize oSizeROI) {
-  NppStreamContext ctx;
-  ctx.hStream = 0;
+  NppStreamContext ctx{};
+  ctx.hStream = nppGetStream();
   return nppiBGRToYUV420_8u_AC4P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, ctx);
 }
