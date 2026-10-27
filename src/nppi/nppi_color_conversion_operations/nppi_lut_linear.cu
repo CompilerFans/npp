@@ -77,8 +77,8 @@ NppStatus nppiLUT_Linear_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u 
   Npp32s *d_pValues, *d_pLevels;
   size_t lutSize = nLevels * sizeof(Npp32s);
 
-  cudaMallocAsync(&d_pValues, lutSize, nppStreamCtx.hStream);
-  cudaMallocAsync(&d_pLevels, lutSize, nppStreamCtx.hStream);
+  cudaMallocAsync(reinterpret_cast<void **>(&d_pValues), lutSize, nppStreamCtx.hStream);
+  cudaMallocAsync(reinterpret_cast<void **>(&d_pLevels), lutSize, nppStreamCtx.hStream);
 
   cudaMemcpyAsync(d_pValues, pValues, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);
   cudaMemcpyAsync(d_pLevels, pLevels, lutSize, cudaMemcpyHostToDevice, nppStreamCtx.hStream);

@@ -126,7 +126,7 @@ static NppStatus warpPerspectiveAC4Common(const T *pSrc, NppiSize oSrcSize, int 
 
   T *pTmp = nullptr;
   size_t tmpBytes = static_cast<size_t>(nDstStep) * oDstROI.height;
-  cudaError_t cudaStatus = cudaMallocAsync(&pTmp, tmpBytes, nppStreamCtx.hStream);
+  cudaError_t cudaStatus = cudaMallocAsync(reinterpret_cast<void **>(&pTmp), tmpBytes, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }

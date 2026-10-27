@@ -47,7 +47,7 @@ static inline NppStatus validateSwapChannelsInputs(const void *pPtr, int nStep, 
                                                                                                                        \
     int step = oSizeROI.width * CHANNELS * sizeof(Npp##TYPE);                                                          \
     Npp##TYPE *pTemp;                                                                                                  \
-    cudaError_t err = cudaMallocAsync(&pTemp, step * oSizeROI.height, nppStreamCtx.hStream);                                                      \
+    cudaError_t err = cudaMallocAsync(reinterpret_cast<void **>(&pTemp), step * oSizeROI.height, nppStreamCtx.hStream);                                                      \
     if (err != cudaSuccess) {                                                                                          \
       return NPP_MEMORY_ALLOCATION_ERR;                                                                                \
     }                                                                                                                  \
