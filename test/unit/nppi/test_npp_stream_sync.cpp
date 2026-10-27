@@ -587,6 +587,8 @@ TEST_F(NppStreamSyncTest, PlanarCopyCtxOps_AreGraphCapturable) {
   });
 }
 
+// NVIDIA NPP 11.4 does not provide the NV12 color-twist entry point.
+#if defined(NPP_VERSION) && NPP_VERSION >= 12000
 // Regression: the NV12 color-twist helper copied the matrix to device memory
 // and synchronized the stream inside the Ctx call.
 TEST_F(NppStreamSyncTest, Nv12ColorTwistCtxIsGraphCapturable) {
@@ -608,6 +610,7 @@ TEST_F(NppStreamSyncTest, Nv12ColorTwistCtxIsGraphCapturable) {
     return nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(srcPlanes, srcSteps, buffers.dst, kW * 3, roi, twist, ctx);
   });
 }
+#endif // NPP_VERSION >= 12000
 
 #ifndef USE_NVIDIA_NPP_TESTS
 // NVIDIA NPP 13 reads these host arrays asynchronously after the call returns,
