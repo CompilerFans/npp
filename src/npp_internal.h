@@ -10,35 +10,12 @@ extern "C" {
 #endif
 
 static inline NppStreamContext nppCreateDefaultStreamContext(void) {
-  NppStreamContext ctx;
-
-  // Get current device ID
-  int deviceId;
-  if (cudaGetDevice(&deviceId) != cudaSuccess) {
-    deviceId = 0; // fallback
-  }
-
-  // Get device properties
-  cudaDeviceProp prop;
-  if (cudaGetDeviceProperties(&prop, deviceId) != cudaSuccess) {
-    // Set safe defaults if we can't get properties
-    memset(&ctx, 0, sizeof(NppStreamContext));
+  NppStreamContext ctx{};
+  // Reuse the managed-stream context so the stream and the device whose
+  // properties are reported always belong to the same device.
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
     ctx.hStream = nppGetStream();
-    return ctx;
   }
-
-  // Initialize all fields
-  ctx.hStream = nppGetStream(); // Default stream
-  ctx.nCudaDeviceId = deviceId;
-  ctx.nMultiProcessorCount = prop.multiProcessorCount;
-  ctx.nMaxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
-  ctx.nMaxThreadsPerBlock = prop.maxThreadsPerBlock;
-  ctx.nSharedMemPerBlock = prop.sharedMemPerBlock;
-  ctx.nCudaDevAttrComputeCapabilityMajor = prop.major;
-  ctx.nCudaDevAttrComputeCapabilityMinor = prop.minor;
-  ctx.nStreamFlags = cudaStreamDefault;
-  ctx.nReserved0 = 0;
-
   return ctx;
 }
 

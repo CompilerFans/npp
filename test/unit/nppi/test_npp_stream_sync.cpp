@@ -512,6 +512,9 @@ TEST_F(NppStreamSyncTest, AllocBasedCtxOps_AreGraphCapturable) {
   expectGraphCapturable("SwapChannels_8u_C3IR", [&](const NppStreamContext &ctx) {
     return nppiSwapChannels_8u_C3IR_Ctx(buffers.src, kW * 3, roi, order, ctx);
   });
+  expectGraphCapturable("Mirror_8u_C3IR", [&](const NppStreamContext &ctx) {
+    return nppiMirror_8u_C3IR_Ctx(buffers.src, kW * 3, roi, NPP_VERTICAL_AXIS, ctx);
+  });
   expectGraphCapturable("LUT_8u_C1R", [&](const NppStreamContext &ctx) {
     return nppiLUT_8u_C1R_Ctx(buffers.src, kW * 3, buffers.dst, kW * 3, roi, lutValues, lutLevels, 256, ctx);
   });

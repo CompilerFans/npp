@@ -86,6 +86,10 @@ NppStatus nppGetStreamContext(NppStreamContext *pNppStreamContext) {
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // Leave a safe default (NULL stream) even if a later query fails and the
+  // caller ignores the returned status.
+  *pNppStreamContext = {};
+
   ManagedStreamState managedState = getManagedStreamState();
 
   // Use the device associated with the managed stream, falling back to the
