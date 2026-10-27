@@ -283,13 +283,13 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
   Npp32u *d_contourCounts = nullptr;
   size_t countSize = (nMaxMarkerLabelID + 1) * sizeof(Npp32u);
 
-  cudaError_t err = cudaMalloc(&d_pixelCounts, countSize);
+  cudaError_t err = cudaMallocAsync(reinterpret_cast<void **>(&d_pixelCounts), countSize, stream);
   if (err != cudaSuccess) {
     return NPP_MEMORY_ALLOCATION_ERR;
   }
-  err = cudaMalloc(&d_contourCounts, countSize);
+  err = cudaMallocAsync(reinterpret_cast<void **>(&d_contourCounts), countSize, stream);
   if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
+    cudaFreeAsync(d_pixelCounts, stream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
@@ -301,44 +301,44 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
   int *d_firstContourPos = nullptr;
   size_t bboxSize = (nMaxMarkerLabelID + 1) * sizeof(int);
 
-  err = cudaMalloc(&d_minX, bboxSize);
+  err = cudaMallocAsync(reinterpret_cast<void **>(&d_minX), bboxSize, stream);
   if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
+    cudaFreeAsync(d_pixelCounts, stream);
+    cudaFreeAsync(d_contourCounts, stream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
-  err = cudaMalloc(&d_minY, bboxSize);
+  err = cudaMallocAsync(reinterpret_cast<void **>(&d_minY), bboxSize, stream);
   if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
+    cudaFreeAsync(d_pixelCounts, stream);
+    cudaFreeAsync(d_contourCounts, stream);
+    cudaFreeAsync(d_minX, stream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
-  err = cudaMalloc(&d_maxX, bboxSize);
+  err = cudaMallocAsync(reinterpret_cast<void **>(&d_maxX), bboxSize, stream);
   if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
+    cudaFreeAsync(d_pixelCounts, stream);
+    cudaFreeAsync(d_contourCounts, stream);
+    cudaFreeAsync(d_minX, stream);
+    cudaFreeAsync(d_minY, stream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
-  err = cudaMalloc(&d_maxY, bboxSize);
+  err = cudaMallocAsync(reinterpret_cast<void **>(&d_maxY), bboxSize, stream);
   if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    cudaFree(d_maxX);
+    cudaFreeAsync(d_pixelCounts, stream);
+    cudaFreeAsync(d_contourCounts, stream);
+    cudaFreeAsync(d_minX, stream);
+    cudaFreeAsync(d_minY, stream);
+    cudaFreeAsync(d_maxX, stream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
-  err = cudaMalloc(&d_firstContourPos, bboxSize);
+  err = cudaMallocAsync(reinterpret_cast<void **>(&d_firstContourPos), bboxSize, stream);
   if (err != cudaSuccess) {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    cudaFree(d_maxX);
-    cudaFree(d_maxY);
+    cudaFreeAsync(d_pixelCounts, stream);
+    cudaFreeAsync(d_contourCounts, stream);
+    cudaFreeAsync(d_minX, stream);
+    cudaFreeAsync(d_minY, stream);
+    cudaFreeAsync(d_maxX, stream);
+    cudaFreeAsync(d_maxY, stream);
     return NPP_MEMORY_ALLOCATION_ERR;
   }
 
@@ -355,13 +355,13 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
 
   // Helper lambda to cleanup and return error
   auto cleanupAndReturn = [&]() {
-    cudaFree(d_pixelCounts);
-    cudaFree(d_contourCounts);
-    cudaFree(d_minX);
-    cudaFree(d_minY);
-    cudaFree(d_maxX);
-    cudaFree(d_maxY);
-    cudaFree(d_firstContourPos);
+    cudaFreeAsync(d_pixelCounts, stream);
+    cudaFreeAsync(d_contourCounts, stream);
+    cudaFreeAsync(d_minX, stream);
+    cudaFreeAsync(d_minY, stream);
+    cudaFreeAsync(d_maxX, stream);
+    cudaFreeAsync(d_maxY, stream);
+    cudaFreeAsync(d_firstContourPos, stream);
   };
 
   // Count pixels per label
@@ -491,13 +491,13 @@ NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx_impl(
   }
 
   // Clean up
-  cudaFree(d_pixelCounts);
-  cudaFree(d_contourCounts);
-  cudaFree(d_minX);
-  cudaFree(d_minY);
-  cudaFree(d_maxX);
-  cudaFree(d_maxY);
-  cudaFree(d_firstContourPos);
+  cudaFreeAsync(d_pixelCounts, stream);
+  cudaFreeAsync(d_contourCounts, stream);
+  cudaFreeAsync(d_minX, stream);
+  cudaFreeAsync(d_minY, stream);
+  cudaFreeAsync(d_maxX, stream);
+  cudaFreeAsync(d_maxY, stream);
+  cudaFreeAsync(d_firstContourPos, stream);
 
   return NPP_SUCCESS;
 }
@@ -751,7 +751,13 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
                                                                    nMaxMarkerLabelID);
   }
 
-  cudaError_t err = cudaGetLastError();
+  // The per-batch host mapping is local to this host-driven API; wait until
+  // the asynchronous copies and kernels have consumed it before returning.
+  cudaError_t err = cudaStreamSynchronize(stream);
+  if (err != cudaSuccess) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
+  err = cudaGetLastError();
   if (err != cudaSuccess) {
     return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }

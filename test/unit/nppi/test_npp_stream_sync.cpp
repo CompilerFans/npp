@@ -530,6 +530,177 @@ TEST_F(NppStreamSyncTest, AllocBasedCtxOps_AreGraphCapturable) {
   cudaFree(histDev);
 }
 
+// Regression: these Ctx entry points used to synchronize the stream before
+// returning, which blocked the host and made them unusable inside a graph.
+TEST_F(NppStreamSyncTest, PostKernelSyncCtxOps_AreGraphCapturable) {
+  constexpr int kW = 256;
+  constexpr int kH = 256;
+
+  U8Buffers buffers;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.src), static_cast<size_t>(kW) * kH * 3), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.dst), static_cast<size_t>(kW) * kH * 3), cudaSuccess);
+
+  const NppiSize roi = {kW, kH};
+  const NppiSize srcSize = {kW, kH};
+  const NppiRect srcRect = {0, 0, kW, kH};
+  const double affine[2][3] = {{1, 0, 0}, {0, 1, 0}};
+  const double perspective[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+
+  expectGraphCapturable("WarpAffine_8u_C1R", [&](const NppStreamContext &ctx) {
+    return nppiWarpAffine_8u_C1R_Ctx(buffers.src, srcSize, kW * 3, srcRect, buffers.dst, kW * 3, srcRect, affine,
+                                     NPPI_INTER_NN, ctx);
+  });
+  expectGraphCapturable("WarpPerspective_8u_C1R", [&](const NppStreamContext &ctx) {
+    return nppiWarpPerspective_8u_C1R_Ctx(buffers.src, srcSize, kW * 3, srcRect, buffers.dst, kW * 3, srcRect,
+                                          perspective, NPPI_INTER_NN, ctx);
+  });
+  expectGraphCapturable("RGBToGray_8u_C3C1R", [&](const NppStreamContext &ctx) {
+    return nppiRGBToGray_8u_C3C1R_Ctx(buffers.src, kW * 3, buffers.dst, kW * 3, roi, ctx);
+  });
+  expectGraphCapturable("FilterGauss_8u_C1R", [&](const NppStreamContext &ctx) {
+    return nppiFilterGauss_8u_C1R_Ctx(buffers.src, kW * 3, buffers.dst, kW * 3, roi, NPP_MASK_SIZE_3_X_3, ctx);
+  });
+  expectGraphCapturable("GradientColorToGray_8u_C3C1R", [&](const NppStreamContext &ctx) {
+    return nppiGradientColorToGray_8u_C3C1R_Ctx(buffers.src, kW * 3, buffers.dst, kW * 3, roi, nppiNormL2, ctx);
+  });
+}
+
+// Regression: these planar copies allocated a device pointer array and
+// synchronized the stream inside the Ctx call.
+TEST_F(NppStreamSyncTest, PlanarCopyCtxOps_AreGraphCapturable) {
+  constexpr int kW = 64;
+  constexpr int kH = 64;
+
+  U8Buffers buffers;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.src), static_cast<size_t>(kW) * kH * 4), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.dst), static_cast<size_t>(kW) * kH * 4), cudaSuccess);
+
+  Npp8u *planes[4] = {buffers.src, buffers.src, buffers.src, buffers.src};
+  Npp8u *dstPlanes[4] = {buffers.dst, buffers.dst, buffers.dst, buffers.dst};
+  const NppiSize roi = {kW, kH};
+
+  expectGraphCapturable("Copy_8u_C4P4R", [&](const NppStreamContext &ctx) {
+    return nppiCopy_8u_C4P4R_Ctx(buffers.src, kW * 4, (Npp8u *const *)dstPlanes, kW, roi, ctx);
+  });
+  expectGraphCapturable("Copy_8u_P4C4R", [&](const NppStreamContext &ctx) {
+    return nppiCopy_8u_P4C4R_Ctx((const Npp8u *const *)planes, kW, buffers.dst, kW * 4, roi, ctx);
+  });
+}
+
+// Regression: the NV12 color-twist helper copied the matrix to device memory
+// and synchronized the stream inside the Ctx call.
+TEST_F(NppStreamSyncTest, Nv12ColorTwistCtxIsGraphCapturable) {
+  constexpr int kW = 256;
+  constexpr int kH = 256;
+
+  U8Buffers buffers;
+  const size_t ySize = static_cast<size_t>(kW) * kH;
+  const size_t uvSize = static_cast<size_t>(kW) * (kH / 2);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.src), ySize + uvSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.dst), ySize * 3), cudaSuccess);
+
+  const Npp8u *srcPlanes[2] = {buffers.src, buffers.src + ySize};
+  int srcSteps[2] = {kW, kW};
+  const Npp32f twist[3][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}};
+  const NppiSize roi = {kW, kH};
+
+  expectGraphCapturable("NV12ToRGB_ColorTwist32f", [&](const NppStreamContext &ctx) {
+    return nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(srcPlanes, srcSteps, buffers.dst, kW * 3, roi, twist, ctx);
+  });
+}
+
+#ifndef USE_NVIDIA_NPP_TESTS
+// NVIDIA NPP 13 reads these host arrays asynchronously after the call returns,
+// so its callers must keep them alive; our implementation stages the copies
+// before returning.  Only assert the stronger guarantee for our code.
+// Regression: LUT and Filter take caller host arrays; the device copies must be
+// staged before the Ctx call returns, otherwise reusing those arrays
+// immediately would change the result.
+TEST_F(NppStreamSyncTest, LutAndFilter_DoNotReadHostArraysAfterReturn) {
+  constexpr int kW = 64;
+  constexpr int kH = 64;
+  constexpr int kPadded = kW + 2;
+  constexpr size_t kPixels = static_cast<size_t>(kW) * kH;
+
+  U8Buffers buffers;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.src), static_cast<size_t>(kPadded) * (kH + 2)), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.dst), kPixels), cudaSuccess);
+  ASSERT_EQ(cudaStreamCreateWithFlags(&buffers.stream, cudaStreamNonBlocking), cudaSuccess);
+
+  std::vector<Npp8u> padded(static_cast<size_t>(kPadded) * (kH + 2));
+  for (size_t i = 0; i < padded.size(); ++i) {
+    padded[i] = static_cast<Npp8u>(i & 0xff);
+  }
+  ASSERT_EQ(cudaMemcpy(buffers.src, padded.data(), padded.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  Npp8u *srcRoi = buffers.src + kPadded + 1;
+  std::vector<Npp8u> expected(kPixels);
+  for (int y = 0; y < kH; ++y) {
+    for (int x = 0; x < kW; ++x) {
+      expected[static_cast<size_t>(y) * kW + x] = padded[static_cast<size_t>(y + 1) * kPadded + x + 1];
+    }
+  }
+
+  NppStreamContext ctx{};
+  ctx.hStream = buffers.stream;
+  const NppiSize roi = {kW, kH};
+  std::vector<Npp8u> observed(kPixels);
+
+  std::vector<Npp32s> values(256), levels(256);
+  for (int i = 0; i < 256; ++i) {
+    values[i] = i;
+    levels[i] = i;
+  }
+  ASSERT_EQ(nppiLUT_8u_C1R_Ctx(srcRoi, kPadded, buffers.dst, kW, roi, values.data(), levels.data(), 256, ctx),
+            NPP_SUCCESS);
+  for (int i = 0; i < 256; ++i) {
+    values[i] = 255 - i; // reuse the caller buffer immediately
+  }
+  ASSERT_EQ(cudaStreamSynchronize(buffers.stream), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(observed.data(), buffers.dst, kPixels, cudaMemcpyDeviceToHost), cudaSuccess);
+  size_t firstMismatch = 0;
+  int mismatches = 0;
+  for (size_t i = 0; i < kPixels; ++i) {
+    if (observed[i] != expected[i]) {
+      if (mismatches == 0) {
+        firstMismatch = i;
+      }
+      ++mismatches;
+    }
+  }
+  EXPECT_EQ(mismatches, 0) << "LUT read the host array after return; first mismatch at " << firstMismatch;
+
+  std::vector<Npp32s> kernel(9, 0);
+  kernel[4] = 1;
+  ASSERT_EQ(cudaMemset(buffers.dst, 0, kPixels), cudaSuccess);
+  ASSERT_EQ(nppiFilter_8u_C1R_Ctx(srcRoi, kPadded, buffers.dst, kW, roi, kernel.data(), {3, 3}, {1, 1}, 1, ctx),
+            NPP_SUCCESS);
+  std::fill(kernel.begin(), kernel.end(), 0); // reuse the caller buffer immediately
+  ASSERT_EQ(cudaStreamSynchronize(buffers.stream), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(observed.data(), buffers.dst, kPixels, cudaMemcpyDeviceToHost), cudaSuccess);
+  mismatches = 0;
+  for (size_t i = 0; i < kPixels; ++i) {
+    if (observed[i] != expected[i]) {
+      if (mismatches == 0) {
+        firstMismatch = i;
+      }
+      ++mismatches;
+    }
+  }
+  EXPECT_EQ(mismatches, 0) << "Filter read the host kernel after return; first mismatch at " << firstMismatch;
+}
+#endif // !USE_NVIDIA_NPP_TESTS
+
+#ifndef USE_NVIDIA_NPP_TESTS
+// Regression: cudaStreamLegacy/mcStreamAllThreads is normalized to the NULL
+// stream so callers that check for stream 0 keep working.
+TEST_F(NppStreamSyncTest, SetStream_LegacyStreamIsNormalized) {
+  ManagedStreamGuard restoreStream;
+  EXPECT_EQ(nppSetStream(cudaStreamLegacy), NPP_NO_ERROR);
+  EXPECT_EQ(nppGetStream(), static_cast<cudaStream_t>(nullptr));
+}
+#endif
+
 // Regression: nppiWarpPerspectiveBatchInit_Ctx used the legacy stream for its
 // host-side device copies, so batch descriptors produced on the context stream
 // could be read before they were written.  NPP computes a transformed matrix

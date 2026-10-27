@@ -1115,6 +1115,27 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u * const pSrc[2], int rSr
 
 NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R(const Npp8u * const pSrc[2], int rSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI);
 
+/**
+ *  2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed
+ *  RGB color conversion with a 3x4 color twist matrix.
+ *
+ * \param pSrc \ref source_planar_image_pointer_array (one for Y plane, one for UV plane).
+ * \param aSrcStep \ref source_planar_image_line_step.
+ * \param pDst \ref destination_image_pointer.
+ * \param nDstStep \ref destination_image_line_step.
+ * \param oSizeROI \ref roi_specification.
+ * \param aTwist 3x4 color twist matrix.
+ * \param nppStreamCtx \ref application_managed_stream_context.
+ * \return \ref image_data_error_codes, \ref roi_error_codes
+ */
+NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u * const pSrc[2], int aSrcStep[2],
+    Npp8u * pDst, int nDstStep,
+    NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx);
+
+NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R(const Npp8u * const pSrc[2], int aSrcStep[2],
+    Npp8u * pDst, int nDstStep,
+    NppiSize oSizeROI, const Npp32f aTwist[3][4]);
+
 /** @} nv12torgb */
 
 /** @defgroup nv21torgb NV21ToRGB 
