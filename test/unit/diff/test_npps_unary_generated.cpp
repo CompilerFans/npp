@@ -2582,7 +2582,7 @@ TEST_F(NppsUnaryArithmetic, ContractNull_NonCtx) {
   DeviceMemory<int16_t> da(n);  da.copyFromHost(a);
   clear_cuda_error();
   NppStatus st = nppsAbs_16s(da.get(), nullptr, n);
-  finish_case("nppsUnary/nppsAbs/abs_null", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);
+  finish_case("nppsUnary/nppsAbs/contract_null", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);
 }
 #endif
 
@@ -2599,7 +2599,7 @@ TEST_F(NppsUnaryArithmetic, ContractZeroLength_NonCtx) {
   int16_t dummy = 0;
   clear_cuda_error();
   NppStatus st = nppsAbs_16s(&dummy, &dummy, n);
-  finish_case("nppsUnary/nppsAbs/zeroLength", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);
+  finish_case("nppsUnary/nppsAbs/abs_zero", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);
 }
 #endif
 

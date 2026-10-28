@@ -312,7 +312,7 @@ def sumln_case(base, fam, n, src, dst, buf_base):
         L.append("  " + vline(src, "a", n, seedstr(base,"a"), True))
         L.append(f"  DeviceMemory<{CT[src]}> da(n); da.copyFromHost(a);")
         L.append(f"  DeviceMemory<{CT[dst]}> dc(1);")
-        L.append("  int hbuf = 0;")
+        L.append("  NppSignalLength hbuf = 0;")
         if fl == "Ctx":
             L.append(f"  ASSERT_EQ({bs}_Ctx(n, &hbuf, current_context()), NPP_NO_ERROR);")
         else:
@@ -405,7 +405,7 @@ def contract():
     L.append("  DeviceMemory<int16_t> da(n);  da.copyFromHost(a);")
     L.append("  clear_cuda_error();")
     L.append("  NppStatus st = nppsAbs_16s(da.get(), nullptr, n);")
-    L.append('  finish_case("nppsUnary/nppsAbs/abs_null", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);')
+    L.append('  finish_case("nppsUnary/nppsAbs/contract_null", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);')
     L.append("}")
     L.append("#endif")
     L.append("")
@@ -423,7 +423,7 @@ def contract():
     L.append("  int16_t dummy = 0;")
     L.append("  clear_cuda_error();")
     L.append("  NppStatus st = nppsAbs_16s(&dummy, &dummy, n);")
-    L.append('  finish_case("nppsUnary/nppsAbs/zeroLength", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);')
+    L.append('  finish_case("nppsUnary/nppsAbs/abs_zero", "nppsAbs_16s", st, nullptr, 0, ValueKind::I16, 0, 0);')
     L.append("}")
     L.append("#endif")
     L.append("")

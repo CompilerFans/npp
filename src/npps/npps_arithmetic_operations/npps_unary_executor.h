@@ -66,6 +66,15 @@ __device__ __host__ inline long long rnd(double v) {
 template <typename T> __device__ __host__ inline double rp(const T& a) { return (double)ek::re_l(a); }
 template <typename T> __device__ __host__ inline double ip(const T& a) { return (double)ek::im_l(a); }
 
+// Sfs scaling for transcendental results: round-half-even(value / 2^sf) in a
+// single step, then saturate.  Unlike round-then-scale this avoids double
+// rounding, which NPP does NOT apply (validated against NPP 13.4 for Sqrt).
+template <typename D> __device__ __host__ inline D ssc(double val, int sf) {
+  if (sf > 0) val = val / (double)(1LL << sf);
+  else if (sf < 0) val = val * (double)(1LL << (-sf));
+  return ek::sat_ll<D>(rnd(val));
+}
+
 struct SqrtOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const {
     using C = ed::component_t_ty<D>;
@@ -80,14 +89,22 @@ struct SqrtOp {
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
     using C = ed::component_t_ty<D>;
     if constexpr (ed::is_complex_v<D>) {
+      // NPP 13.4 truncates (floor) the scaled components of the complex sqrt,
+      // rather than round-half-even (validated against goldens).
       double re = rp(a), im = ip(a);
       double r = std::hypot(re, im);
       double gamma = std::sqrt((r + re) / 2.0), delta = std::sqrt((r - re) / 2.0);
-      D d; d.re = (C)ek::scale_sat<C>(rnd(im < 0 ? -delta : gamma), sf);
-          d.im = (C)ek::scale_sat<C>(rnd(im < 0 ? gamma : delta), sf); return d;
+      double gr = (im < 0 ? -delta : gamma), gi = (im < 0 ? gamma : delta);
+      double s = (1ll << sf);
+      D d; d.re = (C)(gr / s); d.im = (C)(gi / s); return d;
     } else {
-      long long v = rnd(std::sqrt(rp(a)));
-      return ek::scale_sat<D>(v, sf);
+      double x = rp(a);
+      if (x < 0) {
+        // NPP 13.4: 16s clamps to 0, 64s saturates to INT64_MIN.
+        if constexpr (std::is_same_v<D, Npp64s>) return (D)(-9223372036854775807LL - 1);
+        else return (D)0;
+      }
+      return ssc<D>(std::sqrt(x), sf);
     }
   }
 };
@@ -116,16 +133,14 @@ struct SqrOp {
 struct ExpOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const { return (D)std::exp(rp(a)); }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    long long v = rnd(std::exp(rp(a)));
-    return ek::scale_sat<D>(v, sf);
+    return ssc<D>(std::exp(rp(a)), sf);
   }
 };
 
 struct LnOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const { return (D)std::log(rp(a)); }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    long long v = rnd(std::log(rp(a)));
-    return ek::scale_sat<D>(v, sf);
+    return ssc<D>(std::log(rp(a)), sf);
   }
 };
 
@@ -134,8 +149,7 @@ struct Log10Op {
     return (D)(std::log(rp(a)) / std::log(10.0));
   }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    long long v = rnd(std::log(rp(a)) / std::log(10.0));
-    return ek::scale_sat<D>(v, sf);
+    return ssc<D>(std::log(rp(a)) / std::log(10.0), sf);
   }
 };
 
@@ -159,7 +173,7 @@ struct CubrtOp {
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
     double x = rp(a);
     double cb = x < 0 ? -std::cbrt(-x) : std::cbrt(x);
-    return ek::scale_sat<D>(rnd(cb), sf);
+    return ssc<D>(cb, sf);
   }
 };
 

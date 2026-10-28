@@ -91,8 +91,10 @@ __global__ void mullow_kernel(const Npp32s* a, const Npp32s* b, Npp32s* d, NppSi
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= (size_t)n) return;
   long long p = (long long)a[i] * (long long)b[i];
-  Npp32s low = (Npp32s)(p & 0xFFFFFFFFLL);
-  d[i] = ek::scale_sat<Npp32s>((long long)low, sf);
+  // NPP 13.4: round the full 64-bit product by 2^sf (banker's), then take the
+  // low 32 bits (validated against goldens).
+  long long scaled = ek::scale_sat<Npp64s>(p, sf);
+  d[i] = (Npp32s)(scaled & 0xFFFFFFFFLL);
 }
 
 // -- reduction (SumLn) --
@@ -130,13 +132,13 @@ __global__ void cauchy_kernel(Npp32f* d, NppSignalLength n, float p) {
   if (i >= (size_t)n) return;
   float x = d[i];
   float v = x / p;
-  d[i] = logf(1.0f + v * v);
+  d[i] = 0.5f * logf(1.0f + v * v);
 }
 __global__ void cauchyD_kernel(Npp32f* d, NppSignalLength n, float p) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= (size_t)n) return;
   float x = d[i];
-  d[i] = 2.0f * x / (p * p + x * x);
+  d[i] = x / (p * p + x * x);
 }
 __global__ void cauchyDD2_kernel(Npp32f* d, Npp32f* d2, NppSignalLength n, float p) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -144,8 +146,8 @@ __global__ void cauchyDD2_kernel(Npp32f* d, Npp32f* d2, NppSignalLength n, float
   float x = d[i];
   float pp = p * p;
   float den = pp + x * x;
-  d[i] = 2.0f * x / den;
-  d2[i] = 2.0f * (pp - x * x) / (den * den);
+  d[i] = x / den;
+  d2[i] = (pp - x * x) / (den * den);
 }
 
 }  // namespace kernel
@@ -155,8 +157,8 @@ namespace {
 template <typename F, typename A, typename D>
 NppStatus run_scaled(const A* src, D* dst, NppSignalLength nLength, int sf, cudaStream_t stream) {
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
+  if (nLength < 0) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
@@ -166,8 +168,8 @@ NppStatus run_scaled(const A* src, D* dst, NppSignalLength nLength, int sf, cuda
 template <typename F, typename A>
 NppStatus run_scaled_i(A* d, NppSignalLength nLength, int sf, cudaStream_t stream) {
   if (!d) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
+  if (nLength < 0) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
@@ -177,8 +179,8 @@ NppStatus run_scaled_i(A* d, NppSignalLength nLength, int sf, cudaStream_t strea
 template <typename F, typename A, typename D>
 NppStatus run_float(const A* src, D* dst, NppSignalLength nLength, cudaStream_t stream) {
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
+  if (nLength < 0) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
@@ -188,8 +190,8 @@ NppStatus run_float(const A* src, D* dst, NppSignalLength nLength, cudaStream_t 
 template <typename F, typename A>
 NppStatus run_float_inplace(A* src, NppSignalLength nLength, cudaStream_t stream) {
   if (!src) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
+  if (nLength < 0) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
