@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
-# Launch a work-package subagent in an isolated git worktree.
+# Launch a work-package subagent.
 #
-#   tools/agents/run_package.sh <package-id> [--dry-run]
+#   tools/agents/run_package.sh <package-id> [--dry-run] [--in-place]
 #
 # The package must have docs/agent_packages/<id>.md committed on the
 # integration branch.  The agent runs with the gateway environment from
-# ~/.config/mcpp-agent.env, works in ~/worktrees/mcMPP-<id> on branch
-# pkg/<id>, and commits there.  The lead reviews and merges afterwards; the
-# agent is explicitly forbidden from pushing.
+# ~/.config/mcpp-agent.env and commits on branch pkg/<id>; the lead reviews
+# and merges afterwards.  Pushes are forbidden.
+#
+# --in-place  work in the main checkout instead of a fresh worktree.  Fresh
+#             worktrees cannot configure the cu-bridge CUDA toolchain with
+#             CMake 4.4, so this is the default for this environment (also
+#             selectable with MCPP_AGENT_IN_PLACE=1).  The main checkout must
+#             be clean; the runner checks out pkg/<id> from the integration
+#             branch.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -19,9 +25,17 @@ TIMEOUT_SECS="${MCPP_AGENT_TIMEOUT:-21600}" # 6h
 
 pkg="${1:-}"
 dry_run=false
-if [[ "${2:-}" == "--dry-run" ]]; then dry_run=true; fi
+in_place="${MCPP_AGENT_IN_PLACE:-0}"
+shift || true
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) dry_run=true ;;
+    --in-place) in_place=1 ;;
+    *) echo "unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
 if [[ -z "$pkg" ]]; then
-  echo "usage: $0 <package-id> [--dry-run]" >&2
+  echo "usage: $0 <package-id> [--dry-run] [--in-place]" >&2
   exit 2
 fi
 
@@ -44,13 +58,32 @@ if ! git -C "$ROOT" ls-tree -r --name-only "$INTEGRATION_BRANCH" -- "docs/agent_
   exit 2
 fi
 
-worktree="$WORKTREE_ROOT/mcMPP-$pkg"
 branch="pkg/$pkg"
-if [[ -d "$worktree/.git" || -f "$worktree/.git" ]]; then
-  echo ">> reusing worktree $worktree"
+if [[ "$in_place" == "1" ]]; then
+  workdir="$ROOT"
+  if ! $dry_run; then
+    if [[ -n "$(git -C "$ROOT" status --porcelain)" ]]; then
+      echo "error: main checkout is dirty; commit or stash before an in-place run" >&2
+      git -C "$ROOT" status --short | head -30
+      exit 2
+    fi
+    current=$(git -C "$ROOT" branch --show-current)
+    if [[ "$current" != "$branch" ]]; then
+      if git -C "$ROOT" show-ref --verify --quiet "refs/heads/$branch"; then
+        echo "error: branch $branch exists but is not checked out; merge or delete it first" >&2
+        exit 2
+      fi
+      git -C "$ROOT" checkout -b "$branch" "$INTEGRATION_BRANCH"
+    fi
+  fi
 else
-  mkdir -p "$WORKTREE_ROOT"
-  git -C "$ROOT" worktree add -b "$branch" "$worktree" "$INTEGRATION_BRANCH"
+  workdir="$WORKTREE_ROOT/mcMPP-$pkg"
+  if [[ -d "$workdir/.git" || -f "$workdir/.git" ]]; then
+    echo ">> reusing worktree $workdir"
+  else
+    mkdir -p "$WORKTREE_ROOT"
+    git -C "$ROOT" worktree add -b "$branch" "$workdir" "$INTEGRATION_BRANCH"
+  fi
 fi
 
 if [[ ! -f "$AGENT_ENV" ]]; then
@@ -73,19 +106,18 @@ stamp="$(date +%Y%m%d-%H%M%S)"
 log="$LOG_DIR/$pkg-$stamp.log"
 
 system_prompt='You are an autonomous NPP API implementation subagent for the mcMPP repository.
-Follow docs/agent_packages/<package>.md exactly. Work only in the current git worktree.
+Follow docs/agent_packages/<package>.md exactly. Work only in the current checkout.
 Never push to Gerrit or any remote, never force-push, never rewrite the integration branch.
 Commit your work on the current branch. If a requirement is impossible or ambiguous, stop and
 write the question into your final report instead of guessing. Prefer the existing executor,
 policy-template and differential-test patterns over new frameworks.
 NEVER run cmake_maca or make_maca: they recreate and delete ~/cu-bridge, breaking the local
-toolchain for everyone. For a fresh worktree build use ./build.sh --without-cu-bridge
-(native MACA); do not try to "repair" the toolkit.'
+toolchain for everyone. Use the cached ./build.sh in the main checkout; do not try to "repair" the toolkit.'
 
-prompt="Read docs/agent_packages/$pkg.md and execute it end to end. The package function list is api_analysis/packages/$pkg.csv. Work in the current worktree, commit on the current branch ($branch), and finish with the report described in the document. Do not push."
+prompt="Read docs/agent_packages/$pkg.md and execute it end to end. The package function list is api_analysis/packages/$pkg.csv. Work in the current checkout, commit on the current branch ($branch), and finish with the report described in the document. Do not push."
 
 echo ">> package : $pkg"
-echo ">> worktree: $worktree"
+echo ">> workdir : $workdir"
 echo ">> branch  : $branch"
 echo ">> log     : $log"
 echo ">> model   : ${ANTHROPIC_MODEL:-<unset>}"
@@ -96,13 +128,13 @@ cmd=(claude -p --bare --permission-mode bypassPermissions
      "$prompt")
 
 if $dry_run; then
-  printf '>> cd %q && ' "$worktree"
+  printf '>> cd %q && ' "$workdir"
   printf '%q ' "${cmd[@]}"
   echo
   exit 0
 fi
 
-cd "$worktree"
+cd "$workdir"
 set +e
 timeout "$TIMEOUT_SECS" "${cmd[@]}" 2>&1 | tee "$log"
 rc=${PIPESTATUS[0]}
@@ -110,7 +142,7 @@ set -e
 
 echo ">> agent exit code: $rc"
 echo ">> last commits:"
-git -C "$worktree" log --oneline -5 || true
-echo ">> worktree status:"
-git -C "$worktree" status --short | head -30 || true
+git -C "$workdir" log --oneline -5 || true
+echo ">> checkout status:"
+git -C "$workdir" status --short | head -30 || true
 exit "$rc"

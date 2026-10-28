@@ -1,0 +1,15 @@
+{
+  "family": "nppsDiv_Round",
+  "module": "npps_arithmetic_and_logical_operations.h",
+  "source": "src/npps/npps_arithmetic_operations/nppsDiv_Round_generated.cpp",
+  "includes": [
+    "npps_elementwise_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "pSrcDst",
+      "call": "npps::elementwise::binaryRoundInplace<npps::elementwise::DivRoundOp>(pSrc, pSrcDst, nLength, nRndMode, nScaleFactor, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::elementwise::binaryRound<npps::elementwise::DivRoundOp>(pSrc2, pSrc1, pDst, nLength, nRndMode, nScaleFactor, nppStreamCtx.hStream)"
+}

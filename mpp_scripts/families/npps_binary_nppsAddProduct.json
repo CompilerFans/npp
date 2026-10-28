@@ -1,0 +1,15 @@
+{
+  "family": "nppsAddProduct",
+  "module": "npps_arithmetic_and_logical_operations.h",
+  "source": "src/npps/npps_arithmetic_operations/nppsAddProduct_generated.cpp",
+  "includes": [
+    "npps_elementwise_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "nScaleFactor",
+      "call": "npps::elementwise::binaryAccum<npps::elementwise::AddProductOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::elementwise::binaryAccum<npps::elementwise::AddProductOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream)"
+}
