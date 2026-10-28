@@ -77,7 +77,7 @@ __global__ void kScale(const S* pSrc, int nSrcStep, D* pDst, int nDstStep, int w
       }
       dr[x * CH + c] = (D)o;
     } else {
-      long long r = llround(out);
+      long long r = (long long)out;  // truncate toward zero (NPP integer semantics)
       const long long mn = std::is_signed_v<D> ? (long long)std::numeric_limits<D>::lowest() : 0;
       const long long mx = (long long)std::numeric_limits<D>::max();
       dr[x * CH + c] = (D)(r < mn ? mn : (r > mx ? mx : r));
@@ -337,12 +337,9 @@ def border_wrappers():
                 out.append("NppStatus %s_Ctx(%s, NppStreamContext nppStreamCtx) {" % (fn, sig))
                 out.append("  NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;")
                 out.append("  if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;")
-                out.append("  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;")
-                out.append("  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;")
-                out.append("  if ((s = sbRoi(osrc)) != NPP_SUCCESS) return s;")
-                out.append("  if ((s = sbRoi(odst)) != NPP_SUCCESS) return s;")
-                out.append("  if ((s = sbBorder(top, left)) != NPP_SUCCESS) return s;")
-                out.append("  if ((s = sbRange(top, left, osrc, odst)) != NPP_SUCCESS) return s;")
+                out.append("  if ((s = sbStepMin(nSrcStep, osrc.width * %d * (int)sizeof(%s))) != NPP_SUCCESS) return s;" % (CH, t))
+                out.append("  if ((s = sbStepMin(nDstStep, odst.width * %d * (int)sizeof(%s))) != NPP_SUCCESS) return s;" % (CH, t))
+                out.append("  if (sbEmpty(osrc) || sbEmpty(odst)) return NPP_NO_ERROR;")
                 if mode == "Const":
                     callargs = "pSrc, nSrcStep, osrc, pDst, nDstStep, odst, top, left, " + ("nValue" if lay == "C1R" else "aValue") + ", nppStreamCtx"
                 else:
@@ -378,17 +375,17 @@ def helpers():
         "  return (step <= 0) ? NPP_STEP_ERROR : NPP_SUCCESS;",
         "}",
         "",
-        "static inline NppStatus sbRoi(NppiSize o) {",
-        "  return (o.width <= 0 || o.height <= 0) ? NPP_SIZE_ERROR : NPP_SUCCESS;",
+        # NPP contract: an empty (width<=0 or height<=0) ROI is a no-op that
+        # succeeds with NPP_NO_ERROR, and a negative border offset only shifts
+        # the source placement (no error).  Minimum row-step validation is
+        # applied against roiWidth*channels*elemSize; a too-small step yields
+        # NPP_STEP_ERROR.
+        "static inline NppStatus sbStepMin(int step, int need) {",
+        "  return (step < need) ? NPP_STEP_ERROR : NPP_SUCCESS;",
         "}",
         "",
-        "static inline NppStatus sbBorder(int top, int left) {",
-        "  return (top < 0 || left < 0) ? NPP_BAD_ARGUMENT_ERROR : NPP_SUCCESS;",
-        "}",
-        "",
-        "static inline NppStatus sbRange(int top, int left, NppiSize oSrc, NppiSize oDst) {",
-        "  if (top + oSrc.height > oDst.height || left + oSrc.width > oDst.width) return NPP_SIZE_ERROR;",
-        "  return NPP_SUCCESS;",
+        "static inline bool sbEmpty(NppiSize o) {",
+        "  return o.width <= 0 || o.height <= 0;",
         "}",
         "",
     ]
@@ -414,9 +411,9 @@ def scale_wrappers():
             out.append("NppStatus %s_Ctx(const %s * pSrc, int nSrcStep, %s * pDst, int nDstStep, NppiSize oi,%sNppStreamContext nppStreamCtx) {" % (fn, S, D, extra))
             out.append("  NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;")
             out.append("  if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;")
-            out.append("  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;")
-            out.append("  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;")
-            out.append("  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;")
+            out.append("  if ((s = sbStepMin(nSrcStep, oi.width * %d * (int)sizeof(%s))) != NPP_SUCCESS) return s;" % (CH, S))
+            out.append("  if ((s = sbStepMin(nDstStep, oi.width * %d * (int)sizeof(%s))) != NPP_SUCCESS) return s;" % (CH, D))
+            out.append("  if (sbEmpty(oi)) return NPP_NO_ERROR;")
             if hasMinMax:
                 out.append("  if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;")
             out.append("  return nppiScale_%s_%s_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi%s, nppStreamCtx);" % (suf, lay, impl_extra))
@@ -517,8 +514,11 @@ def scale_tests():
     A("void border_run(const char *fname, const std::string &key, int channels, int width, int height, int pad,")
     A("                int top, int left, int dw, int dh, const T *bval, uint64_t seed, ValueKind kind, F &&f) {")
     A("  const int es = (int)sizeof(T);")
-    A("  const int sStep = align_step(width * channels * es + pad, es);")
-    A("  const int dStep = align_step(dw * channels * es + pad, es);")
+    A("  // NPP requires image row steps to be multiples of the pixel size")
+    A("  // (channels*elemSize); align each row step accordingly.")
+    A("  const int px = channels * es;")
+    A("  const int sStep = align_step(width * px + pad, px);")
+    A("  const int dStep = align_step(dw * px + pad, px);")
     A("  const size_t se = (size_t)height * sStep / es;")
     A("  const size_t de = (size_t)dh * dStep / es;")
     A("  std::vector<T> hs = make_uniform<T>(se, seed + 11);")
@@ -590,19 +590,19 @@ def scale_tests():
     A("TEST_F(NppiScaleBorderDiff, Scale_8u32f) {")
     A("  const float mm[3][2] = {{0.f, 255.f}, {0.f, 100.f}, {-10.f, 200.f}};")
     A("  int seed = 2200;")
-    A("  for (const auto &m : mm) {")
-    A("    scale_run<Npp8u, Npp32f>(\"nppiScale_8u32f_C1R\", \"8u32f/C1/17x13\", 17, 13, 1, 16, seed++, ValueKind::F32,")
+    A("  for (int i = 0; i < 3; ++i) {")
+    A("    scale_run<Npp8u, Npp32f>(\"nppiScale_8u32f_C1R\", \"8u32f/C1/17x13/m\" + std::to_string(i), 17, 13, 1, 16, seed++, ValueKind::F32,")
     A("        [&](const Npp8u *s, int ss, Npp32f *d, int ds, NppiSize o, NppStreamContext c) {")
-    A("          return nppiScale_8u32f_C1R_Ctx(s, ss, d, ds, o, m[0], m[1], c); });")
+    A("          return nppiScale_8u32f_C1R_Ctx(s, ss, d, ds, o, mm[i][0], mm[i][1], c); });")
     A("  }")
     A("}")
     A("TEST_F(NppiScaleBorderDiff, Scale_32f8u) {")
     A("  const float mm[3][2] = {{0.f, 255.f}, {0.f, 100.f}, {-10.f, 200.f}};")
     A("  int seed = 2210;")
-    A("  for (const auto &m : mm) {")
-    A("    scale_run<Npp32f, Npp8u>(\"nppiScale_32f8u_C3R\", \"32f8u/C3/17x13\", 17, 13, 3, 16, seed++, ValueKind::U8,")
+    A("  for (int i = 0; i < 3; ++i) {")
+    A("    scale_run<Npp32f, Npp8u>(\"nppiScale_32f8u_C3R\", \"32f8u/C3/17x13/m\" + std::to_string(i), 17, 13, 3, 16, seed++, ValueKind::U8,")
     A("        [&](const Npp32f *s, int ss, Npp8u *d, int ds, NppiSize o, NppStreamContext c) {")
-    A("          return nppiScale_32f8u_C3R_Ctx(s, ss, d, ds, o, m[0], m[1], c); });")
+    A("          return nppiScale_32f8u_C3R_Ctx(s, ss, d, ds, o, mm[i][0], mm[i][1], c); });")
     A("  }")
     A("}")
     A("")

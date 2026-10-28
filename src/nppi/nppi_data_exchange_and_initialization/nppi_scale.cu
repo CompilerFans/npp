@@ -39,7 +39,7 @@ __global__ void kScale(const S* pSrc, int nSrcStep, D* pDst, int nDstStep, int w
       }
       dr[x * CH + c] = (D)o;
     } else {
-      long long r = llround(out);
+      long long r = (long long)out;  // truncate toward zero (NPP integer semantics)
       const long long mn = std::is_signed_v<D> ? (long long)std::numeric_limits<D>::lowest() : 0;
       const long long mx = (long long)std::numeric_limits<D>::max();
       dr[x * CH + c] = (D)(r < mn ? mn : (r > mx ? mx : r));

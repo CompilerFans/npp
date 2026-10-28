@@ -61,8 +61,11 @@ template <typename T, typename F>
 void border_run(const char *fname, const std::string &key, int channels, int width, int height, int pad,
                 int top, int left, int dw, int dh, const T *bval, uint64_t seed, ValueKind kind, F &&f) {
   const int es = (int)sizeof(T);
-  const int sStep = align_step(width * channels * es + pad, es);
-  const int dStep = align_step(dw * channels * es + pad, es);
+  // NPP requires image row steps to be multiples of the pixel size
+  // (channels*elemSize); align each row step accordingly.
+  const int px = channels * es;
+  const int sStep = align_step(width * px + pad, px);
+  const int dStep = align_step(dw * px + pad, px);
   const size_t se = (size_t)height * sStep / es;
   const size_t de = (size_t)dh * dStep / es;
   std::vector<T> hs = make_uniform<T>(se, seed + 11);
@@ -165,19 +168,19 @@ TEST_F(NppiScaleBorderDiff, Scale_8U32S) {
 TEST_F(NppiScaleBorderDiff, Scale_8u32f) {
   const float mm[3][2] = {{0.f, 255.f}, {0.f, 100.f}, {-10.f, 200.f}};
   int seed = 2200;
-  for (const auto &m : mm) {
-    scale_run<Npp8u, Npp32f>("nppiScale_8u32f_C1R", "8u32f/C1/17x13", 17, 13, 1, 16, seed++, ValueKind::F32,
+  for (int i = 0; i < 3; ++i) {
+    scale_run<Npp8u, Npp32f>("nppiScale_8u32f_C1R", "8u32f/C1/17x13/m" + std::to_string(i), 17, 13, 1, 16, seed++, ValueKind::F32,
         [&](const Npp8u *s, int ss, Npp32f *d, int ds, NppiSize o, NppStreamContext c) {
-          return nppiScale_8u32f_C1R_Ctx(s, ss, d, ds, o, m[0], m[1], c); });
+          return nppiScale_8u32f_C1R_Ctx(s, ss, d, ds, o, mm[i][0], mm[i][1], c); });
   }
 }
 TEST_F(NppiScaleBorderDiff, Scale_32f8u) {
   const float mm[3][2] = {{0.f, 255.f}, {0.f, 100.f}, {-10.f, 200.f}};
   int seed = 2210;
-  for (const auto &m : mm) {
-    scale_run<Npp32f, Npp8u>("nppiScale_32f8u_C3R", "32f8u/C3/17x13", 17, 13, 3, 16, seed++, ValueKind::U8,
+  for (int i = 0; i < 3; ++i) {
+    scale_run<Npp32f, Npp8u>("nppiScale_32f8u_C3R", "32f8u/C3/17x13/m" + std::to_string(i), 17, 13, 3, 16, seed++, ValueKind::U8,
         [&](const Npp32f *s, int ss, Npp8u *d, int ds, NppiSize o, NppStreamContext c) {
-          return nppiScale_32f8u_C3R_Ctx(s, ss, d, ds, o, m[0], m[1], c); });
+          return nppiScale_32f8u_C3R_Ctx(s, ss, d, ds, o, mm[i][0], mm[i][1], c); });
   }
 }
 

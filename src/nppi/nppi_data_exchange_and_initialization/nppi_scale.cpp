@@ -10,17 +10,12 @@ static inline NppStatus sbStep(int step) {
   return (step <= 0) ? NPP_STEP_ERROR : NPP_SUCCESS;
 }
 
-static inline NppStatus sbRoi(NppiSize o) {
-  return (o.width <= 0 || o.height <= 0) ? NPP_SIZE_ERROR : NPP_SUCCESS;
+static inline NppStatus sbStepMin(int step, int need) {
+  return (step < need) ? NPP_STEP_ERROR : NPP_SUCCESS;
 }
 
-static inline NppStatus sbBorder(int top, int left) {
-  return (top < 0 || left < 0) ? NPP_BAD_ARGUMENT_ERROR : NPP_SUCCESS;
-}
-
-static inline NppStatus sbRange(int top, int left, NppiSize oSrc, NppiSize oDst) {
-  if (top + oSrc.height > oDst.height || left + oSrc.width > oDst.width) return NPP_SIZE_ERROR;
-  return NPP_SUCCESS;
+static inline bool sbEmpty(NppiSize o) {
+  return o.width <= 0 || o.height <= 0;
 }
 
 
@@ -64,9 +59,9 @@ NppStatus nppiScale_32f8u_AC4R_Ctx_impl(const Npp32f * pSrc, int nSrcStep, Npp8u
 NppStatus nppiScale_16s8u_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16s8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16s8u_C1R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -77,9 +72,9 @@ NppStatus nppiScale_16s8u_C1R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_16s8u_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16s8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16s8u_C3R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -90,9 +85,9 @@ NppStatus nppiScale_16s8u_C3R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_16s8u_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16s8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16s8u_C4R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -103,9 +98,9 @@ NppStatus nppiScale_16s8u_C4R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_16s8u_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16s8u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16s8u_AC4R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -116,9 +111,9 @@ NppStatus nppiScale_16s8u_AC4R(const Npp16s * pSrc, int nSrcStep, Npp8u * pDst, 
 NppStatus nppiScale_16u8u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16u8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16u8u_C1R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -129,9 +124,9 @@ NppStatus nppiScale_16u8u_C1R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_16u8u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16u8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16u8u_C3R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -142,9 +137,9 @@ NppStatus nppiScale_16u8u_C3R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_16u8u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16u8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16u8u_C4R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -155,9 +150,9 @@ NppStatus nppiScale_16u8u_C4R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_16u8u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_16u8u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_16u8u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -168,9 +163,9 @@ NppStatus nppiScale_16u8u_AC4R(const Npp16u * pSrc, int nSrcStep, Npp8u * pDst, 
 NppStatus nppiScale_32s8u_C1R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_32s8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_32s8u_C1R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -181,9 +176,9 @@ NppStatus nppiScale_32s8u_C1R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_32s8u_C3R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_32s8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_32s8u_C3R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -194,9 +189,9 @@ NppStatus nppiScale_32s8u_C3R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_32s8u_C4R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_32s8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_32s8u_C4R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -207,9 +202,9 @@ NppStatus nppiScale_32s8u_C4R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_32s8u_AC4R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,NppHintAlgorithm hint, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_32s8u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, hint, nppStreamCtx);
 }
 NppStatus nppiScale_32s8u_AC4R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi, NppHintAlgorithm hint) {
@@ -220,9 +215,9 @@ NppStatus nppiScale_32s8u_AC4R(const Npp32s * pSrc, int nSrcStep, Npp8u * pDst, 
 NppStatus nppiScale_8u16u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16u_C1R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi) {
@@ -233,9 +228,9 @@ NppStatus nppiScale_8u16u_C1R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, i
 NppStatus nppiScale_8u16u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16u_C3R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi) {
@@ -246,9 +241,9 @@ NppStatus nppiScale_8u16u_C3R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, i
 NppStatus nppiScale_8u16u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16u_C4R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi) {
@@ -259,9 +254,9 @@ NppStatus nppiScale_8u16u_C4R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, i
 NppStatus nppiScale_8u16u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp16u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oi) {
@@ -272,9 +267,9 @@ NppStatus nppiScale_8u16u_AC4R(const Npp8u * pSrc, int nSrcStep, Npp16u * pDst, 
 NppStatus nppiScale_8u16s_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16s_C1R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi) {
@@ -285,9 +280,9 @@ NppStatus nppiScale_8u16s_C1R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, i
 NppStatus nppiScale_8u16s_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16s_C3R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi) {
@@ -298,9 +293,9 @@ NppStatus nppiScale_8u16s_C3R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, i
 NppStatus nppiScale_8u16s_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16s_C4R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi) {
@@ -311,9 +306,9 @@ NppStatus nppiScale_8u16s_C4R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, i
 NppStatus nppiScale_8u16s_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp16s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u16s_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u16s_AC4R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oi) {
@@ -324,9 +319,9 @@ NppStatus nppiScale_8u16s_AC4R(const Npp8u * pSrc, int nSrcStep, Npp16s * pDst, 
 NppStatus nppiScale_8u32s_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u32s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u32s_C1R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi) {
@@ -337,9 +332,9 @@ NppStatus nppiScale_8u32s_C1R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, i
 NppStatus nppiScale_8u32s_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u32s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u32s_C3R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi) {
@@ -350,9 +345,9 @@ NppStatus nppiScale_8u32s_C3R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, i
 NppStatus nppiScale_8u32s_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u32s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u32s_C4R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi) {
@@ -363,9 +358,9 @@ NppStatus nppiScale_8u32s_C4R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, i
 NppStatus nppiScale_8u32s_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi,NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp32s))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   return nppiScale_8u32s_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nppStreamCtx);
 }
 NppStatus nppiScale_8u32s_AC4R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, int nDstStep, NppiSize oi) {
@@ -376,9 +371,9 @@ NppStatus nppiScale_8u32s_AC4R(const Npp8u * pSrc, int nSrcStep, Npp32s * pDst, 
 NppStatus nppiScale_8u32f_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_8u32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -390,9 +385,9 @@ NppStatus nppiScale_8u32f_C1R(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, i
 NppStatus nppiScale_8u32f_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_8u32f_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -404,9 +399,9 @@ NppStatus nppiScale_8u32f_C3R(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, i
 NppStatus nppiScale_8u32f_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_8u32f_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -418,9 +413,9 @@ NppStatus nppiScale_8u32f_C4R(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, i
 NppStatus nppiScale_8u32f_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_8u32f_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -432,9 +427,9 @@ NppStatus nppiScale_8u32f_AC4R(const Npp8u * pSrc, int nSrcStep, Npp32f * pDst, 
 NppStatus nppiScale_32f8u_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 1 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 1 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_32f8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -446,9 +441,9 @@ NppStatus nppiScale_32f8u_C1R(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_32f8u_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 3 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 3 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_32f8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -460,9 +455,9 @@ NppStatus nppiScale_32f8u_C3R(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_32f8u_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_32f8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
@@ -474,9 +469,9 @@ NppStatus nppiScale_32f8u_C4R(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, i
 NppStatus nppiScale_32f8u_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oi,const Npp32f nMin, const Npp32f nMax, NppStreamContext nppStreamCtx) {
   NppStatus s = sbNull(pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = sbNull(pDst)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = sbStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = sbRoi(oi)) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nSrcStep, oi.width * 4 * (int)sizeof(Npp32f))) != NPP_SUCCESS) return s;
+  if ((s = sbStepMin(nDstStep, oi.width * 4 * (int)sizeof(Npp8u))) != NPP_SUCCESS) return s;
+  if (sbEmpty(oi)) return NPP_NO_ERROR;
   if (nMax <= nMin) return NPP_SCALE_RANGE_ERROR;
   return nppiScale_32f8u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nMin, nMax, nppStreamCtx);
 }
