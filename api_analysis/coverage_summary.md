@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 3336 (26.6%)
+- Real implementations: 3556 (28.4%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 9035
-- Tested: 3059 (24.4%)
-- Real and tested: 3029
+- Missing: 8815
+- Tested: 3189 (25.4%)
+- Real and tested: 3159
 
 ## By module
 
@@ -21,7 +21,7 @@
 | nppi_statistics_functions.h | 3246 | 159 | 28 | 3059 | 128 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 52 | 0 | 366 | 52 |
-| npps_arithmetic_and_logical_operations.h | 740 | 6 | 0 | 734 | 6 |
+| npps_arithmetic_and_logical_operations.h | 740 | 226 | 0 | 514 | 136 |
 | npps_conversion_functions.h | 174 | 0 | 0 | 174 | 0 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 10 | 0 | 60 | 10 |
@@ -56,7 +56,6 @@
 | nppi_statistics_functions.h | nppiMinMax | 64 | 32 |
 | nppi_statistics_functions.h | nppiMinMaxIndx | 64 | 32 |
 | nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
-| npps_arithmetic_and_logical_operations.h | nppsMul | 60 | 30 |
 | nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
 | nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
@@ -67,8 +66,9 @@
 | npps_conversion_functions.h | nppsConvert | 54 | 27 |
 | nppi_statistics_functions.h | nppiNormInf | 50 | 25 |
 | nppi_statistics_functions.h | nppiNorm_Inf | 50 | 25 |
-| npps_arithmetic_and_logical_operations.h | nppsAdd | 50 | 25 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
 | nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrFull_NormLevel | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrFull_Norm | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrSame_NormLevel | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrSame_Norm | 48 | 24 |

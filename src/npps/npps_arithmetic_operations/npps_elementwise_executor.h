@@ -304,7 +304,18 @@ struct MulOp {
       }
     } else {
       if constexpr (std::is_floating_point_v<D>) return (D)(detail::re_l(a)*detail::re_l(b));
-      else return detail::scale_sat<D>(detail::re_ll(a)*detail::re_ll(b), sf);
+      else {
+        // Mixed-type integer multiply: NPP loads the operands through the
+        // destination component type (e.g. nppsMul_16u16s sign-extends the
+        // 16u input as int16 before multiplying).
+        long long av = detail::re_ll(a);
+        long long bv = detail::re_ll(b);
+        if constexpr (std::is_integral_v<C>) {
+          av = static_cast<long long>(static_cast<C>(a));
+          bv = static_cast<long long>(static_cast<C>(b));
+        }
+        return detail::scale_sat<D>(av * bv, sf);
+      }
     }
   }
 };
@@ -338,6 +349,11 @@ struct DivOp {
         long long num = detail::re_ll(a);
         long long den = bv << sf;
         if (den == 0) return detail::sat_ll<D>(std::numeric_limits<long long>::max());
+        if constexpr (!std::is_same_v<A, C> || !std::is_same_v<B, C>) {
+          // Mixed-type integer divide: NPP truncates the quotient and the
+          // scale shift (validated with nppsDiv_32s16s_Sfs).
+          return detail::sat_ll<D>(num / den);
+        }
         long long q = num / den;
         long long r = num % den;
         if (r != 0) {
