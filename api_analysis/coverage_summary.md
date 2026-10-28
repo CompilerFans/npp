@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 3812 (30.4%)
+- Real implementations: 4070 (32.5%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 8559
-- Tested: 3357 (26.8%)
-- Real and tested: 3327
+- Missing: 8301
+- Tested: 3578 (28.5%)
+- Real and tested: 3548
 
 ## By module
 
@@ -21,7 +21,7 @@
 | nppi_statistics_functions.h | 3246 | 159 | 28 | 3059 | 128 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 52 | 0 | 366 | 52 |
-| npps_arithmetic_and_logical_operations.h | 740 | 482 | 0 | 258 | 304 |
+| npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 525 |
 | npps_conversion_functions.h | 174 | 0 | 0 | 174 | 0 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 10 | 0 | 60 | 10 |

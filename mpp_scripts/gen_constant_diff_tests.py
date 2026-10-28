@@ -9,6 +9,7 @@ validated against both MPP entry points.
 Usage: python3 mpp_scripts/gen_constant_diff_tests.py --emit
 """
 import csv
+import hashlib
 import sys
 from pathlib import Path
 
@@ -33,7 +34,7 @@ D = {
 }
 
 def seedstr(base, tag):
-    return str((abs(hash(base + tag)) + 1) & 0x0FFFFFFFFFFFFFFF)
+    return str(int(hashlib.sha256((base + "|" + tag).encode()).hexdigest()[:16], 16) & 0x0FFFFFFFFFFFFFFF)
 
 def var_gen(dtype, name, n, seed):
     dm = D[dtype]

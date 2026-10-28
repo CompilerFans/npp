@@ -8,7 +8,8 @@ types come from the exact CSV signature.
 
 Usage: python3 mpp_scripts/gen_binary_diff_tests.py   # rewrites the cpp file
 """
-import csv, re
+import csv
+import hashlib, re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -77,7 +78,7 @@ def var(host_, name, seed):
     return f"std::vector<{CT[host_]}> {name} = make_vec<{CT[host_]}>(n, {seed});"
 
 def seed(base, tag):
-    return (abs(hash(base+tag)) + 1) & 0x0FFFFFFFFFFFFFFF
+    return int(hashlib.sha256((base + "|" + tag).encode()).hexdigest()[:16], 16) & 0x0FFFFFFFFFFFFFFF
 
 def gen_body(rows):
     W = []
@@ -200,7 +201,7 @@ def var(ct, name, n, seed):
     return f"std::vector<{h}> {name} = make_vec<{h}>(n,{seed});"
 
 def seed(base, tag):
-    return (abs(hash(base + tag)) + 1) & 0xFFFFFFFFFFFFFF
+    return int(hashlib.sha256((base + "|" + tag).encode()).hexdigest()[:16], 16) & 0xFFFFFFFFFFFFFF
 
 def build():
     rows = {r["function_name"]: r for r in csv.DictReader(open(CSV))}

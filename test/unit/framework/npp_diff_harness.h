@@ -56,6 +56,9 @@ enum class ValueKind {
   I32,
   U64,
   I64,
+  I16Tol,
+  I32Tol,
+  I64Tol,
   F16,
   F32,
   F64,
@@ -71,14 +74,17 @@ inline size_t element_size(ValueKind kind) {
     return 1;
   case ValueKind::U16:
   case ValueKind::I16:
+  case ValueKind::I16Tol:
   case ValueKind::F16:
     return 2;
   case ValueKind::U32:
   case ValueKind::I32:
+  case ValueKind::I32Tol:
   case ValueKind::F32:
     return 4;
   case ValueKind::U64:
   case ValueKind::I64:
+  case ValueKind::I64Tol:
   case ValueKind::F64:
   case ValueKind::CF32:
     return 8;
@@ -99,6 +105,9 @@ inline const char *kind_name(ValueKind kind) {
   case ValueKind::I32: return "i32";
   case ValueKind::U64: return "u64";
   case ValueKind::I64: return "i64";
+  case ValueKind::I16Tol: return "i16tol";
+  case ValueKind::I32Tol: return "i32tol";
+  case ValueKind::I64Tol: return "i64tol";
   case ValueKind::F16: return "f16";
   case ValueKind::F32: return "f32";
   case ValueKind::F64: return "f64";
@@ -117,6 +126,9 @@ inline ValueKind kind_from_name(const std::string &name) {
   if (name == "i32") return ValueKind::I32;
   if (name == "u64") return ValueKind::U64;
   if (name == "i64") return ValueKind::I64;
+  if (name == "i16tol") return ValueKind::I16Tol;
+  if (name == "i32tol") return ValueKind::I32Tol;
+  if (name == "i64tol") return ValueKind::I64Tol;
   if (name == "f16") return ValueKind::F16;
   if (name == "f32") return ValueKind::F32;
   if (name == "f64") return ValueKind::F64;
@@ -354,6 +366,27 @@ inline bool compare_values(ValueKind kind, const uint8_t *a, const uint8_t *b, s
     case ValueKind::I64:
       ok = std::memcmp(pa, pb, 8) == 0;
       break;
+    case ValueKind::I16Tol: {
+      int16_t va, vb;
+      std::memcpy(&va, pa, 2);
+      std::memcpy(&vb, pb, 2);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::I32Tol: {
+      int32_t va, vb;
+      std::memcpy(&va, pa, 4);
+      std::memcpy(&vb, pb, 4);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::I64Tol: {
+      int64_t va, vb;
+      std::memcpy(&va, pa, 8);
+      std::memcpy(&vb, pb, 8);
+      ok = close_double((double)va, (double)vb, rtol, atol);
+      break;
+    }
     case ValueKind::F16: {
       __half ha, hb;
       std::memcpy(&ha, pa, 2);
