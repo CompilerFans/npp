@@ -1,0 +1,23 @@
+{
+  "family": "nppsSub",
+  "module": "npps_arithmetic_and_logical_operations.h",
+  "source": "src/npps/npps_arithmetic_operations/nppsSub_generated.cpp",
+  "includes": [
+    "npps_elementwise_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "pSrcDst, int nLength, int nScaleFactor",
+      "call": "npps::elementwise::binaryInplace<npps::elementwise::SubOp>(pSrc, pSrcDst, nLength, nScaleFactor, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "pSrcDst",
+      "call": "npps::elementwise::binaryInplace<npps::elementwise::SubOp>(pSrc, pSrcDst, nLength, 0, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "int nLength, int nScaleFactor",
+      "call": "npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream)"
+}
