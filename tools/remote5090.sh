@@ -83,7 +83,7 @@ remote_record() {
   local filter="${1:-}"
   local dir="${MCPP_5090_BUILD_DIR:-build-nvidia}"
   local out="$RECORD_DIR_REMOTE"
-  local cmd="rm -rf $out && mkdir -p $out && cd $REMOTE_DIR/$dir && NPP_RECORD_DIR=$out ./diff_tests"
+  local cmd="mkdir -p $out && cd $REMOTE_DIR/$dir && NPP_RECORD_DIR=$out ./diff_tests"
   if [[ -n "$filter" ]]; then
     cmd="$cmd --gtest_filter='$filter'"
   fi
