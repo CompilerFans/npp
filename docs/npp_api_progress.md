@@ -10,11 +10,11 @@
 | 指标 | 数值 |
 |---|---:|
 | 公共函数 | 12,537 |
-| 真实实现 | 4,070 |
+| 真实实现 | 4,130 |
 | 显式 stub | 166 |
-| 缺失 | 8,301 |
-| 待实现（stub+missing） | 8,467 |
-| 待实现 `_Ctx` | 4,288 |
+| 缺失 | 8,241 |
+| 待实现（stub+missing） | 8,407 |
+| 待实现 `_Ctx` | 4,258 |
 | 本地回归基线 | 4,803 tests, 0 failures |
 
 ## 2. 基础设施（已完成）
@@ -39,8 +39,8 @@
 | P1.1a | NPPS 二元算术 Add/Sub/Mul/Div/AddProduct/Div_Round | 220 | ✅ 已合并 | `pkg/p1.1a` → `388785f` |
 | P1.1b | NPPS 常量/归一化 AddC/SubC/.../Normalize | 256 | ✅ 已合并 | `pkg/p1.1b` → `c140859` |
 | P1.1c | NPPS 一元/位运算/移位 | 258 | ✅ 已合并 | `pkg/p1.1c` → `a9757d5` |
-| P1.2a | NPPS 初始化 Set/Copy/Zero | 60 | 下一步 | — |
-| P1.2b | NPPS 转换/阈值 Convert/Threshold | 174 | 待启动 | — |
+| P1.2a | NPPS 初始化 Set/Copy/Zero | 60 | ✅ 已合并 | `pkg/p1.2a` → merge |
+| P1.2b | NPPS 转换/阈值 Convert/Threshold | 174 | 运行中 | `pkg/p1.2b` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
