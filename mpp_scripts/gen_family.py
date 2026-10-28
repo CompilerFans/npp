@@ -148,12 +148,40 @@ def choose_call(spec: dict, func: Func) -> str:
     return spec["call"]
 
 
+NPPI_LAYOUT_RE = re.compile(r"_AC4R")
+
+
+def nppi_channel_count(name: str) -> int:
+    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4)."""
+    if NPPI_LAYOUT_RE.search(name):
+        return 4
+    m = re.search(r"_C([1234])R", name)
+    return int(m.group(1)) if m else 1
+
+
+def nppi_is_ac4(name: str) -> str:
+    return "1" if NPPI_LAYOUT_RE.search(name) else "0"
+
+
+def split_dtype_pair(code: str) -> Tuple[str, str]:
+    """Split an nppiConvert src+dst dtype code (e.g. '16f32f') into two tokens."""
+    for k in DTYPE_TO_CTYPE:
+        if code.startswith(k) and code[len(k):] in DTYPE_TO_CTYPE:
+            return k, code[len(k):]
+    return "", ""
+
+
 def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
     dtype = DTYPE_TO_CTYPE.get(func.dtype, "")
+    src_token, dst_token = split_dtype_pair(func.name.split("_")[1] if "_" in func.name else func.name)
+    dst_dtype = DTYPE_TO_CTYPE.get(dst_token, "")
     values = {
         "name": func.name,
         "family": spec["family"],
         "dtype": dtype,
+        "dst_dtype": dst_dtype,
+        "chan": str(nppi_channel_count(func.name)),
+        "is_ac4": nppi_is_ac4(func.name),
         "channels": func.channels or "1",
         "layout": func.layout,
     }

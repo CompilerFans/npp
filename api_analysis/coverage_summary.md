@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 4304 (34.3%)
+- Real implementations: 4504 (35.9%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 8067
-- Tested: 3715 (29.6%)
-- Real and tested: 3685
+- Missing: 7867
+- Tested: 3747 (29.9%)
+- Real and tested: 3717
 
 ## By module
 
@@ -13,7 +13,7 @@
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2109 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 316 |
-| nppi_data_exchange_and_initialization.h | 966 | 140 | 0 | 826 | 127 |
+| nppi_data_exchange_and_initialization.h | 966 | 340 | 0 | 626 | 159 |
 | nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 68 |
 | nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 181 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
@@ -32,7 +32,6 @@
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| nppi_data_exchange_and_initialization.h | nppiConvert | 200 | 100 |
 | nppi_statistics_functions.h | nppiAverageRelativeError | 176 | 88 |
 | nppi_statistics_functions.h | nppiMaximumError | 176 | 88 |
 | nppi_statistics_functions.h | nppiMaximumRelativeError | 176 | 88 |
@@ -72,3 +71,4 @@
 | nppi_statistics_functions.h | nppiCrossCorrSame_NormLevel | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrSame_Norm | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrValid_NormLevel | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrValid_Norm | 48 | 24 |

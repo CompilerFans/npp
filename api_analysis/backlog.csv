@@ -1,5 +1,4 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_data_exchange_and_initialization.h,nppiConvert,214,14,0,200,100,100,14,200
 nppi_statistics_functions.h,nppiAverageRelativeError,176,0,0,176,88,88,0,176
 nppi_statistics_functions.h,nppiMaximumError,176,0,0,176,88,88,0,176
 nppi_statistics_functions.h,nppiMaximumRelativeError,176,0,0,176,88,88,0,176
@@ -466,6 +465,7 @@ nppi_color_conversion.h,nppiYCrCb420ToYCbCr420,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiYUV420ToBGR,4,4,0,0,0,0,4,0
 nppi_color_conversion.h,nppiYUVToBGR,8,8,0,0,0,0,8,0
 nppi_color_conversion.h,nppiYUVToRGB,8,8,0,0,0,0,8,0
+nppi_data_exchange_and_initialization.h,nppiConvert,214,214,0,0,0,0,46,0
 nppi_data_exchange_and_initialization.h,nppiTranspose,30,30,0,0,0,0,6,0
 nppi_filtering_functions.h,nppiCompressMarkerLabels,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressMarkerLabelsUF,2,2,0,0,0,0,2,0

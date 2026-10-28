@@ -1,0 +1,18 @@
+{
+  "family": "nppiConvert",
+  "module": "nppi_data_exchange_and_initialization.h",
+  "source": "src/nppi/nppi_data_exchange_and_initialization/nppi_convert_generated.cpp",
+  "includes": ["nppi_convert_executor.h"],
+  "families": ["nppiConvert"],
+  "call_variants": [
+    {
+      "contains": "eRoundMode, int nScaleFactor",
+      "call": "nppi::convert::convertRndSfs<{dtype}, {dst_dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eRoundMode, nScaleFactor, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "eRoundMode",
+      "call": "nppi::convert::convertRnd<{dtype}, {dst_dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eRoundMode, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::convert::convert<{dtype}, {dst_dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream)"
+}
