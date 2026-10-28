@@ -4,7 +4,8 @@
 #include <cstdlib>
 
 static inline NppStatus setValidateStep(void *pDst, int nDstStep, NppiSize oSizeROI, int minStep) {
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  // Negative / empty ROI is a no-op in NVIDIA NPP (returns NPP_NO_ERROR).
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_NO_ERROR;
   if (!pDst) return NPP_NULL_POINTER_ERROR;
   if (nDstStep < minStep) return NPP_STEP_ERROR;
   return NPP_SUCCESS;

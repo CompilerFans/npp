@@ -25,21 +25,24 @@ VT = {"16f": "Npp32f"}
 LAY = {"C1": "C1R", "C2": "C2R", "C3": "C3R", "C4": "C4R", "C3C": "C3CR", "C4C": "C4CR",
        "C1M": "C1MR", "C3M": "C3MR", "C4M": "C4MR", "AC4": "AC4R", "AC4M": "AC4MR"}
 
-def raw(dt, lay, kind, stride, copy): return (dt, f"{dt}_{LAY[lay]}", kind, stride, copy)
+def raw(dt, lay, kind, stride, write): return (dt, f"{dt}_{LAY[lay]}", kind, stride, write)
 
 E = []
 for dt in ("8u", "16u", "16s", "32s", "32f"):
-    E += [raw(dt, "C2", "vec", 2, 2), raw(dt, "AC4", "ac", 4, 3), raw(dt, "C3C", "sc", 3, 0),
-          raw(dt, "C4C", "sc", 4, 0), raw(dt, "C1M", "ms", 1, 0), raw(dt, "C3M", "msv", 3, 3),
+    # C3CR/C4CR are *channel* set primitives: they write a single scalar to ONE
+    # color channel per pixel, but the buffer stays multi-channel: the pixel
+    # stride for indexing is 3/4 while only 1 element is written.
+    E += [raw(dt, "C2", "vec", 2, 2), raw(dt, "AC4", "ac", 4, 3), raw(dt, "C3C", "sc", 3, 1),
+          raw(dt, "C4C", "sc", 4, 1), raw(dt, "C1M", "ms", 1, 1), raw(dt, "C3M", "msv", 3, 3),
           raw(dt, "C4M", "msv", 4, 4), raw(dt, "AC4M", "mac", 4, 3)]
-E += [raw("32s", "C1", "sc", 1, 0), raw("32s", "C3", "vec", 3, 3), raw("32s", "C4", "vec", 4, 4)]
+E += [raw("32s", "C1", "sc", 1, 1), raw("32s", "C3", "vec", 3, 3), raw("32s", "C4", "vec", 4, 4)]
 for dt in ("8s", "32u"):
-    E += [raw(dt, "C1", "sc", 1, 0), raw(dt, "C2", "vec", 2, 2), raw(dt, "C3", "vec", 3, 3),
+    E += [raw(dt, "C1", "sc", 1, 1), raw(dt, "C2", "vec", 2, 2), raw(dt, "C3", "vec", 3, 3),
           raw(dt, "C4", "vec", 4, 4), raw(dt, "AC4", "ac", 4, 3)]
-E += [raw("16f", "C1", "sc", 1, 0), raw("16f", "C2", "vec", 2, 2), raw("16f", "C3", "vec", 3, 3),
+E += [raw("16f", "C1", "sc", 1, 1), raw("16f", "C2", "vec", 2, 2), raw("16f", "C3", "vec", 3, 3),
       raw("16f", "C4", "vec", 4, 4)]
 for dt in ("16sc", "32sc", "32fc"):
-    E += [raw(dt, "C1", "sc", 1, 0), raw(dt, "C2", "vec", 2, 2), raw(dt, "C3", "vec", 3, 3),
+    E += [raw(dt, "C1", "sc", 1, 1), raw(dt, "C2", "vec", 2, 2), raw(dt, "C3", "vec", 3, 3),
           raw(dt, "C4", "vec", 4, 4), raw(dt, "AC4", "ac", 4, 3)]
 
 EXPECT = {"16f": 4, "16s": 8, "16u": 8, "32f": 8, "32s": 11, "8s": 5, "32u": 5,
@@ -75,8 +78,10 @@ __host__ __device__ __forceinline__ T sconv(const V &s) {
 
 template <typename V, int CH> struct SVal { V v[CH]; };
 
-// Fill every channel of each pixel with a single scalar value.
-template <typename T, typename V, int STRIDE>
+// Fill WRITE channels of each (STRIDE-channel) pixel with a single scalar value.
+// STRIDE is the buffer pixel stride; WRITE <= STRIDE is how many channels are set
+// (WRITE == STRIDE for a full fill, WRITE == 1 for the channel-set C3CR/C4CR).
+template <typename T, typename V, int STRIDE, int WRITE>
 __global__ void kSetScalar(V value, T *pDst, int nDstStep, int w, int h) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -84,7 +89,7 @@ __global__ void kSetScalar(V value, T *pDst, int nDstStep, int w, int h) {
   T *dr = (T *)((char *)pDst + y * (size_t)nDstStep);
   const T val = sconv<T>(value);
 #pragma unroll
-  for (int c = 0; c < STRIDE; c++) dr[x * STRIDE + c] = val;
+  for (int c = 0; c < WRITE; c++) dr[x * STRIDE + c] = val;
 }
 
 // Write COPY channels out of STRIDE per pixel from a value array.
@@ -98,8 +103,8 @@ __global__ void kSetVec(const SVal<V, COPY> value, T *pDst, int nDstStep, int w,
   for (int c = 0; c < COPY; c++) dr[x * STRIDE + c] = sconv<T>(value.v[c]);
 }
 
-// Masked scalar fill.
-template <typename T, typename V, int STRIDE>
+// Masked scalar fill (WRITE channels out of STRIDE per pixel).
+template <typename T, typename V, int STRIDE, int WRITE>
 __global__ void kSetScalarMasked(V value, T *pDst, int nDstStep, const Npp8u *pMask, int nMaskStep, int w, int h) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -108,7 +113,7 @@ __global__ void kSetScalarMasked(V value, T *pDst, int nDstStep, const Npp8u *pM
   T *dr = (T *)((char *)pDst + y * (size_t)nDstStep);
   const T val = sconv<T>(value);
 #pragma unroll
-  for (int c = 0; c < STRIDE; c++) dr[x * STRIDE + c] = val;
+  for (int c = 0; c < WRITE; c++) dr[x * STRIDE + c] = val;
 }
 
 // Masked vector fill.
@@ -125,19 +130,19 @@ __global__ void kSetVecMasked(const SVal<V, COPY> value, T *pDst, int nDstStep, 
 }
 
 // ---- launch helpers (empty-ROI short-circuit, stale-error clear) ----
-template <typename T, typename V, int STRIDE>
+template <typename T, typename V, int STRIDE, int WRITE>
 static NppStatus runFill(const V value, T *pDst, int w, int h, int nDstStep, cudaStream_t stream) {
-  if (w == 0 || h == 0) return NPP_NO_ERROR;
+  if (w <= 0 || h <= 0) return NPP_NO_ERROR;
   dim3 b(16, 16);
   dim3 g((w + 15) / 16, (h + 15) / 16);
   (void)cudaGetLastError();
-  kSetScalar<T, V, STRIDE><<<g, b, 0, stream>>>(value, pDst, nDstStep, w, h);
+  kSetScalar<T, V, STRIDE, WRITE><<<g, b, 0, stream>>>(value, pDst, nDstStep, w, h);
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, typename V, int STRIDE, int COPY>
 static NppStatus runVector(const SVal<V, COPY> &value, T *pDst, int w, int h, int nDstStep, cudaStream_t stream) {
-  if (w == 0 || h == 0) return NPP_NO_ERROR;
+  if (w <= 0 || h <= 0) return NPP_NO_ERROR;
   dim3 b(16, 16);
   dim3 g((w + 15) / 16, (h + 15) / 16);
   (void)cudaGetLastError();
@@ -145,21 +150,21 @@ static NppStatus runVector(const SVal<V, COPY> &value, T *pDst, int w, int h, in
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-template <typename T, typename V, int STRIDE>
+template <typename T, typename V, int STRIDE, int WRITE>
 static NppStatus runMaskFill(const V value, T *pDst, int w, int h, int nDstStep, const Npp8u *pMask, int nMaskStep,
                              cudaStream_t stream) {
-  if (w == 0 || h == 0) return NPP_NO_ERROR;
+  if (w <= 0 || h <= 0) return NPP_NO_ERROR;
   dim3 b(16, 16);
   dim3 g((w + 15) / 16, (h + 15) / 16);
   (void)cudaGetLastError();
-  kSetScalarMasked<T, V, STRIDE><<<g, b, 0, stream>>>(value, pDst, nDstStep, pMask, nMaskStep, w, h);
+  kSetScalarMasked<T, V, STRIDE, WRITE><<<g, b, 0, stream>>>(value, pDst, nDstStep, pMask, nMaskStep, w, h);
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 template <typename T, typename V, int STRIDE, int COPY>
 static NppStatus runMaskVector(const SVal<V, COPY> &value, T *pDst, int w, int h, int nDstStep, const Npp8u *pMask,
                                int nMaskStep, cudaStream_t stream) {
-  if (w == 0 || h == 0) return NPP_NO_ERROR;
+  if (w <= 0 || h <= 0) return NPP_NO_ERROR;
   dim3 b(16, 16);
   dim3 g((w + 15) / 16, (h + 15) / 16);
   (void)cudaGetLastError();
@@ -172,17 +177,17 @@ static NppStatus runMaskVector(const SVal<V, COPY> &value, T *pDst, int w, int h
 
 # ---- impl instantiation block ----
 I = []
-for (dt, suf, kind, stride, copy) in E:
+for (dt, suf, kind, stride, write) in E:
     t, v = TYP(dt), VYP(dt)
     nm = "nppiSet_%s_Ctx_impl" % suf
     if kind == "sc":
-        I.append('extern "C" NppStatus %s(%s nValue, %s *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) { return runFill<%s, %s, %d>(nValue, pDst, oSizeROI.width, oSizeROI.height, nDstStep, nppStreamCtx.hStream); }' % (nm, v, t, t, v, stride))
+        I.append('extern "C" NppStatus %s(%s nValue, %s *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) { return runFill<%s, %s, %d, %d>(nValue, pDst, oSizeROI.width, oSizeROI.height, nDstStep, nppStreamCtx.hStream); }' % (nm, v, t, t, v, stride, write))
     elif kind in ("vec", "ac"):
-        I.append('extern "C" NppStatus %s(const %s *aValue, %s *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) { SVal<%s, %d> value{}; for (int c = 0; c < %d; c++) value.v[c] = aValue[c]; return runVector<%s, %s, %d, %d>(value, pDst, oSizeROI.width, oSizeROI.height, nDstStep, nppStreamCtx.hStream); }' % (nm, v, t, v, copy, copy, t, v, stride, copy))
+        I.append('extern "C" NppStatus %s(const %s *aValue, %s *pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) { SVal<%s, %d> value{}; for (int c = 0; c < %d; c++) value.v[c] = aValue[c]; return runVector<%s, %s, %d, %d>(value, pDst, oSizeROI.width, oSizeROI.height, nDstStep, nppStreamCtx.hStream); }' % (nm, v, t, v, write, write, t, v, stride, write))
     elif kind == "ms":
-        I.append('extern "C" NppStatus %s(%s nValue, %s *pDst, int nDstStep, NppiSize oSizeROI, const Npp8u *pMask, int nMaskStep, NppStreamContext nppStreamCtx) { return runMaskFill<%s, %s, %d>(nValue, pDst, oSizeROI.width, oSizeROI.height, nDstStep, pMask, nMaskStep, nppStreamCtx.hStream); }' % (nm, v, t, t, v, stride))
+        I.append('extern "C" NppStatus %s(%s nValue, %s *pDst, int nDstStep, NppiSize oSizeROI, const Npp8u *pMask, int nMaskStep, NppStreamContext nppStreamCtx) { return runMaskFill<%s, %s, %d, %d>(nValue, pDst, oSizeROI.width, oSizeROI.height, nDstStep, pMask, nMaskStep, nppStreamCtx.hStream); }' % (nm, v, t, t, v, stride, write))
     else:
-        I.append('extern "C" NppStatus %s(const %s *aValue, %s *pDst, int nDstStep, NppiSize oSizeROI, const Npp8u *pMask, int nMaskStep, NppStreamContext nppStreamCtx) { SVal<%s, %d> value{}; for (int c = 0; c < %d; c++) value.v[c] = aValue[c]; return runMaskVector<%s, %s, %d, %d>(value, pDst, oSizeROI.width, oSizeROI.height, nDstStep, pMask, nMaskStep, nppStreamCtx.hStream); }' % (nm, v, t, v, copy, copy, t, v, stride, copy))
+        I.append('extern "C" NppStatus %s(const %s *aValue, %s *pDst, int nDstStep, NppiSize oSizeROI, const Npp8u *pMask, int nMaskStep, NppStreamContext nppStreamCtx) { SVal<%s, %d> value{}; for (int c = 0; c < %d; c++) value.v[c] = aValue[c]; return runMaskVector<%s, %s, %d, %d>(value, pDst, oSizeROI.width, oSizeROI.height, nDstStep, pMask, nMaskStep, nppStreamCtx.hStream); }' % (nm, v, t, v, write, write, t, v, stride, write))
 
 CU.write_text(KERN + "\n".join(I) + "\n")
 
@@ -191,7 +196,8 @@ CU.write_text(KERN + "\n".join(I) + "\n")
 # ---------------------------------------------------------------------------
 VAL = [
  "static inline NppStatus setValidateStep(void *pDst, int nDstStep, NppiSize oSizeROI, int minStep) {",
- "  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;",
+ "  // Negative / empty ROI is a no-op in NVIDIA NPP (returns NPP_NO_ERROR).",
+ "  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_NO_ERROR;",
  "  if (!pDst) return NPP_NULL_POINTER_ERROR;",
  "  if (nDstStep < minStep) return NPP_STEP_ERROR;",
  "  return NPP_SUCCESS;",
@@ -217,7 +223,7 @@ W += VAL
 
 # Forward declarations of the *_Ctx_impl entry points.
 W += ['extern "C" {']
-for (dt, suf, kind, stride, copy) in E:
+for (dt, suf, kind, stride, write) in E:
     t, v = TYP(dt), VYP(dt)
     nm = "nppiSet_%s_Ctx_impl" % suf
     if kind == "sc":
@@ -232,7 +238,7 @@ for (dt, suf, kind, stride, copy) in E:
 W.append("}")
 W.append("")
 
-for (dt, suf, kind, stride, copy) in E:
+for (dt, suf, kind, stride, write) in E:
     t, v = TYP(dt), VYP(dt)
     fn = "nppiSet_%s" % suf
     impl = "%s_Ctx_impl" % fn

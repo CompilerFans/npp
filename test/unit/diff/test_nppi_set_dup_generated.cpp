@@ -73,7 +73,8 @@ class NppiSetDupDiff : public ::testing::Test {
 TEST_F(NppiSetDupDiff, Set_8u_C2R_1x1_Ctx) {
   const Npp8u nv[2] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -89,7 +90,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C2R_17x13_Ctx) {
   const Npp8u nv[2] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -105,7 +107,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C2R_64x32_Ctx) {
   const Npp8u nv[2] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -121,7 +124,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4R_1x1_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -137,7 +141,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4R_17x13_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -153,7 +158,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4R_64x32_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -169,7 +175,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3CR_1x1_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -185,7 +192,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3CR_17x13_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -201,7 +209,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3CR_64x32_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -217,7 +226,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4CR_1x1_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -233,7 +243,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4CR_17x13_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -249,7 +260,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4CR_64x32_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -265,7 +277,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C1MR_1x1_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -285,7 +298,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C1MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C1MR_17x13_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -305,7 +319,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C1MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C1MR_64x32_Ctx) {
   const Npp8u val = (Npp8u)130;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -325,7 +340,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C1MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3MR_1x1_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -345,7 +361,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3MR_17x13_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -365,7 +382,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3MR_64x32_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -385,7 +403,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4MR_1x1_Ctx) {
   const Npp8u nv[4] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80), (Npp8u)(100 + 120)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -405,7 +424,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4MR_17x13_Ctx) {
   const Npp8u nv[4] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80), (Npp8u)(100 + 120)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -425,7 +445,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4MR_64x32_Ctx) {
   const Npp8u nv[4] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80), (Npp8u)(100 + 120)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -445,7 +466,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4MR_1x1_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -465,7 +487,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4MR_17x13_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -485,7 +508,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4MR_64x32_Ctx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -505,7 +529,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C2R_1x1_Ctx) {
   const Npp16u nv[2] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -521,7 +546,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C2R_17x13_Ctx) {
   const Npp16u nv[2] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -537,7 +563,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C2R_64x32_Ctx) {
   const Npp16u nv[2] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -553,7 +580,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4R_1x1_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -569,7 +597,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4R_17x13_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -585,7 +614,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4R_64x32_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -601,7 +631,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3CR_1x1_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -617,7 +648,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3CR_17x13_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -633,7 +665,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3CR_64x32_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -649,7 +682,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4CR_1x1_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -665,7 +699,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4CR_17x13_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -681,7 +716,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4CR_64x32_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -697,7 +733,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C1MR_1x1_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -717,7 +754,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C1MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C1MR_17x13_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -737,7 +775,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C1MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C1MR_64x32_Ctx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -757,7 +796,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C1MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3MR_1x1_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -777,7 +817,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3MR_17x13_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -797,7 +838,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3MR_64x32_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -817,7 +859,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4MR_1x1_Ctx) {
   const Npp16u nv[4] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000), (Npp16u)(20000 + 3 * 7000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -837,7 +880,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4MR_17x13_Ctx) {
   const Npp16u nv[4] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000), (Npp16u)(20000 + 3 * 7000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -857,7 +901,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4MR_64x32_Ctx) {
   const Npp16u nv[4] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000), (Npp16u)(20000 + 3 * 7000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -877,7 +922,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4MR_1x1_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -897,7 +943,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4MR_17x13_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -917,7 +964,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4MR_64x32_Ctx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -937,7 +985,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C2R_1x1_Ctx) {
   const Npp16s nv[2] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -953,7 +1002,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C2R_17x13_Ctx) {
   const Npp16s nv[2] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -969,7 +1019,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C2R_64x32_Ctx) {
   const Npp16s nv[2] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -985,7 +1036,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4R_1x1_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1001,7 +1053,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4R_17x13_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1017,7 +1070,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4R_64x32_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1033,7 +1087,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3CR_1x1_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1049,7 +1104,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3CR_17x13_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1065,7 +1121,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3CR_64x32_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1081,7 +1138,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4CR_1x1_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1097,7 +1155,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4CR_17x13_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1113,7 +1172,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4CR_64x32_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1129,7 +1189,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C1MR_1x1_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1149,7 +1210,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C1MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C1MR_17x13_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1169,7 +1231,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C1MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C1MR_64x32_Ctx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1189,7 +1252,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C1MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3MR_1x1_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1209,7 +1273,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3MR_17x13_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1229,7 +1294,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3MR_64x32_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1249,7 +1315,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4MR_1x1_Ctx) {
   const Npp16s nv[4] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000), (Npp16s)(8000 - 3 * 6000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1269,7 +1336,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4MR_17x13_Ctx) {
   const Npp16s nv[4] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000), (Npp16s)(8000 - 3 * 6000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1289,7 +1357,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4MR_64x32_Ctx) {
   const Npp16s nv[4] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000), (Npp16s)(8000 - 3 * 6000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1309,7 +1378,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4MR_1x1_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1329,7 +1399,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4MR_17x13_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1349,7 +1420,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4MR_64x32_Ctx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -1369,7 +1441,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C2R_1x1_Ctx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1385,7 +1458,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C2R_17x13_Ctx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1401,7 +1475,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C2R_64x32_Ctx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1417,7 +1492,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4R_1x1_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1433,7 +1509,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4R_17x13_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1449,7 +1526,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4R_64x32_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1465,7 +1543,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3CR_1x1_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1481,7 +1560,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3CR_17x13_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1497,7 +1577,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3CR_64x32_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1513,7 +1594,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4CR_1x1_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1529,7 +1611,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4CR_17x13_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1545,7 +1628,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4CR_64x32_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1561,7 +1645,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C1MR_1x1_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1581,7 +1666,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C1MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C1MR_17x13_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1601,7 +1687,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C1MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C1MR_64x32_Ctx) {
   const Npp32f val = 1.5f;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1621,7 +1708,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C1MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3MR_1x1_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1641,7 +1729,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3MR_17x13_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1661,7 +1750,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3MR_64x32_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1681,7 +1771,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4MR_1x1_Ctx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, -1.25f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1701,7 +1792,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4MR_17x13_Ctx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, -1.25f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1721,7 +1813,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4MR_64x32_Ctx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, -1.25f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1741,7 +1834,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4MR_1x1_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1761,7 +1855,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4MR_17x13_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1781,7 +1876,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4MR_64x32_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -1801,7 +1897,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C2R_1x1_Ctx) {
   const Npp32s nv[2] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1817,7 +1914,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C2R_17x13_Ctx) {
   const Npp32s nv[2] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1833,7 +1931,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C2R_64x32_Ctx) {
   const Npp32s nv[2] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1849,7 +1948,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4R_1x1_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1865,7 +1965,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4R_17x13_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1881,7 +1982,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4R_64x32_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1897,7 +1999,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3CR_1x1_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1913,7 +2016,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3CR_17x13_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1929,7 +2033,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3CR_64x32_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1945,7 +2050,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4CR_1x1_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1961,7 +2067,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4CR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4CR_17x13_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1977,7 +2084,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4CR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4CR_64x32_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -1993,7 +2101,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4CR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1MR_1x1_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2013,7 +2122,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1MR_17x13_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2033,7 +2143,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1MR_64x32_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2053,7 +2164,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3MR_1x1_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2073,7 +2185,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3MR_17x13_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2093,7 +2206,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3MR_64x32_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2113,7 +2227,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4MR_1x1_Ctx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2133,7 +2248,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4MR_17x13_Ctx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2153,7 +2269,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4MR_64x32_Ctx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2173,7 +2290,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4MR_1x1_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2193,7 +2311,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4MR_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4MR_17x13_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2213,7 +2332,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4MR_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4MR_64x32_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2233,7 +2353,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4MR_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1R_1x1_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2249,7 +2370,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1R_17x13_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2265,7 +2387,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1R_64x32_Ctx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2281,7 +2404,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3R_1x1_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2297,7 +2421,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3R_17x13_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2313,7 +2438,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3R_64x32_Ctx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2329,7 +2455,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4R_1x1_Ctx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2345,7 +2472,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4R_17x13_Ctx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2361,7 +2489,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4R_64x32_Ctx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -2377,7 +2506,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C1R_1x1_Ctx) {
   const Npp8s val = (Npp8s)-45;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2393,7 +2523,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C1R_17x13_Ctx) {
   const Npp8s val = (Npp8s)-45;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2409,7 +2540,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C1R_64x32_Ctx) {
   const Npp8s val = (Npp8s)-45;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2425,7 +2557,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C2R_1x1_Ctx) {
   const Npp8s nv[2] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2441,7 +2574,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C2R_17x13_Ctx) {
   const Npp8s nv[2] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2457,7 +2591,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C2R_64x32_Ctx) {
   const Npp8s nv[2] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2473,7 +2608,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C3R_1x1_Ctx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2489,7 +2625,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C3R_17x13_Ctx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2505,7 +2642,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C3R_64x32_Ctx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2521,7 +2659,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C4R_1x1_Ctx) {
   const Npp8s nv[4] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20), (Npp8s)(30 - 3*20)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2537,7 +2676,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C4R_17x13_Ctx) {
   const Npp8s nv[4] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20), (Npp8s)(30 - 3*20)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2553,7 +2693,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_C4R_64x32_Ctx) {
   const Npp8s nv[4] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20), (Npp8s)(30 - 3*20)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2569,7 +2710,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_AC4R_1x1_Ctx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2585,7 +2727,8 @@ TEST_F(NppiSetDupDiff, Set_8s_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_AC4R_17x13_Ctx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2601,7 +2744,8 @@ TEST_F(NppiSetDupDiff, Set_8s_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8s_AC4R_64x32_Ctx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -2617,7 +2761,8 @@ TEST_F(NppiSetDupDiff, Set_8s_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C1R_1x1_Ctx) {
   const Npp32u val = (Npp32u)0xF1234567u;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2633,7 +2778,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C1R_17x13_Ctx) {
   const Npp32u val = (Npp32u)0xF1234567u;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2649,7 +2795,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C1R_64x32_Ctx) {
   const Npp32u val = (Npp32u)0xF1234567u;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2665,7 +2812,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C2R_1x1_Ctx) {
   const Npp32u nv[2] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2681,7 +2829,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C2R_17x13_Ctx) {
   const Npp32u nv[2] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2697,7 +2846,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C2R_64x32_Ctx) {
   const Npp32u nv[2] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2713,7 +2863,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C3R_1x1_Ctx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2729,7 +2880,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C3R_17x13_Ctx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2745,7 +2897,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C3R_64x32_Ctx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2761,7 +2914,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C4R_1x1_Ctx) {
   const Npp32u nv[4] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u), (Npp32u)(700000u + 3 * 250000u)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2777,7 +2931,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C4R_17x13_Ctx) {
   const Npp32u nv[4] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u), (Npp32u)(700000u + 3 * 250000u)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2793,7 +2948,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_C4R_64x32_Ctx) {
   const Npp32u nv[4] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u), (Npp32u)(700000u + 3 * 250000u)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2809,7 +2965,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_AC4R_1x1_Ctx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2825,7 +2982,8 @@ TEST_F(NppiSetDupDiff, Set_32u_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_AC4R_17x13_Ctx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2841,7 +2999,8 @@ TEST_F(NppiSetDupDiff, Set_32u_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32u_AC4R_64x32_Ctx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -2857,7 +3016,8 @@ TEST_F(NppiSetDupDiff, Set_32u_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C1R_1x1_Ctx) {
   const Npp32f val = 2.5f;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2873,7 +3033,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C1R_17x13_Ctx) {
   const Npp32f val = 2.5f;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2889,7 +3050,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C1R_64x32_Ctx) {
   const Npp32f val = 2.5f;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2905,7 +3067,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C2R_1x1_Ctx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2921,7 +3084,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C2R_17x13_Ctx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2937,7 +3101,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C2R_64x32_Ctx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2953,7 +3118,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C3R_1x1_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2969,7 +3135,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C3R_17x13_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -2985,7 +3152,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C3R_64x32_Ctx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -3001,7 +3169,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C4R_1x1_Ctx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, 1.5f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -3017,7 +3186,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C4R_17x13_Ctx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, 1.5f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -3033,7 +3203,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16f_C4R_64x32_Ctx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, 1.5f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -3049,7 +3220,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C1R_1x1_Ctx) {
   const Npp16sc val = Npp16sc{(Npp16s)100,(Npp16s)-40};
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3065,7 +3237,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C1R_17x13_Ctx) {
   const Npp16sc val = Npp16sc{(Npp16s)100,(Npp16s)-40};
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3081,7 +3254,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C1R_64x32_Ctx) {
   const Npp16sc val = Npp16sc{(Npp16s)100,(Npp16s)-40};
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3097,7 +3271,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C2R_1x1_Ctx) {
   const Npp16sc nv[2] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3113,7 +3288,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C2R_17x13_Ctx) {
   const Npp16sc nv[2] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3129,7 +3305,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C2R_64x32_Ctx) {
   const Npp16sc nv[2] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3145,7 +3322,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C3R_1x1_Ctx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3161,7 +3339,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C3R_17x13_Ctx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3177,7 +3356,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C3R_64x32_Ctx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3193,7 +3373,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C4R_1x1_Ctx) {
   const Npp16sc nv[4] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}, Npp16sc{(Npp16s)(103),(Npp16s)(-53)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3209,7 +3390,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C4R_17x13_Ctx) {
   const Npp16sc nv[4] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}, Npp16sc{(Npp16s)(103),(Npp16s)(-53)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3225,7 +3407,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C4R_64x32_Ctx) {
   const Npp16sc nv[4] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}, Npp16sc{(Npp16s)(103),(Npp16s)(-53)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3241,7 +3424,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_AC4R_1x1_Ctx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3257,7 +3441,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_AC4R_17x13_Ctx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3273,7 +3458,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_16sc_AC4R_64x32_Ctx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -3289,7 +3475,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C1R_1x1_Ctx) {
   const Npp32sc val = Npp32sc{(Npp32s)123456,(Npp32s)-654321};
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3305,7 +3492,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C1R_17x13_Ctx) {
   const Npp32sc val = Npp32sc{(Npp32s)123456,(Npp32s)-654321};
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3321,7 +3509,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C1R_64x32_Ctx) {
   const Npp32sc val = Npp32sc{(Npp32s)123456,(Npp32s)-654321};
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3337,7 +3526,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C2R_1x1_Ctx) {
   const Npp32sc nv[2] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3353,7 +3543,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C2R_17x13_Ctx) {
   const Npp32sc nv[2] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3369,7 +3560,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C2R_64x32_Ctx) {
   const Npp32sc nv[2] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3385,7 +3577,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C3R_1x1_Ctx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3401,7 +3594,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C3R_17x13_Ctx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3417,7 +3611,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C3R_64x32_Ctx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3433,7 +3628,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C4R_1x1_Ctx) {
   const Npp32sc nv[4] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}, Npp32sc{(Npp32s)(10003),(Npp32s)(-5003)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3449,7 +3645,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C4R_17x13_Ctx) {
   const Npp32sc nv[4] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}, Npp32sc{(Npp32s)(10003),(Npp32s)(-5003)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3465,7 +3662,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C4R_64x32_Ctx) {
   const Npp32sc nv[4] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}, Npp32sc{(Npp32s)(10003),(Npp32s)(-5003)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3481,7 +3679,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_AC4R_1x1_Ctx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3497,7 +3696,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_AC4R_17x13_Ctx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3513,7 +3713,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32sc_AC4R_64x32_Ctx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -3529,7 +3730,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C1R_1x1_Ctx) {
   const Npp32fc val = Npp32fc{1.25f,-2.5f};
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3545,7 +3747,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C1R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C1R_17x13_Ctx) {
   const Npp32fc val = Npp32fc{1.25f,-2.5f};
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3561,7 +3764,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C1R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C1R_64x32_Ctx) {
   const Npp32fc val = Npp32fc{1.25f,-2.5f};
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3577,7 +3781,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C1R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C2R_1x1_Ctx) {
   const Npp32fc nv[2] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3593,7 +3798,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C2R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C2R_17x13_Ctx) {
   const Npp32fc nv[2] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3609,7 +3815,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C2R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C2R_64x32_Ctx) {
   const Npp32fc nv[2] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3625,7 +3832,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C2R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C3R_1x1_Ctx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3641,7 +3849,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C3R_17x13_Ctx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3657,7 +3866,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C3R_64x32_Ctx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3673,7 +3883,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C4R_1x1_Ctx) {
   const Npp32fc nv[4] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3689,7 +3900,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C4R_17x13_Ctx) {
   const Npp32fc nv[4] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3705,7 +3917,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C4R_64x32_Ctx) {
   const Npp32fc nv[4] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3721,7 +3934,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_AC4R_1x1_Ctx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3737,7 +3951,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_AC4R_17x13_Ctx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3753,7 +3968,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Set_32fc_AC4R_64x32_Ctx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -3770,7 +3986,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Set_8u_C2R_1x1_NonCtx) {
   const Npp8u nv[2] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3786,7 +4003,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C2R_17x13_NonCtx) {
   const Npp8u nv[2] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3802,7 +4020,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C2R_64x32_NonCtx) {
   const Npp8u nv[2] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3818,7 +4037,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4R_1x1_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3834,7 +4054,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4R_17x13_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3850,7 +4071,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4R_64x32_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3866,7 +4088,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3CR_1x1_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3882,7 +4105,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3CR_17x13_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3898,7 +4122,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3CR_64x32_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3914,7 +4139,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4CR_1x1_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3930,7 +4156,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4CR_17x13_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3946,7 +4173,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4CR_64x32_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3962,7 +4190,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C1MR_1x1_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -3982,7 +4211,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C1MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C1MR_17x13_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4002,7 +4232,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C1MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C1MR_64x32_NonCtx) {
   const Npp8u val = (Npp8u)130;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4022,7 +4253,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C1MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3MR_1x1_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4042,7 +4274,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3MR_17x13_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4062,7 +4295,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C3MR_64x32_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4082,7 +4316,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C3MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4MR_1x1_NonCtx) {
   const Npp8u nv[4] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80), (Npp8u)(100 + 120)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4102,7 +4337,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4MR_17x13_NonCtx) {
   const Npp8u nv[4] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80), (Npp8u)(100 + 120)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4122,7 +4358,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_C4MR_64x32_NonCtx) {
   const Npp8u nv[4] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80), (Npp8u)(100 + 120)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4142,7 +4379,8 @@ TEST_F(NppiSetDupDiff, Set_8u_C4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4MR_1x1_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 130u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4162,7 +4400,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4MR_17x13_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 1742u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4182,7 +4421,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8u_AC4MR_64x32_NonCtx) {
   const Npp8u nv[3] = {(Npp8u)(100 + 0), (Npp8u)(100 + 40), (Npp8u)(100 + 80)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8u> pre = dvx<Npp8u>(de, 6461u);
   DeviceMemory<Npp8u>& m = arena<Npp8u>(de); m.copyFromHost(pre);
@@ -4202,7 +4442,8 @@ TEST_F(NppiSetDupDiff, Set_8u_AC4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C2R_1x1_NonCtx) {
   const Npp16u nv[2] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4218,7 +4459,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C2R_17x13_NonCtx) {
   const Npp16u nv[2] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4234,7 +4476,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C2R_64x32_NonCtx) {
   const Npp16u nv[2] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4250,7 +4493,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4R_1x1_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4266,7 +4510,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4R_17x13_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4282,7 +4527,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4R_64x32_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4298,7 +4544,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3CR_1x1_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4314,7 +4561,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3CR_17x13_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4330,7 +4578,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3CR_64x32_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4346,7 +4595,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4CR_1x1_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4362,7 +4612,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4CR_17x13_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4378,7 +4629,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4CR_64x32_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4394,7 +4646,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C1MR_1x1_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4414,7 +4667,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C1MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C1MR_17x13_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4434,7 +4688,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C1MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C1MR_64x32_NonCtx) {
   const Npp16u val = (Npp16u)43210;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4454,7 +4709,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C1MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3MR_1x1_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4474,7 +4730,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3MR_17x13_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4494,7 +4751,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C3MR_64x32_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4514,7 +4772,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C3MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4MR_1x1_NonCtx) {
   const Npp16u nv[4] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000), (Npp16u)(20000 + 3 * 7000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4534,7 +4793,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4MR_17x13_NonCtx) {
   const Npp16u nv[4] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000), (Npp16u)(20000 + 3 * 7000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4554,7 +4814,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_C4MR_64x32_NonCtx) {
   const Npp16u nv[4] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000), (Npp16u)(20000 + 3 * 7000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4574,7 +4835,8 @@ TEST_F(NppiSetDupDiff, Set_16u_C4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4MR_1x1_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 130u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4594,7 +4856,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4MR_17x13_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 1742u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4614,7 +4877,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16u_AC4MR_64x32_NonCtx) {
   const Npp16u nv[3] = {(Npp16u)(20000 + 0 * 7000), (Npp16u)(20000 + 1 * 7000), (Npp16u)(20000 + 2 * 7000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16u> pre = dvx<Npp16u>(de, 6461u);
   DeviceMemory<Npp16u>& m = arena<Npp16u>(de); m.copyFromHost(pre);
@@ -4634,7 +4898,8 @@ TEST_F(NppiSetDupDiff, Set_16u_AC4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C2R_1x1_NonCtx) {
   const Npp16s nv[2] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4650,7 +4915,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C2R_17x13_NonCtx) {
   const Npp16s nv[2] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4666,7 +4932,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C2R_64x32_NonCtx) {
   const Npp16s nv[2] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4682,7 +4949,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4R_1x1_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4698,7 +4966,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4R_17x13_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4714,7 +4983,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4R_64x32_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4730,7 +5000,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3CR_1x1_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4746,7 +5017,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3CR_17x13_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4762,7 +5034,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3CR_64x32_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4778,7 +5051,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4CR_1x1_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4794,7 +5068,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4CR_17x13_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4810,7 +5085,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4CR_64x32_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4826,7 +5102,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C1MR_1x1_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4846,7 +5123,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C1MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C1MR_17x13_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4866,7 +5144,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C1MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C1MR_64x32_NonCtx) {
   const Npp16s val = (Npp16s)-21000;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4886,7 +5165,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C1MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3MR_1x1_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4906,7 +5186,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3MR_17x13_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4926,7 +5207,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C3MR_64x32_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4946,7 +5228,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C3MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4MR_1x1_NonCtx) {
   const Npp16s nv[4] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000), (Npp16s)(8000 - 3 * 6000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4966,7 +5249,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4MR_17x13_NonCtx) {
   const Npp16s nv[4] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000), (Npp16s)(8000 - 3 * 6000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -4986,7 +5270,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_C4MR_64x32_NonCtx) {
   const Npp16s nv[4] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000), (Npp16s)(8000 - 3 * 6000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -5006,7 +5291,8 @@ TEST_F(NppiSetDupDiff, Set_16s_C4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4MR_1x1_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 130u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -5026,7 +5312,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4MR_17x13_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 1742u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -5046,7 +5333,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16s_AC4MR_64x32_NonCtx) {
   const Npp16s nv[3] = {(Npp16s)(8000 - 0 * 6000), (Npp16s)(8000 - 1 * 6000), (Npp16s)(8000 - 2 * 6000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16s> pre = dvx<Npp16s>(de, 6461u);
   DeviceMemory<Npp16s>& m = arena<Npp16s>(de); m.copyFromHost(pre);
@@ -5066,7 +5354,8 @@ TEST_F(NppiSetDupDiff, Set_16s_AC4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C2R_1x1_NonCtx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5082,7 +5371,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C2R_17x13_NonCtx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5098,7 +5388,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C2R_64x32_NonCtx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5114,7 +5405,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4R_1x1_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5130,7 +5422,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4R_17x13_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5146,7 +5439,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4R_64x32_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5162,7 +5456,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3CR_1x1_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5178,7 +5473,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3CR_17x13_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5194,7 +5490,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3CR_64x32_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5210,7 +5507,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4CR_1x1_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5226,7 +5524,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4CR_17x13_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5242,7 +5541,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4CR_64x32_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5258,7 +5558,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C1MR_1x1_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5278,7 +5579,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C1MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C1MR_17x13_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5298,7 +5600,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C1MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C1MR_64x32_NonCtx) {
   const Npp32f val = 1.5f;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5318,7 +5621,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C1MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3MR_1x1_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5338,7 +5642,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3MR_17x13_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5358,7 +5663,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C3MR_64x32_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5378,7 +5684,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C3MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4MR_1x1_NonCtx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, -1.25f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5398,7 +5705,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4MR_17x13_NonCtx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, -1.25f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5418,7 +5726,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_C4MR_64x32_NonCtx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, -1.25f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5438,7 +5747,8 @@ TEST_F(NppiSetDupDiff, Set_32f_C4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4MR_1x1_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 130u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5458,7 +5768,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4MR_17x13_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 1742u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5478,7 +5789,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32f_AC4MR_64x32_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32f> pre = dvx<Npp32f>(de, 6461u);
   DeviceMemory<Npp32f>& m = arena<Npp32f>(de); m.copyFromHost(pre);
@@ -5498,7 +5810,8 @@ TEST_F(NppiSetDupDiff, Set_32f_AC4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C2R_1x1_NonCtx) {
   const Npp32s nv[2] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5514,7 +5827,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C2R_17x13_NonCtx) {
   const Npp32s nv[2] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5530,7 +5844,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C2R_64x32_NonCtx) {
   const Npp32s nv[2] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5546,7 +5861,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4R_1x1_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5562,7 +5878,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4R_17x13_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5578,7 +5895,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4R_64x32_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5594,7 +5912,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3CR_1x1_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5610,7 +5929,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3CR_17x13_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5626,7 +5946,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3CR_64x32_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5642,7 +5963,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4CR_1x1_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5658,7 +5980,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4CR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4CR_17x13_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5674,7 +5997,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4CR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4CR_64x32_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5690,7 +6014,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4CR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1MR_1x1_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5710,7 +6035,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1MR_17x13_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5730,7 +6056,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1MR_64x32_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5750,7 +6077,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3MR_1x1_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5770,7 +6098,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3MR_17x13_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5790,7 +6119,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3MR_64x32_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5810,7 +6140,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4MR_1x1_NonCtx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5830,7 +6161,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4MR_17x13_NonCtx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5850,7 +6182,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4MR_64x32_NonCtx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5870,7 +6203,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4MR_1x1_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5890,7 +6224,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4MR_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4MR_17x13_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5910,7 +6245,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4MR_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_AC4MR_64x32_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5930,7 +6266,8 @@ TEST_F(NppiSetDupDiff, Set_32s_AC4MR_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1R_1x1_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5946,7 +6283,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1R_17x13_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5962,7 +6300,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C1R_64x32_NonCtx) {
   const Npp32s val = (Npp32s)-1234567;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5978,7 +6317,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3R_1x1_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -5994,7 +6334,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3R_17x13_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -6010,7 +6351,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C3R_64x32_NonCtx) {
   const Npp32s nv[3] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -6026,7 +6368,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4R_1x1_NonCtx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 130u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -6042,7 +6385,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4R_17x13_NonCtx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 1742u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -6058,7 +6402,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32s_C4R_64x32_NonCtx) {
   const Npp32s nv[4] = {(Npp32s)(-300000 + 0 * 200000), (Npp32s)(-300000 + 1 * 200000), (Npp32s)(-300000 + 2 * 200000), (Npp32s)(-300000 + 3 * 200000)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32s> pre = dvx<Npp32s>(de, 6461u);
   DeviceMemory<Npp32s>& m = arena<Npp32s>(de); m.copyFromHost(pre);
@@ -6074,7 +6419,8 @@ TEST_F(NppiSetDupDiff, Set_32s_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C1R_1x1_NonCtx) {
   const Npp8s val = (Npp8s)-45;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6090,7 +6436,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C1R_17x13_NonCtx) {
   const Npp8s val = (Npp8s)-45;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6106,7 +6453,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C1R_64x32_NonCtx) {
   const Npp8s val = (Npp8s)-45;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6122,7 +6470,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C2R_1x1_NonCtx) {
   const Npp8s nv[2] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6138,7 +6487,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C2R_17x13_NonCtx) {
   const Npp8s nv[2] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6154,7 +6504,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C2R_64x32_NonCtx) {
   const Npp8s nv[2] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6170,7 +6521,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C3R_1x1_NonCtx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6186,7 +6538,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C3R_17x13_NonCtx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6202,7 +6555,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C3R_64x32_NonCtx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6218,7 +6572,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C4R_1x1_NonCtx) {
   const Npp8s nv[4] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20), (Npp8s)(30 - 3*20)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6234,7 +6589,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C4R_17x13_NonCtx) {
   const Npp8s nv[4] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20), (Npp8s)(30 - 3*20)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6250,7 +6606,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_C4R_64x32_NonCtx) {
   const Npp8s nv[4] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20), (Npp8s)(30 - 3*20)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6266,7 +6623,8 @@ TEST_F(NppiSetDupDiff, Set_8s_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_AC4R_1x1_NonCtx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 130u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6282,7 +6640,8 @@ TEST_F(NppiSetDupDiff, Set_8s_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_AC4R_17x13_NonCtx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 1742u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6298,7 +6657,8 @@ TEST_F(NppiSetDupDiff, Set_8s_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_8s_AC4R_64x32_NonCtx) {
   const Npp8s nv[3] = {(Npp8s)(30 - 0*20), (Npp8s)(30 - 1*20), (Npp8s)(30 - 2*20)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8s);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp8s> pre = dvx<Npp8s>(de, 6461u);
   DeviceMemory<Npp8s>& m = arena<Npp8s>(de); m.copyFromHost(pre);
@@ -6314,7 +6674,8 @@ TEST_F(NppiSetDupDiff, Set_8s_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C1R_1x1_NonCtx) {
   const Npp32u val = (Npp32u)0xF1234567u;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6330,7 +6691,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C1R_17x13_NonCtx) {
   const Npp32u val = (Npp32u)0xF1234567u;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6346,7 +6708,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C1R_64x32_NonCtx) {
   const Npp32u val = (Npp32u)0xF1234567u;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6362,7 +6725,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C2R_1x1_NonCtx) {
   const Npp32u nv[2] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u)};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6378,7 +6742,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C2R_17x13_NonCtx) {
   const Npp32u nv[2] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u)};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6394,7 +6759,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C2R_64x32_NonCtx) {
   const Npp32u nv[2] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u)};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6410,7 +6776,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C3R_1x1_NonCtx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6426,7 +6793,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C3R_17x13_NonCtx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6442,7 +6810,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C3R_64x32_NonCtx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6458,7 +6827,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C4R_1x1_NonCtx) {
   const Npp32u nv[4] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u), (Npp32u)(700000u + 3 * 250000u)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6474,7 +6844,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C4R_17x13_NonCtx) {
   const Npp32u nv[4] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u), (Npp32u)(700000u + 3 * 250000u)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6490,7 +6861,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_C4R_64x32_NonCtx) {
   const Npp32u nv[4] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u), (Npp32u)(700000u + 3 * 250000u)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6506,7 +6878,8 @@ TEST_F(NppiSetDupDiff, Set_32u_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_AC4R_1x1_NonCtx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 130u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6522,7 +6895,8 @@ TEST_F(NppiSetDupDiff, Set_32u_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_AC4R_17x13_NonCtx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 1742u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6538,7 +6912,8 @@ TEST_F(NppiSetDupDiff, Set_32u_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32u_AC4R_64x32_NonCtx) {
   const Npp32u nv[3] = {(Npp32u)(700000u + 0 * 250000u), (Npp32u)(700000u + 1 * 250000u), (Npp32u)(700000u + 2 * 250000u)};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32u);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32u> pre = dvx<Npp32u>(de, 6461u);
   DeviceMemory<Npp32u>& m = arena<Npp32u>(de); m.copyFromHost(pre);
@@ -6554,7 +6929,8 @@ TEST_F(NppiSetDupDiff, Set_32u_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C1R_1x1_NonCtx) {
   const Npp32f val = 2.5f;
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6570,7 +6946,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C1R_17x13_NonCtx) {
   const Npp32f val = 2.5f;
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6586,7 +6963,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C1R_64x32_NonCtx) {
   const Npp32f val = 2.5f;
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6602,7 +6980,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C2R_1x1_NonCtx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6618,7 +6997,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C2R_17x13_NonCtx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6634,7 +7014,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C2R_64x32_NonCtx) {
   const Npp32f nv[2] = {1.5f, -2.0f};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6650,7 +7031,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C3R_1x1_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6666,7 +7048,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C3R_17x13_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6682,7 +7065,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C3R_64x32_NonCtx) {
   const Npp32f nv[3] = {1.5f, -2.0f, 0.75f};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6698,7 +7082,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C4R_1x1_NonCtx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, 1.5f};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 130u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6714,7 +7099,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C4R_17x13_NonCtx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, 1.5f};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 1742u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6730,7 +7116,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16f_C4R_64x32_NonCtx) {
   const Npp32f nv[4] = {1.5f, -2.0f, 0.75f, 1.5f};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16f);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16f> pre = dvx<Npp16f>(de, 6461u);
   DeviceMemory<Npp16f>& m = arena<Npp16f>(de); m.copyFromHost(pre);
@@ -6746,7 +7133,8 @@ TEST_F(NppiSetDupDiff, Set_16f_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C1R_1x1_NonCtx) {
   const Npp16sc val = Npp16sc{(Npp16s)100,(Npp16s)-40};
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6762,7 +7150,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C1R_17x13_NonCtx) {
   const Npp16sc val = Npp16sc{(Npp16s)100,(Npp16s)-40};
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6778,7 +7167,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C1R_64x32_NonCtx) {
   const Npp16sc val = Npp16sc{(Npp16s)100,(Npp16s)-40};
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6794,7 +7184,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C2R_1x1_NonCtx) {
   const Npp16sc nv[2] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6810,7 +7201,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C2R_17x13_NonCtx) {
   const Npp16sc nv[2] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6826,7 +7218,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C2R_64x32_NonCtx) {
   const Npp16sc nv[2] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6842,7 +7235,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C3R_1x1_NonCtx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6858,7 +7252,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C3R_17x13_NonCtx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6874,7 +7269,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C3R_64x32_NonCtx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6890,7 +7286,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C4R_1x1_NonCtx) {
   const Npp16sc nv[4] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}, Npp16sc{(Npp16s)(103),(Npp16s)(-53)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6906,7 +7303,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C4R_17x13_NonCtx) {
   const Npp16sc nv[4] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}, Npp16sc{(Npp16s)(103),(Npp16s)(-53)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6922,7 +7320,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_C4R_64x32_NonCtx) {
   const Npp16sc nv[4] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}, Npp16sc{(Npp16s)(103),(Npp16s)(-53)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6938,7 +7337,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_AC4R_1x1_NonCtx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 130u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6954,7 +7354,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_AC4R_17x13_NonCtx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 1742u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6970,7 +7371,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_16sc_AC4R_64x32_NonCtx) {
   const Npp16sc nv[3] = {Npp16sc{(Npp16s)(100),(Npp16s)(-50)}, Npp16sc{(Npp16s)(101),(Npp16s)(-51)}, Npp16sc{(Npp16s)(102),(Npp16s)(-52)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp16sc> pre = dvx<Npp16sc>(de, 6461u);
   DeviceMemory<Npp16sc>& m = arena<Npp16sc>(de); m.copyFromHost(pre);
@@ -6986,7 +7388,8 @@ TEST_F(NppiSetDupDiff, Set_16sc_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C1R_1x1_NonCtx) {
   const Npp32sc val = Npp32sc{(Npp32s)123456,(Npp32s)-654321};
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7002,7 +7405,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C1R_17x13_NonCtx) {
   const Npp32sc val = Npp32sc{(Npp32s)123456,(Npp32s)-654321};
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7018,7 +7422,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C1R_64x32_NonCtx) {
   const Npp32sc val = Npp32sc{(Npp32s)123456,(Npp32s)-654321};
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7034,7 +7439,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C2R_1x1_NonCtx) {
   const Npp32sc nv[2] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7050,7 +7456,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C2R_17x13_NonCtx) {
   const Npp32sc nv[2] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7066,7 +7473,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C2R_64x32_NonCtx) {
   const Npp32sc nv[2] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7082,7 +7490,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C3R_1x1_NonCtx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7098,7 +7507,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C3R_17x13_NonCtx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7114,7 +7524,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C3R_64x32_NonCtx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7130,7 +7541,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C4R_1x1_NonCtx) {
   const Npp32sc nv[4] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}, Npp32sc{(Npp32s)(10003),(Npp32s)(-5003)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7146,7 +7558,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C4R_17x13_NonCtx) {
   const Npp32sc nv[4] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}, Npp32sc{(Npp32s)(10003),(Npp32s)(-5003)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7162,7 +7575,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_C4R_64x32_NonCtx) {
   const Npp32sc nv[4] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}, Npp32sc{(Npp32s)(10003),(Npp32s)(-5003)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7178,7 +7592,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_AC4R_1x1_NonCtx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 130u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7194,7 +7609,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_AC4R_17x13_NonCtx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 1742u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7210,7 +7626,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32sc_AC4R_64x32_NonCtx) {
   const Npp32sc nv[3] = {Npp32sc{(Npp32s)(10000),(Npp32s)(-5000)}, Npp32sc{(Npp32s)(10001),(Npp32s)(-5001)}, Npp32sc{(Npp32s)(10002),(Npp32s)(-5002)}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32sc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32sc> pre = dvx<Npp32sc>(de, 6461u);
   DeviceMemory<Npp32sc>& m = arena<Npp32sc>(de); m.copyFromHost(pre);
@@ -7226,7 +7643,8 @@ TEST_F(NppiSetDupDiff, Set_32sc_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C1R_1x1_NonCtx) {
   const Npp32fc val = Npp32fc{1.25f,-2.5f};
   const int w = 1, h = 1, stride = 1, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7242,7 +7660,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C1R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C1R_17x13_NonCtx) {
   const Npp32fc val = Npp32fc{1.25f,-2.5f};
   const int w = 17, h = 13, stride = 1, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7258,7 +7677,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C1R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C1R_64x32_NonCtx) {
   const Npp32fc val = Npp32fc{1.25f,-2.5f};
   const int w = 64, h = 32, stride = 1, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7274,7 +7694,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C1R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C2R_1x1_NonCtx) {
   const Npp32fc nv[2] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 1, h = 1, stride = 2, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7290,7 +7711,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C2R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C2R_17x13_NonCtx) {
   const Npp32fc nv[2] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 17, h = 13, stride = 2, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7306,7 +7728,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C2R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C2R_64x32_NonCtx) {
   const Npp32fc nv[2] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 64, h = 32, stride = 2, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7322,7 +7745,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C2R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C3R_1x1_NonCtx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7338,7 +7762,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C3R_17x13_NonCtx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7354,7 +7779,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C3R_64x32_NonCtx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7370,7 +7796,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C4R_1x1_NonCtx) {
   const Npp32fc nv[4] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7386,7 +7813,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C4R_17x13_NonCtx) {
   const Npp32fc nv[4] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7402,7 +7830,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_C4R_64x32_NonCtx) {
   const Npp32fc nv[4] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7418,7 +7847,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_AC4R_1x1_NonCtx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 130u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7434,7 +7864,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_AC4R_17x13_NonCtx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 1742u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7450,7 +7881,8 @@ TEST_F(NppiSetDupDiff, Set_32fc_AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Set_32fc_AC4R_64x32_NonCtx) {
   const Npp32fc nv[3] = {Npp32fc{1.0f,-0.5f}, Npp32fc{-1.0f,0.25f}, Npp32fc{1.0f,-0.5f}};
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32fc);
-  const int step = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int pixel = stride * es;
+  const int step = ((w * pixel + 16 + pixel - 1) / pixel) * pixel;
   const size_t de = (size_t)h * step / es;
   std::vector<Npp32fc> pre = dvx<Npp32fc>(de, 6461u);
   DeviceMemory<Npp32fc>& m = arena<Npp32fc>(de); m.copyFromHost(pre);
@@ -7467,7 +7899,7 @@ TEST_F(NppiSetDupDiff, Set_32fc_AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 112u);
@@ -7486,7 +7918,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 1724u);
@@ -7505,7 +7937,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 6443u);
@@ -7524,7 +7956,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 112u);
@@ -7543,7 +7975,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 1724u);
@@ -7562,7 +7994,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 6443u);
@@ -7581,7 +8013,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 112u);
@@ -7600,7 +8032,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 1724u);
@@ -7619,7 +8051,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 6443u);
@@ -7638,7 +8070,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 112u);
@@ -7657,7 +8089,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 1724u);
@@ -7676,7 +8108,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 6443u);
@@ -7695,7 +8127,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 112u);
@@ -7714,7 +8146,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 1724u);
@@ -7733,7 +8165,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 6443u);
@@ -7752,7 +8184,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 112u);
@@ -7771,7 +8203,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 1724u);
@@ -7790,7 +8222,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 6443u);
@@ -7809,7 +8241,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 112u);
@@ -7828,7 +8260,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 1724u);
@@ -7847,7 +8279,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 6443u);
@@ -7866,7 +8298,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 112u);
@@ -7885,7 +8317,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 1724u);
@@ -7904,7 +8336,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 6443u);
@@ -7923,7 +8355,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 112u);
@@ -7942,7 +8374,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 1724u);
@@ -7961,7 +8393,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 6443u);
@@ -7980,7 +8412,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 112u);
@@ -7999,7 +8431,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 1724u);
@@ -8018,7 +8450,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 6443u);
@@ -8037,7 +8469,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 112u);
@@ -8056,7 +8488,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 1724u);
@@ -8075,7 +8507,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 6443u);
@@ -8094,7 +8526,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 112u);
@@ -8113,7 +8545,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 1724u);
@@ -8132,7 +8564,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 6443u);
@@ -8151,7 +8583,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 112u);
@@ -8170,7 +8602,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 1724u);
@@ -8189,7 +8621,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 6443u);
@@ -8208,7 +8640,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 112u);
@@ -8227,7 +8659,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 1724u);
@@ -8246,7 +8678,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 6443u);
@@ -8265,7 +8697,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_1x1_Ctx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 112u);
@@ -8284,7 +8716,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_1x1_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_17x13_Ctx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 1724u);
@@ -8303,7 +8735,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_17x13_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_64x32_Ctx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 6443u);
@@ -8323,7 +8755,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_64x32_Ctx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 112u);
@@ -8342,7 +8774,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 1724u);
@@ -8361,7 +8793,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 6443u);
@@ -8380,7 +8812,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 112u);
@@ -8399,7 +8831,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 1724u);
@@ -8418,7 +8850,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 6443u);
@@ -8437,7 +8869,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 112u);
@@ -8456,7 +8888,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 1724u);
@@ -8475,7 +8907,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16s> p= dvx<Npp16s>(se, 6443u);
@@ -8494,7 +8926,7 @@ TEST_F(NppiSetDupDiff, Dup_16s_C1AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 112u);
@@ -8513,7 +8945,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 1724u);
@@ -8532,7 +8964,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 6443u);
@@ -8551,7 +8983,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 112u);
@@ -8570,7 +9002,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 1724u);
@@ -8589,7 +9021,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 6443u);
@@ -8608,7 +9040,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 112u);
@@ -8627,7 +9059,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 1724u);
@@ -8646,7 +9078,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp16u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp16u> p= dvx<Npp16u>(se, 6443u);
@@ -8665,7 +9097,7 @@ TEST_F(NppiSetDupDiff, Dup_16u_C1AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 112u);
@@ -8684,7 +9116,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 1724u);
@@ -8703,7 +9135,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 6443u);
@@ -8722,7 +9154,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 112u);
@@ -8741,7 +9173,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 1724u);
@@ -8760,7 +9192,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 6443u);
@@ -8779,7 +9211,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 112u);
@@ -8798,7 +9230,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 1724u);
@@ -8817,7 +9249,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32f);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32f> p= dvx<Npp32f>(se, 6443u);
@@ -8836,7 +9268,7 @@ TEST_F(NppiSetDupDiff, Dup_32f_C1AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 112u);
@@ -8855,7 +9287,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 1724u);
@@ -8874,7 +9306,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 6443u);
@@ -8893,7 +9325,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 112u);
@@ -8912,7 +9344,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 1724u);
@@ -8931,7 +9363,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 6443u);
@@ -8950,7 +9382,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 112u);
@@ -8969,7 +9401,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 1724u);
@@ -8988,7 +9420,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp32s);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp32s> p= dvx<Npp32s>(se, 6443u);
@@ -9007,7 +9439,7 @@ TEST_F(NppiSetDupDiff, Dup_32s_C1AC4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 3, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 112u);
@@ -9026,7 +9458,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 3, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 1724u);
@@ -9045,7 +9477,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 3, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 6443u);
@@ -9064,7 +9496,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C3R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 112u);
@@ -9083,7 +9515,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 1724u);
@@ -9102,7 +9534,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 6443u);
@@ -9121,7 +9553,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1C4R_64x32_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_1x1_NonCtx) {
   const int w = 1, h = 1, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 112u);
@@ -9140,7 +9572,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_1x1_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_17x13_NonCtx) {
   const int w = 17, h = 13, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 1724u);
@@ -9159,7 +9591,7 @@ TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_17x13_NonCtx) {
 TEST_F(NppiSetDupDiff, Dup_8u_C1AC4R_64x32_NonCtx) {
   const int w = 64, h = 32, stride = 4, es = (int)sizeof(Npp8u);
   const int sStep = ((w * es + 16 + es - 1) / es) * es;
-  const int dStep = ((w * stride * es + 16 + es - 1) / es) * es;
+  const int dStep = ((w * stride * es + 16 + stride * es - 1) / (stride * es)) * (stride * es);
   const size_t se = (size_t)h * sStep / es;
   const size_t de = (size_t)h * dStep / es;
   std::vector<Npp8u> p= dvx<Npp8u>(se, 6443u);
@@ -9185,12 +9617,12 @@ TEST_F(NppiSetDupDiff, Contract_SetNullDst) {
 }
 
 TEST_F(NppiSetDupDiff, Contract_SetEmptyROI) {
-  DeviceMemory<Npp32f>& m = arena<Npp32f>(16);
-  m.copyFromHost(dvx<Npp32f>(16, 9));
-  const Npp32f va4[4] = {1.f, 2.f, 3.f, 4.f};
+  DeviceMemory<Npp8u>& m = arena<Npp8u>(16);
+  m.copyFromHost(dvx<Npp8u>(16, 9));
+  const Npp8u va2[2] = {1, 2};
   clear_cuda_error();
-  NppStatus st = nppiSet_32f_C4R_Ctx(va4, m.get(), 16, NppiSize{0, 1}, current_ctx());
-  Case c("nppiSet/contract/empty", "nppiSet_32f_C4R_Ctx");
+  NppStatus st = nppiSet_8u_C2R_Ctx(va2, m.get(), 8, NppiSize{0, 1}, current_ctx());
+  Case c("nppiSet/contract/empty", "nppiSet_8u_C2R_Ctx");
   c.status(st); c.finish();
 }
 
