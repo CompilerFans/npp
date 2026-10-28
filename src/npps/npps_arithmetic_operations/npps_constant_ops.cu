@@ -37,17 +37,18 @@ __device__ __host__ D div_round_even(long long num, long long den) {
   return ek::sat_ll<D>(q);
 }
 
-// float -> integer with right-shift scaling (divide by 2^sf), round-half-to-even,
-// then saturate to the destination component type.
+
+// integer division with round-half-away-from-zero (nppsNormalize real).
 template <typename D>
-__device__ __host__ D float_to_sat(long double v, int sf) {
-  if (sf > 0) {
-    long double s = 1.0L;
-    for (int i = 0; i < sf; ++i) s *= 2.0L;
-    v /= s;
-  }
-  return ek::sat_ll<D>(static_cast<long long>(llrint(static_cast<double>(v))));
+__device__ __host__ D div_round_away(long long num, long long den) {
+  if (den == 0) return ek::sat_ll<D>(std::numeric_limits<long long>::max());
+  long double q = (long double)num / (long double)den;
+  long long r;
+  if (q >= 0.0L) r = (long long)(q + 0.5L);
+  else r = - (long long)(-q + 0.5L);
+  return ek::sat_ll<D>(r);
 }
+
 }  // namespace
 
 namespace kernel {
@@ -165,9 +166,12 @@ struct DivCOp {
         else { c.re=(C)((ar*br + ai*bi)/den); c.im=(C)((ai*br - ar*bi)/den); }
         return c;
       } else {
-        long long ar=ek::re_ll(a), ai=ek::im_ll(a), bv=ek::re_ll(b);
-        long long den = bv << sf;
-        D c; c.re=(C)(div_round_even<C>(ar, den)); c.im=(C)(div_round_even<C>(ai, den)); return c;
+        long long ar=ek::re_ll(a), ai=ek::im_ll(a), br=ek::re_ll(b), bi=ek::im_ll(b);
+        long long den = (br*br + bi*bi) << sf;
+        D c;
+        if (den == 0) { c.re=(C)0; c.im=(C)0; }
+        else { c.re=(C)(div_round_even<C>(ar*br + ai*bi, den)); c.im=(C)(div_round_even<C>(ai*br - ar*bi, den)); }
+        return c;
       }
     } else {
       if constexpr (std::is_floating_point_v<D>) return (A)(ek::re_l(a) / ek::re_l(b));
@@ -207,15 +211,19 @@ struct XorCOp {
 struct MulCF2I16Op {
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
-    return float_to_sat<D>(ek::re_l(a) * ek::re_l(b), sf);
+    double v = (double)ek::re_l(a) * (double)ek::re_l(b);
+    v = ldexp(v, -sf);
+    return ek::sat_ll<D>(static_cast<long long>(llrint(v)));
   }
 };
 
 struct MulCF2I64Op {
+  // NPP 13.4 rounds toward +infinity (validated on the 5090).
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
-    long double v = static_cast<long double>(a) * static_cast<long double>(b);
-    return float_to_sat<D>(v, sf);
+    double v = (double)a * (double)b;
+    v = ldexp(v, -sf);
+    return ek::sat_ll<D>(static_cast<long long>(ceil(v)));
   }
 };
 
@@ -223,7 +231,7 @@ struct MulCLowOp {
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
     (void)sf;
-    return static_cast<D>(static_cast<long>(ek::re_l(a) * ek::re_l(b)));
+    return ek::sat_ll<D>(static_cast<long long>(llrint(static_cast<double>(ek::re_l(a) * ek::re_l(b)))));
   }
 };
 
@@ -241,11 +249,17 @@ struct NormalizeOp {
     } else {
       long long num = ek::re_ll(x) - ek::re_ll(vSub);
       long long den = (long long)ek::re_ll(vDiv) << sf;
+      auto cx_rt = [&](long long nn)->C {
+        long double vv = (long double)nn / (long double)den;
+        if (vv >= 0.0L) return (C)static_cast<long long>(vv + 0.5L);
+        return (C)static_cast<long long>(vv);  // trunc toward zero for negatives (NPP observed on 16sc)
+      };
       if constexpr (ed::is_complex_v<D>) {
         long long numi = ek::im_ll(x) - ek::im_ll(vSub);
-        D c; c.re=(C)((div_round_even<C>(num, den))); c.im=(C)((div_round_even<C>(numi, den))); return c;
+        D c; c.re=(C)cx_rt(num); c.im=(C)cx_rt(numi); return c;
       } else {
-        return div_round_even<D>(num, den);
+        // round-half-away-from-zero (NPP observed: -1506.5 -> -1507)
+        return div_round_away<D>(num, den);
       }
     }
   }
@@ -256,8 +270,7 @@ namespace {
 template <typename F, typename A>
 NppStatus run_constant(const A * src, A value, A * dst, NppSignalLength nLength, int sf, cudaStream_t stream) {
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
@@ -268,8 +281,7 @@ NppStatus run_constant(const A * src, A value, A * dst, NppSignalLength nLength,
 template <typename F, typename AIN, typename V, typename AOUT>
 NppStatus run_mixed(const AIN* src, V value, AOUT* dst, NppSignalLength nLength, int sf, cudaStream_t stream) {
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
@@ -280,8 +292,7 @@ NppStatus run_mixed(const AIN* src, V value, AOUT* dst, NppSignalLength nLength,
 template <typename F, typename V, typename AOUT>
 NppStatus run_inplace_mixed(V value, AOUT* dst, NppSignalLength n_len, int sf, cudaStream_t stream) {
   if (!dst) return NPP_NULL_POINTER_ERROR;
-  if (n_len < 0) return NPP_SIZE_ERROR;
-  if (n_len == 0) return NPP_NO_ERROR;
+  if (n_len == 0) return NPP_SIZE_ERROR;
   const size_t n = (size_t)n_len;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
@@ -292,8 +303,7 @@ NppStatus run_inplace_mixed(V value, AOUT* dst, NppSignalLength n_len, int sf, c
 template <typename A, typename V>
 NppStatus run_acc(const A* src, V value, A* dst, NppSignalLength n_len, cudaStream_t stream) {
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
-  if (n_len < 0) return NPP_SIZE_ERROR;
-  if (n_len == 0) return NPP_NO_ERROR;
+  if (n_len == 0) return NPP_SIZE_ERROR;
   const size_t n = (size_t)n_len;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
@@ -303,8 +313,7 @@ NppStatus run_acc(const A* src, V value, A* dst, NppSignalLength n_len, cudaStre
 template <typename F, typename A, typename DV>
 NppStatus run_normalize(const A* src, A vSub, DV vDiv, A* dst, NppSignalLength nLength, int sf, cudaStream_t stream) {
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
-  if (nLength < 0) return NPP_SIZE_ERROR;
-  if (nLength == 0) return NPP_NO_ERROR;
+  if (nLength == 0) return NPP_SIZE_ERROR;
   const size_t n = (size_t)nLength;
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();

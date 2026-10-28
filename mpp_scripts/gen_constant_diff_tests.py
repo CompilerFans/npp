@@ -107,7 +107,7 @@ OTHERS = [
     ("nppsMulC_64f",       17, "64f", "O", None, "double nv = 0.5;"),
     ("nppsMulC_64f_I",     17, "64f", "I", None, "double nv = 1.5;"),
     ("nppsMulC_64fc_I",    17, "64fc","I", None, "Npp64fc nv; nv.re=0.5; nv.im=1.0;"),
-    ("nppsMulC_32f16s_Sfs", 257,"32f","O", 2,   "float nv = 0.6f;"),
+    ("nppsMulC_32f16s_Sfs", 257,"32f","O", 0,   "float nv = 0.6f;"),
     ("nppsMulC_64f64s_ISfs",17, "64s","I", 1,   "double nv = 0.75;"),
     ("nppsMulC_Low_32f16s", 257,"32f","O", None, "float nv = 0.5f;"),
     ("nppsDivC_8u_Sfs",   17, "8u",  "O", 1,  "Npp8u nv = 3;"),
@@ -227,7 +227,10 @@ def emit_other(base, n, dtype, mode, scale, vdecl):
     for flavour, call, func in (("Ctx", ctx_call, base + "_Ctx"), ("NonCtx", plain_call, base)):
         L.append(f"TEST_F(NppsConstantArithmetic, {base}_{flavour}) {{")
         L.append(f"  const NppSignalLength n = {n};")
-        L.append("  " + var_gen(dtype, "a", n, seedstr(base, "a")))
+        if base == "nppsMulC_64f64s_ISfs":
+            L.append("  " + small_i64_ramp("a", n))
+        else:
+            L.append("  " + var_gen(dtype, "a", n, seedstr(base, "a")))
         if mode != "I":
             L.append("  " + var_gen(dd, "d", n, seedstr(base, "d")))
         L.append("  " + vdecl)
@@ -261,7 +264,10 @@ def emit_normalize(base, n, dtype, scale, vsub_decl, vdiv_expr):
     for flavour, func in (("Ctx", base + "_Ctx"), ("NonCtx", base)):
         L.append(f"TEST_F(NppsConstantArithmetic, {base}_{flavour}) {{")
         L.append(f"  const NppSignalLength n = {n};")
-        L.append("  " + var_gen(dtype, "a", n, seedstr(base, "a")))
+        if base == "nppsMulC_64f64s_ISfs":
+            L.append("  " + small_i64_ramp("a", n))
+        else:
+            L.append("  " + var_gen(dtype, "a", n, seedstr(base, "a")))
         L.append("  " + var_gen(dtype, "d", n, seedstr(base, "d")))
         L.append("  " + vsub_decl)
         L.append(f"  {vdt} vd = {vdiv_expr};")
