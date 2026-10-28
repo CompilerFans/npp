@@ -1,6 +1,6 @@
 # NPP API 全量实现进度账本
 
-> 最后更新：2026-10-28
+> 最后更新：2026-10-29
 > 集成分支：`feat/npp-api-expansion`（基于 `dev` @ `3a81f00`）
 > 公共契约：`API/`（API-unified）
 > 参考实现：NVIDIA NPP 13.4 / RTX 5090 / CUDA 13.4
@@ -10,11 +10,11 @@
 | 指标 | 数值 |
 |---|---:|
 | 公共函数 | 12,537 |
-| 真实实现 | 4,838 |
+| 真实实现 | 4,948 |
 | 显式 stub | 166 |
-| 缺失 | 7,533 |
-| 待实现（stub+missing） | 7,699 |
-| 待实现 `_Ctx` | 3,904 |
+| 缺失 | 7,423 |
+| 待实现（stub+missing） | 7,589 |
+| 待实现 `_Ctx` | 3,849 |
 | 本地回归基线 | 4,803 tests, 0 failures |
 
 ## 2. 基础设施（已完成）
@@ -44,7 +44,7 @@
 | P2.1a | NPPI Convert 数据类型转换 | 200 | ✅ 已实现 | `pkg/p2.1a` → `ed8a5bd` |
 | P2.1b | NPPI Copy（packed/planar/planar↔packed） | 160 | ✅ 已合并 | `pkg/p2.1b` → merge |
 | P2.1c | NPPI Set / Dup | 174 | ✅ 已合并 | `pkg/p2.1c` → merge |
-| P2.2a | NPPI SwapChannels / CopySubpix | 110 | 运行中 | `pkg/p2.2a` |
+| P2.2a | NPPI SwapChannels / CopySubpix | 110 | ✅ 已实现 | `pkg/p2.2a` → `5db538e` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
