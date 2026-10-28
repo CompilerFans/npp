@@ -10,11 +10,11 @@
 | 指标 | 数值 |
 |---|---:|
 | 公共函数 | 12,537 |
-| 真实实现 | 4,948 |
+| 真实实现 | 5,130 |
 | 显式 stub | 166 |
-| 缺失 | 7,423 |
-| 待实现（stub+missing） | 7,589 |
-| 待实现 `_Ctx` | 3,849 |
+| 缺失 | 7,241 |
+| 待实现（stub+missing） | 7,407 |
+| 待实现 `_Ctx` | 3,758 |
 | 本地回归基线 | 4,803 tests, 0 failures |
 
 ## 2. 基础设施（已完成）
@@ -46,6 +46,7 @@
 | P2.1c | NPPI Set / Dup | 174 | ✅ 已合并 | `pkg/p2.1c` → merge |
 | P2.2a | NPPI SwapChannels / CopySubpix | 110 | ✅ 已实现 | `pkg/p2.2a` → `5db538e` |
 | P2.2b | NPPI Scale / 边界复制 | 182 | ✅ 已实现 | `pkg/p2.2b` → `66bf923` |
+| P2.3 | NPPI 阈值 / 比较 | 366 | 运行中 | `pkg/p2.3` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
