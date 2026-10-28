@@ -60,6 +60,14 @@ fi
 # shellcheck disable=SC1090
 source "$AGENT_ENV"
 
+# Fresh worktrees have no CMake cache; point FindCUDAToolkit at the cu-bridge
+# toolkit so ./build.sh can configure without a pre-existing build directory.
+BUILD_ENV="${MCPP_BUILD_ENV:-$HOME/.config/mcpp-build.env}"
+if [[ -f "$BUILD_ENV" ]]; then
+  # shellcheck disable=SC1090
+  source "$BUILD_ENV"
+fi
+
 mkdir -p "$LOG_DIR"
 stamp="$(date +%Y%m%d-%H%M%S)"
 log="$LOG_DIR/$pkg-$stamp.log"
@@ -79,7 +87,7 @@ echo ">> branch  : $branch"
 echo ">> log     : $log"
 echo ">> model   : ${ANTHROPIC_MODEL:-<unset>}"
 
-cmd=(claude -p --permission-mode bypassPermissions
+cmd=(claude -p --bare --permission-mode bypassPermissions
      --append-system-prompt "$system_prompt"
      "$prompt")
 

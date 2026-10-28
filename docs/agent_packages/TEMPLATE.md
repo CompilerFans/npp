@@ -53,6 +53,8 @@ python3 tools/make_package_list.py --package <包编号>
 ## 3. 验证
 
 ```bash
+# Fresh worktrees need the cu-bridge toolkit root for FindCUDAToolkit:
+source ~/.config/mcpp-build.env
 ./build.sh
 NPP_VERIFY_DIR=artifacts/5090/npp_records LD_LIBRARY_PATH=build/src \
   ./build/diff_tests --gtest_filter='<Suite>*'
