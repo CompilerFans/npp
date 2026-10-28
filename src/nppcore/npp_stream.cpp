@@ -22,7 +22,7 @@ struct ManagedStreamState {
 };
 
 std::mutex g_managedStreamMutex;
-ManagedStreamState g_managedStreamState;
+thread_local ManagedStreamState g_managedStreamState;
 
 ManagedStreamState getManagedStreamState() {
   std::lock_guard<std::mutex> lock(g_managedStreamMutex);

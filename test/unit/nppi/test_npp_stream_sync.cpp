@@ -28,6 +28,9 @@
 
 #include <cuda_runtime.h>
 
+#include <cstring>
+#include <thread>
+#include <atomic>
 #include <vector>
 
 using namespace npp_functional_test;
@@ -800,4 +803,115 @@ TEST_F(NppStreamSyncTest, WarpPerspectiveBatchInit_CtxIsOrderedWithContextStream
       }
     }
   }
+}
+
+// Customer report: repeated NV12ToBGR conversions with the same input produced
+// different output.  When nppSetStream()/nppGetStreamContext() are out of sync
+// the kernel runs on the legacy stream while the caller synchronizes its own
+// stream and reads a partially updated buffer, so every run differs.
+//
+// With the managed stream honored, both the Ctx (using the context returned by
+// nppGetStreamContext()) and the non-Ctx entry points must produce identical
+// output on every synchronized run.
+TEST_F(NppStreamSyncTest, NV12ToBGR_ManagedStreamProducesStableOutput) {
+  constexpr int kW = 1920;
+  constexpr int kH = 1080; // NV12 requires even dimensions
+
+  ManagedStreamGuard restoreStream;
+  cudaStream_t stream = nullptr;
+  ASSERT_EQ(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking), cudaSuccess);
+
+  Npp8u *dY = nullptr;
+  Npp8u *dUV = nullptr;
+  int dstStep = 0;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dY), static_cast<size_t>(kW) * kH), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dUV), static_cast<size_t>(kW) * kH / 2), cudaSuccess);
+  Npp8u *dDst = nppiMalloc_8u_C3(kW, kH, &dstStep);
+  ASSERT_NE(dDst, nullptr);
+
+  std::vector<Npp8u> y(static_cast<size_t>(kW) * kH);
+  std::vector<Npp8u> uv(static_cast<size_t>(kW) * kH / 2);
+  for (size_t i = 0; i < y.size(); ++i) {
+    y[i] = static_cast<Npp8u>((i * 37 + 11) & 0xFF);
+  }
+  for (size_t i = 0; i < uv.size(); ++i) {
+    uv[i] = static_cast<Npp8u>((i * 53 + 7) & 0xFF);
+  }
+  ASSERT_EQ(cudaMemcpy(dY, y.data(), y.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(dUV, uv.data(), uv.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  // Customer flow: set the managed stream, then read the context back.
+  nppSetStream(stream);
+  NppStreamContext ctx{};
+  ASSERT_EQ(nppGetStreamContext(&ctx), NPP_NO_ERROR);
+  EXPECT_EQ(ctx.hStream, stream) << "nppGetStreamContext() did not report the managed stream";
+
+  const Npp8u *pSrc[2] = {dY, dUV};
+  const NppiSize roi = {kW, kH};
+  const size_t dstBytes = static_cast<size_t>(dstStep) * kH;
+  std::vector<Npp8u> reference(dstBytes);
+  std::vector<Npp8u> current(dstBytes);
+
+  auto runAndCompare = [&](const char *entryPoint, auto &&convert, int iterations) {
+    for (int i = 0; i < iterations; ++i) {
+      // Prefill on the managed stream so the comparison also covers row
+      // padding, then synchronize the same stream before reading back.
+      ASSERT_EQ(cudaMemsetAsync(dDst, 0xA5, dstBytes, stream), cudaSuccess);
+      ASSERT_EQ(convert(), NPP_NO_ERROR);
+      ASSERT_EQ(cudaStreamSynchronize(stream), cudaSuccess);
+      ASSERT_EQ(cudaMemcpy(current.data(), dDst, dstBytes, cudaMemcpyDeviceToHost), cudaSuccess);
+      if (i == 0) {
+        reference = current;
+      } else {
+        EXPECT_EQ(std::memcmp(reference.data(), current.data(), dstBytes), 0)
+            << entryPoint << " NV12ToBGR output changed on iteration " << i;
+      }
+    }
+  };
+
+  runAndCompare(
+      "Ctx", [&] { return nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, kW, dDst, dstStep, roi, ctx); }, 10);
+#ifndef USE_NVIDIA_NPP_TESTS
+  // NVIDIA NPP 13 only declares the _Ctx entry point.
+  runAndCompare(
+      "non-Ctx", [&] { return nppiNV12ToBGR_8u_P2C3R(pSrc, kW, dDst, dstStep, roi); }, 10);
+#endif
+
+  nppSetStream(nullptr);
+  nppiFree(dDst);
+  cudaFree(dY);
+  cudaFree(dUV);
+  cudaStreamDestroy(stream);
+}
+
+// The managed stream is per-thread state (matching NVIDIA NPP).  A worker
+// thread must not see or overwrite the stream set by another thread; parallel
+// pipelines that call nppSetStream() per thread must not interfere.
+TEST_F(NppStreamSyncTest, ManagedStream_IsThreadLocal) {
+  ManagedStreamGuard restoreStream;
+  cudaStream_t mainStream = nullptr;
+  ASSERT_EQ(cudaStreamCreateWithFlags(&mainStream, cudaStreamNonBlocking), cudaSuccess);
+  ASSERT_EQ(nppSetStream(mainStream), NPP_NO_ERROR);
+
+  std::atomic<bool> workerOk{true};
+  std::thread worker([&]() {
+    if (nppGetStream() != nullptr) {
+      workerOk = false;
+    }
+    cudaStream_t workerStream = nullptr;
+    if (cudaStreamCreateWithFlags(&workerStream, cudaStreamNonBlocking) != cudaSuccess) {
+      workerOk = false;
+      return;
+    }
+    if (nppSetStream(workerStream) != NPP_NO_ERROR || nppGetStream() != workerStream) {
+      workerOk = false;
+    }
+    cudaStreamDestroy(workerStream);
+  });
+  worker.join();
+
+  EXPECT_TRUE(workerOk.load());
+  EXPECT_EQ(nppGetStream(), mainStream);
+  EXPECT_EQ(nppSetStream(nullptr), NPP_NO_ERROR);
+  cudaStreamDestroy(mainStream);
 }

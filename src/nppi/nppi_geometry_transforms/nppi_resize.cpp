@@ -393,6 +393,7 @@ NppStatus nppiResizeSqrPixel_8u_C1R(const Npp8u *pSrc, NppiSize oSrcSize, int nS
                                      double nXFactor, double nYFactor, double nXShift, double nYShift,
                                      int eInterpolation) {
   NppStreamContext context{};
+  nppGetStreamContext(&context);
   return nppiResizeSqrPixel_8u_C1R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
                                         nXFactor, nYFactor, nXShift, nYShift, eInterpolation, context);
 }
@@ -415,6 +416,7 @@ NppStatus nppiResizeSqrPixel_8u_C3R(const Npp8u *pSrc, NppiSize oSrcSize, int nS
                                      double nXFactor, double nYFactor, double nXShift, double nYShift,
                                      int eInterpolation) {
   NppStreamContext context{};
+  nppGetStreamContext(&context);
   return nppiResizeSqrPixel_8u_C3R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
                                         nXFactor, nYFactor, nXShift, nYShift, eInterpolation, context);
 }
@@ -437,6 +439,7 @@ NppStatus nppiResizeSqrPixel_8u_C4R(const Npp8u *pSrc, NppiSize oSrcSize, int nS
                                      double nXFactor, double nYFactor, double nXShift, double nYShift,
                                      int eInterpolation) {
   NppStreamContext context{};
+  nppGetStreamContext(&context);
   return nppiResizeSqrPixel_8u_C4R_Ctx(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI,
                                         nXFactor, nYFactor, nXShift, nYShift, eInterpolation, context);
 }

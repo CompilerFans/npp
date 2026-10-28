@@ -494,4 +494,26 @@ TEST_F(YCbCr420LayoutTest, Validation) {
   EXPECT_EQ(nppiYCrCb420ToYCbCr411_8u_P3P2R(pSrc, srcSteps, d_dstY, dstYStep, d_dst411, dst411Step,
                                             NppiSize{width + 2, height}),
             NPP_WRONG_INTERSECTION_ROI_ERROR);
+
+  // Minimum destination steps for luma, chroma and packed outputs.
+  EXPECT_EQ(nppiYCbCr420_8u_P3P2R(pSrc, srcSteps, d_dstY, width - 1, d_dst411, dst411Step,
+                                  NppiSize{width, height}),
+            NPP_STEP_ERROR);
+  int badDst422Steps[3] = {width - 1, width / 2, width / 2};
+  EXPECT_EQ(nppiYCbCr420ToYCbCr422_8u_P3R(pSrc, srcSteps, pDst422, badDst422Steps, NppiSize{width, height}),
+            NPP_STEP_ERROR);
+  EXPECT_EQ(nppiYCbCr420ToYCbCr422_8u_P2C2R(d_srcY, srcYStep, d_srcCbCr, srcCbCrStep, d_dstPacked,
+                                            width * 2 - 1, NppiSize{width, height}),
+            NPP_STEP_ERROR);
+  int badDst411Steps[3] = {width, width / 4 - 1, width / 4 - 1};
+  EXPECT_EQ(nppiYCbCr420ToYCbCr411_8u_P2P3R(d_srcY, srcYStep, d_srcCbCr, srcCbCrStep, pDst411, badDst411Steps,
+                                            NppiSize{width, height}),
+            NPP_STEP_ERROR);
+
+  // An empty ROI is a no-op.
+  EXPECT_EQ(nppiYCbCr420_8u_P3P2R(pSrc, srcSteps, d_dstY, dstYStep, d_dst411, dst411Step, NppiSize{0, 0}),
+            NPP_NO_ERROR);
+  EXPECT_EQ(nppiYCbCr420ToYCbCr411_8u_P3P2R(pSrc, srcSteps, d_dstY, dstYStep, d_dst411, dst411Step,
+                                            NppiSize{0, 0}),
+            NPP_NO_ERROR);
 }
