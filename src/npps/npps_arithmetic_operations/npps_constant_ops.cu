@@ -218,12 +218,17 @@ struct MulCF2I16Op {
 };
 
 struct MulCF2I64Op {
-  // NPP 13.4 rounds toward +infinity (validated on the 5090).
+  // NPP 13.4 algorithm (validated with a 204-point probe on the 5090):
+  //   1. round half away from zero to int64 (the in-place buffer holds int64),
+  //   2. if sf > 0, bias by sign and arithmetic-shift: (i +/- 1) >> sf.
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
-    double v = (double)a * (double)b;
-    v = ldexp(v, -sf);
-    return ek::sat_ll<D>(static_cast<long long>(ceil(v)));
+    double p = (double)ek::re_ll(a) * (double)b;
+    if (p > 9.0e18) p = 9.0e18;
+    if (p < -9.0e18) p = -9.0e18;
+    long long i = static_cast<long long>(p >= 0.0 ? p + 0.5 : p - 0.5);
+    if (sf > 0) i = (i + (i >= 0 ? 1 : -1)) >> sf;
+    return ek::sat_ll<D>(i);
   }
 };
 

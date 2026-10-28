@@ -61,7 +61,7 @@ protected:
 // ===== nppsAddC =====
 TEST_F(NppsConstantArithmetic, nppsAddC_8u_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1104656784095426163);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 175369427859159060);
   Npp8u nv = 3;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -72,7 +72,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_8u_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_8u_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1104656784095426163);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 175369427859159060);
   Npp8u nv = 3;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -83,8 +83,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_8u_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_8u_Sfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 900085120894290077);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 958862655121140429);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 641148573547567875);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 1130275064922415757);
   Npp8u nv = 5;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -96,8 +96,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_8u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_8u_Sfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 900085120894290077);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 958862655121140429);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 641148573547567875);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 1130275064922415757);
   Npp8u nv = 5;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -109,8 +109,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_8u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16u_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 688990428466123570);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 656000027310086154);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 273268270949101100);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 1021548102520126343);
   Npp16u nv = 11;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -122,8 +122,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16u_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 688990428466123570);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 656000027310086154);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 273268270949101100);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 1021548102520126343);
   Npp16u nv = 11;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -135,7 +135,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16u_ISfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 541235375558888434);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 380759417714975116);
   Npp16u nv = 9;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -146,7 +146,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16u_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16u_ISfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 541235375558888434);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 380759417714975116);
   Npp16u nv = 9;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -157,8 +157,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16u_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16s_Sfs_Ctx) {
   const NppSignalLength n = 1024;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 662116579423790988);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 522618911909543657);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 413673792928291631);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 1147544263164259406);
   Npp16s nv = 7;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -170,8 +170,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16s_Sfs_NonCtx) {
   const NppSignalLength n = 1024;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 662116579423790988);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 522618911909543657);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 413673792928291631);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 1147544263164259406);
   Npp16s nv = 7;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -183,7 +183,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 706563956654204925);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 22087292973500762);
   Npp16s nv = 5;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -194,7 +194,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 706563956654204925);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 22087292973500762);
   Npp16s nv = 5;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -205,8 +205,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16s_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 348526586212851649);
-  std::vector<Npp16sc> d = v16sc(n, 749760715213129122);
+  std::vector<Npp16sc> a = v16sc(n, 1060520657851967743);
+  std::vector<Npp16sc> d = v16sc(n, 248328495827010763);
   Npp16sc nv; nv.re=3; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -218,8 +218,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_16sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 348526586212851649);
-  std::vector<Npp16sc> d = v16sc(n, 749760715213129122);
+  std::vector<Npp16sc> a = v16sc(n, 1060520657851967743);
+  std::vector<Npp16sc> d = v16sc(n, 248328495827010763);
   Npp16sc nv; nv.re=3; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -231,8 +231,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_16sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32f_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 441091191667721559);
-  std::vector<float> d = make_vec<float>(n, 802139602399815691);
+  std::vector<float> a = make_vec<float>(n, 154334832334157549);
+  std::vector<float> d = make_vec<float>(n, 322339468028991290);
   float nv = 0.7f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -244,8 +244,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32f_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 441091191667721559);
-  std::vector<float> d = make_vec<float>(n, 802139602399815691);
+  std::vector<float> a = make_vec<float>(n, 154334832334157549);
+  std::vector<float> d = make_vec<float>(n, 322339468028991290);
   float nv = 0.7f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -257,7 +257,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 539353316256547428);
+  std::vector<float> a = make_vec<float>(n, 479698752490064786);
   float nv = 1.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -268,7 +268,7 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 539353316256547428);
+  std::vector<float> a = make_vec<float>(n, 479698752490064786);
   float nv = 1.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -279,8 +279,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 1016861219504092022);
-  std::vector<Npp32fc> d = vfc(n, 503381731261428423);
+  std::vector<Npp32fc> a = vfc(n, 490546161913332794);
+  std::vector<Npp32fc> d = vfc(n, 696015213740550483);
   Npp32fc nv; nv.re=0.5f; nv.im=1.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -292,8 +292,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 1016861219504092022);
-  std::vector<Npp32fc> d = vfc(n, 503381731261428423);
+  std::vector<Npp32fc> a = vfc(n, 490546161913332794);
+  std::vector<Npp32fc> d = vfc(n, 696015213740550483);
   Npp32fc nv; nv.re=0.5f; nv.im=1.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -305,8 +305,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32fc_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32s_Sfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 687641600068380946);
-  std::vector<int32_t> d = make_vec<int32_t>(n, 1121255763584101262);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 788081757898103167);
+  std::vector<int32_t> d = make_vec<int32_t>(n, 38938382261237494);
   Npp32s nv = 13;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   DeviceMemory<int32_t> dc(n); dc.copyFromHost(d);
@@ -318,8 +318,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32s_Sfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 687641600068380946);
-  std::vector<int32_t> d = make_vec<int32_t>(n, 1121255763584101262);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 788081757898103167);
+  std::vector<int32_t> d = make_vec<int32_t>(n, 38938382261237494);
   Npp32s nv = 13;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   DeviceMemory<int32_t> dc(n); dc.copyFromHost(d);
@@ -331,8 +331,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 906366165355055648);
-  std::vector<Npp32sc> d = v32(n, 706956525314663268);
+  std::vector<Npp32sc> a = v32(n, 654718185470754229);
+  std::vector<Npp32sc> d = v32(n, 1147150003761302296);
   Npp32sc nv; nv.re=3; nv.im=4;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -344,8 +344,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_32sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 906366165355055648);
-  std::vector<Npp32sc> d = v32(n, 706956525314663268);
+  std::vector<Npp32sc> a = v32(n, 654718185470754229);
+  std::vector<Npp32sc> d = v32(n, 1147150003761302296);
   Npp32sc nv; nv.re=3; nv.im=4;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -357,8 +357,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_32sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_64f_Ctx) {
   const NppSignalLength n = 1;
-  std::vector<double> a = make_vec<double>(n, 938992074667021967);
-  std::vector<double> d = make_vec<double>(n, 408974918641760363);
+  std::vector<double> a = make_vec<double>(n, 226388338383664293);
+  std::vector<double> d = make_vec<double>(n, 1099263355937865136);
   double nv = 0.25;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -370,8 +370,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_64f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_64f_NonCtx) {
   const NppSignalLength n = 1;
-  std::vector<double> a = make_vec<double>(n, 938992074667021967);
-  std::vector<double> d = make_vec<double>(n, 408974918641760363);
+  std::vector<double> a = make_vec<double>(n, 226388338383664293);
+  std::vector<double> d = make_vec<double>(n, 1099263355937865136);
   double nv = 0.25;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -383,8 +383,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_64f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_64fc_Ctx) {
   const NppSignalLength n = 1;
-  std::vector<Npp64fc> a = vfc64(n, 625497469258927457);
-  std::vector<Npp64fc> d = vfc64(n, 212982568477005088);
+  std::vector<Npp64fc> a = vfc64(n, 416092399743599751);
+  std::vector<Npp64fc> d = vfc64(n, 764989730856759681);
   Npp64fc nv; nv.re=0.5; nv.im=1.5;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp64fc> dc(n); dc.copyFromHost(d);
@@ -396,8 +396,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_64fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddC_64fc_NonCtx) {
   const NppSignalLength n = 1;
-  std::vector<Npp64fc> a = vfc64(n, 625497469258927457);
-  std::vector<Npp64fc> d = vfc64(n, 212982568477005088);
+  std::vector<Npp64fc> a = vfc64(n, 416092399743599751);
+  std::vector<Npp64fc> d = vfc64(n, 764989730856759681);
   Npp64fc nv; nv.re=0.5; nv.im=1.5;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp64fc> dc(n); dc.copyFromHost(d);
@@ -410,8 +410,8 @@ TEST_F(NppsConstantArithmetic, nppsAddC_64fc_NonCtx) {
 // ===== nppsSubC =====
 TEST_F(NppsConstantArithmetic, nppsSubC_8u_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 363479503365194663);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 34315117332286090);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 673228985943041138);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 493257483396453915);
   Npp8u nv = 7;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -423,8 +423,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_8u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_8u_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 363479503365194663);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 34315117332286090);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 673228985943041138);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 493257483396453915);
   Npp8u nv = 7;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -436,7 +436,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_8u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16u_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 645618698654773657);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 402852945080808045);
   Npp16u nv = 9;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -447,7 +447,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16u_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16u_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 645618698654773657);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 402852945080808045);
   Npp16u nv = 9;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -458,8 +458,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16u_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16s_Sfs_Ctx) {
   const NppSignalLength n = 1024;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 598423144575522546);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 546395675617421334);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 191598500533395381);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 923671088813815310);
   Npp16s nv = 5;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -471,8 +471,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16s_Sfs_NonCtx) {
   const NppSignalLength n = 1024;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 598423144575522546);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 546395675617421334);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 191598500533395381);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 923671088813815310);
   Npp16s nv = 5;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -484,7 +484,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 720817124644917486);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 878431517182410817);
   Npp16s nv = 3;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -495,7 +495,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 720817124644917486);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 878431517182410817);
   Npp16s nv = 3;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -506,8 +506,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16s_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 572053190589849845);
-  std::vector<Npp16sc> d = v16sc(n, 909654404122754059);
+  std::vector<Npp16sc> a = v16sc(n, 988832963923941357);
+  std::vector<Npp16sc> d = v16sc(n, 640883964054632538);
   Npp16sc nv; nv.re=4; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -519,8 +519,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_16sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 572053190589849845);
-  std::vector<Npp16sc> d = v16sc(n, 909654404122754059);
+  std::vector<Npp16sc> a = v16sc(n, 988832963923941357);
+  std::vector<Npp16sc> d = v16sc(n, 640883964054632538);
   Npp16sc nv; nv.re=4; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -532,7 +532,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_16sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 222318580959877354);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 206727508726701220);
   Npp32s nv = 7;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -543,7 +543,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 222318580959877354);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 206727508726701220);
   Npp32s nv = 7;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -554,8 +554,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32s_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 109949145018036185);
-  std::vector<Npp32sc> d = v32(n, 1035493606669781393);
+  std::vector<Npp32sc> a = v32(n, 39888656416092686);
+  std::vector<Npp32sc> d = v32(n, 826476896591047710);
   Npp32sc nv; nv.re=5; nv.im=3;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -567,8 +567,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 109949145018036185);
-  std::vector<Npp32sc> d = v32(n, 1035493606669781393);
+  std::vector<Npp32sc> a = v32(n, 39888656416092686);
+  std::vector<Npp32sc> d = v32(n, 826476896591047710);
   Npp32sc nv; nv.re=5; nv.im=3;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -580,8 +580,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32f_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 1104043923400040188);
-  std::vector<float> d = make_vec<float>(n, 363085029177939302);
+  std::vector<float> a = make_vec<float>(n, 1099884530538105810);
+  std::vector<float> d = make_vec<float>(n, 51533735770829716);
   float nv = 1.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -593,8 +593,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32f_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 1104043923400040188);
-  std::vector<float> d = make_vec<float>(n, 363085029177939302);
+  std::vector<float> a = make_vec<float>(n, 1099884530538105810);
+  std::vector<float> d = make_vec<float>(n, 51533735770829716);
   float nv = 1.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -606,7 +606,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 354332860039168445);
+  std::vector<float> a = make_vec<float>(n, 42697102471365820);
   float nv = 0.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -617,7 +617,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 354332860039168445);
+  std::vector<float> a = make_vec<float>(n, 42697102471365820);
   float nv = 0.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -628,8 +628,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 105264905820577610);
-  std::vector<Npp32fc> d = vfc(n, 355126476843989950);
+  std::vector<Npp32fc> a = vfc(n, 729962261255652555);
+  std::vector<Npp32fc> d = vfc(n, 875593777207947092);
   Npp32fc nv; nv.re=1.0f; nv.im=0.5f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -641,8 +641,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_32fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 105264905820577610);
-  std::vector<Npp32fc> d = vfc(n, 355126476843989950);
+  std::vector<Npp32fc> a = vfc(n, 729962261255652555);
+  std::vector<Npp32fc> d = vfc(n, 875593777207947092);
   Npp32fc nv; nv.re=1.0f; nv.im=0.5f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -654,8 +654,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_32fc_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_64f_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 1005464396475436509);
-  std::vector<double> d = make_vec<double>(n, 212988685582534520);
+  std::vector<double> a = make_vec<double>(n, 544367939692769708);
+  std::vector<double> d = make_vec<double>(n, 832698718451980971);
   double nv = 2.0;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -667,8 +667,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_64f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_64f_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 1005464396475436509);
-  std::vector<double> d = make_vec<double>(n, 212988685582534520);
+  std::vector<double> a = make_vec<double>(n, 544367939692769708);
+  std::vector<double> d = make_vec<double>(n, 832698718451980971);
   double nv = 2.0;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -680,7 +680,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_64f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_64fc_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 1055486033963636180);
+  std::vector<Npp64fc> a = vfc64(n, 814108458659141795);
   Npp64fc nv; nv.re=0.5; nv.im=1.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -691,7 +691,7 @@ TEST_F(NppsConstantArithmetic, nppsSubC_64fc_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubC_64fc_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 1055486033963636180);
+  std::vector<Npp64fc> a = vfc64(n, 814108458659141795);
   Npp64fc nv; nv.re=0.5; nv.im=1.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -703,8 +703,8 @@ TEST_F(NppsConstantArithmetic, nppsSubC_64fc_I_NonCtx) {
 // ===== nppsSubCRev =====
 TEST_F(NppsConstantArithmetic, nppsSubCRev_8u_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 300166579300473793);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 721629006181756661);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1119271547143079247);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 6950235760553588);
   Npp8u nv = 9;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -716,8 +716,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_8u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_8u_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 300166579300473793);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 721629006181756661);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1119271547143079247);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 6950235760553588);
   Npp8u nv = 9;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -729,7 +729,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_8u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_16u_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 539401740534990770);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 355024744718822300);
   Npp16u nv = 3;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -740,7 +740,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_16u_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_16u_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 539401740534990770);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 355024744718822300);
   Npp16u nv = 3;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -751,7 +751,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_16u_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_16s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 722198167359420003);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 193121743278412640);
   Npp16s nv = 7;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -762,7 +762,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_16s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_16s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 722198167359420003);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 193121743278412640);
   Npp16s nv = 7;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -773,8 +773,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_16s_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_16sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 480774823786277705);
-  std::vector<Npp16sc> d = v16sc(n, 72784533841109009);
+  std::vector<Npp16sc> a = v16sc(n, 292998293695169234);
+  std::vector<Npp16sc> d = v16sc(n, 1061972958702615984);
   Npp16sc nv; nv.re=5; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -786,8 +786,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_16sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_16sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 480774823786277705);
-  std::vector<Npp16sc> d = v16sc(n, 72784533841109009);
+  std::vector<Npp16sc> a = v16sc(n, 292998293695169234);
+  std::vector<Npp16sc> d = v16sc(n, 1061972958702615984);
   Npp16sc nv; nv.re=5; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -799,8 +799,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_16sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32s_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 1065364694202188676);
-  std::vector<int32_t> d = make_vec<int32_t>(n, 445717593297041191);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 820920916815401275);
+  std::vector<int32_t> d = make_vec<int32_t>(n, 987541305114388006);
   Npp32s nv = 11;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   DeviceMemory<int32_t> dc(n); dc.copyFromHost(d);
@@ -812,8 +812,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32s_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 1065364694202188676);
-  std::vector<int32_t> d = make_vec<int32_t>(n, 445717593297041191);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 820920916815401275);
+  std::vector<int32_t> d = make_vec<int32_t>(n, 987541305114388006);
   Npp32s nv = 11;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   DeviceMemory<int32_t> dc(n); dc.copyFromHost(d);
@@ -825,8 +825,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 1000319841402181261);
-  std::vector<Npp32sc> d = v32(n, 283355526844898252);
+  std::vector<Npp32sc> a = v32(n, 550884111389038432);
+  std::vector<Npp32sc> d = v32(n, 105055360676026442);
   Npp32sc nv; nv.re=6; nv.im=3;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -838,8 +838,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 1000319841402181261);
-  std::vector<Npp32sc> d = v32(n, 283355526844898252);
+  std::vector<Npp32sc> a = v32(n, 550884111389038432);
+  std::vector<Npp32sc> d = v32(n, 105055360676026442);
   Npp32sc nv; nv.re=6; nv.im=3;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -851,8 +851,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 288448725578894505);
-  std::vector<float> d = make_vec<float>(n, 712930413594601079);
+  std::vector<float> a = make_vec<float>(n, 988548305154170357);
+  std::vector<float> d = make_vec<float>(n, 134347569539506442);
   float nv = 4.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -864,8 +864,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 288448725578894505);
-  std::vector<float> d = make_vec<float>(n, 712930413594601079);
+  std::vector<float> a = make_vec<float>(n, 988548305154170357);
+  std::vector<float> d = make_vec<float>(n, 134347569539506442);
   float nv = 4.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -877,7 +877,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 622431952315095580);
+  std::vector<float> a = make_vec<float>(n, 521336153210491411);
   float nv = 0.75f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -888,7 +888,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 622431952315095580);
+  std::vector<float> a = make_vec<float>(n, 521336153210491411);
   float nv = 0.75f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -899,8 +899,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 1129686678221755253);
-  std::vector<Npp32fc> d = vfc(n, 1001619628767581952);
+  std::vector<Npp32fc> a = vfc(n, 551061659243402377);
+  std::vector<Npp32fc> d = vfc(n, 142102036167341833);
   Npp32fc nv; nv.re=2.0f; nv.im=1.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -912,8 +912,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_32fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 1129686678221755253);
-  std::vector<Npp32fc> d = vfc(n, 1001619628767581952);
+  std::vector<Npp32fc> a = vfc(n, 551061659243402377);
+  std::vector<Npp32fc> d = vfc(n, 142102036167341833);
   Npp32fc nv; nv.re=2.0f; nv.im=1.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -925,7 +925,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_32fc_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_64f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 640411319357004822);
+  std::vector<double> a = make_vec<double>(n, 1070357270102533475);
   double nv = 3.0;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -936,7 +936,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_64f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_64f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 640411319357004822);
+  std::vector<double> a = make_vec<double>(n, 1070357270102533475);
   double nv = 3.0;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -947,8 +947,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_64f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_64fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 870617354403471629);
-  std::vector<Npp64fc> d = vfc64(n, 506210288657066066);
+  std::vector<Npp64fc> a = vfc64(n, 1057538701276821542);
+  std::vector<Npp64fc> d = vfc64(n, 414740270752142281);
   Npp64fc nv; nv.re=1.0; nv.im=2.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp64fc> dc(n); dc.copyFromHost(d);
@@ -960,8 +960,8 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_64fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsSubCRev_64fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 870617354403471629);
-  std::vector<Npp64fc> d = vfc64(n, 506210288657066066);
+  std::vector<Npp64fc> a = vfc64(n, 1057538701276821542);
+  std::vector<Npp64fc> d = vfc64(n, 414740270752142281);
   Npp64fc nv; nv.re=1.0; nv.im=2.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp64fc> dc(n); dc.copyFromHost(d);
@@ -974,7 +974,7 @@ TEST_F(NppsConstantArithmetic, nppsSubCRev_64fc_NonCtx) {
 // ===== nppsMulC =====
 TEST_F(NppsConstantArithmetic, nppsMulC_8u_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1043615863328954501);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1149147923873896668);
   Npp8u nv = 3;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -985,7 +985,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_8u_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_8u_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1043615863328954501);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1149147923873896668);
   Npp8u nv = 3;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -996,8 +996,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_8u_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16u_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 980501469491891804);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 231513546866652781);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 130887743859259082);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 848170143779922351);
   Npp16u nv = 5;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1009,8 +1009,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16u_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 980501469491891804);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 231513546866652781);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 130887743859259082);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 848170143779922351);
   Npp16u nv = 5;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1022,8 +1022,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16s_Sfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 1063757786889475237);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 246106166513527449);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 203592658532806650);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 529946978407434666);
   Npp16s nv = 7;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1035,8 +1035,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16s_Sfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 1063757786889475237);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 246106166513527449);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 203592658532806650);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 529946978407434666);
   Npp16s nv = 7;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1048,7 +1048,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 868411601141355433);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 14148323270818349);
   Npp16s nv = 3;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1059,7 +1059,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 868411601141355433);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 14148323270818349);
   Npp16s nv = 3;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1070,8 +1070,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16s_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 320403749058025474);
-  std::vector<Npp16sc> d = v16sc(n, 603126710631994399);
+  std::vector<Npp16sc> a = v16sc(n, 1133815418261346869);
+  std::vector<Npp16sc> d = v16sc(n, 612927811290759482);
   Npp16sc nv; nv.re=3; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -1083,8 +1083,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_16sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 320403749058025474);
-  std::vector<Npp16sc> d = v16sc(n, 603126710631994399);
+  std::vector<Npp16sc> a = v16sc(n, 1133815418261346869);
+  std::vector<Npp16sc> d = v16sc(n, 612927811290759482);
   Npp16sc nv; nv.re=3; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -1096,8 +1096,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_16sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32s_Sfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 669308236901403218);
-  std::vector<int32_t> d = make_vec<int32_t>(n, 869332411176690087);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 467255771492347572);
+  std::vector<int32_t> d = make_vec<int32_t>(n, 491332235185148641);
   Npp32s nv = 5;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   DeviceMemory<int32_t> dc(n); dc.copyFromHost(d);
@@ -1109,8 +1109,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32s_Sfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<int32_t> a = make_vec<int32_t>(n, 669308236901403218);
-  std::vector<int32_t> d = make_vec<int32_t>(n, 869332411176690087);
+  std::vector<int32_t> a = make_vec<int32_t>(n, 467255771492347572);
+  std::vector<int32_t> d = make_vec<int32_t>(n, 491332235185148641);
   Npp32s nv = 5;
   DeviceMemory<int32_t> da(n); da.copyFromHost(a);
   DeviceMemory<int32_t> dc(n); dc.copyFromHost(d);
@@ -1122,8 +1122,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 788085156140273578);
-  std::vector<Npp32sc> d = v32(n, 341382464804643028);
+  std::vector<Npp32sc> a = v32(n, 835996481602206436);
+  std::vector<Npp32sc> d = v32(n, 867741021129056987);
   Npp32sc nv; nv.re=4; nv.im=2;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -1135,8 +1135,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32sc> a = v32(n, 788085156140273578);
-  std::vector<Npp32sc> d = v32(n, 341382464804643028);
+  std::vector<Npp32sc> a = v32(n, 835996481602206436);
+  std::vector<Npp32sc> d = v32(n, 867741021129056987);
   Npp32sc nv; nv.re=4; nv.im=2;
   DeviceMemory<Npp32sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32sc> dc(n); dc.copyFromHost(d);
@@ -1148,8 +1148,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32f_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 500596438217296731);
-  std::vector<float> d = make_vec<float>(n, 930041892200029655);
+  std::vector<float> a = make_vec<float>(n, 603172266057135447);
+  std::vector<float> d = make_vec<float>(n, 391071738726747556);
   float nv = 0.7f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1161,8 +1161,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32f_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 500596438217296731);
-  std::vector<float> d = make_vec<float>(n, 930041892200029655);
+  std::vector<float> a = make_vec<float>(n, 603172266057135447);
+  std::vector<float> d = make_vec<float>(n, 391071738726747556);
   float nv = 0.7f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1174,7 +1174,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 443967875783852780);
+  std::vector<float> a = make_vec<float>(n, 992506705463502379);
   float nv = 1.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1185,7 +1185,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 443967875783852780);
+  std::vector<float> a = make_vec<float>(n, 992506705463502379);
   float nv = 1.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1196,8 +1196,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 1000366789379223628);
-  std::vector<Npp32fc> d = vfc(n, 1013180669578167455);
+  std::vector<Npp32fc> a = vfc(n, 564312411911942395);
+  std::vector<Npp32fc> d = vfc(n, 11785904752610051);
   Npp32fc nv; nv.re=0.5f; nv.im=1.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -1209,8 +1209,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 1000366789379223628);
-  std::vector<Npp32fc> d = vfc(n, 1013180669578167455);
+  std::vector<Npp32fc> a = vfc(n, 564312411911942395);
+  std::vector<Npp32fc> d = vfc(n, 11785904752610051);
   Npp32fc nv; nv.re=0.5f; nv.im=1.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -1222,8 +1222,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32fc_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64f_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 21679717295154883);
-  std::vector<double> d = make_vec<double>(n, 44761694792797380);
+  std::vector<double> a = make_vec<double>(n, 849638168340417541);
+  std::vector<double> d = make_vec<double>(n, 696304884869117066);
   double nv = 0.5;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -1235,8 +1235,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64f_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 21679717295154883);
-  std::vector<double> d = make_vec<double>(n, 44761694792797380);
+  std::vector<double> a = make_vec<double>(n, 849638168340417541);
+  std::vector<double> d = make_vec<double>(n, 696304884869117066);
   double nv = 0.5;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -1248,7 +1248,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 244313756876557272);
+  std::vector<double> a = make_vec<double>(n, 703111258119582566);
   double nv = 1.5;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1259,7 +1259,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 244313756876557272);
+  std::vector<double> a = make_vec<double>(n, 703111258119582566);
   double nv = 1.5;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1270,7 +1270,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64fc_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 874175584118728109);
+  std::vector<Npp64fc> a = vfc64(n, 326478254349721060);
   Npp64fc nv; nv.re=0.5; nv.im=1.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1281,7 +1281,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64fc_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64fc_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 874175584118728109);
+  std::vector<Npp64fc> a = vfc64(n, 326478254349721060);
   Npp64fc nv; nv.re=0.5; nv.im=1.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1292,8 +1292,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64fc_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32f16s_Sfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 683202567694793010);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 219222288093887730);
+  std::vector<float> a = make_vec<float>(n, 56250624796732587);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 981772884513711050);
   float nv = 0.6f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1305,8 +1305,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32f16s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_32f16s_Sfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 683202567694793010);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 219222288093887730);
+  std::vector<float> a = make_vec<float>(n, 56250624796732587);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 981772884513711050);
   float nv = 0.6f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1318,7 +1318,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_32f16s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64f64s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<long long> a = make_vec<long long>(n, 571307973365440465);
+  std::vector<long long> a = {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8};
   double nv = 0.75;
   DeviceMemory<long long> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1329,7 +1329,7 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64f64s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_64f64s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<long long> a = make_vec<long long>(n, 571307973365440465);
+  std::vector<long long> a = {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8};
   double nv = 0.75;
   DeviceMemory<long long> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1341,8 +1341,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_64f64s_ISfs_NonCtx) {
 // ===== nppsMulC_Low =====
 TEST_F(NppsConstantArithmetic, nppsMulC_Low_32f16s_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 637741487274865887);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 519527395049458656);
+  std::vector<float> a = make_vec<float>(n, 900863599997743359);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 956779440380896091);
   float nv = 0.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1354,8 +1354,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_Low_32f16s_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsMulC_Low_32f16s_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 637741487274865887);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 519527395049458656);
+  std::vector<float> a = make_vec<float>(n, 900863599997743359);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 956779440380896091);
   float nv = 0.5f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1368,8 +1368,8 @@ TEST_F(NppsConstantArithmetic, nppsMulC_Low_32f16s_NonCtx) {
 // ===== nppsDivC =====
 TEST_F(NppsConstantArithmetic, nppsDivC_8u_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 99512748952297191);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 702864074450355828);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1045214493982320619);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 314350818559706098);
   Npp8u nv = 3;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -1381,8 +1381,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_8u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_8u_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 99512748952297191);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 702864074450355828);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1045214493982320619);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 314350818559706098);
   Npp8u nv = 3;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -1394,8 +1394,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_8u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16u_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 1103353095502723645);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 493729823948511833);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 700975538550847006);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 673003093376619572);
   Npp16u nv = 5;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1407,8 +1407,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16u_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16u_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 1103353095502723645);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 493729823948511833);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 700975538550847006);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 673003093376619572);
   Npp16u nv = 5;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1420,7 +1420,7 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16u_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16u_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 301471122368107367);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 1067084823398150244);
   Npp16u nv = 3;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1431,7 +1431,7 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16u_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16u_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 301471122368107367);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 1067084823398150244);
   Npp16u nv = 3;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1442,8 +1442,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16u_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16s_Sfs_Ctx) {
   const NppSignalLength n = 1024;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 740134110319140561);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 751078445421561552);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 395960220816766121);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 797592836398021982);
   Npp16s nv = 3;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1455,8 +1455,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16s_Sfs_NonCtx) {
   const NppSignalLength n = 1024;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 740134110319140561);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 751078445421561552);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 395960220816766121);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 797592836398021982);
   Npp16s nv = 3;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   DeviceMemory<int16_t> dc(n); dc.copyFromHost(d);
@@ -1468,7 +1468,7 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16s_ISfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 971460374850869464);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 387191480341254434);
   Npp16s nv = 5;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1479,7 +1479,7 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16s_ISfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16s_ISfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 971460374850869464);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 387191480341254434);
   Npp16s nv = 5;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1490,8 +1490,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16s_ISfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 51267260840679918);
-  std::vector<Npp16sc> d = v16sc(n, 880899943175313049);
+  std::vector<Npp16sc> a = v16sc(n, 984173840030391257);
+  std::vector<Npp16sc> d = v16sc(n, 444689827941639131);
   Npp16sc nv; nv.re=4; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -1503,8 +1503,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_16sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 51267260840679918);
-  std::vector<Npp16sc> d = v16sc(n, 880899943175313049);
+  std::vector<Npp16sc> a = v16sc(n, 984173840030391257);
+  std::vector<Npp16sc> d = v16sc(n, 444689827941639131);
   Npp16sc nv; nv.re=4; nv.im=2;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp16sc> dc(n); dc.copyFromHost(d);
@@ -1516,8 +1516,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_16sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_32f_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 55283517966004386);
-  std::vector<float> d = make_vec<float>(n, 251793954067670722);
+  std::vector<float> a = make_vec<float>(n, 209809978489509316);
+  std::vector<float> d = make_vec<float>(n, 301322537247216022);
   float nv = 0.7f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1529,8 +1529,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_32f_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 55283517966004386);
-  std::vector<float> d = make_vec<float>(n, 251793954067670722);
+  std::vector<float> a = make_vec<float>(n, 209809978489509316);
+  std::vector<float> d = make_vec<float>(n, 301322537247216022);
   float nv = 0.7f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1542,7 +1542,7 @@ TEST_F(NppsConstantArithmetic, nppsDivC_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_32f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 1001412940648401910);
+  std::vector<float> a = make_vec<float>(n, 698157368805265389);
   float nv = 2.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1553,7 +1553,7 @@ TEST_F(NppsConstantArithmetic, nppsDivC_32f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_32f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 1001412940648401910);
+  std::vector<float> a = make_vec<float>(n, 698157368805265389);
   float nv = 2.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1564,8 +1564,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_32f_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_32fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 899207073016520163);
-  std::vector<Npp32fc> d = vfc(n, 1016399667962950540);
+  std::vector<Npp32fc> a = vfc(n, 320270251509788016);
+  std::vector<Npp32fc> d = vfc(n, 306322458887653228);
   Npp32fc nv; nv.re=1.0f; nv.im=0.5f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -1577,8 +1577,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_32fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_32fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 899207073016520163);
-  std::vector<Npp32fc> d = vfc(n, 1016399667962950540);
+  std::vector<Npp32fc> a = vfc(n, 320270251509788016);
+  std::vector<Npp32fc> d = vfc(n, 306322458887653228);
   Npp32fc nv; nv.re=1.0f; nv.im=0.5f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp32fc> dc(n); dc.copyFromHost(d);
@@ -1590,8 +1590,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_32fc_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_64f_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 403610497444563119);
-  std::vector<double> d = make_vec<double>(n, 358614523286347990);
+  std::vector<double> a = make_vec<double>(n, 979213413652514737);
+  std::vector<double> d = make_vec<double>(n, 877673936866884873);
   double nv = 0.5;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -1603,8 +1603,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_64f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_64f_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 403610497444563119);
-  std::vector<double> d = make_vec<double>(n, 358614523286347990);
+  std::vector<double> a = make_vec<double>(n, 979213413652514737);
+  std::vector<double> d = make_vec<double>(n, 877673936866884873);
   double nv = 0.5;
   DeviceMemory<double> da(n); da.copyFromHost(a);
   DeviceMemory<double> dc(n); dc.copyFromHost(d);
@@ -1616,8 +1616,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_64f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_64fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 641945550627353986);
-  std::vector<Npp64fc> d = vfc64(n, 1049368022466838295);
+  std::vector<Npp64fc> a = vfc64(n, 335317340458104885);
+  std::vector<Npp64fc> d = vfc64(n, 973060287145122841);
   Npp64fc nv; nv.re=2.0; nv.im=1.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp64fc> dc(n); dc.copyFromHost(d);
@@ -1629,8 +1629,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_64fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivC_64fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 641945550627353986);
-  std::vector<Npp64fc> d = vfc64(n, 1049368022466838295);
+  std::vector<Npp64fc> a = vfc64(n, 335317340458104885);
+  std::vector<Npp64fc> d = vfc64(n, 973060287145122841);
   Npp64fc nv; nv.re=2.0; nv.im=1.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
   DeviceMemory<Npp64fc> dc(n); dc.copyFromHost(d);
@@ -1643,8 +1643,8 @@ TEST_F(NppsConstantArithmetic, nppsDivC_64fc_NonCtx) {
 // ===== nppsDivCRev =====
 TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 419253087869372334);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 930483428576724138);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 946587679499719657);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 837555101600683289);
   Npp16u nv = 9;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1656,8 +1656,8 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 419253087869372334);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 930483428576724138);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 946587679499719657);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 837555101600683289);
   Npp16u nv = 9;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1669,7 +1669,7 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 223506091819007816);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 483055497468046580);
   Npp16u nv = 12;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1680,7 +1680,7 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 223506091819007816);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 483055497468046580);
   Npp16u nv = 12;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1691,8 +1691,8 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_16u_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 16818599937925517);
-  std::vector<float> d = make_vec<float>(n, 785850967491313273);
+  std::vector<float> a = make_vec<float>(n, 437042189710731586);
+  std::vector<float> d = make_vec<float>(n, 777429135517570911);
   float nv = 1.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1704,8 +1704,8 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 16818599937925517);
-  std::vector<float> d = make_vec<float>(n, 785850967491313273);
+  std::vector<float> a = make_vec<float>(n, 437042189710731586);
+  std::vector<float> d = make_vec<float>(n, 777429135517570911);
   float nv = 1.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1717,7 +1717,7 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 947808474366260127);
+  std::vector<float> a = make_vec<float>(n, 868453567968439912);
   float nv = 4.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1728,7 +1728,7 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 947808474366260127);
+  std::vector<float> a = make_vec<float>(n, 868453567968439912);
   float nv = 4.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1740,8 +1740,8 @@ TEST_F(NppsConstantArithmetic, nppsDivCRev_32f_I_NonCtx) {
 // ===== nppsAndC =====
 TEST_F(NppsConstantArithmetic, nppsAndC_8u_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1066508148135229928);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 925861327495864665);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 348985143977581645);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 1114309159646031913);
   Npp8u nv = 0x3A;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -1753,8 +1753,8 @@ TEST_F(NppsConstantArithmetic, nppsAndC_8u_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAndC_8u_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1066508148135229928);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 925861327495864665);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 348985143977581645);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 1114309159646031913);
   Npp8u nv = 0x3A;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -1766,7 +1766,7 @@ TEST_F(NppsConstantArithmetic, nppsAndC_8u_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAndC_16u_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 280792170014778119);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 241277513018924519);
   Npp16u nv = 0x0F0F;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1777,7 +1777,7 @@ TEST_F(NppsConstantArithmetic, nppsAndC_16u_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAndC_16u_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 280792170014778119);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 241277513018924519);
   Npp16u nv = 0x0F0F;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1788,8 +1788,8 @@ TEST_F(NppsConstantArithmetic, nppsAndC_16u_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsAndC_32u_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint32_t> a = make_vec<uint32_t>(n, 1122181955339608769);
-  std::vector<uint32_t> d = make_vec<uint32_t>(n, 522959408111289788);
+  std::vector<uint32_t> a = make_vec<uint32_t>(n, 1052780325569739273);
+  std::vector<uint32_t> d = make_vec<uint32_t>(n, 320593350900743798);
   Npp32u nv = 0xF00F0000u;
   DeviceMemory<uint32_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint32_t> dc(n); dc.copyFromHost(d);
@@ -1801,8 +1801,8 @@ TEST_F(NppsConstantArithmetic, nppsAndC_32u_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAndC_32u_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint32_t> a = make_vec<uint32_t>(n, 1122181955339608769);
-  std::vector<uint32_t> d = make_vec<uint32_t>(n, 522959408111289788);
+  std::vector<uint32_t> a = make_vec<uint32_t>(n, 1052780325569739273);
+  std::vector<uint32_t> d = make_vec<uint32_t>(n, 320593350900743798);
   Npp32u nv = 0xF00F0000u;
   DeviceMemory<uint32_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint32_t> dc(n); dc.copyFromHost(d);
@@ -1815,7 +1815,7 @@ TEST_F(NppsConstantArithmetic, nppsAndC_32u_NonCtx) {
 // ===== nppsOrC =====
 TEST_F(NppsConstantArithmetic, nppsOrC_8u_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1032222764643108171);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 228064784632974007);
   Npp8u nv = 0x81;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1826,7 +1826,7 @@ TEST_F(NppsConstantArithmetic, nppsOrC_8u_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsOrC_8u_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 1032222764643108171);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 228064784632974007);
   Npp8u nv = 0x81;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1837,8 +1837,8 @@ TEST_F(NppsConstantArithmetic, nppsOrC_8u_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsOrC_16u_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 471471095000087988);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 1050253004307115574);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 237285443838351864);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 906603864553095583);
   Npp16u nv = 0x0303;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1850,8 +1850,8 @@ TEST_F(NppsConstantArithmetic, nppsOrC_16u_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsOrC_16u_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 471471095000087988);
-  std::vector<uint16_t> d = make_vec<uint16_t>(n, 1050253004307115574);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 237285443838351864);
+  std::vector<uint16_t> d = make_vec<uint16_t>(n, 906603864553095583);
   Npp16u nv = 0x0303;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint16_t> dc(n); dc.copyFromHost(d);
@@ -1863,7 +1863,7 @@ TEST_F(NppsConstantArithmetic, nppsOrC_16u_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsOrC_32u_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint32_t> a = make_vec<uint32_t>(n, 639021938287405010);
+  std::vector<uint32_t> a = make_vec<uint32_t>(n, 266143341438707096);
   Npp32u nv = 0x0000000Fu;
   DeviceMemory<uint32_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1874,7 +1874,7 @@ TEST_F(NppsConstantArithmetic, nppsOrC_32u_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsOrC_32u_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint32_t> a = make_vec<uint32_t>(n, 639021938287405010);
+  std::vector<uint32_t> a = make_vec<uint32_t>(n, 266143341438707096);
   Npp32u nv = 0x0000000Fu;
   DeviceMemory<uint32_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1886,8 +1886,8 @@ TEST_F(NppsConstantArithmetic, nppsOrC_32u_I_NonCtx) {
 // ===== nppsXorC =====
 TEST_F(NppsConstantArithmetic, nppsXorC_8u_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 270326206904353237);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 752613671340762144);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 993805417151452452);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 983374037885571244);
   Npp8u nv = 0x55;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -1899,8 +1899,8 @@ TEST_F(NppsConstantArithmetic, nppsXorC_8u_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsXorC_8u_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint8_t> a = make_vec<uint8_t>(n, 270326206904353237);
-  std::vector<uint8_t> d = make_vec<uint8_t>(n, 752613671340762144);
+  std::vector<uint8_t> a = make_vec<uint8_t>(n, 993805417151452452);
+  std::vector<uint8_t> d = make_vec<uint8_t>(n, 983374037885571244);
   Npp8u nv = 0x55;
   DeviceMemory<uint8_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint8_t> dc(n); dc.copyFromHost(d);
@@ -1912,7 +1912,7 @@ TEST_F(NppsConstantArithmetic, nppsXorC_8u_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsXorC_16u_I_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 402064515581168950);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 1044170573487010752);
   Npp16u nv = 0xFFFF;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1923,7 +1923,7 @@ TEST_F(NppsConstantArithmetic, nppsXorC_16u_I_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsXorC_16u_I_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint16_t> a = make_vec<uint16_t>(n, 402064515581168950);
+  std::vector<uint16_t> a = make_vec<uint16_t>(n, 1044170573487010752);
   Npp16u nv = 0xFFFF;
   DeviceMemory<uint16_t> da(n); da.copyFromHost(a);
   clear_cuda_error();
@@ -1934,8 +1934,8 @@ TEST_F(NppsConstantArithmetic, nppsXorC_16u_I_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsXorC_32u_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<uint32_t> a = make_vec<uint32_t>(n, 356158499880678091);
-  std::vector<uint32_t> d = make_vec<uint32_t>(n, 1124761994832406305);
+  std::vector<uint32_t> a = make_vec<uint32_t>(n, 504060257433481072);
+  std::vector<uint32_t> d = make_vec<uint32_t>(n, 697302408748170578);
   Npp32u nv = 0x0F0F0F0Fu;
   DeviceMemory<uint32_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint32_t> dc(n); dc.copyFromHost(d);
@@ -1947,8 +1947,8 @@ TEST_F(NppsConstantArithmetic, nppsXorC_32u_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsXorC_32u_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<uint32_t> a = make_vec<uint32_t>(n, 356158499880678091);
-  std::vector<uint32_t> d = make_vec<uint32_t>(n, 1124761994832406305);
+  std::vector<uint32_t> a = make_vec<uint32_t>(n, 504060257433481072);
+  std::vector<uint32_t> d = make_vec<uint32_t>(n, 697302408748170578);
   Npp32u nv = 0x0F0F0F0Fu;
   DeviceMemory<uint32_t> da(n); da.copyFromHost(a);
   DeviceMemory<uint32_t> dc(n); dc.copyFromHost(d);
@@ -1961,8 +1961,8 @@ TEST_F(NppsConstantArithmetic, nppsXorC_32u_NonCtx) {
 // ===== nppsAddProductC =====
 TEST_F(NppsConstantArithmetic, nppsAddProductC_32f_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 631132306932883248);
-  std::vector<float> d = make_vec<float>(n, 25492882011031674);
+  std::vector<float> a = make_vec<float>(n, 274167609106720184);
+  std::vector<float> d = make_vec<float>(n, 979158341764992414);
   float nv = 0.6f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1974,8 +1974,8 @@ TEST_F(NppsConstantArithmetic, nppsAddProductC_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsAddProductC_32f_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<float> a = make_vec<float>(n, 631132306932883248);
-  std::vector<float> d = make_vec<float>(n, 25492882011031674);
+  std::vector<float> a = make_vec<float>(n, 274167609106720184);
+  std::vector<float> d = make_vec<float>(n, 979158341764992414);
   float nv = 0.6f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
   DeviceMemory<float> dc(n); dc.copyFromHost(d);
@@ -1988,8 +1988,8 @@ TEST_F(NppsConstantArithmetic, nppsAddProductC_32f_NonCtx) {
 // ===== nppsNormalize =====
 TEST_F(NppsConstantArithmetic, nppsNormalize_16s_Sfs_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 262515993339361546);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 949985268633629081);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 427437533044719025);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 84148425604899356);
   Npp16s vs = 5;
   int vd = 8;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
@@ -2002,8 +2002,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_16s_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_16s_Sfs_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<int16_t> a = make_vec<int16_t>(n, 262515993339361546);
-  std::vector<int16_t> d = make_vec<int16_t>(n, 949985268633629081);
+  std::vector<int16_t> a = make_vec<int16_t>(n, 427437533044719025);
+  std::vector<int16_t> d = make_vec<int16_t>(n, 84148425604899356);
   Npp16s vs = 5;
   int vd = 8;
   DeviceMemory<int16_t> da(n); da.copyFromHost(a);
@@ -2016,8 +2016,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_16s_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_16sc_Sfs_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 1008451032886700451);
-  std::vector<Npp16sc> d = v16sc(n, 1030927401130097483);
+  std::vector<Npp16sc> a = v16sc(n, 230598172379040495);
+  std::vector<Npp16sc> d = v16sc(n, 828546432418980615);
   Npp16sc vs; vs.re=5; vs.im=2;
   int vd = 8;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
@@ -2030,8 +2030,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_16sc_Sfs_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_16sc_Sfs_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp16sc> a = v16sc(n, 1008451032886700451);
-  std::vector<Npp16sc> d = v16sc(n, 1030927401130097483);
+  std::vector<Npp16sc> a = v16sc(n, 230598172379040495);
+  std::vector<Npp16sc> d = v16sc(n, 828546432418980615);
   Npp16sc vs; vs.re=5; vs.im=2;
   int vd = 8;
   DeviceMemory<Npp16sc> da(n); da.copyFromHost(a);
@@ -2044,8 +2044,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_16sc_Sfs_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_32f_Ctx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 234609660481008535);
-  std::vector<float> d = make_vec<float>(n, 685321875965966112);
+  std::vector<float> a = make_vec<float>(n, 189365986114792044);
+  std::vector<float> d = make_vec<float>(n, 168001027163538903);
   float vs = 1.0f;
   float vd = 2.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
@@ -2058,8 +2058,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_32f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_32f_NonCtx) {
   const NppSignalLength n = 257;
-  std::vector<float> a = make_vec<float>(n, 234609660481008535);
-  std::vector<float> d = make_vec<float>(n, 685321875965966112);
+  std::vector<float> a = make_vec<float>(n, 189365986114792044);
+  std::vector<float> d = make_vec<float>(n, 168001027163538903);
   float vs = 1.0f;
   float vd = 2.0f;
   DeviceMemory<float> da(n); da.copyFromHost(a);
@@ -2072,8 +2072,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_32f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_32fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 233201522518630827);
-  std::vector<Npp32fc> d = vfc(n, 19871838541667895);
+  std::vector<Npp32fc> a = vfc(n, 428934394640114960);
+  std::vector<Npp32fc> d = vfc(n, 129897418177233524);
   Npp32fc vs; vs.re=1.0f; vs.im=0.5f;
   float vd = 4.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
@@ -2086,8 +2086,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_32fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_32fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp32fc> a = vfc(n, 233201522518630827);
-  std::vector<Npp32fc> d = vfc(n, 19871838541667895);
+  std::vector<Npp32fc> a = vfc(n, 428934394640114960);
+  std::vector<Npp32fc> d = vfc(n, 129897418177233524);
   Npp32fc vs; vs.re=1.0f; vs.im=0.5f;
   float vd = 4.0f;
   DeviceMemory<Npp32fc> da(n); da.copyFromHost(a);
@@ -2100,8 +2100,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_32fc_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_64f_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 1031842670871497083);
-  std::vector<double> d = make_vec<double>(n, 908563516508248455);
+  std::vector<double> a = make_vec<double>(n, 904615059716259832);
+  std::vector<double> d = make_vec<double>(n, 1079330225399655484);
   double vs = 1.0;
   double vd = 2.0;
   DeviceMemory<double> da(n); da.copyFromHost(a);
@@ -2114,8 +2114,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_64f_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_64f_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<double> a = make_vec<double>(n, 1031842670871497083);
-  std::vector<double> d = make_vec<double>(n, 908563516508248455);
+  std::vector<double> a = make_vec<double>(n, 904615059716259832);
+  std::vector<double> d = make_vec<double>(n, 1079330225399655484);
   double vs = 1.0;
   double vd = 2.0;
   DeviceMemory<double> da(n); da.copyFromHost(a);
@@ -2128,8 +2128,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_64f_NonCtx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_64fc_Ctx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 34880544057123494);
-  std::vector<Npp64fc> d = vfc64(n, 905444126473897984);
+  std::vector<Npp64fc> a = vfc64(n, 498338023052673853);
+  std::vector<Npp64fc> d = vfc64(n, 1014732561326722495);
   Npp64fc vs; vs.re=1.0; vs.im=0.5;
   double vd = 4.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);
@@ -2142,8 +2142,8 @@ TEST_F(NppsConstantArithmetic, nppsNormalize_64fc_Ctx) {
 
 TEST_F(NppsConstantArithmetic, nppsNormalize_64fc_NonCtx) {
   const NppSignalLength n = 17;
-  std::vector<Npp64fc> a = vfc64(n, 34880544057123494);
-  std::vector<Npp64fc> d = vfc64(n, 905444126473897984);
+  std::vector<Npp64fc> a = vfc64(n, 498338023052673853);
+  std::vector<Npp64fc> d = vfc64(n, 1014732561326722495);
   Npp64fc vs; vs.re=1.0; vs.im=0.5;
   double vd = 4.0;
   DeviceMemory<Npp64fc> da(n); da.copyFromHost(a);

@@ -207,6 +207,17 @@ HDR = [
     "",
 ]
 
+def small_i64_ramp(name, n):
+    """Small int64 ramp for nppsMulC_64f64s_ISfs.
+
+    The in-place buffer is read as int64 (verified by a direct 5090 probe),
+    so the test fills it with small integers to exercise the rounding rule
+    without double-precision ambiguity.
+    """
+    vals = ", ".join(str(i - n // 2) for i in range(n))
+    return f"std::vector<long long> {name} = {{{vals}}};"
+
+
 def emit_other(base, n, dtype, mode, scale, vdecl):
     dd = dst_dtype(base, dtype)
     dm = D[dd]
@@ -227,7 +238,8 @@ def emit_other(base, n, dtype, mode, scale, vdecl):
     for flavour, call, func in (("Ctx", ctx_call, base + "_Ctx"), ("NonCtx", plain_call, base)):
         L.append(f"TEST_F(NppsConstantArithmetic, {base}_{flavour}) {{")
         L.append(f"  const NppSignalLength n = {n};")
-        if base == "nppsMulC_64f64s_ISfs":
+        special_64f64s = base == "nppsMulC_64f64s_ISfs"
+        if special_64f64s:
             L.append("  " + small_i64_ramp("a", n))
         else:
             L.append("  " + var_gen(dtype, "a", n, seedstr(base, "a")))
@@ -264,7 +276,8 @@ def emit_normalize(base, n, dtype, scale, vsub_decl, vdiv_expr):
     for flavour, func in (("Ctx", base + "_Ctx"), ("NonCtx", base)):
         L.append(f"TEST_F(NppsConstantArithmetic, {base}_{flavour}) {{")
         L.append(f"  const NppSignalLength n = {n};")
-        if base == "nppsMulC_64f64s_ISfs":
+        special_64f64s = base == "nppsMulC_64f64s_ISfs"
+        if special_64f64s:
             L.append("  " + small_i64_ramp("a", n))
         else:
             L.append("  " + var_gen(dtype, "a", n, seedstr(base, "a")))
