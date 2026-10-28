@@ -1,0 +1,17 @@
+{
+  "family": "nppsSum",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_sum_generated.cpp",
+  "includes": ["npps_sum_executor.h"],
+  "families": ["nppsSum", "nppsSumGetBufferSize"],
+  "call_by_family": {
+    "nppsSumGetBufferSize": "nppi::statistics::nppsSumGetBufferSize<{dtype}>(nLength, hpBufferSize)"
+  },
+  "call_variants": [
+    {
+      "contains": "nScaleFactor",
+      "call": "nppi::statistics::nppsSumSfs<{dtype}>(pSrc, nLength, pSum, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::nppsSum<{dtype}>(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream)"
+}

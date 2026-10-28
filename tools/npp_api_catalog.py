@@ -35,10 +35,16 @@ OUT_DIR = ROOT / "api_analysis"
 sys.path.insert(0, str(ROOT / "tools"))
 from analyze_api import APIAnalyzer  # noqa: E402
 
-# Data-type tokens that separate <family> from the variant suffix.
-DTYPE_RE = re.compile(
-    r"_(?:8u|8s|16u|16s|16f|32u|32s|32f|64f|8uc|8sc|16uc|16sc|32uc|32sc|32fc|64fc)(?=_|$)"
+# Data-type tokens that separate <family> from the variant suffix.  Longest
+# tokens come first; the lookahead also accepts a directly following second
+# type token (nppsSum_16s32s_Sfs) and a numeric suffix.
+DTYPE_TOKENS = (
+    "16uc", "16sc", "32uc", "32sc", "32fc", "64fc",
+    "8uc", "8sc", "16f", "64f",
+    "8u", "8s", "16u", "16s", "32u", "32s", "32f",
 )
+DTYPE_RE = re.compile(r"_(?:" + "|".join(DTYPE_TOKENS) + r")(?=_|$|[0-9])")
+DTYPE_AT_START_RE = re.compile(r"_(?:" + "|".join(DTYPE_TOKENS) + r")")
 CHANNEL_RE = re.compile(r"^(?P<prefix>AC|P)?(?P<c>C(?P<cm>\d+)|(?P<pm>\d+))(?P<rest>.*)$")
 
 BUFFER_HELPER_MARKERS = (
@@ -136,7 +142,7 @@ def classify(f: ApiFunc) -> None:
     m = DTYPE_RE.search(base)
     if m:
         f.family = base[: m.start()]
-        rest = base[m.end() - 1 :]
+        rest = base[m.start() :]
     else:
         f.family = base
         rest = ""
@@ -149,8 +155,12 @@ def classify(f: ApiFunc) -> None:
 
     # dtype is the first token after the family
     if m:
-        dtype_match = re.match(r"_(8u|8s|16u|16s|16f|32u|32s|32f|64f|8uc|8sc|16uc|16sc|32uc|32sc|32fc|64fc)(_|$)", rest)
-        f.dtype = dtype_match.group(1) if dtype_match else ""
+        dtype_match = DTYPE_AT_START_RE.match(rest)
+        f.dtype = dtype_match.group(0)[1:] if dtype_match else ""
+
+    # npps functions operate on signals; channel/layout axes do not apply.
+    if f.name.startswith("npps"):
+        return
 
     # channel/layout token: first token after dtype, e.g. C1R, AC4R, C1IR,
     # C3CMR, P3R, C1C3R.  Only the first token is used for the generic axis;

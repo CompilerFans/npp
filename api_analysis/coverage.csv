@@ -12485,10 +12485,10 @@ nppsSumGetBufferSize_16sc32sc_Sfs,npps_statistics_functions.h,no,,no,
 nppsSumGetBufferSize_16sc32sc_Sfs_Ctx,npps_statistics_functions.h,no,,no,
 nppsSumGetBufferSize_16sc_Sfs,npps_statistics_functions.h,no,,no,
 nppsSumGetBufferSize_16sc_Sfs_Ctx,npps_statistics_functions.h,no,,no,
-nppsSumGetBufferSize_32f,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
-nppsSumGetBufferSize_32f_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
+nppsSumGetBufferSize_32f,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/diff/test_npps_sum_generated.cpp;test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
+nppsSumGetBufferSize_32f_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/diff/test_npps_sum_generated.cpp
 nppsSumGetBufferSize_32fc,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
-nppsSumGetBufferSize_32fc_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
+nppsSumGetBufferSize_32fc_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/diff/test_npps_sum_generated.cpp
 nppsSumGetBufferSize_32s_Sfs,npps_statistics_functions.h,no,,no,
 nppsSumGetBufferSize_32s_Sfs_Ctx,npps_statistics_functions.h,no,,no,
 nppsSumGetBufferSize_64f,npps_statistics_functions.h,no,,no,
@@ -12503,10 +12503,10 @@ nppsSum_16sc32sc_Sfs,npps_statistics_functions.h,no,,no,
 nppsSum_16sc32sc_Sfs_Ctx,npps_statistics_functions.h,no,,no,
 nppsSum_16sc_Sfs,npps_statistics_functions.h,no,,no,
 nppsSum_16sc_Sfs_Ctx,npps_statistics_functions.h,no,,no,
-nppsSum_32f,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
-nppsSum_32f_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
+nppsSum_32f,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/diff/test_npps_sum_generated.cpp;test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
+nppsSum_32f_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/diff/test_npps_sum_generated.cpp
 nppsSum_32fc,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
-nppsSum_32fc_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/npps/npps_statistics_functions/test_npps_sum.cpp
+nppsSum_32fc_Ctx,npps_statistics_functions.h,yes,src/npps/npps_statistics_functions/npps_sum.cpp,yes,test/unit/diff/test_npps_sum_generated.cpp
 nppsSum_32s_Sfs,npps_statistics_functions.h,no,,no,
 nppsSum_32s_Sfs_Ctx,npps_statistics_functions.h,no,,no,
 nppsSum_64f,npps_statistics_functions.h,no,,no,
