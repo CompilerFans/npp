@@ -39,8 +39,8 @@ from analyze_api import APIAnalyzer  # noqa: E402
 # tokens come first; the lookahead also accepts a directly following second
 # type token (nppsSum_16s32s_Sfs) and a numeric suffix.
 DTYPE_TOKENS = (
-    "16uc", "16sc", "32uc", "32sc", "32fc", "64fc",
-    "8uc", "8sc", "16f", "64f",
+    "16uc", "16sc", "32uc", "32sc", "32fc", "64fc", "64sc",
+    "8uc", "8sc", "16f", "64f", "64u", "64s",
     "8u", "8s", "16u", "16s", "32u", "32s", "32f",
 )
 DTYPE_RE = re.compile(r"_(?:" + "|".join(DTYPE_TOKENS) + r")(?=_|$|[0-9])")

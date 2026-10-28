@@ -53,6 +53,8 @@ DTYPE_TO_CTYPE = {
     "32s": "Npp32s",
     "32f": "Npp32f",
     "64f": "Npp64f",
+    "64u": "Npp64u",
+    "64s": "Npp64s",
     "8uc": "Npp8uc",
     "8sc": "Npp8sc",
     "16uc": "Npp16uc",
@@ -61,6 +63,7 @@ DTYPE_TO_CTYPE = {
     "32sc": "Npp32sc",
     "32fc": "Npp32fc",
     "64fc": "Npp64fc",
+    "64sc": "Npp64sc",
 }
 
 

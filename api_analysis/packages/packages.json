@@ -1,0 +1,41 @@
+{
+  "p1.1a": {
+    "title": "NPPS binary arithmetic (Add/Sub/Mul/Div/AddProduct/Div_Round)",
+    "module": "npps_arithmetic_and_logical_operations.h",
+    "families": ["nppsAdd", "nppsSub", "nppsMul", "nppsDiv", "nppsAddProduct", "nppsDiv_Round"]
+  },
+  "p1.1b": {
+    "title": "NPPS constant and normalization operations",
+    "module": "npps_arithmetic_and_logical_operations.h",
+    "families": [
+      "nppsAddC", "nppsAddProductC", "nppsSubC", "nppsSubCRev", "nppsMulC",
+      "nppsMulC_Low", "nppsDivC", "nppsDivCRev", "nppsNormalize",
+      "nppsAndC", "nppsOrC", "nppsXorC"
+    ]
+  },
+  "p1.1c": {
+    "title": "NPPS unary, bitwise and shift operations",
+    "module": "npps_arithmetic_and_logical_operations.h",
+    "families": [
+      "nppsAbs", "nppsSqrt", "nppsSqr", "nppsExp", "nppsLn", "npps10Log10",
+      "nppsArctan", "nppsCubrt", "nppsSumLn", "nppsSumLnGetBufferSize",
+      "nppsNot", "nppsAnd", "nppsOr", "nppsXor",
+      "nppsLShiftC", "nppsRShiftC", "nppsMul_Low",
+      "nppsCauchy", "nppsCauchyD", "nppsCauchyDD2"
+    ]
+  },
+  "p1.2a": {
+    "title": "NPPS initialization (Set/Copy/Zero)",
+    "module": "npps_initialization.h",
+    "families": ["nppsSet", "nppsCopy", "nppsZero"]
+  },
+  "p1.2b": {
+    "title": "NPPS conversion and threshold",
+    "module": "npps_conversion_functions.h",
+    "families": [
+      "nppsConvert", "nppsThreshold", "nppsThreshold_GT", "nppsThreshold_GTVal",
+      "nppsThreshold_LT", "nppsThreshold_LTVal", "nppsThreshold_LTValGTVal",
+      "nppsThreshold_Val"
+    ]
+  }
+}
