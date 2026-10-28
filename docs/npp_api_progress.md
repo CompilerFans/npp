@@ -10,11 +10,11 @@
 | 指标 | 数值 |
 |---|---:|
 | 公共函数 | 12,537 |
-| 真实实现 | 4,504 |
+| 真实实现 | 4,664 |
 | 显式 stub | 166 |
-| 缺失 | 7,867 |
-| 待实现（stub+missing） | 8,033 |
-| 待实现 `_Ctx` | 4,071 |
+| 缺失 | 7,707 |
+| 待实现（stub+missing） | 7,873 |
+| 待实现 `_Ctx` | 3,991 |
 | 本地回归基线 | 4,803 tests, 0 failures |
 
 ## 2. 基础设施（已完成）
@@ -42,7 +42,8 @@
 | P1.2a | NPPS 初始化 Set/Copy/Zero | 60 | ✅ 已合并 | `pkg/p1.2a` → merge |
 | P1.2b | NPPS 转换/阈值 Convert/Threshold | 174 | ✅ 已合并 | `pkg/p1.2b` → merge |
 | P2.1a | NPPI Convert 数据类型转换 | 200 | ✅ 已实现 | `pkg/p2.1a` → `ed8a5bd` |
-| P2.1b | NPPI Copy（packed/planar/planar↔packed） | 160 | 运行中 | `pkg/p2.1b` |
+| P2.1b | NPPI Copy（packed/planar/planar↔packed） | 160 | ✅ 已合并 | `pkg/p2.1b` → merge |
+| P2.1c | NPPI Set / Dup | 174 | 运行中 | `pkg/p2.1c` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
