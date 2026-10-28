@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 4130 (32.9%)
+- Real implementations: 4304 (34.3%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 8241
-- Tested: 3638 (29.0%)
-- Real and tested: 3608
+- Missing: 8067
+- Tested: 3715 (29.6%)
+- Real and tested: 3685
 
 ## By module
 
@@ -22,7 +22,7 @@
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 52 | 0 | 366 | 52 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 525 |
-| npps_conversion_functions.h | 174 | 0 | 0 | 174 | 0 |
+| npps_conversion_functions.h | 174 | 174 | 0 | 0 | 77 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
 | npps_statistics_functions.h | 766 | 8 | 0 | 758 | 8 |
@@ -63,7 +63,6 @@
 | npps_statistics_functions.h | nppsAverageRelativeError | 56 | 28 |
 | npps_statistics_functions.h | nppsMaximumError | 56 | 28 |
 | npps_statistics_functions.h | nppsMaximumRelativeError | 56 | 28 |
-| npps_conversion_functions.h | nppsConvert | 54 | 27 |
 | nppi_statistics_functions.h | nppiNormInf | 50 | 25 |
 | nppi_statistics_functions.h | nppiNorm_Inf | 50 | 25 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
@@ -72,3 +71,4 @@
 | nppi_statistics_functions.h | nppiCrossCorrFull_Norm | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrSame_NormLevel | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrSame_Norm | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrValid_NormLevel | 48 | 24 |

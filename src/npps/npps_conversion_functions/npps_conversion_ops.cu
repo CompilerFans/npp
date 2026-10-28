@@ -52,11 +52,12 @@ __device__ __host__ __forceinline__ D rnd_sat(double v, NppRoundMode mode) {
   } else if (mode == NPP_RND_ZERO) {
     r = (long long)v;
   } else {  // NPP_RND_NEAR : nearest, ties to even
-    const double lo = std::floor(v);
-    const double f = v - lo;
-    long long rr = (long long)lo;
-    if (f > 0.5 || (f == 0.5 && (rr & 1LL))) rr += (v >= 0.0 ? 1 : -1);
-    r = rr;
+    const double av = std::fabs(v);
+    const double lo = std::floor(av);
+    const double f = av - lo;
+    long long m = (long long)lo;
+    const bool up = (f > 0.5) || (f == 0.5 && (m & 1LL));
+    r = (v < 0.0) ? -(m + (up ? 1 : 0)) : (m + (up ? 1 : 0));
   }
   return sat<D>((double)r);
 }
@@ -77,10 +78,12 @@ template <typename A, typename D>
 __global__ void convert_scale_kernel(const A* src, D* dst, NppSignalLength n, int sf) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < (size_t)n) {
+    const double val = (double)ek::re_l(src[i]) / pow2d(sf);
     if constexpr (std::is_floating_point_v<D>) {
-      dst[i] = (D)((double)ek::re_l(src[i]) / pow2d(sf));
+      dst[i] = (D)val;
     } else {
-      dst[i] = ek::scale_sat<D>(ek::re_ll(src[i]), sf);
+      // Integer-destination Sfs (no explicit round mode) uses round-half-away-from-zero.
+      dst[i] = rnd_sat<D>(val, NPP_RND_FINANCIAL);
     }
   }
 }

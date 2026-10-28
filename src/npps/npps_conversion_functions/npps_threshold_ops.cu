@@ -23,13 +23,15 @@ inline NppStatus finish_launch() {
 template <typename T, typename L>
 __device__ __host__ __forceinline__ bool cmp(const T& s, L level, NppCmpOp op) {
   if constexpr (ed::is_complex_v<T>) {
-    const double re = (double)s.re;
+    using CF = std::conditional_t<std::is_same_v<T, Npp64fc>, double, float>;
+    const CF mag = sqrt((CF)s.re * (CF)s.re + (CF)s.im * (CF)s.im);
+    const CF lv = (CF)level;
     switch (op) {
-      case NPP_CMP_LESS:       return re <  (double)level;
-      case NPP_CMP_LESS_EQ:    return re <= (double)level;
-      case NPP_CMP_EQ:         return re == (double)level;
-      case NPP_CMP_GREATER_EQ: return re >= (double)level;
-      case NPP_CMP_GREATER:    return re >  (double)level;
+      case NPP_CMP_LESS:       return mag <  lv;
+      case NPP_CMP_LESS_EQ:    return mag <= lv;
+      case NPP_CMP_EQ:         return mag == lv;
+      case NPP_CMP_GREATER_EQ: return mag >= lv;
+      case NPP_CMP_GREATER:    return mag >  lv;
       default:                 return false;
     }
   } else {
@@ -48,7 +50,17 @@ template <typename T, typename L>
 __device__ __host__ __forceinline__ T set_value(const T& s, L level, bool pass) {
   if (!pass) return s;
   if constexpr (ed::is_complex_v<T>) {
-    return T{};  // zero complex
+    // Passing complex samples are rescaled to have magnitude == level
+    // (dst = src * level / |src|), with component precision matching the type.
+    using F = std::conditional_t<std::is_same_v<T, Npp64fc>, double, float>;
+    const F re = (F)s.re;
+    const F im = (F)s.im;
+    const F mag = sqrt(re * re + im * im);
+    const F f = (F)level / mag;
+    T r{};
+    r.re = (decltype(r.re))(re * f);
+    r.im = (decltype(r.im))(im * f);
+    return r;
   } else {
     return (T)level;
   }
