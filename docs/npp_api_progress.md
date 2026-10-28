@@ -28,7 +28,7 @@
 
 验证矩阵：
 
-- 本地：`./build.sh`，`LD_LIBRARY_PATH=build/src`，`./build/unit_tests` / `./build/diff_tests`
+- 本地：`source ~/.config/mcpp-build.env`（全新 worktree 需要 `CUDAToolkit_ROOT`）→ `./build.sh` → `LD_LIBRARY_PATH=build/src` → `./build/unit_tests` / `./build/diff_tests`
 - 5090：`tools/remote5090.sh build|record|pull`，`metax@10.2.120.6`
 - 差分：5090 record（NVIDIA NPP 13.4）→ 本地 verify（MACA）
 

@@ -171,7 +171,7 @@
 
 | 编号 | 环境 | 命令 | 何时运行 |
 |---|---|---|---|
-| A | 本地 MACA（cu-bridge） | `./build.sh && ./build/unit_tests --gtest_filter=<focused>` | 每个工作包 |
+| A | 本地 MACA（cu-bridge） | `source ~/.config/mcpp-build.env && ./build.sh && ./build/unit_tests --gtest_filter=<focused>` | 每个工作包 |
 | B | 本地全量回归 | `./build/unit_tests` / `ctest --output-on-failure` | 每个工作包合并前 |
 | C | 5090 NVIDIA NPP 13.4 | `tools/remote5090.sh sync build test record verify` | 每个工作包（差分基线） |
 | D | 本地原生 MACA | `./build.sh --maca --without-cu-bridge` | 每个里程碑 M1/M3/M5/M7 |
