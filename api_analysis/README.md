@@ -14,8 +14,15 @@ API analysis and coverage tracking for NPP library implementation.
 
 ### Coverage Reports
 
-- `coverage.csv` - Detailed coverage status for each function
+- `coverage.csv` - Legacy-compatible coverage status for each function
+  (`implemented=yes` only counts real code, not `NPP_NOT_IMPLEMENTED_ERROR`
+  stubs)
 - `coverage_summary.md` - Summary statistics by module
+- `api_catalog.csv` - Public API contract parsed from `API/` with family,
+  dtype, channel/layout, in-place and Ctx axes plus a `real`/`stub`/`missing`
+  status
+- `backlog.csv` - Family-level backlog (remaining functions split into Ctx /
+  non-Ctx) used to define implementation work packages
 
 ## Usage
 
@@ -47,12 +54,25 @@ Analyze implementation and test coverage:
 Or manually:
 
 ```bash
-python3 tools/check_coverage.py
+python3 tools/npp_api_catalog.py --update
 ```
+
+Useful filters while working on a family:
+
+```bash
+python3 tools/npp_api_catalog.py --group nppsSum --list
+python3 tools/npp_api_catalog.py --module nppi_statistics --status missing
+```
+
+`tools/check_coverage.py` is kept for the legacy 12.2 CSV view, but it cannot
+distinguish a real implementation from a `NPP_NOT_IMPLEMENTED_ERROR` stub and
+is superseded by `npp_api_catalog.py`.
 
 Outputs:
 - `coverage.csv` - Implementation and test status for each function
 - `coverage_summary.md` - Coverage statistics by module
+- `api_catalog.csv` - Public contract + family axes + corrected status
+- `backlog.csv` - Family-level remaining work
 
 ## CSV Formats
 

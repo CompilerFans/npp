@@ -9,7 +9,10 @@ API_DIR="api_analysis"
 echo "Updating coverage analysis..."
 
 # Run coverage analysis
-python3 tools/check_coverage.py
+# npp_api_catalog.py parses the public API/ headers and distinguishes real
+# implementations from NPP_NOT_IMPLEMENTED_ERROR stubs.  check_coverage.py
+# remains available for the legacy 12.2 CSV view but overcounts stubs.
+python3 tools/npp_api_catalog.py --update
 
 # Generate untested functions list for arithmetic module
 echo "Generating untested arithmetic APIs list..."
