@@ -88,6 +88,7 @@ echo ">> log     : $log"
 echo ">> model   : ${ANTHROPIC_MODEL:-<unset>}"
 
 cmd=(claude -p --bare --permission-mode bypassPermissions
+     --allowedTools "Bash Read Write Edit Glob Grep"
      --append-system-prompt "$system_prompt"
      "$prompt")
 
