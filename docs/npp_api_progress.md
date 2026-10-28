@@ -41,7 +41,7 @@
 | P1.1c | NPPS 一元/位运算/移位 | 258 | ✅ 已合并 | `pkg/p1.1c` → `a9757d5` |
 | P1.2a | NPPS 初始化 Set/Copy/Zero | 60 | ✅ 已合并 | `pkg/p1.2a` → merge |
 | P1.2b | NPPS 转换/阈值 Convert/Threshold | 174 | ✅ 已合并 | `pkg/p1.2b` → merge |
-| P2.1a | NPPI Convert 数据类型转换 | 200 | 运行中 | `pkg/p2.1a` |
+| P2.1a | NPPI Convert 数据类型转换 | 200 | ✅ 已实现 | `pkg/p2.1a` → `ed8a5bd` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
