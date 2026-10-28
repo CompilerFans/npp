@@ -462,6 +462,7 @@ public:
     rec.atol = atol;
     rec.bytes.resize(count * element_size(kind));
     if (count > 0 && ptr != nullptr) {
+      cudaDeviceSynchronize();
       cudaError_t err = cudaMemcpy(rec.bytes.data(), ptr, rec.bytes.size(), cudaMemcpyDeviceToHost);
       if (err != cudaSuccess) {
         ADD_FAILURE() << "cudaMemcpy(D2H) failed for case " << id_ << ": " << cudaGetErrorString(err);
