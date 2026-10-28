@@ -271,20 +271,18 @@
 
 ### 6.2 执行流程
 
-1. Lead 从集成分支创建 `pkg/<id>` 分支与 worktree：`git worktree add /home/cjxu/worktrees/mcMPP-<id> -b pkg/<id> feat/npp-api-expansion`。
+1. Lead 从集成分支创建 `pkg/<id>` 分支；在主 checkout 内原地运行（`tools/agents/run_package.sh <id> --in-place`）。全新 worktree 无法用 CMake 4.4 配置 cu-bridge，因此不使用 worktree；工作包串行执行。
 2. Lead 写 `docs/agent_packages/<id>.md`（范围、家族清单、参考实现、验收命令、已知风险）。
-3. 启动 agent：
+3. 启动 agent（runner 已封装网关环境、工具白名单和日志）：
 
 ```bash
-cd /home/cjxu/worktrees/mcMPP-<id>
-export ANTHROPIC_BASE_URL="https://llm-gw.kai.metax-tech.com"
-export ANTHROPIC_AUTH_TOKEN="<gateway-token>"
-export ANTHROPIC_MODEL="deepseek-v4-flash"
-export CLAUDE_CODE_MAX_CONTEXT_TOKENS=1000000
-claude -p --permission-mode bypassPermissions \
-  --append-system-prompt "你是 mcMPP 的 NPP API 实现子 agent..." \
-  "$(cat docs/agent_packages/<id>.md)"
+tools/agents/run_package.sh <id> --in-place
 ```
+
+runner 会从 `~/.config/mcpp-agent.env` 读取网关凭据，从
+`~/.config/mcpp-build.env` 读取构建环境，并在 `pkg/<id>` 上运行。
+**禁止 agent 执行 `cmake_maca`/`make_maca`**；主 checkout 的 `build/`
+缓存是唯一可用的本地 cu-bridge 构建。
 
 4. Agent 完成后：Lead 检查 `git log/diff`，运行 A/B/C 验证与覆盖率，`git merge --no-ff pkg/<id>` 到集成分支。
 5. 更新 `docs/npp_api_progress.md` 与 `api_analysis/backlog.csv` 状态，再启动下一个包。
