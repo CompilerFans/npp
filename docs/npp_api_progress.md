@@ -10,11 +10,11 @@
 | 指标 | 数值 |
 |---|---:|
 | 公共函数 | 12,537 |
-| 真实实现 | 3,812 |
+| 真实实现 | 4,070 |
 | 显式 stub | 166 |
-| 缺失 | 8,559 |
-| 待实现（stub+missing） | 8,725 |
-| 待实现 `_Ctx` | 4,417 |
+| 缺失 | 8,301 |
+| 待实现（stub+missing） | 8,467 |
+| 待实现 `_Ctx` | 4,288 |
 | 本地回归基线 | 4,803 tests, 0 failures |
 
 ## 2. 基础设施（已完成）
@@ -38,8 +38,8 @@
 |---|---|---:|---|---|
 | P1.1a | NPPS 二元算术 Add/Sub/Mul/Div/AddProduct/Div_Round | 220 | ✅ 已合并 | `pkg/p1.1a` → `388785f` |
 | P1.1b | NPPS 常量/归一化 AddC/SubC/.../Normalize | 256 | ✅ 已合并 | `pkg/p1.1b` → `c140859` |
-| P1.1c | NPPS 一元/位运算/移位 | 258 | 运行中 | `pkg/p1.1c` |
-| P1.2a | NPPS 初始化 Set/Copy/Zero | 60 | 待启动 | — |
+| P1.1c | NPPS 一元/位运算/移位 | 258 | ✅ 已合并 | `pkg/p1.1c` → `a9757d5` |
+| P1.2a | NPPS 初始化 Set/Copy/Zero | 60 | 下一步 | — |
 | P1.2b | NPPS 转换/阈值 Convert/Threshold | 174 | 待启动 | — |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
@@ -63,6 +63,7 @@
 ## 5. 决策记录
 
 - **P1.1a 结果**：220 个函数全部实现；136 个差分 case（68 组 Ctx/非 Ctx）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。
+- **P1.1c 结果**：258 个函数全部实现；529 个差分 case（binary+constant+unary 全矩阵）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。三个差分生成器的种子改为 SHA-256（原先 Python `hash()` 每次进程随机，导致重生成后 golden 全部失效）。`nppsLn_64f32f` 为有意偏离：NPP 13.4 返回 round(ln)，我们按 API 契约返回自然对数，并用 CPU 参考测试。`nppsExp_32s_Sfs` 因 expf 跨平台末位差异使用 1e-6/2 容差。
 - **P1.1b 结果**：256 个函数全部实现；174 个差分 case 在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。`nppsMulC_64f64s_ISfs` 的原地缓冲区实际按 int64 读取，舍入为“先 round-half-away 到 int64，再按符号加 ±1 后算术右移”，已用 5090 直连探针验证 204 个点。
 - **Agent 运行方式**：全新 worktree 无法用 CMake 4.4 配置 cu-bridge（`FindCUDAToolkit` 需要 `nvvm/libdevice`，cucc 的 implicit-link 输出也不兼容），因此工作包 agent 改为在主 checkout 上 `--in-place` 串行运行，复用已配置的 `build/` 缓存。**禁止运行 `cmake_maca`/`make_maca`**（它们会 `rm -rf ~/cu-bridge`，曾导致工具链损坏，已用 cu-bridge 的 `make_maca` 重建）。
 - 基线使用 `dev`，不包含待合并的 238733；P1.10（颜色）必须等 238733 合入或显式 rebase 后启动。
