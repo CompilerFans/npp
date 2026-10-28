@@ -192,8 +192,18 @@ protected:
     std::vector<T> dstInit(width * height * 4, fillValue<T>());
     dst.copyFromHost(dstInit);
 
+    // AC4R only permutes the three RGB planes; aDstOrder here is a valid
+    // permutation, so NVIDIA NPP 13.4 returns NPP_SUCCESS (verified on 5090).
     int order[3] = {2, 1, 0};
-    EXPECT_EQ(call(src.get(), src.step(), dst.get(), dst.step(), order), NPP_BAD_ARGUMENT_ERROR);
+    ASSERT_EQ(call(src.get(), src.step(), dst.get(), dst.step(), order), NPP_SUCCESS);
+
+    std::vector<T> dstData;
+    dst.copyToHost(dstData);
+    for (int i = 0; i < width * height; ++i) {
+      expectValue(dstData[i * 4 + 0], values[2]);
+      expectValue(dstData[i * 4 + 1], values[1]);
+      expectValue(dstData[i * 4 + 2], values[0]);
+    }
   }
 };
 

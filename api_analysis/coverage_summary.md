@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 4838 (38.6%)
+- Real implementations: 4948 (39.5%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 7533
-- Tested: 3960 (31.6%)
-- Real and tested: 3930
+- Missing: 7423
+- Tested: 3979 (31.7%)
+- Real and tested: 3970
 
 ## By module
 
@@ -13,7 +13,7 @@
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2109 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 316 |
-| nppi_data_exchange_and_initialization.h | 966 | 674 | 0 | 292 | 372 |
+| nppi_data_exchange_and_initialization.h | 966 | 784 | 0 | 182 | 391 |
 | nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 68 |
 | nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 181 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
@@ -40,7 +40,6 @@
 | npps_statistics_functions.h | nppsDotProd | 100 | 50 |
 | nppi_statistics_functions.h | nppiMean | 92 | 46 |
 | nppi_statistics_functions.h | nppiSum | 72 | 36 |
-| nppi_data_exchange_and_initialization.h | nppiSwapChannels | 70 | 35 |
 | nppi_filtering_functions.h | nppiFilter32f | 66 | 33 |
 | nppi_filtering_functions.h | nppiFilterBorder32f | 66 | 33 |
 | nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
@@ -72,3 +71,4 @@
 | nppi_statistics_functions.h | nppiCrossCorrValid_Norm | 48 | 24 |
 | nppi_statistics_functions.h | nppiFullNormLevel | 48 | 24 |
 | nppi_statistics_functions.h | nppiNormDiffInf | 48 | 24 |
+| nppi_statistics_functions.h | nppiNormDiffL1 | 48 | 24 |
