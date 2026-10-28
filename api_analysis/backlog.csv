@@ -146,11 +146,8 @@ nppi_geometry_transforms.h,nppiWarpAffineBatch,22,0,0,22,11,11,0,22
 nppi_geometry_transforms.h,nppiWarpPerspectiveBatch,22,0,0,22,11,11,4,22
 nppi_morphological_operations.h,nppiDilate3x3,26,4,0,22,11,11,4,22
 nppi_morphological_operations.h,nppiErode3x3,26,4,0,22,11,11,4,22
-npps_initialization.h,nppsSet,28,6,0,22,11,11,6,22
-npps_initialization.h,nppsCopy,20,0,0,20,10,10,0,20
 nppi_filtering_functions.h,nppiSumWindowColumnBorder,18,0,0,18,9,9,0,18
 nppi_filtering_functions.h,nppiSumWindowRowBorder,18,0,0,18,9,9,0,18
-npps_initialization.h,nppsZero,22,4,0,18,9,9,4,18
 nppi_filtering_functions.h,nppiHistogramOfGradientsBorder,17,0,0,17,8,9,0,17
 nppi_color_conversion.h,nppiColorTwistBatch,16,0,0,16,8,8,0,16
 nppi_filtering_functions.h,nppiFilterMax,32,16,0,16,8,8,10,16
@@ -530,5 +527,8 @@ npps_arithmetic_and_logical_operations.h,nppsSumLn,16,16,0,0,0,0,16,0
 npps_arithmetic_and_logical_operations.h,nppsXor,12,12,0,0,0,0,12,0
 npps_arithmetic_and_logical_operations.h,nppsXorC,12,12,0,0,0,0,6,0
 npps_filtering_functions.h,nppsIntegral,3,3,0,0,0,0,3,0
+npps_initialization.h,nppsCopy,20,20,0,0,0,0,20,0
+npps_initialization.h,nppsSet,28,28,0,0,0,0,28,0
+npps_initialization.h,nppsZero,22,22,0,0,0,0,22,0
 npps_support_functions.h,nppsFree,1,1,0,0,0,0,1,0
 npps_support_functions.h,nppsMalloc,14,14,0,0,0,0,6,0

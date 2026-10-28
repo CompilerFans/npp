@@ -1,0 +1,8 @@
+{
+  "family": "nppsSet",
+  "module": "npps_initialization.h",
+  "source": "src/npps/npps_initialization/npps_set_generated.cpp",
+  "includes": ["npps_initialization_executor.h"],
+  "families": ["nppsSet"],
+  "call": "npps::init::set<{dtype}>(nValue, pDst, nLength, nppStreamCtx.hStream)"
+}

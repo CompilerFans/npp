@@ -1,0 +1,8 @@
+{
+  "family": "nppsCopy",
+  "module": "npps_initialization.h",
+  "source": "src/npps/npps_initialization/npps_copy_generated.cpp",
+  "includes": ["npps_initialization_executor.h"],
+  "families": ["nppsCopy"],
+  "call": "npps::init::copy<{dtype}>(pSrc, pDst, nLength, nppStreamCtx.hStream)"
+}
