@@ -24,3 +24,6 @@ examples/cuda-samples
 # Python
 __pycache__/
 *.pyc
+
+# 5090 differential test artifacts
+artifacts/

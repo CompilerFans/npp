@@ -198,7 +198,7 @@
 | ID | 内容 | 交付物 | 依赖 |
 |---|---|---|---|
 | P0.1 | Catalog/backlog 工具：解析 API-unified、区分 real/stub/missing、生成 family backlog | `tools/npp_api_catalog.py`、`api_analysis/api_catalog.csv`、`backlog.csv` | — |
-| P0.2 | 差分测试框架 + NPPS 测试恢复 + contract 测试基类 | `test/unit/framework/npp_diff_harness.h`、CMake 改动 | P0.1 |
+| P0.2 | 差分测试框架 + contract 测试基类；建立“按家族恢复 legacy npps 测试”的 CMake 机制（npps 测试引用了尚未实现的 API，不能一次性全量启用） | `test/unit/framework/npp_diff_harness.h`、`diff_tests` 目标、CMake 改动 | P0.1 |
 | P0.3 | 5090 runner + 本地验证脚本 + 凭据外置 | `tools/remote5090.sh`、`tools/validate.sh` | — |
 | P0.4 | 生成器 + pilot（`nppsSum` 18 个函数）端到端验证 | `mpp_scripts/gen_family.py`、`families/nppsSum.json`、生成物+测试 | P0.1-P0.3 |
 

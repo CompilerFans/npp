@@ -1,17 +1,18 @@
 # NPP单元测试CMake配置
 # 基于API头文件结构组织的测试架构
 
-# 递归查找所有测试文件
-file(GLOB_RECURSE UNIT_TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_*.cpp
-
-    # npps diff by version. comment temp
-    # cuda 12.8
-    #           Npp32fc * nppsMalloc_32fc(size_t nSize);
-    # cuda 12.2/11.4
-    #           Npp32fc * nppsMalloc_32fc(int nSize);
-    #${CMAKE_CURRENT_SOURCE_DIR}/npps/test_*.cpp
-)
+# NVIDIA NPP 13 removed the non-Ctx entry points, while most existing tests
+# call them directly.  The full suite is therefore built only for MPP/MACA;
+# the reference build uses the Ctx-only stream and differential targets.
+if(NOT USE_NVIDIA_NPP)
+    # 递归查找所有测试文件
+    # The legacy npps tests are enabled per family by the NPPS work packages
+    # (P1.1-P1.3): they currently reference APIs that are not implemented yet,
+    # so globbing them here would break the link of the whole suite.
+    file(GLOB_RECURSE UNIT_TEST_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/nppi/test_*.cpp
+    )
+endif()
 
 # 显示找到的测试文件 (按模块分组)
 message(STATUS "Found unit test files by module:")
@@ -23,17 +24,35 @@ foreach(test_file ${UNIT_TEST_SOURCES})
     message(STATUS "  [${module_dir}] ${rel_path}")
 endforeach()
 
-# 使用模块化函数创建单元测试
-npp_create_test_suite("unit" "${UNIT_TEST_SOURCES}" npp)
+if(NOT USE_NVIDIA_NPP)
+    # 使用模块化函数创建单元测试
+    npp_create_test_suite("unit" "${UNIT_TEST_SOURCES}" npp)
 
-# 为单元测试添加特定的包含路径
-target_include_directories(unit_tests
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/framework   # test framework
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src   # src root
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/include    # src include (npp_version_compat.h, etc.)
-    ${CMAKE_CURRENT_SOURCE_DIR}             # ut root
+    # 为单元测试添加特定的包含路径
+    target_include_directories(unit_tests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/framework   # test framework
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../src   # src root
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/include    # src include (npp_version_compat.h, etc.)
+        ${CMAKE_CURRENT_SOURCE_DIR}             # ut root
+    )
+endif()
+
+# Differential tests (record on NVIDIA NPP, verify on MPP).  Only Ctx entry
+# points are referenced by generated tests, so the target builds against the
+# reference NPP 13 headers as well.
+file(GLOB_RECURSE DIFF_TEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/diff/test_*_generated.cpp
 )
+if(DIFF_TEST_SOURCES)
+    npp_create_test_target(diff_tests "${DIFF_TEST_SOURCES}" npp)
+    target_include_directories(diff_tests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/framework
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    npp_register_test(diff diff_tests)
+endif()
 
 # NPP 13 removed the non-Ctx entry points, so the full suite cannot link against
 # the reference NPP.  The stream tests only use Ctx entry points; build them as
