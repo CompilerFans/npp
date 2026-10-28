@@ -77,7 +77,10 @@ Follow docs/agent_packages/<package>.md exactly. Work only in the current git wo
 Never push to Gerrit or any remote, never force-push, never rewrite the integration branch.
 Commit your work on the current branch. If a requirement is impossible or ambiguous, stop and
 write the question into your final report instead of guessing. Prefer the existing executor,
-policy-template and differential-test patterns over new frameworks.'
+policy-template and differential-test patterns over new frameworks.
+NEVER run cmake_maca or make_maca: they recreate and delete ~/cu-bridge, breaking the local
+toolchain for everyone. For a fresh worktree build use ./build.sh --without-cu-bridge
+(native MACA); do not try to "repair" the toolkit.'
 
 prompt="Read docs/agent_packages/$pkg.md and execute it end to end. The package function list is api_analysis/packages/$pkg.csv. Work in the current worktree, commit on the current branch ($branch), and finish with the report described in the document. Do not push."
 
