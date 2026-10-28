@@ -24,6 +24,7 @@
 #include "npp_version_compat.h"
 
 #include <cuda_runtime.h>
+#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -77,8 +78,6 @@ template <typename F, typename A, typename D>
 NppStatus binaryRoundInplace(const A* a, D* d, NppSignalLength nLength, NppRoundMode mode,
                              int nScaleFactor, cudaStream_t stream);
 
-#if defined(__CUDACC__)
-
 namespace detail {
 constexpr int kBlock = 256;
 
@@ -98,10 +97,23 @@ __device__ __forceinline__ long long re_ll(const Npp64s& v) { return (long long)
 __device__ __forceinline__ long long re_ll(const Npp32f& v) { return (long long)v; }
 __device__ __forceinline__ long long re_ll(const Npp64f& v) { return (long long)v; }
 
+__device__ __forceinline__ long long re_ll(const Npp16sc& v) { return (long long)v.re; }
+__device__ __forceinline__ long long re_ll(const Npp32sc& v) { return (long long)v.re; }
+
 __device__ __forceinline__ long long im_ll(const Npp16sc& v) { return (long long)v.im; }
 __device__ __forceinline__ long long im_ll(const Npp32sc& v) { return (long long)v.im; }
 __device__ __forceinline__ long long im_ll(const Npp32fc&) { return 0; }
 __device__ __forceinline__ long long im_ll(const Npp64fc&) { return 0; }
+__device__ __forceinline__ long long im_ll(const Npp8u&  v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp8s&  v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp16u& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp16s& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp32u& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp32s& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp64u& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp64s& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp32f& v) { (void)v; return 0; }
+__device__ __forceinline__ long long im_ll(const Npp64f& v) { (void)v; return 0; }
 
 __device__ __forceinline__ long double re_l(const Npp8u&  v) { return (long double)v; }
 __device__ __forceinline__ long double re_l(const Npp8s&  v) { return (long double)v; }
@@ -145,28 +157,60 @@ template <typename T> __device__ __host__ __forceinline__ T sat_ll(long long v) 
   else { return static_cast<T>(v); }
 }
 
-// Default Sfs scaling: round-half-up right shift, then saturate.
+// Default Sfs scaling: divide by 2^sf with round-half-to-even, then saturate.
+// (Validated against NVIDIA NPP 13.4: NPP rounds the .5 boundary to the
+// nearest even integer, i.e. banker's rounding.)
 template <typename D> __device__ __host__ __forceinline__ D scale_sat(long long v, int sf) {
-  if (sf > 0) { v = (v + (1LL << (sf - 1))) >> sf; }
+  if (sf > 0) {
+    const long long d = 1LL << sf;
+    long long q = v / d;
+    const long long rem = v % d;
+    if (rem != 0) {
+      const long long ar = rem < 0 ? -rem : rem;
+      const int sign = v < 0 ? -1 : 1;
+      if ((ar << 1) > d) q += sign;
+      else if ((ar << 1) == d && (q & 1LL)) q += sign;
+    }
+    v = q;
+  }
   return sat_ll<D>(v);
 }
 
 // Round-then-scale with an explicit mode (nppsDiv_Round).
+// Implemented with double floor/ceil so it also compiles as device code.
 template <typename D> __device__ __host__ __forceinline__ D scale_sat_r(long long v, int sf,
                                                                        NppRoundMode mode) {
   if (sf <= 0) return sat_ll<D>(v);
-  long double base = 2.0L;
-  for (int i = 1; i < sf; ++i) base *= 2.0L;
-  long double scaled = (long double)v / base;
+  double scale = 1.0;
+  for (int i = 0; i < sf; ++i) scale *= 2.0;
+  const double scaled = static_cast<double>(v) / scale;
   long long r;
   switch (mode) {
-    case NPP_RND_FINANCIAL: r = (long long)llroundl(scaled); break;   // ties away from zero
-    case NPP_RND_ZERO:      r = (long long)(scaled); break;            // trunc toward zero
-    default:                r = (long long)llrintl(scaled); break;     // ties to even
+    case NPP_RND_FINANCIAL:
+      r = static_cast<long long>(scaled >= 0.0 ? scaled + 0.5 : scaled - 0.5);
+      break;
+    case NPP_RND_ZERO:
+      r = static_cast<long long>(scaled);
+      break;
+    default: { // NPP_RND_NEAR : nearest, ties to even
+      const double lo = floor(scaled);
+      const double frac = scaled - lo;
+      if (frac < 0.5) {
+        r = static_cast<long long>(lo);
+      } else if (frac > 0.5) {
+        r = static_cast<long long>(lo + 1.0);
+      } else {
+        r = static_cast<long long>(lo);
+        if (r & 1LL) r += (scaled >= 0.0 ? 1 : -1);
+      }
+      break;
+    }
   }
   return sat_ll<D>(r);
 }
 }  // namespace detail
+
+#if defined(__CUDACC__)
 
 // -- kernels ----------------------------------------------------------------
 template <typename A, typename B, typename D, typename F>
@@ -191,15 +235,17 @@ template <typename A, typename B, typename D, typename F>
 __global__ void binary_round_kernel(const A* a, const B* b, D* d, NppSignalLength n, NppRoundMode m,
                                     F op, int sf) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i < (size_t)n) d[i] = op.apply_div(a[i], b[i], m, sf);
+  if (i < (size_t)n) d[i] = op.template apply_div<A, B, D>(a[i], b[i], m, sf);
 }
 
 template <typename A, typename D, typename F>
 __global__ void binary_inplace_round_kernel(const A* a, D* d, NppSignalLength n, NppRoundMode m,
                                             F op, int sf) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i < (size_t)n) d[i] = op.apply_div(d[i], a[i], m, sf);
+  if (i < (size_t)n) d[i] = op.template apply_div<D, A, D>(d[i], a[i], m, sf);
 }
+
+#endif  // __CUDACC__
 
 // -- operation functors ------------------------------------------------------
 struct AddOp {
@@ -222,6 +268,9 @@ struct AddOp {
 };
 
 struct SubOp {
+  // Natural subtraction: apply(x,y) = x - y.
+  // Out-of-place wrappers pass (pSrc2, pSrc1) so the result is pSrc2 - pSrc1;
+  // in-place kernels pass (pSrcDst, pSrc) so the result is pSrcDst - pSrc.
   template <typename A, typename B, typename D>
   __device__ __host__ D apply(const A& a, const B& b, int sf) const {
     using C = component_t_ty<D>;
@@ -250,8 +299,8 @@ struct MulOp {
         D r; r.re = (C)(ar*br - ai*bi); r.im = (C)(ar*bi + ai*br); return r;
       } else {
         long long ar=detail::re_ll(a), ai=detail::im_ll(a), br=detail::re_ll(b), bi=detail::im_ll(b);
-        D r; r.re = (C)scale_sat<C>(ar*br - ai*bi, sf);
-            r.im = (C)scale_sat<C>(ar*bi + ai*br, sf); return r;
+        D r; r.re = (C)detail::scale_sat<C>(ar*br - ai*bi, sf);
+            r.im = (C)detail::scale_sat<C>(ar*bi + ai*br, sf); return r;
       }
     } else {
       if constexpr (std::is_floating_point_v<D>) return (D)(detail::re_l(a)*detail::re_l(b));
@@ -282,10 +331,23 @@ struct DivOp {
     } else {
       if constexpr (std::is_floating_point_v<D>) return (D)(detail::re_l(a)/detail::re_l(b));
       else {
+        // Integer division with fixed-point scaling: pDst = round_even( a / (b << sf) ).
+        // NPP keeps the division precision while scaling (validated on 13.4).
         long long bv = detail::re_ll(b);
         if (bv == 0) return detail::sat_ll<D>(std::numeric_limits<long long>::max());
-        long long q = detail::re_ll(a) / bv;
-        return detail::scale_sat<D>(q, sf);
+        long long num = detail::re_ll(a);
+        long long den = bv << sf;
+        if (den == 0) return detail::sat_ll<D>(std::numeric_limits<long long>::max());
+        long long q = num / den;
+        long long r = num % den;
+        if (r != 0) {
+          long long ar = r < 0 ? -r : r;
+          long long ad = den < 0 ? -den : den;
+          int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+          if ((ar << 1) > ad) q += sign;
+          else if ((ar << 1) == ad && (q & 1LL)) q += sign;
+        }
+        return detail::sat_ll<D>(q);
       }
     }
   }
@@ -303,8 +365,8 @@ struct AddProductOp {
             r.im = (C)(detail::im_l(d) + (ar*bi + ai*br)); return r;
       } else {
         long long ar=detail::re_ll(a), ai=detail::im_ll(a), br=detail::re_ll(b), bi=detail::im_ll(b);
-        D r; r.re = (C)scale_sat<C>(detail::re_ll(d) + (ar*br - ai*bi), sf);
-            r.im = (C)scale_sat<C>(detail::im_ll(d) + (ar*bi + ai*br), sf); return r;
+        D r; r.re = (C)detail::scale_sat<C>(detail::re_ll(d) + (ar*br - ai*bi), sf);
+            r.im = (C)detail::scale_sat<C>(detail::im_ll(d) + (ar*bi + ai*br), sf); return r;
       }
     } else {
       if constexpr (std::is_floating_point_v<D>) return (D)(detail::re_l(d) + detail::re_l(a)*detail::re_l(b));
@@ -341,8 +403,5 @@ struct DivRoundOp {
     }
   }
 };
-
-#endif  // __CUDACC__
-
 }  // namespace elementwise
 }  // namespace npps

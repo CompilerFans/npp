@@ -6,11 +6,11 @@
 #include "npps_elementwise_executor.h"
 
 NppStatus nppsSub_16s32f_Ctx(const Npp16s * pSrc1, const Npp16s * pSrc2, Npp32f * pDst, int nLength, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_16s_Ctx(const Npp16s * pSrc1, const Npp16s * pSrc2, Npp16s * pDst, int nLength, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_16s_ISfs_Ctx(const Npp16s * pSrc, Npp16s * pSrcDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
@@ -22,7 +22,7 @@ NppStatus nppsSub_16s_I_Ctx(const Npp16s * pSrc, Npp16s * pSrcDst, int nLength, 
 }
 
 NppStatus nppsSub_16s_Sfs_Ctx(const Npp16s * pSrc1, const Npp16s * pSrc2, Npp16s * pDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_16sc_ISfs_Ctx(const Npp16sc * pSrc, Npp16sc * pSrcDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
@@ -30,7 +30,7 @@ NppStatus nppsSub_16sc_ISfs_Ctx(const Npp16sc * pSrc, Npp16sc * pSrcDst, int nLe
 }
 
 NppStatus nppsSub_16sc_Sfs_Ctx(const Npp16sc * pSrc1, const Npp16sc * pSrc2, Npp16sc * pDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_16u_ISfs_Ctx(const Npp16u * pSrc, Npp16u * pSrcDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
@@ -38,11 +38,11 @@ NppStatus nppsSub_16u_ISfs_Ctx(const Npp16u * pSrc, Npp16u * pSrcDst, int nLengt
 }
 
 NppStatus nppsSub_16u_Sfs_Ctx(const Npp16u * pSrc1, const Npp16u * pSrc2, Npp16u * pDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_32f_Ctx(const Npp32f * pSrc1, const Npp32f * pSrc2, Npp32f * pDst, int nLength, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_32f_I_Ctx(const Npp32f * pSrc, Npp32f * pSrcDst, int nLength, NppStreamContext nppStreamCtx) {
@@ -50,7 +50,7 @@ NppStatus nppsSub_32f_I_Ctx(const Npp32f * pSrc, Npp32f * pSrcDst, int nLength, 
 }
 
 NppStatus nppsSub_32fc_Ctx(const Npp32fc * pSrc1, const Npp32fc * pSrc2, Npp32fc * pDst, int nLength, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_32fc_I_Ctx(const Npp32fc * pSrc, Npp32fc * pSrcDst, int nLength, NppStreamContext nppStreamCtx) {
@@ -62,7 +62,7 @@ NppStatus nppsSub_32s_ISfs_Ctx(const Npp32s * pSrc, Npp32s * pSrcDst, int nLengt
 }
 
 NppStatus nppsSub_32s_Sfs_Ctx(const Npp32s * pSrc1, const Npp32s * pSrc2, Npp32s * pDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_32sc_ISfs_Ctx(const Npp32sc * pSrc, Npp32sc * pSrcDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
@@ -70,11 +70,11 @@ NppStatus nppsSub_32sc_ISfs_Ctx(const Npp32sc * pSrc, Npp32sc * pSrcDst, int nLe
 }
 
 NppStatus nppsSub_32sc_Sfs_Ctx(const Npp32sc * pSrc1, const Npp32sc * pSrc2, Npp32sc * pDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_64f_Ctx(const Npp64f * pSrc1, const Npp64f * pSrc2, Npp64f * pDst, int nLength, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_64f_I_Ctx(const Npp64f * pSrc, Npp64f * pSrcDst, int nLength, NppStreamContext nppStreamCtx) {
@@ -82,7 +82,7 @@ NppStatus nppsSub_64f_I_Ctx(const Npp64f * pSrc, Npp64f * pSrcDst, int nLength, 
 }
 
 NppStatus nppsSub_64fc_Ctx(const Npp64fc * pSrc1, const Npp64fc * pSrc2, Npp64fc * pDst, int nLength, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_64fc_I_Ctx(const Npp64fc * pSrc, Npp64fc * pSrcDst, int nLength, NppStreamContext nppStreamCtx) {
@@ -94,7 +94,7 @@ NppStatus nppsSub_8u_ISfs_Ctx(const Npp8u * pSrc, Npp8u * pSrcDst, int nLength, 
 }
 
 NppStatus nppsSub_8u_Sfs_Ctx(const Npp8u * pSrc1, const Npp8u * pSrc2, Npp8u * pDst, int nLength, int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
+  return npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream);
 }
 
 NppStatus nppsSub_16s(const Npp16s * pSrc1, const Npp16s * pSrc2, Npp16s * pDst, int nLength) {

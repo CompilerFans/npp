@@ -16,8 +16,8 @@
     },
     {
       "contains": "int nLength, int nScaleFactor",
-      "call": "npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, nScaleFactor, nppStreamCtx.hStream)"
+      "call": "npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, nScaleFactor, nppStreamCtx.hStream)"
     }
   ],
-  "call": "npps::elementwise::binary<npps::elementwise::SubOp>(pSrc1, pSrc2, pDst, nLength, 0, nppStreamCtx.hStream)"
+  "call": "npps::elementwise::binary<npps::elementwise::SubOp>(pSrc2, pSrc1, pDst, nLength, 0, nppStreamCtx.hStream)"
 }
