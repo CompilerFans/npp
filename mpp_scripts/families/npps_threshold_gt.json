@@ -1,0 +1,13 @@
+{
+  "family": "nppsThreshold_GT",
+  "module": "npps_conversion_functions.h",
+  "source": "src/npps/npps_conversion_functions/npps_threshold_gt_generated.cpp",
+  "includes": ["npps_conversion_executor.h"],
+  "call_variants": [
+    {
+      "contains": "pSrcDst",
+      "call": "npps::threshold::thresholdGT(pSrcDst, pSrcDst, nLength, nLevel, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::threshold::thresholdGT(pSrc, pDst, nLength, nLevel, nppStreamCtx.hStream)"
+}

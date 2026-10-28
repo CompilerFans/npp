@@ -1,0 +1,13 @@
+{
+  "family": "nppsThreshold_LT",
+  "module": "npps_conversion_functions.h",
+  "source": "src/npps/npps_conversion_functions/npps_threshold_lt_generated.cpp",
+  "includes": ["npps_conversion_executor.h"],
+  "call_variants": [
+    {
+      "contains": "pSrcDst",
+      "call": "npps::threshold::thresholdLT(pSrcDst, pSrcDst, nLength, nLevel, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::threshold::thresholdLT(pSrc, pDst, nLength, nLevel, nppStreamCtx.hStream)"
+}

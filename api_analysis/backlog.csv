@@ -30,7 +30,6 @@ npps_statistics_functions.h,nppsAverageError,56,0,0,56,28,28,0,56
 npps_statistics_functions.h,nppsAverageRelativeError,56,0,0,56,28,28,0,56
 npps_statistics_functions.h,nppsMaximumError,56,0,0,56,28,28,0,56
 npps_statistics_functions.h,nppsMaximumRelativeError,56,0,0,56,28,28,0,56
-npps_conversion_functions.h,nppsConvert,54,0,0,54,27,27,0,54
 nppi_statistics_functions.h,nppiNormInf,50,0,0,50,25,25,0,50
 nppi_statistics_functions.h,nppiNorm_Inf,50,0,0,50,25,25,0,50
 nppi_geometry_transforms.h,nppiWarpAffineQuad,48,0,0,48,24,24,0,48
@@ -137,11 +136,6 @@ nppi_statistics_functions.h,nppiCountInRange,24,0,0,24,12,12,0,24
 nppi_statistics_functions.h,nppiMeanStdDev,32,8,0,24,12,12,8,24
 nppi_statistics_functions.h,nppiMean_StdDev,32,8,0,24,12,12,8,24
 nppi_threshold_and_compare_operations.h,nppiCompareC,32,8,0,24,12,12,8,24
-npps_conversion_functions.h,nppsThreshold,24,0,0,24,12,12,0,24
-npps_conversion_functions.h,nppsThreshold_GT,24,0,0,24,12,12,0,24
-npps_conversion_functions.h,nppsThreshold_GTVal,24,0,0,24,12,12,0,24
-npps_conversion_functions.h,nppsThreshold_LT,24,0,0,24,12,12,0,24
-npps_conversion_functions.h,nppsThreshold_LTVal,24,0,0,24,12,12,0,24
 nppi_geometry_transforms.h,nppiWarpAffineBatch,22,0,0,22,11,11,0,22
 nppi_geometry_transforms.h,nppiWarpPerspectiveBatch,22,0,0,22,11,11,4,22
 nppi_morphological_operations.h,nppiDilate3x3,26,4,0,22,11,11,4,22
@@ -526,6 +520,12 @@ npps_arithmetic_and_logical_operations.h,nppsSubCRev,40,40,0,0,0,0,22,0
 npps_arithmetic_and_logical_operations.h,nppsSumLn,16,16,0,0,0,0,16,0
 npps_arithmetic_and_logical_operations.h,nppsXor,12,12,0,0,0,0,12,0
 npps_arithmetic_and_logical_operations.h,nppsXorC,12,12,0,0,0,0,6,0
+npps_conversion_functions.h,nppsConvert,54,54,0,0,0,0,28,0
+npps_conversion_functions.h,nppsThreshold,24,24,0,0,0,0,13,0
+npps_conversion_functions.h,nppsThreshold_GT,24,24,0,0,0,0,12,0
+npps_conversion_functions.h,nppsThreshold_GTVal,24,24,0,0,0,0,6,0
+npps_conversion_functions.h,nppsThreshold_LT,24,24,0,0,0,0,12,0
+npps_conversion_functions.h,nppsThreshold_LTVal,24,24,0,0,0,0,6,0
 npps_filtering_functions.h,nppsIntegral,3,3,0,0,0,0,3,0
 npps_initialization.h,nppsCopy,20,20,0,0,0,0,20,0
 npps_initialization.h,nppsSet,28,28,0,0,0,0,28,0

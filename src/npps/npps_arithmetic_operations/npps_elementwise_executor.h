@@ -193,16 +193,12 @@ template <typename D> __device__ __host__ __forceinline__ D scale_sat_r(long lon
       r = static_cast<long long>(scaled);
       break;
     default: { // NPP_RND_NEAR : nearest, ties to even
-      const double lo = floor(scaled);
-      const double frac = scaled - lo;
-      if (frac < 0.5) {
-        r = static_cast<long long>(lo);
-      } else if (frac > 0.5) {
-        r = static_cast<long long>(lo + 1.0);
-      } else {
-        r = static_cast<long long>(lo);
-        if (r & 1LL) r += (scaled >= 0.0 ? 1 : -1);
-      }
+      const double av = fabs(scaled);
+      const double lo = floor(av);
+      const double frac = av - lo;
+      long long m = static_cast<long long>(lo);
+      const bool up = (frac > 0.5) || (frac == 0.5 && (m & 1LL));
+      r = (scaled < 0.0) ? -(m + (up ? 1 : 0)) : (m + (up ? 1 : 0));
       break;
     }
   }

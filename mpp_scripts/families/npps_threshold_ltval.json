@@ -1,0 +1,13 @@
+{
+  "family": "nppsThreshold_LTVal",
+  "module": "npps_conversion_functions.h",
+  "source": "src/npps/npps_conversion_functions/npps_threshold_ltval_generated.cpp",
+  "includes": ["npps_conversion_executor.h"],
+  "call_variants": [
+    {
+      "contains": "pSrcDst",
+      "call": "npps::threshold::thresholdLTVal(pSrcDst, pSrcDst, nLength, nLevel, nValue, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::threshold::thresholdLTVal(pSrc, pDst, nLength, nLevel, nValue, nppStreamCtx.hStream)"
+}
