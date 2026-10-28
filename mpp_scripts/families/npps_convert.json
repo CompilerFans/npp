@@ -1,0 +1,17 @@
+{
+  "family": "nppsConvert",
+  "module": "npps_conversion_functions.h",
+  "source": "src/npps/npps_conversion_functions/npps_convert_generated.cpp",
+  "includes": ["npps_conversion_executor.h"],
+  "call_variants": [
+    {
+      "contains": "eRoundMode",
+      "call": "npps::convert::convertRound(pSrc, pDst, nLength, eRoundMode, nScaleFactor, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "nScaleFactor",
+      "call": "npps::convert::convertScale(pSrc, pDst, nLength, nScaleFactor, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "npps::convert::convert(pSrc, pDst, nLength, nppStreamCtx.hStream)"
+}
