@@ -133,7 +133,10 @@ struct SqrOp {
 struct ExpOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const { return (D)std::exp(rp(a)); }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    return ssc<D>(std::exp(rp(a)), sf);
+    // NPP evaluates integer Exp in single precision (validated on 13.4:
+    // expf(28)/2^16 == 22068132, while double gives ...131).
+    if constexpr (sizeof(D) <= 4) return ssc<D>((double)expf((float)rp(a)), sf);
+    else return ssc<D>(std::exp(rp(a)), sf);
   }
 };
 

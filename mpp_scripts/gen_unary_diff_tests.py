@@ -12,6 +12,7 @@ shift out-of-range.
 
 Usage: python3 mpp_scripts/gen_unary_diff_tests.py --emit
 """
+import hashlib
 import sys
 from pathlib import Path
 
@@ -30,7 +31,7 @@ NONCTX = "#if NPP_DIFF_HAS_NONCTX"
 POS_FAM = {"nppsLn","npps10Log10","nppsExp"}
 
 def seedstr(base, tag):
-    return str((abs(hash(base + tag)) + 1) & 0x0FFFFFFFFFFFFFFF)
+    return str(int(hashlib.sha256((base + "|" + tag).encode()).hexdigest()[:16], 16) & 0x0FFFFFFFFFFFFFFF)
 
 def kind_family(base):
     for f in ("npps10Log10","nppsLShiftC","nppsRShiftC","nppsMul_Low","nppsSumLnGetBufferSize",
@@ -146,6 +147,12 @@ def scalar_case(base, fam, n, src, dst, mode, scale):
     dstk = KIND[dst]
     cnt = 2*n if dst in SCINT else n
     tol = "1e-5, 1e-5" if dst in FLOAT_KIND else "0, 0"
+    if base == "nppsExp_32s_Sfs":
+        # Integer Exp uses the device expf; its last-bit rounding differs
+        # between the NVIDIA reference and MACA for large arguments.  Allow
+        # one relative ULP instead of masking the whole family.
+        dstk = "I32Tol"
+        tol = "1e-6, 2"
     mid = ", " + str(scale) if scale is not None else ""
     idd = f"nppsUnary/{fam}/{base}"
     pos = fam in POS_FAM
@@ -186,7 +193,7 @@ SCALAR = [
     ("nppsLn_16s_Sfs",17,"Npp16s","Npp16s","O",4),("nppsLn_16s_ISfs",17,"Npp16s","Npp16s","I",4),
     ("nppsLn_32s_Sfs",256,"Npp32s","Npp32s","O",8),("nppsLn_32s16s_Sfs",17,"Npp32s","Npp16s","O",8),
     ("nppsLn_32f",17,"Npp32f","Npp32f","O",None),("nppsLn_32f_I",256,"Npp32f","Npp32f","I",None),
-    ("nppsLn_64f",17,"Npp64f","Npp64f","O",None),("nppsLn_64f32f",17,"Npp64f","Npp32f","O",None),
+    ("nppsLn_64f",17,"Npp64f","Npp64f","O",None),
     ("nppsLn_64f_I",17,"Npp64f","Npp64f","I",None),
     ("npps10Log10_32s_Sfs",256,"Npp32s","Npp32s","O",8),("npps10Log10_32s_ISfs",17,"Npp32s","Npp32s","I",8),
     ("nppsAbs_16s",256,"Npp16s","Npp16s","O",None),("nppsAbs_16s_I",17,"Npp16s","Npp16s","I",None),
@@ -449,6 +456,22 @@ def contract():
     L.append("}")
     L.append("#endif")
     L.append("")
+    L.append("// nppsLn_64f32f: intentional deviation from NPP 13.4, whose implementation")
+    L.append("// returns round(ln(x)) (0,1,1,1 for 1,2,3,4).  The API contract is the")
+    L.append("// natural logarithm, so validate against a CPU reference in MPP builds only.")
+    L.append("#if NPP_DIFF_HAS_NONCTX")
+    L.append("TEST_F(NppsUnaryArithmetic, nppsLn_64f32f_Semantic) {")
+    L.append("  const NppSignalLength n = 17;")
+    L.append("  std::vector<double> a = make_pos<double>(n, 348699642264855559);")
+    L.append("  DeviceMemory<double> da(n); da.copyFromHost(a);")
+    L.append("  DeviceMemory<float> dc(n);")
+    L.append("  clear_cuda_error();")
+    L.append("  NppStatus st = nppsLn_64f32f_Ctx(da.get(), dc.get(), n, current_context());")
+    L.append("  EXPECT_EQ(st, NPP_NO_ERROR);")
+    L.append("  std::vector<float> got(n); dc.copyToHost(got);")
+    L.append("  for (size_t i = 0; i < n; ++i) EXPECT_NEAR(got[i], (float)std::log(a[i]), 1e-5f) << i;")
+    L.append("}")
+    L.append("#endif")
     return L
 
 def build():
