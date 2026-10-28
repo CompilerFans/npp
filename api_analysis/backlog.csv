@@ -10,7 +10,6 @@ nppi_statistics_functions.h,nppiSum,72,0,0,72,36,36,0,72
 nppi_filtering_functions.h,nppiFilter32f,66,0,0,66,33,33,0,66
 nppi_filtering_functions.h,nppiFilterBorder32f,66,0,0,66,33,33,0,66
 nppi_color_conversion.h,nppiLUT_Cubic,64,0,0,64,32,32,0,64
-nppi_data_exchange_and_initialization.h,nppiScale,64,0,0,64,32,32,0,64
 nppi_filtering_functions.h,nppiFilterMedian,64,0,0,64,32,32,0,64
 nppi_statistics_functions.h,nppiMax,64,0,0,64,32,32,0,64
 nppi_statistics_functions.h,nppiMaxIndx,64,0,0,64,32,32,0,64
@@ -61,13 +60,10 @@ nppi_threshold_and_compare_operations.h,nppiThreshold_Val,48,0,0,48,24,24,0,48
 nppi_threshold_and_compare_operations.h,nppiThreshold_LTValGTVal,48,2,0,46,23,23,2,46
 nppi_threshold_and_compare_operations.h,nppiThreshold,48,6,0,42,21,21,6,42
 nppi_color_conversion.h,nppiColorTwist32f,104,64,0,40,20,20,15,40
-nppi_data_exchange_and_initialization.h,nppiCopyReplicateBorder,40,0,0,40,20,20,0,40
-nppi_data_exchange_and_initialization.h,nppiCopyWrapBorder,40,0,0,40,20,20,0,40
 nppi_statistics_functions.h,nppiSqrDistanceFull_Norm,40,0,0,40,20,20,0,40
 nppi_statistics_functions.h,nppiSqrDistanceSame_Norm,40,0,0,40,20,20,0,40
 nppi_statistics_functions.h,nppiSqrDistanceValid_Norm,40,0,0,40,20,20,0,40
 nppi_threshold_and_compare_operations.h,nppiThreshold_GTVal,48,8,0,40,20,20,8,40
-nppi_data_exchange_and_initialization.h,nppiCopyConstBorder,40,2,0,38,19,19,2,38
 nppi_geometry_transforms.h,nppiResizeBatch,38,0,0,38,19,19,0,38
 nppi_threshold_and_compare_operations.h,nppiThreshold_LTVal,48,10,0,38,19,19,10,38
 nppi_statistics_functions.h,nppiQualityIndex,36,0,0,36,18,18,0,36
@@ -462,8 +458,12 @@ nppi_color_conversion.h,nppiYUVToBGR,8,8,0,0,0,0,8,0
 nppi_color_conversion.h,nppiYUVToRGB,8,8,0,0,0,0,8,0
 nppi_data_exchange_and_initialization.h,nppiConvert,214,214,0,0,0,0,46,0
 nppi_data_exchange_and_initialization.h,nppiCopy,230,230,0,0,0,0,109,0
+nppi_data_exchange_and_initialization.h,nppiCopyConstBorder,40,40,0,0,0,0,6,0
+nppi_data_exchange_and_initialization.h,nppiCopyReplicateBorder,40,40,0,0,0,0,4,0
 nppi_data_exchange_and_initialization.h,nppiCopySubpix,40,40,0,0,0,0,11,0
+nppi_data_exchange_and_initialization.h,nppiCopyWrapBorder,40,40,0,0,0,0,4,0
 nppi_data_exchange_and_initialization.h,nppiDup,30,30,0,0,0,0,30,0
+nppi_data_exchange_and_initialization.h,nppiScale,64,64,0,0,0,0,20,0
 nppi_data_exchange_and_initialization.h,nppiSet,168,168,0,0,0,0,158,0
 nppi_data_exchange_and_initialization.h,nppiSwapChannels,70,70,0,0,0,0,29,0
 nppi_data_exchange_and_initialization.h,nppiTranspose,30,30,0,0,0,0,6,0

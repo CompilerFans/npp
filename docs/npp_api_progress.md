@@ -45,7 +45,7 @@
 | P2.1b | NPPI Copy（packed/planar/planar↔packed） | 160 | ✅ 已合并 | `pkg/p2.1b` → merge |
 | P2.1c | NPPI Set / Dup | 174 | ✅ 已合并 | `pkg/p2.1c` → merge |
 | P2.2a | NPPI SwapChannels / CopySubpix | 110 | ✅ 已实现 | `pkg/p2.2a` → `5db538e` |
-| P2.2b | NPPI Scale / 边界复制 | 182 | 运行中 | `pkg/p2.2b` |
+| P2.2b | NPPI Scale / 边界复制 | 182 | ✅ 已实现 | `pkg/p2.2b` → `66bf923` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
