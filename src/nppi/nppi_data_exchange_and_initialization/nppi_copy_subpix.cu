@@ -15,9 +15,20 @@ inline NppStatus subpixKernelStatus() {
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-// Truncate a bilinear result into T. Floating types pass through.
+// Convert a bilinear result into T. NVIDIA NPP 13.4 rounds half away from
+// zero for integer destinations (verified against the RTX 5090 record: a
+// 0.5 fractional shift selects the +1 neighbor; .99 stays, etc.). Floating
+// types pass through unrounded.
+template <typename T>
+struct SubPixConv {
+  __host__ __device__ __forceinline__ static T to(float v) { return (T)roundf(v); }
+};
+// Keep the float32 path bit-exact (no rounding).
+template <> struct SubPixConv<float> {
+  __host__ __device__ __forceinline__ static float to(float v) { return v; }
+};
 template <typename T> __host__ __device__ __forceinline__ T subRound(float v) {
-  return static_cast<T>(v);
+  return SubPixConv<T>::to(v);
 }
 
 template <typename T, int STRIDE, int COPY>

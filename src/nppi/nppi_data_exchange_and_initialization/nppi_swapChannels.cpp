@@ -21,8 +21,10 @@ static inline NppStatus swapOrderNullOnly(const int *aDstOrder) {
 
 static inline NppStatus swapNeedOrder(const int aDstOrder[], int n, int maxIdx) {
   if (!aDstOrder) return NPP_NULL_POINTER_ERROR;
+  // NVIDIA NPP 13.4 reports an out-of-range channel-order value as
+  // NPP_BAD_ARGUMENT_ERROR (verified against the RTX 5090 record).
   for (int i = 0; i < n; ++i) {
-    if (aDstOrder[i] < 0 || aDstOrder[i] >= maxIdx) return NPP_CHANNEL_ORDER_ERROR;
+    if (aDstOrder[i] < 0 || aDstOrder[i] >= maxIdx) return NPP_BAD_ARGUMENT_ERROR;
   }
   return NPP_SUCCESS;
 }

@@ -187,8 +187,10 @@ SW.append("}")
 SW.append("")
 SW.append("static inline NppStatus swapNeedOrder(const int aDstOrder[], int n, int maxIdx) {")
 SW.append("  if (!aDstOrder) return NPP_NULL_POINTER_ERROR;")
+SW.append("  // NVIDIA NPP 13.4 reports an out-of-range channel-order value as")
+SW.append("  // NPP_BAD_ARGUMENT_ERROR (verified against the RTX 5090 record).")
 SW.append("  for (int i = 0; i < n; ++i) {")
-SW.append("    if (aDstOrder[i] < 0 || aDstOrder[i] >= maxIdx) return NPP_CHANNEL_ORDER_ERROR;")
+SW.append("    if (aDstOrder[i] < 0 || aDstOrder[i] >= maxIdx) return NPP_BAD_ARGUMENT_ERROR;")
 SW.append("  }")
 SW.append("  return NPP_SUCCESS;")
 SW.append("}")
@@ -345,9 +347,20 @@ inline NppStatus subpixKernelStatus() {
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
-// Truncate a bilinear result into T. Floating types pass through.
+// Convert a bilinear result into T. NVIDIA NPP 13.4 rounds half away from
+// zero for integer destinations (verified against the RTX 5090 record: a
+// 0.5 fractional shift selects the +1 neighbor; .99 stays, etc.). Floating
+// types pass through unrounded.
+template <typename T>
+struct SubPixConv {
+  __host__ __device__ __forceinline__ static T to(float v) { return (T)roundf(v); }
+};
+// Keep the float32 path bit-exact (no rounding).
+template <> struct SubPixConv<float> {
+  __host__ __device__ __forceinline__ static float to(float v) { return v; }
+};
 template <typename T> __host__ __device__ __forceinline__ T subRound(float v) {
-  return static_cast<T>(v);
+  return SubPixConv<T>::to(v);
 }
 
 template <typename T, int STRIDE, int COPY>
@@ -434,7 +447,9 @@ for dt in DT:
         SU_CPP.append("  if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;")
         SU_CPP.append("  NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;")
         SU_CPP.append("  s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;")
-        SU_CPP.append("  if (nSrcStep < oi.width * %d * %d) return NPP_STEP_ERROR;" % (stride, es))
+        SU_CPP.append("  // NVIDIA NPP 13.4 validates only the destination step for")
+        SU_CPP.append("  // nppiCopySubpix (verified against the RTX 5090 record);")
+        SU_CPP.append("  // the source step is not length-checked.")
         SU_CPP.append("  if (nDstStep < oi.width * %d * %d) return NPP_STEP_ERROR;" % (stride, es))
         SU_CPP.append("  return nppiCopySubpix_%s_%s_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);" % (dt, suf))
         SU_CPP.append("}")

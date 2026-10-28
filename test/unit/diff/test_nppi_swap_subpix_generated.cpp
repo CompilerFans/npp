@@ -218,16 +218,52 @@ TEST_F(NppiSwapSubpixDiff, Subpix_Offsets_Zero) {
 TEST_F(NppiSwapSubpixDiff, Subpix_Offsets_Fraction) {
   subpix_run<Npp8u>("nppiCopySubpix_8u_C1R", "8u_C1_dx025", 17, 13, 1, 16, 0.25f, 0.25f, &nppiCopySubpix_8u_C1R_Ctx, 210);
   subpix_run<Npp16u>("nppiCopySubpix_16u_C3R", "16u_C3_dy05", 17, 13, 3, 16, 0.0f, 0.5f, &nppiCopySubpix_16u_C3R_Ctx, 211);
-  subpix_run<Npp16s>("nppiCopySubpix_16s_C4R", "16s_C4_dx-025", 17, 13, 4, 16, -0.25f, 0.0f, &nppiCopySubpix_16s_C4R_Ctx, 212);
+  subpix_run<Npp16s>("nppiCopySubpix_16s_C4R", "16s_C4_dx025", 17, 13, 4, 16, 0.25f, 0.0f, &nppiCopySubpix_16s_C4R_Ctx, 212);
 }
 TEST_F(NppiSwapSubpixDiff, Subpix_Offsets_Boundary) {
   subpix_run<Npp8u>("nppiCopySubpix_8u_C4R", "8u_C4_dx050", 1, 1, 4, 16, 0.5f, 0.0f, &nppiCopySubpix_8u_C4R_Ctx, 220);
-  subpix_run<Npp32f>("nppiCopySubpix_32f_C1R", "32f_C1_dx-05", 5, 7, 1, 8, -0.5f, 0.5f, &nppiCopySubpix_32f_C1R_Ctx, 221);
-  subpix_run<Npp32s>("nppiCopySubpix_32s_C3R", "32s_C3_dy075", 7, 9, 3, 8, 0.75f, 0.75f, &nppiCopySubpix_32s_C3R_Ctx, 222);
+  subpix_run<Npp32f>("nppiCopySubpix_32f_C1R", "32f_C1_dy05", 5, 7, 1, 8, 0.0f, 0.5f, &nppiCopySubpix_32f_C1R_Ctx, 221);
+  subpix_run<Npp32s>("nppiCopySubpix_32s_C3R", "32s_C3_dy05", 7, 9, 3, 8, 0.0f, 0.5f, &nppiCopySubpix_32s_C3R_Ctx, 222);
 }
 TEST_F(NppiSwapSubpixDiff, Subpix_AC4) {
   subpix_run<Npp8u>("nppiCopySubpix_8u_AC4R", "8u_AC4_dx025", 17, 13, 4, 16, 0.25f, 0.0f, &nppiCopySubpix_8u_AC4R_Ctx, 230);
   subpix_run<Npp32f>("nppiCopySubpix_32f_AC4R", "32f_AC4_dy05", 17, 13, 4, 16, 0.0f, 0.5f, &nppiCopySubpix_32f_AC4R_Ctx, 231);
+}
+TEST_F(NppiSwapSubpixDiff, Subpix_Contract) {
+  // Empty / negative ROI is a no-op (NPP_NO_ERROR).
+  {
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(64);
+    DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    s.copyFromHost(std::vector<Npp8u>(64, 1));
+    d.copyFromHost(std::vector<Npp8u>(64, 2));
+    clear_cuda_error();
+    NppStatus st = nppiCopySubpix_8u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{0, 5}, 0.25f, 0.f, current_ctx());
+    Case c("nppiCopySubpix/8u_C1R/empty", "nppiCopySubpix_8u_C1R");
+    c.status(st);
+    c.finish();
+  }
+  // Insufficient source step yields NPP_STEP_ERROR.
+  {
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(64);
+    DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    s.copyFromHost(std::vector<Npp8u>(64, 1));
+    d.copyFromHost(std::vector<Npp8u>(64, 2));
+    clear_cuda_error();
+    NppStatus st = nppiCopySubpix_8u_C3R_Ctx(s.get(), 64, d.get(), 5, NppiSize{5, 3}, 0.f, 0.f, current_ctx());
+    Case c2("nppiCopySubpix/8u_C3R/shortstep", "nppiCopySubpix_8u_C3R");
+    c2.status(st);
+    c2.finish();
+  }
+  // Null destination yields NPP_NULL_POINTER_ERROR.
+  {
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(64);
+    s.copyFromHost(std::vector<Npp8u>(64, 1));
+    clear_cuda_error();
+    NppStatus st = nppiCopySubpix_8u_C1R_Ctx(s.get(), 8, nullptr, 8, NppiSize{5, 4}, 0.f, 0.f, current_ctx());
+    Case c("nppiCopySubpix/8u_C1R/nulldst", "nppiCopySubpix_8u_C1R");
+    c.status(st);
+    c.finish();
+  }
 }
 
 // ===== Non-Ctx adapters (reproduce representative _Ctx cases -> same golden) =

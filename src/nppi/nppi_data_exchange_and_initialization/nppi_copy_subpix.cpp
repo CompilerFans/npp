@@ -31,7 +31,9 @@ NppStatus nppiCopySubpix_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 1 * 1) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 1 * 1) return NPP_STEP_ERROR;
   return nppiCopySubpix_8u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -44,7 +46,9 @@ NppStatus nppiCopySubpix_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 3 * 1) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 3 * 1) return NPP_STEP_ERROR;
   return nppiCopySubpix_8u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -57,7 +61,9 @@ NppStatus nppiCopySubpix_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 1) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 1) return NPP_STEP_ERROR;
   return nppiCopySubpix_8u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -70,7 +76,9 @@ NppStatus nppiCopySubpix_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * p
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 1) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 1) return NPP_STEP_ERROR;
   return nppiCopySubpix_8u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -83,7 +91,9 @@ NppStatus nppiCopySubpix_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 1 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 1 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16u_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -96,7 +106,9 @@ NppStatus nppiCopySubpix_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 3 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 3 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16u_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -109,7 +121,9 @@ NppStatus nppiCopySubpix_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16u_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -122,7 +136,9 @@ NppStatus nppiCopySubpix_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u 
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16u_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -135,7 +151,9 @@ NppStatus nppiCopySubpix_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 1 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 1 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -148,7 +166,9 @@ NppStatus nppiCopySubpix_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 3 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 3 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -161,7 +181,9 @@ NppStatus nppiCopySubpix_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -174,7 +196,9 @@ NppStatus nppiCopySubpix_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s 
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 2) return NPP_STEP_ERROR;
   return nppiCopySubpix_16s_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -187,7 +211,9 @@ NppStatus nppiCopySubpix_32s_C1R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp32s *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 1 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 1 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32s_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -200,7 +226,9 @@ NppStatus nppiCopySubpix_32s_C3R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp32s *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 3 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 3 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32s_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -213,7 +241,9 @@ NppStatus nppiCopySubpix_32s_C4R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp32s *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32s_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -226,7 +256,9 @@ NppStatus nppiCopySubpix_32s_AC4R_Ctx(const Npp32s * pSrc, int nSrcStep, Npp32s 
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32s_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -239,7 +271,9 @@ NppStatus nppiCopySubpix_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 1 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 1 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32f_C1R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -252,7 +286,9 @@ NppStatus nppiCopySubpix_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 3 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 3 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32f_C3R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -265,7 +301,9 @@ NppStatus nppiCopySubpix_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32f_C4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
@@ -278,7 +316,9 @@ NppStatus nppiCopySubpix_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f 
   if (oi.width <= 0 || oi.height <= 0) return NPP_NO_ERROR;
   NppStatus s = subpixNull(pSrc); if (s != NPP_SUCCESS) return s;
   s = subpixNull(pDst); if (s != NPP_SUCCESS) return s;
-  if (nSrcStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
+  // NVIDIA NPP 13.4 validates only the destination step for
+  // nppiCopySubpix (verified against the RTX 5090 record);
+  // the source step is not length-checked.
   if (nDstStep < oi.width * 4 * 4) return NPP_STEP_ERROR;
   return nppiCopySubpix_32f_AC4R_Ctx_impl(pSrc, nSrcStep, pDst, nDstStep, oi, nDx, nDy, nppStreamCtx);
 }
