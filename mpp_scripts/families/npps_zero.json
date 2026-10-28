@@ -1,0 +1,8 @@
+{
+  "family": "nppsZero",
+  "module": "npps_initialization.h",
+  "source": "src/npps/npps_initialization/npps_zero_generated.cpp",
+  "includes": ["npps_initialization_executor.h"],
+  "families": ["nppsZero"],
+  "call": "npps::init::zero<{dtype}>(pDst, nLength, nppStreamCtx.hStream)"
+}
