@@ -4,6 +4,7 @@
 #include "nppi_statistics_executor.h"
 #include <cmath>
 #include <cuda_runtime.h>
+#include <limits>
 
 namespace {
 
@@ -252,6 +253,81 @@ __global__ void finalizeMSMaskedKernel(const double *pSum, const double *pSumSq,
 
 inline int numBlocks(int area) { return (area + kBlock - 1) / kBlock; }
 
+// ---------------------------------------------------------------------------
+// Min / Max / MinMax
+// ---------------------------------------------------------------------------
+
+// Neutral initial value: largest for a min-reduce, smallest for a max-reduce.
+template <typename D, bool IsMin> __device__ __forceinline__ D extremeInit() {
+  return IsMin ? std::numeric_limits<D>::max() : std::numeric_limits<D>::lowest();
+}
+
+// Block-wide min/max reduction (IsMin selects the combine op).
+template <typename D, bool IsMin> __device__ D blockReduceExtreme(D val) {
+  static __shared__ D shared[kBlock];
+  shared[threadIdx.x] = val;
+  __syncthreads();
+  for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) {
+      D a = shared[threadIdx.x];
+      D b = shared[threadIdx.x + s];
+      shared[threadIdx.x] = IsMin ? (a < b ? a : b) : (a > b ? a : b);
+    }
+    __syncthreads();
+  }
+  return shared[0];
+}
+
+template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
+__global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int height, D *pPartial, int nch) {
+  D local[4];
+  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  for (int c = 0; c < readCh; ++c) local[c] = extremeInit<D, IsMin>();
+  const int totalPixels = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+    for (int c = 0; c < readCh; ++c) {
+      const D v = row[x * Channels + c];
+      if (IsMin) {
+        local[c] = (v < local[c]) ? v : local[c];
+      } else {
+        local[c] = (v > local[c]) ? v : local[c];
+      }
+    }
+  }
+  for (int c = 0; c < readCh; ++c) {
+    const D r = blockReduceExtreme<D, IsMin>(local[c]);
+    if (threadIdx.x == 0) pPartial[(size_t)c * gridDim.x + blockIdx.x] = r;
+  }
+}
+
+template <typename D, bool IsMin>
+__global__ void finalizeExtremeKernel(const D *pPartial, int nblocks, int nch, D *pOut) {
+  __shared__ D shared[kBlock];
+  for (int c = 0; c < nch; ++c) {
+    D acc = extremeInit<D, IsMin>();
+    for (int i = threadIdx.x; i < nblocks; i += blockDim.x) {
+      const D v = pPartial[(size_t)c * nblocks + i];
+      acc = IsMin ? (v < acc ? v : acc) : (v > acc ? v : acc);
+    }
+    shared[threadIdx.x] = acc;
+    __syncthreads();
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+      if (threadIdx.x < s) {
+        D a = shared[threadIdx.x];
+        D b = shared[threadIdx.x + s];
+        shared[threadIdx.x] = IsMin ? (a < b ? a : b) : (a > b ? a : b);
+      }
+      __syncthreads();
+    }
+    if (threadIdx.x == 0) pOut[c] = shared[0];
+    __syncthreads();
+  }
+}
+
 }  // namespace
 
 namespace nppi {
@@ -462,6 +538,92 @@ NppStatus runMeanStdDevMaskedCoi(const DType *pSrc, int nSrcStep, const Npp8u *p
   return NPP_NO_ERROR;
 }
 
+// ============================== Min / Max / MinMax ==========================
+// Return the per-channel block-reduced min (IsMin true) or max from pPartial and
+// store into pOut.  Writes are staged so the single buffer can hold both the
+// min partials and the max partials when run together.
+
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runMin(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pMin,
+                 cudaStream_t stream) {
+  if (!pSrc) return NPP_NULL_POINTER_ERROR;
+  if (!pDeviceBuffer || !pMin) return NPP_NO_ERROR;      // NVIDIA: result/scratch buffers not validated
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  const int esize = (int)sizeof(D);
+  if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+
+  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  D *partial = reinterpret_cast<D *>(pDeviceBuffer);
+
+  (void)cudaGetLastError();
+  reduceExtremeKernel<D, Channels, AlphaPreserve, true>
+      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  finalizeExtremeKernel<D, true><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pMin);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pMax,
+                 cudaStream_t stream) {
+  if (!pSrc) return NPP_NULL_POINTER_ERROR;
+  if (!pDeviceBuffer || !pMax) return NPP_NO_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  const int esize = (int)sizeof(D);
+  if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+
+  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  D *partial = reinterpret_cast<D *>(pDeviceBuffer);
+
+  (void)cudaGetLastError();
+  reduceExtremeKernel<D, Channels, AlphaPreserve, false>
+      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  finalizeExtremeKernel<D, false><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pMax);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runMinMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pMin, D *pMax,
+                    cudaStream_t stream) {
+  if (!pSrc) return NPP_NULL_POINTER_ERROR;
+  if (!pDeviceBuffer || !pMin || !pMax) return NPP_NO_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  const int esize = (int)sizeof(D);
+  if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+
+  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  D *minPart = reinterpret_cast<D *>(pDeviceBuffer);
+  D *maxPart = minPart + (size_t)blocks * nCh;
+
+  (void)cudaGetLastError();
+  reduceExtremeKernel<D, Channels, AlphaPreserve, true>
+      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, minPart, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  reduceExtremeKernel<D, Channels, AlphaPreserve, false>
+      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, maxPart, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  finalizeExtremeKernel<D, true><<<1, kBlock, 0, stream>>>(minPart, blocks, nCh, pMin);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  finalizeExtremeKernel<D, false><<<1, kBlock, 0, stream>>>(maxPart, blocks, nCh, pMax);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
 // ============================== Buffer size ==================================
 
 NppStatus sumGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
@@ -482,6 +644,27 @@ NppStatus meanStdDevGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 3 * (int)sizeof(double));
+  return NPP_NO_ERROR;
+}
+
+// Per-channel min or max fits in blocks * 4 elements of the (single) output
+// dtype; MinMax additionally needs a second equally sized slab.  Exact bytes
+// are not a contract, only that the returned size is sufficient.
+NppStatus minGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+
+NppStatus maxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  return minGetBufferHostSize(oi, hpBufferSize);
+}
+
+NppStatus minMaxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
   return NPP_NO_ERROR;
 }
 
@@ -550,5 +733,55 @@ template NppStatus runMeanStdDev<Npp8s>(const Npp8s*,int,NppiSize,Npp8u*,Npp64f*
 template NppStatus runMeanStdDevCoi<Npp8s>(const Npp8s*,int,NppiSize,int,Npp8u*,Npp64f*,Npp64f*,cudaStream_t);
 template NppStatus runMeanStdDevMasked<Npp8s>(const Npp8s*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,Npp64f*,cudaStream_t);
 template NppStatus runMeanStdDevMaskedCoi<Npp8s>(const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,Npp64f*,cudaStream_t);
+
+// --- Min / Max / MinMax: 8u, 16u, 16s, 32f x {C1, C3, C4, AC4} ---
+template NppStatus runMin<Npp8u,1,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMin<Npp8u,3,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMin<Npp8u,4,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMin<Npp8u,4,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMin<Npp16u,1,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMin<Npp16u,3,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMin<Npp16u,4,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMin<Npp16u,4,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMin<Npp16s,1,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMin<Npp16s,3,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMin<Npp16s,4,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMin<Npp16s,4,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMin<Npp32f,1,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMin<Npp32f,3,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMin<Npp32f,4,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMin<Npp32f,4,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMax<Npp8u,1,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMax<Npp8u,3,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMax<Npp8u,4,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMax<Npp8u,4,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMax<Npp16u,1,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMax<Npp16u,3,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMax<Npp16u,4,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMax<Npp16u,4,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,cudaStream_t);
+template NppStatus runMax<Npp16s,1,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMax<Npp16s,3,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMax<Npp16s,4,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMax<Npp16s,4,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,cudaStream_t);
+template NppStatus runMax<Npp32f,1,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMax<Npp32f,3,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMax<Npp32f,4,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMax<Npp32f,4,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,cudaStream_t);
+template NppStatus runMinMax<Npp8u,1,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMinMax<Npp8u,3,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMinMax<Npp8u,4,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMinMax<Npp8u,4,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,Npp8u*,cudaStream_t);
+template NppStatus runMinMax<Npp16u,1,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,Npp16u*,cudaStream_t);
+template NppStatus runMinMax<Npp16u,3,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,Npp16u*,cudaStream_t);
+template NppStatus runMinMax<Npp16u,4,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,Npp16u*,cudaStream_t);
+template NppStatus runMinMax<Npp16u,4,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,Npp16u*,cudaStream_t);
+template NppStatus runMinMax<Npp16s,1,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,Npp16s*,cudaStream_t);
+template NppStatus runMinMax<Npp16s,3,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,Npp16s*,cudaStream_t);
+template NppStatus runMinMax<Npp16s,4,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,Npp16s*,cudaStream_t);
+template NppStatus runMinMax<Npp16s,4,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,Npp16s*,cudaStream_t);
+template NppStatus runMinMax<Npp32f,1,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
+template NppStatus runMinMax<Npp32f,3,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
+template NppStatus runMinMax<Npp32f,4,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
+template NppStatus runMinMax<Npp32f,4,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
 }  // namespace statistics
 }  // namespace nppi

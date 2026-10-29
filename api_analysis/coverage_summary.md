@@ -1,17 +1,32 @@
 # NPP API Catalog Summary
 
-- Public functions (API/): 3246
-- Real implementations: 371 (11.4%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 28
-- Missing: 2847
-- Tested: 165 (5.1%)
-- Real and tested: 164
+- Public functions (API/): 12537
+- Real implementations: 5900 (47.1%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
+- Missing: 6471
+- Tested: 4141 (33.0%)
+- Real and tested: 4132
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
-| nppi_statistics_functions.h | 3246 | 371 | 28 | 2847 | 165 |
+| nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2109 |
+| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 316 |
+| nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 423 |
+| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 68 |
+| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 181 |
+| nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
+| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 24 |
+| nppi_statistics_functions.h | 3246 | 563 | 28 | 2655 | 219 |
+| nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
+| nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 91 |
+| npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 525 |
+| npps_conversion_functions.h | 174 | 174 | 0 | 0 | 77 |
+| npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
+| npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
+| npps_statistics_functions.h | 766 | 8 | 0 | 758 | 8 |
+| npps_support_functions.h | 15 | 15 | 0 | 0 | 7 |
 
 ## Largest remaining groups
 
@@ -22,14 +37,26 @@
 | nppi_statistics_functions.h | nppiMaximumRelativeError | 176 | 88 |
 | nppi_statistics_functions.h | nppiAverageError | 172 | 86 |
 | nppi_statistics_functions.h | nppiDotProd | 112 | 56 |
-| nppi_statistics_functions.h | nppiMax | 64 | 32 |
+| npps_statistics_functions.h | nppsDotProd | 100 | 50 |
+| nppi_filtering_functions.h | nppiFilter32f | 66 | 33 |
+| nppi_filtering_functions.h | nppiFilterBorder32f | 66 | 33 |
+| nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
+| nppi_filtering_functions.h | nppiFilterMedian | 64 | 32 |
 | nppi_statistics_functions.h | nppiMaxIndx | 64 | 32 |
-| nppi_statistics_functions.h | nppiMin | 64 | 32 |
 | nppi_statistics_functions.h | nppiMinIndx | 64 | 32 |
-| nppi_statistics_functions.h | nppiMinMax | 64 | 32 |
 | nppi_statistics_functions.h | nppiMinMaxIndx | 64 | 32 |
+| nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
+| nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
+| nppi_color_conversion.h | nppiLUT | 56 | 28 |
+| nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
+| npps_statistics_functions.h | nppsAverageError | 56 | 28 |
+| npps_statistics_functions.h | nppsAverageRelativeError | 56 | 28 |
+| npps_statistics_functions.h | nppsMaximumError | 56 | 28 |
+| npps_statistics_functions.h | nppsMaximumRelativeError | 56 | 28 |
 | nppi_statistics_functions.h | nppiNormInf | 50 | 25 |
 | nppi_statistics_functions.h | nppiNorm_Inf | 50 | 25 |
+| nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
+| nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrFull_NormLevel | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrFull_Norm | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrSame_NormLevel | 48 | 24 |
@@ -45,15 +72,3 @@
 | nppi_statistics_functions.h | nppiNormDiff_L2 | 48 | 24 |
 | nppi_statistics_functions.h | nppiNormL1 | 48 | 24 |
 | nppi_statistics_functions.h | nppiNormL2 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormRelInf | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormRelL1 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormRelL2 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormRel_Inf | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormRel_L1 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormRel_L2 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNorm_L1 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNorm_L2 | 48 | 24 |
-| nppi_statistics_functions.h | nppiSameNormLevel | 48 | 24 |
-| nppi_statistics_functions.h | nppiValidNormLevel | 48 | 24 |
-| nppi_statistics_functions.h | nppiSqrDistanceFull_Norm | 40 | 20 |
-| nppi_statistics_functions.h | nppiSqrDistanceSame_Norm | 40 | 20 |
