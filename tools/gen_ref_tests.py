@@ -7,9 +7,12 @@ meant to run against official NVIDIA NPP on the 5090 first (`record`), then
 against mcMPP (`verify`).
 
 The generator synthesizes arguments conservatively from parameter names and
-emits a skip manifest for functions it cannot construct safely.  Irregular
-families are expected to be refined by module owners with per-module
-overrides/skips; the generator core stays shared.
+emits a skip manifest for functions it cannot construct safely.  Image
+buffers are sized for the padded destination geometry so no family can run
+past its allocation, and fixed-size host constant arrays (channel orders,
+warp coefficients, per-channel values) are initialized to identity/degenerate
+values.  Irregular families are expected to be refined by module owners with
+per-module overrides/skips; the generator core stays shared.
 
 Usage:
   python3 tools/gen_ref_tests.py --module npps_arithmetic_and_logical_operations.h
@@ -71,9 +74,17 @@ OUTPUT_SCALAR = {"pSum", "pMean", "pMin", "pMax", "pNorm", "pDotProd", "pError",
                  "pHist", "pHistogram", "pResult", "pVal", "pValuesOut"}
 INPUT_PREFIXES = ("pSrc", "pMask", "pKernel", "pTpl", "pTemplate", "pConstant",
                   "pConstants", "pLevels", "pValues", "pPalette", "pLookupTable",
-                  "pTable")
+                  "pTable", "pXMap", "pYMap")
 OUTPUT_PREFIXES = ("pDst", "pSrcDst")
 SKIP_PARAM_TYPES = {"NppStreamContext"}
+
+# Fixed-size host constant arrays are passed by value-ish semantics (channel
+# orders, warp coefficient matrices, ROI quadrangles, per-channel fill values).
+HOST_ARRAY_PREFIXES = ("a",)
+KERNELISH = ("pMask", "pKernel", "pTpl", "pTemplate", "pXMap", "pYMap")
+# Scalar parameters whose safe value depends on the name, not the type.
+SCALAR_NAME_DEFAULTS = {"nMin": "0.5", "nMax": "100.5",
+                        "eInterpolation": "NPPI_INTER_LINEAR"}
 
 
 @dataclass
@@ -84,7 +95,8 @@ class Param:
     is_const: bool
     is_array: bool
     array_len: int
-    is_ptr_array: bool = False  # array-of-pointers (T * name[N])
+    arr_dims: tuple = ()  # declarator dims, e.g. (2, 3) for "aCoeffs[2][3]"
+    is_ptr_array: bool = False  # element is itself a pointer, e.g. "pDst[3]"
 
 
 def split_params(params: str) -> List[str]:
@@ -104,8 +116,9 @@ def split_params(params: str) -> List[str]:
 
 
 PARAM_RE = re.compile(
-    r"^(?P<pre>const\s+)?(?P<type>[A-Za-z_]\w*(?:\s*\*)?(?:\s+const)?)\s*"
-    r"(?P<stars>\**)\s*(?P<name>[A-Za-z_]\w*)\s*(?P<arr>\[[^\]]*\])?$"
+    r"^(?P<pre>const\s+)?(?P<type>(?:unsigned\s+|signed\s+|long\s+|short\s+)*"
+    r"[A-Za-z_]\w*(?:\s*\*)?(?:\s+const)?)\s*"
+    r"(?P<stars>\**)\s*(?P<name>[A-Za-z_]\w*)\s*(?P<arr>(?:\[[^\]]*\])+)?$"
 )
 
 
@@ -127,14 +140,17 @@ def parse_param(raw: str) -> Optional[Param]:
         base = base[:-1].strip()
         stars += "*"
     is_pointer = bool(stars) or bool(arr)
-    is_ptr_array = bool(stars) and bool(arr)  # T * name[N] => array of pointers
-    array_len = 0
-    if arr:
+    dims = []
+    for d in re.findall(r"\[([^\]]*)\]", arr):
         try:
-            array_len = int(arr.strip("[]").strip())
+            dims.append(int(d.strip()))
         except ValueError:
-            array_len = 3
-    return Param(base, name, is_pointer, is_const, bool(arr), array_len, is_ptr_array)
+            dims.append(3)
+    total = 1
+    for d in dims:
+        total *= d
+    return Param(base, name, is_pointer, is_const, bool(arr),
+                 total if dims else 0, tuple(dims), bool(stars and dims))
 
 
 def parse_params(params: str) -> Optional[List[Param]]:
@@ -149,29 +165,32 @@ def parse_params(params: str) -> Optional[List[Param]]:
     return out
 
 
-def strip_ctx(fn: str) -> str:
-    """Drop the _Ctx suffix; channel/planar markers precede it and the raw
-    markers never match a `[A-Z0-9_]*$` tail containing the mixed-case Ctx."""
-    return re.sub(r"_Ctx$", "", fn)
+def channel_tokens(fn: str) -> List[int]:
+    """All channel counts in the layout suffix, in order of appearance.
+
+    ``nppiSwapChannels_8u_C3C4R_Ctx`` -> [3, 4] (src 3 channels, dst 4),
+    ``nppiConvert_16f32f_AC4R_Ctx`` -> [4].  The NPP 13 ABI names all carry a
+    trailing ``_Ctx``, which the historic single-token regex never matched.
+    """
+    base = re.sub(r"_Ctx$", "", fn)
+    m = re.search(r"_(?:AC|C|P)\d", base)
+    tail = base[m.start() + 1:] if m else ""
+    toks = []
+    for m in re.finditer(r"(AC|C|P)(\d+)", tail):
+        n = int(m.group(2))
+        # NPP AC1 images carry one color channel plus a separate alpha
+        # channel (2 values per pixel); AC4 packs alpha into the 4th slot.
+        toks.append(2 if m.group(1) == "AC" and n == 1 else n)
+    return toks or [1]
 
 
 def channels(fn: str) -> int:
-    fn = strip_ctx(fn)
-    # Tail is mixed case: R / IR / RSfs / IRSfs / M ... follow the channel
-    # marker (e.g. nppiAddC_8u_C3RSfs), so [A-Z0-9_]*$ would never match.
-    m = re.search(r"_(AC|C)(\d)[A-Za-z0-9_]*$", fn)
-    if m:
-        n = int(m.group(2))
-        # NPP AC1 images carry one color channel plus a separate alpha
-        # channel (2 values per pixel); AC4 packs alpha into the 4th slot,
-        # so only AC1 needs widening.
-        return 2 if m.group(1) == "AC" and n == 1 else n
-    m = re.search(r"_P(\d)[A-Za-z0-9_]*$", fn)
-    return int(m.group(1)) if m else 1
+    return channel_tokens(fn)[0]
 
 
 def is_planar(fn: str) -> bool:
-    return bool(re.search(r"_P\d[A-Za-z0-9_]*$", strip_ctx(fn)))
+    base = re.sub(r"_Ctx$", "", fn)
+    return bool(re.search(r"_P\d", base))
 
 
 def pointee(p: Param) -> Optional[str]:
@@ -198,6 +217,13 @@ def pointer_role(p: Param) -> Optional[str]:
 
 
 def scalar_value(p: Param) -> Optional[str]:
+    if p.name in SCALAR_NAME_DEFAULTS:
+        t = p.ctype
+        # Name-based defaults only apply to the types where they make sense.
+        if p.name == "eInterpolation" and t in SCALAR:
+            return SCALAR_NAME_DEFAULTS[p.name]
+        if p.name in ("nMin", "nMax") and t in ("Npp32f", "Npp64f", "float", "double"):
+            return SCALAR_NAME_DEFAULTS[p.name]
     t = p.ctype
     if t in ENUMS:
         return ENUMS[t]
@@ -216,6 +242,37 @@ def scalar_value(p: Param) -> Optional[str]:
     if t in SCALAR:
         return "2"
     return None
+
+
+def host_array_init(p: Param, toks: Sequence[int], W: int, H: int,
+                    WMAX: int, HMAX: int) -> Optional[str]:
+    """Initializer for a fixed-size host constant array.
+
+    Channel orders become the identity permutation (clamped to the source
+    channel count), warp coefficient matrices become the identity transform
+    and quadrangles map the ROI corners, so every family degenerates to a
+    safe, deterministic copy-like operation.
+    """
+    dims = p.arr_dims or ((p.array_len,) if p.array_len else (1,))
+    if p.name == "aDstOrder":
+        src_ch = toks[0] if toks else 1
+        return "{%s}" % ", ".join(str(min(i, src_ch - 1)) for i in range(dims[0]))
+    if "Coeffs" in p.name and len(dims) == 2:
+        rows, cols = dims
+        return "{%s}" % ", ".join(
+            "{%s}" % ", ".join("1" if c == r else "0" for c in range(cols))
+            for r in range(rows))
+    if "Quad" in p.name and dims == (4, 2):
+        wmax, hmax = (WMAX - 1, HMAX - 1) if "Dst" in p.name else (W - 1, H - 1)
+        return "{%s}" % ", ".join("{%d, %d}" % (x, y) for x, y in
+                                  ((0, 0), (wmax, 0), (wmax, hmax), (0, hmax)))
+    val = scalar_value(p)
+    if val is None:
+        return None
+    total = 1
+    for d in dims:
+        total *= d
+    return "{%s}" % ", ".join([val] * total)
 
 
 def fn_kind(fn: str, params: Sequence[Param]) -> str:
@@ -237,14 +294,14 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
         return "planar pointer-array layout (manual follow-up)"
     for p in params:
         if p.is_ptr_array:
-            return "planar pointer-array layout (manual follow-up)"
+            return f"array-of-pointers parameter {p.name}"
         if p.is_array:
-            # C array parameter: caller-allocated host memory passed by value
-            # (e.g. `const Npp8u aConstants[3]`), not a device pointer.
+            # Fixed-size host constant array (channel orders, warp
+            # coefficients, per-channel fill values, ...).
             if p.ctype not in SCALAR:
-                return f"unsupported array element type {p.ctype} ({p.name})"
-            if not p.is_const:
-                return f"output host array unsupported ({p.name})"
+                return f"unsupported host array type {p.ctype} ({p.name})"
+            if not (p.is_const or p.name.startswith(HOST_ARRAY_PREFIXES)):
+                return f"unsupported host output array {p.name}"
             continue
         if p.is_pointer:
             if p.ctype not in SCALAR:
@@ -277,41 +334,44 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     if reason:
         return None, reason
     assert params is not None
-    ch = channels(fn)
+    toks = channel_tokens(fn)
+    ch = toks[0]
     kind = fn_kind(fn, params)
     W, H, N = 17, 13, 257
-    # Border-style functions declare a source/destination image of
-    # {W+4, H+4} (oSrcSize / oSrcSizeROI / oDstSizeROI) while the ROI stays
-    # {W, H}; image buffers must cover every row the call can touch at the
-    # emitted pitch.
-    has_full_size = any(p.ctype == "NppiSize"
-                        and p.name in ("oSrcSize", "oSrcSizeROI", "oDstSizeROI")
-                        for p in params)
-    rows = H + 4 if has_full_size else H
-    cols = W + 4 if has_full_size else W
+    # Destination geometry (border copies, sub-pixel copies, padded dst ROIs)
+    # is W+4 x H+4; every image buffer is sized for it so no family can run
+    # past its allocation regardless of which size parameter claims what.
+    WMAX, HMAX = W + 4, H + 4
 
-    def img_count(t: str) -> int:
-        es = SCALAR[t][1]
-        pitch = (W * ch * es + 15) & ~15
-        return ((rows - 1) * pitch + cols * ch * es) // es + 8
-
-    def mask_count(t: str) -> int:
-        es = SCALAR[t][1]
-        pitch = (3 * es + 15) & ~15
-        return ((3 - 1) * pitch + 3 * es) // es + 4
-
-    # Discover the image element type (first image pointer) for step sizing.
+    # Discover the image element type (first image pointer) for the fallback step.
     img_t = "Npp8u"
     for p in params:
-        if p.is_pointer and p.ctype in SCALAR:
+        if p.is_pointer and not p.is_array and p.ctype in SCALAR:
             img_t = p.ctype
             break
     esize = SCALAR[img_t][1]
-    step = f"align16({W} * {ch} * {esize})"
+    step = f"align16({WMAX} * {ch} * {esize})"
 
     decls: List[str] = [f"  NppStreamContext ctx = ref_current_context();"]
-    src_counts: Dict[str, int] = {}
-    dst_counts: Dict[str, int] = {}
+
+    # Per-pointer channel counts: the channel tokens in the layout suffix map,
+    # in order, onto the image pointers that carry pixel data (C3C4R -> src 3,
+    # dst 4).  Mask/kernel/template and coordinate-map pointers stay single
+    # channel; a single token applies to every image pointer (AC4R -> 4).
+    pch: Dict[str, int] = {}
+    img_idx = 0
+    for p in params:
+        if p.is_array or not p.is_pointer:
+            continue
+        if p.name in KERNELISH:
+            pch[p.name] = 1
+            continue
+        if pointer_role(p) in ("in", "out", "inplace"):
+            pch[p.name] = toks[img_idx] if img_idx < len(toks) else toks[-1]
+            img_idx += 1
+
+    def ch_of(p: Param) -> int:
+        return pch.get(p.name, ch)
 
     def count_for(p: Param) -> int:
         role = pointer_role(p)
@@ -321,24 +381,22 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             return 1
         if role == "scalar_out":
             return max(ch, 1)
-        if p.name in ("pConstant", "pConstants"):
-            return max(ch, 1)
         if role in ("in", "out", "inplace"):
             if p.name in ("pMask", "pKernel", "pTpl", "pTemplate"):
-                return mask_count(p.ctype)
+                return 3 * (3 + 16)
             if kind == "signal":
-                return N * max(ch, 1)
-            return img_count(p.ctype)
+                return N * max(ch_of(p), 1)
+            # HMAX rows of (WMAX * ch + 16 slack) elements: covers any
+            # align16 step rounding and every size parameter value below.
+            return HMAX * (WMAX * ch_of(p) + 16)
         return max(ch, 1)
 
-    allocs: List[str] = []
     args: List[str] = []
     captures: List[str] = []
-    names: Dict[str, str] = {}
 
-    # Steps are referenced in the argument list; build them first.  Each
-    # step uses the element size of its associated pointer (mixed-type
-    # functions have different src/dst element sizes).
+    # Steps are referenced in the argument list; build them first.  Each step
+    # uses the element size of its associated pointer (mixed-type functions
+    # have different src/dst element sizes).
     ptr_by_name = {p.name: p for p in params if p.is_pointer}
     steps: Dict[str, str] = {}
     for p in params:
@@ -346,24 +404,27 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             continue
         base_ptr = re.sub(r"^n", "p", re.sub(r"Step$", "", p.name))
         q = ptr_by_name.get(base_ptr)
-        if q is not None and q.ctype in SCALAR:
+        if q is not None and q.ctype in SCALAR and not q.is_array:
             es = SCALAR[q.ctype][1]
             if base_ptr in ("pMask", "pKernel", "pTpl"):
                 steps[p.name] = f"align16(3 * {es})"
             else:
-                steps[p.name] = f"align16({W} * {ch} * {es})"
+                steps[p.name] = f"align16({WMAX} * {ch_of(q)} * {es})"
         else:
             steps[p.name] = step
 
     for p in params:
+        role = pointer_role(p) if p.is_pointer else None
+        # Fixed-size host constant arrays (channel orders, coefficients, ...).
         if p.is_array:
-            # C array parameter: by-value host memory (e.g. aConstants[3]).
-            n = p.array_len or max(ch, 1)
-            val = scalar_value(p)
-            decls.append(f"  const {p.ctype} {p.name}[{n}] = {{{', '.join([val] * n)}}};")
+            init = host_array_init(p, toks, W, H, WMAX, HMAX)
+            if init is None:
+                return None, f"unsupported host array {p.ctype} {p.name}"
+            dims = "".join(f"[{d}]" for d in (p.arr_dims or (p.array_len,)))
+            const = "const " if p.is_const else ""
+            decls.append(f"  {const}{p.ctype} {p.name}{dims} = {init};")
             args.append(p.name)
             continue
-        role = pointer_role(p) if p.is_pointer else None
         if p.is_pointer and role == "host":
             decls.append(f"  SIZE_TYPE {p.name} = 0;")
             args.append(f"&{p.name}")
@@ -373,7 +434,6 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
                 return None, f"unsupported pointer type {p.ctype}"
             n = p.name
             count = count_for(p)
-            names[n] = n
             decls.append(f"  auto {n} = ref_device<{p.ctype}>({count}, 0x{int(hashlib.sha256((fn + n).encode()).hexdigest()[:8], 16):08x});")
             args.append(f"{n}->get()")
             if role in ("out", "inplace", "scalar_out"):
@@ -397,17 +457,20 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if p.ctype == "NppiSize":
             if "Mask" in p.name or "Kernel" in p.name or "Tpl" in p.name:
                 args.append("{3, 3}")
-            elif p.name in ("oSrcSize", "oSrcSizeROI", "oDstSizeROI"):
-                args.append(f"{{{W + 4}, {H + 4}}}")
+            elif p.name in ("oDstSize", "oDstSizeROI"):
+                # Padded destination geometry (border copies, sub-pixel copies).
+                args.append(f"{{{WMAX}, {HMAX}}}")
             else:
                 args.append(f"{{{W}, {H}}}")
             continue
         if p.name == "nLength":
             args.append("static_cast<NppSignalLength>(257)")
             continue
-        if p.name in ("nSrcStep", "nDstStep", "nSrc1Step", "nSrc2Step", "nSrcDstStep",
-                      "nMaskStep", "nTplStep", "nBufferStep"):
-            args.append(steps.get(p.name, step))
+        if p.ctype == "NppiRect":
+            if p.name in ("oDstROI", "oDstRectROI"):
+                args.append(f"{{0, 0, {WMAX}, {HMAX}}}")
+            else:
+                args.append(f"{{0, 0, {W}, {H}}}")
             continue
         if p.ctype == "size_t" and "Length" in p.name:
             args.append("static_cast<size_t>(257)")
