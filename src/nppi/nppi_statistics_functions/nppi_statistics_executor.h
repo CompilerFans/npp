@@ -224,6 +224,40 @@ NppStatus fullNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus sameNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus validNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 
+// ---------------------------------------------------------------------------
+// AverageError / AverageRelativeError (package p1.3c)
+// ---------------------------------------------------------------------------
+
+// out = 1 / (W * H * Channels) * sum |pSrc1 - pSrc2| over the ROI; complex
+// elements contribute their complex modulus.  Single device Npp64f output.
+//
+// 5090-measured contract (NVIDIA NPP 13.4, differential tests + probes),
+// check order included:
+//   * null source                     -> NPP_NULL_POINTER_ERROR (first)
+//   * negative ROI                    -> NPP_SIZE_ERROR (before the empty no-op)
+//   * zero-sized ROI                  -> NPP_NO_ERROR, nothing written
+//   * per source, in order: (uint32)step < row bytes -> NPP_STEP_ERROR;
+//     (uint32)step % (sizeof(D) * 2^v2(Channels)) != 0
+//                                    -> NPP_NOT_EVEN_STEP_ERROR
+//   * null out / null scratch         -> NPP_NULL_POINTER_ERROR (last)
+template <typename D, int Channels>
+NppStatus runAverageError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                          Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream);
+
+// out = 1 / (W * H * Channels) * sum |pSrc1 - pSrc2| / max(|pSrc1|, |pSrc2|).
+// Pixels with max(|pSrc1|, |pSrc2|) == 0 contribute 0 but stay in the
+// normalization (5090-measured: 2x1 mixed probe -> 0.5, all-zero image -> 0.0).
+// Validation is identical to runAverageError.
+template <typename D, int Channels>
+NppStatus runAverageRelativeError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                                  Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream);
+
+// Scratch-size helpers.  Unlike the other statistics helpers a zero-sized ROI
+// returns NPP_NO_ERROR (5090-measured).  Exact bytes are not a contract, only
+// that the returned size is sufficient for the matching reduction.
+NppStatus averageErrorGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus averageRelativeErrorGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+
 }  // namespace statistics
 }  // namespace nppi
 

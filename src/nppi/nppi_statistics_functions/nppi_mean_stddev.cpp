@@ -21,10 +21,6 @@ cudaError_t nppiMean_StdDev_32f_C1MR_kernel(const Npp32f *pSrc, int nSrcStep, co
 
 cudaError_t nppiMean_8u_C1R_kernel(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
                                    Npp64f *pMean, cudaStream_t stream);
-
-cudaError_t nppiAverageError_8u_C1R_kernel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                           NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer,
-                                           cudaStream_t stream);
 }
 
 // ============ cuda 12.8 ===================
@@ -389,77 +385,4 @@ NppStatus nppiMean_8u_C1R(const Npp8u *pSrc, int nSrcStep, NppiSize oSizeROI, Np
   NppStreamContext ctx{};
   ctx.hStream = nppGetStream();
   return nppiMean_8u_C1R_Ctx(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, ctx);
-}
-
-// ======================== AverageError 8u C1R ========================
-
-// Buffer size calculation for AverageError 8u single channel
-NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
-                                                        NppStreamContext /*nppStreamCtx*/) {
-  // Parameter validation
-  if (!hpBufferSize) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Calculate required buffer size for reduction operations
-  size_t numPixels = static_cast<size_t>(oSizeROI.width) * static_cast<size_t>(oSizeROI.height);
-  size_t numBlocks = (numPixels + 255) / 256; // Assuming 256 threads per block
-
-  // Buffer for reduction: 1 value per block (sum of absolute differences)
-  *hpBufferSize = numBlocks * sizeof(double);
-
-  return NPP_SUCCESS;
-}
-
-NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R(NppiSize oSizeROI, size_t *hpBufferSize) {
-  NppStreamContext ctx{};
-  ctx.hStream = nppGetStream();
-  return nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, ctx);
-}
-
-// Buffer size calculation for AverageError 8u single channel (int version)
-NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int *hpBufferSize,
-                                                        NppStreamContext nppStreamCtx) {
-  size_t size = 0;
-  auto ret = nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &size, nppStreamCtx);
-  *hpBufferSize = static_cast<int>(size);
-  return ret;
-}
-
-NppStatus nppiAverageErrorGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int *hpBufferSize) {
-  size_t size = 0;
-  auto ret = nppiAverageErrorGetBufferHostSize_8u_C1R(oSizeROI, &size);
-  *hpBufferSize = static_cast<int>(size);
-  return ret;
-}
-
-// AverageError calculation for 8-bit unsigned single channel
-NppStatus nppiAverageError_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                       NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer,
-                                       NppStreamContext nppStreamCtx) {
-  // Parameter validation
-  if (!pSrc1 || !pSrc2 || !pDeviceBuffer || !pError) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
-    return NPP_SIZE_ERROR;
-  }
-  if (nSrc1Step < oSizeROI.width || nSrc2Step < oSizeROI.width) {
-    return NPP_STEP_ERROR;
-  }
-
-  cudaError_t cudaStatus = nppiAverageError_8u_C1R_kernel(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError,
-                                                           pDeviceBuffer, nppStreamCtx.hStream);
-
-  return (cudaStatus == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
-
-NppStatus nppiAverageError_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
-                                   NppiSize oSizeROI, Npp64f *pError, Npp8u *pDeviceBuffer) {
-  NppStreamContext ctx{};
-  ctx.hStream = nppGetStream();
-  return nppiAverageError_8u_C1R_Ctx(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pError, pDeviceBuffer, ctx);
 }
