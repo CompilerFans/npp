@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 7924 (63.2%)
+- Real implementations: 8690 (69.3%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 4447
+- Missing: 3681
 - Tested: 7909 (63.1%)
-- Real and tested: 5786
+- Real and tested: 6118
 
 ## By module
 
@@ -25,14 +25,13 @@
 | npps_conversion_functions.h | 174 | 174 | 0 | 0 | 89 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
-| npps_statistics_functions.h | 766 | 0 | 0 | 766 | 332 |
+| npps_statistics_functions.h | 766 | 766 | 0 | 0 | 332 |
 | npps_support_functions.h | 15 | 15 | 0 | 0 | 7 |
 
 ## Largest remaining groups
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| npps_statistics_functions.h | nppsDotProd | 100 | 50 |
 | nppi_filtering_functions.h | nppiFilter32f | 66 | 33 |
 | nppi_filtering_functions.h | nppiFilterBorder32f | 66 | 33 |
 | nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
@@ -41,10 +40,6 @@
 | nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
 | nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
-| npps_statistics_functions.h | nppsAverageError | 56 | 28 |
-| npps_statistics_functions.h | nppsAverageRelativeError | 56 | 28 |
-| npps_statistics_functions.h | nppsMaximumError | 56 | 28 |
-| npps_statistics_functions.h | nppsMaximumRelativeError | 56 | 28 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
 | nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrFull_NormLevel | 48 | 24 |
@@ -59,7 +54,6 @@
 | nppi_statistics_functions.h | nppiSqrDistanceValid_Norm | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
-| npps_statistics_functions.h | nppsSum | 36 | 18 |
 | nppi_filtering_functions.h | nppiFilterBorder | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterColumn | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterRow | 34 | 17 |
@@ -72,3 +66,9 @@
 | nppi_filtering_functions.h | nppiFilterLowPassBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterLowPass | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
+| nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterRowBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterSharpenBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterSharpen | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
