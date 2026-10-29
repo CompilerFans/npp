@@ -736,10 +736,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCountInRange_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aCounts"
-  },
-  {
     "function": "nppiCountInRange_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -752,16 +748,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCountInRange_32f_C3R_Ctx",
-    "reason": "unknown pointer role aCounts"
-  },
-  {
     "function": "nppiCountInRange_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCountInRange_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aCounts"
   },
   {
     "function": "nppiCountInRange_8u_C1R",
@@ -774,10 +762,6 @@
   {
     "function": "nppiCountInRange_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCountInRange_8u_C3R_Ctx",
-    "reason": "unknown pointer role aCounts"
   },
   {
     "function": "nppiCrossCorrFull_NormLevelAdvanced_16u32f_C1R_Ctx",
@@ -1684,10 +1668,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_16s64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_16s64f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1700,24 +1680,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_16s64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_16s64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_16s64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_16u64f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_16u64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiDotProd_16u64f_C1R",
@@ -1732,24 +1700,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_16u64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_16u64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_16u64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_32f64f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_32f64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiDotProd_32f64f_C1R",
@@ -1764,24 +1720,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_32f64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_32f64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_32f64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_32s64f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_32s64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiDotProd_32s64f_C1R",
@@ -1796,24 +1740,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_32s64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_32s64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_32s64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_32u64f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_32u64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiDotProd_32u64f_C1R",
@@ -1828,24 +1760,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_32u64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_32u64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_32u64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_8s64f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_8s64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiDotProd_8s64f_C1R",
@@ -1860,24 +1780,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_8s64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_8s64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_8s64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_8u64f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_8u64f_AC4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiDotProd_8u64f_C1R",
@@ -1892,16 +1800,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDotProd_8u64f_C3R_Ctx",
-    "reason": "unknown pointer role aDp"
-  },
-  {
     "function": "nppiDotProd_8u64f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiDotProd_8u64f_C4R_Ctx",
-    "reason": "unknown pointer role aDp"
   },
   {
     "function": "nppiEllipticalRadialProfile_32f_C1R_Ctx",
@@ -2017,7 +1917,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16s_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16s_C1R",
@@ -2029,7 +1929,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16s_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16s_C4R",
@@ -2037,7 +1937,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16s_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16u_AC4R",
@@ -2045,7 +1945,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16u_C1R",
@@ -2057,7 +1957,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16u_C4R",
@@ -2065,7 +1965,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_16u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_8u_AC4R",
@@ -2073,7 +1973,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_8u_C1R",
@@ -2085,7 +1985,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_8u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_8u_C4R",
@@ -2093,7 +1993,7 @@
   },
   {
     "function": "nppiHistogramEvenGetBufferSize_8u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramEven_16s_AC4R",
@@ -2101,7 +2001,7 @@
   },
   {
     "function": "nppiHistogramEven_16s_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_16s_C1R",
@@ -2113,7 +2013,7 @@
   },
   {
     "function": "nppiHistogramEven_16s_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_16s_C4R",
@@ -2121,7 +2021,7 @@
   },
   {
     "function": "nppiHistogramEven_16s_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_16u_AC4R",
@@ -2129,7 +2029,7 @@
   },
   {
     "function": "nppiHistogramEven_16u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_16u_C1R",
@@ -2141,7 +2041,7 @@
   },
   {
     "function": "nppiHistogramEven_16u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_16u_C4R",
@@ -2149,7 +2049,7 @@
   },
   {
     "function": "nppiHistogramEven_16u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_8u_AC4R",
@@ -2157,7 +2057,7 @@
   },
   {
     "function": "nppiHistogramEven_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_8u_C1R",
@@ -2169,7 +2069,7 @@
   },
   {
     "function": "nppiHistogramEven_8u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_8u_C4R",
@@ -2177,7 +2077,7 @@
   },
   {
     "function": "nppiHistogramEven_8u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_AC4R",
@@ -2185,7 +2085,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_C1R",
@@ -2197,7 +2097,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_C4R",
@@ -2205,7 +2105,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16u_AC4R",
@@ -2213,7 +2113,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16u_C1R",
@@ -2225,7 +2125,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16u_C4R",
@@ -2233,7 +2133,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_32f_AC4R",
@@ -2241,7 +2141,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_32f_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_32f_C1R",
@@ -2253,7 +2153,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_32f_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_32f_C4R",
@@ -2261,7 +2161,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_32f_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_8u_AC4R",
@@ -2269,7 +2169,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_8u_C1R",
@@ -2281,7 +2181,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_8u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_8u_C4R",
@@ -2289,7 +2189,7 @@
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_8u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "unsupported host output array nLevels"
   },
   {
     "function": "nppiHistogramRange_16s_AC4R",
@@ -2297,7 +2197,7 @@
   },
   {
     "function": "nppiHistogramRange_16s_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_16s_C1R",
@@ -2309,7 +2209,7 @@
   },
   {
     "function": "nppiHistogramRange_16s_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_16s_C4R",
@@ -2317,7 +2217,7 @@
   },
   {
     "function": "nppiHistogramRange_16s_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_16u_AC4R",
@@ -2325,7 +2225,7 @@
   },
   {
     "function": "nppiHistogramRange_16u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_16u_C1R",
@@ -2337,7 +2237,7 @@
   },
   {
     "function": "nppiHistogramRange_16u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_16u_C4R",
@@ -2345,7 +2245,7 @@
   },
   {
     "function": "nppiHistogramRange_16u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_32f_AC4R",
@@ -2353,7 +2253,7 @@
   },
   {
     "function": "nppiHistogramRange_32f_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_32f_C1R",
@@ -2365,7 +2265,7 @@
   },
   {
     "function": "nppiHistogramRange_32f_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_32f_C4R",
@@ -2373,7 +2273,7 @@
   },
   {
     "function": "nppiHistogramRange_32f_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_8u_AC4R",
@@ -2381,7 +2281,7 @@
   },
   {
     "function": "nppiHistogramRange_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_8u_C1R",
@@ -2393,7 +2293,7 @@
   },
   {
     "function": "nppiHistogramRange_8u_C3R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_8u_C4R",
@@ -2401,7 +2301,7 @@
   },
   {
     "function": "nppiHistogramRange_8u_C4R_Ctx",
-    "reason": "unknown pointer role nLevels"
+    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiIntegral_8u32f_C1R",
@@ -2684,10 +2584,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -2700,24 +2596,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_16s_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_16s_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMaxIndx_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMaxIndx_16u_C1R",
@@ -2732,24 +2616,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_16u_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_16u_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMaxIndx_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMaxIndx_32f_C1R",
@@ -2764,24 +2636,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_32f_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_32f_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMaxIndx_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMaxIndx_8u_C1R",
@@ -2796,24 +2656,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_8u_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMaxIndx_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMaxIndx_8u_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMax_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMax_16s_C1R",
@@ -2824,24 +2672,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_16s_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_16s_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMax_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMax_16u_C1R",
@@ -2852,24 +2688,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_16u_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_16u_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMax_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMax_32f_C1R",
@@ -2880,24 +2704,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_32f_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_32f_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMax_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMax_8u_C1R",
@@ -2908,16 +2720,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMax_8u_C3R_Ctx",
-    "reason": "unknown pointer role aMax"
-  },
-  {
     "function": "nppiMax_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMax_8u_C4R_Ctx",
-    "reason": "unknown pointer role aMax"
   },
   {
     "function": "nppiMaximumErrorGetBufferHostSize_16s_C1R",
@@ -3788,10 +3592,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -3800,24 +3600,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_16s_C3R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_16s_C4R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMean_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aMean"
   },
   {
     "function": "nppiMean_16u_C1MR",
@@ -3836,24 +3624,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_16u_C3R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_16u_C4R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMean_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aMean"
   },
   {
     "function": "nppiMean_32f_C1MR",
@@ -3872,16 +3648,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_32f_C3R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMean_32f_C4R_Ctx",
-    "reason": "unknown pointer role aMean"
   },
   {
     "function": "nppiMean_8s_C1MR",
@@ -3894,10 +3662,6 @@
   {
     "function": "nppiMean_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMean_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aMean"
   },
   {
     "function": "nppiMean_8u_C1MR",
@@ -3916,16 +3680,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMean_8u_C3R_Ctx",
-    "reason": "unknown pointer role aMean"
-  },
-  {
     "function": "nppiMean_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMean_8u_C4R_Ctx",
-    "reason": "unknown pointer role aMean"
   },
   {
     "function": "nppiMean_StdDev_16u_C1MR",
@@ -4188,10 +3944,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -4204,24 +3956,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_16s_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_16s_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinIndx_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinIndx_16u_C1R",
@@ -4236,24 +3976,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_16u_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_16u_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinIndx_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinIndx_32f_C1R",
@@ -4268,24 +3996,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_32f_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_32f_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinIndx_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinIndx_8u_C1R",
@@ -4300,16 +4016,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinIndx_8u_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinIndx_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinIndx_8u_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinMaxGetBufferHostSize_16s_AC4R",
@@ -4572,10 +4280,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -4584,24 +4288,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_16s_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_16s_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinMax_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinMax_16u_C1R",
@@ -4612,24 +4304,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_16u_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_16u_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinMax_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinMax_32f_C1R",
@@ -4640,24 +4320,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_32f_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_32f_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMinMax_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMinMax_8u_C1R",
@@ -4668,24 +4336,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_8u_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMinMax_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMinMax_8u_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMin_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMin_16s_C1R",
@@ -4696,24 +4352,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_16s_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_16s_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMin_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMin_16u_C1R",
@@ -4724,24 +4368,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_16u_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_16u_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMin_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMin_32f_C1R",
@@ -4752,24 +4384,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_32f_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_32f_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMin_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiMin_8u_C1R",
@@ -4780,16 +4400,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMin_8u_C3R_Ctx",
-    "reason": "unknown pointer role aMin"
-  },
-  {
     "function": "nppiMin_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMin_8u_C4R_Ctx",
-    "reason": "unknown pointer role aMin"
   },
   {
     "function": "nppiNormDiffInfGetBufferHostSize_16s_AC4R",
@@ -5084,10 +4696,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -5100,24 +4708,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_Inf_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_Inf_16u_C1MR",
@@ -5148,24 +4744,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_Inf_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_Inf_32f_C1MR",
@@ -5196,16 +4780,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_Inf_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_Inf_8s_C1MR",
@@ -5226,10 +4802,6 @@
   {
     "function": "nppiNormDiff_Inf_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_Inf_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_Inf_8u_C1MR",
@@ -5260,24 +4832,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_Inf_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_Inf_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L1_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L1_16s_C1R",
@@ -5292,24 +4852,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L1_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L1_16u_C1MR",
@@ -5340,24 +4888,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L1_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L1_32f_C1MR",
@@ -5388,16 +4924,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L1_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L1_8s_C1MR",
@@ -5418,10 +4946,6 @@
   {
     "function": "nppiNormDiff_L1_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L1_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L1_8u_C1MR",
@@ -5452,24 +4976,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L1_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L1_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L2_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L2_16s_C1R",
@@ -5484,24 +4996,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L2_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L2_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L2_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L2_16u_C1MR",
@@ -5532,24 +5032,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L2_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L2_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L2_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L2_32f_C1MR",
@@ -5580,16 +5068,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L2_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L2_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L2_8s_C1MR",
@@ -5610,10 +5090,6 @@
   {
     "function": "nppiNormDiff_L2_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L2_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormDiff_L2_8u_C1MR",
@@ -5644,16 +5120,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormDiff_L2_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
-  },
-  {
     "function": "nppiNormDiff_L2_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormDiff_L2_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNormDiff"
   },
   {
     "function": "nppiNormInfGetBufferHostSize_16s_AC4R",
@@ -6240,10 +5708,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -6256,24 +5720,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_Inf_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_Inf_16u_C1MR",
@@ -6304,24 +5756,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_Inf_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_Inf_32f_C1MR",
@@ -6352,16 +5792,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_Inf_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_Inf_8s_C1MR",
@@ -6382,10 +5814,6 @@
   {
     "function": "nppiNormRel_Inf_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_Inf_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_Inf_8u_C1MR",
@@ -6416,24 +5844,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_Inf_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_Inf_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L1_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L1_16s_C1R",
@@ -6448,24 +5864,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L1_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L1_16u_C1MR",
@@ -6496,24 +5900,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L1_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L1_32f_C1MR",
@@ -6544,16 +5936,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L1_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L1_8s_C1MR",
@@ -6574,10 +5958,6 @@
   {
     "function": "nppiNormRel_L1_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L1_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L1_8u_C1MR",
@@ -6608,24 +5988,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L1_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L1_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L2_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L2_16s_C1R",
@@ -6640,24 +6008,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L2_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L2_16u_C1MR",
@@ -6688,24 +6044,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L2_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L2_32f_C1MR",
@@ -6736,16 +6080,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L2_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L2_8s_C1MR",
@@ -6766,10 +6102,6 @@
   {
     "function": "nppiNormRel_L2_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNormRel_L2_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
   },
   {
     "function": "nppiNormRel_L2_8u_C1MR",
@@ -6800,24 +6132,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNormRel_L2_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNormRel_L2_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNormRel"
-  },
-  {
     "function": "nppiNorm_Inf_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_Inf_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_Inf_16s_C1R",
@@ -6828,24 +6148,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_Inf_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_Inf_16u_C1MR",
@@ -6864,24 +6172,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_Inf_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_Inf_32f_C1MR",
@@ -6900,16 +6196,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_Inf_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_Inf_32s_C1R",
@@ -6928,10 +6216,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_8u_C1MR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -6948,24 +6232,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_Inf_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_Inf_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L1_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L1_16s_C1R",
@@ -6976,24 +6248,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L1_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L1_16u_C1MR",
@@ -7012,24 +6272,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L1_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L1_32f_C1MR",
@@ -7048,16 +6296,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L1_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L1_8s_C1MR",
@@ -7070,10 +6310,6 @@
   {
     "function": "nppiNorm_L1_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L1_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L1_8u_C1MR",
@@ -7092,24 +6328,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L1_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L1_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L2_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L2_16s_C1R",
@@ -7120,24 +6344,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L2_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L2_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L2_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L2_16u_C1MR",
@@ -7156,24 +6368,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L2_16u_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L2_16u_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L2_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L2_32f_C1MR",
@@ -7192,16 +6392,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L2_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L2_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L2_8s_C1MR",
@@ -7214,10 +6406,6 @@
   {
     "function": "nppiNorm_L2_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L2_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiNorm_L2_8u_C1MR",
@@ -7236,16 +6424,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiNorm_L2_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNorm"
-  },
-  {
     "function": "nppiNorm_L2_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiNorm_L2_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNorm"
   },
   {
     "function": "nppiPSNRBatchGetBufferHostSize_8u_C1R",
@@ -7892,10 +7072,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -7904,24 +7080,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_16s_C3R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_16s_C4R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSum_16u_AC4R_Ctx",
-    "reason": "unknown pointer role aSum"
   },
   {
     "function": "nppiSum_16u_C1R",
@@ -7932,24 +7096,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_16u_C3R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_16u_C4R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSum_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aSum"
   },
   {
     "function": "nppiSum_32f_C1R",
@@ -7960,16 +7112,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_32f_C3R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSum_32f_C4R_Ctx",
-    "reason": "unknown pointer role aSum"
   },
   {
     "function": "nppiSum_8u64s_C1R",
@@ -7980,16 +7124,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_8u64s_C4R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSum_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aSum"
   },
   {
     "function": "nppiSum_8u_C1R",
@@ -8000,16 +7136,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSum_8u_C3R_Ctx",
-    "reason": "unknown pointer role aSum"
-  },
-  {
     "function": "nppiSum_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSum_8u_C4R_Ctx",
-    "reason": "unknown pointer role aSum"
   },
   {
     "function": "nppiValidNormLevelGetBufferHostSize_16u32f_AC4R",

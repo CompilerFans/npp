@@ -10,24 +10,24 @@ using namespace ref;
 
 TEST(RefSuite, nppiMagnitudeSqr_32fc32f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp32fc>(241, 0x8bff3f36);
-  auto pDst = ref_device<Npp32f>(265, 0x4d308070);
+  auto pSrc = ref_device<Npp32fc>(629, 0x8bff3f36);
+  auto pDst = ref_device<Npp32f>(629, 0x4d308070);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiMagnitudeSqr_32fc32f_C1R_Ctx(pSrc->get(), align16(17 * 1 * 8), pDst->get(), align16(17 * 1 * 4), {17, 13}, ctx);
+  NppStatus st = nppiMagnitudeSqr_32fc32f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), pDst->get(), align16(21 * 1 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiMagnitudeSqr_32fc32f_C1R_Ctx", "nppiMagnitudeSqr_32fc32f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst->get(), 265 * sizeof(Npp32f));
+  ref_capture_bytes(c, pDst->get(), 629 * sizeof(Npp32f));
   c.finish();
 }
 
 TEST(RefSuite, nppiMagnitude_32fc32f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp32fc>(241, 0xb369f0a3);
-  auto pDst = ref_device<Npp32f>(265, 0x4551927f);
+  auto pSrc = ref_device<Npp32fc>(629, 0xb369f0a3);
+  auto pDst = ref_device<Npp32f>(629, 0x4551927f);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiMagnitude_32fc32f_C1R_Ctx(pSrc->get(), align16(17 * 1 * 8), pDst->get(), align16(17 * 1 * 4), {17, 13}, ctx);
+  NppStatus st = nppiMagnitude_32fc32f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), pDst->get(), align16(21 * 1 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiMagnitude_32fc32f_C1R_Ctx", "nppiMagnitude_32fc32f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst->get(), 265 * sizeof(Npp32f));
+  ref_capture_bytes(c, pDst->get(), 629 * sizeof(Npp32f));
   c.finish();
 }
