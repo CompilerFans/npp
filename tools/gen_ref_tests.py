@@ -79,6 +79,7 @@ class Param:
     is_const: bool
     is_array: bool
     array_len: int
+    is_ptr_array: bool = False  # array-of-pointers (T * name[N])
 
 
 def split_params(params: str) -> List[str]:
@@ -121,13 +122,14 @@ def parse_param(raw: str) -> Optional[Param]:
         base = base[:-1].strip()
         stars += "*"
     is_pointer = bool(stars) or bool(arr)
+    is_ptr_array = bool(stars) and bool(arr)  # T * name[N] => array of pointers
     array_len = 0
     if arr:
         try:
             array_len = int(arr.strip("[]").strip())
         except ValueError:
             array_len = 3
-    return Param(base, name, is_pointer, is_const, bool(arr), array_len)
+    return Param(base, name, is_pointer, is_const, bool(arr), array_len, is_ptr_array)
 
 
 def parse_params(params: str) -> Optional[List[Param]]:
@@ -142,7 +144,14 @@ def parse_params(params: str) -> Optional[List[Param]]:
     return out
 
 
+def _base_name(fn: str) -> str:
+    """Strip the trailing _Ctx suffix so suffix-anchored layout regexes work
+    (the plain suffix uses lowercase letters, which [A-Z0-9_]* cannot match)."""
+    return re.sub(r"_Ctx$", "", fn)
+
+
 def channels(fn: str) -> int:
+    fn = _base_name(fn)
     m = re.search(r"_(?:AC|C)(\d)[A-Z0-9_]*$", fn)
     if m:
         return int(m.group(1))
@@ -151,7 +160,7 @@ def channels(fn: str) -> int:
 
 
 def is_planar(fn: str) -> bool:
-    return bool(re.search(r"_P\d[A-Z0-9_]*$", fn))
+    return bool(re.search(r"_P\d[A-Z0-9_]*$", _base_name(fn)))
 
 
 def pointee(p: Param) -> Optional[str]:
@@ -216,6 +225,8 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
     if is_planar(row["function_name"]):
         return "planar pointer-array layout (manual follow-up)"
     for p in params:
+        if p.is_ptr_array:
+            return "planar pointer-array layout (manual follow-up)"
         if p.is_pointer:
             if p.ctype not in SCALAR:
                 return f"unsupported pointer type {p.ctype} ({p.name})"
@@ -331,7 +342,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             args.append(str(arg_ov[p.name]))
             continue
         if p.name in steps:
-            args.append(step)
+            args.append(steps[p.name])
             continue
         if p.ctype == "NppiSize":
             if "Mask" in p.name or "Kernel" in p.name or "Tpl" in p.name:
@@ -346,7 +357,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             continue
         if p.name in ("nSrcStep", "nDstStep", "nSrc1Step", "nSrc2Step", "nSrcDstStep",
                       "nMaskStep", "nTplStep", "nBufferStep"):
-            args.append(step)
+            args.append(steps.get(p.name, step))
             continue
         if p.ctype == "size_t" and "Length" in p.name:
             args.append("static_cast<size_t>(257)")
