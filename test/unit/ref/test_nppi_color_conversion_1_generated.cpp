@@ -3761,7 +3761,7 @@ TEST(RefSuite, nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1343, 0x3471d416);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx", "nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3775,7 +3775,7 @@ TEST(RefSuite, nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1343, 0xa511c60a);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx", "nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3789,7 +3789,7 @@ TEST(RefSuite, nppiNV12ToBGR_8u_P2C3R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1343, 0x5975489c);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToBGR_8u_P2C3R_Ctx", "nppiNV12ToBGR_8u_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3805,7 +3805,7 @@ TEST(RefSuite, nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx) {
   auto pDst = ref_device<Npp16u>(1343, 0xc8a2e9be);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 2), {17, 13}, aTwist, ctx);
+  NppStatus st = nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 2), {16, 12}, aTwist, ctx);
   npp_diff::Case c("ref/nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx", "nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp16u));
@@ -3819,7 +3819,7 @@ TEST(RefSuite, nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1343, 0xd2b40108);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx", "nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3833,7 +3833,7 @@ TEST(RefSuite, nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1343, 0x8c9c327a);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx", "nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3849,7 +3849,7 @@ TEST(RefSuite, nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx) {
   auto pDst = ref_device<Npp8u>(1343, 0x62e740e4);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, aTwist, ctx);
+  NppStatus st = nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {16, 12}, aTwist, ctx);
   npp_diff::Case c("ref/nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx", "nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3863,7 +3863,7 @@ TEST(RefSuite, nppiNV12ToRGB_8u_P2C3R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1343, 0x06942419);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV12ToRGB_8u_P2C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToRGB_8u_P2C3R_Ctx", "nppiNV12ToRGB_8u_P2C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -3881,7 +3881,7 @@ TEST(RefSuite, nppiNV12ToYUV420_8u_P2P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV12ToYUV420_8u_P2P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiNV12ToYUV420_8u_P2P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV12ToYUV420_8u_P2P3R_Ctx", "nppiNV12ToYUV420_8u_P2P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -3897,7 +3897,7 @@ TEST(RefSuite, nppiNV21ToBGR_8u_P2C4R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1700, 0x053e8c93);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV21ToBGR_8u_P2C4R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 4 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV21ToBGR_8u_P2C4R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 4 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV21ToBGR_8u_P2C4R_Ctx", "nppiNV21ToBGR_8u_P2C4R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1700 * sizeof(Npp8u));
@@ -3911,7 +3911,7 @@ TEST(RefSuite, nppiNV21ToRGB_8u_P2C4R_Ctx) {
   const Npp8u * pSrc[2] = {pSrc_0->get(), pSrc_1->get()};
   auto pDst = ref_device<Npp8u>(1700, 0x90337b54);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiNV21ToRGB_8u_P2C4R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 4 * 1), {17, 13}, ctx);
+  NppStatus st = nppiNV21ToRGB_8u_P2C4R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 4 * 1), {16, 12}, ctx);
   npp_diff::Case c("ref/nppiNV21ToRGB_8u_P2C4R_Ctx", "nppiNV21ToRGB_8u_P2C4R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1700 * sizeof(Npp8u));
@@ -3927,7 +3927,7 @@ TEST(RefSuite, nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx) {
   int aDstStep[2] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx(pSrc->get(), align16(21 * 3 * 2), pDst, aDstStep, {17, 13}, aTwist, ctx);
+  NppStatus st = nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx(pSrc->get(), align16(21 * 3 * 2), pDst, aDstStep, {16, 12}, aTwist, ctx);
   npp_diff::Case c("ref/nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx", "nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp16u));
@@ -3948,7 +3948,7 @@ TEST(RefSuite, nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx) {
   int aDstStep[2] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
+  NppStatus st = nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {16, 12}, aTwist, ctx);
   npp_diff::Case c("ref/nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx", "nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp16u));
@@ -3965,7 +3965,7 @@ TEST(RefSuite, nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx) {
   int aDstStep[2] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, aTwist, ctx);
+  NppStatus st = nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, aDstStep, {16, 12}, aTwist, ctx);
   npp_diff::Case c("ref/nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx", "nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -3986,7 +3986,7 @@ TEST(RefSuite, nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx) {
   int aDstStep[2] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
+  NppStatus st = nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {16, 12}, aTwist, ctx);
   npp_diff::Case c("ref/nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx", "nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));

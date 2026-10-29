@@ -458,6 +458,13 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     # is W+4 x H+4; every image buffer is sized for it so no family can run
     # past its allocation regardless of which size parameter claims what.
     WMAX, HMAX = W + 4, H + 4
+    # Semi-planar 4:2:0 layouts (NV12/NV21 in the NPP naming scheme) need an
+    # even ROI in both dimensions: NPP 13.4 hard-rejects odd sizes
+    # (NPP_SIZE_ERROR, nothing executed) for the semi-planar -> packed paths.
+    # Buffers and steps are still sized from WMAX/HMAX, so they stay
+    # oversized for the rounded-down ROI.
+    if "NV12" in fn or "NV21" in fn:
+        W, H = W - 1, H - 1
 
     # Discover the image element type (first image pointer) for the fallback step.
     img_t = "Npp8u"
