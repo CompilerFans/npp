@@ -10,11 +10,11 @@
 | 指标 | 数值 |
 |---|---:|
 | 公共函数 | 12,537 |
-| 真实实现 | 5,130 |
+| 真实实现 | 5,496 |
 | 显式 stub | 166 |
-| 缺失 | 7,241 |
-| 待实现（stub+missing） | 7,407 |
-| 待实现 `_Ctx` | 3,758 |
+| 缺失 | 6,875 |
+| 待实现（stub+missing） | 7,041 |
+| 待实现 `_Ctx` | 3,574 |
 | 本地回归基线 | 4,803 tests, 0 failures |
 
 ## 2. 基础设施（已完成）
@@ -47,7 +47,7 @@
 | P2.2a | NPPI SwapChannels / CopySubpix | 110 | ✅ 已实现 | `pkg/p2.2a` → `5db538e` |
 | P2.2b | NPPI Scale / 边界复制 | 182 | ✅ 已实现 | `pkg/p2.2b` → `66bf923` |
 | P2.3 | NPPI 阈值 / 比较 | 366 | ✅ 已实现 | `pkg/p2.3` → `f61153d` |
-| P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
+| P3.1a1 | NPPI Sum/Mean/MeanStdDev + buffer sizes | 212 | 运行中 | `pkg/p3.1a1` |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
 | P1.4 | NPPI 数据交换 Convert/Copy/Set/SwapChannels/Scale | 861 | 规划中 | — |

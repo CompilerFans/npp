@@ -136,5 +136,17 @@
       "nppiFusedAbsDiff_Threshold_GTVal",
       "nppiFusedAbsDiff_Threshold_GTVal_I"
     ]
+  },
+  "p3.1a1": {
+    "title": "NPPI reductions: Sum/Mean/MeanStdDev + buffer sizes",
+    "module": "nppi_statistics_functions.h",
+    "families": [
+      "nppiSum",
+      "nppiSumGetBufferHostSize",
+      "nppiMean",
+      "nppiMeanGetBufferHostSize",
+      "nppiMean_StdDev",
+      "nppiMeanStdDevGetBufferHostSize"
+    ]
   }
 }
