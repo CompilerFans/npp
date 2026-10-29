@@ -86,6 +86,9 @@ else
   fi
 fi
 
+# Reference builds need googletest; worktrees start with uninitialized submodules.
+git -C "$workdir" submodule update --init --recursive >/dev/null 2>&1 || true
+
 if [[ ! -f "$AGENT_ENV" ]]; then
   echo "error: missing $AGENT_ENV (gateway credentials)" >&2
   exit 2

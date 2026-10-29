@@ -136,9 +136,10 @@ def tool_test(args: Dict[str, Any]) -> Dict[str, Any]:
 def tool_record(args: Dict[str, Any]) -> Dict[str, Any]:
     remote_dir = args.get("remote_dir") or remote_default()
     build_dir = args.get("build_dir") or "build-nvidia"
+    target = args.get("target") or "diff_tests"
     out = args.get("out_dir") or f"{remote_dir.rstrip('/')}/{build_dir}/npp_records"
     filt = args.get("filter")
-    cmd = f"mkdir -p {shlex.quote(out)} && cd {shlex.quote(build_dir)} && NPP_RECORD_DIR={shlex.quote(out)} ./diff_tests"
+    cmd = f"mkdir -p {shlex.quote(out)} && cd {shlex.quote(build_dir)} && NPP_RECORD_DIR={shlex.quote(out)} ./{shlex.quote(target)}"
     if filt:
         cmd += f" --gtest_filter={shlex.quote(str(filt))}"
     result = ssh_cmd(remote_dir, cmd, int(args.get("timeout", DEFAULT_TIMEOUT)))
@@ -221,6 +222,7 @@ TOOLS = [
             "properties": {
                 "remote_dir": {"type": "string"},
                 "build_dir": {"type": "string"},
+                "target": {"type": "string", "description": "default diff_tests; use ref_tests for reference suites"},
                 "filter": {"type": "string"},
                 "out_dir": {"type": "string"},
                 "timeout": {"type": "integer"},

@@ -20,10 +20,15 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${MCPP_5090_ENV:-$HOME/.config/mcpp-5090.env}"
+_PRE_HOST="${MCPP_5090_HOST-}"
+_PRE_DIR="${MCPP_5090_DIR-}"
 if [[ -f "$ENV_FILE" ]]; then
   # shellcheck disable=SC1090
   source "$ENV_FILE"
 fi
+# Caller-provided values (parallel agents) win over the defaults file.
+[[ -n "$_PRE_HOST" ]] && export MCPP_5090_HOST="$_PRE_HOST"
+[[ -n "$_PRE_DIR" ]] && export MCPP_5090_DIR="$_PRE_DIR"
 
 HOST="${MCPP_5090_HOST:-metax@10.2.120.6}"
 REMOTE_DIR="${MCPP_5090_DIR:-~/mcMPP}"
