@@ -800,10 +800,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_16s_C3P3R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -824,10 +820,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_16s_C4P4R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -836,16 +828,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_16s_P3C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
-  },
-  {
     "function": "nppiCopy_16s_P4C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCopy_16s_P4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiCopy_16sc_AC4R",
@@ -908,10 +892,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_16u_C3P3R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -932,10 +912,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_16u_C4P4R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -944,16 +920,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_16u_P3C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
-  },
-  {
     "function": "nppiCopy_16u_P4C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCopy_16u_P4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiCopy_32f_AC4MR",
@@ -1004,10 +972,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_32f_C3P3R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1028,10 +992,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_32f_C4P4R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1040,16 +1000,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_32f_P3C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
-  },
-  {
     "function": "nppiCopy_32f_P4C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCopy_32f_P4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiCopy_32fc_AC4R",
@@ -1112,10 +1064,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_32s_C3P3R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_32s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1136,10 +1084,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_32s_C4P4R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_32s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1148,16 +1092,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_32s_P3C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
-  },
-  {
     "function": "nppiCopy_32s_P4C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCopy_32s_P4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiCopy_32sc_AC4R",
@@ -1240,10 +1176,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_8u_C3P3R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1264,10 +1196,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_8u_C4P4R_Ctx",
-    "reason": "array-of-pointers parameter aDst"
-  },
-  {
     "function": "nppiCopy_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -1276,16 +1204,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCopy_8u_P3C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
-  },
-  {
     "function": "nppiCopy_8u_P4C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCopy_8u_P4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiDup_16s_C1AC4R",
