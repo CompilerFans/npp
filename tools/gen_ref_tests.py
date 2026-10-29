@@ -208,12 +208,16 @@ def channel_tokens(fn: str) -> List[int]:
     ``nppiSwapChannels_8u_C3C4R_Ctx`` -> [3, 4] (src 3 channels, dst 4),
     ``nppiConvert_16f32f_AC4R_Ctx`` -> [4].  The NPP 13 ABI names all carry a
     trailing ``_Ctx``, which the historic single-token regex never matched.
+    Layout tokens are C (packed), P (planar), AC (alpha packed), AP (alpha
+    planar, e.g. nppiBGRToHLS_8u_AP4C4R) and IP (in-place planar, e.g.
+    nppiColorTwist_32f_IP3R); A/I must stay glued to their C/P so the first
+    token anchor still lands on the layout suffix.
     """
     base = re.sub(r"_Ctx$", "", fn)
-    m = re.search(r"_(?:AC|C|P)\d", base)
+    m = re.search(r"_(?:[AI]?[CP])\d", base)
     tail = base[m.start() + 1:] if m else ""
     toks = []
-    for m in re.finditer(r"(AC|C|P)(\d+)", tail):
+    for m in re.finditer(r"([AI]?[CP])(\d+)", tail):
         n = int(m.group(2))
         # NPP AC1 images carry one color channel plus a separate alpha
         # channel (2 values per pixel); AC4 packs alpha into the 4th slot.
