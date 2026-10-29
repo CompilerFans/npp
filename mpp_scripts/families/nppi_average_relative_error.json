@@ -1,0 +1,8 @@
+{
+  "family": "nppiAverageRelativeError",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_average_relative_error_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiAverageRelativeError"],
+  "call": "nppi::statistics::runAverageRelativeError<{dtype},{chan}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pDeviceBuffer, pError, nppStreamCtx.hStream)"
+}

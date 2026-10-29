@@ -1,41 +1,39 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 7232 (57.7%)
+- Real implementations: 7580 (60.5%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 5139
-- Tested: 4292 (34.2%)
-- Real and tested: 4283
+- Missing: 4791
+- Tested: 7210 (57.5%)
+- Real and tested: 5376
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
-| nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2109 |
-| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 316 |
-| nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 423 |
-| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 68 |
-| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 181 |
+| nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
+| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 373 |
+| nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
+| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 865 |
+| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 307 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
-| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 24 |
-| nppi_statistics_functions.h | 3246 | 1895 | 28 | 1323 | 370 |
+| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
+| nppi_statistics_functions.h | 3246 | 2243 | 28 | 975 | 1448 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
-| nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 91 |
-| npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 525 |
-| npps_conversion_functions.h | 174 | 174 | 0 | 0 | 77 |
+| nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 139 |
+| npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
+| npps_conversion_functions.h | 174 | 174 | 0 | 0 | 89 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
-| npps_statistics_functions.h | 766 | 8 | 0 | 758 | 8 |
+| npps_statistics_functions.h | 766 | 8 | 0 | 758 | 332 |
 | npps_support_functions.h | 15 | 15 | 0 | 0 | 7 |
 
 ## Largest remaining groups
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| nppi_statistics_functions.h | nppiAverageRelativeError | 176 | 88 |
 | nppi_statistics_functions.h | nppiMaximumError | 176 | 88 |
 | nppi_statistics_functions.h | nppiMaximumRelativeError | 176 | 88 |
-| nppi_statistics_functions.h | nppiAverageError | 172 | 86 |
 | npps_statistics_functions.h | nppsDotProd | 100 | 50 |
 | nppi_filtering_functions.h | nppiFilter32f | 66 | 33 |
 | nppi_filtering_functions.h | nppiFilterBorder32f | 66 | 33 |
@@ -72,3 +70,5 @@
 | nppi_filtering_functions.h | nppiFilterGaussBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterHighPassBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterHighPass | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterLowPassBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterLowPass | 32 | 16 |

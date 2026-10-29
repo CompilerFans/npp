@@ -1,17 +1,10 @@
 # Untested Arithmetic APIs
 
-**Status**: 2109/2137 tested (98.7%)
-**Remaining**: 28 functions
+**Status**: 2133/2137 tested (99.8%)
+**Remaining**: 4 functions
 
 ## By Category
-- nppiAdd: 6
-- nppiSub: 10
-- nppiMul: 6
-- nppiDiv: 6
-- nppiAddDeviceC: 6
-- nppiSubDeviceC: 6
-- nppiMulDeviceC: 6
-- nppiDivDeviceC: 6
+- nppiSub: 4
 
 ## Full List
 See: untested_arithmetic.txt

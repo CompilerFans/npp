@@ -919,6 +919,74 @@ __global__ void dotProdFinalizeKernel(const double *pPartial, int nblocks, int n
   }
 }
 
+// ---------------------------------------------------------------------------
+// AverageError / AverageRelativeError: scalar mean of |a - b| (relative:
+// |a - b| / max(|a|, |b|), 0 when both are zero) over all channels.
+// Complex elements contribute their complex modulus.
+// ---------------------------------------------------------------------------
+
+__device__ __forceinline__ double absDiff(Npp16sc a, Npp16sc b) {
+  return hypot((double)a.re - (double)b.re, (double)a.im - (double)b.im);
+}
+__device__ __forceinline__ double absDiff(Npp32sc a, Npp32sc b) {
+  return hypot((double)a.re - (double)b.re, (double)a.im - (double)b.im);
+}
+__device__ __forceinline__ double absDiff(Npp32fc a, Npp32fc b) {
+  return hypot((double)a.re - (double)b.re, (double)a.im - (double)b.im);
+}
+template <typename D>
+__device__ __forceinline__ double absDiff(D a, D b) {
+  return fabs((double)a - (double)b);
+}
+
+__device__ __forceinline__ double absVal(Npp16sc a) { return hypot((double)a.re, (double)a.im); }
+__device__ __forceinline__ double absVal(Npp32sc a) { return hypot((double)a.re, (double)a.im); }
+__device__ __forceinline__ double absVal(Npp32fc a) { return hypot((double)a.re, (double)a.im); }
+template <typename D>
+__device__ __forceinline__ double absVal(D a) {
+  return fabs((double)a);
+}
+
+// One scalar partial per block (unlike dotProd's per-channel slab).
+template <typename D, int Channels, bool Relative>
+__global__ void avgErrPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
+                                    double *pPartial) {
+  double local = 0.0;
+  const int totalPixels = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
+    const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
+    for (int c = 0; c < Channels; ++c) {
+      const D a = r1[x * Channels + c];
+      const D b = r2[x * Channels + c];
+      if (Relative) {
+        const double den = fmax(absVal(a), absVal(b));
+        local += (den > 0.0) ? absDiff(a, b) / den : 0.0;
+      } else {
+        local += absDiff(a, b);
+      }
+    }
+  }
+  const double r = blockReduce(local);
+  if (threadIdx.x == 0) pPartial[blockIdx.x] = r;
+}
+
+__global__ void avgErrFinalizeKernel(const double *pPartial, int nblocks, double count, Npp64f *pOut) {
+  __shared__ double shared[kBlock];
+  double acc = 0.0;
+  for (int i = threadIdx.x; i < nblocks; i += blockDim.x) acc += pPartial[i];
+  shared[threadIdx.x] = acc;
+  __syncthreads();
+  for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) shared[threadIdx.x] += shared[threadIdx.x + s];
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) pOut[0] = shared[0] / count;
+}
+
 }  // namespace
 
 namespace nppi {
@@ -1568,6 +1636,60 @@ NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
   return NPP_NO_ERROR;
 }
 
+// ============================== AverageError ================================
+// Validation order and status codes pinned against NVIDIA NPP 13.4 on the
+// 5090 (differential tests + step-matrix probes); see nppi_statistics_executor.h.
+
+template <typename D, int Channels, bool Relative>
+NppStatus runAverageErrorImpl(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                              Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
+  // NVIDIA 13.4 compares the steps as unsigned 32-bit values against the row
+  // size and requires multiples of sizeof(D) * 2^v2(Channels) (C1/C3: esize,
+  // C2: 2*esize, C4: 4*esize); each source is checked fully (STEP, then
+  // NOT_EVEN) before the next one.  step == 0 -> STEP_ERROR, step == -1
+  // passes (huge unsigned), negative steps take the unsigned modulo.
+  constexpr int kStepFactor = (Channels % 4 == 0) ? 4 : ((Channels % 2 == 0) ? 2 : 1);
+  const Npp32u rowBytes = (Npp32u)oSizeROI.width * (Npp32u)Channels * (Npp32u)sizeof(D);
+  const Npp32u align = (Npp32u)sizeof(D) * (Npp32u)kStepFactor;
+  if ((Npp32u)nSrc1Step < rowBytes) return NPP_STEP_ERROR;
+  if ((Npp32u)nSrc1Step % align != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if ((Npp32u)nSrc2Step < rowBytes) return NPP_STEP_ERROR;
+  if ((Npp32u)nSrc2Step % align != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if (!pError) return NPP_NULL_POINTER_ERROR;
+  if (!pDeviceBuffer) return NPP_NULL_POINTER_ERROR;  // scratch IS validated (unlike Sum/Mean)
+
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  double *partial = reinterpret_cast<double *>(pDeviceBuffer);
+
+  (void)cudaGetLastError();
+  avgErrPartialKernel<D, Channels, Relative>
+      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  avgErrFinalizeKernel<<<1, kBlock, 0, stream>>>(
+      partial, blocks, (double)oSizeROI.width * (double)oSizeROI.height * (double)Channels, pError);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+template <typename D, int Channels>
+NppStatus runAverageError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                          Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream) {
+  return runAverageErrorImpl<D, Channels, false>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pDeviceBuffer, pError,
+                                                 stream);
+}
+
+template <typename D, int Channels>
+NppStatus runAverageRelativeError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                                  Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream) {
+  return runAverageErrorImpl<D, Channels, true>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pDeviceBuffer, pError,
+                                                stream);
+}
+
 // ============================== Buffer size ==================================
 
 NppStatus sumGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
@@ -1683,6 +1805,20 @@ NppStatus sameNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
 }
 NppStatus validNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
   return fullNormLevelGetBufferHostSize(oi, hpBufferSize);
+}
+
+// Unlike every other helper above, NVIDIA 13.4 accepts a zero-sized ROI here
+// and returns NPP_NO_ERROR without writing anything (5090-measured); negative
+// sizes are still NPP_SIZE_ERROR.  One scalar double partial per block.
+NppStatus averageErrorGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width < 0 || oi.height < 0) return NPP_SIZE_ERROR;
+  if (oi.width == 0 || oi.height == 0) return NPP_NO_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+NppStatus averageRelativeErrorGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  return averageErrorGetBufferHostSize(oi, hpBufferSize);
 }
 
 }  // namespace statistics
@@ -2097,5 +2233,100 @@ template NppStatus runDotProd<Npp32f,1,0>(const Npp32f*,int,const Npp32f*,int,Np
 template NppStatus runDotProd<Npp32f,3,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runDotProd<Npp32f,4,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runDotProd<Npp32f,4,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+}  // namespace statistics
+}  // namespace nppi
+
+// Explicit instantiations for all variants listed in api_analysis/packages/p1.3c.csv
+// (AverageError / AverageRelativeError, 11 dtypes x C1..C4).
+namespace nppi {
+namespace statistics {
+template NppStatus runAverageError<Npp8u,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8u,2>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8u,3>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8u,4>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8s,1>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8s,2>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8s,3>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp8s,4>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16u,1>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16u,2>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16u,3>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16u,4>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16s,1>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16s,2>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16s,3>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16s,4>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16sc,1>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16sc,2>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16sc,3>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp16sc,4>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32u,1>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32u,2>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32u,3>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32u,4>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32s,1>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32s,2>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32s,3>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32s,4>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32sc,1>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32sc,2>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32sc,3>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32sc,4>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32f,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32f,2>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32f,3>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32f,4>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32fc,1>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32fc,2>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32fc,3>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp32fc,4>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp64f,1>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp64f,2>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp64f,3>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageError<Npp64f,4>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8u,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8u,2>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8u,3>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8u,4>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8s,1>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8s,2>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8s,3>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp8s,4>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16u,1>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16u,2>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16u,3>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16u,4>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16s,1>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16s,2>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16s,3>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16s,4>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16sc,1>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16sc,2>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16sc,3>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp16sc,4>(const Npp16sc*,int,const Npp16sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32u,1>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32u,2>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32u,3>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32u,4>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32s,1>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32s,2>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32s,3>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32s,4>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32sc,1>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32sc,2>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32sc,3>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32sc,4>(const Npp32sc*,int,const Npp32sc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32f,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32f,2>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32f,3>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32f,4>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32fc,1>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32fc,2>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32fc,3>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp32fc,4>(const Npp32fc*,int,const Npp32fc*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp64f,1>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp64f,2>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp64f,3>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runAverageRelativeError<Npp64f,4>(const Npp64f*,int,const Npp64f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 }  // namespace statistics
 }  // namespace nppi
