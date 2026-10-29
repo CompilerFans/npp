@@ -258,6 +258,42 @@ NppStatus runAverageRelativeError(const D *pSrc1, int nSrc1Step, const D *pSrc2,
 NppStatus averageErrorGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus averageRelativeErrorGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 
+// ---------------------------------------------------------------------------
+// MaximumError / MaximumRelativeError (package p1.3d)
+// ---------------------------------------------------------------------------
+
+// out = max over all ROI samples of |pSrc1 - pSrc2|; complex elements
+// contribute their complex modulus.  Single device Npp64f output for every
+// channel layout C1..C4 (5090-measured: the NPP documentation claiming a
+// per-channel C3/C4 array is wrong; only the first double is written).
+//
+// 5090-measured contract (NVIDIA NPP 13.4, differential tests + probes),
+// check order included:
+//   * null source                     -> NPP_NULL_POINTER_ERROR (first)
+//   * negative ROI                    -> NPP_SIZE_ERROR (before the empty no-op)
+//   * zero-sized ROI                  -> NPP_NO_ERROR, nothing written
+//   * per source, in order: (uint32)step < row bytes -> NPP_STEP_ERROR;
+//     (uint32)step % (sizeof(D) * 2^v2(Channels)) != 0
+//                                    -> NPP_NOT_EVEN_STEP_ERROR
+//   * null out / null scratch         -> NPP_NULL_POINTER_ERROR (last)
+template <typename D, int Channels>
+NppStatus runMaxError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                      Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream);
+
+// out = max over all ROI samples of |pSrc1 - pSrc2| / max(|pSrc1|, |pSrc2|).
+// Samples with max(|pSrc1|, |pSrc2|) == 0 contribute 0, so an all-zero image
+// yields 0.0 (5090-measured).  Validation is identical to runMaxError.
+template <typename D, int Channels>
+NppStatus runMaxRelativeError(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                              Npp8u *pDeviceBuffer, Npp64f *pError, cudaStream_t stream);
+
+// Scratch-size helpers.  Like the AverageError helpers (and unlike the other
+// statistics helpers) a zero-sized ROI returns NPP_NO_ERROR (5090-measured).
+// Exact bytes are not a contract, only that the returned size is sufficient
+// for the matching reduction.
+NppStatus maximumErrorGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus maximumRelativeErrorGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+
 }  // namespace statistics
 }  // namespace nppi
 
