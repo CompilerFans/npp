@@ -13,11 +13,11 @@
   },
   {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcDstBatchList)"
   },
   {
     "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcDstBatchList)"
   },
   {
     "function": "nppiCompressMarkerLabelsUF_32u_C1IR",
@@ -49,7 +49,7 @@
   },
   {
     "function": "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "unknown pointer role pCompressedMarkerLabels"
   },
   {
     "function": "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx",
@@ -3304,96 +3304,48 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterWienerBorder_16s_AC4R_Ctx",
-    "reason": "unknown pointer role aNoise"
-  },
-  {
     "function": "nppiFilterWienerBorder_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterWienerBorder_16s_C1R_Ctx",
-    "reason": "unknown pointer role aNoise"
   },
   {
     "function": "nppiFilterWienerBorder_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterWienerBorder_16s_C3R_Ctx",
-    "reason": "unknown pointer role aNoise"
-  },
-  {
     "function": "nppiFilterWienerBorder_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterWienerBorder_16s_C4R_Ctx",
-    "reason": "unknown pointer role aNoise"
   },
   {
     "function": "nppiFilterWienerBorder_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterWienerBorder_32f_AC4R_Ctx",
-    "reason": "unknown pointer role aNoise"
-  },
-  {
     "function": "nppiFilterWienerBorder_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterWienerBorder_32f_C1R_Ctx",
-    "reason": "unknown pointer role aNoise"
   },
   {
     "function": "nppiFilterWienerBorder_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterWienerBorder_32f_C3R_Ctx",
-    "reason": "unknown pointer role aNoise"
-  },
-  {
     "function": "nppiFilterWienerBorder_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterWienerBorder_32f_C4R_Ctx",
-    "reason": "unknown pointer role aNoise"
   },
   {
     "function": "nppiFilterWienerBorder_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterWienerBorder_8u_AC4R_Ctx",
-    "reason": "unknown pointer role aNoise"
-  },
-  {
     "function": "nppiFilterWienerBorder_8u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterWienerBorder_8u_C1R_Ctx",
-    "reason": "unknown pointer role aNoise"
   },
   {
     "function": "nppiFilterWienerBorder_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterWienerBorder_8u_C3R_Ctx",
-    "reason": "unknown pointer role aNoise"
-  },
-  {
     "function": "nppiFilterWienerBorder_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterWienerBorder_8u_C4R_Ctx",
-    "reason": "unknown pointer role aNoise"
   },
   {
     "function": "nppiFilter_16s_AC4R",
@@ -3481,7 +3433,7 @@
   },
   {
     "function": "nppiFloodFillBoundary_16u_C3IR_Ctx",
-    "reason": "unknown pointer role aNewValues"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillBoundary_32u_C1IR",
@@ -3497,7 +3449,7 @@
   },
   {
     "function": "nppiFloodFillBoundary_32u_C3IR_Ctx",
-    "reason": "unknown pointer role aNewValues"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillBoundary_8u_C1IR",
@@ -3513,7 +3465,7 @@
   },
   {
     "function": "nppiFloodFillBoundary_8u_C3IR_Ctx",
-    "reason": "unknown pointer role aNewValues"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGetBufferSize",
@@ -3533,7 +3485,7 @@
   },
   {
     "function": "nppiFloodFillGradientBoundary_16u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradientBoundary_32u_C1IR",
@@ -3549,7 +3501,7 @@
   },
   {
     "function": "nppiFloodFillGradientBoundary_32u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradientBoundary_8u_C1IR",
@@ -3565,7 +3517,7 @@
   },
   {
     "function": "nppiFloodFillGradientBoundary_8u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradient_16u_C1IR",
@@ -3581,7 +3533,7 @@
   },
   {
     "function": "nppiFloodFillGradient_16u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradient_32u_C1IR",
@@ -3597,7 +3549,7 @@
   },
   {
     "function": "nppiFloodFillGradient_32u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradient_8u_C1IR",
@@ -3613,7 +3565,7 @@
   },
   {
     "function": "nppiFloodFillGradient_8u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRangeBoundary_16u_C1IR",
@@ -3629,7 +3581,7 @@
   },
   {
     "function": "nppiFloodFillRangeBoundary_16u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRangeBoundary_32u_C1IR",
@@ -3645,7 +3597,7 @@
   },
   {
     "function": "nppiFloodFillRangeBoundary_32u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRangeBoundary_8u_C1IR",
@@ -3661,7 +3613,7 @@
   },
   {
     "function": "nppiFloodFillRangeBoundary_8u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRange_16u_C1IR",
@@ -3677,7 +3629,7 @@
   },
   {
     "function": "nppiFloodFillRange_16u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRange_32u_C1IR",
@@ -3693,7 +3645,7 @@
   },
   {
     "function": "nppiFloodFillRange_32u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRange_8u_C1IR",
@@ -3709,7 +3661,7 @@
   },
   {
     "function": "nppiFloodFillRange_8u_C3IR_Ctx",
-    "reason": "unknown pointer role aMin"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFill_16u_C1IR",
@@ -3725,7 +3677,7 @@
   },
   {
     "function": "nppiFloodFill_16u_C3IR_Ctx",
-    "reason": "unknown pointer role aNewValues"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFill_32u_C1IR",
@@ -3741,7 +3693,7 @@
   },
   {
     "function": "nppiFloodFill_32u_C3IR_Ctx",
-    "reason": "unknown pointer role aNewValues"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFill_8u_C1IR",
@@ -3757,7 +3709,7 @@
   },
   {
     "function": "nppiFloodFill_8u_C3IR_Ctx",
-    "reason": "unknown pointer role aNewValues"
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGetFilterGaussPyramidLayerDownBorderDstROI",

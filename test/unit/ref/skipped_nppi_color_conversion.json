@@ -5,7 +5,7 @@
   },
   {
     "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nColorKeyConst"
+    "reason": "unsupported host output array nColorKeyConst"
   },
   {
     "function": "nppiBGRToCbYCr422_709HDTV_8u_AC4C2R",
@@ -25,7 +25,7 @@
   },
   {
     "function": "nppiBGRToHLS_8u_AC4P4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToHLS_8u_AC4R",
@@ -37,7 +37,7 @@
   },
   {
     "function": "nppiBGRToHLS_8u_AP4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pSrc"
   },
   {
     "function": "nppiBGRToHLS_8u_AP4R",
@@ -45,7 +45,7 @@
   },
   {
     "function": "nppiBGRToHLS_8u_AP4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pSrc"
   },
   {
     "function": "nppiBGRToHLS_8u_C3P3R",
@@ -53,7 +53,7 @@
   },
   {
     "function": "nppiBGRToHLS_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToHLS_8u_P3C3R",
@@ -81,7 +81,7 @@
   },
   {
     "function": "nppiBGRToYCbCr411_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr411_8u_C3P3R",
@@ -89,7 +89,7 @@
   },
   {
     "function": "nppiBGRToYCbCr411_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr411_JPEG_8u_C3P3R",
@@ -97,7 +97,7 @@
   },
   {
     "function": "nppiBGRToYCbCr411_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr411_JPEG_8u_P3R",
@@ -113,7 +113,7 @@
   },
   {
     "function": "nppiBGRToYCbCr420_709CSC_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr420_709CSC_8u_C3P3R",
@@ -121,7 +121,7 @@
   },
   {
     "function": "nppiBGRToYCbCr420_709CSC_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr420_709HDTV_8u_AC4P3R",
@@ -129,7 +129,7 @@
   },
   {
     "function": "nppiBGRToYCbCr420_709HDTV_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr420_8u_AC4P3R",
@@ -137,7 +137,7 @@
   },
   {
     "function": "nppiBGRToYCbCr420_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr420_8u_C3P3R",
@@ -145,7 +145,7 @@
   },
   {
     "function": "nppiBGRToYCbCr420_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr420_JPEG_8u_C3P3R",
@@ -153,7 +153,7 @@
   },
   {
     "function": "nppiBGRToYCbCr420_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr420_JPEG_8u_P3R",
@@ -173,7 +173,7 @@
   },
   {
     "function": "nppiBGRToYCbCr422_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr422_8u_C3C2R",
@@ -185,7 +185,7 @@
   },
   {
     "function": "nppiBGRToYCbCr422_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr422_JPEG_8u_C3P3R",
@@ -193,7 +193,7 @@
   },
   {
     "function": "nppiBGRToYCbCr422_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr422_JPEG_8u_P3R",
@@ -209,7 +209,7 @@
   },
   {
     "function": "nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr444_JPEG_8u_P3R",
@@ -225,7 +225,7 @@
   },
   {
     "function": "nppiBGRToYCbCr_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr_8u_AC4P4R",
@@ -233,7 +233,7 @@
   },
   {
     "function": "nppiBGRToYCbCr_8u_AC4P4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCbCr_8u_C3P3R",
@@ -241,7 +241,7 @@
   },
   {
     "function": "nppiBGRToYCbCr_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCrCb420_709CSC_8u_AC4P3R",
@@ -249,7 +249,7 @@
   },
   {
     "function": "nppiBGRToYCrCb420_709CSC_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCrCb420_709CSC_8u_C3P3R",
@@ -257,7 +257,7 @@
   },
   {
     "function": "nppiBGRToYCrCb420_709CSC_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCrCb420_8u_AC4P3R",
@@ -265,7 +265,7 @@
   },
   {
     "function": "nppiBGRToYCrCb420_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYCrCb420_8u_C3P3R",
@@ -273,7 +273,7 @@
   },
   {
     "function": "nppiBGRToYCrCb420_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYUV420_8u_AC4P3R",
@@ -281,7 +281,7 @@
   },
   {
     "function": "nppiBGRToYUV420_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYUV_8u_AC4P4R",
@@ -289,7 +289,7 @@
   },
   {
     "function": "nppiBGRToYUV_8u_AC4P4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYUV_8u_AC4R",
@@ -301,7 +301,7 @@
   },
   {
     "function": "nppiBGRToYUV_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiBGRToYUV_8u_C3R",
@@ -409,7 +409,7 @@
   },
   {
     "function": "nppiCbYCr422ToYCbCr411_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiCbYCr422ToYCbCr420_8u_C2P2R",
@@ -421,7 +421,7 @@
   },
   {
     "function": "nppiCbYCr422ToYCbCr420_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiCbYCr422ToYCbCr422_8u_C2P3R",
@@ -429,7 +429,7 @@
   },
   {
     "function": "nppiCbYCr422ToYCbCr422_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiCbYCr422ToYCbCr422_8u_C2R",
@@ -441,263 +441,135 @@
   },
   {
     "function": "nppiCbYCr422ToYCrCb420_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiColorToGray_16s_AC4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorToGray_16s_AC4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
-  },
-  {
     "function": "nppiColorToGray_16s_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorToGray_16s_C3C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
   },
   {
     "function": "nppiColorToGray_16s_C4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorToGray_16s_C4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
-  },
-  {
     "function": "nppiColorToGray_16u_AC4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorToGray_16u_AC4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
   },
   {
     "function": "nppiColorToGray_16u_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorToGray_16u_C3C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
-  },
-  {
     "function": "nppiColorToGray_16u_C4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorToGray_16u_C4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
   },
   {
     "function": "nppiColorToGray_32f_AC4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorToGray_32f_AC4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
-  },
-  {
     "function": "nppiColorToGray_32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorToGray_32f_C3C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
   },
   {
     "function": "nppiColorToGray_32f_C4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorToGray_32f_C4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
-  },
-  {
     "function": "nppiColorToGray_8u_AC4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorToGray_8u_AC4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
   },
   {
     "function": "nppiColorToGray_8u_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorToGray_8u_C3C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
-  },
-  {
     "function": "nppiColorToGray_8u_C4C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorToGray_8u_C4C1R_Ctx",
-    "reason": "unknown pointer role aCoeffs"
   },
   {
     "function": "nppiColorTwist32fC_16f_C4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32fC_16f_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32fC_16f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32fC_16f_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32fC_8u_C4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32fC_8u_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32fC_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32fC_8u_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16f_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16f_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16f_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16f_C2IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16f_C2IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16f_C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16f_C2R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16f_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16f_C3IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16f_C3R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16f_C4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16f_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16f_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16s_AC4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16s_AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16s_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16s_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16s_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16s_C2IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16s_C2IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16s_C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16s_C2R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16s_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16s_C3IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16s_C3R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16s_IP3R",
@@ -705,7 +577,7 @@
   },
   {
     "function": "nppiColorTwist32f_16s_IP3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiColorTwist32f_16s_P3R",
@@ -713,71 +585,39 @@
   },
   {
     "function": "nppiColorTwist32f_16s_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiColorTwist32f_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16u_AC4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16u_AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16u_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16u_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16u_C2IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16u_C2IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16u_C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16u_C2R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_16u_C3IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_16u_C3R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_16u_IP3R",
@@ -785,7 +625,7 @@
   },
   {
     "function": "nppiColorTwist32f_16u_IP3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiColorTwist32f_16u_P3R",
@@ -793,87 +633,47 @@
   },
   {
     "function": "nppiColorTwist32f_16u_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiColorTwist32f_8s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8s_AC4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8s_AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8s_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8s_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8s_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8s_C2IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8s_C2IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8s_C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8s_C2R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8s_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8s_C3IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8s_C3R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8s_C4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8s_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8s_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8s_IP3R",
@@ -881,7 +681,7 @@
   },
   {
     "function": "nppiColorTwist32f_8s_IP3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiColorTwist32f_8s_P3R",
@@ -889,87 +689,47 @@
   },
   {
     "function": "nppiColorTwist32f_8s_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiColorTwist32f_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8u_AC4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8u_AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8u_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8u_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8u_C2IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8u_C2IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8u_C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8u_C2R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8u_C3IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8u_C3R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8u_C4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist32f_8u_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist32f_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist32f_8u_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist32f_8u_IP3R",
@@ -977,7 +737,7 @@
   },
   {
     "function": "nppiColorTwist32f_8u_IP3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiColorTwist32f_8u_P3R",
@@ -985,7 +745,7 @@
   },
   {
     "function": "nppiColorTwist32f_8u_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiColorTwistBatch32fC_16f_C4IR",
@@ -1216,96 +976,48 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist_32fC_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist_32fC_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist_32fC_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist_32f_AC4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist_32f_AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist_32f_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist_32f_C1IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist_32f_C1R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist_32f_C2IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist_32f_C2IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist_32f_C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist_32f_C2R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist_32f_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist_32f_C3IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist_32f_C3R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist_32f_C4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiColorTwist_32f_C4IR_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiColorTwist_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiColorTwist_32f_C4R_Ctx",
-    "reason": "unsupported parameter syntax"
   },
   {
     "function": "nppiColorTwist_32f_IP3R",
@@ -1313,7 +1025,7 @@
   },
   {
     "function": "nppiColorTwist_32f_IP3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiColorTwist_32f_P3R",
@@ -1321,7 +1033,7 @@
   },
   {
     "function": "nppiColorTwist_32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiCompColorKey_8u_C1R",
@@ -1333,7 +1045,7 @@
   },
   {
     "function": "nppiCompColorKey_8u_C3R_Ctx",
-    "reason": "unknown pointer role nColorKeyConst"
+    "reason": "unsupported host output array nColorKeyConst"
   },
   {
     "function": "nppiCompColorKey_8u_C4R",
@@ -1341,7 +1053,7 @@
   },
   {
     "function": "nppiCompColorKey_8u_C4R_Ctx",
-    "reason": "unknown pointer role nColorKeyConst"
+    "reason": "unsupported host output array nColorKeyConst"
   },
   {
     "function": "nppiGammaFwd_8u_AC4IR",
@@ -1365,7 +1077,7 @@
   },
   {
     "function": "nppiGammaFwd_8u_IP3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiGammaFwd_8u_P3R",
@@ -1397,7 +1109,7 @@
   },
   {
     "function": "nppiGammaInv_8u_IP3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pSrcDst"
   },
   {
     "function": "nppiGammaInv_8u_P3R",
@@ -1445,7 +1157,7 @@
   },
   {
     "function": "nppiHLSToBGR_8u_AC4P4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiHLSToBGR_8u_AP4C4R",
@@ -1453,7 +1165,7 @@
   },
   {
     "function": "nppiHLSToBGR_8u_AP4C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pSrc"
   },
   {
     "function": "nppiHLSToBGR_8u_AP4R",
@@ -1461,7 +1173,7 @@
   },
   {
     "function": "nppiHLSToBGR_8u_AP4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pSrc"
   },
   {
     "function": "nppiHLSToBGR_8u_C3P3R",
@@ -1469,7 +1181,7 @@
   },
   {
     "function": "nppiHLSToBGR_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiHLSToBGR_8u_P3C3R",
@@ -1509,7 +1221,7 @@
   },
   {
     "function": "nppiLUTPaletteSwap_16u_C3A0C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPaletteSwap_8u_C3A0C4R",
@@ -1517,7 +1229,7 @@
   },
   {
     "function": "nppiLUTPaletteSwap_8u_C3A0C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPalette_16u24u_C1R",
@@ -1537,7 +1249,7 @@
   },
   {
     "function": "nppiLUTPalette_16u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPalette_16u_C1R",
@@ -1549,7 +1261,7 @@
   },
   {
     "function": "nppiLUTPalette_16u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPalette_16u_C4R",
@@ -1557,7 +1269,7 @@
   },
   {
     "function": "nppiLUTPalette_16u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPalette_8u24u_C1R",
@@ -1573,7 +1285,7 @@
   },
   {
     "function": "nppiLUTPalette_8u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPalette_8u_C1R",
@@ -1585,7 +1297,7 @@
   },
   {
     "function": "nppiLUTPalette_8u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUTPalette_8u_C4R",
@@ -1593,7 +1305,7 @@
   },
   {
     "function": "nppiLUTPalette_8u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pTables"
   },
   {
     "function": "nppiLUT_16s_AC4IR",
@@ -1601,7 +1313,7 @@
   },
   {
     "function": "nppiLUT_16s_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16s_AC4R",
@@ -1609,7 +1321,7 @@
   },
   {
     "function": "nppiLUT_16s_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16s_C1IR",
@@ -1625,7 +1337,7 @@
   },
   {
     "function": "nppiLUT_16s_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16s_C3R",
@@ -1633,7 +1345,7 @@
   },
   {
     "function": "nppiLUT_16s_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16s_C4IR",
@@ -1641,7 +1353,7 @@
   },
   {
     "function": "nppiLUT_16s_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16s_C4R",
@@ -1649,7 +1361,7 @@
   },
   {
     "function": "nppiLUT_16s_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16u_AC4IR",
@@ -1657,7 +1369,7 @@
   },
   {
     "function": "nppiLUT_16u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16u_AC4R",
@@ -1665,7 +1377,7 @@
   },
   {
     "function": "nppiLUT_16u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16u_C1IR",
@@ -1681,7 +1393,7 @@
   },
   {
     "function": "nppiLUT_16u_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16u_C3R",
@@ -1689,7 +1401,7 @@
   },
   {
     "function": "nppiLUT_16u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16u_C4IR",
@@ -1697,7 +1409,7 @@
   },
   {
     "function": "nppiLUT_16u_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_16u_C4R",
@@ -1705,7 +1417,7 @@
   },
   {
     "function": "nppiLUT_16u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_32f_AC4IR",
@@ -1713,7 +1425,7 @@
   },
   {
     "function": "nppiLUT_32f_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_32f_AC4R",
@@ -1721,7 +1433,7 @@
   },
   {
     "function": "nppiLUT_32f_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_32f_C1IR",
@@ -1737,7 +1449,7 @@
   },
   {
     "function": "nppiLUT_32f_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_32f_C3R",
@@ -1745,7 +1457,7 @@
   },
   {
     "function": "nppiLUT_32f_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_32f_C4IR",
@@ -1753,7 +1465,7 @@
   },
   {
     "function": "nppiLUT_32f_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_32f_C4R",
@@ -1761,7 +1473,7 @@
   },
   {
     "function": "nppiLUT_32f_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_8u_AC4IR",
@@ -1769,7 +1481,7 @@
   },
   {
     "function": "nppiLUT_8u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_8u_AC4R",
@@ -1777,7 +1489,7 @@
   },
   {
     "function": "nppiLUT_8u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_8u_C1IR",
@@ -1793,7 +1505,7 @@
   },
   {
     "function": "nppiLUT_8u_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_8u_C3R",
@@ -1801,7 +1513,7 @@
   },
   {
     "function": "nppiLUT_8u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_8u_C4IR",
@@ -1809,7 +1521,7 @@
   },
   {
     "function": "nppiLUT_8u_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_8u_C4R",
@@ -1817,7 +1529,7 @@
   },
   {
     "function": "nppiLUT_8u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16s_AC4IR",
@@ -1825,7 +1537,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16s_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16s_AC4R",
@@ -1833,7 +1545,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16s_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16s_C1IR",
@@ -1849,7 +1561,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16s_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16s_C3R",
@@ -1857,7 +1569,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16s_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16s_C4IR",
@@ -1865,7 +1577,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16s_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16s_C4R",
@@ -1873,7 +1585,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16s_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16u_AC4IR",
@@ -1881,7 +1593,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16u_AC4R",
@@ -1889,7 +1601,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16u_C1IR",
@@ -1905,7 +1617,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16u_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16u_C3R",
@@ -1913,7 +1625,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16u_C4IR",
@@ -1921,7 +1633,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16u_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_16u_C4R",
@@ -1929,7 +1641,7 @@
   },
   {
     "function": "nppiLUT_Cubic_16u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_32f_AC4IR",
@@ -1937,7 +1649,7 @@
   },
   {
     "function": "nppiLUT_Cubic_32f_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_32f_AC4R",
@@ -1945,7 +1657,7 @@
   },
   {
     "function": "nppiLUT_Cubic_32f_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_32f_C1IR",
@@ -1961,7 +1673,7 @@
   },
   {
     "function": "nppiLUT_Cubic_32f_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_32f_C3R",
@@ -1969,7 +1681,7 @@
   },
   {
     "function": "nppiLUT_Cubic_32f_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_32f_C4IR",
@@ -1977,7 +1689,7 @@
   },
   {
     "function": "nppiLUT_Cubic_32f_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_32f_C4R",
@@ -1985,7 +1697,7 @@
   },
   {
     "function": "nppiLUT_Cubic_32f_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_8u_AC4IR",
@@ -1993,7 +1705,7 @@
   },
   {
     "function": "nppiLUT_Cubic_8u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_8u_AC4R",
@@ -2001,7 +1713,7 @@
   },
   {
     "function": "nppiLUT_Cubic_8u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_8u_C1IR",
@@ -2017,7 +1729,7 @@
   },
   {
     "function": "nppiLUT_Cubic_8u_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_8u_C3R",
@@ -2025,7 +1737,7 @@
   },
   {
     "function": "nppiLUT_Cubic_8u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_8u_C4IR",
@@ -2033,7 +1745,7 @@
   },
   {
     "function": "nppiLUT_Cubic_8u_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Cubic_8u_C4R",
@@ -2041,7 +1753,7 @@
   },
   {
     "function": "nppiLUT_Cubic_8u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16s_AC4IR",
@@ -2049,7 +1761,7 @@
   },
   {
     "function": "nppiLUT_Linear_16s_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16s_AC4R",
@@ -2057,7 +1769,7 @@
   },
   {
     "function": "nppiLUT_Linear_16s_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16s_C1IR",
@@ -2073,7 +1785,7 @@
   },
   {
     "function": "nppiLUT_Linear_16s_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16s_C3R",
@@ -2081,7 +1793,7 @@
   },
   {
     "function": "nppiLUT_Linear_16s_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16s_C4IR",
@@ -2089,7 +1801,7 @@
   },
   {
     "function": "nppiLUT_Linear_16s_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16s_C4R",
@@ -2097,7 +1809,7 @@
   },
   {
     "function": "nppiLUT_Linear_16s_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16u_AC4IR",
@@ -2105,7 +1817,7 @@
   },
   {
     "function": "nppiLUT_Linear_16u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16u_AC4R",
@@ -2113,7 +1825,7 @@
   },
   {
     "function": "nppiLUT_Linear_16u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16u_C1IR",
@@ -2129,7 +1841,7 @@
   },
   {
     "function": "nppiLUT_Linear_16u_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16u_C3R",
@@ -2137,7 +1849,7 @@
   },
   {
     "function": "nppiLUT_Linear_16u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16u_C4IR",
@@ -2145,7 +1857,7 @@
   },
   {
     "function": "nppiLUT_Linear_16u_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_16u_C4R",
@@ -2153,7 +1865,7 @@
   },
   {
     "function": "nppiLUT_Linear_16u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_32f_AC4IR",
@@ -2161,7 +1873,7 @@
   },
   {
     "function": "nppiLUT_Linear_32f_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_32f_AC4R",
@@ -2169,7 +1881,7 @@
   },
   {
     "function": "nppiLUT_Linear_32f_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_32f_C1IR",
@@ -2185,7 +1897,7 @@
   },
   {
     "function": "nppiLUT_Linear_32f_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_32f_C3R",
@@ -2193,7 +1905,7 @@
   },
   {
     "function": "nppiLUT_Linear_32f_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_32f_C4IR",
@@ -2201,7 +1913,7 @@
   },
   {
     "function": "nppiLUT_Linear_32f_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_32f_C4R",
@@ -2209,7 +1921,7 @@
   },
   {
     "function": "nppiLUT_Linear_32f_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_8u_AC4IR",
@@ -2217,7 +1929,7 @@
   },
   {
     "function": "nppiLUT_Linear_8u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_8u_AC4R",
@@ -2225,7 +1937,7 @@
   },
   {
     "function": "nppiLUT_Linear_8u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_8u_C1IR",
@@ -2241,7 +1953,7 @@
   },
   {
     "function": "nppiLUT_Linear_8u_C3IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_8u_C3R",
@@ -2249,7 +1961,7 @@
   },
   {
     "function": "nppiLUT_Linear_8u_C3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_8u_C4IR",
@@ -2257,7 +1969,7 @@
   },
   {
     "function": "nppiLUT_Linear_8u_C4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Linear_8u_C4R",
@@ -2265,7 +1977,7 @@
   },
   {
     "function": "nppiLUT_Linear_8u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pValues"
   },
   {
     "function": "nppiLUT_Trilinear_8u_AC4IR",
@@ -2273,7 +1985,7 @@
   },
   {
     "function": "nppiLUT_Trilinear_8u_AC4IR_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pLevels"
   },
   {
     "function": "nppiLUT_Trilinear_8u_AC4R",
@@ -2281,7 +1993,7 @@
   },
   {
     "function": "nppiLUT_Trilinear_8u_AC4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pLevels"
   },
   {
     "function": "nppiLUT_Trilinear_8u_C4R",
@@ -2289,7 +2001,7 @@
   },
   {
     "function": "nppiLUT_Trilinear_8u_C4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pLevels"
   },
   {
     "function": "nppiLUVToRGB_8u_AC4R",
@@ -2329,7 +2041,7 @@
   },
   {
     "function": "nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiNV12ToRGB_709CSC_8u_P2C3R",
@@ -2349,7 +2061,7 @@
   },
   {
     "function": "nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiNV12ToRGB_8u_P2C3R",
@@ -2449,19 +2161,19 @@
   },
   {
     "function": "nppiRGBToNV12_16u_ColorTwist32f_C3P2R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToNV12_16u_ColorTwist32f_P3P2R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiRGBToXYZ_8u_AC4R",
@@ -2485,7 +2197,7 @@
   },
   {
     "function": "nppiRGBToYCbCr411_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr411_8u_C3P3R",
@@ -2493,7 +2205,7 @@
   },
   {
     "function": "nppiRGBToYCbCr411_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr411_JPEG_8u_C3P3R",
@@ -2501,7 +2213,7 @@
   },
   {
     "function": "nppiRGBToYCbCr411_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr411_JPEG_8u_P3R",
@@ -2517,7 +2229,7 @@
   },
   {
     "function": "nppiRGBToYCbCr420_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr420_JPEG_8u_C3P3R",
@@ -2525,7 +2237,7 @@
   },
   {
     "function": "nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr420_JPEG_8u_P3R",
@@ -2545,7 +2257,7 @@
   },
   {
     "function": "nppiRGBToYCbCr422_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr422_8u_P3C2R",
@@ -2561,7 +2273,7 @@
   },
   {
     "function": "nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr422_JPEG_8u_P3R",
@@ -2577,7 +2289,7 @@
   },
   {
     "function": "nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr444_JPEG_8u_P3R",
@@ -2593,7 +2305,7 @@
   },
   {
     "function": "nppiRGBToYCbCr_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr_8u_AC4R",
@@ -2605,7 +2317,7 @@
   },
   {
     "function": "nppiRGBToYCbCr_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCbCr_8u_C3R",
@@ -2625,7 +2337,7 @@
   },
   {
     "function": "nppiRGBToYCrCb420_8u_AC4P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYCrCb422_8u_C3C2R",
@@ -2641,11 +2353,11 @@
   },
   {
     "function": "nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiRGBToYUV420_8u_C3P3R",
@@ -2653,15 +2365,15 @@
   },
   {
     "function": "nppiRGBToYUV420_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiRGBToYUV420_8u_P3R",
@@ -2672,16 +2384,12 @@
     "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
-    "function": "nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiRGBToYUV422_8u_C3C2R",
@@ -2693,19 +2401,15 @@
   },
   {
     "function": "nppiRGBToYUV422_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
-  },
-  {
-    "function": "nppiRGBToYUV422_8u_ColorTwist32f_C3C2R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiRGBToYUV422_8u_P3R",
@@ -2721,7 +2425,7 @@
   },
   {
     "function": "nppiRGBToYUV_8u_AC4P4R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV_8u_AC4R",
@@ -2733,7 +2437,7 @@
   },
   {
     "function": "nppiRGBToYUV_8u_C3P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiRGBToYUV_8u_C3R",
@@ -3185,7 +2889,7 @@
   },
   {
     "function": "nppiYCbCr422ToRGB_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCbCr422ToRGB_8u_P3C3R",
@@ -3221,7 +2925,7 @@
   },
   {
     "function": "nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCbCr422ToYCbCr411_8u_P3P2R",
@@ -3249,7 +2953,7 @@
   },
   {
     "function": "nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCbCr422ToYCbCr420_8u_P3P2R",
@@ -3273,7 +2977,7 @@
   },
   {
     "function": "nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCbCr422ToYCrCb422_8u_C2R",
@@ -3293,7 +2997,7 @@
   },
   {
     "function": "nppiYCbCr422_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCbCr422_8u_P3C2R",
@@ -3521,7 +3225,7 @@
   },
   {
     "function": "nppiYCrCb422ToRGB_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCrCb422ToYCbCr411_8u_C2P3R",
@@ -3529,7 +3233,7 @@
   },
   {
     "function": "nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCrCb422ToYCbCr420_8u_C2P3R",
@@ -3537,7 +3241,7 @@
   },
   {
     "function": "nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYCrCb422ToYCbCr422_8u_C2P3R",
@@ -3545,7 +3249,7 @@
   },
   {
     "function": "nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx",
-    "reason": "planar pointer-array layout (manual follow-up)"
+    "reason": "array-of-pointers parameter pDst"
   },
   {
     "function": "nppiYUV420ToBGRBatch_8u_P3C3R",
@@ -3597,35 +3301,35 @@
   },
   {
     "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3C3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3C4R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV420ToRGB_8u_P3AC4R",
@@ -3692,40 +3396,32 @@
     "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
-    "function": "nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV422ToRGB_8u_C2C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiYUV422ToRGB_8u_ColorTwist32f_C2C3R_Ctx",
-    "reason": "unsupported parameter syntax"
-  },
-  {
     "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx",
-    "reason": "unsupported parameter syntax"
+    "reason": "planar pointer-array layout (manual follow-up)"
   },
   {
     "function": "nppiYUV422ToRGB_8u_P3AC4R",

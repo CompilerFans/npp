@@ -232,16 +232,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_16s_C1IR",
@@ -256,32 +248,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_16u_C1IR",
@@ -296,32 +272,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_32f_C1IR",
@@ -336,32 +296,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_8u_C1IR",
@@ -376,32 +320,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_16s_C1IR",
@@ -416,32 +344,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_16u_C1IR",
@@ -456,32 +368,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_32f_C1IR",
@@ -496,32 +392,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GTVal_8u_C1IR",
@@ -536,32 +416,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GTVal_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GTVal_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GTVal_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_16s_C1IR",
@@ -576,32 +440,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_16u_C1IR",
@@ -616,32 +464,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_32f_C1IR",
@@ -656,32 +488,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_GT_8u_C1IR",
@@ -696,32 +512,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_GT_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_GT_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_GT_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTValGTVal_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_16s_C1IR",
@@ -736,32 +536,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_16u_C1IR",
@@ -776,32 +560,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_32f_C1IR",
@@ -816,32 +584,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTValGTVal_8u_C1IR",
@@ -856,32 +608,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTValGTVal_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
-  },
-  {
     "function": "nppiThreshold_LTValGTVal_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTValGTVal_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholdsLT"
   },
   {
     "function": "nppiThreshold_LTVal_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_16s_C1IR",
@@ -896,32 +632,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_16u_C1IR",
@@ -936,32 +656,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_32f_C1IR",
@@ -976,32 +680,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LTVal_8u_C1IR",
@@ -1016,32 +704,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LTVal_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LTVal_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LTVal_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_16s_C1IR",
@@ -1056,32 +728,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_16u_C1IR",
@@ -1096,32 +752,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_32f_C1IR",
@@ -1136,32 +776,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_LT_8u_C1IR",
@@ -1176,32 +800,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_LT_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_LT_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_LT_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_16s_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_16s_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_16s_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_16s_C1IR",
@@ -1216,32 +824,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_16s_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_16s_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_16u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_16u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_16u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_16u_C1IR",
@@ -1256,32 +848,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_16u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_16u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_32f_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_32f_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_32f_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_32f_C1IR",
@@ -1296,32 +872,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_32f_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_32f_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_8u_AC4IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_8u_AC4IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_8u_AC4R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   },
   {
     "function": "nppiThreshold_Val_8u_C1IR",
@@ -1336,15 +896,7 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiThreshold_Val_8u_C3IR_Ctx",
-    "reason": "unknown pointer role rThresholds"
-  },
-  {
     "function": "nppiThreshold_Val_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiThreshold_Val_8u_C3R_Ctx",
-    "reason": "unknown pointer role rThresholds"
   }
 ]

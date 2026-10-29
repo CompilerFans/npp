@@ -62,7 +62,7 @@ TEST(RefSuite, nppiCopy_16sc_AC4R_Ctx) {
   auto pSrc = ref_device<Npp16sc>(1700, 0xeea9c744);
   auto pDst = ref_device<Npp16sc>(1700, 0xc811c3ab);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCopy_16sc_AC4R_Ctx(pSrc->get(), align16(21 * 4 * 8), pDst->get(), align16(21 * 4 * 8), {17, 13}, ctx);
+  NppStatus st = nppiCopy_16sc_AC4R_Ctx(pSrc->get(), align16(21 * 4 * 4), pDst->get(), align16(21 * 4 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCopy_16sc_AC4R_Ctx", "nppiCopy_16sc_AC4R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1700 * sizeof(Npp16sc));
@@ -74,7 +74,7 @@ TEST(RefSuite, nppiCopy_16sc_C1R_Ctx) {
   auto pSrc = ref_device<Npp16sc>(629, 0x8b972fb2);
   auto pDst = ref_device<Npp16sc>(629, 0x4a03872b);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCopy_16sc_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), pDst->get(), align16(21 * 1 * 8), {17, 13}, ctx);
+  NppStatus st = nppiCopy_16sc_C1R_Ctx(pSrc->get(), align16(21 * 1 * 4), pDst->get(), align16(21 * 1 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCopy_16sc_C1R_Ctx", "nppiCopy_16sc_C1R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 629 * sizeof(Npp16sc));
@@ -86,7 +86,7 @@ TEST(RefSuite, nppiCopy_16sc_C2R_Ctx) {
   auto pSrc = ref_device<Npp16sc>(986, 0xdc72d968);
   auto pDst = ref_device<Npp16sc>(986, 0xcc5f71bd);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCopy_16sc_C2R_Ctx(pSrc->get(), align16(21 * 2 * 8), pDst->get(), align16(21 * 2 * 8), {17, 13}, ctx);
+  NppStatus st = nppiCopy_16sc_C2R_Ctx(pSrc->get(), align16(21 * 2 * 4), pDst->get(), align16(21 * 2 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCopy_16sc_C2R_Ctx", "nppiCopy_16sc_C2R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 986 * sizeof(Npp16sc));
@@ -98,7 +98,7 @@ TEST(RefSuite, nppiCopy_16sc_C3R_Ctx) {
   auto pSrc = ref_device<Npp16sc>(1343, 0x3f933c64);
   auto pDst = ref_device<Npp16sc>(1343, 0x947f286f);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCopy_16sc_C3R_Ctx(pSrc->get(), align16(21 * 3 * 8), pDst->get(), align16(21 * 3 * 8), {17, 13}, ctx);
+  NppStatus st = nppiCopy_16sc_C3R_Ctx(pSrc->get(), align16(21 * 3 * 4), pDst->get(), align16(21 * 3 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCopy_16sc_C3R_Ctx", "nppiCopy_16sc_C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp16sc));
@@ -110,7 +110,7 @@ TEST(RefSuite, nppiCopy_16sc_C4R_Ctx) {
   auto pSrc = ref_device<Npp16sc>(1700, 0xc1a75595);
   auto pDst = ref_device<Npp16sc>(1700, 0x6bd4b332);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCopy_16sc_C4R_Ctx(pSrc->get(), align16(21 * 4 * 8), pDst->get(), align16(21 * 4 * 8), {17, 13}, ctx);
+  NppStatus st = nppiCopy_16sc_C4R_Ctx(pSrc->get(), align16(21 * 4 * 4), pDst->get(), align16(21 * 4 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCopy_16sc_C4R_Ctx", "nppiCopy_16sc_C4R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1700 * sizeof(Npp16sc));
@@ -1757,7 +1757,7 @@ TEST(RefSuite, nppiSet_16sc_AC4R_Ctx) {
   const Npp16sc aValue[3] = {Npp16sc{2, 2}, Npp16sc{2, 2}, Npp16sc{2, 2}};
   auto pDst = ref_device<Npp16sc>(1700, 0x29e4fe61);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSet_16sc_AC4R_Ctx(aValue, pDst->get(), align16(21 * 4 * 8), {17, 13}, ctx);
+  NppStatus st = nppiSet_16sc_AC4R_Ctx(aValue, pDst->get(), align16(21 * 4 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiSet_16sc_AC4R_Ctx", "nppiSet_16sc_AC4R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1700 * sizeof(Npp16sc));
@@ -1768,7 +1768,7 @@ TEST(RefSuite, nppiSet_16sc_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pDst = ref_device<Npp16sc>(629, 0xee6fd90f);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSet_16sc_C1R_Ctx(Npp16sc{2, 2}, pDst->get(), align16(21 * 1 * 8), {17, 13}, ctx);
+  NppStatus st = nppiSet_16sc_C1R_Ctx(Npp16sc{2, 2}, pDst->get(), align16(21 * 1 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiSet_16sc_C1R_Ctx", "nppiSet_16sc_C1R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 629 * sizeof(Npp16sc));
@@ -1780,7 +1780,7 @@ TEST(RefSuite, nppiSet_16sc_C2R_Ctx) {
   const Npp16sc aValue[2] = {Npp16sc{2, 2}, Npp16sc{2, 2}};
   auto pDst = ref_device<Npp16sc>(986, 0x3683adaf);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSet_16sc_C2R_Ctx(aValue, pDst->get(), align16(21 * 2 * 8), {17, 13}, ctx);
+  NppStatus st = nppiSet_16sc_C2R_Ctx(aValue, pDst->get(), align16(21 * 2 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiSet_16sc_C2R_Ctx", "nppiSet_16sc_C2R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 986 * sizeof(Npp16sc));
@@ -1792,7 +1792,7 @@ TEST(RefSuite, nppiSet_16sc_C3R_Ctx) {
   const Npp16sc aValue[3] = {Npp16sc{2, 2}, Npp16sc{2, 2}, Npp16sc{2, 2}};
   auto pDst = ref_device<Npp16sc>(1343, 0xe042207b);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSet_16sc_C3R_Ctx(aValue, pDst->get(), align16(21 * 3 * 8), {17, 13}, ctx);
+  NppStatus st = nppiSet_16sc_C3R_Ctx(aValue, pDst->get(), align16(21 * 3 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiSet_16sc_C3R_Ctx", "nppiSet_16sc_C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp16sc));
@@ -1804,7 +1804,7 @@ TEST(RefSuite, nppiSet_16sc_C4R_Ctx) {
   const Npp16sc aValue[4] = {Npp16sc{2, 2}, Npp16sc{2, 2}, Npp16sc{2, 2}, Npp16sc{2, 2}};
   auto pDst = ref_device<Npp16sc>(1700, 0xd27ff620);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSet_16sc_C4R_Ctx(aValue, pDst->get(), align16(21 * 4 * 8), {17, 13}, ctx);
+  NppStatus st = nppiSet_16sc_C4R_Ctx(aValue, pDst->get(), align16(21 * 4 * 4), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiSet_16sc_C4R_Ctx", "nppiSet_16sc_C4R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1700 * sizeof(Npp16sc));
