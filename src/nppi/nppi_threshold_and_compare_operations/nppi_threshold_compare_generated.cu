@@ -51,7 +51,7 @@ __global__ void kThresh(T* pDst, int nDstStep, const T* pSrc, int nSrcStep, int 
   const T* sr = (const T*)((const char*)pSrc + (size_t)y * nSrcStep);
   for (int c = 0; c < CH; ++c) {
     const int si = x * CH + c;
-    if (KEEP && c == 3) { dr[si] = sr[si]; continue; }
+    if (KEEP && c == 3) continue;  // AC4 alpha is left untouched
     const int ti = (CH == 1) ? 0 : c;
     const T sv = INPL ? dr[si] : sr[si];
     T out = sv;
@@ -84,7 +84,7 @@ inline NppStatus thRun(void* pDst, int nDstStep, const void* pSrc, int nSrcStep,
 // ---------------------------------------------------------------------------
 // Compare kernels (output is a single Npp8u mask per pixel)
 // ---------------------------------------------------------------------------
-template <typename T, int CH, int MODE>
+template <typename T, int CH, int MODE, bool EXCL>
 __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, int dStep,
                          int w, int h, CmpData<T> p) {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -94,7 +94,7 @@ __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, 
   const T* b = (const T*)((const char*)p2 + (size_t)y * s2);
   Npp8u* dr = (Npp8u*)((char*)pDst + (size_t)y * dStep);
   bool all = true;
-  for (int c = 0; c < CH; ++c) {
+  for (int c = 0; c < CH - (EXCL ? 1 : 0); ++c) {
     const T av = a[x * CH + c];
     const T bv = (MODE == 0 || MODE == 2) ? b[x * CH + c] : p.cst[c];
     const bool hit = (MODE == 2 || MODE == 3)
@@ -105,13 +105,13 @@ __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, 
   dr[x] = all ? (Npp8u)0xFF : (Npp8u)0;
 }
 
-template <typename T, int CH, int MODE>
+template <typename T, int CH, int MODE, bool EXCL = false>
 inline NppStatus cmpRun(const void* p1, int s1, const void* p2, int s2, void* pDst, int dStep,
                         int w, int h, CmpData<T> p, cudaStream_t st) {
   if (w <= 0 || h <= 0) return NPP_NO_ERROR;
   dim3 b(16, 16), g((unsigned)((w + 15) / 16), (unsigned)((h + 15) / 16));
   (void)cudaGetLastError();
-  kCompare<T, CH, MODE><<<g, b, 0, st>>>((const T*)p1, s1, (const T*)p2, s2, (Npp8u*)pDst, dStep, w, h, p);
+  kCompare<T, CH, MODE, EXCL><<<g, b, 0, st>>>((const T*)p1, s1, (const T*)p2, s2, (Npp8u*)pDst, dStep, w, h, p);
   return tcKernelStatus();
 }
 
@@ -1940,7 +1940,7 @@ NppStatus nppiCompare_16s_AC4R_impl(const Npp16s * pSrc1, int nSrc1Step, const N
   CmpData<Npp16s> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp16s, 4, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 4, 0, true>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompare_16s_C1R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -1948,7 +1948,7 @@ NppStatus nppiCompare_16s_C1R_impl(const Npp16s * pSrc1, int nSrc1Step, const Np
   CmpData<Npp16s> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp16s, 1, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 1, 0, false>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompare_16s_C3R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -1956,7 +1956,7 @@ NppStatus nppiCompare_16s_C3R_impl(const Npp16s * pSrc1, int nSrc1Step, const Np
   CmpData<Npp16s> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp16s, 3, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 3, 0, false>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompare_16s_C4R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -1964,7 +1964,7 @@ NppStatus nppiCompare_16s_C4R_impl(const Npp16s * pSrc1, int nSrc1Step, const Np
   CmpData<Npp16s> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp16s, 4, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 4, 0, false>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompare_16u_AC4R_impl(const Npp16u * pSrc1, int nSrc1Step, const Npp16u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -1972,7 +1972,7 @@ NppStatus nppiCompare_16u_AC4R_impl(const Npp16u * pSrc1, int nSrc1Step, const N
   CmpData<Npp16u> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp16u, 4, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16u, 4, 0, true>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompare_32f_AC4R_impl(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -1980,7 +1980,7 @@ NppStatus nppiCompare_32f_AC4R_impl(const Npp32f * pSrc1, int nSrc1Step, const N
   CmpData<Npp32f> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp32f, 4, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 0, true>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompare_8u_AC4R_impl(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -1988,7 +1988,7 @@ NppStatus nppiCompare_8u_AC4R_impl(const Npp8u * pSrc1, int nSrc1Step, const Npp
   CmpData<Npp8u> p{};
   p.mode = 0;
   p.op = eComparisonOperation;
-  return cmpRun<Npp8u, 4, 0>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp8u, 4, 0, true>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_16s_AC4R_impl(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2000,7 +2000,7 @@ NppStatus nppiCompareC_16s_AC4R_impl(const Npp16s * pSrc, int nSrcStep, const Np
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp16s, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 4, 1, true>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_16s_C3R_impl(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2011,7 +2011,7 @@ NppStatus nppiCompareC_16s_C3R_impl(const Npp16s * pSrc, int nSrcStep, const Npp
   p.cst[0] = pConstants[0];
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
-  return cmpRun<Npp16s, 3, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 3, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_16s_C4R_impl(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2023,7 +2023,7 @@ NppStatus nppiCompareC_16s_C4R_impl(const Npp16s * pSrc, int nSrcStep, const Npp
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp16s, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16s, 4, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_16u_AC4R_impl(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2035,7 +2035,7 @@ NppStatus nppiCompareC_16u_AC4R_impl(const Npp16u * pSrc, int nSrcStep, const Np
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp16u, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16u, 4, 1, true>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_16u_C3R_impl(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2046,7 +2046,7 @@ NppStatus nppiCompareC_16u_C3R_impl(const Npp16u * pSrc, int nSrcStep, const Npp
   p.cst[0] = pConstants[0];
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
-  return cmpRun<Npp16u, 3, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16u, 3, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_16u_C4R_impl(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2058,7 +2058,7 @@ NppStatus nppiCompareC_16u_C4R_impl(const Npp16u * pSrc, int nSrcStep, const Npp
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp16u, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp16u, 4, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_32f_AC4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2070,7 +2070,7 @@ NppStatus nppiCompareC_32f_AC4R_impl(const Npp32f * pSrc, int nSrcStep, const Np
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp32f, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 1, true>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_32f_C3R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2081,7 +2081,7 @@ NppStatus nppiCompareC_32f_C3R_impl(const Npp32f * pSrc, int nSrcStep, const Npp
   p.cst[0] = pConstants[0];
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
-  return cmpRun<Npp32f, 3, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 3, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_32f_C4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2093,7 +2093,7 @@ NppStatus nppiCompareC_32f_C4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp32f, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_8u_AC4R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2105,7 +2105,7 @@ NppStatus nppiCompareC_8u_AC4R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp8u, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp8u, 4, 1, true>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_8u_C3R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2116,7 +2116,7 @@ NppStatus nppiCompareC_8u_C3R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u
   p.cst[0] = pConstants[0];
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
-  return cmpRun<Npp8u, 3, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp8u, 3, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareC_8u_C4R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
@@ -2128,7 +2128,7 @@ NppStatus nppiCompareC_8u_C4R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp8u, 4, 1>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp8u, 4, 1, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEps_32f_AC4R_impl(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2136,7 +2136,7 @@ NppStatus nppiCompareEqualEps_32f_AC4R_impl(const Npp32f * pSrc1, int nSrc1Step,
   CmpData<Npp32f> p{};
   p.mode = 2;
   p.eps = nEpsilon;
-  return cmpRun<Npp32f, 4, 2>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 2, true>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEps_32f_C1R_impl(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2144,7 +2144,7 @@ NppStatus nppiCompareEqualEps_32f_C1R_impl(const Npp32f * pSrc1, int nSrc1Step, 
   CmpData<Npp32f> p{};
   p.mode = 2;
   p.eps = nEpsilon;
-  return cmpRun<Npp32f, 1, 2>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 1, 2, false>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEps_32f_C3R_impl(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2152,7 +2152,7 @@ NppStatus nppiCompareEqualEps_32f_C3R_impl(const Npp32f * pSrc1, int nSrc1Step, 
   CmpData<Npp32f> p{};
   p.mode = 2;
   p.eps = nEpsilon;
-  return cmpRun<Npp32f, 3, 2>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 3, 2, false>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEps_32f_C4R_impl(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2160,7 +2160,7 @@ NppStatus nppiCompareEqualEps_32f_C4R_impl(const Npp32f * pSrc1, int nSrc1Step, 
   CmpData<Npp32f> p{};
   p.mode = 2;
   p.eps = nEpsilon;
-  return cmpRun<Npp32f, 4, 2>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 2, false>((const void*)pSrc1, nSrc1Step, (const void*)pSrc2, nSrc2Step, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEpsC_32f_AC4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2172,7 +2172,7 @@ NppStatus nppiCompareEqualEpsC_32f_AC4R_impl(const Npp32f * pSrc, int nSrcStep, 
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp32f, 4, 3>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 3, true>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEpsC_32f_C1R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f nConstant, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2181,7 +2181,7 @@ NppStatus nppiCompareEqualEpsC_32f_C1R_impl(const Npp32f * pSrc, int nSrcStep, c
   p.mode = 3;
   p.eps = nEpsilon;
   p.cst[0] = nConstant;
-  return cmpRun<Npp32f, 1, 3>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 1, 3, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEpsC_32f_C3R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2192,7 +2192,7 @@ NppStatus nppiCompareEqualEpsC_32f_C3R_impl(const Npp32f * pSrc, int nSrcStep, c
   p.cst[0] = pConstants[0];
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
-  return cmpRun<Npp32f, 3, 3>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 3, 3, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 
 extern "C" NppStatus nppiCompareEqualEpsC_32f_C4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext);
@@ -2204,6 +2204,6 @@ NppStatus nppiCompareEqualEpsC_32f_C4R_impl(const Npp32f * pSrc, int nSrcStep, c
   p.cst[1] = pConstants[1];
   p.cst[2] = pConstants[2];
   p.cst[3] = pConstants[3];
-  return cmpRun<Npp32f, 4, 3>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
+  return cmpRun<Npp32f, 4, 3, false>((const void*)pSrc, nSrcStep, (const void*)pSrc, nSrcStep, (void*)pDst, nDstStep, oSizeROI.width, oSizeROI.height, p, nppStreamCtx.hStream);
 }
 }

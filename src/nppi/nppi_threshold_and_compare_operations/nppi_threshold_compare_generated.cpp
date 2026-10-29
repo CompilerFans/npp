@@ -17,9 +17,8 @@ extern "C" NppStatus nppiThreshold_16s_AC4IR_impl(Npp16s * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -29,11 +28,8 @@ extern "C" NppStatus nppiThreshold_16s_AC4R_impl(const Npp16s * pSrc, int nSrcSt
 NppStatus nppiThreshold_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -42,9 +38,8 @@ extern "C" NppStatus nppiThreshold_16s_C1IR_impl(Npp16s * pSrcDst, int nSrcDstSt
 
 NppStatus nppiThreshold_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
@@ -54,11 +49,8 @@ extern "C" NppStatus nppiThreshold_16s_C1R_impl(const Npp16s * pSrc, int nSrcSte
 NppStatus nppiThreshold_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
@@ -67,9 +59,8 @@ extern "C" NppStatus nppiThreshold_16s_C3IR_impl(Npp16s * pSrcDst, int nSrcDstSt
 
 NppStatus nppiThreshold_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -79,11 +70,8 @@ extern "C" NppStatus nppiThreshold_16s_C3R_impl(const Npp16s * pSrc, int nSrcSte
 NppStatus nppiThreshold_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -92,9 +80,8 @@ extern "C" NppStatus nppiThreshold_16u_AC4IR_impl(Npp16u * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -104,11 +91,8 @@ extern "C" NppStatus nppiThreshold_16u_AC4R_impl(const Npp16u * pSrc, int nSrcSt
 NppStatus nppiThreshold_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -117,9 +101,8 @@ extern "C" NppStatus nppiThreshold_16u_C1IR_impl(Npp16u * pSrcDst, int nSrcDstSt
 
 NppStatus nppiThreshold_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
@@ -129,11 +112,8 @@ extern "C" NppStatus nppiThreshold_16u_C1R_impl(const Npp16u * pSrc, int nSrcSte
 NppStatus nppiThreshold_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
@@ -142,9 +122,8 @@ extern "C" NppStatus nppiThreshold_16u_C3IR_impl(Npp16u * pSrcDst, int nSrcDstSt
 
 NppStatus nppiThreshold_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -154,11 +133,8 @@ extern "C" NppStatus nppiThreshold_16u_C3R_impl(const Npp16u * pSrc, int nSrcSte
 NppStatus nppiThreshold_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -167,9 +143,8 @@ extern "C" NppStatus nppiThreshold_32f_AC4IR_impl(Npp32f * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -179,11 +154,8 @@ extern "C" NppStatus nppiThreshold_32f_AC4R_impl(const Npp32f * pSrc, int nSrcSt
 NppStatus nppiThreshold_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -192,9 +164,8 @@ extern "C" NppStatus nppiThreshold_32f_C1IR_impl(Npp32f * pSrcDst, int nSrcDstSt
 
 NppStatus nppiThreshold_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
@@ -203,9 +174,8 @@ extern "C" NppStatus nppiThreshold_32f_C3IR_impl(Npp32f * pSrcDst, int nSrcDstSt
 
 NppStatus nppiThreshold_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -215,11 +185,8 @@ extern "C" NppStatus nppiThreshold_32f_C3R_impl(const Npp32f * pSrc, int nSrcSte
 NppStatus nppiThreshold_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -228,9 +195,8 @@ extern "C" NppStatus nppiThreshold_8u_AC4IR_impl(Npp8u * pSrcDst, int nSrcDstSte
 
 NppStatus nppiThreshold_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -240,11 +206,8 @@ extern "C" NppStatus nppiThreshold_8u_AC4R_impl(const Npp8u * pSrc, int nSrcStep
 NppStatus nppiThreshold_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -253,9 +216,8 @@ extern "C" NppStatus nppiThreshold_8u_C3IR_impl(Npp8u * pSrcDst, int nSrcDstStep
 
 NppStatus nppiThreshold_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -265,11 +227,8 @@ extern "C" NppStatus nppiThreshold_8u_C3R_impl(const Npp8u * pSrc, int nSrcStep,
 NppStatus nppiThreshold_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
@@ -278,9 +237,8 @@ extern "C" NppStatus nppiThreshold_GT_16s_AC4IR_impl(Npp16s * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_GT_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -289,11 +247,8 @@ extern "C" NppStatus nppiThreshold_GT_16s_AC4R_impl(const Npp16s * pSrc, int nSr
 NppStatus nppiThreshold_GT_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -301,9 +256,8 @@ extern "C" NppStatus nppiThreshold_GT_16s_C1IR_impl(Npp16s * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_GT_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -312,11 +266,8 @@ extern "C" NppStatus nppiThreshold_GT_16s_C1R_impl(const Npp16s * pSrc, int nSrc
 NppStatus nppiThreshold_GT_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -324,9 +275,8 @@ extern "C" NppStatus nppiThreshold_GT_16s_C3IR_impl(Npp16s * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_GT_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -335,11 +285,8 @@ extern "C" NppStatus nppiThreshold_GT_16s_C3R_impl(const Npp16s * pSrc, int nSrc
 NppStatus nppiThreshold_GT_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -347,9 +294,8 @@ extern "C" NppStatus nppiThreshold_GT_16u_AC4IR_impl(Npp16u * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_GT_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -358,11 +304,8 @@ extern "C" NppStatus nppiThreshold_GT_16u_AC4R_impl(const Npp16u * pSrc, int nSr
 NppStatus nppiThreshold_GT_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -370,9 +313,8 @@ extern "C" NppStatus nppiThreshold_GT_16u_C1IR_impl(Npp16u * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_GT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -381,11 +323,8 @@ extern "C" NppStatus nppiThreshold_GT_16u_C1R_impl(const Npp16u * pSrc, int nSrc
 NppStatus nppiThreshold_GT_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -393,9 +332,8 @@ extern "C" NppStatus nppiThreshold_GT_16u_C3IR_impl(Npp16u * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_GT_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -404,11 +342,8 @@ extern "C" NppStatus nppiThreshold_GT_16u_C3R_impl(const Npp16u * pSrc, int nSrc
 NppStatus nppiThreshold_GT_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -416,9 +351,8 @@ extern "C" NppStatus nppiThreshold_GT_32f_AC4IR_impl(Npp32f * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_GT_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -427,11 +361,8 @@ extern "C" NppStatus nppiThreshold_GT_32f_AC4R_impl(const Npp32f * pSrc, int nSr
 NppStatus nppiThreshold_GT_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -439,9 +370,8 @@ extern "C" NppStatus nppiThreshold_GT_32f_C1IR_impl(Npp32f * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_GT_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -450,11 +380,8 @@ extern "C" NppStatus nppiThreshold_GT_32f_C1R_impl(const Npp32f * pSrc, int nSrc
 NppStatus nppiThreshold_GT_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -462,9 +389,8 @@ extern "C" NppStatus nppiThreshold_GT_32f_C3IR_impl(Npp32f * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_GT_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -473,11 +399,8 @@ extern "C" NppStatus nppiThreshold_GT_32f_C3R_impl(const Npp32f * pSrc, int nSrc
 NppStatus nppiThreshold_GT_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -485,9 +408,8 @@ extern "C" NppStatus nppiThreshold_GT_8u_AC4IR_impl(Npp8u * pSrcDst, int nSrcDst
 
 NppStatus nppiThreshold_GT_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -496,11 +418,8 @@ extern "C" NppStatus nppiThreshold_GT_8u_AC4R_impl(const Npp8u * pSrc, int nSrcS
 NppStatus nppiThreshold_GT_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -508,9 +427,8 @@ extern "C" NppStatus nppiThreshold_GT_8u_C1IR_impl(Npp8u * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_GT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -519,11 +437,8 @@ extern "C" NppStatus nppiThreshold_GT_8u_C1R_impl(const Npp8u * pSrc, int nSrcSt
 NppStatus nppiThreshold_GT_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -531,9 +446,8 @@ extern "C" NppStatus nppiThreshold_GT_8u_C3IR_impl(Npp8u * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_GT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -542,11 +456,8 @@ extern "C" NppStatus nppiThreshold_GT_8u_C3R_impl(const Npp8u * pSrc, int nSrcSt
 NppStatus nppiThreshold_GT_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -554,9 +465,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16s_AC4IR_impl(Npp16s * pSrcDst, int nS
 
 NppStatus nppiThreshold_GTVal_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -565,11 +475,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16s_AC4R_impl(const Npp16s * pSrc, int 
 NppStatus nppiThreshold_GTVal_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -577,9 +484,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16s_C1IR_impl(Npp16s * pSrcDst, int nSr
 
 NppStatus nppiThreshold_GTVal_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThreshold, const Npp16s nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -588,11 +494,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16s_C1R_impl(const Npp16s * pSrc, int n
 NppStatus nppiThreshold_GTVal_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThreshold, const Npp16s nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -600,9 +503,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16s_C3IR_impl(Npp16s * pSrcDst, int nSr
 
 NppStatus nppiThreshold_GTVal_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -611,11 +513,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16s_C3R_impl(const Npp16s * pSrc, int n
 NppStatus nppiThreshold_GTVal_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -623,9 +522,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16u_AC4IR_impl(Npp16u * pSrcDst, int nS
 
 NppStatus nppiThreshold_GTVal_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -634,11 +532,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16u_AC4R_impl(const Npp16u * pSrc, int 
 NppStatus nppiThreshold_GTVal_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -646,9 +541,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16u_C1IR_impl(Npp16u * pSrcDst, int nSr
 
 NppStatus nppiThreshold_GTVal_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThreshold, const Npp16u nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -657,11 +551,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16u_C1R_impl(const Npp16u * pSrc, int n
 NppStatus nppiThreshold_GTVal_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThreshold, const Npp16u nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -669,9 +560,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16u_C3IR_impl(Npp16u * pSrcDst, int nSr
 
 NppStatus nppiThreshold_GTVal_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -680,11 +570,8 @@ extern "C" NppStatus nppiThreshold_GTVal_16u_C3R_impl(const Npp16u * pSrc, int n
 NppStatus nppiThreshold_GTVal_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -692,9 +579,8 @@ extern "C" NppStatus nppiThreshold_GTVal_32f_AC4IR_impl(Npp32f * pSrcDst, int nS
 
 NppStatus nppiThreshold_GTVal_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -703,11 +589,8 @@ extern "C" NppStatus nppiThreshold_GTVal_32f_AC4R_impl(const Npp32f * pSrc, int 
 NppStatus nppiThreshold_GTVal_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -715,9 +598,8 @@ extern "C" NppStatus nppiThreshold_GTVal_32f_C1IR_impl(Npp32f * pSrcDst, int nSr
 
 NppStatus nppiThreshold_GTVal_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThreshold, const Npp32f nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -726,11 +608,8 @@ extern "C" NppStatus nppiThreshold_GTVal_32f_C1R_impl(const Npp32f * pSrc, int n
 NppStatus nppiThreshold_GTVal_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f nThreshold, const Npp32f nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -738,9 +617,8 @@ extern "C" NppStatus nppiThreshold_GTVal_32f_C3IR_impl(Npp32f * pSrcDst, int nSr
 
 NppStatus nppiThreshold_GTVal_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -749,11 +627,8 @@ extern "C" NppStatus nppiThreshold_GTVal_32f_C3R_impl(const Npp32f * pSrc, int n
 NppStatus nppiThreshold_GTVal_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -761,9 +636,8 @@ extern "C" NppStatus nppiThreshold_GTVal_8u_AC4IR_impl(Npp8u * pSrcDst, int nSrc
 
 NppStatus nppiThreshold_GTVal_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -772,11 +646,8 @@ extern "C" NppStatus nppiThreshold_GTVal_8u_AC4R_impl(const Npp8u * pSrc, int nS
 NppStatus nppiThreshold_GTVal_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -784,9 +655,8 @@ extern "C" NppStatus nppiThreshold_LT_16s_AC4IR_impl(Npp16s * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_LT_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -795,11 +665,8 @@ extern "C" NppStatus nppiThreshold_LT_16s_AC4R_impl(const Npp16s * pSrc, int nSr
 NppStatus nppiThreshold_LT_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -807,9 +674,8 @@ extern "C" NppStatus nppiThreshold_LT_16s_C1IR_impl(Npp16s * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_LT_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -818,11 +684,8 @@ extern "C" NppStatus nppiThreshold_LT_16s_C1R_impl(const Npp16s * pSrc, int nSrc
 NppStatus nppiThreshold_LT_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -830,9 +693,8 @@ extern "C" NppStatus nppiThreshold_LT_16s_C3IR_impl(Npp16s * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_LT_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -841,11 +703,8 @@ extern "C" NppStatus nppiThreshold_LT_16s_C3R_impl(const Npp16s * pSrc, int nSrc
 NppStatus nppiThreshold_LT_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -853,9 +712,8 @@ extern "C" NppStatus nppiThreshold_LT_16u_AC4IR_impl(Npp16u * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_LT_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -864,11 +722,8 @@ extern "C" NppStatus nppiThreshold_LT_16u_AC4R_impl(const Npp16u * pSrc, int nSr
 NppStatus nppiThreshold_LT_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -876,9 +731,8 @@ extern "C" NppStatus nppiThreshold_LT_16u_C1IR_impl(Npp16u * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_LT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -887,11 +741,8 @@ extern "C" NppStatus nppiThreshold_LT_16u_C1R_impl(const Npp16u * pSrc, int nSrc
 NppStatus nppiThreshold_LT_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -899,9 +750,8 @@ extern "C" NppStatus nppiThreshold_LT_16u_C3IR_impl(Npp16u * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_LT_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -910,11 +760,8 @@ extern "C" NppStatus nppiThreshold_LT_16u_C3R_impl(const Npp16u * pSrc, int nSrc
 NppStatus nppiThreshold_LT_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -922,9 +769,8 @@ extern "C" NppStatus nppiThreshold_LT_32f_AC4IR_impl(Npp32f * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_LT_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -933,11 +779,8 @@ extern "C" NppStatus nppiThreshold_LT_32f_AC4R_impl(const Npp32f * pSrc, int nSr
 NppStatus nppiThreshold_LT_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -945,9 +788,8 @@ extern "C" NppStatus nppiThreshold_LT_32f_C1IR_impl(Npp32f * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_LT_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -956,11 +798,8 @@ extern "C" NppStatus nppiThreshold_LT_32f_C1R_impl(const Npp32f * pSrc, int nSrc
 NppStatus nppiThreshold_LT_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -968,9 +807,8 @@ extern "C" NppStatus nppiThreshold_LT_32f_C3IR_impl(Npp32f * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_LT_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -979,11 +817,8 @@ extern "C" NppStatus nppiThreshold_LT_32f_C3R_impl(const Npp32f * pSrc, int nSrc
 NppStatus nppiThreshold_LT_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -991,9 +826,8 @@ extern "C" NppStatus nppiThreshold_LT_8u_AC4IR_impl(Npp8u * pSrcDst, int nSrcDst
 
 NppStatus nppiThreshold_LT_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -1002,11 +836,8 @@ extern "C" NppStatus nppiThreshold_LT_8u_AC4R_impl(const Npp8u * pSrc, int nSrcS
 NppStatus nppiThreshold_LT_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -1014,9 +845,8 @@ extern "C" NppStatus nppiThreshold_LT_8u_C1IR_impl(Npp8u * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_LT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -1025,11 +855,8 @@ extern "C" NppStatus nppiThreshold_LT_8u_C1R_impl(const Npp8u * pSrc, int nSrcSt
 NppStatus nppiThreshold_LT_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u nThreshold, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -1037,9 +864,8 @@ extern "C" NppStatus nppiThreshold_LT_8u_C3IR_impl(Npp8u * pSrcDst, int nSrcDstS
 
 NppStatus nppiThreshold_LT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -1048,11 +874,8 @@ extern "C" NppStatus nppiThreshold_LT_8u_C3R_impl(const Npp8u * pSrc, int nSrcSt
 NppStatus nppiThreshold_LT_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -1060,9 +883,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16s_AC4IR_impl(Npp16s * pSrcDst, int nS
 
 NppStatus nppiThreshold_LTVal_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1071,11 +893,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16s_AC4R_impl(const Npp16s * pSrc, int 
 NppStatus nppiThreshold_LTVal_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1083,9 +902,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16s_C1IR_impl(Npp16s * pSrcDst, int nSr
 
 NppStatus nppiThreshold_LTVal_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThreshold, const Npp16s nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -1094,11 +912,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16s_C1R_impl(const Npp16s * pSrc, int n
 NppStatus nppiThreshold_LTVal_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThreshold, const Npp16s nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -1106,9 +921,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16s_C3IR_impl(Npp16s * pSrcDst, int nSr
 
 NppStatus nppiThreshold_LTVal_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1117,11 +931,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16s_C3R_impl(const Npp16s * pSrc, int n
 NppStatus nppiThreshold_LTVal_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1129,9 +940,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16u_AC4IR_impl(Npp16u * pSrcDst, int nS
 
 NppStatus nppiThreshold_LTVal_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1140,11 +950,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16u_AC4R_impl(const Npp16u * pSrc, int 
 NppStatus nppiThreshold_LTVal_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1152,9 +959,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16u_C1IR_impl(Npp16u * pSrcDst, int nSr
 
 NppStatus nppiThreshold_LTVal_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThreshold, const Npp16u nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -1163,11 +969,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16u_C1R_impl(const Npp16u * pSrc, int n
 NppStatus nppiThreshold_LTVal_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThreshold, const Npp16u nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -1175,9 +978,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16u_C3IR_impl(Npp16u * pSrcDst, int nSr
 
 NppStatus nppiThreshold_LTVal_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1186,11 +988,8 @@ extern "C" NppStatus nppiThreshold_LTVal_16u_C3R_impl(const Npp16u * pSrc, int n
 NppStatus nppiThreshold_LTVal_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1198,9 +997,8 @@ extern "C" NppStatus nppiThreshold_LTVal_32f_AC4IR_impl(Npp32f * pSrcDst, int nS
 
 NppStatus nppiThreshold_LTVal_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1209,11 +1007,8 @@ extern "C" NppStatus nppiThreshold_LTVal_32f_AC4R_impl(const Npp32f * pSrc, int 
 NppStatus nppiThreshold_LTVal_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1221,9 +1016,8 @@ extern "C" NppStatus nppiThreshold_LTVal_32f_C1IR_impl(Npp32f * pSrcDst, int nSr
 
 NppStatus nppiThreshold_LTVal_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThreshold, const Npp32f nValue, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -1231,9 +1025,8 @@ extern "C" NppStatus nppiThreshold_LTVal_32f_C3IR_impl(Npp32f * pSrcDst, int nSr
 
 NppStatus nppiThreshold_LTVal_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1242,11 +1035,8 @@ extern "C" NppStatus nppiThreshold_LTVal_32f_C3R_impl(const Npp32f * pSrc, int n
 NppStatus nppiThreshold_LTVal_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1254,9 +1044,8 @@ extern "C" NppStatus nppiThreshold_LTVal_8u_AC4IR_impl(Npp8u * pSrcDst, int nSrc
 
 NppStatus nppiThreshold_LTVal_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1265,11 +1054,8 @@ extern "C" NppStatus nppiThreshold_LTVal_8u_AC4R_impl(const Npp8u * pSrc, int nS
 NppStatus nppiThreshold_LTVal_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1277,9 +1063,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16s_AC4IR_impl(Npp16s * pSrcDst, i
 
 NppStatus nppiThreshold_LTValGTVal_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholdsLT[3], const Npp16s rValuesLT[3], const Npp16s rThresholdsGT[3], const Npp16s rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1288,11 +1073,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16s_AC4R_impl(const Npp16s * pSrc,
 NppStatus nppiThreshold_LTValGTVal_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholdsLT[3], const Npp16s rValuesLT[3], const Npp16s rThresholdsGT[3], const Npp16s rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1300,9 +1082,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16s_C1IR_impl(Npp16s * pSrcDst, in
 
 NppStatus nppiThreshold_LTValGTVal_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThresholdLT, const Npp16s nValueLT, const Npp16s nThresholdGT, const Npp16s nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1311,11 +1092,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16s_C1R_impl(const Npp16s * pSrc, 
 NppStatus nppiThreshold_LTValGTVal_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThresholdLT, const Npp16s nValueLT, const Npp16s nThresholdGT, const Npp16s nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1323,9 +1101,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16s_C3IR_impl(Npp16s * pSrcDst, in
 
 NppStatus nppiThreshold_LTValGTVal_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholdsLT[3], const Npp16s rValuesLT[3], const Npp16s rThresholdsGT[3], const Npp16s rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1334,11 +1111,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16s_C3R_impl(const Npp16s * pSrc, 
 NppStatus nppiThreshold_LTValGTVal_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholdsLT[3], const Npp16s rValuesLT[3], const Npp16s rThresholdsGT[3], const Npp16s rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1346,9 +1120,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16u_AC4IR_impl(Npp16u * pSrcDst, i
 
 NppStatus nppiThreshold_LTValGTVal_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholdsLT[3], const Npp16u rValuesLT[3], const Npp16u rThresholdsGT[3], const Npp16u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1357,11 +1130,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16u_AC4R_impl(const Npp16u * pSrc,
 NppStatus nppiThreshold_LTValGTVal_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholdsLT[3], const Npp16u rValuesLT[3], const Npp16u rThresholdsGT[3], const Npp16u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1369,9 +1139,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16u_C1IR_impl(Npp16u * pSrcDst, in
 
 NppStatus nppiThreshold_LTValGTVal_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThresholdLT, const Npp16u nValueLT, const Npp16u nThresholdGT, const Npp16u nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1380,11 +1149,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16u_C1R_impl(const Npp16u * pSrc, 
 NppStatus nppiThreshold_LTValGTVal_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThresholdLT, const Npp16u nValueLT, const Npp16u nThresholdGT, const Npp16u nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1392,9 +1158,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16u_C3IR_impl(Npp16u * pSrcDst, in
 
 NppStatus nppiThreshold_LTValGTVal_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholdsLT[3], const Npp16u rValuesLT[3], const Npp16u rThresholdsGT[3], const Npp16u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1403,11 +1168,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_16u_C3R_impl(const Npp16u * pSrc, 
 NppStatus nppiThreshold_LTValGTVal_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholdsLT[3], const Npp16u rValuesLT[3], const Npp16u rThresholdsGT[3], const Npp16u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1415,9 +1177,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_32f_AC4IR_impl(Npp32f * pSrcDst, i
 
 NppStatus nppiThreshold_LTValGTVal_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholdsLT[3], const Npp32f rValuesLT[3], const Npp32f rThresholdsGT[3], const Npp32f rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1426,11 +1187,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_32f_AC4R_impl(const Npp32f * pSrc,
 NppStatus nppiThreshold_LTValGTVal_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholdsLT[3], const Npp32f rValuesLT[3], const Npp32f rThresholdsGT[3], const Npp32f rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1438,9 +1196,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_32f_C1IR_impl(Npp32f * pSrcDst, in
 
 NppStatus nppiThreshold_LTValGTVal_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThresholdLT, const Npp32f nValueLT, const Npp32f nThresholdGT, const Npp32f nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1449,11 +1206,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_32f_C1R_impl(const Npp32f * pSrc, 
 NppStatus nppiThreshold_LTValGTVal_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f nThresholdLT, const Npp32f nValueLT, const Npp32f nThresholdGT, const Npp32f nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1461,9 +1215,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_32f_C3IR_impl(Npp32f * pSrcDst, in
 
 NppStatus nppiThreshold_LTValGTVal_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholdsLT[3], const Npp32f rValuesLT[3], const Npp32f rThresholdsGT[3], const Npp32f rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1472,11 +1225,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_32f_C3R_impl(const Npp32f * pSrc, 
 NppStatus nppiThreshold_LTValGTVal_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholdsLT[3], const Npp32f rValuesLT[3], const Npp32f rThresholdsGT[3], const Npp32f rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1484,9 +1234,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_8u_AC4IR_impl(Npp8u * pSrcDst, int
 
 NppStatus nppiThreshold_LTValGTVal_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholdsLT[3], const Npp8u rValuesLT[3], const Npp8u rThresholdsGT[3], const Npp8u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1495,11 +1244,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_8u_AC4R_impl(const Npp8u * pSrc, i
 NppStatus nppiThreshold_LTValGTVal_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholdsLT[3], const Npp8u rValuesLT[3], const Npp8u rThresholdsGT[3], const Npp8u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1507,9 +1253,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_8u_C1IR_impl(Npp8u * pSrcDst, int 
 
 NppStatus nppiThreshold_LTValGTVal_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThresholdLT, const Npp8u nValueLT, const Npp8u nThresholdGT, const Npp8u nValueGT, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1517,9 +1262,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_8u_C3IR_impl(Npp8u * pSrcDst, int 
 
 NppStatus nppiThreshold_LTValGTVal_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholdsLT[3], const Npp8u rValuesLT[3], const Npp8u rThresholdsGT[3], const Npp8u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1528,11 +1272,8 @@ extern "C" NppStatus nppiThreshold_LTValGTVal_8u_C3R_impl(const Npp8u * pSrc, in
 NppStatus nppiThreshold_LTValGTVal_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholdsLT[3], const Npp8u rValuesLT[3], const Npp8u rThresholdsGT[3], const Npp8u rValuesGT[3], NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1540,9 +1281,8 @@ extern "C" NppStatus nppiThreshold_Val_16s_AC4IR_impl(Npp16s * pSrcDst, int nSrc
 
 NppStatus nppiThreshold_Val_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1552,11 +1292,8 @@ extern "C" NppStatus nppiThreshold_Val_16s_AC4R_impl(const Npp16s * pSrc, int nS
 NppStatus nppiThreshold_Val_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1565,9 +1302,8 @@ extern "C" NppStatus nppiThreshold_Val_16s_C1IR_impl(Npp16s * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_Val_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s nThreshold, const Npp16s nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1577,11 +1313,8 @@ extern "C" NppStatus nppiThreshold_Val_16s_C1R_impl(const Npp16s * pSrc, int nSr
 NppStatus nppiThreshold_Val_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s nThreshold, const Npp16s nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1590,9 +1323,8 @@ extern "C" NppStatus nppiThreshold_Val_16s_C3IR_impl(Npp16s * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_Val_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1602,11 +1334,8 @@ extern "C" NppStatus nppiThreshold_Val_16s_C3R_impl(const Npp16s * pSrc, int nSr
 NppStatus nppiThreshold_Val_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp16s rThresholds[3], const Npp16s rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1615,9 +1344,8 @@ extern "C" NppStatus nppiThreshold_Val_16u_AC4IR_impl(Npp16u * pSrcDst, int nSrc
 
 NppStatus nppiThreshold_Val_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1627,11 +1355,8 @@ extern "C" NppStatus nppiThreshold_Val_16u_AC4R_impl(const Npp16u * pSrc, int nS
 NppStatus nppiThreshold_Val_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1640,9 +1365,8 @@ extern "C" NppStatus nppiThreshold_Val_16u_C1IR_impl(Npp16u * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_Val_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u nThreshold, const Npp16u nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1652,11 +1376,8 @@ extern "C" NppStatus nppiThreshold_Val_16u_C1R_impl(const Npp16u * pSrc, int nSr
 NppStatus nppiThreshold_Val_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u nThreshold, const Npp16u nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1665,9 +1386,8 @@ extern "C" NppStatus nppiThreshold_Val_16u_C3IR_impl(Npp16u * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_Val_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1677,11 +1397,8 @@ extern "C" NppStatus nppiThreshold_Val_16u_C3R_impl(const Npp16u * pSrc, int nSr
 NppStatus nppiThreshold_Val_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pDst, int nDstStep, NppiSize oSizeROI, const Npp16u rThresholds[3], const Npp16u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1690,9 +1407,8 @@ extern "C" NppStatus nppiThreshold_Val_32f_AC4IR_impl(Npp32f * pSrcDst, int nSrc
 
 NppStatus nppiThreshold_Val_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1702,11 +1418,8 @@ extern "C" NppStatus nppiThreshold_Val_32f_AC4R_impl(const Npp32f * pSrc, int nS
 NppStatus nppiThreshold_Val_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1715,9 +1428,8 @@ extern "C" NppStatus nppiThreshold_Val_32f_C1IR_impl(Npp32f * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_Val_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f nThreshold, const Npp32f nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1727,11 +1439,8 @@ extern "C" NppStatus nppiThreshold_Val_32f_C1R_impl(const Npp32f * pSrc, int nSr
 NppStatus nppiThreshold_Val_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f nThreshold, const Npp32f nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1740,9 +1449,8 @@ extern "C" NppStatus nppiThreshold_Val_32f_C3IR_impl(Npp32f * pSrcDst, int nSrcD
 
 NppStatus nppiThreshold_Val_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1752,11 +1460,8 @@ extern "C" NppStatus nppiThreshold_Val_32f_C3R_impl(const Npp32f * pSrc, int nSr
 NppStatus nppiThreshold_Val_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f rThresholds[3], const Npp32f rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1765,9 +1470,8 @@ extern "C" NppStatus nppiThreshold_Val_8u_AC4IR_impl(Npp8u * pSrcDst, int nSrcDs
 
 NppStatus nppiThreshold_Val_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1777,11 +1481,8 @@ extern "C" NppStatus nppiThreshold_Val_8u_AC4R_impl(const Npp8u * pSrc, int nSrc
 NppStatus nppiThreshold_Val_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1790,9 +1491,8 @@ extern "C" NppStatus nppiThreshold_Val_8u_C1IR_impl(Npp8u * pSrcDst, int nSrcDst
 
 NppStatus nppiThreshold_Val_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u nThreshold, const Npp8u nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1802,11 +1502,8 @@ extern "C" NppStatus nppiThreshold_Val_8u_C1R_impl(const Npp8u * pSrc, int nSrcS
 NppStatus nppiThreshold_Val_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u nThreshold, const Npp8u nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 1 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_8u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
@@ -1815,9 +1512,8 @@ extern "C" NppStatus nppiThreshold_Val_8u_C3IR_impl(Npp8u * pSrcDst, int nSrcDst
 
 NppStatus nppiThreshold_Val_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1827,11 +1523,8 @@ extern "C" NppStatus nppiThreshold_Val_8u_C3R_impl(const Npp8u * pSrc, int nSrcS
 NppStatus nppiThreshold_Val_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp8u rThresholds[3], const Npp8u rValues[3], NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
   return nppiThreshold_Val_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
@@ -1839,287 +1532,216 @@ NppStatus nppiThreshold_Val_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
 extern "C" NppStatus nppiCompare_16s_AC4R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_16s_AC4R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_16s_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompare_16s_C1R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_16s_C1R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 1 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_16s_C1R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompare_16s_C3R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_16s_C3R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_16s_C3R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompare_16s_C4R_impl(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_16s_C4R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp16s * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_16s_C4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompare_16u_AC4R_impl(const Npp16u * pSrc1, int nSrc1Step, const Npp16u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_16u_AC4R_Ctx(const Npp16u * pSrc1, int nSrc1Step, const Npp16u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_16u_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompare_32f_AC4R_impl(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_32f_AC4R_Ctx(const Npp32f * pSrc1, int nSrc1Step, const Npp32f * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_32f_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompare_8u_AC4R_impl(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompare_8u_AC4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompare_8u_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_16s_AC4R_impl(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_16s_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_16s_C3R_impl(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_16s_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_16s_C4R_impl(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp16s * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_16s_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_16u_AC4R_impl(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_16u_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_16u_C3R_impl(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_16u_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_16u_C4R_impl(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, const Npp16u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 2)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_16u_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_32f_AC4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_32f_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_32f_C3R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_32f_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_32f_C4R_impl(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_32f_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_8u_AC4R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_8u_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_8u_C3R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_8u_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
 extern "C" NppStatus nppiCompareC_8u_C4R_impl(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext);
 
 NppStatus nppiCompareC_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, const Npp8u * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx) {
+  if (tcBadOp(eComparisonOperation) != NPP_SUCCESS) return NPP_NO_ERROR;
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 1)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
-  if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareC_8u_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -2129,13 +1751,8 @@ NppStatus nppiCompareEqualEps_32f_AC4R_Ctx(const Npp32f * pSrc1, int nSrc1Step, 
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2145,13 +1762,8 @@ NppStatus nppiCompareEqualEps_32f_C1R_Ctx(const Npp32f * pSrc1, int nSrc1Step, c
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_C1R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2161,13 +1773,8 @@ NppStatus nppiCompareEqualEps_32f_C3R_Ctx(const Npp32f * pSrc1, int nSrc1Step, c
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_C3R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2177,13 +1784,8 @@ NppStatus nppiCompareEqualEps_32f_C4R_Ctx(const Npp32f * pSrc1, int nSrc1Step, c
   NppStatus s = tcNull((const void*)pSrc1); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pSrc2)) != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc1Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrc2Step)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc1Step, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrc2Step, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_C4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2192,11 +1794,8 @@ extern "C" NppStatus nppiCompareEqualEpsC_32f_AC4R_impl(const Npp32f * pSrc, int
 NppStatus nppiCompareEqualEpsC_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2205,11 +1804,8 @@ extern "C" NppStatus nppiCompareEqualEpsC_32f_C1R_impl(const Npp32f * pSrc, int 
 NppStatus nppiCompareEqualEpsC_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f nConstant, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 1 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_C1R_impl(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2218,11 +1814,8 @@ extern "C" NppStatus nppiCompareEqualEpsC_32f_C3R_impl(const Npp32f * pSrc, int 
 NppStatus nppiCompareEqualEpsC_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 3 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -2231,11 +1824,8 @@ extern "C" NppStatus nppiCompareEqualEpsC_32f_C4R_impl(const Npp32f * pSrc, int 
 NppStatus nppiCompareEqualEpsC_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp32f * pConstants, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, Npp32f nEpsilon, NppStreamContext nppStreamCtx) {
   NppStatus s = tcNull((const void*)pSrc); if (s != NPP_SUCCESS) return s;
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nSrcStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStep(nDstStep)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nSrcStep, oSizeROI.width * 4 * 4)) != NPP_SUCCESS) return s;
-  if ((s = tcStepMin(nDstStep, oSizeROI.width)) != NPP_SUCCESS) return s;
-  if (tcEmpty(oSizeROI)) return NPP_NO_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 

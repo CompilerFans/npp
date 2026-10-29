@@ -205,7 +205,7 @@ __global__ void kThresh(T* pDst, int nDstStep, const T* pSrc, int nSrcStep, int 
   const T* sr = (const T*)((const char*)pSrc + (size_t)y * nSrcStep);
   for (int c = 0; c < CH; ++c) {
     const int si = x * CH + c;
-    if (KEEP && c == 3) { dr[si] = sr[si]; continue; }
+    if (KEEP && c == 3) continue;  // AC4 alpha is left untouched
     const int ti = (CH == 1) ? 0 : c;
     const T sv = INPL ? dr[si] : sr[si];
     T out = sv;
@@ -238,7 +238,7 @@ inline NppStatus thRun(void* pDst, int nDstStep, const void* pSrc, int nSrcStep,
 // ---------------------------------------------------------------------------
 // Compare kernels (output is a single Npp8u mask per pixel)
 // ---------------------------------------------------------------------------
-template <typename T, int CH, int MODE>
+template <typename T, int CH, int MODE, bool EXCL>
 __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, int dStep,
                          int w, int h, CmpData<T> p) {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -248,7 +248,7 @@ __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, 
   const T* b = (const T*)((const char*)p2 + (size_t)y * s2);
   Npp8u* dr = (Npp8u*)((char*)pDst + (size_t)y * dStep);
   bool all = true;
-  for (int c = 0; c < CH; ++c) {
+  for (int c = 0; c < CH - (EXCL ? 1 : 0); ++c) {
     const T av = a[x * CH + c];
     const T bv = (MODE == 0 || MODE == 2) ? b[x * CH + c] : p.cst[c];
     const bool hit = (MODE == 2 || MODE == 3)
@@ -259,13 +259,13 @@ __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, 
   dr[x] = all ? (Npp8u)0xFF : (Npp8u)0;
 }
 
-template <typename T, int CH, int MODE>
+template <typename T, int CH, int MODE, bool EXCL = false>
 inline NppStatus cmpRun(const void* p1, int s1, const void* p2, int s2, void* pDst, int dStep,
                         int w, int h, CmpData<T> p, cudaStream_t st) {
   if (w <= 0 || h <= 0) return NPP_NO_ERROR;
   dim3 b(16, 16), g((unsigned)((w + 15) / 16), (unsigned)((h + 15) / 16));
   (void)cudaGetLastError();
-  kCompare<T, CH, MODE><<<g, b, 0, st>>>((const T*)p1, s1, (const T*)p2, s2, (Npp8u*)pDst, dStep, w, h, p);
+  kCompare<T, CH, MODE, EXCL><<<g, b, 0, st>>>((const T*)p1, s1, (const T*)p2, s2, (Npp8u*)pDst, dStep, w, h, p);
   return tcKernelStatus();
 }
 
@@ -348,11 +348,12 @@ def compare_ctx_info(rows):
         if mode in (1, 3):
             cst = "pConstants" if "pConstants" in loc else ("nConstant" if "nConstant" in loc else None)
         head, _ = cut_ctx(r["params"])
+        excl = lay == "AC4R" or lay == "AC4IR"  # compare never looks at the alpha element
         yield {
             "fn": r["fn"], "T": T, "dt": dt, "ch": ch, "mode": mode,
             "p1": p1, "p2": p2, "s1": s1, "s2": s2,
             "dst": dst, "dstep": dstep, "roi": roi,
-            "op": op, "eps": eps, "cst": cst, "params_head": head,
+            "op": op, "eps": eps, "cst": cst, "params_head": head, "excl": excl,
         }
 
 
@@ -371,9 +372,10 @@ def emit_compare_impl(i):
         else:
             for c in range(i["ch"]):
                 body.append("  p.cst[%d] = %s[%d];" % (c, i["cst"], c))
-    run = ("cmpRun<%s, %d, %d>((const void*)%s, %s, (const void*)%s, %s, (void*)%s, %s, "
+    run = ("cmpRun<%s, %d, %d, %s>((const void*)%s, %s, (const void*)%s, %s, (void*)%s, %s, "
            "%s.width, %s.height, p, nppStreamCtx.hStream)"
-           % (T, i["ch"], i["mode"], i["p1"], i["s1"], i["p2"], i["s2"], i["dst"], i["dstep"],
+           % (T, i["ch"], i["mode"], ("true" if i["excl"] else "false"),
+              i["p1"], i["s1"], i["p2"], i["s2"], i["dst"], i["dstep"],
               i["roi"], i["roi"]))
     body.append("  return %s;" % run)
     im = impl_name(i["fn"])
@@ -423,44 +425,29 @@ def arg_names(params):
 
 
 def validations_thresh(i, es):
-    ch = i["ch"]
-    need_s = "%s.width * %d * %d" % (i["roi"], ch, es)
-    need_d = need_s
     L = []
     L.append("  NppStatus s = tcNull((const void*)%s); if (s != NPP_SUCCESS) return s;" % i["src"])
     if i["dst"] != i["src"]:
         L.append("  if ((s = tcNull((const void*)%s)) != NPP_SUCCESS) return s;" % i["dst"])
-    L.append("  if ((s = tcStep(%s)) != NPP_SUCCESS) return s;" % i["sstep"])
-    if i["dstep"] != i["sstep"]:
-        L.append("  if ((s = tcStep(%s)) != NPP_SUCCESS) return s;" % i["dstep"])
-    L.append("  if ((s = tcStepMin(%s, %s)) != NPP_SUCCESS) return s;" % (i["sstep"], need_s))
-    if i["dstep"] != i["sstep"]:
-        L.append("  if ((s = tcStepMin(%s, %s)) != NPP_SUCCESS) return s;" % (i["dstep"], need_d))
-    L.append("  if (tcEmpty(%s)) return NPP_NO_ERROR;" % i["roi"])
+    L.append("  if (%s.width < 0 || %s.height < 0) return NPP_SIZE_ERROR;" % (i["roi"], i["roi"]))
+    L.append("  if (%s.width == 0 || %s.height == 0) return NPP_NO_ERROR;" % (i["roi"], i["roi"]))
     if i["op"]:
         L.append("  if ((s = tcBadOp(%s)) != NPP_SUCCESS) return s;" % i["op"])
     return L
 
 
 def validations_compare(i, es):
-    need = "%s.width * %d * %d" % (i["roi"], i["ch"], es)
-    need_d = "%s.width" % i["roi"]
+    # NPP does not validate eComparisonOperation for compare: an illegal value
+    # short-circuits to NPP_NO_ERROR before any pointer / ROI checks.
     L = []
+    if i["op"]:
+        L.append("  if (tcBadOp(%s) != NPP_SUCCESS) return NPP_NO_ERROR;" % i["op"])
     L.append("  NppStatus s = tcNull((const void*)%s); if (s != NPP_SUCCESS) return s;" % i["p1"])
     if i["p2"] != i["p1"]:
         L.append("  if ((s = tcNull((const void*)%s)) != NPP_SUCCESS) return s;" % i["p2"])
     L.append("  if ((s = tcNull((const void*)%s)) != NPP_SUCCESS) return s;" % i["dst"])
-    L.append("  if ((s = tcStep(%s)) != NPP_SUCCESS) return s;" % i["s1"])
-    if i["s2"] != i["s1"]:
-        L.append("  if ((s = tcStep(%s)) != NPP_SUCCESS) return s;" % i["s2"])
-    L.append("  if ((s = tcStep(%s)) != NPP_SUCCESS) return s;" % i["dstep"])
-    L.append("  if ((s = tcStepMin(%s, %s)) != NPP_SUCCESS) return s;" % (i["s1"], need))
-    if i["s2"] != i["s1"]:
-        L.append("  if ((s = tcStepMin(%s, %s)) != NPP_SUCCESS) return s;" % (i["s2"], need))
-    L.append("  if ((s = tcStepMin(%s, %s)) != NPP_SUCCESS) return s;" % (i["dstep"], need_d))
-    L.append("  if (tcEmpty(%s)) return NPP_NO_ERROR;" % i["roi"])
-    if i["op"]:
-        L.append("  if ((s = tcBadOp(%s)) != NPP_SUCCESS) return s;" % i["op"])
+    L.append("  if (%s.width < 0 || %s.height < 0) return NPP_SIZE_ERROR;" % (i["roi"], i["roi"]))
+    L.append("  if (%s.width == 0 || %s.height == 0) return NPP_NO_ERROR;" % (i["roi"], i["roi"]))
     return L
 
 
