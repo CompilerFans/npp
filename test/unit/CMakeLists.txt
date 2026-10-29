@@ -74,7 +74,10 @@ endif()
 file(GLOB_RECURSE REF_TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/ref/test_*_generated.cpp
 )
-if(REF_TEST_SOURCES)
+# Reference tests call every public API, including ones MPP does not implement
+# yet, so they only link against the NVIDIA NPP reference build.  Enable them
+# for MPP once the implementation coverage is complete.
+if(USE_NVIDIA_NPP AND REF_TEST_SOURCES)
     npp_create_test_target(ref_tests "${REF_TEST_SOURCES}" npp)
     target_include_directories(ref_tests
         PRIVATE
