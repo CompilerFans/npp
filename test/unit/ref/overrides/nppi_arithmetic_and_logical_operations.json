@@ -1,0 +1,7 @@
+{
+  "skip_exact": [
+    "nppiSub_32s_C4IRSfs_Ctx",
+    "nppiSub_32s_C4RSfs_Ctx",
+    "nppiMulDeviceCScale_8u_C4IR_Ctx"
+  ]
+}

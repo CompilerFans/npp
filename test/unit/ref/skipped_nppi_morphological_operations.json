@@ -1,0 +1,602 @@
+[
+  {
+    "function": "nppiDilate3x3Border_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3Border_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_64f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate3x3_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilateBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDilate_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3Border_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_64f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode3x3_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErodeBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiErode_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGrayDilateBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGrayDilateBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGrayErodeBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGrayErodeBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphBlackHatBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphCloseBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGetBufferSize_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphGradientBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphOpenBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMorphTopHatBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  }
+]
