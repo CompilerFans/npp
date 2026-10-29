@@ -1,0 +1,154 @@
+[
+  {
+    "function": "nppsCopy_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCopy_64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pSrc)"
+  },
+  {
+    "function": "nppsCopy_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_64sc_Ctx",
+    "reason": "unsupported scalar type Npp64sc (nValue)"
+  },
+  {
+    "function": "nppsSet_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSet_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZero_64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pDst)"
+  },
+  {
+    "function": "nppsZero_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  }
+]

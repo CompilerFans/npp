@@ -1,0 +1,1754 @@
+[
+  {
+    "function": "nppsAverageErrorGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageErrorGetBufferSize_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pSrc1)"
+  },
+  {
+    "function": "nppsAverageError_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageError_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeErrorGetBufferSize_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pSrc1)"
+  },
+  {
+    "function": "nppsAverageRelativeError_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsAverageRelativeError_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCountInRangeGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCountInRange_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsCountInRange_32s_Ctx",
+    "reason": "unknown pointer role pCounts"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s16sc32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s16sc32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s16sc64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s32s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16sc32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16sc32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16sc64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32f32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32f32fc64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32f64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32fc64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32s32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_64f64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProdGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s16sc32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s16sc32fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s16sc32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s16sc32sc_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s16sc64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s16sc64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pDp)"
+  },
+  {
+    "function": "nppsDotProd_16s16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s16sc_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s32f_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s32s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s32s32s_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s32s_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s64s_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16s_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16sc32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16sc32fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16sc32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16sc32sc_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_16sc64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16sc64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pDp)"
+  },
+  {
+    "function": "nppsDotProd_16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_16sc_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32f32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32f32fc64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32f32fc64fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32f32fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32f64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32f64f_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32f_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32fc64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32fc64fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32s32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32s32sc_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32s_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_32sc_Sfs_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_64f64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_64f64fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_64f_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsDotProd_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsDotProd_64fc_Ctx",
+    "reason": "unknown pointer role pDp"
+  },
+  {
+    "function": "nppsMaxAbsGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbsGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbsIndxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbsIndxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbsIndx_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbsIndx_16s_Ctx",
+    "reason": "unknown pointer role pMaxAbs"
+  },
+  {
+    "function": "nppsMaxAbsIndx_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbsIndx_32s_Ctx",
+    "reason": "unknown pointer role pMaxAbs"
+  },
+  {
+    "function": "nppsMaxAbs_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbs_16s_Ctx",
+    "reason": "unknown pointer role pMaxAbs"
+  },
+  {
+    "function": "nppsMaxAbs_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxAbs_32s_Ctx",
+    "reason": "unknown pointer role pMaxAbs"
+  },
+  {
+    "function": "nppsMaxEvery_16s_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxEvery_16u_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxEvery_32f_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxEvery_32s_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxEvery_8u_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndxGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndxGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndx_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndx_16s_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMaxIndx_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndx_32f_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMaxIndx_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndx_32s_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMaxIndx_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaxIndx_64f_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMax_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMax_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMax_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMax_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumErrorGetBufferSize_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pSrc1)"
+  },
+  {
+    "function": "nppsMaximumError_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumError_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeErrorGetBufferSize_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_16sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_32sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_64s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_64sc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_64sc_Ctx",
+    "reason": "unsupported pointer type Npp64sc (pSrc1)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_8s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMaximumRelativeError_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDevGetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDevGetBufferSize_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDevGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDevGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDev_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDev_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDev_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMeanStdDev_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMean_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsIndxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsIndxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsIndx_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsIndx_16s_Ctx",
+    "reason": "unknown pointer role pMinAbs"
+  },
+  {
+    "function": "nppsMinAbsIndx_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbsIndx_32s_Ctx",
+    "reason": "unknown pointer role pMinAbs"
+  },
+  {
+    "function": "nppsMinAbs_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbs_16s_Ctx",
+    "reason": "unknown pointer role pMinAbs"
+  },
+  {
+    "function": "nppsMinAbs_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinAbs_32s_Ctx",
+    "reason": "unknown pointer role pMinAbs"
+  },
+  {
+    "function": "nppsMinEvery_16s_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinEvery_16u_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinEvery_32f_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinEvery_32s_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinEvery_64f_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinEvery_8u_I",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndxGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndxGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndx_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndx_16s_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMinIndx_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndx_32f_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMinIndx_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndx_32s_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMinIndx_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinIndx_64f_Ctx",
+    "reason": "unknown pointer role pIndx"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxGetBufferSize_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndxGetBufferSize_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_16s_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMaxIndx_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_16u_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMaxIndx_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_32f_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMaxIndx_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_32s_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMaxIndx_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_32u_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMaxIndx_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_64f_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMaxIndx_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMaxIndx_8u_Ctx",
+    "reason": "unknown pointer role pMinIndx"
+  },
+  {
+    "function": "nppsMinMax_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMax_16u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMax_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMax_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMax_32u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMax_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMinMax_8u",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMin_16s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMin_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMin_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsMin_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffInfGetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffInfGetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffInfGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffInfGetBufferSize_32fc32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffInfGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffInfGetBufferSize_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL1GetBufferSize_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2GetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2GetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2GetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2GetBufferSize_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2GetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2GetBufferSize_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiffL2SqrGetBufferSize_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_Inf_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_Inf_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_Inf_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_Inf_32fc32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_Inf_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_Inf_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L1_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2Sqr_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormDiff_L2_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormInfGetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormInfGetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormInfGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormInfGetBufferSize_32fc32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormInfGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormInfGetBufferSize_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL1GetBufferSize_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2GetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2GetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2GetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2GetBufferSize_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2GetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2GetBufferSize_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNormL2SqrGetBufferSize_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_Inf_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_Inf_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_Inf_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_Inf_32fc32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_Inf_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_Inf_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L1_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2Sqr_16s64s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2_32fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsNorm_L2_64fc64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDevGetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDevGetBufferSize_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDevGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDevGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDev_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDev_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDev_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsStdDev_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_16sc32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSumGetBufferSize_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_16s32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_16s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_16sc32sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_16sc_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_32fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_32s_Sfs",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_64f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsSum_64fc",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZeroCrossingGetBufferSize_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZeroCrossingGetBufferSize_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZeroCrossing_16s32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZeroCrossing_16s32f_Ctx",
+    "reason": "unknown pointer role pValZC"
+  },
+  {
+    "function": "nppsZeroCrossing_32f",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsZeroCrossing_32f_Ctx",
+    "reason": "unknown pointer role pValZC"
+  }
+]
