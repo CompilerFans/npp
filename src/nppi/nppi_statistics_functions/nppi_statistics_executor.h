@@ -81,12 +81,35 @@ NppStatus runMeanStdDevMaskedCoi(const DType *pSrc, int nSrcStep, const Npp8u *p
                                  int nCOI, Npp8u *pDeviceBuffer, Npp64f *pMean, Npp64f *pStdDev, cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
+// Min / Max / MinMax
+// ---------------------------------------------------------------------------
+
+// out = per-channel minimum of the ROI.  Channels = packed channels per pixel;
+// AlphaPreserve selects AC4 (reduces Channels-1, output holds those values).
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runMin(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pMin,
+                 cudaStream_t stream);
+
+// out = per-channel maximum of the ROI.
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pMax,
+                 cudaStream_t stream);
+
+// out = per-channel (min, max) pair of the ROI.
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runMinMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pMin, D *pMax,
+                    cudaStream_t stream);
+
+// ---------------------------------------------------------------------------
 // Buffer-size helpers (host side; the stream context is not needed).
 // ---------------------------------------------------------------------------
 
 NppStatus sumGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus meanGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus meanStdDevGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus minGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus maxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus minMaxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 
 }  // namespace statistics
 }  // namespace nppi

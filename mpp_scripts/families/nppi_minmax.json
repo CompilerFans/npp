@@ -1,0 +1,14 @@
+{
+  "family": "nppiMinMax",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_minmax_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiMinMax", "nppiMinMaxGetBufferHostSize"],
+  "call_by_family": {
+     "nppiMinMaxGetBufferHostSize": "nppi::statistics::minMaxGetBufferHostSize(oSizeROI, hpBufferSize)"
+  },
+  "call_variants": [
+     {"contains": "aMin", "call": "nppi::statistics::runMinMax<{dtype},{chan},{is_ac4}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, aMin, aMax, nppStreamCtx.hStream)"}
+  ],
+  "call": "nppi::statistics::runMinMax<{dtype},{chan},{is_ac4}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMin, pMax, nppStreamCtx.hStream)"
+}
