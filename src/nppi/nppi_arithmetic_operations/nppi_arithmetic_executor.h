@@ -127,6 +127,200 @@ __global__ void compareKernel(const T *pSrc, int nSrcStep, Npp8u *pDst, int nDst
   }
 }
 
+template <typename T, int Count> struct KernelConstantPack { T values[Count]; };
+
+template <typename T, int Count> inline KernelConstantPack<T, Count> makeKernelConstantPack(const T *constants) {
+  KernelConstantPack<T, Count> packed{};
+  for (int i = 0; i < Count; ++i) {
+    packed.values[i] = constants[i];
+  }
+  return packed;
+}
+
+// Select constants.values[ch] using only static indices. A dynamic index into
+// a by-value kernel parameter forces the compiler to spill the pack to local
+// memory; predicated selection keeps the constants in registers.
+template <typename T, int Count>
+__device__ __forceinline__ T pickChannelConst(const KernelConstantPack<T, Count> &k, int ch) {
+  T v = k.values[0];
+#pragma unroll
+  for (int c = 1; c < Count; ++c) {
+    if (ch == c) v = k.values[c];
+  }
+  return v;
+}
+
+// ============================================================================
+// 128-bit Vectorized Element-wise Kernels (package opt_elem)
+// ============================================================================
+// The binary / unary / constant / compare kernels above are purely
+// element-wise: destination row element g depends only on source row element
+// g, independent of channel boundaries (for the per-channel constant kernel
+// the functor depends on g % Channels). When the base pointers are 16B
+// aligned and all row steps are multiples of 16 bytes -- checked by the
+// executors before launch -- each row is moved in uint4 packets of
+// vecElemsPerPacket<T>() elements. A partial trailing packet is processed
+// element-wise by its owning thread. The op functors are invoked exactly as
+// in the scalar kernels, so results are bit-identical; misaligned inputs
+// keep using the scalar kernels above.
+
+namespace vec {
+
+// One 16-byte packet reinterpreted as E elements of T. Moved to the shared
+// npp_kernel_utils.h header (package opt_elem) so the npps element-wise and
+// nppi copy executors reuse the same definition.
+using npp_kernel::vec::Packet;
+
+} // namespace vec
+
+// Vectorized binary kernel: dst = op(src1, src2) element-wise.
+//
+// Index-math note: the launching executors only take the vectorized path when
+// packets * height fits in 31 bits, so the whole grid-stride walk is done in
+// unsigned (32-bit) arithmetic. A 64-bit variant of this loop costs a 64-bit
+// divide per stride step on MXC600 and measured ~30% slower for large 3-channel
+// in-place workloads.
+template <typename T, int Channels, typename BinaryOp>
+__global__ void binaryKernelVec(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,
+                                int width, int height, BinaryOp op, int scaleFactor) {
+  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+  static_assert(E > 0, "element size must divide the 16-byte packet size");
+  const int rowElems = width * Channels;
+  const unsigned packets = (unsigned)((rowElems + E - 1) / E); // includes a possible partial packet
+  const unsigned total = packets * (unsigned)height;
+
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
+    const unsigned y = i / packets;
+    const unsigned base = (i - y * packets) * (unsigned)E;
+    const T *src1Row = getSrcRow(pSrc1, (int)y, nSrc1Step);
+    const T *src2Row = getSrcRow(pSrc2, (int)y, nSrc2Step);
+    T *dstRow = getDstRow(pDst, (int)y, nDstStep);
+
+    if (base + (unsigned)E <= (unsigned)rowElems) {
+      vec::Packet<T, E> a, b, o;
+      a.raw = *reinterpret_cast<const uint4 *>(src1Row + base);
+      b.raw = *reinterpret_cast<const uint4 *>(src2Row + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        o.elem[e] = op(a.elem[e], b.elem[e], scaleFactor);
+      *reinterpret_cast<uint4 *>(dstRow + base) = o.raw;
+    } else {
+      for (unsigned g = base; g < (unsigned)rowElems; ++g)
+        dstRow[g] = op(src1Row[g], src2Row[g], scaleFactor);
+    }
+  }
+}
+
+// Vectorized unary kernel: dst = op(src) element-wise (also used by the
+// single-constant ConstOperationExecutor, which passes a bound functor).
+template <typename T, int Channels, typename UnaryOp>
+__global__ void unaryKernelVec(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height, UnaryOp op,
+                               int scaleFactor) {
+  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+  static_assert(E > 0, "element size must divide the 16-byte packet size");
+  const int rowElems = width * Channels;
+  const unsigned packets = (unsigned)((rowElems + E - 1) / E);
+  const unsigned total = packets * (unsigned)height;
+
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
+    const unsigned y = i / packets;
+    const unsigned base = (i - y * packets) * (unsigned)E;
+    const T *srcRow = getSrcRow(pSrc, (int)y, nSrcStep);
+    T *dstRow = getDstRow(pDst, (int)y, nDstStep);
+
+    if (base + (unsigned)E <= (unsigned)rowElems) {
+      vec::Packet<T, E> a, o;
+      a.raw = *reinterpret_cast<const uint4 *>(srcRow + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        o.elem[e] = op(a.elem[e], T{}, scaleFactor);
+      *reinterpret_cast<uint4 *>(dstRow + base) = o.raw;
+    } else {
+      for (unsigned g = base; g < (unsigned)rowElems; ++g)
+        dstRow[g] = op(srcRow[g], T{}, scaleFactor);
+    }
+  }
+}
+
+// Vectorized per-channel constant kernel: dst = op_c(src), c = g % Channels.
+template <typename T, int Channels, typename ConstOpType>
+__global__ void multiConstKernelVec(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height,
+                                    KernelConstantPack<T, Channels> constants, int scaleFactor) {
+  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+  static_assert(E > 0, "element size must divide the 16-byte packet size");
+  const int rowElems = width * Channels;
+  const unsigned packets = (unsigned)((rowElems + E - 1) / E);
+  const unsigned total = packets * (unsigned)height;
+
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
+    const unsigned y = i / packets;
+    const unsigned base = (i - y * packets) * (unsigned)E;
+    const T *srcRow = getSrcRow(pSrc, (int)y, nSrcStep);
+    T *dstRow = getDstRow(pDst, (int)y, nDstStep);
+
+    // Channel index of the first element in this packet. base is a multiple
+    // of E, so when Channels divides E the channel index is statically 0 and
+    // the per-element picks fold to constants after unrolling; otherwise one
+    // modulo per packet is paid and the index advances with a conditional
+    // wrap-around inside the unrolled loop.
+    int ch;
+    if constexpr (E % Channels == 0)
+      ch = 0;
+    else
+      ch = (int)(base % (unsigned)Channels);
+
+    if (base + (unsigned)E <= (unsigned)rowElems) {
+      vec::Packet<T, E> a, o;
+      a.raw = *reinterpret_cast<const uint4 *>(srcRow + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e) {
+        ConstOpType op(pickChannelConst<T, Channels>(constants, ch));
+        o.elem[e] = op(a.elem[e], T{}, scaleFactor);
+        if (++ch == Channels) ch = 0;
+      }
+      *reinterpret_cast<uint4 *>(dstRow + base) = o.raw;
+    } else {
+      for (unsigned g = base; g < (unsigned)rowElems; ++g) {
+        ConstOpType op(pickChannelConst<T, Channels>(constants, ch));
+        dstRow[g] = op(srcRow[g], T{}, scaleFactor);
+        if (++ch == Channels) ch = 0;
+      }
+    }
+  }
+}
+
+// Vectorized compare kernel: Npp8u dst = op(src) element-wise (one result
+// byte per source element, as in the scalar kernel).
+template <typename T, int Channels, typename CompareOp>
+__global__ void compareKernelVec(const T *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width, int height,
+                                 CompareOp op) {
+  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+  static_assert(E > 0 && E <= 16, "element size must divide the 16-byte packet size");
+  const int rowElems = width * Channels; // source elements == result bytes per row
+  const unsigned packets = (unsigned)((rowElems + E - 1) / E);
+  const unsigned total = packets * (unsigned)height;
+
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
+    const unsigned y = i / packets;
+    const unsigned base = (i - y * packets) * (unsigned)E;
+    const T *srcRow = getSrcRow(pSrc, (int)y, nSrcStep);
+    Npp8u *dstRow = getDstRow(pDst, (int)y, nDstStep);
+
+    if (base + (unsigned)E <= (unsigned)rowElems) {
+      vec::Packet<T, E> a;
+      vec::Packet<Npp8u, E> o;
+      a.raw = *reinterpret_cast<const uint4 *>(srcRow + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        o.elem[e] = op(a.elem[e]);
+      *reinterpret_cast<uint4 *>(dstRow + base) = o.raw;
+    } else {
+      for (unsigned g = base; g < (unsigned)rowElems; ++g)
+        dstRow[g] = op(srcRow[g]);
+    }
+  }
+}
+
 template <typename T, int Channels, typename TernaryOp>
 __global__ void ternaryKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, const T *pSrc3,
                               int nSrc3Step, T *pDst, int nDstStep, int width, int height, TernaryOp op,
@@ -165,12 +359,24 @@ public:
     if (oSizeROI.width == 0 || oSizeROI.height == 0)
       return NPP_NO_ERROR;
 
-    // Launch kernel
-    dim3 block = BlockConfig::blockSize();
-    dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+    // Launch kernel: 128-bit vectorized path when the layout allows it,
+    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // use 32-bit index arithmetic, so only take the path when the packet
+    // count fits in 31 bits.
     OpType op;
-    binaryKernel<T, Channels, OpType><<<grid, block, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
-                                                                  oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+    const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, Channels, oSizeROI.height);
+    if (npp_kernel::vecAligned3(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep) &&
+        (size_t)oSizeROI.width * Channels >= (size_t)E && vecPackets < ((size_t)1 << 31)) {
+      const dim3 grid(npp_kernel::vecGridSize(vecPackets));
+      binaryKernelVec<T, Channels, OpType><<<grid, npp_kernel::kVecBlock, 0, stream>>>(
+          pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    } else {
+      dim3 block = BlockConfig::blockSize();
+      dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+      binaryKernel<T, Channels, OpType><<<grid, block, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep,
+                                                                    oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    }
 
     return checkCudaKernelError();
   }
@@ -187,12 +393,25 @@ public:
     if (oSizeROI.width == 0 || oSizeROI.height == 0)
       return NPP_NO_ERROR;
 
-    // Launch kernel
-    dim3 block = BlockConfig::blockSize();
-    dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+    // Launch kernel: 128-bit vectorized path when the layout allows it,
+    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // use 32-bit index arithmetic, so only take the path when the packet
+    // count fits in 31 bits.
     OpType op;
-    unaryKernel<T, Channels, OpType>
-        <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+    const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, Channels, oSizeROI.height);
+    if (npp_kernel::vecAligned2(pSrc, nSrcStep, pDst, nDstStep) &&
+        (size_t)oSizeROI.width * Channels >= (size_t)E && vecPackets < ((size_t)1 << 31)) {
+      const dim3 grid(npp_kernel::vecGridSize(vecPackets));
+      unaryKernelVec<T, Channels, OpType><<<grid, npp_kernel::kVecBlock, 0, stream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    } else {
+      dim3 block = BlockConfig::blockSize();
+      dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+      unaryKernel<T, Channels, OpType>
+          <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op,
+                                       scaleFactor);
+    }
 
     return checkCudaKernelError();
   }
@@ -255,25 +474,28 @@ public:
     if (oSizeROI.width == 0 || oSizeROI.height == 0)
       return NPP_NO_ERROR;
 
-    // Launch kernel
-    dim3 block = BlockConfig::blockSize();
-    dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
-    unaryKernel<T, Channels, ConstOpType>
-        <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    // Launch kernel: 128-bit vectorized path when the layout allows it,
+    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // use 32-bit index arithmetic, so only take the path when the packet
+    // count fits in 31 bits.
+    constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+    const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, Channels, oSizeROI.height);
+    if (npp_kernel::vecAligned2(pSrc, nSrcStep, pDst, nDstStep) &&
+        (size_t)oSizeROI.width * Channels >= (size_t)E && vecPackets < ((size_t)1 << 31)) {
+      const dim3 grid(npp_kernel::vecGridSize(vecPackets));
+      unaryKernelVec<T, Channels, ConstOpType><<<grid, npp_kernel::kVecBlock, 0, stream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, scaleFactor);
+    } else {
+      dim3 block = BlockConfig::blockSize();
+      dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+      unaryKernel<T, Channels, ConstOpType>
+          <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op,
+                                       scaleFactor);
+    }
 
     return checkCudaKernelError();
   }
 };
-
-template <typename T, int Count> struct KernelConstantPack { T values[Count]; };
-
-template <typename T, int Count> inline KernelConstantPack<T, Count> makeKernelConstantPack(const T *constants) {
-  KernelConstantPack<T, Count> packed{};
-  for (int i = 0; i < Count; ++i) {
-    packed.values[i] = constants[i];
-  }
-  return packed;
-}
 
 // Multi-channel constant kernel
 template <typename T, int Channels, typename ConstOpType>
@@ -356,11 +578,23 @@ public:
 
     const auto packedConstants = makeKernelConstantPack<T, Channels>(constants);
 
-    // Launch kernel
-    dim3 block = BlockConfig::blockSize();
-    dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
-    multiConstKernel<T, Channels, ConstOpType><<<grid, block, 0, stream>>>(
-        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, packedConstants, scaleFactor);
+    // Launch kernel: 128-bit vectorized path when the layout allows it,
+    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // use 32-bit index arithmetic, so only take the path when the packet
+    // count fits in 31 bits.
+    constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+    const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, Channels, oSizeROI.height);
+    if (npp_kernel::vecAligned2(pSrc, nSrcStep, pDst, nDstStep) &&
+        (size_t)oSizeROI.width * Channels >= (size_t)E && vecPackets < ((size_t)1 << 31)) {
+      const dim3 grid(npp_kernel::vecGridSize(vecPackets));
+      multiConstKernelVec<T, Channels, ConstOpType><<<grid, npp_kernel::kVecBlock, 0, stream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, packedConstants, scaleFactor);
+    } else {
+      dim3 block = BlockConfig::blockSize();
+      dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+      multiConstKernel<T, Channels, ConstOpType><<<grid, block, 0, stream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, packedConstants, scaleFactor);
+    }
 
     return checkCudaKernelError();
   }
@@ -413,11 +647,23 @@ public:
       return NPP_STRIDE_ERROR;
     }
 
-    // Launch kernel
-    dim3 block = BlockConfig::blockSize();
-    dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
-    compareKernel<T, Channels, CompareOpType>
-        <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+    // Launch kernel: 128-bit vectorized path when the layout allows it,
+    // scalar fallback otherwise (package opt_elem). The vectorized kernels
+    // use 32-bit index arithmetic, so only take the path when the packet
+    // count fits in 31 bits.
+    constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+    const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, Channels, oSizeROI.height);
+    if (npp_kernel::vecAligned2(pSrc, nSrcStep, pDst, nDstStep) &&
+        (size_t)oSizeROI.width * Channels >= (size_t)E && vecPackets < ((size_t)1 << 31)) {
+      const dim3 grid(npp_kernel::vecGridSize(vecPackets));
+      compareKernelVec<T, Channels, CompareOpType><<<grid, npp_kernel::kVecBlock, 0, stream>>>(
+          pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+    } else {
+      dim3 block = BlockConfig::blockSize();
+      dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+      compareKernel<T, Channels, CompareOpType>
+          <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, op);
+    }
 
     return checkCudaKernelError();
   }

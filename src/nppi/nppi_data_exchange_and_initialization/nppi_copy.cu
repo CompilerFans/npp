@@ -1,6 +1,7 @@
 #include "npp.h"
 #include <cstdint>
 #include <cuda_runtime.h>
+#include "npp_kernel_utils.h"
 
 // Generic multi-channel copy kernel template
 template <typename T, int CHANNELS>
@@ -20,19 +21,35 @@ __global__ void nppiCopy_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstSt
   }
 }
 
-// Optimized vectorized kernel for 8u_C4
-__global__ void nppiCopy_8u_C4R_vectorized_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int width,
-                                                  int height) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+// 128-bit flat copy kernel (package opt_elem): each thread moves one uint4
+// packet of vecElemsPerPacket<T>() elements; a trailing partial packet is
+// finished element-wise by its owning thread, so ROIs whose row is not a
+// multiple of the packet size stay correct. A copy is channel-agnostic, so
+// the same kernel serves every packed-pixel C1/C3/C4 variant. Index math is
+// 32-bit; nppiCopy_impl only launches this kernel when the packet count
+// fits in 31 bits (2^31 packets is 32 GiB of traffic, so the guard never
+// fires in practice).
+template <typename T, int CHANNELS>
+__global__ void nppiCopy_kernel_vec(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height) {
+  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+  static_assert(E > 0, "element size must divide the 16-byte packet size");
+  const int rowElems = width * CHANNELS;
+  const unsigned packets = (unsigned)((rowElems + E - 1) / E); // includes a possible partial packet
+  const unsigned total = packets * (unsigned)height;
 
-  if (x >= width || y >= height)
-    return;
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
+    const unsigned y = i / packets;
+    const unsigned base = (i - y * packets) * (unsigned)E;
+    const T *src_row = (const T *)((const char *)pSrc + (size_t)y * nSrcStep);
+    T *dst_row = (T *)((char *)pDst + (size_t)y * nDstStep);
 
-  const uint32_t *src_row = (const uint32_t *)((const char *)pSrc + y * nSrcStep);
-  uint32_t *dst_row = (uint32_t *)((char *)pDst + y * nDstStep);
-
-  dst_row[x] = src_row[x];
+    if (base + (unsigned)E <= (unsigned)rowElems) {
+      *reinterpret_cast<uint4 *>(dst_row + base) = *reinterpret_cast<const uint4 *>(src_row + base);
+    } else {
+      for (unsigned g = base; g < (unsigned)rowElems; ++g)
+        dst_row[g] = src_row[g];
+    }
+  }
 }
 
 // Ultra-optimized C3P3R: process 8 pixels per thread for max throughput
@@ -252,11 +269,25 @@ __global__ void nppiCopy_PxCxR_kernel(NppiCopyPointers<T, CHANNELS> pSrc, int nS
 template <typename T, int CHANNELS>
 NppStatus nppiCopy_impl(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
                         NppStreamContext nppStreamCtx) {
-  dim3 blockSize(16, 16);
-  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  // 128-bit vectorized flat copy when the layout permits 16-byte accesses
+  // (base pointers 16B-aligned, row steps multiples of 16 bytes, at least one
+  // full packet per row, packet count fits in 31 bits); scalar
+  // one-pixel-per-thread kernel otherwise (package opt_elem). Both kernels
+  // copy exactly width*CHANNELS elements per row, so results are identical.
+  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
+  const size_t vecPackets = npp_kernel::vecPacketCount<T>(oSizeROI.width, CHANNELS, oSizeROI.height);
+  if (npp_kernel::vecAligned2(pSrc, nSrcStep, pDst, nDstStep) &&
+      (size_t)oSizeROI.width * CHANNELS >= (size_t)E && vecPackets < ((size_t)1 << 31)) {
+    const dim3 grid(npp_kernel::vecGridSize(vecPackets));
+    nppiCopy_kernel_vec<T, CHANNELS><<<grid, npp_kernel::kVecBlock, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  } else {
+    dim3 blockSize(16, 16);
+    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
-  nppiCopy_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
-                                                                                 oSizeROI.width, oSizeROI.height);
+    nppiCopy_kernel<T, CHANNELS><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(pSrc, nSrcStep, pDst, nDstStep,
+                                                                                   oSizeROI.width, oSizeROI.height);
+  }
 
   cudaError_t cudaStatus = cudaGetLastError();
   if (cudaStatus != cudaSuccess) {
@@ -281,20 +312,11 @@ NppStatus nppiCopy_8u_C3R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst,
 
 NppStatus nppiCopy_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                    NppStreamContext nppStreamCtx) {
-  if (oSizeROI.width % 4 == 0 && nSrcStep % 4 == 0 && nDstStep % 4 == 0) {
-    dim3 blockSize(16, 16);
-    dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
-    nppiCopy_8u_C4R_vectorized_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
-  } else {
-    return nppiCopy_impl<Npp8u, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
-  }
-
-  cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-  return NPP_SUCCESS;
+  // The old special case used 32-bit accesses (one pixel per thread) and did
+  // not check base-pointer alignment; the generic impl now dispatches to the
+  // 128-bit flat copy kernel with a checked alignment condition and a scalar
+  // fallback (package opt_elem), which subsumes it.
+  return nppiCopy_impl<Npp8u, 4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
 }
 
 // Explicit instantiations for 16u

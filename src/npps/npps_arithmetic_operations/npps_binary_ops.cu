@@ -15,7 +15,8 @@ NppStatus binary(const A* a, const B* b, D* d, NppSignalLength nLength, int nSca
   const size_t grid = (n + detail::kBlock - 1) / detail::kBlock;
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
-  binary_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, op, nScaleFactor);
+  if (!detail::launchVecBinary(a, b, d, n, op, nScaleFactor, stream))
+    binary_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, op, nScaleFactor);
   return detail::checkCudaKernelError();
 }
 
@@ -28,7 +29,8 @@ NppStatus binaryInplace(const A* a, D* d, NppSignalLength nLength, int nScaleFac
   const size_t grid = (n + detail::kBlock - 1) / detail::kBlock;
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
-  binary_inplace_kernel<A, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, d, nLength, op, nScaleFactor);
+  if (!detail::launchVecInplace(a, d, n, op, nScaleFactor, stream))
+    binary_inplace_kernel<A, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, d, nLength, op, nScaleFactor);
   return detail::checkCudaKernelError();
 }
 
@@ -41,7 +43,8 @@ NppStatus binaryAccum(const A* a, const B* b, D* d, NppSignalLength nLength, int
   const size_t grid = (n + detail::kBlock - 1) / detail::kBlock;
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
-  binary_accum_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, op, nScaleFactor);
+  if (!detail::launchVecAccum(a, b, d, n, op, nScaleFactor, stream))
+    binary_accum_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, op, nScaleFactor);
   return detail::checkCudaKernelError();
 }
 
@@ -54,7 +57,8 @@ NppStatus binaryRound(const A* a, const B* b, D* d, NppSignalLength nLength, Npp
   const size_t grid = (n + detail::kBlock - 1) / detail::kBlock;
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
-  binary_round_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, nRndMode, op, nScaleFactor);
+  if (!detail::launchVecRound(a, b, d, n, nRndMode, op, nScaleFactor, stream))
+    binary_round_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, nRndMode, op, nScaleFactor);
   return detail::checkCudaKernelError();
 }
 
@@ -67,7 +71,8 @@ NppStatus binaryRoundInplace(const A* a, D* d, NppSignalLength nLength, NppRound
   const size_t grid = (n + detail::kBlock - 1) / detail::kBlock;
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
-  binary_inplace_round_kernel<A, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, d, nLength, nRndMode, op, nScaleFactor);
+  if (!detail::launchVecRoundInplace(a, d, n, nRndMode, op, nScaleFactor, stream))
+    binary_inplace_round_kernel<A, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, d, nLength, nRndMode, op, nScaleFactor);
   return detail::checkCudaKernelError();
 }
 
