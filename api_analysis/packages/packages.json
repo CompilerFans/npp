@@ -148,5 +148,17 @@
       "nppiMean_StdDev",
       "nppiMeanStdDevGetBufferHostSize"
     ]
+  },
+  "p3.1a2": {
+    "title": "NPPI reductions: Min/Max/MinMax + buffers",
+    "module": "nppi_statistics_functions.h",
+    "families": [
+      "nppiMin",
+      "nppiMinGetBufferHostSize",
+      "nppiMax",
+      "nppiMaxGetBufferHostSize",
+      "nppiMinMax",
+      "nppiMinMaxGetBufferHostSize"
+    ]
   }
 }
