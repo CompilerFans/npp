@@ -168,8 +168,37 @@ NppStatus runNormDiffMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, in
                                cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
-// Buffer-size helpers (host side; the stream context is not needed).
+// NormRel (L1 / L2 / Inf): relative error norm between two images.
+//   NormRel = norm(pSrc1 - pSrc2) / norm(pSrc2)   (per channel).
 // ---------------------------------------------------------------------------
+
+// out = per-channel ratio of the norm of (pSrc1 - pSrc2) to the norm of pSrc2.
+template <NormType NT, typename D, int Channels, bool AlphaPreserve>
+NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                     Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream);
+
+// Single-channel NormRel with a mask (C1MR).  Both numerator and denominator
+// are reduced over the valid (mask != 0) pixels only.
+template <NormType NT, typename D>
+NppStatus runNormRelMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                           int nMaskStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
+                           cudaStream_t stream);
+
+// Three-channel NormRel restricted to one channel by nCOI, with a mask (C3CMR).
+template <NormType NT, typename D>
+NppStatus runNormRelMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                              int nMaskStep, NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
+                              cudaStream_t stream);
+
+// ---------------------------------------------------------------------------
+// DotProd: out = sum over the ROI of pSrc1 * pSrc2 (per channel, Npp64f).
+// ---------------------------------------------------------------------------
+// Channels = packed channels per pixel; AlphaPreserve selects AC4 (reduces
+// Channels-1, output holds those values).  A single scalar (C1R) or a per
+// channel array (C3/C4/AC4) is written to *pDp.
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                     Npp8u *pDeviceBuffer, Npp64f *pDp, cudaStream_t stream);
 
 NppStatus sumGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus meanGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
@@ -187,6 +216,13 @@ NppStatus normInfGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus normDiffL1GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus normDiffL2GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus normDiffInfGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normRelL1GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normRelL2GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normRelInfGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus dotProdGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus fullNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus sameNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus validNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 
 }  // namespace statistics
 }  // namespace nppi

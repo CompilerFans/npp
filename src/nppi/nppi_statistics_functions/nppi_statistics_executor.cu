@@ -712,6 +712,206 @@ __global__ void normMaskedFinalizeKernel(const double *pPartial, int nblocks, do
   }
 }
 
+// ---------------------------------------------------------------------------
+// NormRel (L1 / L2 / Inf): relative error norm between two images.
+//   NormRel = norm(pSrc1 - pSrc2) / norm(pSrc2)   (per channel / per valid
+//   pixel set when masked).
+// ---------------------------------------------------------------------------
+
+// Multi-channel plain NormRel.  Writes two partial slabs (numerator = diff,
+// denominator = src2 norm) of nch columns each, block-strided by gridDim.x.
+template <nppi::statistics::NormType NT, typename D, int Channels, bool AlphaPreserve>
+__global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
+                                     double *pDiff, double *pNorm, int nch) {
+  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  constexpr bool IsInf = (NT == nppi::statistics::NormType::Inf);
+  double dlocal[4] = {0.0, 0.0, 0.0, 0.0};
+  double nlocal[4] = {0.0, 0.0, 0.0, 0.0};
+  const int totalPixels = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
+    const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
+    for (int c = 0; c < readCh; ++c) {
+      const double v1 = static_cast<double>(r1[x * Channels + c]);
+      const double v2 = static_cast<double>(r2[x * Channels + c]);
+      normAcc<NT>(dlocal[c], v1 - v2);
+      normAcc<NT>(nlocal[c], v2);
+    }
+  }
+  for (int c = 0; c < readCh; ++c) {
+    const double dr = normBlockReduce<IsInf>(dlocal[c]);
+    const double nr = normBlockReduce<IsInf>(nlocal[c]);
+    if (threadIdx.x == 0) {
+      const size_t base = (size_t)c * gridDim.x + blockIdx.x;
+      pDiff[base] = dr;
+      pNorm[base] = nr;
+    }
+  }
+}
+
+// Combine the block partials into the per-channel relative norm.
+template <nppi::statistics::NormType NT>
+__global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, int nch, Npp64f *pOut) {
+  __shared__ double ds[kBlock];
+  __shared__ double ns[kBlock];
+  constexpr bool IsInf = (NT == nppi::statistics::NormType::Inf);
+  for (int c = 0; c < nch; ++c) {
+    double dacc = 0.0, nacc = 0.0;
+    for (int i = threadIdx.x; i < nblocks; i += blockDim.x) {
+      const double d = pDiff[(size_t)c * nblocks + i];
+      const double n = pNorm[(size_t)c * nblocks + i];
+      if constexpr (IsInf) {
+        dacc = fmax(dacc, d);
+        nacc = fmax(nacc, n);
+      } else {
+        dacc += d;
+        nacc += n;
+      }
+    }
+    ds[threadIdx.x] = dacc;
+    ns[threadIdx.x] = nacc;
+    __syncthreads();
+    for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+      if (threadIdx.x < s) {
+        if constexpr (IsInf) {
+          ds[threadIdx.x] = fmax(ds[threadIdx.x], ds[threadIdx.x + s]);
+          ns[threadIdx.x] = fmax(ns[threadIdx.x], ns[threadIdx.x + s]);
+        } else {
+          ds[threadIdx.x] += ds[threadIdx.x + s];
+          ns[threadIdx.x] += ns[threadIdx.x + s];
+        }
+      }
+      __syncthreads();
+    }
+    if (threadIdx.x == 0) {
+      double d = ds[0];
+      double n = ns[0];
+      if (NT == nppi::statistics::NormType::L2) {
+        d = sqrt(d);
+        n = sqrt(n);
+      }
+      pOut[c] = (n != 0.0) ? d / n : d;  // zero denominator -> inf/nan as d drives
+    }
+    __syncthreads();
+  }
+}
+
+// Masked NormRel over a single channel (nCOI is the 0-based channel index).
+template <nppi::statistics::NormType NT, typename D, int Channels>
+__global__ void normRelMaskedKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                                      int nMaskStep, int width, int height, int nCOI, double *pDiff, double *pNorm) {
+  constexpr bool IsInf = (NT == nppi::statistics::NormType::Inf);
+  double dlocal = 0.0, nlocal = 0.0;
+  const int totalPixels = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const Npp8u *maskRow = reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pMask) + y * nMaskStep);
+    if (maskRow[x] == 0) continue;
+    const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
+    const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
+    const double v1 = static_cast<double>(r1[x * Channels + nCOI]);
+    const double v2 = static_cast<double>(r2[x * Channels + nCOI]);
+    normAcc<NT>(dlocal, v1 - v2);
+    normAcc<NT>(nlocal, v2);
+  }
+  const double dr = normBlockReduce<IsInf>(dlocal);
+  const double nr = normBlockReduce<IsInf>(nlocal);
+  if (threadIdx.x == 0) {
+    pDiff[blockIdx.x] = dr;
+    pNorm[blockIdx.x] = nr;
+  }
+}
+
+template <nppi::statistics::NormType NT>
+__global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, double *pOut) {
+  __shared__ double ds[kBlock];
+  __shared__ double ns[kBlock];
+  constexpr bool IsInf = (NT == nppi::statistics::NormType::Inf);
+  double dacc = 0.0, nacc = 0.0;
+  for (int i = threadIdx.x; i < nblocks; i += blockDim.x) {
+    const double d = pDiff[i];
+    const double n = pNorm[i];
+    if constexpr (IsInf) {
+      dacc = fmax(dacc, d);
+      nacc = fmax(nacc, n);
+    } else {
+      dacc += d;
+      nacc += n;
+    }
+  }
+  ds[threadIdx.x] = dacc;
+  ns[threadIdx.x] = nacc;
+  __syncthreads();
+  for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) {
+      if constexpr (IsInf) {
+        ds[threadIdx.x] = fmax(ds[threadIdx.x], ds[threadIdx.x + s]);
+        ns[threadIdx.x] = fmax(ns[threadIdx.x], ns[threadIdx.x + s]);
+      } else {
+        ds[threadIdx.x] += ds[threadIdx.x + s];
+        ns[threadIdx.x] += ns[threadIdx.x + s];
+      }
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    double d = ds[0];
+    double n = ns[0];
+    if (NT == nppi::statistics::NormType::L2) {
+      d = sqrt(d);
+      n = sqrt(n);
+    }
+    pOut[0] = (n != 0.0) ? d / n : d;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// DotProd: per-channel sum of pSrc1 * pSrc2.
+// ---------------------------------------------------------------------------
+
+template <typename D, int Channels, bool AlphaPreserve>
+__global__ void dotProdPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
+                                       double *pPartial, int nch) {
+  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  double local[4] = {0.0, 0.0, 0.0, 0.0};
+  const int totalPixels = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
+    const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
+    for (int c = 0; c < readCh; ++c) {
+      local[c] += static_cast<double>(r1[x * Channels + c]) * static_cast<double>(r2[x * Channels + c]);
+    }
+  }
+  for (int c = 0; c < readCh; ++c) {
+    const double r = blockReduce(local[c]);
+    if (threadIdx.x == 0) pPartial[(size_t)c * gridDim.x + blockIdx.x] = r;
+  }
+}
+
+__global__ void dotProdFinalizeKernel(const double *pPartial, int nblocks, int nch, Npp64f *pOut) {
+  __shared__ double shared[kBlock];
+  for (int c = 0; c < nch; ++c) {
+    double acc = 0.0;
+    for (int i = threadIdx.x; i < nblocks; i += blockDim.x) acc += pPartial[(size_t)c * nblocks + i];
+    shared[threadIdx.x] = acc;
+    __syncthreads();
+    for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+      if (threadIdx.x < s) shared[threadIdx.x] += shared[threadIdx.x + s];
+      __syncthreads();
+    }
+    if (threadIdx.x == 0) pOut[c] = shared[0];
+    __syncthreads();
+  }
+}
+
 }  // namespace
 
 namespace nppi {
@@ -1243,6 +1443,117 @@ NppStatus runNormDiffMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, in
   return NPP_NO_ERROR;
 }
 
+// ============================== NormRel =====================================
+
+template <NormType NT, typename D, int Channels, bool AlphaPreserve>
+NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                     Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2) return NPP_NULL_POINTER_ERROR;
+  if (!pNorm) return NPP_NULL_POINTER_ERROR;               // NVIDIA 5090 validates the result pointer
+  if (!pDeviceBuffer) return NPP_NO_ERROR;                 // scratch buffer not validated
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  const int esize = (int)sizeof(D);
+  if (nSrc1Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+  if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+
+  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  // Two partial slabs (numerator and denominator), nch columns each.
+  double *pDiff = reinterpret_cast<double *>(pDeviceBuffer);
+  double *pNormP = pDiff + (size_t)nCh * blocks;
+
+  (void)cudaGetLastError();
+  normRelPartialKernel<NT, D, Channels, AlphaPreserve>
+      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, pDiff, pNormP, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  normRelFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, nCh, pNorm);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+template <NormType NT, typename D>
+NppStatus runNormRelMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                          int nMaskStep, NppiSize oi, Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2 || !pMask || !pDeviceBuffer || !pNorm) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  if (nSrc1Step < oi.width * (int)sizeof(D)) return NPP_STEP_ERROR;
+  if (nSrc2Step < oi.width * (int)sizeof(D)) return NPP_STEP_ERROR;
+  if (nMaskStep < oi.width) return NPP_STEP_ERROR;
+
+  const int blocks = numBlocks(oi.width * oi.height);
+  double *pDiff = reinterpret_cast<double *>(pDeviceBuffer);
+  double *pNormP = pDiff + blocks;
+
+  (void)cudaGetLastError();
+  normRelMaskedKernel<NT, D, 1>
+      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oi.width, oi.height, 0, pDiff, pNormP);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  normRelMaskedFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, pNorm);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+template <NormType NT, typename D>
+NppStatus runNormRelMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                             int nMaskStep, NppiSize oi, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
+                             cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2 || !pMask || !pDeviceBuffer || !pNorm) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  if (nCOI < 0 || nCOI > 3) return NPP_COI_ERROR;
+  if (nSrc1Step < oi.width * 3 * (int)sizeof(D)) return NPP_STEP_ERROR;
+  if (nSrc2Step < oi.width * 3 * (int)sizeof(D)) return NPP_STEP_ERROR;
+  if (nMaskStep < oi.width) return NPP_STEP_ERROR;
+
+  const int srcCh = nCOI - 1;
+  if (nCOI <= 0) return zeroDevice(pNorm, stream);
+
+  const int blocks = numBlocks(oi.width * oi.height);
+  double *pDiff = reinterpret_cast<double *>(pDeviceBuffer);
+  double *pNormP = pDiff + blocks;
+
+  (void)cudaGetLastError();
+  normRelMaskedKernel<NT, D, 3>
+      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oi.width, oi.height, srcCh, pDiff, pNormP);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  normRelMaskedFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, pNorm);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+// ============================== DotProd =====================================
+
+template <typename D, int Channels, bool AlphaPreserve>
+NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                     Npp8u *pDeviceBuffer, Npp64f *pDp, cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2) return NPP_NULL_POINTER_ERROR;
+  if (!pDp) return NPP_NULL_POINTER_ERROR;                 // NVIDIA 5090 validates the result pointer
+  if (!pDeviceBuffer) return NPP_NO_ERROR;                 // scratch buffer not validated
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;  // empty ROI is a no-op
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  const int esize = (int)sizeof(D);
+  if (nSrc1Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+  if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+
+  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  double *partial = reinterpret_cast<double *>(pDeviceBuffer);
+
+  (void)cudaGetLastError();
+  dotProdPartialKernel<D, Channels, AlphaPreserve>
+      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+
+  dotProdFinalizeKernel<<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pDp);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
 // ============================== Buffer size ==================================
 
 NppStatus sumGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
@@ -1322,6 +1633,43 @@ NppStatus normInfGetBufferHostSize(NppiSize oi, int *hpBufferSize) { return norm
 NppStatus normDiffL1GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
 NppStatus normDiffL2GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
 NppStatus normDiffInfGetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normL1GetBufferHostSize(oi, hpBufferSize); }
+
+// NormRel needs two partial slabs (numerator and denominator), each holding at
+// most 3 channel doubles per block; an 8-double slab per block is a safe upper
+// bound.  Exact bytes are not a contract, only that the size is sufficient.
+NppStatus normRelL1GetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+NppStatus normRelL2GetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normRelL1GetBufferHostSize(oi, hpBufferSize); }
+NppStatus normRelInfGetBufferHostSize(NppiSize oi, int *hpBufferSize) { return normRelL1GetBufferHostSize(oi, hpBufferSize); }
+
+// DotProd partials hold at most 4 channel doubles per block.
+NppStatus dotProdGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 4 * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+
+// CrossCorr NormLevel scratch-size helpers.  These reserve a conservative scratch
+// large enough for a same-size NormLevel reduction on the ROI; exact bytes are
+// not a contract (the only guarantee is the buffer can be allocated and the
+// matching kernel then succeeds).  Only status and size positivity are checked.
+NppStatus fullNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+NppStatus sameNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  return fullNormLevelGetBufferHostSize(oi, hpBufferSize);
+}
+NppStatus validNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  return fullNormLevelGetBufferHostSize(oi, hpBufferSize);
+}
 
 }  // namespace statistics
 }  // namespace nppi
@@ -1633,5 +1981,107 @@ template NppStatus runNormMasked<nppi::statistics::NormType::Inf,Npp8s>(const Np
 template NppStatus runNormMaskedCoi<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormDiffMasked<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 template NppStatus runNormDiffMaskedCoi<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+// --- NormRel explicit instantiations (package p3.1b2) ---
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,1,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,3,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,4,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16s,4,1>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16u,1,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16u,3,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16u,4,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp16u,4,1>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp32f,1,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp32f,3,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp32f,4,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp32f,4,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp8u,1,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp8u,3,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp8u,4,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L1,Npp8u,4,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L1,Npp16u>(const Npp16u*,int,const Npp16u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L1,Npp16u>(const Npp16u*,int,const Npp16u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L1,Npp32f>(const Npp32f*,int,const Npp32f*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L1,Npp32f>(const Npp32f*,int,const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L1,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L1,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L1,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L1,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16s,1,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16s,3,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16s,4,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16s,4,1>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16u,1,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16u,3,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16u,4,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp16u,4,1>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp32f,1,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp32f,3,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp32f,4,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp32f,4,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp8u,1,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp8u,3,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp8u,4,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::L2,Npp8u,4,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L2,Npp16u>(const Npp16u*,int,const Npp16u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L2,Npp16u>(const Npp16u*,int,const Npp16u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L2,Npp32f>(const Npp32f*,int,const Npp32f*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L2,Npp32f>(const Npp32f*,int,const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L2,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L2,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::L2,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::L2,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16s,1,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16s,3,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16s,4,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16s,4,1>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16u,1,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16u,3,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16u,4,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp16u,4,1>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp32f,1,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp32f,3,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp32f,4,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp32f,4,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp8u,1,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp8u,3,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp8u,4,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRel<nppi::statistics::NormType::Inf,Npp8u,4,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::Inf,Npp16u>(const Npp16u*,int,const Npp16u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::Inf,Npp16u>(const Npp16u*,int,const Npp16u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::Inf,Npp32f>(const Npp32f*,int,const Npp32f*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::Inf,Npp32f>(const Npp32f*,int,const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::Inf,Npp8s>(const Npp8s*,int,const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMasked<nppi::statistics::NormType::Inf,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runNormRelMaskedCoi<nppi::statistics::NormType::Inf,Npp8u>(const Npp8u*,int,const Npp8u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp64f*,cudaStream_t);
+// --- DotProd explicit instantiations (package p3.1b2) ---
+template NppStatus runDotProd<Npp8u,1,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8u,3,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8u,4,0>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8u,4,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8s,1,0>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8s,3,0>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8s,4,0>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp8s,4,1>(const Npp8s*,int,const Npp8s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16u,1,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16u,3,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16u,4,0>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16u,4,1>(const Npp16u*,int,const Npp16u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16s,1,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16s,3,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16s,4,0>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp16s,4,1>(const Npp16s*,int,const Npp16s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32u,1,0>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32u,3,0>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32u,4,0>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32u,4,1>(const Npp32u*,int,const Npp32u*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32s,1,0>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32s,3,0>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32s,4,0>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32s,4,1>(const Npp32s*,int,const Npp32s*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32f,1,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32f,3,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32f,4,0>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
+template NppStatus runDotProd<Npp32f,4,1>(const Npp32f*,int,const Npp32f*,int,NppiSize,Npp8u*,Npp64f*,cudaStream_t);
 }  // namespace statistics
 }  // namespace nppi
