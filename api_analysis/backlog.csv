@@ -354,8 +354,6 @@ nppi_statistics_functions.h,nppiCrossCorrSame_NormLevel_GetAdvancedScratchBuffer
 nppi_statistics_functions.h,nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize,1,0,0,1,0,1,0,1
 nppi_statistics_functions.h,nppiEllipticalRadialProfile,1,0,0,1,1,0,0,1
 nppi_statistics_functions.h,nppiEvenLevelsHost,2,1,0,1,1,0,2,1
-nppi_threshold_and_compare_operations.h,nppiFusedAbsDiff_Threshold_GTVal,1,0,0,1,1,0,0,1
-nppi_threshold_and_compare_operations.h,nppiFusedAbsDiff_Threshold_GTVal_I,1,0,0,1,1,0,0,1
 nppi_arithmetic_and_logical_operations.h,nppiAbs,44,44,0,0,0,0,44,0
 nppi_arithmetic_and_logical_operations.h,nppiAbsDiff,12,12,0,0,0,0,12,0
 nppi_arithmetic_and_logical_operations.h,nppiAbsDiffC,6,6,0,0,0,0,6,0
@@ -476,6 +474,8 @@ nppi_threshold_and_compare_operations.h,nppiCompare,32,32,0,0,0,0,20,0
 nppi_threshold_and_compare_operations.h,nppiCompareC,32,32,0,0,0,0,11,0
 nppi_threshold_and_compare_operations.h,nppiCompareEqualEps,8,8,0,0,0,0,4,0
 nppi_threshold_and_compare_operations.h,nppiCompareEqualEpsC,8,8,0,0,0,0,3,0
+nppi_threshold_and_compare_operations.h,nppiFusedAbsDiff_Threshold_GTVal,1,1,0,0,0,0,1,0
+nppi_threshold_and_compare_operations.h,nppiFusedAbsDiff_Threshold_GTVal_I,1,1,0,0,0,0,1,0
 nppi_threshold_and_compare_operations.h,nppiThreshold,48,48,0,0,0,0,10,0
 nppi_threshold_and_compare_operations.h,nppiThreshold_GT,48,48,0,0,0,0,4,0
 nppi_threshold_and_compare_operations.h,nppiThreshold_GTVal,48,48,0,0,0,0,11,0

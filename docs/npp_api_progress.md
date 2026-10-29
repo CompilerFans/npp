@@ -46,7 +46,7 @@
 | P2.1c | NPPI Set / Dup | 174 | ✅ 已合并 | `pkg/p2.1c` → merge |
 | P2.2a | NPPI SwapChannels / CopySubpix | 110 | ✅ 已实现 | `pkg/p2.2a` → `5db538e` |
 | P2.2b | NPPI Scale / 边界复制 | 182 | ✅ 已实现 | `pkg/p2.2b` → `66bf923` |
-| P2.3 | NPPI 阈值 / 比较 | 366 | 运行中 | `pkg/p2.3` |
+| P2.3 | NPPI 阈值 / 比较 | 366 | ✅ 已实现 | `pkg/p2.3` → `抽出最终 commit` |
 | P1.3a | NPPI/NPPS 统计归约（Sum/Min/Max/Mean） | 待拆 | 规划中 | — |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | 规划中 | — |
 | P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
@@ -69,6 +69,7 @@
 ## 5. 决策记录
 
 - **P1.1a 结果**：220 个函数全部实现；136 个差分 case（68 组 Ctx/非 Ctx）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。
+- **P2.3 结果**：418 个函数全部实现（366 待实现 + 52 已有；含 2 个运行时派发 `nppiFusedAbsDiff_Threshold_GTVal[_I]`）；`nppi_threshold_and_compare_operations.h` coverage 由 `366 missing` 降为 `0`。差分 12 case（阈值 7 族 + 比较 4 族 + Contract，另有 Fused 6 case）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。关键契约（以 5090 golden 为准）：阈值 AC4/AC4IR 的 alpha 通道**完全不写**（dst alpha 保持缓冲区原有值，而非拷贝 src）；比较 AC4 只比较 RGB（忽略 alpha 通道），而 C4R 比较全部 4 通道；比较类入口对非法 `eComparisonOperation` **不校验**，直接短路为 `NPP_NO_ERROR`（在指针/ROI 检查之前）；`nppiThreshold`（base/Val）对非法 op 返回 `NPP_NOT_SUPPORTED_MODE_ERROR`；负 ROI 宽高 → `NPP_SIZE_ERROR`、空 ROI → `NPP_NO_ERROR`。FusedAbsDiff 的 CH_A4 也符合“alpha 不写”约定。`nppiFusedAbsDiff_Threshold_GTVal[_I]` 走 `NppDataType`/`NppiChannels` 运行时派发（支持 8U/16U/16S/32F × CH_1/CH_3/CH_A4），阈值/替换数组按值传入 kernel。
 - **P1.1c 结果**：258 个函数全部实现；529 个差分 case（binary+constant+unary 全矩阵）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。三个差分生成器的种子改为 SHA-256（原先 Python `hash()` 每次进程随机，导致重生成后 golden 全部失效）。`nppsLn_64f32f` 为有意偏离：NPP 13.4 返回 round(ln)，我们按 API 契约返回自然对数，并用 CPU 参考测试。`nppsExp_32s_Sfs` 因 expf 跨平台末位差异使用 1e-6/2 容差。
 - **P1.1b 结果**：256 个函数全部实现；174 个差分 case 在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。`nppsMulC_64f64s_ISfs` 的原地缓冲区实际按 int64 读取，舍入为“先 round-half-away 到 int64，再按符号加 ±1 后算术右移”，已用 5090 直连探针验证 204 个点。
 - **Agent 运行方式**：全新 worktree 无法用 CMake 4.4 配置 cu-bridge（`FindCUDAToolkit` 需要 `nvvm/libdevice`，cucc 的 implicit-link 输出也不兼容），因此工作包 agent 改为在主 checkout 上 `--in-place` 串行运行，复用已配置的 `build/` 缓存。**禁止运行 `cmake_maca`/`make_maca`**（它们会 `rm -rf ~/cu-bridge`，曾导致工具链损坏，已用 cu-bridge 的 `make_maca` 重建）。
