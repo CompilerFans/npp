@@ -20,6 +20,7 @@ NppStatus nppiThreshold_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSiz
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -31,6 +32,7 @@ NppStatus nppiThreshold_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -41,6 +43,7 @@ NppStatus nppiThreshold_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
@@ -52,6 +55,7 @@ NppStatus nppiThreshold_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
@@ -62,6 +66,7 @@ NppStatus nppiThreshold_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -73,6 +78,7 @@ NppStatus nppiThreshold_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -83,6 +89,7 @@ NppStatus nppiThreshold_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSiz
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -94,6 +101,7 @@ NppStatus nppiThreshold_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -104,6 +112,7 @@ NppStatus nppiThreshold_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
@@ -115,6 +124,7 @@ NppStatus nppiThreshold_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
@@ -125,6 +135,7 @@ NppStatus nppiThreshold_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -136,6 +147,7 @@ NppStatus nppiThreshold_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -146,6 +158,7 @@ NppStatus nppiThreshold_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSiz
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -157,6 +170,7 @@ NppStatus nppiThreshold_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -167,6 +181,7 @@ NppStatus nppiThreshold_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, eComparisonOperation, nppStreamCtx);
 }
 
@@ -177,6 +192,7 @@ NppStatus nppiThreshold_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiSize
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -188,6 +204,7 @@ NppStatus nppiThreshold_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -198,6 +215,7 @@ NppStatus nppiThreshold_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -209,6 +227,7 @@ NppStatus nppiThreshold_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pD
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -219,6 +238,7 @@ NppStatus nppiThreshold_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSize o
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -230,6 +250,7 @@ NppStatus nppiThreshold_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDs
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, eComparisonOperation, nppStreamCtx);
 }
 
@@ -239,6 +260,7 @@ NppStatus nppiThreshold_GT_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Nppi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -249,6 +271,7 @@ NppStatus nppiThreshold_GT_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -258,6 +281,7 @@ NppStatus nppiThreshold_GT_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -268,6 +292,7 @@ NppStatus nppiThreshold_GT_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -277,6 +302,7 @@ NppStatus nppiThreshold_GT_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -287,6 +313,7 @@ NppStatus nppiThreshold_GT_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -296,6 +323,7 @@ NppStatus nppiThreshold_GT_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Nppi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -306,6 +334,7 @@ NppStatus nppiThreshold_GT_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -315,6 +344,7 @@ NppStatus nppiThreshold_GT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -325,6 +355,7 @@ NppStatus nppiThreshold_GT_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -334,6 +365,7 @@ NppStatus nppiThreshold_GT_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -344,6 +376,7 @@ NppStatus nppiThreshold_GT_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -353,6 +386,7 @@ NppStatus nppiThreshold_GT_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Nppi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -363,6 +397,7 @@ NppStatus nppiThreshold_GT_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -372,6 +407,7 @@ NppStatus nppiThreshold_GT_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -382,6 +418,7 @@ NppStatus nppiThreshold_GT_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -391,6 +428,7 @@ NppStatus nppiThreshold_GT_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -401,6 +439,7 @@ NppStatus nppiThreshold_GT_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GT_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -410,6 +449,7 @@ NppStatus nppiThreshold_GT_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -420,6 +460,7 @@ NppStatus nppiThreshold_GT_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -429,6 +470,7 @@ NppStatus nppiThreshold_GT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSiz
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -439,6 +481,7 @@ NppStatus nppiThreshold_GT_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -448,6 +491,7 @@ NppStatus nppiThreshold_GT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSiz
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -458,6 +502,7 @@ NppStatus nppiThreshold_GT_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GT_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -467,6 +512,7 @@ NppStatus nppiThreshold_GTVal_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, N
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -477,6 +523,7 @@ NppStatus nppiThreshold_GTVal_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -486,6 +533,7 @@ NppStatus nppiThreshold_GTVal_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -496,6 +544,7 @@ NppStatus nppiThreshold_GTVal_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -505,6 +554,7 @@ NppStatus nppiThreshold_GTVal_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -515,6 +565,7 @@ NppStatus nppiThreshold_GTVal_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -524,6 +575,7 @@ NppStatus nppiThreshold_GTVal_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, N
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -534,6 +586,7 @@ NppStatus nppiThreshold_GTVal_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -543,6 +596,7 @@ NppStatus nppiThreshold_GTVal_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -553,6 +607,7 @@ NppStatus nppiThreshold_GTVal_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -562,6 +617,7 @@ NppStatus nppiThreshold_GTVal_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -572,6 +628,7 @@ NppStatus nppiThreshold_GTVal_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -581,6 +638,7 @@ NppStatus nppiThreshold_GTVal_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, N
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -591,6 +649,7 @@ NppStatus nppiThreshold_GTVal_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -600,6 +659,7 @@ NppStatus nppiThreshold_GTVal_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -610,6 +670,7 @@ NppStatus nppiThreshold_GTVal_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -619,6 +680,7 @@ NppStatus nppiThreshold_GTVal_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -629,6 +691,7 @@ NppStatus nppiThreshold_GTVal_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -638,6 +701,7 @@ NppStatus nppiThreshold_GTVal_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, Npp
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -648,6 +712,7 @@ NppStatus nppiThreshold_GTVal_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_GTVal_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -657,6 +722,7 @@ NppStatus nppiThreshold_LT_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Nppi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -667,6 +733,7 @@ NppStatus nppiThreshold_LT_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -676,6 +743,7 @@ NppStatus nppiThreshold_LT_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -686,6 +754,7 @@ NppStatus nppiThreshold_LT_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -695,6 +764,7 @@ NppStatus nppiThreshold_LT_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -705,6 +775,7 @@ NppStatus nppiThreshold_LT_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -714,6 +785,7 @@ NppStatus nppiThreshold_LT_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Nppi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -724,6 +796,7 @@ NppStatus nppiThreshold_LT_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -733,6 +806,7 @@ NppStatus nppiThreshold_LT_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -743,6 +817,7 @@ NppStatus nppiThreshold_LT_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -752,6 +827,7 @@ NppStatus nppiThreshold_LT_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -762,6 +838,7 @@ NppStatus nppiThreshold_LT_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -771,6 +848,7 @@ NppStatus nppiThreshold_LT_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Nppi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -781,6 +859,7 @@ NppStatus nppiThreshold_LT_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -790,6 +869,7 @@ NppStatus nppiThreshold_LT_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -800,6 +880,7 @@ NppStatus nppiThreshold_LT_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -809,6 +890,7 @@ NppStatus nppiThreshold_LT_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, NppiS
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -819,6 +901,7 @@ NppStatus nppiThreshold_LT_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LT_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -828,6 +911,7 @@ NppStatus nppiThreshold_LT_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSi
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -838,6 +922,7 @@ NppStatus nppiThreshold_LT_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -847,6 +932,7 @@ NppStatus nppiThreshold_LT_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSiz
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -857,6 +943,7 @@ NppStatus nppiThreshold_LT_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nppStreamCtx);
 }
 
@@ -866,6 +953,7 @@ NppStatus nppiThreshold_LT_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSiz
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -876,6 +964,7 @@ NppStatus nppiThreshold_LT_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LT_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, nppStreamCtx);
 }
 
@@ -885,6 +974,7 @@ NppStatus nppiThreshold_LTVal_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, N
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -895,6 +985,7 @@ NppStatus nppiThreshold_LTVal_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -904,6 +995,7 @@ NppStatus nppiThreshold_LTVal_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -914,6 +1006,7 @@ NppStatus nppiThreshold_LTVal_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -923,6 +1016,7 @@ NppStatus nppiThreshold_LTVal_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -933,6 +1027,7 @@ NppStatus nppiThreshold_LTVal_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -942,6 +1037,7 @@ NppStatus nppiThreshold_LTVal_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, N
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -952,6 +1048,7 @@ NppStatus nppiThreshold_LTVal_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -961,6 +1058,7 @@ NppStatus nppiThreshold_LTVal_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -971,6 +1069,7 @@ NppStatus nppiThreshold_LTVal_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -980,6 +1079,7 @@ NppStatus nppiThreshold_LTVal_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -990,6 +1090,7 @@ NppStatus nppiThreshold_LTVal_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -999,6 +1100,7 @@ NppStatus nppiThreshold_LTVal_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, N
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1009,6 +1111,7 @@ NppStatus nppiThreshold_LTVal_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1018,6 +1121,7 @@ NppStatus nppiThreshold_LTVal_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, nppStreamCtx);
 }
 
@@ -1027,6 +1131,7 @@ NppStatus nppiThreshold_LTVal_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Np
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1037,6 +1142,7 @@ NppStatus nppiThreshold_LTVal_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1046,6 +1152,7 @@ NppStatus nppiThreshold_LTVal_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, Npp
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1056,6 +1163,7 @@ NppStatus nppiThreshold_LTVal_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTVal_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, nppStreamCtx);
 }
 
@@ -1065,6 +1173,7 @@ NppStatus nppiThreshold_LTValGTVal_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstSt
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1075,6 +1184,7 @@ NppStatus nppiThreshold_LTValGTVal_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcSte
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1084,6 +1194,7 @@ NppStatus nppiThreshold_LTValGTVal_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstSte
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1094,6 +1205,7 @@ NppStatus nppiThreshold_LTValGTVal_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1103,6 +1215,7 @@ NppStatus nppiThreshold_LTValGTVal_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstSte
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1113,6 +1226,7 @@ NppStatus nppiThreshold_LTValGTVal_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1122,6 +1236,7 @@ NppStatus nppiThreshold_LTValGTVal_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstSt
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1132,6 +1247,7 @@ NppStatus nppiThreshold_LTValGTVal_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcSte
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1141,6 +1257,7 @@ NppStatus nppiThreshold_LTValGTVal_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstSte
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1151,6 +1268,7 @@ NppStatus nppiThreshold_LTValGTVal_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1160,6 +1278,7 @@ NppStatus nppiThreshold_LTValGTVal_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstSte
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1170,6 +1289,7 @@ NppStatus nppiThreshold_LTValGTVal_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1179,6 +1299,7 @@ NppStatus nppiThreshold_LTValGTVal_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstSt
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1189,6 +1310,7 @@ NppStatus nppiThreshold_LTValGTVal_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcSte
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1198,6 +1320,7 @@ NppStatus nppiThreshold_LTValGTVal_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstSte
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1208,6 +1331,7 @@ NppStatus nppiThreshold_LTValGTVal_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1217,6 +1341,7 @@ NppStatus nppiThreshold_LTValGTVal_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstSte
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1227,6 +1352,7 @@ NppStatus nppiThreshold_LTValGTVal_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1236,6 +1362,7 @@ NppStatus nppiThreshold_LTValGTVal_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1246,6 +1373,7 @@ NppStatus nppiThreshold_LTValGTVal_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep,
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1255,6 +1383,7 @@ NppStatus nppiThreshold_LTValGTVal_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep,
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
 }
 
@@ -1264,6 +1393,7 @@ NppStatus nppiThreshold_LTValGTVal_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep,
   NppStatus s = tcNull((const void*)pSrcDst); if (s != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1274,6 +1404,7 @@ NppStatus nppiThreshold_LTValGTVal_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_LTValGTVal_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholdsLT, rValuesLT, rThresholdsGT, rValuesGT, nppStreamCtx);
 }
 
@@ -1284,6 +1415,7 @@ NppStatus nppiThreshold_Val_16s_AC4IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Npp
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16s_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1295,6 +1427,7 @@ NppStatus nppiThreshold_Val_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp1
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16s_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1305,6 +1438,7 @@ NppStatus nppiThreshold_Val_16s_C1IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16s_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1316,6 +1450,7 @@ NppStatus nppiThreshold_Val_16s_C1R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16s_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1326,6 +1461,7 @@ NppStatus nppiThreshold_Val_16s_C3IR_Ctx(Npp16s * pSrcDst, int nSrcDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16s_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1337,6 +1473,7 @@ NppStatus nppiThreshold_Val_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16s))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16s_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1347,6 +1484,7 @@ NppStatus nppiThreshold_Val_16u_AC4IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Npp
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1358,6 +1496,7 @@ NppStatus nppiThreshold_Val_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp1
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1368,6 +1507,7 @@ NppStatus nppiThreshold_Val_16u_C1IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1379,6 +1519,7 @@ NppStatus nppiThreshold_Val_16u_C1R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1389,6 +1530,7 @@ NppStatus nppiThreshold_Val_16u_C3IR_Ctx(Npp16u * pSrcDst, int nSrcDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1400,6 +1542,7 @@ NppStatus nppiThreshold_Val_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp16u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_16u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1410,6 +1553,7 @@ NppStatus nppiThreshold_Val_32f_AC4IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Npp
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_Val_32f_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1421,6 +1565,7 @@ NppStatus nppiThreshold_Val_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp3
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_Val_32f_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1431,6 +1576,7 @@ NppStatus nppiThreshold_Val_32f_C1IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_Val_32f_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1442,6 +1588,7 @@ NppStatus nppiThreshold_Val_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_Val_32f_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1452,6 +1599,7 @@ NppStatus nppiThreshold_Val_32f_C3IR_Ctx(Npp32f * pSrcDst, int nSrcDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_Val_32f_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1463,6 +1611,7 @@ NppStatus nppiThreshold_Val_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp32f))) return NPP_NO_ERROR;
   return nppiThreshold_Val_32f_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1473,6 +1622,7 @@ NppStatus nppiThreshold_Val_8u_AC4IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiS
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_8u_AC4IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1484,6 +1634,7 @@ NppStatus nppiThreshold_Val_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u 
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 4 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_8u_AC4R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1494,6 +1645,7 @@ NppStatus nppiThreshold_Val_8u_C1IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_8u_C1IR_impl(pSrcDst, nSrcDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1505,6 +1657,7 @@ NppStatus nppiThreshold_Val_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 1 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_8u_C1R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1515,6 +1668,7 @@ NppStatus nppiThreshold_Val_8u_C3IR_Ctx(Npp8u * pSrcDst, int nSrcDstStep, NppiSi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_8u_C3IR_impl(pSrcDst, nSrcDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1526,6 +1680,7 @@ NppStatus nppiThreshold_Val_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u *
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if ((s = tcBadOp(eComparisonOperation)) != NPP_SUCCESS) return s;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * 3 * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiThreshold_Val_8u_C3R_impl(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, rThresholds, rValues, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1538,6 +1693,7 @@ NppStatus nppiCompare_16s_AC4R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp16s)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_16s_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1550,6 +1706,7 @@ NppStatus nppiCompare_16s_C1R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 1 * sizeof(Npp16s)) || nSrc2Step < (oSizeROI.width * 1 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_16s_C1R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1562,6 +1719,7 @@ NppStatus nppiCompare_16s_C3R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 3 * sizeof(Npp16s)) || nSrc2Step < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_16s_C3R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1574,6 +1732,7 @@ NppStatus nppiCompare_16s_C4R_Ctx(const Npp16s * pSrc1, int nSrc1Step, const Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp16s)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_16s_C4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1586,6 +1745,7 @@ NppStatus nppiCompare_16u_AC4R_Ctx(const Npp16u * pSrc1, int nSrc1Step, const Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp16u)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_16u_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1598,6 +1758,7 @@ NppStatus nppiCompare_32f_AC4R_Ctx(const Npp32f * pSrc1, int nSrc1Step, const Np
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_32f_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1610,6 +1771,7 @@ NppStatus nppiCompare_8u_AC4R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp8u)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompare_8u_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1621,6 +1783,7 @@ NppStatus nppiCompareC_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_16s_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1632,6 +1795,7 @@ NppStatus nppiCompareC_16s_C3R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp1
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_16s_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1643,6 +1807,7 @@ NppStatus nppiCompareC_16s_C4R_Ctx(const Npp16s * pSrc, int nSrcStep, const Npp1
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16s)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_16s_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1654,6 +1819,7 @@ NppStatus nppiCompareC_16u_AC4R_Ctx(const Npp16u * pSrc, int nSrcStep, const Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_16u_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1665,6 +1831,7 @@ NppStatus nppiCompareC_16u_C3R_Ctx(const Npp16u * pSrc, int nSrcStep, const Npp1
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nSrcStep < (oSizeROI.width * 3 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_16u_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1676,6 +1843,7 @@ NppStatus nppiCompareC_16u_C4R_Ctx(const Npp16u * pSrc, int nSrcStep, const Npp1
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp16u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_16u_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1687,6 +1855,7 @@ NppStatus nppiCompareC_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_32f_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1698,6 +1867,7 @@ NppStatus nppiCompareC_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp3
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_32f_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1709,6 +1879,7 @@ NppStatus nppiCompareC_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, const Npp3
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_32f_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1720,6 +1891,7 @@ NppStatus nppiCompareC_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, const Npp8u
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_8u_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1731,6 +1903,7 @@ NppStatus nppiCompareC_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, const Npp8u 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nSrcStep < (oSizeROI.width * 3 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_8u_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1742,6 +1915,7 @@ NppStatus nppiCompareC_8u_C4R_Ctx(const Npp8u * pSrc, int nSrcStep, const Npp8u 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp8u)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareC_8u_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, eComparisonOperation, nppStreamCtx);
 }
 
@@ -1753,6 +1927,7 @@ NppStatus nppiCompareEqualEps_32f_AC4R_Ctx(const Npp32f * pSrc1, int nSrc1Step, 
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_AC4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1764,6 +1939,7 @@ NppStatus nppiCompareEqualEps_32f_C1R_Ctx(const Npp32f * pSrc1, int nSrc1Step, c
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 1 * sizeof(Npp32f)) || nSrc2Step < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_C1R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1775,6 +1951,7 @@ NppStatus nppiCompareEqualEps_32f_C3R_Ctx(const Npp32f * pSrc1, int nSrc1Step, c
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 3 * sizeof(Npp32f)) || nSrc2Step < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_C3R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1786,6 +1963,7 @@ NppStatus nppiCompareEqualEps_32f_C4R_Ctx(const Npp32f * pSrc1, int nSrc1Step, c
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrc1Step < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrc2Step < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEps_32f_C4R_impl(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1796,6 +1974,7 @@ NppStatus nppiCompareEqualEpsC_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, c
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_AC4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1806,6 +1985,7 @@ NppStatus nppiCompareEqualEpsC_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, co
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 1 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_C1R_impl(pSrc, nSrcStep, nConstant, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1816,6 +1996,7 @@ NppStatus nppiCompareEqualEpsC_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, co
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 3 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_C3R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 
@@ -1826,6 +2007,7 @@ NppStatus nppiCompareEqualEpsC_32f_C4R_Ctx(const Npp32f * pSrc, int nSrcStep, co
   if ((s = tcNull((const void*)pDst)) != NPP_SUCCESS) return s;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nSrcStep < (oSizeROI.width * 4 * sizeof(Npp32f)) || nDstStep < (oSizeROI.width * sizeof(Npp8u))) return NPP_NO_ERROR;
   return nppiCompareEqualEpsC_32f_C4R_impl(pSrc, nSrcStep, pConstants, pDst, nDstStep, oSizeROI, nEpsilon, nppStreamCtx);
 }
 

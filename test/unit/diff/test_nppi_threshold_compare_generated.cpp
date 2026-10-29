@@ -422,62 +422,62 @@ TEST_F(NppiThresholdCompareDiff, Cmp_EqualEps) {
 TEST_F(NppiThresholdCompareDiff, Contract) {
   int seed = 4100;
   { // threshold GT: null pointer
-    std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 1);
-    DeviceMemory<Npp8u> &d = arena<Npp8u>(64); d.copyFromHost(hd);
+    std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 1);
+    DeviceMemory<Npp8u> &d = arena<Npp8u>(1024); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(nullptr, 8, d.get(), 8, NppiSize{4, 4}, 100, current_ctx());
     Case c("nppiThresh/nullPtr", "nppiThreshold_GT_8u_C1R"); c.status(st); c.finish();
   }
   { // threshold GT: negative size
-    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 11); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 21);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 11); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 21);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);
     s.copyFromHost(hs); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{-4, 4}, 100, current_ctx());
     Case c("nppiThresh/negSize", "nppiThreshold_GT_8u_C1R"); c.status(st); c.finish();
   }
   { // threshold GT: empty ROI (no-op)
-    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 31); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 41);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 31); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 41);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);
     s.copyFromHost(hs); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{0, 4}, 100, current_ctx());
     Case c("nppiThresh/emptyRoi", "nppiThreshold_GT_8u_C1R"); c.status(st); c.finish();
   }
   { // threshold GT: zero step
-    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 51); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 61);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 51); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 61);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);
     s.copyFromHost(hs); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 0, d.get(), 8, NppiSize{4, 4}, 100, current_ctx());
     Case c("nppiThresh/zeroStep", "nppiThreshold_GT_8u_C1R"); c.status(st); c.finish();
   }
   { // threshold GT: insufficient step
-    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 71); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 81);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 71); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 81);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);
     s.copyFromHost(hs); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 4, d.get(), 8, NppiSize{8, 4}, 100, current_ctx());
     Case c("nppiThresh/shortStep", "nppiThreshold_GT_8u_C1R"); c.status(st); c.finish();
   }
   { // threshold base: illegal comparison operation
-    std::vector<Npp16u> hs = make_uniform<Npp16u>(64, seed + 91); std::vector<Npp16u> hd = make_uniform<Npp16u>(64, seed + 101);
-    DeviceMemory<Npp16u> &s = arena<Npp16u>(64); DeviceMemory<Npp16u> &d = arena<Npp16u>(64);
+    std::vector<Npp16u> hs = make_uniform<Npp16u>(1024, seed + 91); std::vector<Npp16u> hd = make_uniform<Npp16u>(1024, seed + 101);
+    DeviceMemory<Npp16u> &s = arena<Npp16u>(1024); DeviceMemory<Npp16u> &d = arena<Npp16u>(1024);
     s.copyFromHost(hs); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_16u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{4, 4}, 100, (NppCmpOp)99, current_ctx());
     Case c("nppiThresh/badOp", "nppiThreshold_16u_C1R"); c.status(st); c.finish();
   }
   { // compare: null dst
-    std::vector<Npp8u> h = make_uniform<Npp8u>(64, seed + 111);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); s.copyFromHost(h);
+    std::vector<Npp8u> h = make_uniform<Npp8u>(1024, seed + 111);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); s.copyFromHost(h);
     clear_cuda_error();
     NppStatus st = nppiCompare_8u_C1R_Ctx(s.get(), 8, s.get(), 8, nullptr, 8, NppiSize{4, 4}, NPP_CMP_LESS, current_ctx());
     Case c("nppiCmp/nullDst", "nppiCompare_8u_C1R"); c.status(st); c.finish();
   }
   { // compare: invalid comparison op
-    std::vector<Npp8u> h = make_uniform<Npp8u>(64, seed + 121);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); s.copyFromHost(h);
+    std::vector<Npp8u> h = make_uniform<Npp8u>(1024, seed + 121);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); s.copyFromHost(h);
     clear_cuda_error();
     NppStatus st = nppiCompare_8u_C1R_Ctx(s.get(), 8, s.get(), 8, nullptr, 8, NppiSize{4, 4}, (NppCmpOp)99, current_ctx());
     Case c("nppiCmp/badOp", "nppiCompare_8u_C1R"); c.status(st); c.finish();

@@ -31,14 +31,14 @@ NppStatus nppiCompare_32f_C4R_Ctx_impl(const Npp32f *pSrc1, int nSrc1Step, const
                                        NppStreamContext nppStreamCtx);
 }
 
+static inline bool compareOpValid(NppCmpOp op) {
+  return op == NPP_CMP_LESS || op == NPP_CMP_LESS_EQ || op == NPP_CMP_EQ ||
+         op == NPP_CMP_GREATER_EQ || op == NPP_CMP_GREATER;
+}
+
 static inline NppStatus validateCompareInputs(const void *pSrc1, int nSrc1Step, const void *pSrc2, int nSrc2Step,
                                               void *pDst, int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp) {
-  // NPP does not validate eCompOp for compare: an illegal value short-circuits
-  // to NPP_NO_ERROR before any pointer / ROI checks (confirmed on NPP 13.4).
-  if (!(eCompOp == NPP_CMP_LESS || eCompOp == NPP_CMP_LESS_EQ || eCompOp == NPP_CMP_EQ ||
-        eCompOp == NPP_CMP_GREATER_EQ || eCompOp == NPP_CMP_GREATER)) {
-    return NPP_NO_ERROR;
-  }
+  (void)eCompOp;
   if (!pSrc1 || !pSrc2 || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
@@ -53,6 +53,7 @@ static inline NppStatus validateCompareInputs(const void *pSrc1, int nSrc1Step, 
 
 NppStatus nppiCompare_8u_C1R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -70,6 +71,7 @@ NppStatus nppiCompare_8u_C1R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSr
 
 NppStatus nppiCompare_16u_C1R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -87,6 +89,7 @@ NppStatus nppiCompare_16u_C1R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *
 
 NppStatus nppiCompare_32f_C1R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -105,6 +108,7 @@ NppStatus nppiCompare_32f_C1R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *
 // C3 wrappers
 NppStatus nppiCompare_8u_C3R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -122,6 +126,7 @@ NppStatus nppiCompare_8u_C3R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSr
 
 NppStatus nppiCompare_16u_C3R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -139,6 +144,7 @@ NppStatus nppiCompare_16u_C3R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *
 
 NppStatus nppiCompare_32f_C3R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -157,6 +163,7 @@ NppStatus nppiCompare_32f_C3R(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *
 // C4 wrappers
 NppStatus nppiCompare_8u_C4R_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                  int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -174,6 +181,7 @@ NppStatus nppiCompare_8u_C4R(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSr
 
 NppStatus nppiCompare_16u_C4R_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;
@@ -191,6 +199,7 @@ NppStatus nppiCompare_16u_C4R(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *
 
 NppStatus nppiCompare_32f_C4R_Ctx(const Npp32f *pSrc1, int nSrc1Step, const Npp32f *pSrc2, int nSrc2Step, Npp8u *pDst,
                                   int nDstStep, NppiSize oSizeROI, NppCmpOp eCompOp, NppStreamContext nppStreamCtx) {
+  if (!compareOpValid(eCompOp)) return NPP_NO_ERROR;
   NppStatus status = validateCompareInputs(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, eCompOp);
   if (status != NPP_SUCCESS) {
     return status;

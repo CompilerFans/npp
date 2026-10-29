@@ -33,6 +33,7 @@ Semantics (NVIDIA NPP 13.4):
     * CompareC / CompareEqualEpsC compare against per-channel constants.
 """
 import csv
+import os
 import re
 from pathlib import Path
 
@@ -78,7 +79,7 @@ LAYOUT_RE = re.compile(r"_(C1R|C1IR|C3R|C3IR|C4R|AC4R|AC4IR)(_Ctx)?$")
 
 def load_missing():
     out = []
-    with open(CSV) as f:
+    with open(os.environ.get("NPPI_TC_CSV", CSV)) as f:
         for row in csv.DictReader(f):
             fam = row["family"]
             if fam in ("family",) or row["status"] != "missing":
@@ -433,6 +434,13 @@ def validations_thresh(i, es):
     L.append("  if (%s.width == 0 || %s.height == 0) return NPP_NO_ERROR;" % (i["roi"], i["roi"]))
     if i["op"]:
         L.append("  if ((s = tcBadOp(%s)) != NPP_SUCCESS) return s;" % i["op"])
+    # NPP returns NPP_NO_ERROR for zero/short steps but must not launch a
+    # kernel that reads outside the caller's buffer (MACA poisons the context).
+    need = "(%s.width * %d * sizeof(%s))" % (i["roi"], i["ch"], i["T"])
+    if i.get("inpl"):
+        L.append("  if (%s < %s) return NPP_NO_ERROR;" % (i["sstep"], need))
+    else:
+        L.append("  if (%s < %s || %s < %s) return NPP_NO_ERROR;" % (i["sstep"], need, i["dstep"], need))
     return L
 
 
@@ -448,6 +456,12 @@ def validations_compare(i, es):
     L.append("  if ((s = tcNull((const void*)%s)) != NPP_SUCCESS) return s;" % i["dst"])
     L.append("  if (%s.width < 0 || %s.height < 0) return NPP_SIZE_ERROR;" % (i["roi"], i["roi"]))
     L.append("  if (%s.width == 0 || %s.height == 0) return NPP_NO_ERROR;" % (i["roi"], i["roi"]))
+    # Same zero/short-step guard as the threshold wrappers: NPP reports
+    # NPP_NO_ERROR, but MPP must not launch an out-of-bounds kernel.
+    need_src = "(%s.width * %d * sizeof(%s))" % (i["roi"], i["ch"], i["T"])
+    need_dst = "(%s.width * sizeof(Npp8u))" % i["roi"]
+    L.append("  if (%s < %s || %s < %s || %s < %s) return NPP_NO_ERROR;" %
+             (i["s1"], need_src, i["s2"], need_src, i["dstep"], need_dst))
     return L
 
 
@@ -911,62 +925,62 @@ def test_contract_body():
     L.append("TEST_F(NppiThresholdCompareDiff, Contract) {")
     L.append("  int seed = 4100;")
     L.append("  { // threshold GT: null pointer")
-    L.append("    std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 1);")
-    L.append("    DeviceMemory<Npp8u> &d = arena<Npp8u>(64); d.copyFromHost(hd);")
+    L.append("    std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 1);")
+    L.append("    DeviceMemory<Npp8u> &d = arena<Npp8u>(1024); d.copyFromHost(hd);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(nullptr, 8, d.get(), 8, NppiSize{4, 4}, 100, current_ctx());")
     L.append("    Case c(\"nppiThresh/nullPtr\", \"nppiThreshold_GT_8u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // threshold GT: negative size")
-    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 11); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 21);")
-    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);")
+    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 11); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 21);")
+    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);")
     L.append("    s.copyFromHost(hs); d.copyFromHost(hd);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{-4, 4}, 100, current_ctx());")
     L.append("    Case c(\"nppiThresh/negSize\", \"nppiThreshold_GT_8u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // threshold GT: empty ROI (no-op)")
-    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 31); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 41);")
-    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);")
+    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 31); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 41);")
+    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);")
     L.append("    s.copyFromHost(hs); d.copyFromHost(hd);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{0, 4}, 100, current_ctx());")
     L.append("    Case c(\"nppiThresh/emptyRoi\", \"nppiThreshold_GT_8u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // threshold GT: zero step")
-    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 51); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 61);")
-    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);")
+    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 51); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 61);")
+    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);")
     L.append("    s.copyFromHost(hs); d.copyFromHost(hd);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 0, d.get(), 8, NppiSize{4, 4}, 100, current_ctx());")
     L.append("    Case c(\"nppiThresh/zeroStep\", \"nppiThreshold_GT_8u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // threshold GT: insufficient step")
-    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 71); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 81);")
-    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);")
+    L.append("    std::vector<Npp8u> hs = make_uniform<Npp8u>(1024, seed + 71); std::vector<Npp8u> hd = make_uniform<Npp8u>(1024, seed + 81);")
+    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); DeviceMemory<Npp8u> &d = arena<Npp8u>(1024);")
     L.append("    s.copyFromHost(hs); d.copyFromHost(hd);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiThreshold_GT_8u_C1R_Ctx(s.get(), 4, d.get(), 8, NppiSize{8, 4}, 100, current_ctx());")
     L.append("    Case c(\"nppiThresh/shortStep\", \"nppiThreshold_GT_8u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // threshold base: illegal comparison operation")
-    L.append("    std::vector<Npp16u> hs = make_uniform<Npp16u>(64, seed + 91); std::vector<Npp16u> hd = make_uniform<Npp16u>(64, seed + 101);")
-    L.append("    DeviceMemory<Npp16u> &s = arena<Npp16u>(64); DeviceMemory<Npp16u> &d = arena<Npp16u>(64);")
+    L.append("    std::vector<Npp16u> hs = make_uniform<Npp16u>(1024, seed + 91); std::vector<Npp16u> hd = make_uniform<Npp16u>(1024, seed + 101);")
+    L.append("    DeviceMemory<Npp16u> &s = arena<Npp16u>(1024); DeviceMemory<Npp16u> &d = arena<Npp16u>(1024);")
     L.append("    s.copyFromHost(hs); d.copyFromHost(hd);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiThreshold_16u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{4, 4}, 100, (NppCmpOp)99, current_ctx());")
     L.append("    Case c(\"nppiThresh/badOp\", \"nppiThreshold_16u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // compare: null dst")
-    L.append("    std::vector<Npp8u> h = make_uniform<Npp8u>(64, seed + 111);")
-    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); s.copyFromHost(h);")
+    L.append("    std::vector<Npp8u> h = make_uniform<Npp8u>(1024, seed + 111);")
+    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); s.copyFromHost(h);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiCompare_8u_C1R_Ctx(s.get(), 8, s.get(), 8, nullptr, 8, NppiSize{4, 4}, NPP_CMP_LESS, current_ctx());")
     L.append("    Case c(\"nppiCmp/nullDst\", \"nppiCompare_8u_C1R\"); c.status(st); c.finish();")
     L.append("  }")
     L.append("  { // compare: invalid comparison op")
-    L.append("    std::vector<Npp8u> h = make_uniform<Npp8u>(64, seed + 121);")
-    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); s.copyFromHost(h);")
+    L.append("    std::vector<Npp8u> h = make_uniform<Npp8u>(1024, seed + 121);")
+    L.append("    DeviceMemory<Npp8u> &s = arena<Npp8u>(1024); s.copyFromHost(h);")
     L.append("    clear_cuda_error();")
     L.append("    NppStatus st = nppiCompare_8u_C1R_Ctx(s.get(), 8, s.get(), 8, nullptr, 8, NppiSize{4, 4}, (NppCmpOp)99, current_ctx());")
     L.append("    Case c(\"nppiCmp/badOp\", \"nppiCompare_8u_C1R\"); c.status(st); c.finish();")
