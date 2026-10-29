@@ -1693,7 +1693,7 @@ TEST(RefSuite, nppiWarpAffineBatchInit_Ctx) {
   NppStatus st = nppiWarpAffineBatchInit_Ctx(pBatchList->get(), 2, ctx);
   npp_diff::Case c("ref/nppiWarpAffineBatchInit_Ctx", "nppiWarpAffineBatchInit_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pBatchList->get(), 2 * sizeof(NppiWarpAffineBatchCXR));
+  ref_capture_batch_structs(c, pBatchList->get(), 2);
   c.finish();
 }
 
@@ -2691,7 +2691,7 @@ TEST(RefSuite, nppiWarpPerspectiveBatchInit_Ctx) {
   NppStatus st = nppiWarpPerspectiveBatchInit_Ctx(pBatchList->get(), 2, ctx);
   npp_diff::Case c("ref/nppiWarpPerspectiveBatchInit_Ctx", "nppiWarpPerspectiveBatchInit_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pBatchList->get(), 2 * sizeof(NppiWarpPerspectiveBatchCXR));
+  ref_capture_batch_structs(c, pBatchList->get(), 2);
   c.finish();
 }
 

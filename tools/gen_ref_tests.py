@@ -222,6 +222,13 @@ def channel_tokens(fn: str) -> List[int]:
         # NPP AC1 images carry one color channel plus a separate alpha
         # channel (2 values per pixel); AC4 packs alpha into the 4th slot.
         toks.append(2 if m.group(1) == "AC" and n == 1 else n)
+    if len(toks) == 1 and re.search(r"(?:8|16|32|64)u24u_", base):
+        # A 24-bit packed destination dtype (nppiLUTPalette_*24u): NPP 13.4
+        # declares the destination as Npp8u * but writes 3 bytes per pixel,
+        # so the second image pointer needs a 3-wide token or its step
+        # under-covers the row (NPP writes overlapping rows -- a data race
+        # -- instead of rejecting the step).
+        toks = [toks[0], 3]
     return toks or [1]
 
 
@@ -784,8 +791,10 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             args.append(f"{n}->get()")
             if fn.endswith("BatchInit_Ctx"):
                 # The Init entry point's output is the transformed-coefficient
-                # block it writes inside each device-side struct.
-                captures.append(f"  ref_capture_bytes(c, {n}->get(), {NBATCH} * sizeof({T}));")
+                # block it writes inside each device-side struct; the struct
+                # also embeds device pointers, so capture through the masking
+                # helper to keep the golden reproducible across runs.
+                captures.append(f"  ref_capture_batch_structs(c, {n}->get(), {NBATCH});")
             else:
                 for b in range(NBATCH):
                     captures.append(f"  ref_capture_bytes(c, {n}_dst{b}->get(), {cnt} * sizeof({t}));")

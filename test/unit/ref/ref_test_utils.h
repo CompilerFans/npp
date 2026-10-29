@@ -98,4 +98,46 @@ inline void ref_capture_bytes(npp_diff::Case &c, const void *ptr, size_t bytes) 
   c.device_output<uint8_t>(reinterpret_cast<const uint8_t *>(ptr), bytes, npp_diff::ValueKind::Bytes);
 }
 
+// Batch descriptor structs embed device pointers, which are cudaMalloc
+// addresses and differ between runs; a raw capture of a struct list would
+// flake in verify.  ref_capture_batch_structs() copies the list back to
+// host, nulls the pointer fields, and captures the deterministic remainder
+// (steps, sizes and the transformed-coefficient block that the
+// nppi*BatchInit entry points write inside each struct).  Every captured
+// struct type must provide a RefBatchPointerFields specialization that
+// nulls its pointer fields; the undefined primary template makes an
+// unspecialized capture a compile error instead of a silent pointer leak.
+template <typename T> struct RefBatchPointerFields;
+
+template <> struct RefBatchPointerFields<NppiWarpAffineBatchCXR> {
+  static void mask(NppiWarpAffineBatchCXR &s) {
+    s.pSrc = nullptr;
+    s.pDst = nullptr;
+    s.pCoeffs = nullptr;
+  }
+};
+
+template <> struct RefBatchPointerFields<NppiWarpPerspectiveBatchCXR> {
+  static void mask(NppiWarpPerspectiveBatchCXR &s) {
+    s.pSrc = nullptr;
+    s.pDst = nullptr;
+    s.pCoeffs = nullptr;
+  }
+};
+
+template <typename T>
+void ref_capture_batch_structs(npp_diff::Case &c, const T *dev, size_t count) {
+  std::vector<T> host(count);
+  if (count > 0 && dev != nullptr) {
+    cudaDeviceSynchronize();
+    cudaError_t err = cudaMemcpy(host.data(), dev, count * sizeof(T), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+      ADD_FAILURE() << "cudaMemcpy(D2H) failed for batch structs: " << cudaGetErrorString(err);
+    }
+  }
+  for (auto &s : host) RefBatchPointerFields<T>::mask(s);
+  c.host_output<uint8_t>(reinterpret_cast<const uint8_t *>(host.data()),
+                         host.size() * sizeof(T), npp_diff::ValueKind::Bytes);
+}
+
 } // namespace ref
