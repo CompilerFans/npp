@@ -22,6 +22,7 @@
 
 #include "npp.h"
 #include "npp_version_compat.h"
+#include "npp_kernel_utils.h"
 
 #include <cuda_runtime.h>
 #include <cmath>
@@ -81,10 +82,10 @@ NppStatus binaryRoundInplace(const A* a, D* d, NppSignalLength nLength, NppRound
 namespace detail {
 constexpr int kBlock = 256;
 
-// Laplace before launch: clear any stale error, launch, then re-check.
-inline NppStatus finish_launch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
+// Kernel-launch error check (clear any stale error, launch, then re-check)
+// moved to the shared header npp_kernel_utils.h (package p0.1); re-exported
+// here so this family's call sites keep using the unqualified name.
+using npp_kernel::checkCudaKernelError;
 
 __device__ __forceinline__ long long re_ll(const Npp8u&  v) { return (long long)v; }
 __device__ __forceinline__ long long re_ll(const Npp8s&  v) { return (long long)v; }

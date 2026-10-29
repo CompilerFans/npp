@@ -17,9 +17,10 @@ namespace ek = npps::elementwise::detail;
 
 namespace {
 
-inline NppStatus finish_launch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h
+// (package p0.1); re-exported here so the executors below keep using the
+// unqualified name.
+using npp_kernel::checkCudaKernelError;
 
 }  // namespace
 
@@ -163,7 +164,7 @@ NppStatus run_scaled(const A* src, D* dst, NppSignalLength nLength, int sf, cuda
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::unary_sfs_kernel<F, A, D><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, dst, nLength, op, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename F, typename A>
 NppStatus run_scaled_i(A* d, NppSignalLength nLength, int sf, cudaStream_t stream) {
@@ -174,7 +175,7 @@ NppStatus run_scaled_i(A* d, NppSignalLength nLength, int sf, cudaStream_t strea
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::unary_sfs_inplace_kernel<F, A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(d, nLength, op, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename F, typename A, typename D>
 NppStatus run_float(const A* src, D* dst, NppSignalLength nLength, cudaStream_t stream) {
@@ -185,7 +186,7 @@ NppStatus run_float(const A* src, D* dst, NppSignalLength nLength, cudaStream_t 
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::unary_f_kernel<F, A, D><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, dst, nLength, op);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename F, typename A>
 NppStatus run_float_inplace(A* src, NppSignalLength nLength, cudaStream_t stream) {
@@ -196,7 +197,7 @@ NppStatus run_float_inplace(A* src, NppSignalLength nLength, cudaStream_t stream
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::unary_f_inplace_kernel<F, A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, nLength, op);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename A>
 NppStatus run_shift(const A* src, int sh, A* dst, NppSignalLength nLength, char dir, cudaStream_t stream) {
@@ -207,7 +208,7 @@ NppStatus run_shift(const A* src, int sh, A* dst, NppSignalLength nLength, char 
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::shift_kernel<A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, sh, dst, nLength, dir);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename A>
 NppStatus run_shift_inplace(int sh, A* src, NppSignalLength nLength, char dir, cudaStream_t stream) {
@@ -218,7 +219,7 @@ NppStatus run_shift_inplace(int sh, A* src, NppSignalLength nLength, char dir, c
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::shift_inplace_kernel<A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, sh, nLength, dir);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename A>
 NppStatus run_bitwise(const A* a, const A* b, A* d, NppSignalLength nLength, int op, cudaStream_t stream) {
@@ -229,7 +230,7 @@ NppStatus run_bitwise(const A* a, const A* b, A* d, NppSignalLength nLength, int
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::bitwise_bin_kernel<A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(a, b, d, nLength, op);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename A>
 NppStatus run_bitwise_inplace(const A* a, A* d, NppSignalLength nLength, int op, cudaStream_t stream) {
@@ -240,7 +241,7 @@ NppStatus run_bitwise_inplace(const A* a, A* d, NppSignalLength nLength, int op,
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::bitwise_bin_inplace_kernel<A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(a, d, nLength, op);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename A>
 NppStatus run_not(const A* src, A* dst, NppSignalLength nLength, int inplace, cudaStream_t stream) {
@@ -252,7 +253,7 @@ NppStatus run_not(const A* src, A* dst, NppSignalLength nLength, int inplace, cu
   (void)cudaGetLastError();
   if (inplace) kernel::not_inplace_kernel<A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(dst, nLength);
   else kernel::not_kernel<A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, dst, nLength);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename A, typename D>
 NppStatus run_sumln(const A* src, NppSignalLength nLength, D* dst, Npp8u* buf, cudaStream_t stream) {
@@ -264,9 +265,9 @@ NppStatus run_sumln(const A* src, NppSignalLength nLength, D* dst, Npp8u* buf, c
   D* partial = reinterpret_cast<D*>(buf);
   (void)cudaGetLastError();
   kernel::sumln_partial<A, D><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, nLength, partial);
-  if (finish_launch() != NPP_NO_ERROR) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  if (checkCudaKernelError() != NPP_NO_ERROR) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   kernel::sumln_final<D><<<1, ek::kBlock, 0, stream>>>(partial, grid, dst);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 }  // anonymous namespace
@@ -330,7 +331,7 @@ NppStatus mulLow(const Npp32s* a, const Npp32s* b, Npp32s* d, NppSignalLength nL
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::mullow_kernel<<<(unsigned)grid, ek::kBlock, 0, stream>>>(a, b, d, nLength, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename A, typename D>
@@ -353,7 +354,7 @@ NppStatus cauchy(Npp32f* d, NppSignalLength n, Npp32f p, cudaStream_t stream) {
   const size_t g = ((size_t)n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::cauchy_kernel<<<(unsigned)g, ek::kBlock, 0, stream>>>(d, n, p);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 NppStatus cauchyD(Npp32f* d, NppSignalLength n, Npp32f p, cudaStream_t stream) {
   if (!d) return NPP_NULL_POINTER_ERROR;
@@ -361,7 +362,7 @@ NppStatus cauchyD(Npp32f* d, NppSignalLength n, Npp32f p, cudaStream_t stream) {
   const size_t g = ((size_t)n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::cauchyD_kernel<<<(unsigned)g, ek::kBlock, 0, stream>>>(d, n, p);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 NppStatus cauchyDD2(Npp32f* d, Npp32f* d2, NppSignalLength n, Npp32f p, cudaStream_t stream) {
   if (!d || !d2) return NPP_NULL_POINTER_ERROR;
@@ -369,7 +370,7 @@ NppStatus cauchyDD2(Npp32f* d, Npp32f* d2, NppSignalLength n, Npp32f p, cudaStre
   const size_t g = ((size_t)n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::cauchyDD2_kernel<<<(unsigned)g, ek::kBlock, 0, stream>>>(d, d2, n, p);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 // --- explicit instantiations ---

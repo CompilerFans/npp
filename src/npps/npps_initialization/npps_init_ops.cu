@@ -5,6 +5,7 @@
 #include "npp.h"
 #include "npp_version_compat.h"
 #include "npps_initialization_executor.h"
+#include "npp_kernel_utils.h"
 
 #include <cuda_runtime.h>
 #include <cstdint>
@@ -28,9 +29,10 @@ __global__ void copy_kernel(const T *src, T *dst, size_t n) {
   if (i < n) dst[i] = src[i];
 }
 
-inline NppStatus finish_launch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h
+// (package p0.1); re-exported here so the executors below keep using the
+// unqualified name.
+using npp_kernel::checkCudaKernelError;
 
 // Shared validation for all three families.  nLength is a signed length on the
 // MPP side (NppSignalLength == int) and size_t on the reference NPP 13; the
@@ -52,7 +54,7 @@ NppStatus set(T value, T *pDst, NppSignalLength nLength, cudaStream_t stream) {
   const size_t n = static_cast<size_t>(nLength);
   const size_t grid = (n + kBlockSize - 1) / kBlockSize;
   set_kernel<<<grid, kBlockSize, 0, stream>>>(value, pDst, n);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename T>
@@ -64,7 +66,7 @@ NppStatus copy(const T *pSrc, T *pDst, NppSignalLength nLength, cudaStream_t str
   const size_t n = static_cast<size_t>(nLength);
   const size_t grid = (n + kBlockSize - 1) / kBlockSize;
   copy_kernel<<<grid, kBlockSize, 0, stream>>>(pSrc, pDst, n);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename T>

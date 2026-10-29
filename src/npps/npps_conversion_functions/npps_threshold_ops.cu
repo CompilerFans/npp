@@ -15,9 +15,10 @@ namespace {
 
 constexpr int kBlock = 256;
 
-inline NppStatus finish_launch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h
+// (package p0.1); re-exported here so the executors below keep using the
+// unqualified name.
+using npp_kernel::checkCudaKernelError;
 
 // Compare the scalar threshold level against the real part of a sample.
 template <typename T, typename L>
@@ -84,7 +85,7 @@ NppStatus th_run(const T* src, T* dst, NppSignalLength n, L level, NppCmpOp op, 
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
   if (n == 0) return NPP_SIZE_ERROR;
   threshold_kernel<T, L><<<(n + kBlock - 1) / kBlock, kBlock, 0, stream>>>(src, dst, n, level, op);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename T, typename L>
@@ -94,7 +95,7 @@ NppStatus th_run_val(const T* src, T* dst, NppSignalLength n, L level, T value, 
   if (n == 0) return NPP_SIZE_ERROR;
   threshold_val_kernel<T, L><<<(n + kBlock - 1) / kBlock, kBlock, 0, stream>>>(
       src, dst, n, level, value, op);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 }  // namespace

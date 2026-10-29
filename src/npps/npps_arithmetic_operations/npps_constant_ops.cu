@@ -17,9 +17,11 @@ namespace ed = npps::elementwise;
 namespace ek = npps::elementwise::detail;
 
 namespace {
-inline NppStatus finish_launch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
+
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h
+// (package p0.1); re-exported here so the executors below keep using the
+// unqualified name.
+using npp_kernel::checkCudaKernelError;
 
 // integer division with round-half-to-even, matching the element-wise DivOp.
 template <typename D>
@@ -280,7 +282,7 @@ NppStatus run_constant(const A * src, A value, A * dst, NppSignalLength nLength,
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::constant_kernel<F, A, A, A><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, value, dst, nLength, op, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename F, typename AIN, typename V, typename AOUT>
@@ -291,7 +293,7 @@ NppStatus run_mixed(const AIN* src, V value, AOUT* dst, NppSignalLength nLength,
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::constant_kernel<F, AIN, V, AOUT><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, value, dst, n, op, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename F, typename V, typename AOUT>
@@ -302,7 +304,7 @@ NppStatus run_inplace_mixed(V value, AOUT* dst, NppSignalLength n_len, int sf, c
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::inplace_mixed_kernel<F, V, AOUT><<<(unsigned)grid, ek::kBlock, 0, stream>>>(value, dst, n, op, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename A, typename V>
@@ -313,7 +315,7 @@ NppStatus run_acc(const A* src, V value, A* dst, NppSignalLength n_len, cudaStre
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   (void)cudaGetLastError();
   kernel::accumulate_kernel<A, V><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, value, dst, n);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 template <typename F, typename A, typename DV>
 NppStatus run_normalize(const A* src, A vSub, DV vDiv, A* dst, NppSignalLength nLength, int sf, cudaStream_t stream) {
@@ -323,7 +325,7 @@ NppStatus run_normalize(const A* src, A vSub, DV vDiv, A* dst, NppSignalLength n
   const size_t grid = (n + ek::kBlock - 1) / ek::kBlock;
   F op; (void)cudaGetLastError();
   kernel::normalize_kernel<F, A, DV><<<(unsigned)grid, ek::kBlock, 0, stream>>>(src, vSub, vDiv, dst, n, op, sf);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 }  // namespace
 

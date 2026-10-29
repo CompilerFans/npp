@@ -19,9 +19,10 @@ namespace {
 
 constexpr int kBlock = 256;
 
-inline NppStatus finish_launch() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
+// Kernel-launch error check moved to the shared header npp_kernel_utils.h
+// (package p0.1); re-exported here so the executors below keep using the
+// unqualified name.
+using npp_kernel::checkCudaKernelError;
 
 __device__ __host__ __forceinline__ double pow2d(int sf) {
   double r = 1.0;
@@ -105,7 +106,7 @@ NppStatus convert(const A* src, D* dst, NppSignalLength nLength, cudaStream_t st
   if (!src || !dst) return NPP_NULL_POINTER_ERROR;
   if (nLength == 0) return NPP_SIZE_ERROR;
   convert_kernel<A, D><<<(nLength + kBlock - 1) / kBlock, kBlock, 0, stream>>>(src, dst, nLength);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename A, typename D>
@@ -115,7 +116,7 @@ NppStatus convertScale(const A* src, D* dst, NppSignalLength nLength, int nScale
   if (nLength == 0) return NPP_SIZE_ERROR;
   convert_scale_kernel<A, D><<<(nLength + kBlock - 1) / kBlock, kBlock, 0, stream>>>(
       src, dst, nLength, nScaleFactor);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 template <typename A, typename D>
@@ -125,7 +126,7 @@ NppStatus convertRound(const A* src, D* dst, NppSignalLength nLength, NppRoundMo
   if (nLength == 0) return NPP_SIZE_ERROR;
   convert_round_kernel<A, D><<<(nLength + kBlock - 1) / kBlock, kBlock, 0, stream>>>(
       src, dst, nLength, mode, nScaleFactor);
-  return finish_launch();
+  return checkCudaKernelError();
 }
 
 // -- explicit instantiations -------------------------------------------------
