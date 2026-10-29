@@ -101,6 +101,32 @@ NppStatus runMinMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDevi
                     cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
+// MinIndx / MaxIndx (per-channel extreme value + its pixel coordinate).
+// ---------------------------------------------------------------------------
+
+// out = per-channel minimum (IsMin=true) or maximum (IsMin=false) of the ROI
+// together with the (x, y) coordinate of the first (in row-major scan order)
+// pixel holding that extreme.  Channels = packed channels per pixel;
+// AlphaPreserve selects AC4 (reduces Channels-1, output holds those values).
+// pValue / pIndexX / pIndexY each hold readCh elements on device.
+template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
+NppStatus runExtrIndx(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pValue, int *pIndexX,
+                      int *pIndexY, cudaStream_t stream);
+
+// ---------------------------------------------------------------------------
+// MinMaxIndx (single selected channel -> scalar min/max + NppiPoint positions)
+// ---------------------------------------------------------------------------
+
+// Single-channel min & max with the position of each.  pMask may be null (then
+// nMaskStep is unused); nCOI is 1-based and only meaningful for 3-channel
+// inputs (Channels=3 selects channel nCOI-1).  All outputs are single scalars /
+// single NppiPoint on device.
+template <typename D, int Channels>
+NppStatus runMinMaxIndx(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI, int nCOI,
+                        D *pMinValue, D *pMaxValue, NppiPoint *pMinIndex, NppiPoint *pMaxIndex, Npp8u *pDeviceBuffer,
+                        cudaStream_t stream);
+
+// ---------------------------------------------------------------------------
 // Buffer-size helpers (host side; the stream context is not needed).
 // ---------------------------------------------------------------------------
 
@@ -110,6 +136,9 @@ NppStatus meanStdDevGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus minGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus maxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus minMaxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus minIndxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus maxIndxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus minMaxIndxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 
 }  // namespace statistics
 }  // namespace nppi

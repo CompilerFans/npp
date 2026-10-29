@@ -1,0 +1,14 @@
+{
+  "family": "nppiMinIndx",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_min_indx_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiMinIndx", "nppiMinIndxGetBufferHostSize"],
+  "call_by_family": {
+     "nppiMinIndxGetBufferHostSize": "nppi::statistics::minIndxGetBufferHostSize(oSizeROI, hpBufferSize)"
+  },
+  "call_variants": [
+     {"contains": "aMin", "call": "nppi::statistics::runExtrIndx<{dtype},{chan},{is_ac4},true>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, aMin, aIndexX, aIndexY, nppStreamCtx.hStream)"}
+  ],
+  "call": "nppi::statistics::runExtrIndx<{dtype},{chan},{is_ac4},true>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMin, pIndexX, pIndexY, nppStreamCtx.hStream)"
+}

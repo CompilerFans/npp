@@ -3,7 +3,7 @@
 
 using namespace nppi::statistics;
 
-template <typename T, int C> using MaxEvery = BinaryInplaceOpAPI<T, C, MaxEveryOp>;
+template <typename T, int C, int R = C> using MaxEvery = BinaryInplaceOpAPI<T, C, R, MaxEveryOp>;
 
 // ============================================================================
 // Npp8u - Unsigned 8-bit
@@ -154,3 +154,36 @@ NppStatus nppiMaxEvery_32f_C4IR_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pS
 NppStatus nppiMaxEvery_32f_C4IR(const Npp32f *pSrc, int nSrcStep, Npp32f *pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
   return nppiMaxEvery_32f_C4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
 }
+
+// ============================================================================
+// AC4IR - 4 Channel In-place, alpha preserved (first 3 channels merged)
+// ============================================================================
+
+NppStatus nppiMaxEvery_8u_AC4IR_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return MaxEvery<Npp8u, 4, 3>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+NppStatus nppiMaxEvery_8u_AC4IR(const Npp8u * pSrc, int nSrcStep, Npp8u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiMaxEvery_8u_AC4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiMaxEvery_16u_AC4IR_Ctx(const Npp16u * pSrc, int nSrcStep, Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return MaxEvery<Npp16u, 4, 3>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+NppStatus nppiMaxEvery_16u_AC4IR(const Npp16u * pSrc, int nSrcStep, Npp16u * pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiMaxEvery_16u_AC4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiMaxEvery_16s_AC4IR_Ctx(const Npp16s * pSrc, int nSrcStep, Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return MaxEvery<Npp16s, 4, 3>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+NppStatus nppiMaxEvery_16s_AC4IR(const Npp16s * pSrc, int nSrcStep, Npp16s * pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiMaxEvery_16s_AC4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
+NppStatus nppiMaxEvery_32f_AC4IR_Ctx(const Npp32f * pSrc, int nSrcStep, Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  return MaxEvery<Npp32f, 4, 3>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, nppStreamCtx);
+}
+NppStatus nppiMaxEvery_32f_AC4IR(const Npp32f * pSrc, int nSrcStep, Npp32f * pSrcDst, int nSrcDstStep, NppiSize oSizeROI) {
+  return nppiMaxEvery_32f_AC4IR_Ctx(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, getDefaultStreamContext());
+}
+
