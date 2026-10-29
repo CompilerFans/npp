@@ -174,5 +174,23 @@
       "nppiMinEvery",
       "nppiMaxEvery"
     ]
+  },
+  "p3.1b1": {
+    "title": "NPPI Norm/NormDiff L1/L2/Inf + buffer sizes",
+    "module": "nppi_statistics_functions.h",
+    "families": [
+      "nppiNorm_L1",
+      "nppiNorm_L2",
+      "nppiNorm_Inf",
+      "nppiNormDiff_L1",
+      "nppiNormDiff_L2",
+      "nppiNormDiff_Inf",
+      "nppiNormL1GetBufferHostSize",
+      "nppiNormL2GetBufferHostSize",
+      "nppiNormInfGetBufferHostSize",
+      "nppiNormDiffL1GetBufferHostSize",
+      "nppiNormDiffL2GetBufferHostSize",
+      "nppiNormDiffInfGetBufferHostSize"
+    ]
   }
 }
