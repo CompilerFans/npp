@@ -865,12 +865,12 @@ TEST_F(NppiCrossCorrDiff, Scratch_Sufficiency) {
                            NppiSize{2, 2}, 3, 0x462, &nppiCrossCorrSame_NormLevelAdvanced_16u32f_C3R_Ctx, scratch(),
                            advSame.get());
 
-  int need = 0;
+  size_t need = 0;
   {
     Case c("xcorr/scratchsize/sufficiency/nl_hostsize", "nppiFullNormLevelGetBufferHostSize_32f_AC4R_Ctx");
     NppStatus st = nppiFullNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize{6, 5}, &need, current_context());
     c.status(st);
-    c.host_output(&need, 1, ValueKind::I32);
+    c.host_output(&need, 1, ValueKind::U64);
     c.finish();
   }
   ASSERT_GT(need, 0);
