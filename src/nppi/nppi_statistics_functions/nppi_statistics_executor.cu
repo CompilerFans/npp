@@ -882,9 +882,16 @@ NppStatus runExtrIndx(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDe
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
   const int area = oSizeROI.width * oSizeROI.height;
   const int blocks = numBlocks(area);
-  D *vPart = reinterpret_cast<D *>(pDeviceBuffer);
-  int *xPart = reinterpret_cast<int *>(vPart + (size_t)blocks * nCh);
-  int *yPart = xPart + (size_t)blocks * nCh;
+  // Align each partial section so 1/2-byte dtypes do not create misaligned
+  // int position arrays (MACA traps on misaligned stores).
+  char *base = reinterpret_cast<char *>(pDeviceBuffer);
+  D *vPart = reinterpret_cast<D *>(base);
+  size_t off = (size_t)blocks * nCh * sizeof(D);
+  off = (off + 7u) & ~(size_t)7u;
+  int *xPart = reinterpret_cast<int *>(base + off);
+  off += (size_t)blocks * nCh * sizeof(int);
+  off = (off + 7u) & ~(size_t)7u;
+  int *yPart = reinterpret_cast<int *>(base + off);
 
   (void)cudaGetLastError();
   extrIndxKernel<D, Channels, AlphaPreserve, IsMin>
@@ -915,12 +922,23 @@ NppStatus runMinMaxIndx(const D *p, int nSrcStep, const Npp8u *pMask, int nMaskS
   if (nSrcStep < oi.width * Channels * (int)sizeof(D)) return NPP_STEP_ERROR;
 
   const int blocks = numBlocks(oi.width * oi.height);
-  D *minV = reinterpret_cast<D *>(pDeviceBuffer);
-  int *minX = reinterpret_cast<int *>(minV + blocks);
-  int *minY = minX + blocks;
-  D *maxV = reinterpret_cast<D *>(minY + blocks);
-  int *maxX = reinterpret_cast<int *>(maxV + blocks);
-  int *maxY = maxX + blocks;
+  char *base = reinterpret_cast<char *>(pDeviceBuffer);
+  D *minV = reinterpret_cast<D *>(base);
+  size_t off = (size_t)blocks * sizeof(D);
+  off = (off + 7u) & ~(size_t)7u;
+  int *minX = reinterpret_cast<int *>(base + off);
+  off += (size_t)blocks * sizeof(int);
+  off = (off + 7u) & ~(size_t)7u;
+  int *minY = reinterpret_cast<int *>(base + off);
+  off += (size_t)blocks * sizeof(int);
+  off = (off + 7u) & ~(size_t)7u;
+  D *maxV = reinterpret_cast<D *>(base + off);
+  off += (size_t)blocks * sizeof(D);
+  off = (off + 7u) & ~(size_t)7u;
+  int *maxX = reinterpret_cast<int *>(base + off);
+  off += (size_t)blocks * sizeof(int);
+  off = (off + 7u) & ~(size_t)7u;
+  int *maxY = reinterpret_cast<int *>(base + off);
 
   (void)cudaGetLastError();
   minmaxIndxKernel<D, Channels><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
