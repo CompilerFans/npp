@@ -16,7 +16,7 @@ NppStatus binary(const A* a, const B* b, D* d, NppSignalLength nLength, int nSca
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
   binary_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, op, nScaleFactor);
-  return detail::finish_launch();
+  return detail::checkCudaKernelError();
 }
 
 template <typename F, typename A, typename D>
@@ -29,7 +29,7 @@ NppStatus binaryInplace(const A* a, D* d, NppSignalLength nLength, int nScaleFac
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
   binary_inplace_kernel<A, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, d, nLength, op, nScaleFactor);
-  return detail::finish_launch();
+  return detail::checkCudaKernelError();
 }
 
 template <typename F, typename A, typename B, typename D>
@@ -42,7 +42,7 @@ NppStatus binaryAccum(const A* a, const B* b, D* d, NppSignalLength nLength, int
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
   binary_accum_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, op, nScaleFactor);
-  return detail::finish_launch();
+  return detail::checkCudaKernelError();
 }
 
 template <typename F, typename A, typename B, typename D>
@@ -55,7 +55,7 @@ NppStatus binaryRound(const A* a, const B* b, D* d, NppSignalLength nLength, Npp
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
   binary_round_kernel<A, B, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, b, d, nLength, nRndMode, op, nScaleFactor);
-  return detail::finish_launch();
+  return detail::checkCudaKernelError();
 }
 
 template <typename F, typename A, typename D>
@@ -68,7 +68,7 @@ NppStatus binaryRoundInplace(const A* a, D* d, NppSignalLength nLength, NppRound
   F op;
   (void)cudaGetLastError();  // clear stale error before launch
   binary_inplace_round_kernel<A, D, F><<<(unsigned)grid, detail::kBlock, 0, stream>>>(a, d, nLength, nRndMode, op, nScaleFactor);
-  return detail::finish_launch();
+  return detail::checkCudaKernelError();
 }
 
 template NppStatus binary<AddOp, Npp16s, Npp16s, Npp16s>(const Npp16s* a, const Npp16s* b, Npp16s* d, NppSignalLength, int, cudaStream_t);
