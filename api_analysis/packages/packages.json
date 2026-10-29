@@ -209,5 +209,15 @@
       "nppiSameNormLevelGetBufferHostSize",
       "nppiValidNormLevelGetBufferHostSize"
     ]
+  },
+  "p1.3c": {
+    "title": "NPPI average error metrics (AverageError, AverageRelativeError)",
+    "module": "nppi_statistics_functions.h",
+    "families": [
+      "nppiAverageError",
+      "nppiAverageErrorGetBufferHostSize",
+      "nppiAverageRelativeError",
+      "nppiAverageRelativeErrorGetBufferHostSize"
+    ]
   }
 }
