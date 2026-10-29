@@ -1,0 +1,10 @@
+{
+  "family": "nppiFullNormLevelGetBufferHostSize",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_fullnormlevel_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiFullNormLevelGetBufferHostSize"],
+  "call_by_family": {
+    "nppiFullNormLevelGetBufferHostSize": "nppi::statistics::fullNormLevelGetBufferHostSize(oSizeROI, hpBufferSize)"
+  }
+}
