@@ -1,0 +1,10 @@
+[
+  {
+    "function": "nppsIntegralGetBufferSize_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppsIntegral_32s",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  }
+]

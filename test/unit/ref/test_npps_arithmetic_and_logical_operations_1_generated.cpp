@@ -8,6 +8,607 @@ using namespace npp_functional_test;
 using namespace npp_diff;
 using namespace ref;
 
+TEST(RefSuite, nppsMul_32fc_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp32fc>(257, 0xd5a5f006);
+  auto pSrc2 = ref_device<Npp32fc>(257, 0x53d99d8c);
+  auto pDst = ref_device<Npp32fc>(257, 0x5d994242);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32fc_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_32fc_Ctx", "nppsMul_32fc_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32fc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32fc_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32fc>(257, 0x2b095340);
+  auto pSrcDst = ref_device<Npp32fc>(257, 0xe8af04cc);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32fc_I_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_32fc_I_Ctx", "nppsMul_32fc_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32fc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32s32sc_ISfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32s>(257, 0xa26c97c9);
+  auto pSrcDst = ref_device<Npp32sc>(257, 0x2e91c091);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32s32sc_ISfs_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_32s32sc_ISfs_Ctx", "nppsMul_32s32sc_ISfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32sc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32s32sc_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp32s>(257, 0xc7394f5b);
+  auto pSrc2 = ref_device<Npp32sc>(257, 0x1ce0fb58);
+  auto pDst = ref_device<Npp32sc>(257, 0x6a0a831f);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32s32sc_Sfs_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_32s32sc_Sfs_Ctx", "nppsMul_32s32sc_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32sc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32s_ISfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32s>(257, 0x484b2730);
+  auto pSrcDst = ref_device<Npp32s>(257, 0xf0029f6c);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32s_ISfs_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_32s_ISfs_Ctx", "nppsMul_32s_ISfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32s_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp32s>(257, 0x4ce46229);
+  auto pSrc2 = ref_device<Npp32s>(257, 0xadd8cf24);
+  auto pDst = ref_device<Npp32s>(257, 0x9afa73d0);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32s_Sfs_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_32s_Sfs_Ctx", "nppsMul_32s_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32sc_ISfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32sc>(257, 0xb8646f0f);
+  auto pSrcDst = ref_device<Npp32sc>(257, 0x6c9db36e);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32sc_ISfs_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_32sc_ISfs_Ctx", "nppsMul_32sc_ISfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32sc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_32sc_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp32sc>(257, 0x1824a328);
+  auto pSrc2 = ref_device<Npp32sc>(257, 0x585c834a);
+  auto pDst = ref_device<Npp32sc>(257, 0x4592d776);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_32sc_Sfs_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_32sc_Sfs_Ctx", "nppsMul_32sc_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32sc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_64f_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp64f>(257, 0xc3c7b422);
+  auto pSrc2 = ref_device<Npp64f>(257, 0x741e45a1);
+  auto pDst = ref_device<Npp64f>(257, 0x7010b35d);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_64f_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_64f_Ctx", "nppsMul_64f_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp64f));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_64f_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp64f>(257, 0x9578f9cc);
+  auto pSrcDst = ref_device<Npp64f>(257, 0x1be8e1f6);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_64f_I_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_64f_I_Ctx", "nppsMul_64f_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp64f));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_64fc_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp64fc>(257, 0x6e1a1343);
+  auto pSrc2 = ref_device<Npp64fc>(257, 0x4b4aa5e2);
+  auto pDst = ref_device<Npp64fc>(257, 0x1bed78eb);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_64fc_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_64fc_Ctx", "nppsMul_64fc_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp64fc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_64fc_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp64fc>(257, 0x1c218347);
+  auto pSrcDst = ref_device<Npp64fc>(257, 0xd7c7ad6d);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_64fc_I_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_64fc_I_Ctx", "nppsMul_64fc_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp64fc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_8u16u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp8u>(257, 0x415b492d);
+  auto pSrc2 = ref_device<Npp8u>(257, 0x246aafc0);
+  auto pDst = ref_device<Npp16u>(257, 0x65c74b4b);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_8u16u_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsMul_8u16u_Ctx", "nppsMul_8u16u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_8u_ISfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp8u>(257, 0x733a7a6e);
+  auto pSrcDst = ref_device<Npp8u>(257, 0xde1a62a3);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_8u_ISfs_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_8u_ISfs_Ctx", "nppsMul_8u_ISfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_8u_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp8u>(257, 0xf8d72091);
+  auto pSrc2 = ref_device<Npp8u>(257, 0x0a11db18);
+  auto pDst = ref_device<Npp8u>(257, 0xb6b31a3c);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_8u_Sfs_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_8u_Sfs_Ctx", "nppsMul_8u_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsMul_Low_32s_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp32s>(257, 0x4155f27c);
+  auto pSrc2 = ref_device<Npp32s>(257, 0x9563013b);
+  auto pDst = ref_device<Npp32s>(257, 0xf63a6b6b);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsMul_Low_32s_Sfs_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), 2, ctx);
+  npp_diff::Case c("ref/nppsMul_Low_32s_Sfs_Ctx", "nppsMul_Low_32s_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNormalize_16s_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16s>(257, 0x2996960a);
+  auto pDst = ref_device<Npp16s>(257, 0xe7ec9bab);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNormalize_16s_Sfs_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), 2, 2, 2, ctx);
+  npp_diff::Case c("ref/nppsNormalize_16s_Sfs_Ctx", "nppsNormalize_16s_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNormalize_16sc_Sfs_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16sc>(257, 0x4b29d9c6);
+  auto pDst = ref_device<Npp16sc>(257, 0x2dafdd19);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNormalize_16sc_Sfs_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), Npp16sc{2, 2}, 2, 2, ctx);
+  npp_diff::Case c("ref/nppsNormalize_16sc_Sfs_Ctx", "nppsNormalize_16sc_Sfs_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16sc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNormalize_32f_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32f>(257, 0x4f0b635d);
+  auto pDst = ref_device<Npp32f>(257, 0xc4f131a0);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNormalize_32f_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), 0.5, 0.5, ctx);
+  npp_diff::Case c("ref/nppsNormalize_32f_Ctx", "nppsNormalize_32f_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32f));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNormalize_32fc_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32fc>(257, 0x80290500);
+  auto pDst = ref_device<Npp32fc>(257, 0x42744770);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNormalize_32fc_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), Npp32fc{2, 2}, 0.5, ctx);
+  npp_diff::Case c("ref/nppsNormalize_32fc_Ctx", "nppsNormalize_32fc_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32fc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNormalize_64f_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp64f>(257, 0xdde2bf2d);
+  auto pDst = ref_device<Npp64f>(257, 0xa4dbb0df);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNormalize_64f_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), 0.5, 0.5, ctx);
+  npp_diff::Case c("ref/nppsNormalize_64f_Ctx", "nppsNormalize_64f_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp64f));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNormalize_64fc_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp64fc>(257, 0xc3c8ff21);
+  auto pDst = ref_device<Npp64fc>(257, 0x902a8654);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNormalize_64fc_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), Npp64fc{2, 2}, 0.5, ctx);
+  npp_diff::Case c("ref/nppsNormalize_64fc_Ctx", "nppsNormalize_64fc_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp64fc));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNot_16u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16u>(257, 0x040f22e7);
+  auto pDst = ref_device<Npp16u>(257, 0x3d0a5739);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNot_16u_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsNot_16u_Ctx", "nppsNot_16u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNot_16u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp16u>(257, 0x764e6c8a);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNot_16u_I_Ctx(pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsNot_16u_I_Ctx", "nppsNot_16u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNot_32u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32u>(257, 0x20eacb43);
+  auto pDst = ref_device<Npp32u>(257, 0x6708c9ba);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNot_32u_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsNot_32u_Ctx", "nppsNot_32u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNot_32u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp32u>(257, 0x207b35b4);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNot_32u_I_Ctx(pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsNot_32u_I_Ctx", "nppsNot_32u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNot_8u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp8u>(257, 0xe99066dc);
+  auto pDst = ref_device<Npp8u>(257, 0xb579ec71);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNot_8u_Ctx(pSrc->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsNot_8u_Ctx", "nppsNot_8u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsNot_8u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp8u>(257, 0xc1b3c50c);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsNot_8u_I_Ctx(pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsNot_8u_I_Ctx", "nppsNot_8u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOrC_16u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16u>(257, 0xf7a36d19);
+  auto pDst = ref_device<Npp16u>(257, 0x2df32dd6);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOrC_16u_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOrC_16u_Ctx", "nppsOrC_16u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOrC_16u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp16u>(257, 0x677b4293);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOrC_16u_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOrC_16u_I_Ctx", "nppsOrC_16u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOrC_32u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32u>(257, 0x58a9929f);
+  auto pDst = ref_device<Npp32u>(257, 0x54764c0a);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOrC_32u_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOrC_32u_Ctx", "nppsOrC_32u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOrC_32u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp32u>(257, 0x4ad8a68d);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOrC_32u_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOrC_32u_I_Ctx", "nppsOrC_32u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOrC_8u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp8u>(257, 0x74b0cd3d);
+  auto pDst = ref_device<Npp8u>(257, 0xa4aae0c5);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOrC_8u_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOrC_8u_Ctx", "nppsOrC_8u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOrC_8u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp8u>(257, 0x67c84848);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOrC_8u_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOrC_8u_I_Ctx", "nppsOrC_8u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOr_16u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp16u>(257, 0x9c648f12);
+  auto pSrc2 = ref_device<Npp16u>(257, 0x114beadb);
+  auto pDst = ref_device<Npp16u>(257, 0x9d66026b);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOr_16u_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOr_16u_Ctx", "nppsOr_16u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOr_16u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16u>(257, 0xcb00202b);
+  auto pSrcDst = ref_device<Npp16u>(257, 0x134f0380);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOr_16u_I_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOr_16u_I_Ctx", "nppsOr_16u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOr_32u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp32u>(257, 0x87a1d269);
+  auto pSrc2 = ref_device<Npp32u>(257, 0x22187c32);
+  auto pDst = ref_device<Npp32u>(257, 0xacf95734);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOr_32u_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOr_32u_Ctx", "nppsOr_32u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOr_32u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32u>(257, 0x44d761f5);
+  auto pSrcDst = ref_device<Npp32u>(257, 0xfa418865);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOr_32u_I_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOr_32u_I_Ctx", "nppsOr_32u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOr_8u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc1 = ref_device<Npp8u>(257, 0xb939be04);
+  auto pSrc2 = ref_device<Npp8u>(257, 0x431e1016);
+  auto pDst = ref_device<Npp8u>(257, 0xe44b03db);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOr_8u_Ctx(pSrc1->get(), pSrc2->get(), pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOr_8u_Ctx", "nppsOr_8u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsOr_8u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp8u>(257, 0x4bef6092);
+  auto pSrcDst = ref_device<Npp8u>(257, 0xc9a368c0);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsOr_8u_I_Ctx(pSrc->get(), pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsOr_8u_I_Ctx", "nppsOr_8u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_16s_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16s>(257, 0xf142ec70);
+  auto pDst = ref_device<Npp16s>(257, 0xc01a8bd9);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_16s_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_16s_Ctx", "nppsRShiftC_16s_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_16s_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp16s>(257, 0xf7b13471);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_16s_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_16s_I_Ctx", "nppsRShiftC_16s_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp16s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_16u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp16u>(257, 0x34f3efd8);
+  auto pDst = ref_device<Npp16u>(257, 0xe8ef9c63);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_16u_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_16u_Ctx", "nppsRShiftC_16u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_16u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp16u>(257, 0xc5d04892);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_16u_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_16u_I_Ctx", "nppsRShiftC_16u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp16u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_32s_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32s>(257, 0xd4dfa11f);
+  auto pDst = ref_device<Npp32s>(257, 0xc2e88396);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_32s_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_32s_Ctx", "nppsRShiftC_32s_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_32s_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp32s>(257, 0x9b263054);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_32s_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_32s_I_Ctx", "nppsRShiftC_32s_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32s));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_32u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp32u>(257, 0xb3084e04);
+  auto pDst = ref_device<Npp32u>(257, 0xe9dd07ad);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_32u_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_32u_Ctx", "nppsRShiftC_32u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_32u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp32u>(257, 0x3e9baa6e);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_32u_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_32u_I_Ctx", "nppsRShiftC_32u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp32u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_8u_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrc = ref_device<Npp8u>(257, 0x230d0f4b);
+  auto pDst = ref_device<Npp8u>(257, 0xbf268d0d);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_8u_Ctx(pSrc->get(), 2, pDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_8u_Ctx", "nppsRShiftC_8u_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
+TEST(RefSuite, nppsRShiftC_8u_I_Ctx) {
+  NppStreamContext ctx = ref_current_context();
+  auto pSrcDst = ref_device<Npp8u>(257, 0xa51c8d12);
+  npp_diff::clear_cuda_error();
+  NppStatus st = nppsRShiftC_8u_I_Ctx(2, pSrcDst->get(), static_cast<NppSignalLength>(257), ctx);
+  npp_diff::Case c("ref/nppsRShiftC_8u_I_Ctx", "nppsRShiftC_8u_I_Ctx");
+  c.status(st);
+  ref_capture_bytes(c, pSrcDst->get(), 257 * sizeof(Npp8u));
+  c.finish();
+}
+
 TEST(RefSuite, nppsSqr_16s_ISfs_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrcDst = ref_device<Npp16s>(257, 0xd80447d2);
