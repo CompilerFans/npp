@@ -1,0 +1,4306 @@
+[
+  {
+    "function": "nppiCompressMarkerLabelsGetBufferSize_32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
+    "reason": "unsupported parameter syntax"
+  },
+  {
+    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx",
+    "reason": "unsupported parameter syntax"
+  },
+  {
+    "function": "nppiCompressMarkerLabelsUF_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx",
+    "reason": "unknown pointer role pNewNumber"
+  },
+  {
+    "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
+    "reason": "unsupported pointer type NppiCompressedMarkerLabelsInfo (pMarkerLabelsInfoListDev)"
+  },
+  {
+    "function": "nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx",
+    "reason": "unsupported parameter syntax"
+  },
+  {
+    "function": "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx",
+    "reason": "unknown pointer role pContoursImageDev"
+  },
+  {
+    "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
+    "reason": "unknown pointer role pContoursImageDev"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformPBAGetAntialiasingBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDistanceTransformPBAGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_16s64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_16u64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_32f64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_8s64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_8u64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiFilter32f_16f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_32s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_32s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_32s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_32s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s_C2R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u_C2R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter32f_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBilateralGaussBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBilateralGaussBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBilateralGaussBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBilateralGaussBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBilateralGaussBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBilateralGaussBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_32s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_32s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_32s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_32s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s_C2R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u_C2R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder32f_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_32f_C2R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorderAdvancedGetDeviceBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorderAdvancedGetDeviceBufferSize_64",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorderAdvanced_64f_C1R_Ctx",
+    "reason": "unknown pointer role pBuffer64"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBoxBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_64f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterBox_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterCannyBorderGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterCannyBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterCannyBorder_8u_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn32f_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder32f_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumnBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_64f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterColumn_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvancedBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussAdvanced_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerDownBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGaussPyramidLayerUpBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterGauss_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHarrisCornersBorderGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHarrisCornersBorder_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPassBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHighPass_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHoughLineGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHoughLineRegion_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHoughLineRegion_8u32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppPointPolar (nDelta)"
+  },
+  {
+    "function": "nppiFilterHoughLine_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterHoughLine_8u32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppPointPolar (nDelta)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplaceBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLaplace_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPassBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterLowPass_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMaxBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMax_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16s_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_16u_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_32f_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianBorderGetBufferSize_8u_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16s_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_16u_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_32f_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_AC4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_C1R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_C3R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedianGetBufferSize_8u_C4R_Ctx",
+    "reason": "unknown pointer role nBufferSize"
+  },
+  {
+    "function": "nppiFilterMedian_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMedian_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMinBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterMin_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHorizBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittHoriz_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVertBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterPrewittVert_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDownBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsDown_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUpBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRobertsUp_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow32f_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder32f_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRowBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_64f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterRow_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrHorizBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrHorizBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrHorizBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrHoriz_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrHoriz_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrHoriz_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrVertBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrVertBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrVertBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrVert_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrVert_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterScharrVert_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpenBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSharpen_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelCrossBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelCrossBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelCrossBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelCross_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelCross_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelCross_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizMaskBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizMask_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizSecondBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizSecondBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizSecondBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizSecond_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizSecond_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHorizSecond_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelHoriz_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertMaskBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertMask_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertSecondBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertSecondBorder_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertSecondBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertSecond_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertSecond_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVertSecond_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_8s16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterSobelVert_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterUnsharpGetBufferSize_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_AC4R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_C1R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_C3R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_16s_C4R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_AC4R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_C1R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_C3R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_32f_C4R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_AC4R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_C1R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_C3R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilterWienerBorder_8u_C4R_Ctx",
+    "reason": "unknown pointer role aNoise"
+  },
+  {
+    "function": "nppiFilter_16s_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16s_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16s_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_16u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_32f_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_32f_C2R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_64f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_8u_AC4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_8u_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFilter_8u_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_16u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_16u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_16u_C3IR_Ctx",
+    "reason": "unknown pointer role aNewValues"
+  },
+  {
+    "function": "nppiFloodFillBoundary_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_32u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_32u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_32u_C3IR_Ctx",
+    "reason": "unknown pointer role aNewValues"
+  },
+  {
+    "function": "nppiFloodFillBoundary_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_8u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_8u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillBoundary_8u_C3IR_Ctx",
+    "reason": "unknown pointer role aNewValues"
+  },
+  {
+    "function": "nppiFloodFillGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_16u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_16u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_16u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_32u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_32u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_32u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_8u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_8u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradientBoundary_8u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillGradient_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_16u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillGradient_16u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_16u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillGradient_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_32u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillGradient_32u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_32u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillGradient_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_8u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillGradient_8u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_8u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_16u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_16u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_16u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_32u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_32u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_32u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_8u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_8u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRangeBoundary_8u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillRange_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRange_16u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillRange_16u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRange_16u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillRange_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRange_32u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillRange_32u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRange_32u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFillRange_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRange_8u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFillRange_8u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillRange_8u_C3IR_Ctx",
+    "reason": "unknown pointer role aMin"
+  },
+  {
+    "function": "nppiFloodFill_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFill_16u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFill_16u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFill_16u_C3IR_Ctx",
+    "reason": "unknown pointer role aNewValues"
+  },
+  {
+    "function": "nppiFloodFill_32u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFill_32u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFill_32u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFill_32u_C3IR_Ctx",
+    "reason": "unknown pointer role aNewValues"
+  },
+  {
+    "function": "nppiFloodFill_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFill_8u_C1IR_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiFloodFill_8u_C3IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFill_8u_C3IR_Ctx",
+    "reason": "unknown pointer role aNewValues"
+  },
+  {
+    "function": "nppiGetFilterGaussPyramidLayerDownBorderDstROI",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGetFilterGaussPyramidLayerUpBorderDstROI",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16s32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16u32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_8u16s_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16s32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16s32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16u32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16u32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_8u16s_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_8u16s_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16s32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16s32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16u32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16u32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_32f_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_32f_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_32f_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_8u16s_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_8u16s_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_8u16s_C3C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorderGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorderGetDescriptorsSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16s32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_32f_C1R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_32f_C3R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_8u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx",
+    "reason": "unsupported pointer type NppiPoint (hpLocations)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_16u32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Advanced",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx",
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Ctx",
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_32u_C1R_Advanced",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx",
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_32u_C1R_Ctx",
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_8u32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx",
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
+  },
+  {
+    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Ctx",
+    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
+  },
+  {
+    "function": "nppiLabelMarkersUFGetBufferSize_32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUF_16u32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUF_16u32u_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiLabelMarkersUF_32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUF_32u_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiLabelMarkersUF_8u32u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiLabelMarkersUF_8u32u_C1R_Ctx",
+    "reason": "unsupported scalar type NppiNorm (eNorm)"
+  },
+  {
+    "function": "nppiSegmentWatershedGetBufferSize_16u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSegmentWatershedGetBufferSize_8u_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSegmentWatershed_16u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSegmentWatershed_16u_C1IR_Ctx",
+    "reason": "unknown pointer role pMarkerLabels"
+  },
+  {
+    "function": "nppiSegmentWatershed_8u_C1IR",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSegmentWatershed_8u_C1IR_Ctx",
+    "reason": "unknown pointer role pMarkerLabels"
+  },
+  {
+    "function": "nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiSignedDistanceTransformPBAGet64fBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSignedDistanceTransformPBAGetAntialiasingBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSignedDistanceTransformPBAGetBufferSize",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiSignedDistanceTransformPBA_64f_C1R_Ctx",
+    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_16s32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_16s32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_16u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_16u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_8u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumnBorder_8u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_16s32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_16s32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_16u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_16u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_8u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowColumn_8u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_16s32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_16s32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_16u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_16u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_8u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRowBorder_8u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_16s32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_16s32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_16s32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_16u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_16u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_16u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_8u32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_8u32f_C3R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiSumWindowRow_8u32f_C4R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  }
+]
