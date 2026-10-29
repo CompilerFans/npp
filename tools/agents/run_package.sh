@@ -26,16 +26,19 @@ TIMEOUT_SECS="${MCPP_AGENT_TIMEOUT:-21600}" # 6h
 pkg="${1:-}"
 dry_run=false
 in_place="${MCPP_AGENT_IN_PLACE:-0}"
+no_build="${MCPP_AGENT_NO_BUILD:-0}"
 shift || true
 for arg in "$@"; do
   case "$arg" in
     --dry-run) dry_run=true ;;
     --in-place) in_place=1 ;;
+    --worktree) in_place=0 ;;
+    --no-build) no_build=1 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
   esac
 done
 if [[ -z "$pkg" ]]; then
-  echo "usage: $0 <package-id> [--dry-run] [--in-place]" >&2
+  echo "usage: $0 <package-id> [--dry-run] [--in-place|--worktree] [--no-build]" >&2
   exit 2
 fi
 
@@ -142,11 +145,21 @@ large logs or CSVs. Prefer the Write/Edit tools over large bash heredocs, and re
 files instead of rewriting them by hand. Commit after each family so a gateway request-size
 limit cannot lose work.'
 
+if [[ "$no_build" == "1" ]]; then
+  system_prompt="$system_prompt
+Local builds are disabled for this run: fresh worktrees cannot configure the cu-bridge toolchain
+with CMake 4.4. Do NOT run ./build.sh, unit_tests or diff_tests, and do not try to repair the
+toolkit. Implement, regenerate wrappers/tests, refresh coverage and package CSVs with the Python
+tools, run static checks (py_compile, gen_family --list, catalog/package counts), and commit
+incrementally. The lead builds and verifies your branch afterwards."
+fi
+
 prompt="Read docs/agent_packages/$pkg.md and execute it end to end. The package function list is api_analysis/packages/$pkg.csv. Work in the current checkout, commit on the current branch ($branch), and finish with the report described in the document. Do not push."
 
 echo ">> package : $pkg"
 echo ">> workdir : $workdir"
 echo ">> branch  : $branch"
+echo ">> mode    : in_place=$in_place no_build=$no_build"
 echo ">> log     : $log"
 echo ">> model   : ${ANTHROPIC_MODEL:-<unset>}"
 
