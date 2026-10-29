@@ -1258,13 +1258,13 @@ TEST(RefSuite, nppiHSVToRGB_8u_C3R_Ctx) {
 TEST(RefSuite, nppiLUTPalette_16u24u_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp16u>(629, 0x0b1360c1);
-  auto pDst = ref_device<Npp8u>(629, 0x36f4502d);
-  auto pTable = ref_device<Npp8u>(629, 0xfb68871f);
+  auto pDst = ref_device<Npp8u>(1343, 0x36f4502d);
+  auto pTable = ref_device<Npp8u>(1343, 0xfb68871f);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiLUTPalette_16u24u_C1R_Ctx(pSrc->get(), align16(21 * 1 * 2), pDst->get(), align16(21 * 1 * 1), {17, 13}, pTable->get(), 2, ctx);
+  NppStatus st = nppiLUTPalette_16u24u_C1R_Ctx(pSrc->get(), align16(21 * 1 * 2), pDst->get(), align16(21 * 3 * 1), {17, 13}, pTable->get(), 2, ctx);
   npp_diff::Case c("ref/nppiLUTPalette_16u24u_C1R_Ctx", "nppiLUTPalette_16u24u_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst->get(), 629 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }
 
@@ -1310,13 +1310,13 @@ TEST(RefSuite, nppiLUTPalette_16u_C1R_Ctx) {
 TEST(RefSuite, nppiLUTPalette_8u24u_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp8u>(629, 0x74d79800);
-  auto pDst = ref_device<Npp8u>(629, 0x64cc0b3a);
-  auto pTable = ref_device<Npp8u>(629, 0xff4817ef);
+  auto pDst = ref_device<Npp8u>(1343, 0x64cc0b3a);
+  auto pTable = ref_device<Npp8u>(1343, 0xff4817ef);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiLUTPalette_8u24u_C1R_Ctx(pSrc->get(), align16(21 * 1 * 1), pDst->get(), align16(21 * 1 * 1), {17, 13}, pTable->get(), 2, ctx);
+  NppStatus st = nppiLUTPalette_8u24u_C1R_Ctx(pSrc->get(), align16(21 * 1 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, pTable->get(), 2, ctx);
   npp_diff::Case c("ref/nppiLUTPalette_8u24u_C1R_Ctx", "nppiLUTPalette_8u24u_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst->get(), 629 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }
 

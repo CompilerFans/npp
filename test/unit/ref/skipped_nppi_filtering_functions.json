@@ -12,14 +12,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcDstBatchList)"
-  },
-  {
-    "function": "nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcDstBatchList)"
-  },
-  {
     "function": "nppiCompressMarkerLabelsUF_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -3992,14 +3984,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
-  },
-  {
-    "function": "nppiLabelMarkersUFBatch_16u32u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
-  },
-  {
     "function": "nppiLabelMarkersUFBatch_32u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -4008,28 +3992,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
-  },
-  {
-    "function": "nppiLabelMarkersUFBatch_32u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
-  },
-  {
     "function": "nppiLabelMarkersUFBatch_8u32u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
     "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
-  },
-  {
-    "function": "nppiLabelMarkersUFBatch_8u32u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrcBatchList)"
   },
   {
     "function": "nppiLabelMarkersUFGetBufferSize_32u_C1R",

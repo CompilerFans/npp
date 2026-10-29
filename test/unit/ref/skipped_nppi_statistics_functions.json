@@ -2000,10 +2000,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramEven_16s_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramEven_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -2012,24 +2008,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramEven_16s_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramEven_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramEven_16s_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramEven_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramEven_16u_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_16u_C1R",
@@ -2040,24 +2024,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramEven_16u_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramEven_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramEven_16u_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramEven_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramEven_8u_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramEven_8u_C1R",
@@ -2068,16 +2040,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramEven_8u_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramEven_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramEven_8u_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRangeGetBufferSize_16s_AC4R",
@@ -2196,10 +2160,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_16s_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -2208,24 +2168,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_16s_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_16s_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramRange_16u_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_16u_C1R",
@@ -2236,24 +2184,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_16u_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_16u_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramRange_32f_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_32f_C1R",
@@ -2264,24 +2200,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_32f_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_32f_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramRange_8u_AC4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiHistogramRange_8u_C1R",
@@ -2292,16 +2216,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramRange_8u_C3R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
-  },
-  {
     "function": "nppiHistogramRange_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramRange_8u_C4R_Ctx",
-    "reason": "array-of-pointers parameter pHist"
   },
   {
     "function": "nppiIntegral_8u32f_C1R",
@@ -2328,28 +2244,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiMSEBatch_8u_C1R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
-    "function": "nppiMSEBatch_8u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
     "function": "nppiMSEBatch_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
     "function": "nppiMSEBatch_8u_C3R_Advanced",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiMSEBatch_8u_C3R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
-    "function": "nppiMSEBatch_8u_C3R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
   },
   {
     "function": "nppiMSEGetBufferHostSize_8u_C1R",
@@ -6444,28 +6344,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiPSNRBatch_8u_C1R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
-    "function": "nppiPSNRBatch_8u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
     "function": "nppiPSNRBatch_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
     "function": "nppiPSNRBatch_8u_C3R_Advanced",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiPSNRBatch_8u_C3R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
-    "function": "nppiPSNRBatch_8u_C3R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
   },
   {
     "function": "nppiPSNRGetBufferHostSize_8u_C1R",
@@ -6600,16 +6484,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSSIMBatch_8u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
     "function": "nppiSSIMBatch_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSSIMBatch_8u_C3R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
   },
   {
     "function": "nppiSSIMGetBufferHostSize_8u_C1R",
@@ -7252,28 +7128,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
-    "function": "nppiWMSSSIMBatch_8u_C1R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
     "function": "nppiWMSSSIMBatch_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
     "function": "nppiWMSSSIMBatch_8u_C3R_Advanced",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
-  },
-  {
-    "function": "nppiWMSSSIMBatch_8u_C3R_Ctx",
-    "reason": "unsupported pointer type NppiImageDescriptor (pSrc1BatchList)"
   },
   {
     "function": "nppiWMSSSIMGetBufferHostSize_8u_C1R",
