@@ -461,8 +461,8 @@ TEST_F(NppiThresholdCompareDiff, Contract) {
     Case c("nppiThresh/shortStep", "nppiThreshold_GT_8u_C1R"); c.status(st); c.finish();
   }
   { // threshold base: illegal comparison operation
-    std::vector<Npp8u> hs = make_uniform<Npp8u>(64, seed + 91); std::vector<Npp8u> hd = make_uniform<Npp8u>(64, seed + 101);
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(64); DeviceMemory<Npp8u> &d = arena<Npp8u>(64);
+    std::vector<Npp16u> hs = make_uniform<Npp16u>(64, seed + 91); std::vector<Npp16u> hd = make_uniform<Npp16u>(64, seed + 101);
+    DeviceMemory<Npp16u> &s = arena<Npp16u>(64); DeviceMemory<Npp16u> &d = arena<Npp16u>(64);
     s.copyFromHost(hs); d.copyFromHost(hd);
     clear_cuda_error();
     NppStatus st = nppiThreshold_16u_C1R_Ctx(s.get(), 8, d.get(), 8, NppiSize{4, 4}, 100, (NppCmpOp)99, current_ctx());
