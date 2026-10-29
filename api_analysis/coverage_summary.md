@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 6108 (48.7%)
+- Real implementations: 6688 (53.3%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 6263
-- Tested: 4201 (33.5%)
-- Real and tested: 4192
+- Missing: 5683
+- Tested: 4244 (33.9%)
+- Real and tested: 4235
 
 ## By module
 
@@ -18,7 +18,7 @@
 | nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 181 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 24 |
-| nppi_statistics_functions.h | 3246 | 771 | 28 | 2447 | 279 |
+| nppi_statistics_functions.h | 3246 | 1351 | 28 | 1867 | 322 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 91 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 525 |
@@ -50,8 +50,6 @@
 | npps_statistics_functions.h | nppsAverageRelativeError | 56 | 28 |
 | npps_statistics_functions.h | nppsMaximumError | 56 | 28 |
 | npps_statistics_functions.h | nppsMaximumRelativeError | 56 | 28 |
-| nppi_statistics_functions.h | nppiNormInf | 50 | 25 |
-| nppi_statistics_functions.h | nppiNorm_Inf | 50 | 25 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
 | nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrFull_NormLevel | 48 | 24 |
@@ -61,14 +59,16 @@
 | nppi_statistics_functions.h | nppiCrossCorrValid_NormLevel | 48 | 24 |
 | nppi_statistics_functions.h | nppiCrossCorrValid_Norm | 48 | 24 |
 | nppi_statistics_functions.h | nppiFullNormLevel | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormDiffInf | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormDiffL1 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormDiffL2 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormDiff_Inf | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormDiff_L1 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormDiff_L2 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormL1 | 48 | 24 |
-| nppi_statistics_functions.h | nppiNormL2 | 48 | 24 |
 | nppi_statistics_functions.h | nppiNormRelInf | 48 | 24 |
 | nppi_statistics_functions.h | nppiNormRelL1 | 48 | 24 |
 | nppi_statistics_functions.h | nppiNormRelL2 | 48 | 24 |
+| nppi_statistics_functions.h | nppiNormRel_Inf | 48 | 24 |
+| nppi_statistics_functions.h | nppiNormRel_L1 | 48 | 24 |
+| nppi_statistics_functions.h | nppiNormRel_L2 | 48 | 24 |
+| nppi_statistics_functions.h | nppiSameNormLevel | 48 | 24 |
+| nppi_statistics_functions.h | nppiValidNormLevel | 48 | 24 |
+| nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
+| nppi_statistics_functions.h | nppiSqrDistanceFull_Norm | 40 | 20 |
+| nppi_statistics_functions.h | nppiSqrDistanceSame_Norm | 40 | 20 |
+| nppi_statistics_functions.h | nppiSqrDistanceValid_Norm | 40 | 20 |
+| nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
