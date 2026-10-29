@@ -781,6 +781,10 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             if p.ctype == "int" and p.name.endswith("Step"):
                 k = p.array_len or 3
                 sv = steps.get(p.name, step)
+                if not sv.lstrip().startswith("static_cast<int>"):
+                    # align16() yields size_t; the brace initializer of an int
+                    # array would otherwise warn about narrowing.
+                    sv = f"static_cast<int>({sv})"
                 dims = "".join(f"[{d}]" for d in (p.arr_dims or (k,)))
                 decls.append(f"  int {p.name}{dims} = {{{', '.join([sv] * k)}}};")
                 args.append(p.name)

@@ -89,7 +89,7 @@ TEST(RefSuite, nppiRGBToYCrCb420_8u_AC4P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x850b668f);
   auto pDst_2 = ref_device<Npp8u>(986, 0xf5aaed29);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYCrCb420_8u_AC4P3R_Ctx(pSrc->get(), align16(21 * 4 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYCrCb420_8u_AC4P3R_Ctx", "nppiRGBToYCrCb420_8u_AC4P3R_Ctx");
@@ -122,7 +122,7 @@ TEST(RefSuite, nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx) {
   auto pDst_1 = ref_device<Npp16u>(986, 0x69584029);
   auto pDst_2 = ref_device<Npp16u>(986, 0x0a40bf9e);
   Npp16u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 2), pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -140,12 +140,12 @@ TEST(RefSuite, nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0x969db410);
   auto pSrc_2 = ref_device<Npp16u>(986, 0x09415dcc);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst_0 = ref_device<Npp16u>(986, 0x880c9645);
   auto pDst_1 = ref_device<Npp16u>(986, 0xaae32244);
   auto pDst_2 = ref_device<Npp16u>(986, 0xb4d357ae);
   Npp16u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -164,7 +164,7 @@ TEST(RefSuite, nppiRGBToYUV420_8u_C3P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x244a1aaf);
   auto pDst_2 = ref_device<Npp8u>(986, 0x3779ef85);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV420_8u_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYUV420_8u_C3P3R_Ctx", "nppiRGBToYUV420_8u_C3P3R_Ctx");
@@ -182,7 +182,7 @@ TEST(RefSuite, nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xb58b8f17);
   auto pDst_2 = ref_device<Npp8u>(986, 0xdde87afb);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -200,12 +200,12 @@ TEST(RefSuite, nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x451f5271);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x3fe79d4b);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x17fa317c);
   auto pDst_1 = ref_device<Npp8u>(986, 0x81884a07);
   auto pDst_2 = ref_device<Npp8u>(986, 0xb1a75793);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -227,7 +227,7 @@ TEST(RefSuite, nppiRGBToYUV420_8u_P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xc807792f);
   auto pDst_2 = ref_device<Npp8u>(986, 0xaac22e09);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV420_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYUV420_8u_P3R_Ctx", "nppiRGBToYUV420_8u_P3R_Ctx");
@@ -245,7 +245,7 @@ TEST(RefSuite, nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx) {
   auto pDst_1 = ref_device<Npp16u>(986, 0x233a801b);
   auto pDst_2 = ref_device<Npp16u>(986, 0xa50654ca);
   Npp16u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 2), pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -263,12 +263,12 @@ TEST(RefSuite, nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0x0bf8851d);
   auto pSrc_2 = ref_device<Npp16u>(986, 0x45f2aaa8);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst_0 = ref_device<Npp16u>(986, 0x475d0081);
   auto pDst_1 = ref_device<Npp16u>(986, 0x3be8e534);
   auto pDst_2 = ref_device<Npp16u>(986, 0xcff00c7b);
   Npp16u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -287,7 +287,7 @@ TEST(RefSuite, nppiRGBToYUV422_8u_C3P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x9b362f08);
   auto pDst_2 = ref_device<Npp8u>(986, 0x571bb9a1);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV422_8u_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYUV422_8u_C3P3R_Ctx", "nppiRGBToYUV422_8u_C3P3R_Ctx");
@@ -305,7 +305,7 @@ TEST(RefSuite, nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xe7d88154);
   auto pDst_2 = ref_device<Npp8u>(986, 0xa92644a1);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -323,12 +323,12 @@ TEST(RefSuite, nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x61f1ca28);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x3531483a);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x74acf529);
   auto pDst_1 = ref_device<Npp8u>(986, 0x6d70305b);
   auto pDst_2 = ref_device<Npp8u>(986, 0x91566c3a);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -350,7 +350,7 @@ TEST(RefSuite, nppiRGBToYUV422_8u_P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x4da861ed);
   auto pDst_2 = ref_device<Npp8u>(986, 0x3372f3cd);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiRGBToYUV422_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYUV422_8u_P3R_Ctx", "nppiRGBToYUV422_8u_P3R_Ctx");
@@ -446,7 +446,7 @@ TEST(RefSuite, nppiYCbCr411ToBGR_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xff8433f3);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x78d475e0);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0xbdf82093);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -462,7 +462,7 @@ TEST(RefSuite, nppiYCbCr411ToBGR_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x3107aefb);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x7b9e7098);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0x4650a344);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToBGR_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, 2, ctx);
@@ -478,7 +478,7 @@ TEST(RefSuite, nppiYCbCr411ToBGR_JPEG_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x284dae1d);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x01c9c49f);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x04399566);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToBGR_JPEG_8u_P3C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -494,7 +494,7 @@ TEST(RefSuite, nppiYCbCr411ToBGR_JPEG_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xb22ecdb7);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x890d1651);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xdad8c88f);
   auto pDst_1 = ref_device<Npp8u>(986, 0xad89cfaf);
   auto pDst_2 = ref_device<Npp8u>(986, 0xa29f05ef);
@@ -515,7 +515,7 @@ TEST(RefSuite, nppiYCbCr411ToRGB_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x52434374);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x030e47de);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x1bf4deae);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToRGB_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -531,7 +531,7 @@ TEST(RefSuite, nppiYCbCr411ToRGB_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x85e5756f);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xb48022f1);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xba2ae8de);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToRGB_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, 2, ctx);
@@ -547,7 +547,7 @@ TEST(RefSuite, nppiYCbCr411ToRGB_JPEG_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xa21a3caf);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x045d8913);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0xdb6cb9a6);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToRGB_JPEG_8u_P3C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -563,7 +563,7 @@ TEST(RefSuite, nppiYCbCr411ToRGB_JPEG_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xb3a5ec3d);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x48360bd3);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x5ac08600);
   auto pDst_1 = ref_device<Npp8u>(986, 0xcf1b1024);
   auto pDst_2 = ref_device<Npp8u>(986, 0xb8da7cbb);
@@ -586,7 +586,7 @@ TEST(RefSuite, nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xae49ecaf);
   auto pDst_2 = ref_device<Npp8u>(986, 0xb1b5977e);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx", "nppiYCbCr411ToYCbCr420_8u_P2P3R_Ctx");
@@ -603,7 +603,7 @@ TEST(RefSuite, nppiYCbCr411ToYCbCr420_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x17d5af09);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x153c1099);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x7c22643e);
   auto pDstCbCr = ref_device<Npp8u>(986, 0xac8ee77f);
   npp_diff::clear_cuda_error();
@@ -621,12 +621,12 @@ TEST(RefSuite, nppiYCbCr411ToYCbCr420_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xab45a336);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x49488547);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xb4c1d663);
   auto pDst_1 = ref_device<Npp8u>(986, 0x7cbb8804);
   auto pDst_2 = ref_device<Npp8u>(986, 0xc07b64be);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int nDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int nDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCbCr420_8u_P3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411ToYCbCr420_8u_P3R_Ctx", "nppiYCbCr411ToYCbCr420_8u_P3R_Ctx");
@@ -658,7 +658,7 @@ TEST(RefSuite, nppiYCbCr411ToYCbCr422_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x01cd71d2);
   auto pDst_2 = ref_device<Npp8u>(986, 0x042b5d87);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCbCr422_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411ToYCbCr422_8u_P2P3R_Ctx", "nppiYCbCr411ToYCbCr422_8u_P2P3R_Ctx");
@@ -675,7 +675,7 @@ TEST(RefSuite, nppiYCbCr411ToYCbCr422_8u_P3C2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xad8f66fc);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x6c0f9dac);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(986, 0xe663ed35);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCbCr422_8u_P3C2R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 2 * 1), {17, 13}, ctx);
@@ -691,12 +691,12 @@ TEST(RefSuite, nppiYCbCr411ToYCbCr422_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xcb9d68c5);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xc4ae9d1a);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x0deab9cd);
   auto pDst_1 = ref_device<Npp8u>(986, 0x3ad2411d);
   auto pDst_2 = ref_device<Npp8u>(986, 0x64b77833);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int nDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int nDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCbCr422_8u_P3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411ToYCbCr422_8u_P3R_Ctx", "nppiYCbCr411ToYCbCr422_8u_P3R_Ctx");
@@ -715,7 +715,7 @@ TEST(RefSuite, nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xdf2c2497);
   auto pDst_2 = ref_device<Npp8u>(986, 0x7853befe);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx", "nppiYCbCr411ToYCrCb420_8u_P2P3R_Ctx");
@@ -732,7 +732,7 @@ TEST(RefSuite, nppiYCbCr411ToYCrCb422_8u_P3C2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x1b9b8251);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xeeac5bf9);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(986, 0x54810b7a);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCrCb422_8u_P3C2R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 2 * 1), {17, 13}, ctx);
@@ -748,12 +748,12 @@ TEST(RefSuite, nppiYCbCr411ToYCrCb422_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x4a643fe4);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x0ddcad75);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xb3b5fb23);
   auto pDst_1 = ref_device<Npp8u>(986, 0x7cffe124);
   auto pDst_2 = ref_device<Npp8u>(986, 0x437c5036);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int nDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int nDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411ToYCrCb422_8u_P3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411ToYCrCb422_8u_P3R_Ctx", "nppiYCbCr411ToYCrCb422_8u_P3R_Ctx");
@@ -772,7 +772,7 @@ TEST(RefSuite, nppiYCbCr411_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x6f78c83d);
   auto pDst_2 = ref_device<Npp8u>(986, 0xf305b38d);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr411_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr411_8u_P2P3R_Ctx", "nppiYCbCr411_8u_P2P3R_Ctx");
@@ -789,7 +789,7 @@ TEST(RefSuite, nppiYCbCr411_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x29ab1735);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xcb9bd2c3);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x20d3af4f);
   auto pDstCbCr = ref_device<Npp8u>(986, 0xb3300167);
   npp_diff::clear_cuda_error();
@@ -919,7 +919,7 @@ TEST(RefSuite, nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xfd303455);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x6885a9b6);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x1e314e1e);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToBGR_709CSC_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -935,7 +935,7 @@ TEST(RefSuite, nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xa0f2e334);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x298581b9);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xd1c39ca8);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToBGR_709HDTV_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, 2, ctx);
@@ -951,7 +951,7 @@ TEST(RefSuite, nppiYCbCr420ToBGR_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x6ac87b2d);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x8b26e721);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x7c5fa243);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -967,7 +967,7 @@ TEST(RefSuite, nppiYCbCr420ToBGR_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x3a5a111d);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x6f2b6690);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xaf092c18);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToBGR_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, 2, ctx);
@@ -983,7 +983,7 @@ TEST(RefSuite, nppiYCbCr420ToBGR_JPEG_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x22c72752);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x89fbb58c);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x8ca3ba92);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToBGR_JPEG_8u_P3C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -999,7 +999,7 @@ TEST(RefSuite, nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x48fc6682);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x6688a7ff);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x960c2905);
   auto pDst_1 = ref_device<Npp8u>(986, 0x151ab9dd);
   auto pDst_2 = ref_device<Npp8u>(986, 0x78813ca1);
@@ -1145,7 +1145,7 @@ TEST(RefSuite, nppiYCbCr420ToRGB_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x16bc9c99);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x1eb1ac6d);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x81e2409f);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToRGB_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -1161,7 +1161,7 @@ TEST(RefSuite, nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x02919420);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x72118b47);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x73a730c1);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -1177,7 +1177,7 @@ TEST(RefSuite, nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x22666883);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xa4e48c41);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xcb673cb9);
   auto pDst_1 = ref_device<Npp8u>(986, 0xe2e06553);
   auto pDst_2 = ref_device<Npp8u>(986, 0x25270f7d);
@@ -1200,7 +1200,7 @@ TEST(RefSuite, nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xa32e1cae);
   auto pDst_2 = ref_device<Npp8u>(986, 0xad40cac4);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx", "nppiYCbCr420ToYCbCr411_8u_P2P3R_Ctx");
@@ -1217,7 +1217,7 @@ TEST(RefSuite, nppiYCbCr420ToYCbCr411_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x7c1eb883);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xca3da909);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x5981b8ad);
   auto pDstCbCr = ref_device<Npp8u>(986, 0x59d04ee8);
   npp_diff::clear_cuda_error();
@@ -1250,7 +1250,7 @@ TEST(RefSuite, nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x0fbcb21e);
   auto pDst_2 = ref_device<Npp8u>(986, 0x2387495e);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx", "nppiYCbCr420ToYCbCr422_8u_P2P3R_Ctx");
@@ -1267,12 +1267,12 @@ TEST(RefSuite, nppiYCbCr420ToYCbCr422_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xc441e331);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x28d0bfb6);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xd0c4832d);
   auto pDst_1 = ref_device<Npp8u>(986, 0x06846f05);
   auto pDst_2 = ref_device<Npp8u>(986, 0x81352bb4);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int nDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int nDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToYCbCr422_8u_P3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr420ToYCbCr422_8u_P3R_Ctx", "nppiYCbCr420ToYCbCr422_8u_P3R_Ctx");
@@ -1291,7 +1291,7 @@ TEST(RefSuite, nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x2edb8c30);
   auto pDst_2 = ref_device<Npp8u>(986, 0xe2b4d0ae);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx", "nppiYCbCr420ToYCrCb420_8u_P2P3R_Ctx");
@@ -1310,7 +1310,7 @@ TEST(RefSuite, nppiYCbCr420_8u_P2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xa133d2ee);
   auto pDst_2 = ref_device<Npp8u>(986, 0x67f5b787);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr420_8u_P2P3R_Ctx(pSrcY->get(), align16(21 * 2 * 1), pSrcCbCr->get(), align16(21 * 3 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr420_8u_P2P3R_Ctx", "nppiYCbCr420_8u_P2P3R_Ctx");
@@ -1327,7 +1327,7 @@ TEST(RefSuite, nppiYCbCr420_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xd7c51498);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xaa8c5c0e);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x07c8ccd6);
   auto pDstCbCr = ref_device<Npp8u>(986, 0x8051a0ed);
   npp_diff::clear_cuda_error();
@@ -1457,7 +1457,7 @@ TEST(RefSuite, nppiYCbCr422ToBGR_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xa4a1656f);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xab0d49cd);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x49b812e3);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -1473,7 +1473,7 @@ TEST(RefSuite, nppiYCbCr422ToBGR_JPEG_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x261faf13);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xc8cfc82a);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0xab32188a);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToBGR_JPEG_8u_P3C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -1489,7 +1489,7 @@ TEST(RefSuite, nppiYCbCr422ToBGR_JPEG_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x06fd1a3a);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xcd28e271);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x255a2be4);
   auto pDst_1 = ref_device<Npp8u>(986, 0xaa38dcfe);
   auto pDst_2 = ref_device<Npp8u>(986, 0x9f583dff);
@@ -1639,7 +1639,7 @@ TEST(RefSuite, nppiYCbCr422ToRGB_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xb2dd369e);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xb23d4c90);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0xce22e403);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToRGB_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -1655,7 +1655,7 @@ TEST(RefSuite, nppiYCbCr422ToRGB_JPEG_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x70542dff);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x7c0e9a5e);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x441f2868);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToRGB_JPEG_8u_P3C3R_Ctx(pSrc, aSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -1671,7 +1671,7 @@ TEST(RefSuite, nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xad05e178);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x245e2069);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xca42e35e);
   auto pDst_1 = ref_device<Npp8u>(986, 0xb704d54d);
   auto pDst_2 = ref_device<Npp8u>(986, 0xb00977d9);
@@ -1693,7 +1693,7 @@ TEST(RefSuite, nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x6f433723);
   auto pDst_2 = ref_device<Npp8u>(986, 0x84a5ba1f);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx", "nppiYCbCr422ToYCbCr411_8u_C2P3R_Ctx");
@@ -1710,7 +1710,7 @@ TEST(RefSuite, nppiYCbCr422ToYCbCr411_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xd6025401);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x418be674);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x41db3a4e);
   auto pDstCbCr = ref_device<Npp8u>(986, 0xdedcc847);
   npp_diff::clear_cuda_error();
@@ -1728,12 +1728,12 @@ TEST(RefSuite, nppiYCbCr422ToYCbCr411_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x63e5c804);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x53a14eaf);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xba608cfe);
   auto pDst_1 = ref_device<Npp8u>(986, 0x4e923dc3);
   auto pDst_2 = ref_device<Npp8u>(986, 0xbe5e25a6);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToYCbCr411_8u_P3R_Ctx(pSrc, rSrcStep, pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr422ToYCbCr411_8u_P3R_Ctx", "nppiYCbCr422ToYCbCr411_8u_P3R_Ctx");
@@ -1751,7 +1751,7 @@ TEST(RefSuite, nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0xadfd5ebc);
   auto pDst_2 = ref_device<Npp8u>(986, 0x06af3828);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx", "nppiYCbCr422ToYCbCr420_8u_C2P3R_Ctx");
@@ -1768,7 +1768,7 @@ TEST(RefSuite, nppiYCbCr422ToYCbCr420_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x12164fef);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xc0fba427);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x470d673f);
   auto pDstCbCr = ref_device<Npp8u>(986, 0x2101c965);
   npp_diff::clear_cuda_error();
@@ -1786,12 +1786,12 @@ TEST(RefSuite, nppiYCbCr422ToYCbCr420_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xe8415d62);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x2c025b32);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x8f5276c9);
   auto pDst_1 = ref_device<Npp8u>(986, 0x2afb124c);
   auto pDst_2 = ref_device<Npp8u>(986, 0xdd1076da);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int nDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int nDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToYCbCr420_8u_P3R_Ctx(pSrc, rSrcStep, pDst, nDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr422ToYCbCr420_8u_P3R_Ctx", "nppiYCbCr422ToYCbCr420_8u_P3R_Ctx");
@@ -1809,7 +1809,7 @@ TEST(RefSuite, nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x6afcd27c);
   auto pDst_2 = ref_device<Npp8u>(986, 0x89d6d7c5);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx", "nppiYCbCr422ToYCrCb420_8u_C2P3R_Ctx");
@@ -1826,7 +1826,7 @@ TEST(RefSuite, nppiYCbCr422ToYCrCb422_8u_P3C2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xfa221c29);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x80b67532);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(986, 0x6547da00);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422ToYCrCb422_8u_P3C2R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 2 * 1), {17, 13}, ctx);
@@ -1843,7 +1843,7 @@ TEST(RefSuite, nppiYCbCr422_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x0c61c62f);
   auto pDst_2 = ref_device<Npp8u>(986, 0x580d36b2);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCbCr422_8u_C2P3R_Ctx", "nppiYCbCr422_8u_C2P3R_Ctx");
@@ -1860,7 +1860,7 @@ TEST(RefSuite, nppiYCbCr422_8u_P3C2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xdcda88b6);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xaa959a04);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(986, 0xe1ca95ac);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCbCr422_8u_P3C2R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 2 * 1), {17, 13}, ctx);
@@ -2412,7 +2412,7 @@ TEST(RefSuite, nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x91fbe7a1);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x7cf86f6a);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(986, 0x18b83a17);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb420ToCbYCr422_8u_P3C2R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 2 * 1), {17, 13}, ctx);
@@ -2428,7 +2428,7 @@ TEST(RefSuite, nppiYCrCb420ToRGB_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xa01af4aa);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x1919d19f);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xb142ba51);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb420ToRGB_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, 2, ctx);
@@ -2444,7 +2444,7 @@ TEST(RefSuite, nppiYCrCb420ToYCbCr411_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x2863b01f);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x48cd9a82);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x35d8e44b);
   auto pDstCbCr = ref_device<Npp8u>(986, 0x406971c2);
   npp_diff::clear_cuda_error();
@@ -2462,7 +2462,7 @@ TEST(RefSuite, nppiYCrCb420ToYCbCr420_8u_P3P2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x6bfec89b);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xae705f9d);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDstY = ref_device<Npp8u>(986, 0x044d75a0);
   auto pDstCbCr = ref_device<Npp8u>(986, 0xdcdd6cea);
   npp_diff::clear_cuda_error();
@@ -2480,7 +2480,7 @@ TEST(RefSuite, nppiYCrCb420ToYCbCr422_8u_P3C2R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x4ecfe462);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x629cd833);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(986, 0xf0293db1);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb420ToYCbCr422_8u_P3C2R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 2 * 1), {17, 13}, ctx);
@@ -2496,12 +2496,12 @@ TEST(RefSuite, nppiYCrCb420ToYCbCr422_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xb7526555);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xa67ed1af);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x5d02d42b);
   auto pDst_1 = ref_device<Npp8u>(986, 0xa9f0d0f3);
   auto pDst_2 = ref_device<Npp8u>(986, 0x3e88f780);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb420ToYCbCr422_8u_P3R_Ctx(pSrc, rSrcStep, pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCrCb420ToYCbCr422_8u_P3R_Ctx", "nppiYCrCb420ToYCbCr422_8u_P3R_Ctx");
@@ -2536,7 +2536,7 @@ TEST(RefSuite, nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x24ccf999);
   auto pDst_2 = ref_device<Npp8u>(986, 0x6c44c96c);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx", "nppiYCrCb422ToYCbCr411_8u_C2P3R_Ctx");
@@ -2554,7 +2554,7 @@ TEST(RefSuite, nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x4de8404e);
   auto pDst_2 = ref_device<Npp8u>(986, 0x715bbe46);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx", "nppiYCrCb422ToYCbCr420_8u_C2P3R_Ctx");
@@ -2572,7 +2572,7 @@ TEST(RefSuite, nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx) {
   auto pDst_1 = ref_device<Npp8u>(986, 0x725fcd20);
   auto pDst_2 = ref_device<Npp8u>(986, 0xfe52f3d5);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int rDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx(pSrc->get(), align16(21 * 2 * 1), pDst, rDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx", "nppiYCrCb422ToYCbCr422_8u_C2P3R_Ctx");
@@ -2701,7 +2701,7 @@ TEST(RefSuite, nppiYUV420ToBGR_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x5ca7a629);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x8221174b);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0xb7c2dd5b);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToBGR_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -2717,7 +2717,7 @@ TEST(RefSuite, nppiYUV420ToBGR_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xbabd52bd);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x925a885e);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xe7a2b898);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToBGR_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, ctx);
@@ -2845,7 +2845,7 @@ TEST(RefSuite, nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0xe13a9b19);
   auto pSrc_2 = ref_device<Npp16u>(986, 0x2d4cd02f);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst = ref_device<Npp16u>(1700, 0xea489f02);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -2862,7 +2862,7 @@ TEST(RefSuite, nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0x93af005f);
   auto pSrc_2 = ref_device<Npp16u>(986, 0x29d31fc4);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst = ref_device<Npp16u>(1343, 0x86973e78);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -2879,7 +2879,7 @@ TEST(RefSuite, nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0xacbbb72f);
   auto pSrc_2 = ref_device<Npp16u>(986, 0xafa1abe1);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst = ref_device<Npp16u>(1700, 0xf020dd8d);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -2896,12 +2896,12 @@ TEST(RefSuite, nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0x477d6392);
   auto pSrc_2 = ref_device<Npp16u>(986, 0x9abb2fa1);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst_0 = ref_device<Npp16u>(986, 0x1d60abb6);
   auto pDst_1 = ref_device<Npp16u>(986, 0x63a0ed99);
   auto pDst_2 = ref_device<Npp16u>(986, 0xac99f3b1);
   Npp16u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -2919,7 +2919,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_ColorTwist32f_P3AC4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xef956232);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x2184e775);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0x2a652e19);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -2936,7 +2936,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_ColorTwist32f_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x11ca20f9);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xb9922a8c);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x0d23830d);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -2953,7 +2953,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_ColorTwist32f_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xc5af85ac);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x265328f5);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0x6a5c30fb);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -2970,12 +2970,12 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x7eee75f2);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x7429ed2b);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x66960280);
   auto pDst_1 = ref_device<Npp8u>(986, 0xa39e15f9);
   auto pDst_2 = ref_device<Npp8u>(986, 0x883bc03d);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -2993,7 +2993,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_P3AC4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x9c9cbd1c);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xcef8e3a4);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xa3f515e5);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToRGB_8u_P3AC4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, ctx);
@@ -3009,7 +3009,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x8df4a725);
   auto pSrc_2 = ref_device<Npp8u>(986, 0xacb0ff47);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x051961b5);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToRGB_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -3025,7 +3025,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_P3C4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x7f504f1f);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x4a685e93);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0x043fb2a6);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV420ToRGB_8u_P3C4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, ctx);
@@ -3041,7 +3041,7 @@ TEST(RefSuite, nppiYUV420ToRGB_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xf06029cd);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x04d9e1ff);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x660c2703);
   auto pDst_1 = ref_device<Npp8u>(986, 0x92ae48ba);
   auto pDst_2 = ref_device<Npp8u>(986, 0xd91e53c3);
@@ -3286,7 +3286,7 @@ TEST(RefSuite, nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0xda50bc83);
   auto pSrc_2 = ref_device<Npp16u>(986, 0xe81dec95);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst = ref_device<Npp16u>(1700, 0x435f43f4);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -3303,7 +3303,7 @@ TEST(RefSuite, nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0x57287177);
   auto pSrc_2 = ref_device<Npp16u>(986, 0xcbbf01a8);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst = ref_device<Npp16u>(1343, 0x6381b313);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -3320,12 +3320,12 @@ TEST(RefSuite, nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp16u>(986, 0xb07c291b);
   auto pSrc_2 = ref_device<Npp16u>(986, 0x4446ce64);
   const Npp16u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   auto pDst_0 = ref_device<Npp16u>(986, 0x775b20b8);
   auto pDst_1 = ref_device<Npp16u>(986, 0xfb7eb41b);
   auto pDst_2 = ref_device<Npp16u>(986, 0x3b632c07);
   Npp16u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 2), align16(21 * 2 * 2), align16(21 * 2 * 2)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2)), static_cast<int>(align16(21 * 2 * 2))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -3343,7 +3343,7 @@ TEST(RefSuite, nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xc138cd44);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x15597974);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0xb11c0077);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -3360,7 +3360,7 @@ TEST(RefSuite, nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xa3c47143);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x57176379);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x7e4f8379);
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
@@ -3377,12 +3377,12 @@ TEST(RefSuite, nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xd34768ce);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x591bd02b);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int aSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0x204d70ae);
   auto pDst_1 = ref_device<Npp8u>(986, 0xeae39139);
   auto pDst_2 = ref_device<Npp8u>(986, 0xd216264c);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
-  int aDstStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   const Npp32f aTwist[3][4] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx(pSrc, aSrcStep, pDst, aDstStep, {17, 13}, aTwist, ctx);
@@ -3400,7 +3400,7 @@ TEST(RefSuite, nppiYUV422ToRGB_8u_P3AC4R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0x658a9391);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x72567d5d);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1700, 0x8011076a);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV422ToRGB_8u_P3AC4R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 4 * 1), {17, 13}, ctx);
@@ -3416,7 +3416,7 @@ TEST(RefSuite, nppiYUV422ToRGB_8u_P3C3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xbee13e3c);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x2a0594a7);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst = ref_device<Npp8u>(1343, 0x5cf69023);
   npp_diff::clear_cuda_error();
   NppStatus st = nppiYUV422ToRGB_8u_P3C3R_Ctx(pSrc, rSrcStep, pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
@@ -3432,7 +3432,7 @@ TEST(RefSuite, nppiYUV422ToRGB_8u_P3R_Ctx) {
   auto pSrc_1 = ref_device<Npp8u>(986, 0xc9badfe4);
   auto pSrc_2 = ref_device<Npp8u>(986, 0x56240fe4);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  int rSrcStep[3] = {align16(21 * 2 * 1), align16(21 * 2 * 1), align16(21 * 2 * 1)};
+  int rSrcStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   auto pDst_0 = ref_device<Npp8u>(986, 0xa92da290);
   auto pDst_1 = ref_device<Npp8u>(986, 0xd6eaeeba);
   auto pDst_2 = ref_device<Npp8u>(986, 0x9299a46c);
