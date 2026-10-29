@@ -1,0 +1,10 @@
+[
+  {
+    "function": "nppiMagnitudeSqr_32fc32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiMagnitude_32fc32f_C1R",
+    "reason": "non-ctx (NPP 13 removed the ABI)"
+  }
+]

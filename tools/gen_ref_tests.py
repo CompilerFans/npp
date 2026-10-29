@@ -38,8 +38,11 @@ SCALAR = {
     "Npp16s": ("I16", 2), "Npp16f": ("F16", 2), "Npp32u": ("U32", 4),
     "Npp32s": ("I32", 4), "Npp32f": ("F32", 4), "Npp64u": ("U64", 8),
     "Npp64s": ("I64", 8), "Npp64f": ("F64", 8), "Npp32fc": ("CF32", 8),
-    "Npp64fc": ("CF64", 16), "Npp16sc": ("CF32", 8), "Npp32sc": ("CF32", 8),
-    "Npp8uc": ("CF32", 8), "Npp8sc": ("CF32", 8), "Npp16uc": ("CF32", 8),
+    # Fixed-point complex: the ValueKind (CF32) is 8 bytes wide but the C
+    # type can be narrower; steps/counts must use sizeof(T) or NPP reads
+    # past the allocation.  ref_capture_bytes captures exact bytes anyway.
+    "Npp64fc": ("CF64", 16), "Npp16sc": ("CF32", 4), "Npp32sc": ("CF32", 8),
+    "Npp8uc": ("CF32", 2), "Npp8sc": ("CF32", 2), "Npp16uc": ("CF32", 4),
     "Npp32uc": ("CF32", 8),
     "int": ("I32", 4),
     "unsigned int": ("U32", 4),
@@ -57,6 +60,7 @@ ENUMS = {
     "NppHintAlgorithm": "NPP_ALG_HINT_NONE",
     "NppiAxis": "NPP_HORIZONTAL_AXIS",
     "NppiDifferentialKernel": "NPP_FILTER_SOBEL",
+    "NppiAlphaOp": "NPPI_OP_ALPHA_PLUS",
 }
 
 SCRATCH_NAMES = {"pDeviceBuffer", "pBuffer", "pScratch", "pScratchBuffer",
@@ -65,8 +69,9 @@ HOST_NAMES = {"hpBufferSize", "hpBufferSizeInBytes", "hpSize", "hpBufferSizeInBy
 OUTPUT_SCALAR = {"pSum", "pMean", "pMin", "pMax", "pNorm", "pDotProd", "pError",
                  "pAvg", "pStdDev", "pMinIndex", "pMaxIndex", "pIndex", "pCount",
                  "pHist", "pHistogram", "pResult", "pVal", "pValuesOut"}
-INPUT_PREFIXES = ("pSrc", "pMask", "pKernel", "pTpl", "pTemplate", "pConstants",
-                  "pLevels", "pValues", "pPalette", "pLookupTable", "pTable")
+INPUT_PREFIXES = ("pSrc", "pMask", "pKernel", "pTpl", "pTemplate", "pConstant",
+                  "pConstants", "pLevels", "pValues", "pPalette", "pLookupTable",
+                  "pTable")
 OUTPUT_PREFIXES = ("pDst", "pSrcDst")
 SKIP_PARAM_TYPES = {"NppStreamContext"}
 
@@ -144,23 +149,29 @@ def parse_params(params: str) -> Optional[List[Param]]:
     return out
 
 
-def _base_name(fn: str) -> str:
-    """Strip the trailing _Ctx suffix so suffix-anchored layout regexes work
-    (the plain suffix uses lowercase letters, which [A-Z0-9_]* cannot match)."""
+def strip_ctx(fn: str) -> str:
+    """Drop the _Ctx suffix; channel/planar markers precede it and the raw
+    markers never match a `[A-Z0-9_]*$` tail containing the mixed-case Ctx."""
     return re.sub(r"_Ctx$", "", fn)
 
 
 def channels(fn: str) -> int:
-    fn = _base_name(fn)
-    m = re.search(r"_(?:AC|C)(\d)[A-Z0-9_]*$", fn)
+    fn = strip_ctx(fn)
+    # Tail is mixed case: R / IR / RSfs / IRSfs / M ... follow the channel
+    # marker (e.g. nppiAddC_8u_C3RSfs), so [A-Z0-9_]*$ would never match.
+    m = re.search(r"_(AC|C)(\d)[A-Za-z0-9_]*$", fn)
     if m:
-        return int(m.group(1))
-    m = re.search(r"_P(\d)[A-Z0-9_]*$", fn)
+        n = int(m.group(2))
+        # NPP AC1 images carry one color channel plus a separate alpha
+        # channel (2 values per pixel); AC4 packs alpha into the 4th slot,
+        # so only AC1 needs widening.
+        return 2 if m.group(1) == "AC" and n == 1 else n
+    m = re.search(r"_P(\d)[A-Za-z0-9_]*$", fn)
     return int(m.group(1)) if m else 1
 
 
 def is_planar(fn: str) -> bool:
-    return bool(re.search(r"_P\d[A-Z0-9_]*$", _base_name(fn)))
+    return bool(re.search(r"_P\d[A-Za-z0-9_]*$", strip_ctx(fn)))
 
 
 def pointee(p: Param) -> Optional[str]:
@@ -227,6 +238,14 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
     for p in params:
         if p.is_ptr_array:
             return "planar pointer-array layout (manual follow-up)"
+        if p.is_array:
+            # C array parameter: caller-allocated host memory passed by value
+            # (e.g. `const Npp8u aConstants[3]`), not a device pointer.
+            if p.ctype not in SCALAR:
+                return f"unsupported array element type {p.ctype} ({p.name})"
+            if not p.is_const:
+                return f"output host array unsupported ({p.name})"
+            continue
         if p.is_pointer:
             if p.ctype not in SCALAR:
                 return f"unsupported pointer type {p.ctype} ({p.name})"
@@ -261,6 +280,25 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     ch = channels(fn)
     kind = fn_kind(fn, params)
     W, H, N = 17, 13, 257
+    # Border-style functions declare a source/destination image of
+    # {W+4, H+4} (oSrcSize / oSrcSizeROI / oDstSizeROI) while the ROI stays
+    # {W, H}; image buffers must cover every row the call can touch at the
+    # emitted pitch.
+    has_full_size = any(p.ctype == "NppiSize"
+                        and p.name in ("oSrcSize", "oSrcSizeROI", "oDstSizeROI")
+                        for p in params)
+    rows = H + 4 if has_full_size else H
+    cols = W + 4 if has_full_size else W
+
+    def img_count(t: str) -> int:
+        es = SCALAR[t][1]
+        pitch = (W * ch * es + 15) & ~15
+        return ((rows - 1) * pitch + cols * ch * es) // es + 8
+
+    def mask_count(t: str) -> int:
+        es = SCALAR[t][1]
+        pitch = (3 * es + 15) & ~15
+        return ((3 - 1) * pitch + 3 * es) // es + 4
 
     # Discover the image element type (first image pointer) for step sizing.
     img_t = "Npp8u"
@@ -283,12 +321,14 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             return 1
         if role == "scalar_out":
             return max(ch, 1)
+        if p.name in ("pConstant", "pConstants"):
+            return max(ch, 1)
         if role in ("in", "out", "inplace"):
             if p.name in ("pMask", "pKernel", "pTpl", "pTemplate"):
-                return 9
-            if signal := (kind == "signal"):
+                return mask_count(p.ctype)
+            if kind == "signal":
                 return N * max(ch, 1)
-            return H * (W * max(ch, 1) + 16)  # whole padded rows
+            return img_count(p.ctype)
         return max(ch, 1)
 
     allocs: List[str] = []
@@ -316,6 +356,13 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             steps[p.name] = step
 
     for p in params:
+        if p.is_array:
+            # C array parameter: by-value host memory (e.g. aConstants[3]).
+            n = p.array_len or max(ch, 1)
+            val = scalar_value(p)
+            decls.append(f"  const {p.ctype} {p.name}[{n}] = {{{', '.join([val] * n)}}};")
+            args.append(p.name)
+            continue
         role = pointer_role(p) if p.is_pointer else None
         if p.is_pointer and role == "host":
             decls.append(f"  SIZE_TYPE {p.name} = 0;")
@@ -343,6 +390,8 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             args.append(str(arg_ov[p.name]))
             continue
         if p.name in steps:
+            # Per-pointer step (mixed-type functions have different src/dst
+            # element sizes; the steps dict already resolved the right one).
             args.append(steps[p.name])
             continue
         if p.ctype == "NppiSize":
