@@ -166,11 +166,10 @@ __device__ __forceinline__ T pickChannelConst(const KernelConstantPack<T, Count>
 
 namespace vec {
 
-// One 16-byte packet reinterpreted as E elements of T.
-template <typename T, int E> union Packet {
-  uint4 raw;
-  T elem[E];
-};
+// One 16-byte packet reinterpreted as E elements of T. Moved to the shared
+// npp_kernel_utils.h header (package opt_elem) so the npps element-wise and
+// nppi copy executors reuse the same definition.
+using npp_kernel::vec::Packet;
 
 } // namespace vec
 

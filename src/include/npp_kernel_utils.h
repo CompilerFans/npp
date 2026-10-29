@@ -181,6 +181,42 @@ inline bool vecAligned3(const void *p1, int step1, const void *p2, int step2, co
          ((static_cast<unsigned>(step1) | static_cast<unsigned>(step2) | static_cast<unsigned>(step3)) & 15u) == 0;
 }
 
+// One 16-byte packet reinterpreted as E elements of T. Lives here so every
+// vectorized executor (nppi arithmetic / copy, npps element-wise) shares one
+// definition; the union is only ever type-punned between .raw loads/stores
+// and .elem[] functor application, never both at once.
+namespace vec {
+template <typename T, int E> union Packet {
+  uint4 raw;
+  T elem[E];
+};
+} // namespace vec
+
+// Packets covering a flat 1D signal of n elements (npps element-wise ops).
+template <typename T> inline size_t vecPacketCount1D(size_t n) {
+  constexpr int E = 16 / int(sizeof(T));
+  return (n + E - 1) / E;
+}
+
+// True when the base pointers (no row steps) permit 128-bit packet access.
+inline bool vecAlignedPtr2(const void *p1, const void *p2) {
+  return ((reinterpret_cast<uintptr_t>(p1) | reinterpret_cast<uintptr_t>(p2)) & 15u) == 0;
+}
+
+// Three-pointer variant (two sources + destination).
+inline bool vecAlignedPtr3(const void *p1, const void *p2, const void *p3) {
+  return ((reinterpret_cast<uintptr_t>(p1) | reinterpret_cast<uintptr_t>(p2) |
+           reinterpret_cast<uintptr_t>(p3)) & 15u) == 0;
+}
+
+// True when a flat 1D signal of n elements of T can be walked with 32-bit
+// packet index math: the end of the last (possibly partial) packet must stay
+// below 2^32 elements. Larger signals keep the 64-bit-index scalar kernels.
+// For every element type this bound is at or above 4 GiB of signal data.
+template <typename T> inline bool vec1dIndexSafe(size_t n) {
+  return n <= ((size_t)0xFFFFFFF0u) / sizeof(T);
+}
+
 // Grid size covering totalWork packets with one packet per thread
 // (grid-stride loops absorb anything beyond the cap).
 inline unsigned vecGridSize(size_t totalWork) {
