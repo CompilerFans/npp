@@ -515,7 +515,7 @@ TEST_F(NppiAverageErrorDiff, BufferSize_Contract) {
   NppStreamContext ctx = current_context();
   {
     SIZE_TYPE n = 0;
-    NppStatus st = nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize{17, 13}, nullptr, ctx);
+    NppStatus st = nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx(NppiSize{17, 13}, static_cast<SIZE_TYPE *>(nullptr), ctx);
     Case c("bufferSize/avgErr_contract/null_ptr", "nppiAverageErrorGetBufferHostSize_8u_C1R_Ctx");
     c.status(st); c.finish();
   }
@@ -533,7 +533,7 @@ TEST_F(NppiAverageErrorDiff, BufferSize_Contract) {
   }
   {
     SIZE_TYPE n = 0;
-    NppStatus st = nppiAverageRelativeErrorGetBufferHostSize_16u_C1R_Ctx(NppiSize{17, 13}, nullptr, ctx);
+    NppStatus st = nppiAverageRelativeErrorGetBufferHostSize_16u_C1R_Ctx(NppiSize{17, 13}, static_cast<SIZE_TYPE *>(nullptr), ctx);
     Case c("bufferSize/avgRelErr_contract/null_ptr", "nppiAverageRelativeErrorGetBufferHostSize_16u_C1R_Ctx");
     c.status(st); c.finish();
   }
