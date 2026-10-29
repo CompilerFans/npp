@@ -1,6 +1,4 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_statistics_functions.h,nppiAverageError,176,0,0,176,88,88,90,176
-nppi_statistics_functions.h,nppiAverageRelativeError,176,0,0,176,88,88,89,176
 nppi_statistics_functions.h,nppiMaximumError,176,0,0,176,88,88,88,176
 nppi_statistics_functions.h,nppiMaximumRelativeError,176,0,0,176,88,88,88,176
 npps_statistics_functions.h,nppsDotProd,100,0,0,100,50,50,25,100
@@ -434,6 +432,8 @@ nppi_geometry_transforms.h,nppiRemap,60,60,0,0,0,0,21,0
 nppi_geometry_transforms.h,nppiWarpPerspectiveBatchInit,2,2,0,0,0,0,2,0
 nppi_linear_transforms.h,nppiMagnitude,2,2,0,0,0,0,2,0
 nppi_linear_transforms.h,nppiMagnitudeSqr,2,2,0,0,0,0,2,0
+nppi_statistics_functions.h,nppiAverageError,176,176,0,0,0,0,90,0
+nppi_statistics_functions.h,nppiAverageRelativeError,176,176,0,0,0,0,89,0
 nppi_statistics_functions.h,nppiDotProd,112,112,0,0,0,0,37,0
 nppi_statistics_functions.h,nppiFullNormLevel,48,48,0,0,0,0,24,0
 nppi_statistics_functions.h,nppiMax,64,64,0,0,0,0,33,0
