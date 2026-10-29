@@ -160,5 +160,19 @@
       "nppiMinMax",
       "nppiMinMaxGetBufferHostSize"
     ]
+  },
+  "p3.1a3": {
+    "title": "NPPI Min/Max index reductions + MinEvery/MaxEvery",
+    "module": "nppi_statistics_functions.h",
+    "families": [
+      "nppiMinIndx",
+      "nppiMinIndxGetBufferHostSize",
+      "nppiMaxIndx",
+      "nppiMaxIndxGetBufferHostSize",
+      "nppiMinMaxIndx",
+      "nppiMinMaxIndxGetBufferHostSize",
+      "nppiMinEvery",
+      "nppiMaxEvery"
+    ]
   }
 }
