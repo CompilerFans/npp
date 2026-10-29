@@ -192,5 +192,22 @@
       "nppiNormDiffL2GetBufferHostSize",
       "nppiNormDiffInfGetBufferHostSize"
     ]
+  },
+  "p3.1b2": {
+    "title": "NPPI NormRel + DotProd + norm-level buffers",
+    "module": "nppi_statistics_functions.h",
+    "families": [
+      "nppiNormRel_L1",
+      "nppiNormRel_L2",
+      "nppiNormRel_Inf",
+      "nppiNormRelL1GetBufferHostSize",
+      "nppiNormRelL2GetBufferHostSize",
+      "nppiNormRelInfGetBufferHostSize",
+      "nppiDotProd",
+      "nppiDotProdGetBufferHostSize",
+      "nppiFullNormLevelGetBufferHostSize",
+      "nppiSameNormLevelGetBufferHostSize",
+      "nppiValidNormLevelGetBufferHostSize"
+    ]
   }
 }
