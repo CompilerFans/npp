@@ -229,5 +229,27 @@
       "nppiMaximumRelativeError",
       "nppiMaximumRelativeErrorGetBufferHostSize"
     ]
+  },
+  "p1.6": {
+    "title": "NPPI morphology (dilate/erode/gradient/open/close/tophat/blackhat)",
+    "module": "nppi_morphological_operations.h",
+    "families": [
+      "nppiDilate3x3Border",
+      "nppiDilateBorder",
+      "nppiErode3x3Border",
+      "nppiErodeBorder",
+      "nppiDilate3x3",
+      "nppiErode3x3",
+      "nppiDilate",
+      "nppiErode",
+      "nppiMorphBlackHatBorder",
+      "nppiMorphCloseBorder",
+      "nppiMorphGradientBorder",
+      "nppiMorphOpenBorder",
+      "nppiMorphTopHatBorder",
+      "nppiMorphGetBufferSize",
+      "nppiGrayDilateBorder",
+      "nppiGrayErodeBorder"
+    ]
   }
 }

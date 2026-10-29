@@ -41,9 +41,9 @@ if ! flock -n 9; then
   exit 2
 fi
 
-if pgrep -f 'run_package\.sh|run_ref_agent\.sh' >/dev/null 2>&1; then
-  echo "error: a package/ref agent is running; wait until it exits" >&2
-  pgrep -af 'run_package\.sh|run_ref_agent\.sh' | head -5 >&2
+if pgrep -f 'run_package\.sh' >/dev/null 2>&1; then
+  echo "error: a package agent owns the main checkout; wait until it exits" >&2
+  pgrep -af 'run_package\.sh' | head -5 >&2
   exit 2
 fi
 if [[ -n "$(git -C "$ROOT" status --porcelain)" ]]; then
