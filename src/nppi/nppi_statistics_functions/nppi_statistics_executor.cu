@@ -753,8 +753,13 @@ __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSr
 }
 
 // Combine the block partials into the per-channel relative norm.
+// zeroDenomValue carries the source-dtype positive maximum: NVIDIA NPP 13.4
+// (RTX 5090) returns 0 when numerator and denominator norms are both zero and
+// the dtype maximum when only the denominator is zero; finite ratios are never
+// clamped (verified by the normrel zero-denominator / big-ratio goldens).
 template <nppi::statistics::NormType NT>
-__global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, int nch, Npp64f *pOut) {
+__global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, int nch,
+                                      double zeroDenomValue, Npp64f *pOut) {
   __shared__ double ds[kBlock];
   __shared__ double ns[kBlock];
   constexpr bool IsInf = (NT == nppi::statistics::NormType::Inf);
@@ -793,7 +798,7 @@ __global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, 
         d = sqrt(d);
         n = sqrt(n);
       }
-      pOut[c] = (n != 0.0) ? d / n : d;  // zero denominator -> inf/nan as d drives
+      pOut[c] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
     }
     __syncthreads();
   }
@@ -827,8 +832,10 @@ __global__ void normRelMaskedKernel(const D *pSrc1, int nSrc1Step, const D *pSrc
   }
 }
 
+// See normRelFinalizeKernel for the zero-denominator convention.
 template <nppi::statistics::NormType NT>
-__global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, double *pOut) {
+__global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks,
+                                            double zeroDenomValue, double *pOut) {
   __shared__ double ds[kBlock];
   __shared__ double ns[kBlock];
   constexpr bool IsInf = (NT == nppi::statistics::NormType::Inf);
@@ -866,7 +873,7 @@ __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *p
       d = sqrt(d);
       n = sqrt(n);
     }
-    pOut[0] = (n != 0.0) ? d / n : d;
+    pOut[0] = (n > 0.0) ? d / n : ((d == 0.0) ? 0.0 : zeroDenomValue);
   }
 }
 
@@ -1445,6 +1452,13 @@ NppStatus runNormDiffMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, in
 
 // ============================== NormRel =====================================
 
+// Positive maximum of the source dtype (NPP_8U_MAX / NPP_16S_MAX / FLT_MAX /
+// ...): the value NVIDIA NPP 13.4 returns for a NormRel channel whose
+// denominator norm is zero while the numerator is not.
+template <typename D> constexpr double normRelZeroDenomValue() {
+  return static_cast<double>(std::numeric_limits<D>::max());
+}
+
 template <NormType NT, typename D, int Channels, bool AlphaPreserve>
 NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                      Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream) {
@@ -1469,7 +1483,7 @@ NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
       <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, pDiff, pNormP, nCh);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  normRelFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, nCh, pNorm);
+  normRelFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, nCh, normRelZeroDenomValue<D>(), pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1492,7 +1506,7 @@ NppStatus runNormRelMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nS
       <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oi.width, oi.height, 0, pDiff, pNormP);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  normRelMaskedFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, pNorm);
+  normRelMaskedFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, normRelZeroDenomValue<D>(), pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1520,7 +1534,7 @@ NppStatus runNormRelMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, int
       <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oi.width, oi.height, srcCh, pDiff, pNormP);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  normRelMaskedFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, pNorm);
+  normRelMaskedFinalizeKernel<NT><<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, normRelZeroDenomValue<D>(), pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
