@@ -127,6 +127,47 @@ NppStatus runMinMaxIndx(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMa
                         cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
+// Norm / NormDiff (L1 / L2 / Inf)
+// ---------------------------------------------------------------------------
+
+// 2D ROI norm family.  L1 = sum |a|, L2 = sqrt(sum a^2), Inf = max |a|.
+// NormDiff reduces over |pSrc1 - pSrc2| instead of pSrc alone.
+enum class NormType { L1, L2, Inf };
+
+// out = per-channel norm of the ROI.  Channels = packed channels per pixel,
+// AlphaPreserve selects AC4 (reduces Channels-1, output holds those values).
+template <NormType NT, typename D, int Channels, bool AlphaPreserve>
+NppStatus runNorm(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
+                  cudaStream_t stream);
+
+// NormDiff: out = per-channel norm of (pSrc1 - pSrc2).
+template <NormType NT, typename D, int Channels, bool AlphaPreserve>
+NppStatus runNormDiff(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
+                      Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream);
+
+// Single-channel norm with a mask (C1MR).
+template <NormType NT, typename D>
+NppStatus runNormMasked(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
+                        Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream);
+
+// Three-channel norm restricted to one channel by nCOI, with a mask (C3CMR).
+template <NormType NT, typename D>
+NppStatus runNormMaskedCoi(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oSizeROI,
+                           int nCOI, Npp8u *pDeviceBuffer, Npp64f *pNorm, cudaStream_t stream);
+
+// Two-source (Sep1 - Sep2) masked single channel (C1MR).
+template <NormType NT, typename D>
+NppStatus runNormDiffMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                            int nMaskStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
+                            cudaStream_t stream);
+
+// Two-source masked three-channel, one channel selected by nCOI (C3CMR).
+template <NormType NT, typename D>
+NppStatus runNormDiffMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+                               int nMaskStep, NppiSize oSizeROI, int nCOI, Npp8u *pDeviceBuffer, Npp64f *pNorm,
+                               cudaStream_t stream);
+
+// ---------------------------------------------------------------------------
 // Buffer-size helpers (host side; the stream context is not needed).
 // ---------------------------------------------------------------------------
 
@@ -139,6 +180,13 @@ NppStatus minMaxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus minIndxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus maxIndxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus minMaxIndxGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+
+NppStatus normL1GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normL2GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normInfGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normDiffL1GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normDiffL2GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus normDiffInfGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 
 }  // namespace statistics
 }  // namespace nppi

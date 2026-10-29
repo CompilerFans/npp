@@ -1,0 +1,16 @@
+{
+  "family": "nppiNormDiff_L2",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_normdiff_l2_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiNormDiff_L2", "nppiNormDiffL2GetBufferHostSize"],
+  "call_by_family": {
+    "nppiNormDiffL2GetBufferHostSize": "nppi::statistics::normDiffL2GetBufferHostSize(oSizeROI, hpBufferSize)"
+  },
+  "call_variants": [
+    {"contains": "nCOI", "call": "nppi::statistics::runNormDiffMaskedCoi<nppi::statistics::NormType::L2,{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oSizeROI, nCOI, pDeviceBuffer, pNormDiff, nppStreamCtx.hStream)"},
+    {"contains": "nMaskStep", "call": "nppi::statistics::runNormDiffMasked<nppi::statistics::NormType::L2,{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pMask, nMaskStep, oSizeROI, pDeviceBuffer, pNormDiff, nppStreamCtx.hStream)"},
+    {"contains": "aNormDiff", "call": "nppi::statistics::runNormDiff<nppi::statistics::NormType::L2,{dtype},{chan},{is_ac4}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pDeviceBuffer, aNormDiff, nppStreamCtx.hStream)"}
+  ],
+  "call": "nppi::statistics::runNormDiff<nppi::statistics::NormType::L2,{dtype},1,0>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pDeviceBuffer, pNormDiff, nppStreamCtx.hStream)"
+}
