@@ -19,6 +19,7 @@
 #include "npp.h"
 
 #include <cuda_runtime.h>
+#include <cstdint>
 
 namespace npp_kernel {
 
@@ -136,6 +137,55 @@ inline NppStatus validateMaskedParameters(NppiSize oSizeROI, const PtrTypes *...
     return NPP_SIZE_ERROR;
   }
   return NPP_NO_ERROR;
+}
+
+// ============================================================================
+// 128-bit Vectorized Access Support (package opt_elem)
+// ============================================================================
+// Purely element-wise kernels (binary / unary / constant / compare) move data
+// in 16-byte packets when every base pointer is 16B-aligned and every row
+// step is a multiple of 16 bytes. Element types whose size does not divide
+// the 16-byte packet, and any unaligned pointer / step, fall back to the
+// original scalar kernels; a partial trailing packet is handled element-wise
+// inside the vector kernels. Op functors are invoked per element exactly as
+// in the scalar kernels, so numerics are unchanged.
+
+// Threads per block for the flat grid-stride vector kernels.
+constexpr int kVecBlock = 256;
+
+// Elements of type T moved per 16-byte packet. Every Npp* element type has a
+// size of 1/2/4/8/16 bytes, so this is >= 1 for all of them.
+template <typename T> constexpr int vecElemsPerPacket() { return 16 / int(sizeof(T)); }
+
+// Total number of 16-byte packets covering an image of width*channels
+// elements of T over height rows. The vectorized kernels index these packets
+// with 32-bit arithmetic, so executors only take the vectorized path when
+// this count fits in 31 bits; 2^31 packets is 32 GiB of traffic, far beyond
+// any realistic image, so the guard never fires in practice.
+template <typename T> inline size_t vecPacketCount(int width, int channels, int height) {
+  constexpr int E = 16 / int(sizeof(T));
+  return ((size_t)width * channels + E - 1) / E * (size_t)height;
+}
+
+// True when two base pointers and their row steps permit 128-bit row access.
+// Steps are validated (>= minimum row size > 0) before this is called.
+inline bool vecAligned2(const void *p1, int step1, const void *p2, int step2) {
+  return ((reinterpret_cast<uintptr_t>(p1) | reinterpret_cast<uintptr_t>(p2)) & 15u) == 0 &&
+         ((static_cast<unsigned>(step1) | static_cast<unsigned>(step2)) & 15u) == 0;
+}
+
+// Three-pointer variant (two sources + destination).
+inline bool vecAligned3(const void *p1, int step1, const void *p2, int step2, const void *p3, int step3) {
+  return ((reinterpret_cast<uintptr_t>(p1) | reinterpret_cast<uintptr_t>(p2) | reinterpret_cast<uintptr_t>(p3)) &
+          15u) == 0 &&
+         ((static_cast<unsigned>(step1) | static_cast<unsigned>(step2) | static_cast<unsigned>(step3)) & 15u) == 0;
+}
+
+// Grid size covering totalWork packets with one packet per thread
+// (grid-stride loops absorb anything beyond the cap).
+inline unsigned vecGridSize(size_t totalWork) {
+  const size_t grid = (totalWork + kVecBlock - 1) / kVecBlock;
+  return static_cast<unsigned>(grid < 65535u ? grid : 65535u);
 }
 
 } // namespace npp_kernel
