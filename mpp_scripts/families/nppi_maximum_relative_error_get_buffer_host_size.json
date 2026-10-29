@@ -1,0 +1,8 @@
+{
+  "family": "nppiMaximumRelativeErrorGetBufferHostSize",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_maximum_relative_error_get_buffer_host_size_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiMaximumRelativeErrorGetBufferHostSize"],
+  "call": "nppi::statistics::maximumRelativeErrorGetBufferHostSize(oSizeROI, hpBufferSize)"
+}

@@ -1,0 +1,8 @@
+{
+  "family": "nppiMaximumError",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_maximum_error_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiMaximumError"],
+  "call": "nppi::statistics::runMaxError<{dtype},{chan}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, pDeviceBuffer, pError, nppStreamCtx.hStream)"
+}
