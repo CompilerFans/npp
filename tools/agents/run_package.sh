@@ -101,6 +101,25 @@ if [[ -f "$BUILD_ENV" ]]; then
   source "$BUILD_ENV"
 fi
 
+# Give each package its own remote 5090 directory so parallel agents cannot
+# clobber each other's builds or goldens.  The MCP server and remote5090.sh
+# both honor MCPP_5090_DIR.
+export MCPP_5090_DIR="${MCPP_5090_DIR:-$HOME/mcMPP-$pkg}"
+
+# Pre-approve the project-scoped MCP server for this checkout.
+python3 - "$workdir" <<'PYAPPROVE' 2>/dev/null || true
+import json, os, sys
+path = os.path.expanduser("~/.claude.json")
+try:
+    data = json.load(open(path))
+except Exception:
+    raise SystemExit(0)
+proj = data.setdefault("projects", {}).setdefault(sys.argv[1], {})
+proj["enabledMcpjsonServers"] = ["mcpp-5090"]
+proj["hasTrustDialogAccepted"] = True
+json.dump(data, open(path, "w"), indent=2)
+PYAPPROVE
+
 mkdir -p "$LOG_DIR"
 stamp="$(date +%Y%m%d-%H%M%S)"
 log="$LOG_DIR/$pkg-$stamp.log"
@@ -111,6 +130,8 @@ Never push to Gerrit or any remote, never force-push, never rewrite the integrat
 Commit your work on the current branch. If a requirement is impossible or ambiguous, stop and
 write the question into your final report instead of guessing. Prefer the existing executor,
 policy-template and differential-test patterns over new frameworks.
+The mcpp-5090 MCP server is available (tools: sync/build/test/record/pull/status/run).
+Its default remote_dir is the isolated directory for this package; use it for 5090 work.
 NEVER run cmake_maca or make_maca: they recreate and delete ~/cu-bridge, breaking the local
 toolchain for everyone. Use the cached ./build.sh in the main checkout; do not try to "repair" the toolkit.
 Keep tool output small: redirect builds/tests to files and inspect with grep/tail; never cat
@@ -126,8 +147,17 @@ echo ">> branch  : $branch"
 echo ">> log     : $log"
 echo ">> model   : ${ANTHROPIC_MODEL:-<unset>}"
 
+mcp_args=()
+allowed="Bash Read Write Edit Glob Grep"
+MCP_CFG="${MCPP_5090_MCP_CONFIG:-$HOME/.config/mcpp-5090-mcp.json}"
+if [[ -f "$MCP_CFG" ]]; then
+  mcp_args=(--mcp-config "$MCP_CFG" --strict-mcp-config)
+  allowed="$allowed mcp__mcpp-5090__sync mcp__mcpp-5090__build mcp__mcpp-5090__test mcp__mcpp-5090__record mcp__mcpp-5090__pull mcp__mcpp-5090__status mcp__mcpp-5090__run"
+fi
+
 cmd=(claude -p --bare --permission-mode bypassPermissions
-     --allowedTools "Bash Read Write Edit Glob Grep"
+     --allowedTools "$allowed"
+     "${mcp_args[@]}"
      --append-system-prompt "$system_prompt"
      "$prompt")
 
