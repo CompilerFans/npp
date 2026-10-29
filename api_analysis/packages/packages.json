@@ -251,5 +251,37 @@
       "nppiGrayDilateBorder",
       "nppiGrayErodeBorder"
     ]
+  },
+  "p1.7": {
+    "title": "NPPI geometry gaps (warp/resize/mirror/rotate)",
+    "module": "nppi_geometry_transforms.h",
+    "families": [
+      "nppiWarpAffine",
+      "nppiResizeSqrPixel",
+      "nppiWarpAffineQuad",
+      "nppiWarpPerspectiveQuad",
+      "nppiResizeBatch",
+      "nppiMirror",
+      "nppiResize",
+      "nppiWarpAffineBack",
+      "nppiWarpAffineBatch",
+      "nppiWarpPerspectiveBatch",
+      "nppiMirrorBatch",
+      "nppiWarpPerspectiveBack",
+      "nppiWarpPerspective",
+      "nppiRotate",
+      "nppiWarpAffineBatchInit",
+      "nppiGetAffineBound",
+      "nppiGetAffineQuad",
+      "nppiGetAffineTransform",
+      "nppiGetPerspectiveBound",
+      "nppiGetPerspectiveQuad",
+      "nppiGetPerspectiveTransform",
+      "nppiGetResizeRect",
+      "nppiGetResizeTiledSourceOffset",
+      "nppiGetRotateBound",
+      "nppiGetRotateQuad",
+      "nppiResizeAdvancedGetBufferHostSize"
+    ]
   }
 }
