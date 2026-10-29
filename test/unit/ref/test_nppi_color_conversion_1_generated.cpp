@@ -174,9 +174,9 @@ TEST(RefSuite, nppiBGRToYCbCr411_JPEG_8u_C3P3R_Ctx) {
 
 TEST(RefSuite, nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x2c02f227);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0xd7195025);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x77487372);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0x2c02f227);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0xd7195025);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0x77487372);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
   auto pDst_0 = ref_device<Npp8u>(986, 0x3bb74276);
   auto pDst_1 = ref_device<Npp8u>(986, 0x6c5e994c);
@@ -184,7 +184,7 @@ TEST(RefSuite, nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx", "nppiBGRToYCbCr411_JPEG_8u_P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -303,9 +303,9 @@ TEST(RefSuite, nppiBGRToYCbCr420_JPEG_8u_C3P3R_Ctx) {
 
 TEST(RefSuite, nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x4b1e47f1);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0xd667c884);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x539b270c);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0x4b1e47f1);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0xd667c884);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0x539b270c);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
   auto pDst_0 = ref_device<Npp8u>(986, 0x9be047be);
   auto pDst_1 = ref_device<Npp8u>(986, 0xc88e6ad1);
@@ -313,7 +313,7 @@ TEST(RefSuite, nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx", "nppiBGRToYCbCr420_JPEG_8u_P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -378,9 +378,9 @@ TEST(RefSuite, nppiBGRToYCbCr422_JPEG_8u_C3P3R_Ctx) {
 
 TEST(RefSuite, nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x380e2931);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0x4d010ada);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x7e9bf3b9);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0x380e2931);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0x4d010ada);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0x7e9bf3b9);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
   auto pDst_0 = ref_device<Npp8u>(986, 0x31ebabc4);
   auto pDst_1 = ref_device<Npp8u>(986, 0x7426aa5b);
@@ -388,7 +388,7 @@ TEST(RefSuite, nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx", "nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -400,37 +400,37 @@ TEST(RefSuite, nppiBGRToYCbCr422_JPEG_8u_P3R_Ctx) {
 TEST(RefSuite, nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp8u>(1343, 0x1516247a);
-  auto pDst_0 = ref_device<Npp8u>(986, 0x06136935);
-  auto pDst_1 = ref_device<Npp8u>(986, 0x9c95e2c6);
-  auto pDst_2 = ref_device<Npp8u>(986, 0xc5f2649d);
+  auto pDst_0 = ref_device<Npp8u>(1343, 0x06136935);
+  auto pDst_1 = ref_device<Npp8u>(1343, 0x9c95e2c6);
+  auto pDst_2 = ref_device<Npp8u>(1343, 0xc5f2649d);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, align16(21 * 2 * 1), {17, 13}, ctx);
+  NppStatus st = nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx", "nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_1->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_2->get(), 986 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_0->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_1->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_2->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }
 
 TEST(RefSuite, nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0xeffc568b);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0x2c13bffa);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0xafe0b9e4);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0xeffc568b);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0x2c13bffa);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0xafe0b9e4);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
-  auto pDst_0 = ref_device<Npp8u>(986, 0xda2572dc);
-  auto pDst_1 = ref_device<Npp8u>(986, 0xe54a8963);
-  auto pDst_2 = ref_device<Npp8u>(986, 0xe9f2fe48);
+  auto pDst_0 = ref_device<Npp8u>(1343, 0xda2572dc);
+  auto pDst_1 = ref_device<Npp8u>(1343, 0xe54a8963);
+  auto pDst_2 = ref_device<Npp8u>(1343, 0xe9f2fe48);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, align16(21 * 2 * 1), {17, 13}, ctx);
+  NppStatus st = nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx", "nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_1->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_2->get(), 986 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_0->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_1->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_2->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }
 
@@ -635,14 +635,14 @@ TEST(RefSuite, nppiBGRToYUV_8u_P3R_Ctx) {
 
 TEST(RefSuite, nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x5f772a0f);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0xe7cdf17b);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0xc4a94381);
-  auto pSrc_3 = ref_device<Npp8u>(986, 0x572c4159);
+  auto pSrc_0 = ref_device<Npp8u>(1700, 0x5f772a0f);
+  auto pSrc_1 = ref_device<Npp8u>(1700, 0xe7cdf17b);
+  auto pSrc_2 = ref_device<Npp8u>(1700, 0xc4a94381);
+  auto pSrc_3 = ref_device<Npp8u>(1700, 0x572c4159);
   const Npp8u * pSrc[4] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get(), pSrc_3->get()};
   auto pDst = ref_device<Npp8u>(1343, 0xd5f5a97c);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx(pSrc, align16(21 * 4 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx", "nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -651,35 +651,35 @@ TEST(RefSuite, nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R_Ctx) {
 
 TEST(RefSuite, nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0xcbb766e7);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0x969fbd37);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0xa4f20846);
-  auto pSrc_3 = ref_device<Npp8u>(986, 0xae79d3e8);
+  auto pSrc_0 = ref_device<Npp8u>(1700, 0xcbb766e7);
+  auto pSrc_1 = ref_device<Npp8u>(1700, 0x969fbd37);
+  auto pSrc_2 = ref_device<Npp8u>(1700, 0xa4f20846);
+  auto pSrc_3 = ref_device<Npp8u>(1700, 0xae79d3e8);
   const Npp8u * pSrc[4] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get(), pSrc_3->get()};
-  auto pDst_0 = ref_device<Npp8u>(986, 0x3841902b);
-  auto pDst_1 = ref_device<Npp8u>(986, 0xa1c5d505);
-  auto pDst_2 = ref_device<Npp8u>(986, 0x03157c22);
+  auto pDst_0 = ref_device<Npp8u>(1343, 0x3841902b);
+  auto pDst_1 = ref_device<Npp8u>(1343, 0xa1c5d505);
+  auto pDst_2 = ref_device<Npp8u>(1343, 0x03157c22);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, align16(21 * 2 * 1), {17, 13}, ctx);
+  NppStatus st = nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx(pSrc, align16(21 * 4 * 1), pDst, align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx", "nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_1->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_2->get(), 986 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_0->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_1->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_2->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }
 
 TEST(RefSuite, nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x1f85a017);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0xe6d2d075);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x8a316a2a);
-  auto pSrc_3 = ref_device<Npp8u>(986, 0x4e688b7f);
+  auto pSrc_0 = ref_device<Npp8u>(1700, 0x1f85a017);
+  auto pSrc_1 = ref_device<Npp8u>(1700, 0xe6d2d075);
+  auto pSrc_2 = ref_device<Npp8u>(1700, 0x8a316a2a);
+  auto pSrc_3 = ref_device<Npp8u>(1700, 0x4e688b7f);
   const Npp8u * pSrc[4] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get(), pSrc_3->get()};
   auto pDst = ref_device<Npp8u>(1343, 0x248e701f);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx(pSrc, align16(21 * 2 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
+  NppStatus st = nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx(pSrc, align16(21 * 4 * 1), pDst->get(), align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx", "nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst->get(), 1343 * sizeof(Npp8u));
@@ -688,22 +688,22 @@ TEST(RefSuite, nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R_Ctx) {
 
 TEST(RefSuite, nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x88084436);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0xd13cd798);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x1c44db04);
-  auto pSrc_3 = ref_device<Npp8u>(986, 0x50615132);
+  auto pSrc_0 = ref_device<Npp8u>(1700, 0x88084436);
+  auto pSrc_1 = ref_device<Npp8u>(1700, 0xd13cd798);
+  auto pSrc_2 = ref_device<Npp8u>(1700, 0x1c44db04);
+  auto pSrc_3 = ref_device<Npp8u>(1700, 0x50615132);
   const Npp8u * pSrc[4] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get(), pSrc_3->get()};
-  auto pDst_0 = ref_device<Npp8u>(986, 0xeac35bf4);
-  auto pDst_1 = ref_device<Npp8u>(986, 0xc74a1677);
-  auto pDst_2 = ref_device<Npp8u>(986, 0x295147ae);
+  auto pDst_0 = ref_device<Npp8u>(1343, 0xeac35bf4);
+  auto pDst_1 = ref_device<Npp8u>(1343, 0xc74a1677);
+  auto pDst_2 = ref_device<Npp8u>(1343, 0x295147ae);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, align16(21 * 2 * 1), {17, 13}, ctx);
+  NppStatus st = nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx(pSrc, align16(21 * 4 * 1), pDst, align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx", "nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_1->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_2->get(), 986 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_0->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_1->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_2->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }
 
@@ -4050,9 +4050,9 @@ TEST(RefSuite, nppiRGBToYCbCr411_JPEG_8u_C3P3R_Ctx) {
 
 TEST(RefSuite, nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0xc03ac830);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0x031ca730);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x3cd67bed);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0xc03ac830);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0x031ca730);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0x3cd67bed);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
   auto pDst_0 = ref_device<Npp8u>(986, 0xcddabb4f);
   auto pDst_1 = ref_device<Npp8u>(986, 0xc846e927);
@@ -4060,7 +4060,7 @@ TEST(RefSuite, nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx", "nppiRGBToYCbCr411_JPEG_8u_P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -4107,9 +4107,9 @@ TEST(RefSuite, nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx) {
 
 TEST(RefSuite, nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x09b37172);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0x54513617);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0xb66257e0);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0x09b37172);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0x54513617);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0xb66257e0);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
   auto pDst_0 = ref_device<Npp8u>(986, 0xf549cbaa);
   auto pDst_1 = ref_device<Npp8u>(986, 0x37a15a04);
@@ -4117,7 +4117,7 @@ TEST(RefSuite, nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx", "nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -4179,9 +4179,9 @@ TEST(RefSuite, nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx) {
 
 TEST(RefSuite, nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc_0 = ref_device<Npp8u>(986, 0x22a21f14);
-  auto pSrc_1 = ref_device<Npp8u>(986, 0x397a70de);
-  auto pSrc_2 = ref_device<Npp8u>(986, 0x12be17b9);
+  auto pSrc_0 = ref_device<Npp8u>(1343, 0x22a21f14);
+  auto pSrc_1 = ref_device<Npp8u>(1343, 0x397a70de);
+  auto pSrc_2 = ref_device<Npp8u>(1343, 0x12be17b9);
   const Npp8u * pSrc[3] = {pSrc_0->get(), pSrc_1->get(), pSrc_2->get()};
   auto pDst_0 = ref_device<Npp8u>(986, 0x7346e5ae);
   auto pDst_1 = ref_device<Npp8u>(986, 0x79158e6e);
@@ -4189,7 +4189,7 @@ TEST(RefSuite, nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx) {
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   int aDstStep[3] = {static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1)), static_cast<int>(align16(21 * 2 * 1))};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 2 * 1), pDst, aDstStep, {17, 13}, ctx);
+  NppStatus st = nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(pSrc, align16(21 * 3 * 1), pDst, aDstStep, {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx", "nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
@@ -4201,16 +4201,16 @@ TEST(RefSuite, nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx) {
 TEST(RefSuite, nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp8u>(1343, 0x3a37d6fb);
-  auto pDst_0 = ref_device<Npp8u>(986, 0x2f5622af);
-  auto pDst_1 = ref_device<Npp8u>(986, 0x4cee839a);
-  auto pDst_2 = ref_device<Npp8u>(986, 0x2e13716e);
+  auto pDst_0 = ref_device<Npp8u>(1343, 0x2f5622af);
+  auto pDst_1 = ref_device<Npp8u>(1343, 0x4cee839a);
+  auto pDst_2 = ref_device<Npp8u>(1343, 0x2e13716e);
   Npp8u * pDst[3] = {pDst_0->get(), pDst_1->get(), pDst_2->get()};
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, align16(21 * 2 * 1), {17, 13}, ctx);
+  NppStatus st = nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx(pSrc->get(), align16(21 * 3 * 1), pDst, align16(21 * 3 * 1), {17, 13}, ctx);
   npp_diff::Case c("ref/nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx", "nppiRGBToYCbCr444_JPEG_8u_C3P3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDst_0->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_1->get(), 986 * sizeof(Npp8u));
-  ref_capture_bytes(c, pDst_2->get(), 986 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_0->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_1->get(), 1343 * sizeof(Npp8u));
+  ref_capture_bytes(c, pDst_2->get(), 1343 * sizeof(Npp8u));
   c.finish();
 }

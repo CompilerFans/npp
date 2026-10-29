@@ -599,7 +599,7 @@ TEST(RefSuite, nppiMSEBatch_8u_C3R_Advanced_Ctx) {
   pSrc2BatchList_host[1].oSize = {17, 13};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pMSE = ref_device<Npp32f>(2, 0x2d3c1ef5);
+  auto pMSE = ref_device<Npp32f>(6, 0x2d3c1ef5);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0x0283bbf7);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0x6c44c2f6);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -613,7 +613,7 @@ TEST(RefSuite, nppiMSEBatch_8u_C3R_Advanced_Ctx) {
   NppStatus st = nppiMSEBatch_8u_C3R_Advanced_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pMSE->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiMSEBatch_8u_C3R_Advanced_Ctx", "nppiMSEBatch_8u_C3R_Advanced_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pMSE->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pMSE->get(), 6 * sizeof(Npp32f));
   c.finish();
 }
 
@@ -641,7 +641,7 @@ TEST(RefSuite, nppiMSEBatch_8u_C3R_Ctx) {
   pSrc2BatchList_host[1].oSize = {17, 13};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pMSE = ref_device<Npp32f>(2, 0xb48b917a);
+  auto pMSE = ref_device<Npp32f>(6, 0xb48b917a);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0xbb3a74be);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0xcd28490f);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -655,7 +655,7 @@ TEST(RefSuite, nppiMSEBatch_8u_C3R_Ctx) {
   NppStatus st = nppiMSEBatch_8u_C3R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pMSE->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiMSEBatch_8u_C3R_Ctx", "nppiMSEBatch_8u_C3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pMSE->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pMSE->get(), 6 * sizeof(Npp32f));
   c.finish();
 }
 
@@ -767,7 +767,7 @@ TEST(RefSuite, nppiPSNRBatch_8u_C3R_Advanced_Ctx) {
   pSrc2BatchList_host[1].oSize = {17, 13};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pPSNR = ref_device<Npp32f>(2, 0xe5e65739);
+  auto pPSNR = ref_device<Npp32f>(6, 0xe5e65739);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0xcb2296b2);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0xa292e728);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -781,7 +781,7 @@ TEST(RefSuite, nppiPSNRBatch_8u_C3R_Advanced_Ctx) {
   NppStatus st = nppiPSNRBatch_8u_C3R_Advanced_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pPSNR->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiPSNRBatch_8u_C3R_Advanced_Ctx", "nppiPSNRBatch_8u_C3R_Advanced_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pPSNR->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pPSNR->get(), 6 * sizeof(Npp32f));
   c.finish();
 }
 
@@ -809,7 +809,7 @@ TEST(RefSuite, nppiPSNRBatch_8u_C3R_Ctx) {
   pSrc2BatchList_host[1].oSize = {17, 13};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pPSNR = ref_device<Npp32f>(2, 0xa3891657);
+  auto pPSNR = ref_device<Npp32f>(6, 0xa3891657);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0x4e11d511);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0xf971a559);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -823,7 +823,7 @@ TEST(RefSuite, nppiPSNRBatch_8u_C3R_Ctx) {
   NppStatus st = nppiPSNRBatch_8u_C3R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pPSNR->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiPSNRBatch_8u_C3R_Ctx", "nppiPSNRBatch_8u_C3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pPSNR->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pPSNR->get(), 6 * sizeof(Npp32f));
   c.finish();
 }
 
@@ -893,7 +893,7 @@ TEST(RefSuite, nppiSSIMBatch_8u_C3R_Ctx) {
   pSrc2BatchList_host[1].oSize = {17, 13};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pSSIM = ref_device<Npp32f>(2, 0x630c2c48);
+  auto pSSIM = ref_device<Npp32f>(6, 0x630c2c48);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0xc37f0761);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0xc21bfed9);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -907,7 +907,7 @@ TEST(RefSuite, nppiSSIMBatch_8u_C3R_Ctx) {
   NppStatus st = nppiSSIMBatch_8u_C3R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pSSIM->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiSSIMBatch_8u_C3R_Ctx", "nppiSSIMBatch_8u_C3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pSSIM->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pSSIM->get(), 6 * sizeof(Npp32f));
   c.finish();
 }
 
@@ -918,10 +918,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx) {
   std::vector<NppiImageDescriptor> pSrc1BatchList_host(2);
   pSrc1BatchList_host[0].pData = pSrc1BatchList_img0->get();
   pSrc1BatchList_host[0].nStep = align16(21 * 1 * 1);
-  pSrc1BatchList_host[0].oSize = {17, 13};
+  pSrc1BatchList_host[0].oSize = {17, 16};
   pSrc1BatchList_host[1].pData = pSrc1BatchList_img1->get();
   pSrc1BatchList_host[1].nStep = align16(21 * 1 * 1);
-  pSrc1BatchList_host[1].oSize = {17, 13};
+  pSrc1BatchList_host[1].oSize = {17, 16};
   auto pSrc1BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc1BatchList->copyFromHost(pSrc1BatchList_host);
   auto pSrc2BatchList_img0 = ref_device<Npp8u>(629, 0x25b1dbcc);
@@ -929,10 +929,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx) {
   std::vector<NppiImageDescriptor> pSrc2BatchList_host(2);
   pSrc2BatchList_host[0].pData = pSrc2BatchList_img0->get();
   pSrc2BatchList_host[0].nStep = align16(21 * 1 * 1);
-  pSrc2BatchList_host[0].oSize = {17, 13};
+  pSrc2BatchList_host[0].oSize = {17, 16};
   pSrc2BatchList_host[1].pData = pSrc2BatchList_img1->get();
   pSrc2BatchList_host[1].nStep = align16(21 * 1 * 1);
-  pSrc2BatchList_host[1].oSize = {17, 13};
+  pSrc2BatchList_host[1].oSize = {17, 16};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
   auto pWMSSSIM = ref_device<Npp32f>(2, 0x80035e7a);
@@ -946,7 +946,7 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx) {
   auto pDeviceBufferList = std::make_unique<DeviceMemory<NppiBufferDescriptor>>(2);
   pDeviceBufferList->copyFromHost(pDeviceBufferList_host);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
+  NppStatus st = nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 16}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx", "nppiWMSSSIMBatch_8u_C1R_Advanced_Ctx");
   c.status(st);
   ref_capture_bytes(c, pWMSSSIM->get(), 2 * sizeof(Npp32f));
@@ -960,10 +960,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C1R_Ctx) {
   std::vector<NppiImageDescriptor> pSrc1BatchList_host(2);
   pSrc1BatchList_host[0].pData = pSrc1BatchList_img0->get();
   pSrc1BatchList_host[0].nStep = align16(21 * 1 * 1);
-  pSrc1BatchList_host[0].oSize = {17, 13};
+  pSrc1BatchList_host[0].oSize = {17, 16};
   pSrc1BatchList_host[1].pData = pSrc1BatchList_img1->get();
   pSrc1BatchList_host[1].nStep = align16(21 * 1 * 1);
-  pSrc1BatchList_host[1].oSize = {17, 13};
+  pSrc1BatchList_host[1].oSize = {17, 16};
   auto pSrc1BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc1BatchList->copyFromHost(pSrc1BatchList_host);
   auto pSrc2BatchList_img0 = ref_device<Npp8u>(629, 0x29650a19);
@@ -971,10 +971,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C1R_Ctx) {
   std::vector<NppiImageDescriptor> pSrc2BatchList_host(2);
   pSrc2BatchList_host[0].pData = pSrc2BatchList_img0->get();
   pSrc2BatchList_host[0].nStep = align16(21 * 1 * 1);
-  pSrc2BatchList_host[0].oSize = {17, 13};
+  pSrc2BatchList_host[0].oSize = {17, 16};
   pSrc2BatchList_host[1].pData = pSrc2BatchList_img1->get();
   pSrc2BatchList_host[1].nStep = align16(21 * 1 * 1);
-  pSrc2BatchList_host[1].oSize = {17, 13};
+  pSrc2BatchList_host[1].oSize = {17, 16};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
   auto pWMSSSIM = ref_device<Npp32f>(2, 0x0f0c99f9);
@@ -988,7 +988,7 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C1R_Ctx) {
   auto pDeviceBufferList = std::make_unique<DeviceMemory<NppiBufferDescriptor>>(2);
   pDeviceBufferList->copyFromHost(pDeviceBufferList_host);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiWMSSSIMBatch_8u_C1R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
+  NppStatus st = nppiWMSSSIMBatch_8u_C1R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 16}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiWMSSSIMBatch_8u_C1R_Ctx", "nppiWMSSSIMBatch_8u_C1R_Ctx");
   c.status(st);
   ref_capture_bytes(c, pWMSSSIM->get(), 2 * sizeof(Npp32f));
@@ -1002,10 +1002,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx) {
   std::vector<NppiImageDescriptor> pSrc1BatchList_host(2);
   pSrc1BatchList_host[0].pData = pSrc1BatchList_img0->get();
   pSrc1BatchList_host[0].nStep = align16(21 * 3 * 1);
-  pSrc1BatchList_host[0].oSize = {17, 13};
+  pSrc1BatchList_host[0].oSize = {17, 16};
   pSrc1BatchList_host[1].pData = pSrc1BatchList_img1->get();
   pSrc1BatchList_host[1].nStep = align16(21 * 3 * 1);
-  pSrc1BatchList_host[1].oSize = {17, 13};
+  pSrc1BatchList_host[1].oSize = {17, 16};
   auto pSrc1BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc1BatchList->copyFromHost(pSrc1BatchList_host);
   auto pSrc2BatchList_img0 = ref_device<Npp8u>(1343, 0x69770964);
@@ -1013,13 +1013,13 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx) {
   std::vector<NppiImageDescriptor> pSrc2BatchList_host(2);
   pSrc2BatchList_host[0].pData = pSrc2BatchList_img0->get();
   pSrc2BatchList_host[0].nStep = align16(21 * 3 * 1);
-  pSrc2BatchList_host[0].oSize = {17, 13};
+  pSrc2BatchList_host[0].oSize = {17, 16};
   pSrc2BatchList_host[1].pData = pSrc2BatchList_img1->get();
   pSrc2BatchList_host[1].nStep = align16(21 * 3 * 1);
-  pSrc2BatchList_host[1].oSize = {17, 13};
+  pSrc2BatchList_host[1].oSize = {17, 16};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pWMSSSIM = ref_device<Npp32f>(2, 0x922c5bad);
+  auto pWMSSSIM = ref_device<Npp32f>(6, 0x922c5bad);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0xed5d99cc);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0x5811af86);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -1030,10 +1030,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx) {
   auto pDeviceBufferList = std::make_unique<DeviceMemory<NppiBufferDescriptor>>(2);
   pDeviceBufferList->copyFromHost(pDeviceBufferList_host);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
+  NppStatus st = nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 16}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx", "nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pWMSSSIM->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pWMSSSIM->get(), 6 * sizeof(Npp32f));
   c.finish();
 }
 
@@ -1044,10 +1044,10 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C3R_Ctx) {
   std::vector<NppiImageDescriptor> pSrc1BatchList_host(2);
   pSrc1BatchList_host[0].pData = pSrc1BatchList_img0->get();
   pSrc1BatchList_host[0].nStep = align16(21 * 3 * 1);
-  pSrc1BatchList_host[0].oSize = {17, 13};
+  pSrc1BatchList_host[0].oSize = {17, 16};
   pSrc1BatchList_host[1].pData = pSrc1BatchList_img1->get();
   pSrc1BatchList_host[1].nStep = align16(21 * 3 * 1);
-  pSrc1BatchList_host[1].oSize = {17, 13};
+  pSrc1BatchList_host[1].oSize = {17, 16};
   auto pSrc1BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc1BatchList->copyFromHost(pSrc1BatchList_host);
   auto pSrc2BatchList_img0 = ref_device<Npp8u>(1343, 0xe85a7164);
@@ -1055,13 +1055,13 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C3R_Ctx) {
   std::vector<NppiImageDescriptor> pSrc2BatchList_host(2);
   pSrc2BatchList_host[0].pData = pSrc2BatchList_img0->get();
   pSrc2BatchList_host[0].nStep = align16(21 * 3 * 1);
-  pSrc2BatchList_host[0].oSize = {17, 13};
+  pSrc2BatchList_host[0].oSize = {17, 16};
   pSrc2BatchList_host[1].pData = pSrc2BatchList_img1->get();
   pSrc2BatchList_host[1].nStep = align16(21 * 3 * 1);
-  pSrc2BatchList_host[1].oSize = {17, 13};
+  pSrc2BatchList_host[1].oSize = {17, 16};
   auto pSrc2BatchList = std::make_unique<DeviceMemory<NppiImageDescriptor>>(2);
   pSrc2BatchList->copyFromHost(pSrc2BatchList_host);
-  auto pWMSSSIM = ref_device<Npp32f>(2, 0x4c5811bc);
+  auto pWMSSSIM = ref_device<Npp32f>(6, 0x4c5811bc);
   auto pDeviceBufferList_buf0 = ref_device<Npp8u>(1048576, 0x2f375adc);
   auto pDeviceBufferList_buf1 = ref_device<Npp8u>(1048576, 0xa9431d5d);
   std::vector<NppiBufferDescriptor> pDeviceBufferList_host(2);
@@ -1072,9 +1072,9 @@ TEST(RefSuite, nppiWMSSSIMBatch_8u_C3R_Ctx) {
   auto pDeviceBufferList = std::make_unique<DeviceMemory<NppiBufferDescriptor>>(2);
   pDeviceBufferList->copyFromHost(pDeviceBufferList_host);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiWMSSSIMBatch_8u_C3R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 13}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
+  NppStatus st = nppiWMSSSIMBatch_8u_C3R_Ctx(pSrc1BatchList->get(), pSrc2BatchList->get(), 2, {17, 16}, pWMSSSIM->get(), pDeviceBufferList->get(), ctx);
   npp_diff::Case c("ref/nppiWMSSSIMBatch_8u_C3R_Ctx", "nppiWMSSSIMBatch_8u_C3R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pWMSSSIM->get(), 2 * sizeof(Npp32f));
+  ref_capture_bytes(c, pWMSSSIM->get(), 6 * sizeof(Npp32f));
   c.finish();
 }

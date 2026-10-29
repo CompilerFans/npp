@@ -38,7 +38,7 @@ import re
 from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
 API = ROOT / "API"
@@ -469,6 +469,17 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     # oversized for the rounded-down ROI.
     if "NV12" in fn or "NV21" in fn:
         W, H = W - 1, H - 1
+    elif "MirrorBatch" in fn and re.search(r"_C\d+IR", fn):
+        # In-place mirror batches likewise hard-require an even ROI in both
+        # dimensions (NPP_SIZE_ERROR, nothing executed), while the
+        # out-of-place batch and the single-image mirror variants accept the
+        # odd default geometry.
+        W, H = W - 1, H - 1
+    elif "WMSSSIMBatch_" in fn:
+        # The WMSSSIM batch metric is documented (header note) to process
+        # only ROIs of 16x16 pixels and above; smaller ROIs are undefined.
+        # Buffers are sized from HMAX so the taller ROI still fits.
+        H = max(H, 16)
 
     # Discover the image element type (first image pointer) for the fallback step.
     img_t = "Npp8u"
@@ -546,8 +557,9 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if role == "host":
             return 1
         if role == "scalar_out":
-            # Batched metric outputs carry one value per image in the batch.
-            return NBATCH if is_batch else max(ch, 1)
+            # Batched metric outputs carry one value per image in the batch,
+            # per channel (NPP docs size them nBatchSize * channels).
+            return NBATCH * max(ch, 1) if is_batch else max(ch, 1)
         if role in ("in", "out", "inplace"):
             if p.name in ("pMask", "pKernel", "pTpl", "pTemplate"):
                 return 3 * (3 + 16)
@@ -569,6 +581,9 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     # uniform plane pitch.
     ptr_by_name = {p.name: p for p in params if p.is_pointer}
     steps: Dict[str, str] = {}
+    # Plane arrays addressed by a shared k-scaled scalar step (JPEG family):
+    # their buffers must hold k-pitch rows, not the uniform plane pitch.
+    wide_planes: Set[str] = set()
     for p in params:
         if not p.name.endswith("Step"):
             continue
@@ -588,7 +603,17 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             else:
                 steps[p.name] = f"align16({WMAX} * {ch_of(q)} * {es})"
         elif q is not None and q.is_ptr_array and q.ctype in SCALAR:
-            steps[p.name] = plane_step(q.ctype)
+            if "JPEG" in fn and not p.is_array:
+                # The JPEG PnR entry points host-validate a shared scalar
+                # plane-array step against the interleaved row size
+                # (width * plane count) for their destinations, so pitch the
+                # family k-scaled; per-plane step arrays keep the per-plane
+                # pitch, which their own checks accept.
+                k = q.array_len or 3
+                steps[p.name] = f"align16({WMAX} * {k} * {SCALAR[q.ctype][1]})"
+                wide_planes.add(q.name)
+            else:
+                steps[p.name] = plane_step(q.ctype)
         elif is_planar(fn):
             steps[p.name] = f"align16({WMAX} * {PLANE_CH} * {esize})"
         else:
@@ -637,14 +662,17 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if p.ctype not in SCALAR:
             return f"unsupported array-of-pointers type {p.ctype} ({n})"
         if role in ("in", "out", "inplace"):
-            # A set of single-channel planes sharing the uniform plane pitch.
+            # A set of single-channel planes sharing the uniform plane pitch,
+            # or k-pitch rows when a shared scalar step of the family demands
+            # interleaved-sized rows (JPEG PnR).
+            cnt = HMAX * (WMAX * k + 16) if n in wide_planes else plane_cnt
             for i in range(k):
-                decls.append(f"  auto {n}_{i} = ref_device<{p.ctype}>({plane_cnt}, {seed_for(f'{n}_{i}')});")
+                decls.append(f"  auto {n}_{i} = ref_device<{p.ctype}>({cnt}, {seed_for(f'{n}_{i}')});")
             decls.append(f"  {c}{p.ctype} * {n}[{k}] = {{{', '.join(f'{n}_{i}->get()' for i in range(k))}}};")
             args.append(n)
             if role in ("out", "inplace"):
                 for i in range(k):
-                    captures.append(f"  ref_capture_bytes(c, {n}_{i}->get(), {plane_cnt} * sizeof({p.ctype}));")
+                    captures.append(f"  ref_capture_bytes(c, {n}_{i}->get(), {cnt} * sizeof({p.ctype}));")
             return None
         if role == "lut_in":
             if n == "pLevels" and any(q.name == "aLevels" for q in params):
