@@ -319,10 +319,11 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             decls.append(f"  auto {n} = ref_device<{p.ctype}>({count}, 0x{int(hashlib.sha256((fn + n).encode()).hexdigest()[:8], 16):08x});")
             args.append(f"{n}->get()")
             if role in ("out", "inplace", "scalar_out"):
-                if role == "scalar_out":
-                    captures.append(f'  ref_capture<{p.ctype}>(c, {n}->get(), {count});')
-                else:
-                    captures.append(f'  ref_capture_bytes(c, {n}->get(), {count} * sizeof({p.ctype}));')
+                # Captured by exact byte size: the ValueKind element size used by
+                # ref_capture<T> can exceed sizeof(T) for fixed-point complex types
+                # (e.g. Npp16sc is 4 bytes but maps to the 8-byte CF32 kind), which
+                # makes the D2H copy read past the allocation for scalar outputs.
+                captures.append(f'  ref_capture_bytes(c, {n}->get(), {count} * sizeof({p.ctype}));')
             continue
         if p.is_pointer:
             return None, f"unsupported pointer role {p.name}"
