@@ -469,11 +469,12 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     # oversized for the rounded-down ROI.
     if "NV12" in fn or "NV21" in fn:
         W, H = W - 1, H - 1
-    elif "MirrorBatch" in fn and re.search(r"_C\d+IR", fn):
+    elif "MirrorBatch" in fn and re.search(r"_A?C\d+IR", fn):
         # In-place mirror batches likewise hard-require an even ROI in both
         # dimensions (NPP_SIZE_ERROR, nothing executed), while the
         # out-of-place batch and the single-image mirror variants accept the
-        # odd default geometry.
+        # odd default geometry.  The in-place layout token is CnIR (and
+        # ACnIR for the alpha-packed variant).
         W, H = W - 1, H - 1
     elif "WMSSSIMBatch_" in fn:
         # The WMSSSIM batch metric is documented (header note) to process

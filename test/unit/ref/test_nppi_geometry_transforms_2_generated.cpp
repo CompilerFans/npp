@@ -26,7 +26,7 @@ TEST(RefSuite, nppiMirrorBatch_32f_AC4IR_Ctx) {
   auto pBatchList = std::make_unique<DeviceMemory<NppiMirrorBatchCXR>>(2);
   pBatchList->copyFromHost(pBatchList_host);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiMirrorBatch_32f_AC4IR_Ctx({17, 13}, NPP_HORIZONTAL_AXIS, pBatchList->get(), 2, ctx);
+  NppStatus st = nppiMirrorBatch_32f_AC4IR_Ctx({16, 12}, NPP_HORIZONTAL_AXIS, pBatchList->get(), 2, ctx);
   npp_diff::Case c("ref/nppiMirrorBatch_32f_AC4IR_Ctx", "nppiMirrorBatch_32f_AC4IR_Ctx");
   c.status(st);
   ref_capture_bytes(c, pBatchList_dst0->get(), 1700 * sizeof(Npp32f));
