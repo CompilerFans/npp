@@ -51,7 +51,8 @@
 | P3.1b1 | NPPI Norm/NormDiff（L1/L2/Inf）+ buffer sizes | 580 | ✅ 已合并 | `pkg/p3.1b1` → `ff1085e` |
 | P3.1b2 | NPPI NormRel/DotProd + NormLevel buffer helpers | 544 | ✅ 已合并 | `pkg/p3.1b2` → `a38f9c4` |
 | P1.3b | Norm/NormDiff/NormRel/DotProd | 待拆 | ✅ 已完成（P3.1b1 + P3.1b2） | — |
-| P1.3c | 误差度量 Average/Maximum(+Relative) | 待拆 | 规划中 | — |
+| P1.3c | NPPI AverageError/AverageRelativeError + GBHS | 352 | ✅ 已合并 | `pkg/p1.3c` → `07af3da` |
+| P1.3d | NPPI MaximumError/MaximumRelativeError + GBHS | 352 | 已定义，待启动 | `pkg/p1.3d` 未创建 |
 | P1.4 | NPPI 数据交换 Convert/Copy/Set/SwapChannels/Scale | 861 | 规划中 | — |
 | P1.5 | NPPI 阈值 | 366 | 规划中 | — |
 | P1.6 | NPPI 形态学 | 268 | 规划中 | — |
@@ -70,6 +71,7 @@
 
 ## 5. 决策记录
 
+- **P1.3c 结果**：AverageError/AverageRelativeError + GetBufferHostSize 共 352 个函数全部 real，package remaining=0；catalog real 7,232→7,580、missing 5,849→4,791。验证：5090 record 10 个测试/157 golden 通过，本地 `NPP_VERIFY_DIR` 12/12 通过，全量 unit 4,803 通过，全量 diff 通过。关键语义（5090 实测）：AverageError = Σ|a−b|/(W·H·Channels)，复数按模；AverageRelativeError 逐像素 |a−b|/max(|a|,|b|)，分母为 0 的像素项记 0 但**仍计入归一化**（全零图 → 0.0）；step 按 **u32** 比较，`(u32)step < w·ch·sizeof(D)` → STEP_ERROR，`(u32)step % (sizeof(D)·2^v2(Channels)) ≠ 0` → NOT_EVEN_STEP_ERROR（step=−1 可通过）；校验顺序 null src → 负 ROI → 零 ROI（no-op）→ src1 step → src2 step → null dst → null scratch（**scratch 为空返回 NULL_POINTER_ERROR**，与 Sum/Mean/DotProd 的 no-op 不同）；GBHS 零 ROI 返回 NO_ERROR 且不写。AC4 在 p1.3c.csv 中为 0。
 - **P3.1b2 结果**：544 个函数全部实现并标记 real（`nppi_statistics_functions.h` 的 NormRel L1/L2/Inf + GetBufferHostSize、DotProd + GetBufferHostSize、Full/Same/Valid NormLevel GetBufferHostSize）；package remaining=0，catalog real 6,688→7,232、remaining 5,849→5,305。验证：5090 record 13 个测试（75 个 golden）通过，本地 `NPP_VERIFY_DIR` 回放 15/15 通过（含 2 个非 Ctx），全量 `diff_tests` 1,613 通过，全量 `unit_tests` 4,803 通过、零回归。关键语义（5090 实测）：NormRel 分母为 0 且分子 > 0 → 返回**源类型的正最大值转 double**（8u→255、8s→127、16u→65535、16s→32767、32f→FLT_MAX），不是 inf；分子分母同时为 0 → 0.0（不是 NaN）；有限比值**不做钳制**（8u L1 比值 56354.0 原样通过）。NormLevel buffer helper 只承诺 status，精确大小待 P3.4 CrossCorr 需要时再探针；非 Ctx 变体只能靠 golden 回放覆盖。
 - **P1.1a 结果**：220 个函数全部实现；136 个差分 case（68 组 Ctx/非 Ctx）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。
 - **P2.3 结果**：418 个函数全部实现（366 待实现 + 52 已有；含 2 个运行时派发 `nppiFusedAbsDiff_Threshold_GTVal[_I]`）；`nppi_threshold_and_compare_operations.h` coverage 由 `366 missing` 降为 `0`。差分 12 case（阈值 7 族 + 比较 4 族 + Contract，另有 Fused 6 case）在 5090 record、本地 verify 全绿；本地 4,803 全量回归通过；package remaining=0。关键契约（以 5090 golden 为准）：阈值 AC4/AC4IR 的 alpha 通道**完全不写**（dst alpha 保持缓冲区原有值，而非拷贝 src）；比较 AC4 只比较 RGB（忽略 alpha 通道），而 C4R 比较全部 4 通道；比较类入口对非法 `eComparisonOperation` **不校验**，直接短路为 `NPP_NO_ERROR`（在指针/ROI 检查之前）；`nppiThreshold`（base/Val）对非法 op 返回 `NPP_NOT_SUPPORTED_MODE_ERROR`；负 ROI 宽高 → `NPP_SIZE_ERROR`、空 ROI → `NPP_NO_ERROR`。FusedAbsDiff 的 CH_A4 也符合“alpha 不写”约定。`nppiFusedAbsDiff_Threshold_GTVal[_I]` 走 `NppDataType`/`NppiChannels` 运行时派发（支持 8U/16U/16S/32F × CH_1/CH_3/CH_A4），阈值/替换数组按值传入 kernel。
