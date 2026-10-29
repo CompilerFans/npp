@@ -81,6 +81,7 @@ void normdiff_plain(const char *fname, const std::string &idBase, int width, int
                                                   NppStreamContext),
                     double rtol = 1e-5, double atol = 1e-5) {
   const int se = (int)sizeof(D);
+  const int step = align_step(width * srcCh * se + pad, se);
   const size_t stepElems = (size_t)step / se;
   const size_t elems = (size_t)height * stepElems;
   std::vector<D> h1 = make_uniform<D>(elems, seed);
