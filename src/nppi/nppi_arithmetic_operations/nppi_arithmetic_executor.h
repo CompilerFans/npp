@@ -1,105 +1,28 @@
 #pragma once
 
 #include "nppi_arithmetic_ops.h"
+#include "npp_kernel_utils.h"
 #include <cuda_runtime.h>
 
 namespace nppi {
 namespace arithmetic {
 
 // ============================================================================
-// Block Size Configuration
+// Kernel Utility Re-exports
 // ============================================================================
+// Block/thread helpers, the kernel error check and the parameter validation
+// templates moved to the shared header npp_kernel_utils.h (package p0.1).
+// Re-exported here so call sites inside this family stay unchanged.
 
-// Default block configuration for 2D image processing kernels
-struct BlockConfig {
-  static constexpr int kBlockX = 16;
-  static constexpr int kBlockY = 16;
-
-  static dim3 blockSize() { return dim3(kBlockX, kBlockY); }
-
-  static dim3 gridSize(int width, int height) {
-    return dim3((width + kBlockX - 1) / kBlockX, (height + kBlockY - 1) / kBlockY);
-  }
-};
-
-// ============================================================================
-// Kernel Helper Utilities
-// ============================================================================
-
-// Calculate thread coordinates and check bounds
-__device__ __forceinline__ bool getThreadCoords(int &x, int &y, int width, int height) {
-  x = blockIdx.x * blockDim.x + threadIdx.x;
-  y = blockIdx.y * blockDim.y + threadIdx.y;
-  return (x < width && y < height);
-}
-
-// Get row pointer with step offset
-template <typename T> __device__ __forceinline__ const T *getSrcRow(const T *ptr, int y, int step) {
-  return (const T *)((const char *)ptr + y * step);
-}
-
-template <typename T> __device__ __forceinline__ T *getDstRow(T *ptr, int y, int step) {
-  return (T *)((char *)ptr + y * step);
-}
-
-// Check CUDA kernel execution result
-inline NppStatus checkCudaKernelError() {
-  return (cudaGetLastError() == cudaSuccess) ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
-}
-
-// Validate shift constants based on type bit width
-template <typename T> inline NppStatus validateShiftConstants(const Npp32u *aConstants, int channels) {
-  // constexpr Npp32u maxShift = sizeof(T) * 8 - 1;
-  constexpr Npp32u typeBits = sizeof(T) * 8;
-  constexpr Npp32u maxShift = (typeBits >= 32) ? 31 : typeBits;
-  for (int i = 0; i < channels; i++) {
-    if (aConstants[i] > maxShift)
-      return NPP_BAD_ARGUMENT_ERROR;
-  }
-  return NPP_NO_ERROR;
-}
-
-// ============================================================================
-// Parameter Validation Utilities
-// ============================================================================
-
-template <typename T>
-inline NppStatus validateBinaryParameters(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst,
-                                          int nDstStep, NppiSize oSizeROI, int channels) {
-  if (!pSrc1 || !pSrc2 || !pDst) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_SIZE_ERROR;
-  }
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    return NPP_NO_ERROR;
-  }
-  int minStep = oSizeROI.width * channels * sizeof(T);
-  if (nSrc1Step < minStep || nSrc2Step < minStep || nDstStep < minStep) {
-    return NPP_STRIDE_ERROR;
-  }
-  return NPP_NO_ERROR;
-}
-
-template <typename T>
-inline NppStatus validateUnaryParameters(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,
-                                         int channels) {
-  if (!pSrc || !pDst) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_SIZE_ERROR;
-  }
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    return NPP_NO_ERROR;
-  }
-  int minStep = oSizeROI.width * channels * sizeof(T);
-  if (nSrcStep < minStep || nDstStep < minStep) {
-    return NPP_STRIDE_ERROR;
-  }
-  return NPP_NO_ERROR;
-}
+using BlockConfig = npp_kernel::BlockConfig<>;
+using npp_kernel::checkCudaKernelError;
+using npp_kernel::getDstRow;
+using npp_kernel::getSrcRow;
+using npp_kernel::getThreadCoords;
+using npp_kernel::validateBinaryParameters;
+using npp_kernel::validateMaskedParameters;
+using npp_kernel::validateShiftConstants;
+using npp_kernel::validateUnaryParameters;
 
 // ============================================================================
 // CUDA Kernel Templates
@@ -993,10 +916,9 @@ template <typename SrcType, typename DstType, int Channels, typename OpType> cla
 public:
   static NppStatus execute(const SrcType *pSrc1, int nSrc1Step, const SrcType *pSrc2, int nSrc2Step, const Npp8u *pMask,
                            int nMaskStep, DstType *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, cudaStream_t stream) {
-    if (!pSrc1 || !pSrc2 || !pMask || !pSrcDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc1, pSrc2, pMask, pSrcDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
@@ -1041,10 +963,9 @@ template <typename SrcType, typename DstType, int Channels, typename OpType> cla
 public:
   static NppStatus execute(const SrcType *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, DstType *pSrcDst,
                            int nSrcDstStep, NppiSize oSizeROI, cudaStream_t stream) {
-    if (!pSrc || !pMask || !pSrcDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc, pMask, pSrcDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
@@ -1087,10 +1008,9 @@ template <typename SrcType, typename DstType, int Channels, typename OpType> cla
 public:
   static NppStatus execute(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                            cudaStream_t stream) {
-    if (!pSrc || !pSrcDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc, pSrcDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
@@ -1131,10 +1051,9 @@ template <typename SrcType, typename DstType, int Channels, typename OpType> cla
 public:
   static NppStatus execute(const SrcType *pSrc, int nSrcStep, DstType *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                            DstType alpha, cudaStream_t stream) {
-    if (!pSrc || !pSrcDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc, pSrcDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
@@ -1179,10 +1098,9 @@ template <typename SrcType, typename DstType, int Channels, typename OpType> cla
 public:
   static NppStatus execute(const SrcType *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, DstType *pSrcDst,
                            int nSrcDstStep, NppiSize oSizeROI, DstType alpha, cudaStream_t stream) {
-    if (!pSrc || !pMask || !pSrcDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc, pMask, pSrcDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
@@ -1222,10 +1140,9 @@ template <typename T, int Channels, typename OpType> class AlphaPremulConstExecu
 public:
   static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, T alpha,
                            cudaStream_t stream) {
-    if (!pSrc || !pDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc, pDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
@@ -1264,10 +1181,9 @@ __global__ void alphaPremulAC4KernelT(const T *pSrc, int nSrcStep, T *pDst, int 
 template <typename T, typename OpType> class AlphaPremulAC4Executor {
 public:
   static NppStatus execute(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI, cudaStream_t stream) {
-    if (!pSrc || !pDst)
-      return NPP_NULL_POINTER_ERROR;
-    if (oSizeROI.width <= 0 || oSizeROI.height <= 0)
-      return NPP_SIZE_ERROR;
+    NppStatus status = validateMaskedParameters(oSizeROI, pSrc, pDst);
+    if (status != NPP_NO_ERROR)
+      return status;
 
     dim3 block = BlockConfig::blockSize();
     dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
