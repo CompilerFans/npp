@@ -23,7 +23,7 @@ template <typename T> struct MinEveryOp {
 // Binary Inplace Operation Kernel
 // ============================================================================
 
-template <typename T, int Channels, typename Op>
+template <typename T, int Channels, int ReadChannels, typename Op>
 __global__ void binaryInplaceKernel(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, int width, int height,
                                     Op op) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -33,7 +33,9 @@ __global__ void binaryInplaceKernel(const T *pSrc, int nSrcStep, T *pSrcDst, int
     const T *srcRow = reinterpret_cast<const T *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
     T *dstRow = reinterpret_cast<T *>(reinterpret_cast<char *>(pSrcDst) + y * nSrcDstStep);
 
-    for (int c = 0; c < Channels; c++) {
+    // AC4 (ReadChannels = Channels-1) merges only the first three channels and
+    // leaves the alpha (4th) channel untouched.
+    for (int c = 0; c < ReadChannels; c++) {
       int idx = x * Channels + c;
       dstRow[idx] = op(srcRow[idx], dstRow[idx]);
     }
@@ -44,7 +46,7 @@ __global__ void binaryInplaceKernel(const T *pSrc, int nSrcStep, T *pSrcDst, int
 // Binary Inplace Operation Executor
 // ============================================================================
 
-template <typename T, int Channels, typename Op> class BinaryInplaceExecutor {
+template <typename T, int Channels, int ReadChannels, typename Op> class BinaryInplaceExecutor {
 public:
   static NppStatus execute(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                            cudaStream_t stream) {
@@ -59,7 +61,7 @@ public:
     dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
 
     Op op;
-    binaryInplaceKernel<T, Channels, Op>
+    binaryInplaceKernel<T, Channels, ReadChannels, Op>
         <<<grid, block, 0, stream>>>(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, op);
 
     cudaError_t err = cudaGetLastError();
@@ -71,14 +73,15 @@ public:
 // Binary Inplace Operation API
 // ============================================================================
 
-template <typename T, int Channels, template <typename> class OpTemplate> class BinaryInplaceOpAPI {
+template <typename T, int Channels, int ReadChannels, template <typename> class OpTemplate>
+class BinaryInplaceOpAPI {
 public:
   using Op = OpTemplate<T>;
 
   static NppStatus executeInplace(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI,
                                   NppStreamContext nppStreamCtx) {
-    return BinaryInplaceExecutor<T, Channels, Op>::execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI,
-                                                           nppStreamCtx.hStream);
+    return BinaryInplaceExecutor<T, Channels, ReadChannels, Op>::execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep,
+                                                                         oSizeROI, nppStreamCtx.hStream);
   }
 };
 

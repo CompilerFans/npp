@@ -328,6 +328,249 @@ __global__ void finalizeExtremeKernel(const D *pPartial, int nblocks, int nch, D
   }
 }
 
+// ---------------------------------------------------------------------------
+// MinIndx / MaxIndx: per-channel extreme value + first-occurrence coordinate.
+// ---------------------------------------------------------------------------
+
+// Candidate a=(av,ax,ay) is "better" than b when a is the preferred extreme and,
+// on a tie, a holds the earlier pixel in row-major scan order (smaller y then x).
+template <typename D, bool IsMin> __device__ __forceinline__ bool extrBeats(D av, int ax, int ay, D bv, int bx, int by) {
+  if (IsMin) {
+    if (av < bv) return true;
+    if (bv < av) return false;
+  } else {
+    if (av > bv) return true;
+    if (bv > av) return false;
+  }
+  if (ay != by) return ay < by;
+  return ax < bx;
+}
+
+template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
+__global__ void extrIndxKernel(const D *pSrc, int nSrcStep, int width, int height, D *pVal, int *pX, int *pY, int nch) {
+  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  D lv[4];
+  int lx[4], ly[4];
+  for (int c = 0; c < readCh; ++c) {
+    lv[c] = extremeInit<D, IsMin>();
+    lx[c] = 0;
+    ly[c] = 0;
+  }
+  const int total = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < total; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+    for (int c = 0; c < readCh; ++c) {
+      const D v = row[x * Channels + c];
+      if (extrBeats<D, IsMin>(v, x, y, lv[c], lx[c], ly[c])) {
+        lv[c] = v;
+        lx[c] = x;
+        ly[c] = y;
+      }
+    }
+  }
+
+  __shared__ D sv[kBlock][4];
+  __shared__ int sx[kBlock][4], sy[kBlock][4];
+  for (int c = 0; c < readCh; ++c) {
+    sv[threadIdx.x][c] = lv[c];
+    sx[threadIdx.x][c] = lx[c];
+    sy[threadIdx.x][c] = ly[c];
+    __syncthreads();
+    for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+      if (threadIdx.x < s) {
+        D a = sv[threadIdx.x][c];
+        int ax = sx[threadIdx.x][c], ay = sy[threadIdx.x][c];
+        D b = sv[threadIdx.x + s][c];
+        int bx = sx[threadIdx.x + s][c], by = sy[threadIdx.x + s][c];
+        if (extrBeats<D, IsMin>(b, bx, by, a, ax, ay)) {
+          sv[threadIdx.x][c] = b;
+          sx[threadIdx.x][c] = bx;
+          sy[threadIdx.x][c] = by;
+        }
+      }
+      __syncthreads();
+    }
+    if (threadIdx.x == 0) {
+      const size_t base = (size_t)c * gridDim.x;
+      pVal[base + blockIdx.x] = sv[0][c];
+      pX[base + blockIdx.x] = sx[0][c];
+      pY[base + blockIdx.x] = sy[0][c];
+    }
+    __syncthreads();
+  }
+}
+
+template <typename D, bool IsMin>
+__global__ void extrIndxFinalKernel(const D *pVal, const int *pX, const int *pY, int nblocks, int nch, D *outVal,
+                                    int *outX, int *outY) {
+  __shared__ D sv[kBlock];
+  __shared__ int sx[kBlock], sy[kBlock];
+  for (int c = 0; c < nch; ++c) {
+    D accv = extremeInit<D, IsMin>();
+    int accx = 0, accy = 0;
+    for (int i = threadIdx.x; i < nblocks; i += blockDim.x) {
+      const size_t base = (size_t)c * nblocks;
+      D v = pVal[base + i];
+      int x = pX[base + i], y = pY[base + i];
+      if (extrBeats<D, IsMin>(v, x, y, accv, accx, accy)) {
+        accv = v;
+        accx = x;
+        accy = y;
+      }
+    }
+    sv[threadIdx.x] = accv;
+    sx[threadIdx.x] = accx;
+    sy[threadIdx.x] = accy;
+    __syncthreads();
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+      if (threadIdx.x < s) {
+        D a = sv[threadIdx.x];
+        int ax = sx[threadIdx.x], ay = sy[threadIdx.x];
+        D b = sv[threadIdx.x + s];
+        int bx = sx[threadIdx.x + s], by = sy[threadIdx.x + s];
+        if (extrBeats<D, IsMin>(b, bx, by, a, ax, ay)) {
+          sv[threadIdx.x] = b;
+          sx[threadIdx.x] = bx;
+          sy[threadIdx.x] = by;
+        }
+      }
+      __syncthreads();
+    }
+    if (threadIdx.x == 0) {
+      outVal[c] = sv[0];
+      outX[c] = sx[0];
+      outY[c] = sy[0];
+    }
+    __syncthreads();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// MinMaxIndx: scalar min + scalar max for one selected channel, each with its
+// coordinate.  pMask may be null (unmasked); when present a non-zero byte marks
+// a valid pixel.  channel is the 0-based source channel index.
+// ---------------------------------------------------------------------------
+
+template <typename D, int Channels>
+__global__ void minmaxIndxKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, int width, int height,
+                                 int channel, D *minV, int *minX, int *minY, D *maxV, int *maxX, int *maxY) {
+  D lmin = extremeInit<D, true>();
+  D lmax = extremeInit<D, false>();
+  int lminx = 0, lminy = 0, lmaxx = 0, lmaxy = 0;
+  const int total = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  for (int i = tid; i < total; i += gridDim.x * blockDim.x) {
+    const int y = i / width;
+    const int x = i % width;
+    const Npp8u *maskRow =
+        pMask ? reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pMask) + y * nMaskStep) : nullptr;
+    if (maskRow && maskRow[x] == 0) continue;
+    const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+    const D v = row[x * Channels + channel];
+    if (extrBeats<D, true>(v, x, y, lmin, lminx, lminy)) {
+      lmin = v;
+      lminx = x;
+      lminy = y;
+    }
+    if (extrBeats<D, false>(v, x, y, lmax, lmaxx, lmaxy)) {
+      lmax = v;
+      lmaxx = x;
+      lmaxy = y;
+    }
+  }
+  __shared__ D smin[kBlock], smax[kBlock];
+  __shared__ int sminx[kBlock], sminy[kBlock], smaxx[kBlock], smaxy[kBlock];
+  smin[threadIdx.x] = lmin;
+  smax[threadIdx.x] = lmax;
+  sminx[threadIdx.x] = lminx;
+  sminy[threadIdx.x] = lminy;
+  smaxx[threadIdx.x] = lmaxx;
+  smaxy[threadIdx.x] = lmaxy;
+  __syncthreads();
+  for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) {
+      const int o = threadIdx.x + s;
+      if (extrBeats<D, true>(smin[o], sminx[o], sminy[o], smin[threadIdx.x], sminx[threadIdx.x],
+                             sminy[threadIdx.x])) {
+        smin[threadIdx.x] = smin[o];
+        sminx[threadIdx.x] = sminx[o];
+        sminy[threadIdx.x] = sminy[o];
+      }
+      if (extrBeats<D, false>(smax[o], smaxx[o], smaxy[o], smax[threadIdx.x], smaxx[threadIdx.x],
+                              smaxy[threadIdx.x])) {
+        smax[threadIdx.x] = smax[o];
+        smaxx[threadIdx.x] = smaxx[o];
+        smaxy[threadIdx.x] = smaxy[o];
+      }
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    minV[blockIdx.x] = smin[0];
+    minX[blockIdx.x] = sminx[0];
+    minY[blockIdx.x] = sminy[0];
+    maxV[blockIdx.x] = smax[0];
+    maxX[blockIdx.x] = smaxx[0];
+    maxY[blockIdx.x] = smaxy[0];
+  }
+}
+
+template <typename D, bool IsMin>
+__device__ void mmFinalizeReduce(const D *pV, const int *pX, const int *pY, int nblocks, D &outV, int &outX, int &outY) {
+  D accv = extremeInit<D, IsMin>();
+  int accx = 0, accy = 0;
+  for (int i = threadIdx.x; i < nblocks; i += blockDim.x) {
+    if (extrBeats<D, IsMin>(pV[i], pX[i], pY[i], accv, accx, accy)) {
+      accv = pV[i];
+      accx = pX[i];
+      accy = pY[i];
+    }
+  }
+  __shared__ D sv[kBlock];
+  __shared__ int sx[kBlock], sy[kBlock];
+  sv[threadIdx.x] = accv;
+  sx[threadIdx.x] = accx;
+  sy[threadIdx.x] = accy;
+  __syncthreads();
+  for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) {
+      if (extrBeats<D, IsMin>(sv[threadIdx.x + s], sx[threadIdx.x + s], sy[threadIdx.x + s], sv[threadIdx.x],
+                              sx[threadIdx.x], sy[threadIdx.x])) {
+        sv[threadIdx.x] = sv[threadIdx.x + s];
+        sx[threadIdx.x] = sx[threadIdx.x + s];
+        sy[threadIdx.x] = sy[threadIdx.x + s];
+      }
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    outV = sv[0];
+    outX = sx[0];
+    outY = sy[0];
+  }
+  __syncthreads();
+}
+
+template <typename D>
+__global__ void minmaxIndxFinalKernel(const D *minV, const int *minX, const int *minY, const D *maxV, const int *maxX,
+                                      const int *maxY, int nblocks, D *pMinValue, NppiPoint *pMinIndex, D *pMaxValue,
+                                      NppiPoint *pMaxIndex) {
+  D ov, MV;
+  int ox, oy, Mx, My;
+  mmFinalizeReduce<D, true>(minV, minX, minY, nblocks, ov, ox, oy);
+  mmFinalizeReduce<D, false>(maxV, maxX, maxY, nblocks, MV, Mx, My);
+  if (threadIdx.x == 0) {
+    *pMinValue = ov;
+    pMinIndex->x = ox;
+    pMinIndex->y = oy;
+    *pMaxValue = MV;
+    pMaxIndex->x = Mx;
+    pMaxIndex->y = My;
+  }
+}
 }  // namespace
 
 namespace nppi {
@@ -624,6 +867,71 @@ NppStatus runMinMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDevi
   return NPP_NO_ERROR;
 }
 
+// ============================== MinIndx / MaxIndx ==========================
+
+template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
+NppStatus runExtrIndx(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer, D *pValue, int *pIndexX,
+                      int *pIndexY, cudaStream_t stream) {
+  if (!pSrc) return NPP_NULL_POINTER_ERROR;
+  if (!pDeviceBuffer || !pValue || !pIndexX || !pIndexY) return NPP_NO_ERROR;  // NVIDIA: buffers not validated
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;        // empty ROI is a no-op
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  const int esize = (int)sizeof(D);
+  if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
+
+  constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
+  const int area = oSizeROI.width * oSizeROI.height;
+  const int blocks = numBlocks(area);
+  D *vPart = reinterpret_cast<D *>(pDeviceBuffer);
+  int *xPart = reinterpret_cast<int *>(vPart + (size_t)blocks * nCh);
+  int *yPart = xPart + (size_t)blocks * nCh;
+
+  (void)cudaGetLastError();
+  extrIndxKernel<D, Channels, AlphaPreserve, IsMin>
+      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, vPart, xPart, yPart, nCh);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  extrIndxFinalKernel<D, IsMin><<<1, kBlock, 0, stream>>>(vPart, xPart, yPart, blocks, nCh, pValue, pIndexX, pIndexY);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
+// ============================== MinMaxIndx ===================================
+
+template <typename D, int Channels>
+NppStatus runMinMaxIndx(const D *p, int nSrcStep, const Npp8u *pMask, int nMaskStep, NppiSize oi, int nCOI,
+                        D *pMinValue, D *pMaxValue, NppiPoint *pMinIndex, NppiPoint *pMaxIndex, Npp8u *pDeviceBuffer,
+                        cudaStream_t stream) {
+  if (!p || !pMinValue || !pMaxValue || !pMinIndex || !pMaxIndex || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  if (pMask && nMaskStep < oi.width) return NPP_STEP_ERROR;
+
+  int channel = 0;
+  if (Channels == 1) {
+    if (nCOI != 0) return NPP_COI_ERROR;
+  } else {
+    if (nCOI < 1 || nCOI > 3) return NPP_COI_ERROR;
+    channel = nCOI - 1;
+  }
+  if (nSrcStep < oi.width * Channels * (int)sizeof(D)) return NPP_STEP_ERROR;
+
+  const int blocks = numBlocks(oi.width * oi.height);
+  D *minV = reinterpret_cast<D *>(pDeviceBuffer);
+  int *minX = reinterpret_cast<int *>(minV + blocks);
+  int *minY = minX + blocks;
+  D *maxV = reinterpret_cast<D *>(minY + blocks);
+  int *maxX = reinterpret_cast<int *>(maxV + blocks);
+  int *maxY = maxX + blocks;
+
+  (void)cudaGetLastError();
+  minmaxIndxKernel<D, Channels><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
+                                                               channel, minV, minX, minY, maxV, maxX, maxY);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  minmaxIndxFinalKernel<D>
+      <<<1, kBlock, 0, stream>>>(minV, minX, minY, maxV, maxX, maxY, blocks, pMinValue, pMinIndex, pMaxValue, pMaxIndex);
+  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_NO_ERROR;
+}
+
 // ============================== Buffer size ==================================
 
 NppStatus sumGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
@@ -662,6 +970,26 @@ NppStatus maxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
 }
 
 NppStatus minMaxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+
+NppStatus minIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
+  if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
+  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
+  return NPP_NO_ERROR;
+}
+
+NppStatus maxIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+  return minIndxGetBufferHostSize(oi, hpBufferSize);
+}
+
+// min and max block partials each need (value D + x int + y int); a safe upper
+// bound is 2 slabs of block-entries of 4 int-sized fields.
+NppStatus minMaxIndxGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
@@ -783,5 +1111,49 @@ template NppStatus runMinMax<Npp32f,1,false>(const Npp32f*,int,NppiSize,Npp8u*,N
 template NppStatus runMinMax<Npp32f,3,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
 template NppStatus runMinMax<Npp32f,4,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
 template NppStatus runMinMax<Npp32f,4,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,Npp32f*,cudaStream_t);
+
+// --- MinIndx / MaxIndx: 8u, 16u, 16s, 32f x {C1, C3, C4, AC4} x {min, max} ---
+template NppStatus runExtrIndx<Npp8u,1,false,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,3,false,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,4,false,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,4,true,true>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,1,false,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,3,false,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,4,false,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,4,true,true>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,1,false,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,3,false,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,4,false,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,4,true,true>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,1,false,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,3,false,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,4,false,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,4,true,true>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,1,false,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,3,false,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,4,false,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp8u,4,true,false>(const Npp8u*,int,NppiSize,Npp8u*,Npp8u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,1,false,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,3,false,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,4,false,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16u,4,true,false>(const Npp16u*,int,NppiSize,Npp8u*,Npp16u*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,1,false,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,3,false,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,4,false,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp16s,4,true,false>(const Npp16s*,int,NppiSize,Npp8u*,Npp16s*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,1,false,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,3,false,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,4,false,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+template NppStatus runExtrIndx<Npp32f,4,true,false>(const Npp32f*,int,NppiSize,Npp8u*,Npp32f*,int*,int*,cudaStream_t);
+
+// --- MinMaxIndx: 16u, 32f, 8s, 8u x {C1 (C1R/C1MR), C3 (C3CR/C3CMR)} ---
+template NppStatus runMinMaxIndx<Npp8u,1>(const Npp8u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp8u*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp8u,3>(const Npp8u*,int,const Npp8u*,int,NppiSize,int,Npp8u*,Npp8u*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp8s,1>(const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8s*,Npp8s*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp8s,3>(const Npp8s*,int,const Npp8u*,int,NppiSize,int,Npp8s*,Npp8s*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp16u,1>(const Npp16u*,int,const Npp8u*,int,NppiSize,int,Npp16u*,Npp16u*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp16u,3>(const Npp16u*,int,const Npp8u*,int,NppiSize,int,Npp16u*,Npp16u*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp32f,1>(const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp32f*,Npp32f*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
+template NppStatus runMinMaxIndx<Npp32f,3>(const Npp32f*,int,const Npp8u*,int,NppiSize,int,Npp32f*,Npp32f*,NppiPoint*,NppiPoint*,Npp8u*,cudaStream_t);
 }  // namespace statistics
 }  // namespace nppi

@@ -1,0 +1,14 @@
+{
+  "family": "nppiMaxIndx",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_max_indx_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiMaxIndx", "nppiMaxIndxGetBufferHostSize"],
+  "call_by_family": {
+     "nppiMaxIndxGetBufferHostSize": "nppi::statistics::maxIndxGetBufferHostSize(oSizeROI, hpBufferSize)"
+  },
+  "call_variants": [
+     {"contains": "aMax", "call": "nppi::statistics::runExtrIndx<{dtype},{chan},{is_ac4},false>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, aMax, aIndexX, aIndexY, nppStreamCtx.hStream)"}
+  ],
+  "call": "nppi::statistics::runExtrIndx<{dtype},{chan},{is_ac4},false>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMax, pIndexX, pIndexY, nppStreamCtx.hStream)"
+}
