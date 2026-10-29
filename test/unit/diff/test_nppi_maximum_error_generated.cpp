@@ -234,7 +234,7 @@ TEST_F(NppiMaximumErrorDiff, MaximumError_Plain) {
                          &nppiMaximumError_32sc_C1R_Ctx);
   twosrc_metric<Npp32sc>("nppiMaximumError_32sc_C3R_Ctx", "maxErr/32sc/C3R", 17, 13, 16, 3, 0xB72,
                          &nppiMaximumError_32sc_C3R_Ctx);
-  twosrc_metric<Npp32sc>("nppiMaximumError_32sc_C4R_Ctx", "maxErr/32sc/C4R", 17, 13, 16, 4, 0xB73,
+  twosrc_metric<Npp32sc>("nppiMaximumError_32sc_C4R_Ctx", "maxErr/32sc/C4R", 17, 13, 32, 4, 0xB73,
                          &nppiMaximumError_32sc_C4R_Ctx);
   twosrc_metric<Npp32f>("nppiMaximumError_32f_C1R_Ctx", "maxErr/32f/C1R", 17, 13, 16, 1, 0xB81,
                         &nppiMaximumError_32f_C1R_Ctx);
@@ -252,7 +252,7 @@ TEST_F(NppiMaximumErrorDiff, MaximumError_Plain) {
                          &nppiMaximumError_32fc_C1R_Ctx);
   twosrc_metric<Npp32fc>("nppiMaximumError_32fc_C3R_Ctx", "maxErr/32fc/C3R", 17, 13, 16, 3, 0xB93,
                          &nppiMaximumError_32fc_C3R_Ctx);
-  twosrc_metric<Npp32fc>("nppiMaximumError_32fc_C4R_Ctx", "maxErr/32fc/C4R", 17, 13, 16, 4, 0xB94,
+  twosrc_metric<Npp32fc>("nppiMaximumError_32fc_C4R_Ctx", "maxErr/32fc/C4R", 17, 13, 32, 4, 0xB94,
                          &nppiMaximumError_32fc_C4R_Ctx);
   twosrc_metric<Npp64f>("nppiMaximumError_64f_C1R_Ctx", "maxErr/64f/C1R", 17, 13, 16, 1, 0xBa1,
                         &nppiMaximumError_64f_C1R_Ctx);
@@ -260,7 +260,7 @@ TEST_F(NppiMaximumErrorDiff, MaximumError_Plain) {
                         &nppiMaximumError_64f_C2R_Ctx);
   twosrc_metric<Npp64f>("nppiMaximumError_64f_C3R_Ctx", "maxErr/64f/C3R", 17, 13, 16, 3, 0xBa3,
                         &nppiMaximumError_64f_C3R_Ctx);
-  twosrc_metric<Npp64f>("nppiMaximumError_64f_C4R_Ctx", "maxErr/64f/C4R", 17, 13, 16, 4, 0xBa4,
+  twosrc_metric<Npp64f>("nppiMaximumError_64f_C4R_Ctx", "maxErr/64f/C4R", 17, 13, 32, 4, 0xBa4,
                         &nppiMaximumError_64f_C4R_Ctx);
 }
 
@@ -316,7 +316,7 @@ TEST_F(NppiMaximumErrorDiff, MaximumRelativeError_Plain) {
                          &nppiMaximumRelativeError_32sc_C1R_Ctx);
   twosrc_metric<Npp32sc>("nppiMaximumRelativeError_32sc_C3R_Ctx", "maxRelErr/32sc/C3R", 17, 13, 16, 3, 0xC72,
                          &nppiMaximumRelativeError_32sc_C3R_Ctx);
-  twosrc_metric<Npp32sc>("nppiMaximumRelativeError_32sc_C4R_Ctx", "maxRelErr/32sc/C4R", 17, 13, 16, 4, 0xC73,
+  twosrc_metric<Npp32sc>("nppiMaximumRelativeError_32sc_C4R_Ctx", "maxRelErr/32sc/C4R", 17, 13, 32, 4, 0xC73,
                          &nppiMaximumRelativeError_32sc_C4R_Ctx);
   twosrc_metric<Npp32f>("nppiMaximumRelativeError_32f_C1R_Ctx", "maxRelErr/32f/C1R", 17, 13, 16, 1, 0xC81,
                         &nppiMaximumRelativeError_32f_C1R_Ctx);
@@ -334,7 +334,7 @@ TEST_F(NppiMaximumErrorDiff, MaximumRelativeError_Plain) {
                          &nppiMaximumRelativeError_32fc_C1R_Ctx);
   twosrc_metric<Npp32fc>("nppiMaximumRelativeError_32fc_C3R_Ctx", "maxRelErr/32fc/C3R", 17, 13, 16, 3, 0xC93,
                          &nppiMaximumRelativeError_32fc_C3R_Ctx);
-  twosrc_metric<Npp32fc>("nppiMaximumRelativeError_32fc_C4R_Ctx", "maxRelErr/32fc/C4R", 17, 13, 16, 4, 0xC94,
+  twosrc_metric<Npp32fc>("nppiMaximumRelativeError_32fc_C4R_Ctx", "maxRelErr/32fc/C4R", 17, 13, 32, 4, 0xC94,
                          &nppiMaximumRelativeError_32fc_C4R_Ctx);
   twosrc_metric<Npp64f>("nppiMaximumRelativeError_64f_C1R_Ctx", "maxRelErr/64f/C1R", 17, 13, 16, 1, 0xCa1,
                         &nppiMaximumRelativeError_64f_C1R_Ctx);
@@ -342,7 +342,7 @@ TEST_F(NppiMaximumErrorDiff, MaximumRelativeError_Plain) {
                         &nppiMaximumRelativeError_64f_C2R_Ctx);
   twosrc_metric<Npp64f>("nppiMaximumRelativeError_64f_C3R_Ctx", "maxRelErr/64f/C3R", 17, 13, 16, 3, 0xCa3,
                         &nppiMaximumRelativeError_64f_C3R_Ctx);
-  twosrc_metric<Npp64f>("nppiMaximumRelativeError_64f_C4R_Ctx", "maxRelErr/64f/C4R", 17, 13, 16, 4, 0xCa4,
+  twosrc_metric<Npp64f>("nppiMaximumRelativeError_64f_C4R_Ctx", "maxRelErr/64f/C4R", 17, 13, 32, 4, 0xCa4,
                         &nppiMaximumRelativeError_64f_C4R_Ctx);
 }
 
@@ -420,11 +420,12 @@ TEST_F(NppiMaximumErrorDiff, MaximumRelativeError_Crafted) {
                        constant_image<Npp8u>(2, 1, 4, Npp8u{10}), constant_image<Npp8u>(2, 1, 4, Npp8u{6}), 2, 1, 4,
                        &nppiMaximumRelativeError_8u_C4R_Ctx);
   }
-  {  // 32f C4 2x1 ratio ladder: 0.5, 0.75, 2/3, 1.0 (last channel b=0)
-    twosrc_data<Npp32f>("nppiMaximumRelativeError_32f_C4R_Ctx", "maxRelErr/32f/C4R_ladder_2x1",
-                        channel_ladder<Npp32f>(2, 1, 4, [](int c) { return Npp32f((c + 1) * 10.0f); }),
-                        channel_ladder<Npp32f>(2, 1, 4, [](int c) { return Npp32f(c * 5.0f); }), 2, 1, 4,
-                        &nppiMaximumRelativeError_32f_C4R_Ctx);
+  {  // 16s C4 2x1 ratio ladder: 1.0, 0.75, 2/3, 0.625 -> overall max 1.0
+    //   (ch0: |10-0|/10; ch1: |20-5|/20; ch2: |30-10|/30; ch3: |40-15|/40)
+    twosrc_data<Npp16s>("nppiMaximumRelativeError_16s_C4R_Ctx", "maxRelErr/16s/C4R_ladder_2x1",
+                        channel_ladder<Npp16s>(2, 1, 4, [](int c) { return Npp16s((c + 1) * 10); }),
+                        channel_ladder<Npp16s>(2, 1, 4, [](int c) { return Npp16s(c * 5); }), 2, 1, 4,
+                        &nppiMaximumRelativeError_16s_C4R_Ctx);
   }
   {  // 32f C2 3x1 const: 1.5/2.5 -> 0.6
     twosrc_data<Npp32f>("nppiMaximumRelativeError_32f_C2R_Ctx", "maxRelErr/32f/C2R_const_3x1",
@@ -647,7 +648,7 @@ TEST_F(NppiMaximumErrorDiff, BufferSize_Sufficiency) {
     SIZE_TYPE sz = 0;
     ASSERT_EQ(nppiMaximumRelativeErrorGetBufferHostSize_32sc_C4R_Ctx(NppiSize{17, 13}, &sz, ctx), NPP_NO_ERROR);
     ASSERT_GT(sz, (SIZE_TYPE)0);
-    twosrc_metric<Npp32sc>("nppiMaximumRelativeError_32sc_C4R_Ctx", "maxRelErr/32sc/C4R_exactbuf", 17, 13, 16, 4, 0xD04,
+    twosrc_metric<Npp32sc>("nppiMaximumRelativeError_32sc_C4R_Ctx", "maxRelErr/32sc/C4R_exactbuf", 17, 13, 32, 4, 0xD04,
                            &nppiMaximumRelativeError_32sc_C4R_Ctx, 1e-5, 1e-5, arena<Npp8u>(sz).get());
   }
 }
@@ -761,6 +762,56 @@ TEST_F(NppiMaximumErrorDiff, Contract_MaximumError) {
     DeviceMemory<Npp32f> &t2 = arena<Npp32f>(48);
     NppStatus st = nppiMaximumError_32f_C4R_Ctx(t1.get(), 36, t2.get(), 36, NppiSize{2, 2}, o.get(), scratch(), ctx);
     Case c("maxErr/contract/noteven_step_c4", "nppiMaximumError_32f_C4R_Ctx");
+    c.status(st); c.finish();
+  }
+}
+
+// ==================== validation-order probes ===============================
+// Combined violations decode the exact check order of NVIDIA 13.4 (each case
+// violates two rules; the returned status names the rule checked first).
+TEST_F(NppiMaximumErrorDiff, Contract_Order) {
+  DeviceMemory<Npp8u> &s1 = arena<Npp8u>(16);
+  DeviceMemory<Npp8u> &s2 = arena<Npp8u>(16);
+  DeviceMemory<Npp64f> &o = sentinel_output();
+  NppStreamContext ctx = current_context();
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(nullptr, 16, s2.get(), 16, NppiSize{-1, 2}, o.get(), scratch(), ctx);
+    Case c("maxErr/contract/order/null_src_vs_neg_size", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(nullptr, 16, s2.get(), 16, NppiSize{0, 2}, o.get(), scratch(), ctx);
+    Case c("maxErr/contract/order/null_src_vs_zro_roi", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(s1.get(), 2, s2.get(), 16, NppiSize{4, 2}, nullptr, scratch(), ctx);
+    Case c("maxErr/contract/order/short_step_vs_null_out", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(s1.get(), 16, s2.get(), 16, NppiSize{2, 2}, nullptr, nullptr, ctx);
+    Case c("maxErr/contract/order/null_out_vs_null_buf", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(s1.get(), 16, nullptr, 16, NppiSize{4, 2}, nullptr, scratch(), ctx);
+    Case c("maxErr/contract/order/null_src2_vs_short_step", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(s1.get(), 16, s2.get(), 2, NppiSize{4, 2}, o.get(), scratch(), ctx);
+    Case c("maxErr/contract/order/src2_short_step", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(s1.get(), 2, s2.get(), 4, NppiSize{4, 2}, o.get(), scratch(), ctx);
+    Case c("maxErr/contract/order/src1_step_before_src2", "nppiMaximumError_8u_C1R_Ctx");
+    c.status(st); c.finish();
+  }
+  {
+    NppStatus st = nppiMaximumError_8u_C1R_Ctx(s1.get(), 16, s2.get(), 16, NppiSize{0, 2}, o.get(), nullptr, ctx);
+    Case c("maxErr/contract/order/zro_roi_vs_null_buf", "nppiMaximumError_8u_C1R_Ctx");
     c.status(st); c.finish();
   }
 }
