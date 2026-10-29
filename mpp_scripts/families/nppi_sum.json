@@ -1,0 +1,16 @@
+{
+  "family": "nppiSum",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_sum_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiSum", "nppiSumGetBufferHostSize"],
+  "call_by_family": {
+     "nppiSumGetBufferHostSize": "nppi::statistics::sumGetBufferHostSize(oSizeROI, hpBufferSize)"
+  },
+  "call_variants": [
+     {"contains": "64s aSum", "call": "nppi::statistics::runSum<{dtype},{chan},Npp64s,{is_ac4}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, aSum, nppStreamCtx.hStream)"},
+     {"contains": "Npp64s", "call": "nppi::statistics::runSum<{dtype},{chan},Npp64s,{is_ac4}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pSum, nppStreamCtx.hStream)"},
+     {"contains": "aSum", "call": "nppi::statistics::runSum<{dtype},{chan},Npp64f,{is_ac4}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, aSum, nppStreamCtx.hStream)"}
+  ],
+  "call": "nppi::statistics::runSum<{dtype},{chan},Npp64f,{is_ac4}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pSum, nppStreamCtx.hStream)"
+}

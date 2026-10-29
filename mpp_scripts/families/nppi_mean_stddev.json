@@ -1,0 +1,16 @@
+{
+  "family": "nppiMean_StdDev",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_mean_stddev_generated.cpp",
+  "includes": ["nppi_statistics_executor.h"],
+  "families": ["nppiMean_StdDev", "nppiMeanStdDevGetBufferHostSize"],
+  "call_by_family": {
+     "nppiMeanStdDevGetBufferHostSize": "nppi::statistics::meanStdDevGetBufferHostSize(oSizeROI, hpBufferSize)"
+  },
+  "call_variants": [
+     {"contains": "pMask, int nMaskStep, NppiSize oSizeROI, int nCOI", "call": "nppi::statistics::runMeanStdDevMaskedCoi<{dtype}>(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream)"},
+     {"contains": "NppiSize oSizeROI, int nCOI", "call": "nppi::statistics::runMeanStdDevCoi<{dtype}>(pSrc, nSrcStep, oSizeROI, nCOI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream)"},
+     {"contains": "nMaskStep", "call": "nppi::statistics::runMeanStdDevMasked<{dtype}>(pSrc, nSrcStep, pMask, nMaskStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream)"}
+  ],
+  "call": "nppi::statistics::runMeanStdDev<{dtype}>(pSrc, nSrcStep, oSizeROI, pDeviceBuffer, pMean, pStdDev, nppStreamCtx.hStream)"
+}
