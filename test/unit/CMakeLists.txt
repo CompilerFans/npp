@@ -68,3 +68,19 @@ if(USE_NVIDIA_NPP)
     )
     npp_register_test(stream_sync stream_sync_tests)
 endif()
+# Generated reference tests (tools/gen_ref_tests.py).  They call only _Ctx
+# entry points, so the same target builds against MPP and against the NVIDIA
+# NPP 13 reference.
+file(GLOB_RECURSE REF_TEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/ref/test_*_generated.cpp
+)
+if(REF_TEST_SOURCES)
+    npp_create_test_target(ref_tests "${REF_TEST_SOURCES}" npp)
+    target_include_directories(ref_tests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/framework
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/ref
+    )
+    npp_register_test(ref ref_tests)
+endif()
