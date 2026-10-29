@@ -1,31 +1,31 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 7932 (63.3%)
+- Real implementations: 7924 (63.2%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 4439
-- Tested: 7477 (59.6%)
-- Real and tested: 5765
+- Missing: 4447
+- Tested: 7909 (63.1%)
+- Real and tested: 5786
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
-| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 424 |
+| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 697 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 877 |
-| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 307 |
+| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 884 |
+| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 431 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
-| nppi_statistics_functions.h | 3246 | 2595 | 28 | 623 | 1565 |
+| nppi_statistics_functions.h | 3246 | 2595 | 28 | 623 | 1593 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
 | npps_conversion_functions.h | 174 | 174 | 0 | 0 | 89 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
-| npps_statistics_functions.h | 766 | 8 | 0 | 758 | 332 |
+| npps_statistics_functions.h | 766 | 0 | 0 | 766 | 332 |
 | npps_support_functions.h | 15 | 15 | 0 | 0 | 7 |
 
 ## Largest remaining groups
@@ -59,6 +59,7 @@
 | nppi_statistics_functions.h | nppiSqrDistanceValid_Norm | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
+| npps_statistics_functions.h | nppsSum | 36 | 18 |
 | nppi_filtering_functions.h | nppiFilterBorder | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterColumn | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterRow | 34 | 17 |
@@ -71,4 +72,3 @@
 | nppi_filtering_functions.h | nppiFilterLowPassBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterLowPass | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
