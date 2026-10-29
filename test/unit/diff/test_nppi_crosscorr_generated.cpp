@@ -782,13 +782,13 @@ TEST_F(NppiCrossCorrDiff, ScratchBufferSize_Errors) {
   size_t sz = 0x5A5A5A5A5A5A5A5AULL;
   {
     Case c("xcorr/scratchsize/err/null_full", "nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize");
-    NppStatus st = nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize{4, 3}, NppiSize{2, 2}, 4, 1, nullptr);
+    NppStatus st = nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize{4, 3}, NppiSize{2, 2}, 4, 1, static_cast<size_t *>(nullptr));
     c.status(st);
     c.finish();
   }
   {
     Case c("xcorr/scratchsize/err/null_valid", "nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize");
-    NppStatus st = nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize{4, 3}, NppiSize{2, 2}, 4, 1, nullptr);
+    NppStatus st = nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize{4, 3}, NppiSize{2, 2}, 4, 1, static_cast<size_t *>(nullptr));
     c.status(st);
     c.finish();
   }
