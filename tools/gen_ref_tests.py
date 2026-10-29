@@ -14,6 +14,15 @@ warp coefficients, per-channel values) are initialized to identity/degenerate
 values.  Irregular families are expected to be refined by module owners with
 per-module overrides/skips; the generator core stays shared.
 
+Extended layouts are generated too: planar pointer arrays (``pSrc[3]``), other
+arrays of device pointers (per-channel LUT/histogram tables) and batch
+descriptor lists (``NppiImageDescriptor``/``Nppi*BatchCXR``).  Per-plane
+buffers use a uniform two-channel-pitch step so every planar/semi-planar
+geometry stays in bounds, and batch lists are built host-side then uploaded.
+Functions using these layouts are emitted after the base-layout functions of
+their module (in separate chunk files) so already-recorded chunks stay
+byte-identical when the generator gains support for new layouts.
+
 Usage:
   python3 tools/gen_ref_tests.py --module npps_arithmetic_and_logical_operations.h
   python3 tools/gen_ref_tests.py --all --chunk-size 250
@@ -71,7 +80,14 @@ SCRATCH_NAMES = {"pDeviceBuffer", "pBuffer", "pScratch", "pScratchBuffer",
 HOST_NAMES = {"hpBufferSize", "hpBufferSizeInBytes", "hpSize", "hpBufferSizeInBytes"}
 OUTPUT_SCALAR = {"pSum", "pMean", "pMin", "pMax", "pNorm", "pDotProd", "pError",
                  "pAvg", "pStdDev", "pMinIndex", "pMaxIndex", "pIndex", "pCount",
-                 "pHist", "pHistogram", "pResult", "pVal", "pValuesOut"}
+                 "pHist", "pHistogram", "pResult", "pVal", "pValuesOut",
+                 # Batched quality metrics: one scalar per image in the batch.
+                 "pMSE", "pPSNR", "pSSIM", "pWMSSSIM", "pNewMaxLabelIDList"}
+# Output scalar names only recognized in batched entry points; their non-batch
+# counterparts stay skipped exactly as before (no base-test churn).
+BATCH_ONLY_SCALARS = {"pMSE", "pPSNR", "pSSIM", "pWMSSSIM", "pNewMaxLabelIDList"}
+# Per-channel input count/bound arrays that NPP declares without a const.
+KNOWN_INPUT_ARRAYS = {"nLevels", "nLowerLevel", "nUpperLevel"}
 INPUT_PREFIXES = ("pSrc", "pMask", "pKernel", "pTpl", "pTemplate", "pConstant",
                   "pConstants", "pLevels", "pValues", "pPalette", "pLookupTable",
                   "pTable", "pXMap", "pYMap")
@@ -86,6 +102,26 @@ KERNELISH = ("pMask", "pKernel", "pTpl", "pTemplate", "pXMap", "pYMap")
 SCALAR_NAME_DEFAULTS = {"nMin": "0.5", "nMax": "100.5",
                         "eInterpolation": "NPPI_INTER_LINEAR"}
 
+# --- Extended layouts -------------------------------------------------------
+# Batched entry points take nBatchSize > 1; two images keep every family
+# meaningful while staying cheap to build and record.
+NBATCH = 2
+# Per-plane pitch used for planar pointer arrays: two channels cover the
+# interleaved UV plane of semi-planar layouts (NV12/NV21), and every other
+# plane geometry is narrower, so a single uniform step stays in bounds.
+PLANE_CH = 2
+# Batch descriptor structs (NPP batch geometry structures, nppdefs.h).
+BATCH_STRUCTS = ("NppiImageDescriptor", "NppiBufferDescriptor",
+                 "NppiResizeBatchROI_Advanced", "NppiColorTwistBatchCXR",
+                 "NppiMirrorBatchCXR", "NppiResizeBatchCXR",
+                 "NppiWarpAffineBatchCXR", "NppiWarpPerspectiveBatchCXR")
+BATCH_DTYPE = {"8u": "Npp8u", "8s": "Npp8s", "16u": "Npp16u", "16s": "Npp16s",
+               "16f": "Npp16f", "32u": "Npp32u", "32s": "Npp32s",
+               "32f": "Npp32f", "64f": "Npp64f"}
+IDENTITY_2X3 = "1, 0, 0, 0, 1, 0"
+IDENTITY_3X3 = "1, 0, 0, 0, 1, 0, 0, 0, 1"
+IDENTITY_4X5 = "1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0"
+
 
 @dataclass
 class Param:
@@ -97,6 +133,7 @@ class Param:
     array_len: int
     arr_dims: tuple = ()  # declarator dims, e.g. (2, 3) for "aCoeffs[2][3]"
     is_ptr_array: bool = False  # element is itself a pointer, e.g. "pDst[3]"
+    const_pointee: bool = False  # leading const, e.g. "const Npp8u * pSrc[3]"
 
 
 def split_params(params: str) -> List[str]:
@@ -150,7 +187,7 @@ def parse_param(raw: str) -> Optional[Param]:
     for d in dims:
         total *= d
     return Param(base, name, is_pointer, is_const, bool(arr),
-                 total if dims else 0, tuple(dims), bool(stars and dims))
+                 total if dims else 0, tuple(dims), bool(stars and dims), pre)
 
 
 def parse_params(params: str) -> Optional[List[Param]]:
@@ -214,6 +251,68 @@ def pointer_role(p: Param) -> Optional[str]:
     if n.startswith("pHint") or n.startswith("pDevice"):
         return "scratch"
     return None
+
+
+def ptr_array_role(p: Param) -> Optional[str]:
+    """Role of a ``T * p[N]`` parameter: a host array of N device pointers.
+
+    Planar image planes, per-channel LUT tables and per-plane histogram bins
+    all use this shape; NppiImageDescriptor arrays are per-plane batch lists.
+    """
+    n = p.name
+    if p.ctype == "NppiImageDescriptor":
+        return "batch_planes"  # one descriptor list per plane of the batch
+    if n.startswith("pSrcDst"):
+        return "inplace"
+    if n.startswith(OUTPUT_PREFIXES) or n.startswith("aDst"):
+        return "out"
+    if n.startswith(("pSrc", "aSrc", "pMask", "pTpl", "pTemplate", "pKernel")):
+        return "in"
+    if n in OUTPUT_SCALAR and n == "pHist":
+        return "scalar_out"  # nLevels - 1 == 1 bins per plane
+    if n.startswith(("pValues", "pLevels", "pTables", "pPalette", "pTable")):
+        return "lut_in"
+    return None
+
+
+def batch_role(p: Param) -> Optional[str]:
+    """Role of a batch descriptor list parameter (plain struct pointer)."""
+    if p.ctype not in BATCH_STRUCTS:
+        return None
+    if "Buffer" in p.name:
+        return "scratch"
+    if p.ctype == "NppiResizeBatchROI_Advanced":
+        return "roi"
+    if p.ctype in ("NppiColorTwistBatchCXR", "NppiMirrorBatchCXR",
+                   "NppiResizeBatchCXR", "NppiWarpAffineBatchCXR",
+                   "NppiWarpPerspectiveBatchCXR"):
+        return "cxr"
+    n = p.name
+    if n.startswith("pSrcDst"):
+        return "inplace"
+    if n.startswith("pSrc") or "BatchSrc" in n:
+        return "in"
+    if n.startswith("pDst") or "BatchDst" in n:
+        return "out"
+    return None
+
+
+def needs_ext_layout(fn: str, params: Optional[Sequence[Param]]) -> bool:
+    """True when the function needs the extended layout support.
+
+    These functions used to be blanket-skipped; generating them now must not
+    re-chunk the already-recorded base-layout tests of the module.
+    """
+    if is_planar(fn):
+        return True
+    for p in params or []:
+        if p.is_ptr_array:
+            return True
+        if p.ctype in BATCH_STRUCTS:
+            return True
+        if p.is_array and p.ctype == "int" and p.name.endswith("Step"):
+            return True
+    return False
 
 
 def scalar_value(p: Param) -> Optional[str]:
@@ -290,25 +389,42 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
         return "unsupported parameter syntax"
     if not params:
         return "no parameters"
-    if is_planar(row["function_name"]):
-        return "planar pointer-array layout (manual follow-up)"
+    batch = any(p.ctype in BATCH_STRUCTS for p in params)
+    has_ptr_array = any(p.is_ptr_array for p in params)
     for p in params:
         if p.is_ptr_array:
-            return f"array-of-pointers parameter {p.name}"
+            if (p.ctype == "NppiImageDescriptor" or p.ctype in SCALAR) \
+                    and ptr_array_role(p) is not None:
+                continue
+            return f"unsupported array-of-pointers parameter {p.name}"
         if p.is_array:
+            # Per-plane step array (e.g. int rSrcStep[3]) of a planar entry
+            # point: one step per plane, filled with the plane pitch.
+            if p.ctype == "int" and p.name.endswith("Step"):
+                continue
             # Fixed-size host constant array (channel orders, warp
-            # coefficients, per-channel fill values, ...).
+            # coefficients, per-channel fill values, ...).  Per-channel LUT
+            # level counts ride along with the pointer-array tables they
+            # describe (ext-layout functions only).
             if p.ctype not in SCALAR:
                 return f"unsupported host array type {p.ctype} ({p.name})"
-            if not (p.is_const or p.name.startswith(HOST_ARRAY_PREFIXES)):
+            if not (p.is_const or p.name.startswith(HOST_ARRAY_PREFIXES)
+                    or (p.name in KNOWN_INPUT_ARRAYS and has_ptr_array)):
                 return f"unsupported host output array {p.name}"
             continue
         if p.is_pointer:
+            if p.ctype in BATCH_STRUCTS:
+                if batch_role(p) is None:
+                    return f"unknown batch list role {p.name}"
+                continue
             if p.ctype not in SCALAR:
                 return f"unsupported pointer type {p.ctype} ({p.name})"
-            if pointer_role(p) is None:
+            if pointer_role(p) is None or \
+                    (p.name in BATCH_ONLY_SCALARS and not batch):
                 return f"unknown pointer role {p.name}"
         else:
+            if batch and p.ctype == "NppiNorm":
+                continue  # batched label entry points take an inf-norm default
             if p.ctype in SCALAR or p.ctype in ENUMS or p.ctype in ("NppiSize", "NppiPoint", "NppiRect"):
                 continue
             return f"unsupported scalar type {p.ctype} ({p.name})"
@@ -352,21 +468,60 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
     esize = SCALAR[img_t][1]
     step = f"align16({WMAX} * {ch} * {esize})"
 
+    is_batch = any(p.ctype in BATCH_STRUCTS for p in params)
+    # Batch image element type(s): the dtype segment of the batch entry point
+    # name ("nppiMirrorBatch_32f_C3R" -> 32f; "nppiLabelMarkersUFBatch_
+    # 16u32u_C1R" -> 16-bit input, 32-bit labels).  BatchInit entry points
+    # carry no dtype segment; they only transform coefficients, so the buffers
+    # they point at are never dereferenced and the default is safe.
+    batch_types = ["Npp8u"]
+    if is_batch:
+        parts = re.sub(r"_Ctx$", "", fn).split("_")
+        if len(parts) > 1:
+            tocs = [BATCH_DTYPE[t] for t in
+                    re.findall(r"(?:8|16|32|64)(?:u|s|f)", parts[1]) if t in BATCH_DTYPE]
+            if tocs:
+                batch_types = tocs
+
+    def batch_t(role: str) -> str:
+        if len(batch_types) > 1 and role in ("out", "inplace"):
+            return batch_types[-1]
+        return batch_types[0]
+
+    def seed_for(key: str) -> str:
+        return f"0x{int(hashlib.sha256((fn + key).encode()).hexdigest()[:8], 16):08x}"
+
+    # Planar pointer-array geometry: a uniform two-channel pitch covers every
+    # plane layout (including the interleaved UV plane of semi-planar formats)
+    # and the buffers hold HMAX rows of it plus slack.
+    def plane_step(ctype: str) -> str:
+        return f"align16({WMAX} * {PLANE_CH} * {SCALAR[ctype][1]})"
+
+    plane_cnt = HMAX * (WMAX * PLANE_CH + 16)
+
     decls: List[str] = [f"  NppStreamContext ctx = ref_current_context();"]
 
     # Per-pointer channel counts: the channel tokens in the layout suffix map,
     # in order, onto the image pointers that carry pixel data (C3C4R -> src 3,
     # dst 4).  Mask/kernel/template and coordinate-map pointers stay single
     # channel; a single token applies to every image pointer (AC4R -> 4).
+    # Pointer arrays consume one token per array (they are a set of
+    # single-channel planes or per-plane batch lists), LUT/histogram arrays
+    # consume none.
     pch: Dict[str, int] = {}
     img_idx = 0
     for p in params:
+        if p.is_ptr_array:
+            if ptr_array_role(p) in ("in", "out", "inplace", "batch_planes"):
+                pch[p.name] = toks[img_idx] if img_idx < len(toks) else toks[-1]
+                img_idx += 1
+            continue
         if p.is_array or not p.is_pointer:
             continue
         if p.name in KERNELISH:
             pch[p.name] = 1
             continue
-        if pointer_role(p) in ("in", "out", "inplace"):
+        if (batch_role(p) or pointer_role(p)) in ("in", "out", "inplace"):
             pch[p.name] = toks[img_idx] if img_idx < len(toks) else toks[-1]
             img_idx += 1
 
@@ -380,7 +535,8 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if role == "host":
             return 1
         if role == "scalar_out":
-            return max(ch, 1)
+            # Batched metric outputs carry one value per image in the batch.
+            return NBATCH if is_batch else max(ch, 1)
         if role in ("in", "out", "inplace"):
             if p.name in ("pMask", "pKernel", "pTpl", "pTemplate"):
                 return 3 * (3 + 16)
@@ -396,27 +552,239 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
 
     # Steps are referenced in the argument list; build them first.  Each step
     # uses the element size of its associated pointer (mixed-type functions
-    # have different src/dst element sizes).
+    # have different src/dst element sizes).  A step parameter whose base
+    # pointer is an array of planes (shared per-plane steps like nSrcStep of
+    # P3R entry points, or step arrays like rSrcStep[3]) resolves to the
+    # uniform plane pitch.
     ptr_by_name = {p.name: p for p in params if p.is_pointer}
     steps: Dict[str, str] = {}
     for p in params:
         if not p.name.endswith("Step"):
             continue
-        base_ptr = re.sub(r"^n", "p", re.sub(r"Step$", "", p.name))
-        q = ptr_by_name.get(base_ptr)
+        stem = re.sub(r"Step$", "", p.name)
+        cands = [re.sub(r"^n", "p", stem), stem]
+        if stem[:1] in "nra" and len(stem) > 1:
+            cands += ["p" + stem[1:], "a" + stem[1:]]
+        matched, q = None, None
+        for cand in cands:
+            if cand in ptr_by_name:
+                matched, q = cand, ptr_by_name[cand]
+                break
         if q is not None and q.ctype in SCALAR and not q.is_array:
             es = SCALAR[q.ctype][1]
-            if base_ptr in ("pMask", "pKernel", "pTpl"):
+            if matched in ("pMask", "pKernel", "pTpl"):
                 steps[p.name] = f"align16(3 * {es})"
             else:
                 steps[p.name] = f"align16({WMAX} * {ch_of(q)} * {es})"
+        elif q is not None and q.is_ptr_array and q.ctype in SCALAR:
+            steps[p.name] = plane_step(q.ctype)
+        elif is_planar(fn):
+            steps[p.name] = f"align16({WMAX} * {PLANE_CH} * {esize})"
         else:
             steps[p.name] = step
 
+    prelude: List[str] = []
+
+    # CompressMarkerLabelsUFBatch sizes its per-image working buffers through
+    # the documented GetBufferSize helper: the batch argument must be exactly
+    # the returned value (worst case: one label per ROI pixel).
+    batch_buf_size = None
+    if is_batch:
+        for p in params:
+            if p.name in ("nPerImageBufferSize", "nLargestPerImageBufferSize"):
+                decls.append("  int hpCompressBufferSize = 0;")
+                decls.append(f"  nppiCompressMarkerLabelsGetBufferSize_32u_C1R({W} * {H}, &hpCompressBufferSize);")
+                decls.append(f"  const int {p.name} = hpCompressBufferSize > 0 ? hpCompressBufferSize : {1024 * 1024};")
+                batch_buf_size = p.name
+                break
+
+    def emit_ptr_array(p: Param) -> Optional[str]:
+        """Emit a host array of device pointers plus its backing buffers."""
+        role = ptr_array_role(p)
+        n, k = p.name, (p.array_len or 3)
+        c = "const " if p.const_pointee else ""
+        if role == "batch_planes":
+            # One descriptor list per plane; each list covers NBATCH images
+            # of a single-channel plane (planes use the uniform plane pitch).
+            t = batch_t("in")
+            stp = plane_step(t)
+            lists = []
+            for i in range(k):
+                for b in range(NBATCH):
+                    decls.append(f"  auto {n}_{i}_{b} = ref_device<{t}>({plane_cnt}, {seed_for(f'{n}_{i}_{b}')});")
+                decls.append(f"  std::vector<NppiImageDescriptor> {n}_host{i}({NBATCH});")
+                for b in range(NBATCH):
+                    decls.append(f"  {n}_host{i}[{b}].pData = {n}_{i}_{b}->get();")
+                    decls.append(f"  {n}_host{i}[{b}].nStep = {stp};")
+                    decls.append(f"  {n}_host{i}[{b}].oSize = {{{W}, {H}}};")
+                decls.append(f"  auto {n}_dev{i} = std::make_unique<DeviceMemory<NppiImageDescriptor>>({NBATCH});")
+                decls.append(f"  {n}_dev{i}->copyFromHost({n}_host{i});")
+                lists.append(f"{n}_dev{i}->get()")
+            decls.append(f"  {c}NppiImageDescriptor * {n}[{k}] = {{{', '.join(lists)}}};")
+            args.append(n)
+            return None
+        if p.ctype not in SCALAR:
+            return f"unsupported array-of-pointers type {p.ctype} ({n})"
+        if role in ("in", "out", "inplace"):
+            # A set of single-channel planes sharing the uniform plane pitch.
+            for i in range(k):
+                decls.append(f"  auto {n}_{i} = ref_device<{p.ctype}>({plane_cnt}, {seed_for(f'{n}_{i}')});")
+            decls.append(f"  {c}{p.ctype} * {n}[{k}] = {{{', '.join(f'{n}_{i}->get()' for i in range(k))}}};")
+            args.append(n)
+            if role in ("out", "inplace"):
+                for i in range(k):
+                    captures.append(f"  ref_capture_bytes(c, {n}_{i}->get(), {plane_cnt} * sizeof({p.ctype}));")
+            return None
+        if role == "lut_in":
+            if n == "pLevels" and any(q.name == "aLevels" for q in params):
+                # Trilinear LUT: pLevels[i] are HOST pointers to the
+                # aLevels[i] (= 2) input level values of each cube edge.
+                for i in range(k):
+                    decls.append(f"  {p.ctype} {n}_h{i}[2] = {{0, 255}};")
+                decls.append(f"  {c}{p.ctype} * {n}[{k}] = {{{', '.join(f'{n}_h{i}' for i in range(k))}}};")
+                args.append(n)
+                return None
+            # Per-channel device tables, sized like the single-channel case.
+            cnt = HMAX * (WMAX + 16)
+            for i in range(k):
+                decls.append(f"  auto {n}_{i} = ref_device<{p.ctype}>({cnt}, {seed_for(f'{n}_{i}')});")
+            decls.append(f"  {c}{p.ctype} * {n}[{k}] = {{{', '.join(f'{n}_{i}->get()' for i in range(k))}}};")
+            args.append(n)
+            return None
+        if role == "scalar_out":
+            # Per-plane histogram bins: nLevels == 2, so one bin per plane.
+            for i in range(k):
+                decls.append(f"  auto {n}_{i} = ref_device<{p.ctype}>(1, {seed_for(f'{n}_{i}')});")
+            decls.append(f"  {p.ctype} * {n}[{k}] = {{{', '.join(f'{n}_{i}->get()' for i in range(k))}}};")
+            args.append(n)
+            for i in range(k):
+                captures.append(f"  ref_capture_bytes(c, {n}_{i}->get(), sizeof({p.ctype}));")
+            return None
+        return f"unsupported array-of-pointers parameter {n}"
+
+    def emit_batch_list(p: Param) -> Optional[str]:
+        """Emit a device batch descriptor list built from host-side structs."""
+        role, n, T = batch_role(p), p.name, p.ctype
+        if role in ("in", "out", "inplace"):
+            t = batch_t(role)
+            c = pch.get(n, ch)
+            cnt = HMAX * (WMAX * c + 16)
+            # The label compressor requires the exact pitch of an unpitched
+            # cudaMalloc allocation (oSize.width * sizeof(element)).
+            stp = f"{W} * sizeof({t})" if "CompressMarkerLabels" in fn \
+                else f"align16({WMAX} * {c} * {SCALAR[t][1]})"
+            for b in range(NBATCH):
+                decls.append(f"  auto {n}_img{b} = ref_device<{t}>({cnt}, {seed_for(f'{n}_{b}')});")
+            decls.append(f"  std::vector<{T}> {n}_host({NBATCH});")
+            for b in range(NBATCH):
+                decls.append(f"  {n}_host[{b}].pData = {n}_img{b}->get();")
+                decls.append(f"  {n}_host[{b}].nStep = {stp};")
+                decls.append(f"  {n}_host[{b}].oSize = {{{W}, {H}}};")
+            decls.append(f"  auto {n} = std::make_unique<DeviceMemory<{T}>>({NBATCH});")
+            decls.append(f"  {n}->copyFromHost({n}_host);")
+            args.append(f"{n}->get()")
+            if role in ("out", "inplace"):
+                for b in range(NBATCH):
+                    captures.append(f"  ref_capture_bytes(c, {n}_img{b}->get(), {cnt} * sizeof({t}));")
+            return None
+        if role == "scratch":
+            for b in range(NBATCH):
+                decls.append(f"  auto {n}_buf{b} = ref_device<Npp8u>({batch_buf_size or 1024 * 1024}, {seed_for(f'{n}_{b}')});")
+            decls.append(f"  std::vector<{T}> {n}_host({NBATCH});")
+            for b in range(NBATCH):
+                decls.append(f"  {n}_host[{b}].pData = {n}_buf{b}->get();")
+                decls.append(f"  {n}_host[{b}].nBufferSize = {batch_buf_size or 1024 * 1024};")
+            decls.append(f"  auto {n} = std::make_unique<DeviceMemory<{T}>>({NBATCH});")
+            decls.append(f"  {n}->copyFromHost({n}_host);")
+            args.append(f"{n}->get()")
+            return None
+        if role == "roi":
+            decls.append(f"  std::vector<{T}> {n}_host({NBATCH});")
+            for b in range(NBATCH):
+                decls.append(f"  {n}_host[{b}].oSrcRectROI = {{0, 0, {W}, {H}}};")
+                decls.append(f"  {n}_host[{b}].oDstRectROI = {{0, 0, {WMAX}, {HMAX}}};")
+            decls.append(f"  auto {n} = std::make_unique<DeviceMemory<{T}>>({NBATCH});")
+            decls.append(f"  {n}->copyFromHost({n}_host);")
+            args.append(f"{n}->get()")
+            return None
+        if role == "cxr":
+            t = batch_t("cxr")
+            c = pch.get(n, ch)
+            cnt = HMAX * (WMAX * c + 16)
+            stp = f"align16({WMAX} * {c} * {SCALAR[t][1]})"
+            is_twist = T == "NppiColorTwistBatchCXR"
+            is_warp = T in ("NppiWarpAffineBatchCXR", "NppiWarpPerspectiveBatchCXR")
+            for b in range(NBATCH):
+                decls.append(f"  auto {n}_src{b} = ref_device<{t}>({cnt}, {seed_for(f'{n}_src{b}')});")
+                decls.append(f"  auto {n}_dst{b} = ref_device<{t}>({cnt}, {seed_for(f'{n}_dst{b}')});")
+                if is_twist:
+                    # "32fC" variants twist with a 4x5 matrix plus constant
+                    # vector; the others use the plain 3x3 matrix.
+                    m = 20 if "32fC" in fn else 9
+                    ident = IDENTITY_4X5 if m == 20 else IDENTITY_3X3
+                    decls.append(f"  auto {n}_coef{b} = std::make_unique<DeviceMemory<Npp32f>>({m});")
+                    decls.append(f"  {n}_coef{b}->copyFromHost({{{ident}}});")
+                elif is_warp:
+                    m = 6 if T == "NppiWarpAffineBatchCXR" else 9
+                    ident = IDENTITY_2X3 if m == 6 else IDENTITY_3X3
+                    decls.append(f"  auto {n}_coef{b} = std::make_unique<DeviceMemory<Npp64f>>({m});")
+                    decls.append(f"  {n}_coef{b}->copyFromHost({{{ident}}});")
+            decls.append(f"  std::vector<{T}> {n}_host({NBATCH});")
+            for b in range(NBATCH):
+                decls.append(f"  {n}_host[{b}].pSrc = {n}_src{b}->get();")
+                decls.append(f"  {n}_host[{b}].nSrcStep = {stp};")
+                decls.append(f"  {n}_host[{b}].pDst = {n}_dst{b}->get();")
+                decls.append(f"  {n}_host[{b}].nDstStep = {stp};")
+                if is_twist:
+                    decls.append(f"  {n}_host[{b}].pTwist = {n}_coef{b}->get();")
+                elif is_warp:
+                    decls.append(f"  {n}_host[{b}].pCoeffs = {n}_coef{b}->get();")
+            decls.append(f"  auto {n} = std::make_unique<DeviceMemory<{T}>>({NBATCH});")
+            decls.append(f"  {n}->copyFromHost({n}_host);")
+            args.append(f"{n}->get()")
+            if fn.endswith("BatchInit_Ctx"):
+                # The Init entry point's output is the transformed-coefficient
+                # block it writes inside each device-side struct.
+                captures.append(f"  ref_capture_bytes(c, {n}->get(), {NBATCH} * sizeof({T}));")
+            else:
+                for b in range(NBATCH):
+                    captures.append(f"  ref_capture_bytes(c, {n}_dst{b}->get(), {cnt} * sizeof({t}));")
+                # Warp batch entry points require the matching Init call to
+                # precompute the per-image transformed coefficients.
+                if T == "NppiWarpAffineBatchCXR":
+                    prelude.append(f"  NppStatus stInit = nppiWarpAffineBatchInit_Ctx({n}->get(), {NBATCH}, ctx);")
+                    prelude.append("  (void)stInit;")
+                elif T == "NppiWarpPerspectiveBatchCXR":
+                    prelude.append(f"  NppStatus stInit = nppiWarpPerspectiveBatchInit_Ctx({n}->get(), {NBATCH}, ctx);")
+                    prelude.append("  (void)stInit;")
+            return None
+        return f"unknown batch list role {n}"
+
     for p in params:
         role = pointer_role(p) if p.is_pointer else None
-        # Fixed-size host constant arrays (channel orders, coefficients, ...).
+        # Arrays of device pointers: planar planes, per-channel LUT tables,
+        # per-plane histograms, per-plane batch lists.
+        if p.is_ptr_array:
+            err = emit_ptr_array(p)
+            if err:
+                return None, err
+            continue
+        # Batch descriptor lists (device-side struct arrays).
+        if p.is_pointer and p.ctype in BATCH_STRUCTS:
+            err = emit_batch_list(p)
+            if err:
+                return None, err
+            continue
+        # Fixed-size host constant arrays (channel orders, coefficients, ...)
+        # and per-plane step arrays.
         if p.is_array:
+            if p.ctype == "int" and p.name.endswith("Step"):
+                k = p.array_len or 3
+                sv = steps.get(p.name, step)
+                dims = "".join(f"[{d}]" for d in (p.arr_dims or (k,)))
+                decls.append(f"  int {p.name}{dims} = {{{', '.join([sv] * k)}}};")
+                args.append(p.name)
+                continue
             init = host_array_init(p, toks, W, H, WMAX, HMAX)
             if init is None:
                 return None, f"unsupported host array {p.ctype} {p.name}"
@@ -434,7 +802,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
                 return None, f"unsupported pointer type {p.ctype}"
             n = p.name
             count = count_for(p)
-            decls.append(f"  auto {n} = ref_device<{p.ctype}>({count}, 0x{int(hashlib.sha256((fn + n).encode()).hexdigest()[:8], 16):08x});")
+            decls.append(f"  auto {n} = ref_device<{p.ctype}>({count}, {seed_for(n)});")
             args.append(f"{n}->get()")
             if role in ("out", "inplace", "scalar_out"):
                 # Captured by exact byte size: the ValueKind element size used by
@@ -449,6 +817,19 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if p.name in arg_ov:
             args.append(str(arg_ov[p.name]))
             continue
+        if is_batch and p.name in ("nPerImageBufferSize", "nLargestPerImageBufferSize"):
+            args.append(p.name)  # declared from GetBufferSize above
+            continue
+        if is_batch and p.name in ("nMaxWidth", "nMaxHeight"):
+            # Largest image dimension in the batch; buffers are WMAX x HMAX.
+            args.append(str(WMAX if p.name == "nMaxWidth" else HMAX))
+            continue
+        if p.ctype == "NppiNorm":
+            # Batched label entry points only (skip_reason gates the rest).
+            if is_batch:
+                args.append("nppiNormInf")
+                continue
+            return None, f"unsupported scalar type NppiNorm ({p.name})"
         if p.name in steps:
             # Per-pointer step (mixed-type functions have different src/dst
             # element sizes; the steps dict already resolved the right one).
@@ -457,7 +838,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if p.ctype == "NppiSize":
             if "Mask" in p.name or "Kernel" in p.name or "Tpl" in p.name:
                 args.append("{3, 3}")
-            elif p.name in ("oDstSize", "oDstSizeROI"):
+            elif p.name in ("oDstSize", "oDstSizeROI") or (is_batch and p.name == "oSmallestDstSize"):
                 # Padded destination geometry (border copies, sub-pixel copies).
                 args.append(f"{{{WMAX}, {HMAX}}}")
             else:
@@ -485,6 +866,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         f"TEST(RefSuite, {fn}) {{",
         *decls,
         "  npp_diff::clear_cuda_error();",
+        *prelude,
         f"  NppStatus st = {call};",
         f'  npp_diff::Case c("ref/{fn}", "{fn}");',
         "  c.status(st);",
@@ -520,36 +902,44 @@ def main() -> int:
         stem0 = re.sub(r"[^A-Za-z0-9]+", "_", module.replace(".h", ""))
         ov_path = args.out_dir / "overrides" / f"{stem0}.json"
         ov = json.loads(ov_path.read_text()) if ov_path.is_file() else {}
-        ok, skipped = [], []
+        ok, skipped, ext = [], [], []
         for r in mrows:
             text, reason = generate(r, ov)
             if text is None:
                 skipped.append({"function": r["function_name"], "reason": reason})
+            elif needs_ext_layout(r["function_name"], parse_params(r["params"])):
+                ext.append((r["function_name"], text))
             else:
                 ok.append((r["function_name"], text))
-        total_ok += len(ok)
+        total_ok += len(ok) + len(ext)
         total_skip += len(skipped)
         stem = re.sub(r"[^A-Za-z0-9]+", "_", module.replace(".h", ""))
-        for idx in range(0, len(ok), args.chunk_size):
-            chunk = ok[idx : idx + args.chunk_size]
-            path = args.out_dir / f"test_{stem}_{idx // args.chunk_size}_generated.cpp"
-            body = [
-                "// GENERATED by tools/gen_ref_tests.py -- DO NOT EDIT.",
-                f"// module: {module}",
-                '#include "npp_diff_harness.h"',
-                '#include "npp_test_base.h"',
-                '#include "ref_test_utils.h"',
-                "",
-                "using namespace npp_functional_test;",
-                "using namespace npp_diff;",
-                "using namespace ref;",
-                "",
-                "\n\n".join(t for _, t in chunk),
-                "",
-            ]
-            if not args.dry_run:
-                path.write_text("\n".join(body))
-            print(f"{path.name}: {len(chunk)} tests")
+        # Two streams keep already-recorded chunks byte-identical: base-layout
+        # functions chunk exactly as before from index 0, extended-layout
+        # functions (planar, pointer arrays, batch lists) start at the first
+        # free chunk index of their module.
+        base_chunks = -(-len(ok) // args.chunk_size)
+        for stream, start in ((ok, 0), (ext, base_chunks)):
+            for idx in range(0, len(stream), args.chunk_size):
+                chunk = stream[idx : idx + args.chunk_size]
+                path = args.out_dir / f"test_{stem}_{start + idx // args.chunk_size}_generated.cpp"
+                body = [
+                    "// GENERATED by tools/gen_ref_tests.py -- DO NOT EDIT.",
+                    f"// module: {module}",
+                    '#include "npp_diff_harness.h"',
+                    '#include "npp_test_base.h"',
+                    '#include "ref_test_utils.h"',
+                    "",
+                    "using namespace npp_functional_test;",
+                    "using namespace npp_diff;",
+                    "using namespace ref;",
+                    "",
+                    "\n\n".join(t for _, t in chunk),
+                    "",
+                ]
+                if not args.dry_run:
+                    path.write_text("\n".join(body))
+                print(f"{path.name}: {len(chunk)} tests")
         skip_path = args.out_dir / f"skipped_{stem}.json"
         if not args.dry_run:
             skip_path.write_text(json.dumps(skipped, indent=2) + "\n")
