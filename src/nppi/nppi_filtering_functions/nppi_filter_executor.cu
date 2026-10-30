@@ -4,6 +4,7 @@
 #include "npp.h"
 #include "nppi_filter_executor.h"
 #include <cuda_runtime.h>
+#include <cuda_fp16.h>
 #include <cmath>
 #include <cstdint>
 #include <type_traits>
@@ -20,6 +21,29 @@ inline NppStatus finish_launch() {
   return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
+// NPP's empty-kernel/mask behaviour (5090): the destination is zero-filled over
+// [0, limitX) x [0, limitY); the last column (2D/row filters) or last row
+// (column filters) is left untouched.
+template <typename Dst, int CH>
+__global__ void zeroFillKernel(Dst *pDst, int nDstStep, int limitX, int limitY) {
+  const int x = blockIdx.x * kBlockX + threadIdx.x;
+  const int y = blockIdx.y * kBlockY + threadIdx.y;
+  if (x >= limitX || y >= limitY) return;
+  char *row = (char *)pDst + (long long)y * nDstStep;
+  Dst *pix = reinterpret_cast<Dst *>(row);
+  const Dst zero{};
+  for (int c = 0; c < CH; ++c) pix[x * CH + c] = zero;
+}
+
+template <typename Dst, int CH>
+inline NppStatus launchZeroFill(Dst *pDst, int nDstStep, int limitX, int limitY, cudaStream_t stream) {
+  if (limitX <= 0 || limitY <= 0) return NPP_NO_ERROR;
+  dim3 block(kBlockX, kBlockY);
+  dim3 grid((limitX + kBlockX - 1) / kBlockX, (limitY + kBlockY - 1) / kBlockY);
+  zeroFillKernel<Dst, CH><<<grid, block, 0, stream>>>(pDst, nDstStep, limitX, limitY);
+  return finish_launch();
+}
+
 __host__ __device__ __forceinline__ int clampi(int v, int lo, int hi) {
   return v < lo ? lo : (v > hi ? hi : v);
 }
@@ -28,6 +52,11 @@ __host__ __device__ __forceinline__ int clampi(int v, int lo, int hi) {
 template <typename T>
 __host__ __device__ __forceinline__ float to_float(const T &s) {
   return static_cast<float>(s);
+}
+
+// 16f samples are converted through float (NPP accepts 16f filters on sm_120).
+__host__ __device__ __forceinline__ float to_float(const Npp16f &s) {
+  return __half2float(__ushort_as_half(static_cast<unsigned short>(s.fp16)));
 }
 
 // Truncate a float accumulation toward zero and saturate into the destination
@@ -63,6 +92,13 @@ __host__ __device__ __forceinline__ Dst emit_dst(float acc) {
   } else {
     return emit_int<Dst>(acc);
   }
+}
+
+template <>
+__host__ __device__ __forceinline__ Npp16f emit_dst<Npp16f>(float acc) {
+  Npp16f out;
+  out.fp16 = static_cast<short>(__half_as_ushort(__float2half(acc)));
+  return out;
 }
 
 // Saturate an already-integral (post-division) result into the destination.
@@ -305,6 +341,10 @@ NppStatus filter32f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (kw <= 0 || kh <= 0) {
+    return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
+  }
+  if (nDstStep < 0) return NPP_NO_ERROR;  // NPP accepts negative steps (launch stays in bounds)
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -333,6 +373,10 @@ NppStatus filterBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Nppi
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (oKernelSize.width <= 0 || oKernelSize.height <= 0) {
+    return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
+  }
+  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -355,11 +399,11 @@ NppStatus filterBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Nppi
   if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
-  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   if (oSrcOffset.x < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y < 0 ||
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
+  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
@@ -385,6 +429,10 @@ NppStatus filterRow32f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
   const int rowBytes = oROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
   if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
+  if (nMaskSize == 0) {
+    return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
+  }
+  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_row_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -401,6 +449,10 @@ NppStatus filterColumn32f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
   const int rowBytes = oROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
   if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
+  if (nMaskSize == 0) {
+    return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
+  }
+  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_col_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -424,9 +476,14 @@ NppStatus filterRowBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
+  if (nMaskSize < 0) return NPP_NO_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nMaskSize == 0) {
+    return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height, stream);
+  }
+  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -449,9 +506,14 @@ NppStatus filterColumnBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
+  if (nMaskSize < 0) return NPP_NO_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nMaskSize == 0) {
+    return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width, oSizeROI.height - 1, stream);
+  }
+  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -603,6 +665,15 @@ template NppStatus filterColumnBorder32f<Npp16s, Npp16s, 1, false>(const Npp16s 
 template NppStatus filterColumnBorder32f<Npp16s, Npp16s, 3, false>(const Npp16s *, int, NppiSize, NppiPoint, Npp16s *, int, NppiSize, const Npp32f *, int, int, NppiBorderType, cudaStream_t);
 template NppStatus filterColumnBorder32f<Npp16s, Npp16s, 4, false>(const Npp16s *, int, NppiSize, NppiPoint, Npp16s *, int, NppiSize, const Npp32f *, int, int, NppiBorderType, cudaStream_t);
 template NppStatus filterColumnBorder32f<Npp16s, Npp16s, 4, true>(const Npp16s *, int, NppiSize, NppiPoint, Npp16s *, int, NppiSize, const Npp32f *, int, int, NppiBorderType, cudaStream_t);
+
+
+// 16f variants (NPP accepts these on sm_120; work in float internally)
+template NppStatus filter32f<Npp16f, Npp16f, 1, false>(const Npp16f *, int, Npp16f *, int, NppiSize, const Npp32f *, NppiSize, NppiPoint, cudaStream_t);
+template NppStatus filter32f<Npp16f, Npp16f, 3, false>(const Npp16f *, int, Npp16f *, int, NppiSize, const Npp32f *, NppiSize, NppiPoint, cudaStream_t);
+template NppStatus filter32f<Npp16f, Npp16f, 4, false>(const Npp16f *, int, Npp16f *, int, NppiSize, const Npp32f *, NppiSize, NppiPoint, cudaStream_t);
+template NppStatus filterBorder32f<Npp16f, Npp16f, 1, false>(const Npp16f *, int, NppiSize, NppiPoint, Npp16f *, int, NppiSize, const Npp32f *, NppiSize, NppiPoint, NppiBorderType, cudaStream_t);
+template NppStatus filterBorder32f<Npp16f, Npp16f, 3, false>(const Npp16f *, int, NppiSize, NppiPoint, Npp16f *, int, NppiSize, const Npp32f *, NppiSize, NppiPoint, NppiBorderType, cudaStream_t);
+template NppStatus filterBorder32f<Npp16f, Npp16f, 4, false>(const Npp16f *, int, NppiSize, NppiPoint, Npp16f *, int, NppiSize, const Npp32f *, NppiSize, NppiPoint, NppiBorderType, cudaStream_t);
 
 }  // namespace filter
 }  // namespace nppi

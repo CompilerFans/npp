@@ -28,8 +28,7 @@
 //       - dst step below the ROI row size (unsigned compare, checked only when
 //         the ROI height is > 0) -> NPP_STEP_ERROR.  The src step is not checked.
 //   * empty ROIs (width or height 0) succeed without touching the destination.
-//   * 16f variants are refused with NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY
-//     (matches NVIDIA NPP 13.4 on sm_120; checked before anything else).
+//   * 16f variants convert through float (NPP 13.4 accepts them on sm_120).
 #ifndef NPPI_FILTER_EXECUTOR_H
 #define NPPI_FILTER_EXECUTOR_H
 
@@ -82,18 +81,8 @@ NppStatus filterColumnBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
                                 int nMaskSize, int nAnchor, NppiBorderType eBorderType,
                                 cudaStream_t stream);
 
-// 16f variants: NVIDIA NPP 13.4 refuses them on sm_120 hardware with
-// NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY; the refusal happens before any
-// argument validation.  Both helpers ignore their arguments on purpose.
-inline NppStatus filter32f16f(const Npp16f *, int, Npp16f *, int, NppiSize, const Npp32f *, NppiSize,
-                              NppiPoint, cudaStream_t) {
-  return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-}
-inline NppStatus filterBorder32f16f(const Npp16f *, int, NppiSize, NppiPoint, Npp16f *, int, NppiSize,
-                                    const Npp32f *, NppiSize, NppiPoint, NppiBorderType,
-                                    cudaStream_t) {
-  return NPP_NOT_SUFFICIENT_COMPUTE_CAPABILITY;
-}
+// 16f variants use the generic templates: samples are converted through float
+// (NPP 13.4 accepts them on the RTX 5090; the 5090 goldens are NO_ERROR).
 
 }  // namespace filter
 }  // namespace nppi

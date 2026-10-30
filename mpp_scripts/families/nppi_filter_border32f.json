@@ -7,10 +7,6 @@
   ],
   "call_variants": [
     {
-      "contains": "Npp16f",
-      "call": "nppi::filter::filterBorder32f16f(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream)"
-    },
-    {
       "contains": "const Npp8u * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s * pDst",
       "call": "nppi::filter::filterBorder32f<{dtype}, {dst_dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream)"
     },

@@ -6,15 +6,15 @@
 #include "nppi_filter_executor.h"
 
 NppStatus nppiFilterBorder32f_16f_C1R_Ctx(const Npp16f * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pKernel, NppiSize oKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
-  return nppi::filter::filterBorder32f16f(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream);
+  return nppi::filter::filterBorder32f<Npp16f, Npp16f, 1, 0>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream);
 }
 
 NppStatus nppiFilterBorder32f_16f_C3R_Ctx(const Npp16f * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pKernel, NppiSize oKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
-  return nppi::filter::filterBorder32f16f(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream);
+  return nppi::filter::filterBorder32f<Npp16f, Npp16f, 3, 0>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream);
 }
 
 NppStatus nppiFilterBorder32f_16f_C4R_Ctx(const Npp16f * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16f * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pKernel, NppiSize oKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
-  return nppi::filter::filterBorder32f16f(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream);
+  return nppi::filter::filterBorder32f<Npp16f, Npp16f, 4, 0>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, eBorderType, nppStreamCtx.hStream);
 }
 
 NppStatus nppiFilterBorder32f_16s_AC4R_Ctx(const Npp16s * pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f * pKernel, NppiSize oKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
