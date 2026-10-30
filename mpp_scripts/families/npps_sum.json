@@ -2,16 +2,19 @@
   "family": "nppsSum",
   "module": "npps_statistics_functions.h",
   "source": "src/npps/npps_statistics_functions/npps_sum_generated.cpp",
-  "includes": ["npps_sum_executor.h"],
+  "includes": ["npps_statistics_executor.h"],
   "families": ["nppsSum", "nppsSumGetBufferSize"],
   "call_by_family": {
-    "nppsSumGetBufferSize": "nppi::statistics::nppsSumGetBufferSize<{dtype}>(nLength, hpBufferSize)"
+    "nppsSumGetBufferSize": "npps::statistics::sum_buffer_size<{dtype}>(nLength, hpBufferSize)"
   },
   "call_variants": [
-    {
-      "contains": "nScaleFactor",
-      "call": "nppi::statistics::nppsSumSfs<{dtype}>(pSrc, nLength, pSum, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
-    }
-  ],
-  "call": "nppi::statistics::nppsSum<{dtype}>(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream)"
+    {"contains": "Npp16s * pSum", "call": "npps::statistics::sum<{dtype}, Npp16s>(pSrc, nLength, pSum, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32s * pSum", "call": "npps::statistics::sum<{dtype}, Npp32s>(pSrc, nLength, pSum, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp16sc * pSum", "call": "npps::statistics::sum<{dtype}, Npp16sc>(pSrc, nLength, pSum, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32sc * pSum", "call": "npps::statistics::sum<{dtype}, Npp32sc>(pSrc, nLength, pSum, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32f * pSum", "call": "npps::statistics::sum<{dtype}, Npp32f>(pSrc, nLength, pSum, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64f * pSum", "call": "npps::statistics::sum<{dtype}, Npp64f>(pSrc, nLength, pSum, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32fc * pSum", "call": "npps::statistics::sum<{dtype}, Npp32fc>(pSrc, nLength, pSum, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64fc * pSum", "call": "npps::statistics::sum<{dtype}, Npp64fc>(pSrc, nLength, pSum, 0, pDeviceBuffer, nppStreamCtx.hStream)"}
+  ]
 }

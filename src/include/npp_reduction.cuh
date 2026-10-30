@@ -386,8 +386,8 @@ __device__ __forceinline__ void walkVecFlat2(const D *pSrc1, int nSrc1Step, cons
 // vecPath selects the 16-byte pack walk (host-checked rows16Aligned) over the
 // original scalar grid-stride loop; both visit the same elements.
 template <typename D, int Channels, bool AlphaPreserve, typename Acc>
-__global__ void reducePartialKernel(const D *pSrc, int nSrcStep, int width, int height, Acc *pPartial, int nch,
-                                    int vecPath) {
+static __global__ void reducePartialKernel(const D *pSrc, int nSrcStep, int width, int height, Acc *pPartial, int nch,
+                                           int vecPath) {
   Acc local[4] = {0, 0, 0, 0};
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -453,7 +453,7 @@ __global__ void reducePartialKernel(const D *pSrc, int nSrcStep, int width, int 
 
 // Re-add the partial buckets (column `c` has its entries strided by gridDim.x).
 template <typename Acc, bool Divide>
-__global__ void finalizeOutKernel(const Acc *pPartial, int nblocks, int nch, double total, Acc *pOut) {
+static __global__ void finalizeOutKernel(const Acc *pPartial, int nblocks, int nch, double total, Acc *pOut) {
   __shared__ Acc shared[kBlock];
   for (int c = 0; c < nch; ++c) {
     Acc acc = 0;
@@ -478,7 +478,7 @@ __global__ void finalizeOutKernel(const Acc *pPartial, int nblocks, int nch, dou
 // ---------------------------------------------------------------------------
 
 template <typename D, int Channels>
-__global__ void maskedSumKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, int width, int height,
+static __global__ void maskedSumKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, int width, int height,
                                 int nCOI, double *pSum, double *pCount) {
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -501,7 +501,7 @@ __global__ void maskedSumKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask,
   }
 }
 
-__global__ void finalizeMaskedKernel(const double *pSum, const double *pCount, int nblocks, double *pOut) {
+static __global__ void finalizeMaskedKernel(const double *pSum, const double *pCount, int nblocks, double *pOut) {
   __shared__ double sums[kBlock];
   __shared__ double cnts[kBlock];
   double lsum = 0.0, lcnt = 0.0;
@@ -534,7 +534,7 @@ __global__ void finalizeMaskedKernel(const double *pSum, const double *pCount, i
 // constant indices; runMeanStdDev launches Chan=0, runMeanStdDevCoi
 // dispatches Chan = nCOI-1 in {0,1,2}.  vecPath selects the 16-byte walk.
 template <typename D, int Channels, int Chan>
-__global__ void msSumKernel(const D *pSrc, int nSrcStep, int width, int height, double *pSum, double *pSumSq,
+static __global__ void msSumKernel(const D *pSrc, int nSrcStep, int width, int height, double *pSum, double *pSumSq,
                             int vecPath) {
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -565,7 +565,7 @@ __global__ void msSumKernel(const D *pSrc, int nSrcStep, int width, int height, 
 }
 
 template <typename D, int Channels>
-__global__ void msMaskedSumKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, int width,
+static __global__ void msMaskedSumKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, int width,
                                   int height, int nCOI, double *pSum, double *pSumSq, double *pCount) {
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -599,7 +599,7 @@ __device__ __forceinline__ double stdFromSumSq(double totalSum, double totalSq, 
   return sqrt(fmax(var, 0.0));
 }
 
-__global__ void finalizeMSKernel(const double *pSum, const double *pSumSq, int nblocks, double totalPixels,
+static __global__ void finalizeMSKernel(const double *pSum, const double *pSumSq, int nblocks, double totalPixels,
                                  double *pMean, double *pStdDev) {
   __shared__ double sums[kBlock];
   __shared__ double sqs[kBlock];
@@ -625,7 +625,7 @@ __global__ void finalizeMSKernel(const double *pSum, const double *pSumSq, int n
   }
 }
 
-__global__ void finalizeMSMaskedKernel(const double *pSum, const double *pSumSq, const double *pCount, int nblocks,
+static __global__ void finalizeMSMaskedKernel(const double *pSum, const double *pSumSq, const double *pCount, int nblocks,
                                        double *pMean, double *pStdDev) {
   __shared__ double sums[kBlock];
   __shared__ double sqs[kBlock];
@@ -698,7 +698,7 @@ template <bool IsInf> __device__ double normBlockReduce(double val) {
 // Multi-channel plain norm (Diff=false) or norm-diff (Diff=true).  vecPath
 // selects the 16-byte walk (requires both sources aligned for Diff).
 template <NormKind NT, typename D, int Channels, bool AlphaPreserve, bool Diff>
-__global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *pSrc2, int nSrc2Step, int width, int height,
+static __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *pSrc2, int nSrc2Step, int width, int height,
                                   double *pPartial, int nch, int vecPath) {
   constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
   constexpr bool IsInf = (NT == NormKind::Inf);
@@ -807,7 +807,7 @@ __global__ void normPartialKernel(const D *pSrc, int nSrcStep, const D *pSrc2, i
 
 // Finalize per-channel block partials into the output norm (L2 applies sqrt).
 template <NormKind NT>
-__global__ void normFinalizeKernel(const double *pPartial, int nblocks, int nch, Npp64f *pOut) {
+static __global__ void normFinalizeKernel(const double *pPartial, int nblocks, int nch, Npp64f *pOut) {
   __shared__ double shared[kBlock];
   constexpr bool IsInf = (NT == NormKind::Inf);
   for (int c = 0; c < nch; ++c) {
@@ -836,7 +836,7 @@ __global__ void normFinalizeKernel(const double *pPartial, int nblocks, int nch,
 
 // Masked norm / norm-diff over a single channel (nCOI is the 0-based channel).
 template <NormKind NT, typename D, int Channels, bool Diff>
-__global__ void normMaskedKernel(const D *pSrc, int nSrcStep, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+static __global__ void normMaskedKernel(const D *pSrc, int nSrcStep, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
                                   int nMaskStep, int width, int height, int nCOI, double *pPartial) {
   constexpr bool IsInf = (NT == NormKind::Inf);
   double local = 0.0;
@@ -860,7 +860,7 @@ __global__ void normMaskedKernel(const D *pSrc, int nSrcStep, const D *pSrc2, in
 }
 
 template <NormKind NT>
-__global__ void normMaskedFinalizeKernel(const double *pPartial, int nblocks, double *pOut) {
+static __global__ void normMaskedFinalizeKernel(const double *pPartial, int nblocks, double *pOut) {
   __shared__ double shared[kBlock];
   constexpr bool IsInf = (NT == NormKind::Inf);
   double acc = 0.0;
@@ -894,7 +894,7 @@ __global__ void normMaskedFinalizeKernel(const double *pPartial, int nblocks, do
 // denominator = src2 norm) of nch columns each, block-strided by gridDim.x.
 // vecPath selects the 16-byte two-source walk (both sources aligned).
 template <NormKind NT, typename D, int Channels, bool AlphaPreserve>
-__global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
+static __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
                                      double *pDiff, double *pNorm, int nch, int vecPath) {
   constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
   constexpr bool IsInf = (NT == NormKind::Inf);
@@ -997,7 +997,7 @@ __global__ void normRelPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSr
 // the dtype maximum when only the denominator is zero; finite ratios are never
 // clamped (verified by the normrel zero-denominator / big-ratio goldens).
 template <NormKind NT>
-__global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, int nch,
+static __global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks, int nch,
                                       double zeroDenomValue, Npp64f *pOut) {
   __shared__ double ds[kBlock];
   __shared__ double ns[kBlock];
@@ -1045,7 +1045,7 @@ __global__ void normRelFinalizeKernel(const double *pDiff, const double *pNorm, 
 
 // Masked NormRel over a single channel (nCOI is the 0-based channel index).
 template <NormKind NT, typename D, int Channels>
-__global__ void normRelMaskedKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
+static __global__ void normRelMaskedKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, const Npp8u *pMask,
                                       int nMaskStep, int width, int height, int nCOI, double *pDiff, double *pNorm) {
   constexpr bool IsInf = (NT == NormKind::Inf);
   double dlocal = 0.0, nlocal = 0.0;
@@ -1073,7 +1073,7 @@ __global__ void normRelMaskedKernel(const D *pSrc1, int nSrc1Step, const D *pSrc
 
 // See normRelFinalizeKernel for the zero-denominator convention.
 template <NormKind NT>
-__global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks,
+static __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *pNorm, int nblocks,
                                             double zeroDenomValue, double *pOut) {
   __shared__ double ds[kBlock];
   __shared__ double ns[kBlock];
@@ -1122,7 +1122,7 @@ __global__ void normRelMaskedFinalizeKernel(const double *pDiff, const double *p
 
 // vecPath selects the 16-byte two-source walk (both sources aligned).
 template <typename D, int Channels, bool AlphaPreserve>
-__global__ void dotProdPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
+static __global__ void dotProdPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
                                        double *pPartial, int nch, int vecPath) {
   constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
   double local[4] = {0.0, 0.0, 0.0, 0.0};
@@ -1190,7 +1190,7 @@ __global__ void dotProdPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSr
   }
 }
 
-__global__ void dotProdFinalizeKernel(const double *pPartial, int nblocks, int nch, Npp64f *pOut) {
+static __global__ void dotProdFinalizeKernel(const double *pPartial, int nblocks, int nch, Npp64f *pOut) {
   __shared__ double shared[kBlock];
   for (int c = 0; c < nch; ++c) {
     double acc = 0.0;

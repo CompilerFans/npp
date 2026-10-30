@@ -1,6 +1,6 @@
 # NPP API 全量实现进度账本
 
-> 最后更新：2026-10-29
+> 最后更新：2026-10-30
 > 集成分支：`feat/npp-api-expansion`（基于 `dev` @ `3a81f00`）
 > 公共契约：`API/`（API-unified）
 > 参考实现：NVIDIA NPP 13.4 / RTX 5090 / CUDA 13.4
@@ -47,6 +47,8 @@
 | P2.2a | NPPI SwapChannels / CopySubpix | 110 | ✅ 已合并 | `pkg/p2.2a` → `5db538e` |
 | P2.2b | NPPI Scale / 边界复制 | 182 | ✅ 已合并 | `pkg/p2.2b` → `66bf923` |
 | P2.3 | NPPI 阈值 / 比较 | 366 | ✅ 已合并 | `pkg/p2.3` → `f61153d` |
+| P2.4 | NPPS 统计（Error/DotProd/Mean/StdDev/MinMax/Norm/Sum/Every/Count/ZC） | 766 | ✅ 已合并 | `pkg/p2.4` + `pkg/p2.4b` → `817f293` |
+| P2.4b | NPPS 统计差分测试（239 例，无新 API） | 0 | ✅ 已合并 | `pkg/p2.4b` → `817f293` + `c419d00` + `c61ca5f` |
 | P3.1a1 | NPPI Sum/Mean/MeanStdDev + buffer sizes | 212 | ✅ 已合并 | `pkg/p3.1a1` → merge |
 | P3.1b1 | NPPI Norm/NormDiff（L1/L2/Inf）+ buffer sizes | 580 | ✅ 已合并 | `pkg/p3.1b1` → `ff1085e` |
 | P3.1b2 | NPPI NormRel/DotProd + NormLevel buffer helpers | 544 | ✅ 已合并 | `pkg/p3.1b2` → `a38f9c4` |
@@ -58,7 +60,9 @@
 | P1.5 | NPPI 阈值 | 366 | 规划中 | — |
 | P1.6 | NPPI 形态学 | 268 | 规划中 | — |
 | P1.7 | NPPI 几何缺口 | 317 | 规划中 | — |
-| P1.8 | NPPI 统计 CrossCorr/长尾 | 待拆 | 规划中 | — |
+| P1.8 | NPPI CrossCorr/SqrDistance Full/Same/Valid + Norm/NormLevel/Advanced | 466 | ✅ 已合并 | `pkg/p1.8` + `pkg/p1.8b` + `pkg/p1.8c` → `e016ecd` |
+| P1.8b | CrossCorr 数值算术修复（rss/f32/NormLevel 整数形式） | 0 | ✅ 已合并 | `pkg/p1.8b` → `e016ecd` |
+| P1.8c | CrossCorr status/契约/scratch 对齐 | 0 | ✅ 已合并 | `pkg/p1.8c` → `e016ecd` |
 | P1.9 | NPPI 滤波 | 1,802 | 规划中 | — |
 | P1.10 | NPPI 颜色（待 238733 合入后） | 646 | 阻塞 | — |
 
@@ -72,6 +76,8 @@
 
 ## 5. 决策记录
 
+- **P1.8c 结果**：p1.8 的 466 个 CrossCorr/SqrDistance 函数全部 real（`api_analysis/packages/p1.8.csv` 466/466），p1.8b 修复数值算术，p1.8c 把剩余 11 个 status/contract/scratch 用例清零（`NppiCrossCorrDiff.*` 15/15）。catalog real 8,700→9,166、missing 3,671→3,205、remaining 3,837→3,371。验证：合并后 unit 4,803、diff 1,902 全绿。关键语义（5090 直接探针）：src step 在 pTpl/pDst 判空之前校验；even-step 模数为 `sizeof(element) * 2^v2(Channels)`（8u C3 接受奇数 step；C4/AC4 要求 4×元素大小，32f C4 dst 为 16）；Valid 模式下负的 dst 维度 → SIZE_ERROR、零 → 空 no-op；NormLevel 的 pDeviceBuffer 判空先于 Full/Same 的 tpl>src 几何错误；GetAdvancedScratchBufferSize 的 null 指针最先返回 NULL，Full 要求 dst 扩展为正（负 tpl 不直接报错），Same/Valid 拒绝零/负 src 且完全忽略 tpl；NormLevel GetBufferHostSize = `8 * channels * (height + 5)`（与宽度/元素类型无关），生成器改用 `{chan}` 占位符按布局后缀传通道数。
+- **P2.4b 结果**：p2.4 的 766 个 NPPS 统计函数全部 real（`api_analysis/packages/p2.4.csv` 766/766），p2.4b 共补 239 个 `NppsStatisticsDiff` 差分 case（5090 NPP 13.4 录制，0 failed / 0 crash），覆盖 DotProd、四类误差、Sum/Mean/StdDev/MeanStdDev、Min/Max/Indx/Abs/MinMax（含 tie/NaN 探针）、Norm/NormDiff（Inf/L1/L2/L2Sqr，plain+Sfs，含复数）、MinEvery/MaxEvery、CountInRange、ZeroCrossing（ZCR/ZCXor/ZCC）。catalog real 7,942→8,700、missing 4,429→3,671、remaining 4,595→3,837。验证：合并后 unit 4,803、diff 1,887 全绿。关键修复/语义（5090 直接探针，非 golden）：p2.4 executor 原先编译不过（header 内 `__global__` 需 `static`、`ExtSlot` 命名空间、unsigned complex traits、Norm_Inf 误用双输入 max 核）；Maximum/AverageRelativeError 实际是 `|a-b| / max(a,b)` 的**有符号** max（文档的 `max(|a|,|b|)` 对实型是错的），分母 ≤0 记 0，Average\* = max/n；Sfs StdDev/MeanStdDev 先把 `sqrt(var)` 截断为整数再按 `2^sf` 做 round-half-even（探针：sqrt 9.899→9；574/4 = 143.5→144）；CountInRange 是**严格开区间** `lo < x < hi`，`lo > hi` 记 0（原实现用无序乘积判断，反转区间会误计）；Norm/NormDiff/Every/ZC 的现有实现在 63 个新 golden 上直接通过。
 - **P1.3d 结果**：MaximumError/MaximumRelativeError + GBHS 共 352 个函数全部 real，package remaining=0；catalog real 7,580→7,932、missing 4,791→4,439。验证：5090 record 148 个 golden，本地 `NppiMaximumErrorDiff.*` 13/13 通过，全量 unit 4,803、全量 diff 1,638 通过。关键语义（5090 实测）：**输出对所有布局 C1–C4 都是单个 `Npp64f` 标量**（NPP 文档“C3/C4 每通道数组”的说法是错的）；零分母样本贡献 0（全零图 → 0.0）；无反号 2.0 截断（16s 极值为 1.999969482421875）；全零 MaximumError 写出 −0.0；空 ROI → NO_ERROR 且不写；校验顺序 null src → 负 ROI → 零 ROI → 每源 step（u32、NOT_EVEN 规则 `sizeof(D)·2^v2(Ch)`）→ null out → null scratch；C4 × 8 字节 dtype 需 step 为 32 的倍数。遗留：p1.3c 的 C4 64f/32fc/32sc 17×13 golden 存在 NOT_EVEN 盲区，后续补记。
 - **P0.1 结果**：纯重构包（p0.1.csv 为空，无新 API），产出两个公共头。`src/include/npp_kernel_utils.h`（namespace `npp_kernel`，宿主安全，被生成的 .cpp 包含）：`BlockConfig` 改为 `template <int BlockX=16, int BlockY=16>`；`getThreadCoords`（引用 blockIdx 等 builtin，以 `__CUDACC__` 保护，宿主编译器实测不接受裸 blockIdx 函数体）；`getSrcRow`/`getDstRow`、`checkCudaKernelError`、`validateShiftConstants`/`validateBinaryParameters`/`validateUnaryParameters`（自 nppi_arithmetic_executor.h 原样搬移）；新增变参 `validateMaskedParameters`（全指针非空 + ROI 严格为正，无 step 检查），7 个 masked 风格 executor（MaskedBinary/MaskedUnary/MixedUnary/Weighted/MaskedWeighted/AlphaPremul/AlphaPremulAC4）迁移到该模板。`src/include/npp_reduction.cuh`（namespace `npp_reduce`，仅设备端，.cuh 惯例允许未保护的 `__global__`）：两级归约 25 个定义（kBlock/blockReduce/numBlocks + Sum/Mean/MeanStdDev/masked 的 partial+finalize + Norm/NormRel/DotProd 内核）自 nppi_statistics_executor.cu 匿名命名空间原样搬移；Norm 内核模板参数改为中性 `npp_reduce::NormKind{L1,L2,Inf}`（共享头不依赖家族头），statistics .cu 以 constexpr `normKind(NormType)` 在 18 个 launch 点内联转换，宿主面 `nppi_statistics_executor.h` 零改动、NormType 原位保留。npps 侧删除 6 份完全等价的 `finish_launch`（NPP_SUCCESS==NPP_NO_ERROR==0），32 个调用点改用 using 声明再导出的 `checkCudaKernelError`。验证：全量 unit 4,803/4,803、全量 diff 1,625 通过（2 个既有 skip，与基线逐条一致）、构建告警数与基线一致（68 条既有 CMake policy 提示，零编译告警）。未收敛点：`nppi_convert_executor.cu` 的 `finish_launch`（nppi 模块，超出本包命名范围）；npps 各 .cu 本地 `kBlock=256`（1D 启动几何，无共享等价物，npp_reduce::kBlock 属归约头）；Compare/Ternary/MixedTernary/Quaternary 的逐类型 step 校验与 MultiConst16f 校验（非重复实现）；statistics 的 extreme/indx/avgErr/zeroDevice 内核留在 .cu（非重复）；其余 nppi 家族的硬编码 `dim3 blockSize(16,16)` 亦不在本包范围。
 - **P1.3c 结果**：AverageError/AverageRelativeError + GetBufferHostSize 共 352 个函数全部 real，package remaining=0；catalog real 7,232→7,580、missing 5,849→4,791。验证：5090 record 10 个测试/157 golden 通过，本地 `NPP_VERIFY_DIR` 12/12 通过，全量 unit 4,803 通过，全量 diff 通过。关键语义（5090 实测）：AverageError = Σ|a−b|/(W·H·Channels)，复数按模；AverageRelativeError 逐像素 |a−b|/max(|a|,|b|)，分母为 0 的像素项记 0 但**仍计入归一化**（全零图 → 0.0）；step 按 **u32** 比较，`(u32)step < w·ch·sizeof(D)` → STEP_ERROR，`(u32)step % (sizeof(D)·2^v2(Channels)) ≠ 0` → NOT_EVEN_STEP_ERROR（step=−1 可通过）；校验顺序 null src → 负 ROI → 零 ROI（no-op）→ src1 step → src2 step → null dst → null scratch（**scratch 为空返回 NULL_POINTER_ERROR**，与 Sum/Mean/DotProd 的 no-op 不同）；GBHS 零 ROI 返回 NO_ERROR 且不写。AC4 在 p1.3c.csv 中为 0。
