@@ -135,7 +135,8 @@ void fb32_data(const char *fname, const std::string &key, int W, int H, int ch, 
                   })
 
 #define FB32_RUNX(S, D, TAG, CH, W, H, SW, SH, OX, OY, KS, AX, AY, SEED, HK)               \
-  fb32_data<S, D>("nppiFilterBorder32f_" #TAG, #TAG "/" #W "x" #H "/src" #SW "x" #SH "/off" #OX "," #OY "/a" #AX "," #AY, \
+  fb32_data<S, D>("nppiFilterBorder32f_" #TAG, \
+                  #TAG "/" #W "x" #H "/src" #SW "x" #SH "/off" #OX "," #OY "/a" #AX "," #AY "/s" #SEED, \
                   W, H, CH, SW, SH, OX, OY, NppiSize{KS, KS}, NppiPoint{AX, AY}, SEED,     \
                   dst_kind<D>(), HK,                                                       \
                   [](const S *s, int ss, NppiSize sz, NppiPoint so, D *d, int ds,          \
@@ -200,7 +201,8 @@ const int kDivs[5] = {1, 2, 3, -2, 7};
                  })
 
 #define FBD_RUNX(S, D, TAG, CH, W, H, SW, SH, OX, OY, KS, AX, AY, DV, SEED, HK)            \
-  fbd_data<S, D>("nppiFilterBorder_" #TAG, #TAG "/" #W "x" #H "/src" #SW "x" #SH "/off" #OX "," #OY "/a" #AX "," #AY "/d" #DV, \
+  fbd_data<S, D>("nppiFilterBorder_" #TAG, \
+                 #TAG "/" #W "x" #H "/src" #SW "x" #SH "/off" #OX "," #OY "/a" #AX "," #AY "/d" #DV "/s" #SEED, \
                  W, H, CH, SW, SH, OX, OY, NppiSize{KS, KS}, NppiPoint{AX, AY}, DV, SEED,  \
                  dst_kind<D>(), HK,                                                        \
                  [](const S *s, int ss, NppiSize sz, NppiPoint so, D *d, int ds,           \

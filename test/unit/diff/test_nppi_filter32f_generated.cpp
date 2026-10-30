@@ -124,7 +124,8 @@ ValueKind dst_kind() {
                 })
 
 #define F32_RUN_SEED(S, D, TAG, CH, W, H, KS, AX, AY, SEED, HK)                            \
-  f2_data<S, D>("nppiFilter32f_" #TAG, #TAG "/" #W "x" #H "/k" #KS "/a" #AX "," #AY, W, H, \
+  f2_data<S, D>("nppiFilter32f_" #TAG, \
+                #TAG "/" #W "x" #H "/k" #KS "/a" #AX "," #AY "/s" #SEED, W, H, \
                 CH, NppiSize{KS, KS}, NppiPoint{AX, AY}, SEED, dst_kind<D>(), HK,          \
                 [](const S *s, int ss, D *d, int ds, NppiSize o, const Npp32f *k,          \
                    NppiSize kz, NppiPoint a, NppStreamContext c) {                          \
