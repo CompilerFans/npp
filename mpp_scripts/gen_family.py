@@ -148,14 +148,15 @@ def choose_call(spec: dict, func: Func) -> str:
     return spec["call"]
 
 
-NPPI_LAYOUT_RE = re.compile(r"_AC4R")
+NPPI_LAYOUT_RE = re.compile(r"_AC4")
+NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?:_Ctx)?$")
 
 
 def nppi_channel_count(name: str) -> int:
-    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4)."""
+    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4, R or IR)."""
     if NPPI_LAYOUT_RE.search(name):
         return 4
-    m = re.search(r"_C([1234])R", name)
+    m = NPPI_CHANNEL_RE.search(name)
     return int(m.group(1)) if m else 1
 
 
@@ -317,11 +318,16 @@ def remove_function(text: str, name: str) -> Tuple[str, bool]:
     if end < 0:
         return text, False
     start = text.rfind("\n", 0, match.start()) + 1
-    # Remove the doc comment immediately above the definition, if any.
-    prefix = text[:start]
-    comment = re.search(r"(/\*\*.*?\*/\s*)$", prefix, re.S)
-    if comment:
-        start = comment.start(1)
+    # Remove the doc comment immediately above the definition, if any.  Only
+    # whitespace may sit between the comment and the definition; scanning
+    # backwards from the definition keeps the span local (an anchored
+    # "/\\*\\*.*?\\*/$" regex would happily start at the first comment in the
+    # file and swallow everything in between).
+    above = text[:start].rstrip()
+    if above.endswith("*/"):
+        cstart = above.rfind("/**")
+        if cstart >= 0:
+            start = cstart
     end = text.find("\n", end)
     if end < 0:
         end = len(text)
