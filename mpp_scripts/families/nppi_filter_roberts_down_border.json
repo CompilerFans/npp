@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterRobertsDownBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_roberts_down_border_generated.cpp",
+  "includes": [
+    "nppi_filter_derivatives_executor.h"
+  ],
+  "call": "nppi::filter::filterDerivBorder<{dtype}, {dtype}, {chan}, {is_ac4}, nppi::filter::kRobertsDown>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eBorderType, nppStreamCtx.hStream)"
+}
