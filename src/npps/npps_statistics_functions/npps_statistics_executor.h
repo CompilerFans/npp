@@ -742,9 +742,9 @@ static __global__ void count_partial_kernel(const Npp32s* src, size_t n, Npp32s 
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
   int c = 0;
   if (i < n) {
-    const long long d1 = static_cast<long long>(src[i]) - lo;
-    const long long d2 = static_cast<long long>(src[i]) - hi;
-    c = (d1 * d2 < 0) ? 1 : 0;
+    // NPP counts the strict open interval lo < x < hi (probed on the 5090:
+    // {10,11,19,20,21} with lo=10/hi=20 -> 2), so an inverted range counts 0.
+    c = (src[i] > lo && src[i] < hi) ? 1 : 0;
   }
   sdata[tid] = c;
   __syncthreads();
