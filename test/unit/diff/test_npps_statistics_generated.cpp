@@ -443,6 +443,162 @@ void meanstd_sfs_case(const char *fname, const std::string &id, std::vector<T> s
   c.finish();
 }
 
+// (src, n) -> (min, max)                    [MinMax]
+template <typename T>
+void minmax_case(const char *fname, const std::string &id, std::vector<T> src,
+                 NppStatus (*f)(const T *, NppSignalLength, T *, T *, Npp8u *, NppStreamContext),
+                 CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> mind(1);
+  DeviceMemory<T> maxd(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, mind.get(), maxd.get(), buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(mind.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(maxd.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.finish();
+}
+
+#if NPP_DIFF_HAS_NONCTX
+template <typename T>
+void minmax_case_nc(const char *fname, const std::string &id, std::vector<T> src,
+                    NppStatus (*f)(const T *, NppSignalLength, T *, T *, Npp8u *), PlainSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> mind(1);
+  DeviceMemory<T> maxd(1);
+  SIZE_TYPE bytes = query_size_nc(szfn, n);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, mind.get(), maxd.get(), buf.get());
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(mind.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(maxd.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.finish();
+}
+#endif
+
+// (src, n) -> (min, minIndx, max, maxIndx)  [MinMaxIndx]
+template <typename T>
+void minmax_indx_case(const char *fname, const std::string &id, std::vector<T> src,
+                      NppStatus (*f)(const T *, NppSignalLength, T *, int *, T *, int *, Npp8u *, NppStreamContext),
+                      CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> mind(1);
+  DeviceMemory<int> mindx(1);
+  DeviceMemory<T> maxd(1);
+  DeviceMemory<int> maxdx(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, mind.get(), mindx.get(), maxd.get(), maxdx.get(), buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(mind.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(mindx.get(), 1, ValueKind::I32, 0, 0);
+  c.device_output(maxd.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(maxdx.get(), 1, ValueKind::I32, 0, 0);
+  c.finish();
+}
+
+#if NPP_DIFF_HAS_NONCTX
+template <typename T>
+void minmax_indx_case_nc(const char *fname, const std::string &id, std::vector<T> src,
+                         NppStatus (*f)(const T *, NppSignalLength, T *, int *, T *, int *, Npp8u *),
+                         PlainSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> mind(1);
+  DeviceMemory<int> mindx(1);
+  DeviceMemory<T> maxd(1);
+  DeviceMemory<int> maxdx(1);
+  SIZE_TYPE bytes = query_size_nc(szfn, n);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, mind.get(), mindx.get(), maxd.get(), maxdx.get(), buf.get());
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(mind.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(mindx.get(), 1, ValueKind::I32, 0, 0);
+  c.device_output(maxd.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(maxdx.get(), 1, ValueKind::I32, 0, 0);
+  c.finish();
+}
+#endif
+
+// (src, n) -> (val, indx)                   [Min/MaxIndx, Min/MaxAbsIndx]
+template <typename T>
+void val_indx_case(const char *fname, const std::string &id, std::vector<T> src,
+                   NppStatus (*f)(const T *, NppSignalLength, T *, int *, Npp8u *, NppStreamContext),
+                   CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> vd(1);
+  DeviceMemory<int> idx(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, vd.get(), idx.get(), buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(vd.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(idx.get(), 1, ValueKind::I32, 0, 0);
+  c.finish();
+}
+
+#if NPP_DIFF_HAS_NONCTX
+template <typename T>
+void val_indx_case_nc(const char *fname, const std::string &id, std::vector<T> src,
+                      NppStatus (*f)(const T *, NppSignalLength, T *, int *, Npp8u *), PlainSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> vd(1);
+  DeviceMemory<int> idx(1);
+  SIZE_TYPE bytes = query_size_nc(szfn, n);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, vd.get(), idx.get(), buf.get());
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(vd.get(), out_cnt<T>(), kind_of<T>(), rtol, atol);
+  c.device_output(idx.get(), 1, ValueKind::I32, 0, 0);
+  c.finish();
+}
+#endif
+
 } // namespace
 
 class NppsStatisticsDiff : public ::testing::Test {
@@ -949,5 +1105,136 @@ TEST_F(NppsStatisticsDiff, MeanStdDev_16s32s_Sfs_n257) {
 TEST_F(NppsStatisticsDiff, MeanStdDev_32f_Plain_n257) {
   meanstd_case_nc<Npp32f, Npp32f, Npp32f>("nppsMeanStdDev_32f", "stats/MeanStdDev/32f/n257",
       gen<Npp32f>(257, 0x331), &nppsMeanStdDev_32f, &nppsMeanStdDevGetBufferSize_32f);
+}
+#endif
+
+// ===========================================================================
+// Min / Max / MinIndx / MaxIndx / MinMax / MinMaxIndx / MinAbs / MaxAbs
+// ties resolve to the lowest index
+// ===========================================================================
+
+#define STATS_MINMAX_CASE(KIND, DT)                                                       \
+  TEST_F(NppsStatisticsDiff, KIND##_##DT##_n257) {                                        \
+    one_src_case<Npp##DT, Npp##DT>("npps" #KIND "_" #DT, "stats/" #KIND "/" #DT "/n257",  \
+        gen<Npp##DT>(257, 0x401), &npps##KIND##_##DT##_Ctx,                               \
+        &npps##KIND##GetBufferSize_##DT##_Ctx);                                           \
+  }
+
+#define STATS_VAL_INDX_CASE(KIND, DT)                                                     \
+  TEST_F(NppsStatisticsDiff, KIND##_##DT##_n257) {                                        \
+    val_indx_case<Npp##DT>("npps" #KIND "_" #DT, "stats/" #KIND "/" #DT "/n257",          \
+        gen<Npp##DT>(257, 0x402), &npps##KIND##_##DT##_Ctx,                               \
+        &npps##KIND##GetBufferSize_##DT##_Ctx);                                           \
+  }
+
+#define STATS_MINMAX2_CASE(KIND, DT)                                                      \
+  TEST_F(NppsStatisticsDiff, KIND##_##DT##_n257) {                                        \
+    minmax_case<Npp##DT>("npps" #KIND "_" #DT, "stats/" #KIND "/" #DT "/n257",            \
+        gen<Npp##DT>(257, 0x403), &npps##KIND##_##DT##_Ctx,                               \
+        &npps##KIND##GetBufferSize_##DT##_Ctx);                                           \
+  }
+
+#define STATS_MINMAX2_INDX_CASE(KIND, DT)                                                 \
+  TEST_F(NppsStatisticsDiff, KIND##_##DT##_n257) {                                        \
+    minmax_indx_case<Npp##DT>("npps" #KIND "_" #DT, "stats/" #KIND "/" #DT "/n257",       \
+        gen<Npp##DT>(257, 0x404), &npps##KIND##_##DT##_Ctx,                               \
+        &npps##KIND##GetBufferSize_##DT##_Ctx);                                           \
+  }
+
+STATS_MINMAX_CASE(Min, 16s)
+STATS_MINMAX_CASE(Min, 32f)
+STATS_MINMAX_CASE(Min, 32s)
+STATS_MINMAX_CASE(Min, 64f)
+STATS_MINMAX_CASE(Max, 16s)
+STATS_MINMAX_CASE(Max, 32f)
+STATS_MINMAX_CASE(Max, 32s)
+STATS_MINMAX_CASE(Max, 64f)
+STATS_VAL_INDX_CASE(MinIndx, 16s)
+STATS_VAL_INDX_CASE(MinIndx, 32f)
+STATS_VAL_INDX_CASE(MinIndx, 32s)
+STATS_VAL_INDX_CASE(MinIndx, 64f)
+STATS_VAL_INDX_CASE(MaxIndx, 16s)
+STATS_VAL_INDX_CASE(MaxIndx, 32f)
+STATS_VAL_INDX_CASE(MaxIndx, 32s)
+STATS_VAL_INDX_CASE(MaxIndx, 64f)
+STATS_MINMAX_CASE(MinAbs, 16s)
+STATS_MINMAX_CASE(MinAbs, 32s)
+STATS_MINMAX_CASE(MaxAbs, 16s)
+STATS_MINMAX_CASE(MaxAbs, 32s)
+STATS_VAL_INDX_CASE(MinAbsIndx, 16s)
+STATS_VAL_INDX_CASE(MinAbsIndx, 32s)
+STATS_VAL_INDX_CASE(MaxAbsIndx, 16s)
+STATS_VAL_INDX_CASE(MaxAbsIndx, 32s)
+STATS_MINMAX2_CASE(MinMax, 8u)
+STATS_MINMAX2_CASE(MinMax, 16s)
+STATS_MINMAX2_CASE(MinMax, 16u)
+STATS_MINMAX2_CASE(MinMax, 32f)
+STATS_MINMAX2_CASE(MinMax, 32s)
+STATS_MINMAX2_CASE(MinMax, 32u)
+STATS_MINMAX2_CASE(MinMax, 64f)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 8u)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 16s)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 16u)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 32f)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 32s)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 32u)
+STATS_MINMAX2_INDX_CASE(MinMaxIndx, 64f)
+#undef STATS_MINMAX_CASE
+#undef STATS_VAL_INDX_CASE
+#undef STATS_MINMAX2_CASE
+#undef STATS_MINMAX2_INDX_CASE
+
+// crafted tie: minimum -7 at indices 5 and 200, maximum 9 at 0 and 256
+TEST_F(NppsStatisticsDiff, MinMaxIndx_32f_Tie) {
+  std::vector<Npp32f> v(257, 0.0f);
+  v[0] = 9.0f;
+  v[5] = -7.0f;
+  v[200] = -7.0f;
+  v[256] = 9.0f;
+  minmax_indx_case<Npp32f>("nppsMinMaxIndx_32f", "stats/MinMaxIndx/32f/tie", v,
+      &nppsMinMaxIndx_32f_Ctx, &nppsMinMaxGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MinIndx_32f_Tie) {
+  std::vector<Npp32f> v(257, 1.0f);
+  v[10] = -3.0f;
+  v[150] = -3.0f;
+  val_indx_case<Npp32f>("nppsMinIndx_32f", "stats/MinIndx/32f/tie", v,
+      &nppsMinIndx_32f_Ctx, &nppsMinIndxGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MinIndx_32f_Nan) {
+  std::vector<Npp32f> v = gen<Npp32f>(257, 0x405);
+  v[13] = std::nanf("1");
+  val_indx_case<Npp32f>("nppsMinIndx_32f", "stats/MinIndx/32f/nan", v,
+      &nppsMinIndx_32f_Ctx, &nppsMinIndxGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MaxIndx_32f_Nan) {
+  std::vector<Npp32f> v = gen<Npp32f>(257, 0x406);
+  v[13] = std::nanf("1");
+  val_indx_case<Npp32f>("nppsMaxIndx_32f", "stats/MaxIndx/32f/nan", v,
+      &nppsMaxIndx_32f_Ctx, &nppsMaxIndxGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Min_32f_n1) {
+  one_src_case<Npp32f, Npp32f>("nppsMin_32f", "stats/Min/32f/n1",
+      gen<Npp32f>(1, 0x407), &nppsMin_32f_Ctx, &nppsMinGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MinMax_16s_n1) {
+  minmax_case<Npp16s>("nppsMinMax_16s", "stats/MinMax/16s/n1",
+      gen<Npp16s>(1, 0x408), &nppsMinMax_16s_Ctx, &nppsMinMaxGetBufferSize_16s_Ctx);
+}
+
+#if NPP_DIFF_HAS_NONCTX
+TEST_F(NppsStatisticsDiff, Min_32f_Plain_n257) {
+  one_src_case_nc<Npp32f, Npp32f>("nppsMin_32f", "stats/Min/32f/n257",
+      gen<Npp32f>(257, 0x401), &nppsMin_32f, &nppsMinGetBufferSize_32f);
+}
+
+TEST_F(NppsStatisticsDiff, MinMaxIndx_16s_Plain_n257) {
+  minmax_indx_case_nc<Npp16s>("nppsMinMaxIndx_16s", "stats/MinMaxIndx/16s/n257",
+      gen<Npp16s>(257, 0x404), &nppsMinMaxIndx_16s, &nppsMinMaxIndxGetBufferSize_16s);
 }
 #endif
