@@ -1,0 +1,26 @@
+{
+  "family": "nppiCrossCorrSame_NormLevelAdvanced",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_crosscorr_same_normlevel_advanced_generated.cpp",
+  "includes": [
+    "nppi_crosscorr_executor.h"
+  ],
+  "families": [
+    "nppiCrossCorrSame_NormLevelAdvanced"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp8u * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp8u,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Same,nppi::statistics::CrossCorrOp::NormLevelAdvanced>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, nScaleFactor, pDeviceBuffer, pAdvancedScratchBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp32f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Same,nppi::statistics::CrossCorrOp::NormLevelAdvanced>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, pDeviceBuffer, pAdvancedScratchBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp64f * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp64f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Same,nppi::statistics::CrossCorrOp::NormLevelAdvanced>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, pDeviceBuffer, pAdvancedScratchBuffer, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::runCrossCorr<{dtype},Npp32f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Same,nppi::statistics::CrossCorrOp::NormLevelAdvanced>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, pDeviceBuffer, pAdvancedScratchBuffer, nppStreamCtx.hStream)"
+}

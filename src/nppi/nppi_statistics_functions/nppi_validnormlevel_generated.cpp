@@ -7,122 +7,122 @@
 
 NppStatus nppiValidNormLevelGetBufferHostSize_16u32f_AC4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_16u32f_C1R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 1);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_16u32f_C3R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 3);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_16u32f_C4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_32f_C1R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 1);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_32f_C3R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 3);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_32f_C4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_64f_AC4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_64f_C1R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 1);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_64f_C3R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 3);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_64f_C4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8s32f_AC4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8s32f_C1R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 1);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8s32f_C3R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 3);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8s32f_C4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u32f_AC4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u32f_C1R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 1);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u32f_C3R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 3);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u32f_C4R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u_AC4RSfs_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u_C1RSfs_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 1);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u_C3RSfs_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 3);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_8u_C4RSfs_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
   (void)nppStreamCtx;
-  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize);
+  return nppi::statistics::validNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, 4);
 }
 
 NppStatus nppiValidNormLevelGetBufferHostSize_16u32f_AC4R(NppiSize oSizeROI, int * hpBufferSize) {
