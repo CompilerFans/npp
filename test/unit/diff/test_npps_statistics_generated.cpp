@@ -366,6 +366,83 @@ void two_src_sfs_case_nc(const char *fname, const std::string &id, std::vector<A
 }
 #endif
 
+// (src, n) -> (mean, stddev)                [MeanStdDev]
+template <typename T, typename OM, typename OS>
+void meanstd_case(const char *fname, const std::string &id, std::vector<T> src,
+                  NppStatus (*f)(const T *, NppSignalLength, OM *, OS *, Npp8u *, NppStreamContext),
+                  CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<OM> md(1);
+  DeviceMemory<OS> dd(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, md.get(), dd.get(), buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<OM>(rtol, atol);
+  c.device_output(md.get(), out_cnt<OM>(), kind_of<OM>(), rtol, atol);
+  tol_of<OS>(rtol, atol);
+  c.device_output(dd.get(), out_cnt<OS>(), kind_of<OS>(), rtol, atol);
+  c.finish();
+}
+
+#if NPP_DIFF_HAS_NONCTX
+template <typename T, typename OM, typename OS>
+void meanstd_case_nc(const char *fname, const std::string &id, std::vector<T> src,
+                     NppStatus (*f)(const T *, NppSignalLength, OM *, OS *, Npp8u *), PlainSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<OM> md(1);
+  DeviceMemory<OS> dd(1);
+  SIZE_TYPE bytes = query_size_nc(szfn, n);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, md.get(), dd.get(), buf.get());
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<OM>(rtol, atol);
+  c.device_output(md.get(), out_cnt<OM>(), kind_of<OM>(), rtol, atol);
+  tol_of<OS>(rtol, atol);
+  c.device_output(dd.get(), out_cnt<OS>(), kind_of<OS>(), rtol, atol);
+  c.finish();
+}
+#endif
+
+// (src, n, sf) -> (mean, stddev)             [MeanStdDev Sfs]
+template <typename T, typename OM, typename OS>
+void meanstd_sfs_case(const char *fname, const std::string &id, std::vector<T> src, int sf,
+                      NppStatus (*f)(const T *, NppSignalLength, OM *, OS *, int, Npp8u *, NppStreamContext),
+                      CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<OM> md(1);
+  DeviceMemory<OS> dd(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, md.get(), dd.get(), sf, buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<OM>(rtol, atol);
+  c.device_output(md.get(), out_cnt<OM>(), kind_of<OM>(), rtol, atol);
+  tol_of<OS>(rtol, atol);
+  c.device_output(dd.get(), out_cnt<OS>(), kind_of<OS>(), rtol, atol);
+  c.finish();
+}
+
 } // namespace
 
 class NppsStatisticsDiff : public ::testing::Test {
@@ -689,5 +766,188 @@ TEST_F(NppsStatisticsDiff, AverageError_16s_Plain_n257) {
   two_src_case_nc<Npp16s, Npp16s, Npp64f>("nppsAverageError_16s", "stats/AverageError/16s/n257",
       gen<Npp16s>(257, 0x201), gen<Npp16s>(257, 0x202),
       &nppsAverageError_16s, &nppsAverageErrorGetBufferSize_16s);
+}
+#endif
+
+// ===========================================================================
+// Sum: (src) -> sum
+// ===========================================================================
+
+#define STATS_SUM_CASE(VARIANT, T, O, SF)                                                 \
+  TEST_F(NppsStatisticsDiff, Sum_##VARIANT##_n257) {                                      \
+    one_src_sfs_case<T, O>("nppsSum_" #VARIANT, "stats/Sum/" #VARIANT "/n257",            \
+        gen<T>(257, 0x301), SF, &nppsSum_##VARIANT##_Ctx,                                 \
+        &nppsSumGetBufferSize_##VARIANT##_Ctx);                                           \
+  }
+
+#define STATS_SUM_PLAIN_CASE(VARIANT, T, O)                                               \
+  TEST_F(NppsStatisticsDiff, Sum_##VARIANT##_n257) {                                      \
+    one_src_case<T, O>("nppsSum_" #VARIANT, "stats/Sum/" #VARIANT "/n257",                \
+        gen<T>(257, 0x301), &nppsSum_##VARIANT##_Ctx,                                     \
+        &nppsSumGetBufferSize_##VARIANT##_Ctx);                                           \
+  }
+
+STATS_SUM_PLAIN_CASE(32f, Npp32f, Npp32f)
+STATS_SUM_PLAIN_CASE(32fc, Npp32fc, Npp32fc)
+STATS_SUM_PLAIN_CASE(64f, Npp64f, Npp64f)
+STATS_SUM_PLAIN_CASE(64fc, Npp64fc, Npp64fc)
+STATS_SUM_CASE(16s_Sfs, Npp16s, Npp16s, 4)
+STATS_SUM_CASE(16s32s_Sfs, Npp16s, Npp32s, 2)
+STATS_SUM_CASE(16sc_Sfs, Npp16sc, Npp16sc, 1)
+STATS_SUM_CASE(16sc32sc_Sfs, Npp16sc, Npp32sc, 2)
+STATS_SUM_CASE(32s_Sfs, Npp32s, Npp32s, 3)
+#undef STATS_SUM_CASE
+#undef STATS_SUM_PLAIN_CASE
+
+TEST_F(NppsStatisticsDiff, Sum_32f_n1) {
+  one_src_case<Npp32f, Npp32f>("nppsSum_32f", "stats/Sum/32f/n1",
+      gen<Npp32f>(1, 0x302), &nppsSum_32f_Ctx, &nppsSumGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Sum_32f_n1000) {
+  one_src_case<Npp32f, Npp32f>("nppsSum_32f", "stats/Sum/32f/n1000",
+      gen<Npp32f>(1000, 0x303), &nppsSum_32f_Ctx, &nppsSumGetBufferSize_32f_Ctx);
+}
+
+#if NPP_DIFF_HAS_NONCTX
+TEST_F(NppsStatisticsDiff, Sum_32f_Plain_n257) {
+  one_src_case_nc<Npp32f, Npp32f>("nppsSum_32f", "stats/Sum/32f/n257",
+      gen<Npp32f>(257, 0x301), &nppsSum_32f, &nppsSumGetBufferSize_32f);
+}
+#endif
+
+// ===========================================================================
+// Mean: (src) -> mean
+// ===========================================================================
+
+TEST_F(NppsStatisticsDiff, Mean_32f_n257) {
+  one_src_case<Npp32f, Npp32f>("nppsMean_32f", "stats/Mean/32f/n257",
+      gen<Npp32f>(257, 0x311), &nppsMean_32f_Ctx, &nppsMeanGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_32f_n1) {
+  one_src_case<Npp32f, Npp32f>("nppsMean_32f", "stats/Mean/32f/n1",
+      gen<Npp32f>(1, 0x312), &nppsMean_32f_Ctx, &nppsMeanGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_32fc_n257) {
+  one_src_case<Npp32fc, Npp32fc>("nppsMean_32fc", "stats/Mean/32fc/n257",
+      gen<Npp32fc>(257, 0x313), &nppsMean_32fc_Ctx, &nppsMeanGetBufferSize_32fc_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_64f_n257) {
+  one_src_case<Npp64f, Npp64f>("nppsMean_64f", "stats/Mean/64f/n257",
+      gen<Npp64f>(257, 0x314), &nppsMean_64f_Ctx, &nppsMeanGetBufferSize_64f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_64fc_n257) {
+  one_src_case<Npp64fc, Npp64fc>("nppsMean_64fc", "stats/Mean/64fc/n257",
+      gen<Npp64fc>(257, 0x315), &nppsMean_64fc_Ctx, &nppsMeanGetBufferSize_64fc_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_16s_Sfs_n257) {
+  one_src_sfs_case<Npp16s, Npp16s>("nppsMean_16s_Sfs", "stats/Mean/16s_Sfs/n257",
+      gen<Npp16s>(257, 0x316), 2, &nppsMean_16s_Sfs_Ctx, &nppsMeanGetBufferSize_16s_Sfs_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_16sc_Sfs_n257) {
+  one_src_sfs_case<Npp16sc, Npp16sc>("nppsMean_16sc_Sfs", "stats/Mean/16sc_Sfs/n257",
+      gen<Npp16sc>(257, 0x317), 1, &nppsMean_16sc_Sfs_Ctx, &nppsMeanGetBufferSize_16sc_Sfs_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, Mean_32s_Sfs_n257) {
+  one_src_sfs_case<Npp32s, Npp32s>("nppsMean_32s_Sfs", "stats/Mean/32s_Sfs/n257",
+      gen<Npp32s>(257, 0x318), 2, &nppsMean_32s_Sfs_Ctx, &nppsMeanGetBufferSize_32s_Sfs_Ctx);
+}
+
+#if NPP_DIFF_HAS_NONCTX
+TEST_F(NppsStatisticsDiff, Mean_32f_Plain_n257) {
+  one_src_case_nc<Npp32f, Npp32f>("nppsMean_32f", "stats/Mean/32f/n257",
+      gen<Npp32f>(257, 0x311), &nppsMean_32f, &nppsMeanGetBufferSize_32f);
+}
+#endif
+
+// ===========================================================================
+// StdDev: (src) -> sample standard deviation (n-1 normalization)
+// ===========================================================================
+
+TEST_F(NppsStatisticsDiff, StdDev_32f_n257) {
+  one_src_case<Npp32f, Npp32f>("nppsStdDev_32f", "stats/StdDev/32f/n257",
+      gen<Npp32f>(257, 0x321), &nppsStdDev_32f_Ctx, &nppsStdDevGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, StdDev_32f_n2) {
+  one_src_case<Npp32f, Npp32f>("nppsStdDev_32f", "stats/StdDev/32f/n2",
+      gen<Npp32f>(2, 0x322), &nppsStdDev_32f_Ctx, &nppsStdDevGetBufferSize_32f_Ctx);
+}
+
+// n == 1 -> NPP_SIZE_ERROR (sample stdev needs n >= 2)
+TEST_F(NppsStatisticsDiff, StdDev_32f_n1) {
+  one_src_case<Npp32f, Npp32f>("nppsStdDev_32f", "stats/StdDev/32f/n1",
+      gen<Npp32f>(1, 0x323), &nppsStdDev_32f_Ctx, &nppsStdDevGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, StdDev_64f_n257) {
+  one_src_case<Npp64f, Npp64f>("nppsStdDev_64f", "stats/StdDev/64f/n257",
+      gen<Npp64f>(257, 0x324), &nppsStdDev_64f_Ctx, &nppsStdDevGetBufferSize_64f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, StdDev_16s_Sfs_n257) {
+  one_src_sfs_case<Npp16s, Npp16s>("nppsStdDev_16s_Sfs", "stats/StdDev/16s_Sfs/n257",
+      gen<Npp16s>(257, 0x325), 3, &nppsStdDev_16s_Sfs_Ctx, &nppsStdDevGetBufferSize_16s_Sfs_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, StdDev_16s32s_Sfs_n257) {
+  one_src_sfs_case<Npp16s, Npp32s>("nppsStdDev_16s32s_Sfs", "stats/StdDev/16s32s_Sfs/n257",
+      gen<Npp16s>(257, 0x326), 2, &nppsStdDev_16s32s_Sfs_Ctx, &nppsStdDevGetBufferSize_16s32s_Sfs_Ctx);
+}
+
+#if NPP_DIFF_HAS_NONCTX
+TEST_F(NppsStatisticsDiff, StdDev_32f_Plain_n257) {
+  one_src_case_nc<Npp32f, Npp32f>("nppsStdDev_32f", "stats/StdDev/32f/n257",
+      gen<Npp32f>(257, 0x321), &nppsStdDev_32f, &nppsStdDevGetBufferSize_32f);
+}
+#endif
+
+// ===========================================================================
+// MeanStdDev: (src) -> (mean, sample stddev)
+// ===========================================================================
+
+TEST_F(NppsStatisticsDiff, MeanStdDev_32f_n257) {
+  meanstd_case<Npp32f, Npp32f, Npp32f>("nppsMeanStdDev_32f", "stats/MeanStdDev/32f/n257",
+      gen<Npp32f>(257, 0x331), &nppsMeanStdDev_32f_Ctx, &nppsMeanStdDevGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MeanStdDev_32f_n2) {
+  meanstd_case<Npp32f, Npp32f, Npp32f>("nppsMeanStdDev_32f", "stats/MeanStdDev/32f/n2",
+      gen<Npp32f>(2, 0x332), &nppsMeanStdDev_32f_Ctx, &nppsMeanStdDevGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MeanStdDev_32f_n1) {
+  meanstd_case<Npp32f, Npp32f, Npp32f>("nppsMeanStdDev_32f", "stats/MeanStdDev/32f/n1",
+      gen<Npp32f>(1, 0x333), &nppsMeanStdDev_32f_Ctx, &nppsMeanStdDevGetBufferSize_32f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MeanStdDev_64f_n257) {
+  meanstd_case<Npp64f, Npp64f, Npp64f>("nppsMeanStdDev_64f", "stats/MeanStdDev/64f/n257",
+      gen<Npp64f>(257, 0x334), &nppsMeanStdDev_64f_Ctx, &nppsMeanStdDevGetBufferSize_64f_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MeanStdDev_16s_Sfs_n257) {
+  meanstd_sfs_case<Npp16s, Npp16s, Npp16s>("nppsMeanStdDev_16s_Sfs", "stats/MeanStdDev/16s_Sfs/n257",
+      gen<Npp16s>(257, 0x335), 3, &nppsMeanStdDev_16s_Sfs_Ctx,
+      &nppsMeanStdDevGetBufferSize_16s_Sfs_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, MeanStdDev_16s32s_Sfs_n257) {
+  meanstd_sfs_case<Npp16s, Npp32s, Npp32s>("nppsMeanStdDev_16s32s_Sfs", "stats/MeanStdDev/16s32s_Sfs/n257",
+      gen<Npp16s>(257, 0x336), 2, &nppsMeanStdDev_16s32s_Sfs_Ctx,
+      &nppsMeanStdDevGetBufferSize_16s32s_Sfs_Ctx);
+}
+
+#if NPP_DIFF_HAS_NONCTX
+TEST_F(NppsStatisticsDiff, MeanStdDev_32f_Plain_n257) {
+  meanstd_case_nc<Npp32f, Npp32f, Npp32f>("nppsMeanStdDev_32f", "stats/MeanStdDev/32f/n257",
+      gen<Npp32f>(257, 0x331), &nppsMeanStdDev_32f, &nppsMeanStdDevGetBufferSize_32f);
 }
 #endif
