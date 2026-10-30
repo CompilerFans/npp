@@ -93,3 +93,13 @@
 - MACA 运行时会在极小 `cudaMalloc` 后残留 `invalid argument`；新 executor 必须在 launch 前清空错误。
 - `nppi_not_support.cpp` 的 166 个 stub 需要在对应 nppi 包中删除。
 - 复杂算法家族（CrossCorr、Canny、DistanceTransform）需要单独评估工期。
+
+## 6. 性能优化（600U，2026-10-30）
+
+- **600U（cjxu@10.0.82.53）仅每日 00:00–07:00 可用**；其余时间 SSH 认证后即被关闭（节点不可用，属预定窗口）。
+- 基准：`benchmark/` 已有 506 项；30 die 并行扫描，基线 `artifacts/benchmarks/600u_baseline.csv`；节点本地 30 分钟刷新循环（`/tmp/bench_refresh.sh`）。
+- 已合并优化：
+  - `opt_reduce`（`c1cce5a`）：归约 16B 向量化，geomean **3.36x**，峰值 463–536 GB/s。
+  - `opt_elem`（`ea894fe`）：逐元素/拷贝 128-bit；Copy **2–11x**、Add 1.2–1.85x；`nppiAdd_8u_C3RSfs` 回退 0.74x 待查。
+  - `opt_morph`（`8a1a6a6`）：Erode/Dilate 8u C1 **~2.1x**；C4/32f 未提速。
+- 待办（因节点窗口暂停，00:00 后重启）：`opt_planar`（平面拷贝 2.9–7.9 GB/s）、`opt_fix`（8u_C3 回退 + 形态学 C4/32f 扩展）。
