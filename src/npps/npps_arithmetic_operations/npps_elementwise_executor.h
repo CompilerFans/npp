@@ -37,16 +37,24 @@ namespace elementwise {
 // Host-safe type traits
 // ---------------------------------------------------------------------------
 template <typename T> struct is_complex_t : std::false_type {};
+template <> struct is_complex_t<Npp8uc> : std::true_type {};
+template <> struct is_complex_t<Npp16uc> : std::true_type {};
 template <> struct is_complex_t<Npp16sc> : std::true_type {};
+template <> struct is_complex_t<Npp32uc> : std::true_type {};
 template <> struct is_complex_t<Npp32sc> : std::true_type {};
 template <> struct is_complex_t<Npp32fc> : std::true_type {};
+template <> struct is_complex_t<Npp64sc> : std::true_type {};
 template <> struct is_complex_t<Npp64fc> : std::true_type {};
 template <typename T> constexpr bool is_complex_v = is_complex_t<T>::value;
 
 template <typename T> struct component_t { using type = T; };
+template <> struct component_t<Npp8uc> { using type = Npp8u; };
+template <> struct component_t<Npp16uc> { using type = Npp16u; };
+template <> struct component_t<Npp32uc> { using type = Npp32u; };
 template <> struct component_t<Npp16sc> { using type = Npp16s; };
 template <> struct component_t<Npp32sc> { using type = Npp32s; };
 template <> struct component_t<Npp32fc> { using type = Npp32f; };
+template <> struct component_t<Npp64sc> { using type = Npp64s; };
 template <> struct component_t<Npp64fc> { using type = Npp64f; };
 template <typename T> using component_t_ty = typename component_t<T>::type;
 
@@ -155,6 +163,7 @@ template <typename T> __device__ __host__ __forceinline__ T sat_ll(long long v) 
   else if constexpr (std::is_same_v<T, Npp32s>)    { return static_cast<T>(v < -2147483648LL ? -2147483648LL : (v > 2147483647LL ? 2147483647LL : v)); }
   else if constexpr (std::is_same_v<T, Npp64u>)    { return static_cast<T>(v < 0 ? 0 : v); }
   else if constexpr (std::is_same_v<T, Npp64s>)    { return static_cast<T>(v); }
+  else if constexpr (is_complex_t<T>::value)       { return T{static_cast<component_t_ty<T>>(v), 0}; }
   else { return static_cast<T>(v); }
 }
 

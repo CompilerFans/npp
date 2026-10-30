@@ -1742,21 +1742,21 @@ NppStatus dotProdGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
   return NPP_NO_ERROR;
 }
 
-// CrossCorr NormLevel scratch-size helpers.  These reserve a conservative scratch
-// large enough for a same-size NormLevel reduction on the ROI; exact bytes are
-// not a contract (the only guarantee is the buffer can be allocated and the
-// matching kernel then succeeds).  Only status and size positivity are checked.
-NppStatus fullNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
+// CrossCorr NormLevel scratch-size helpers (5090-measured): the host buffer
+// depends only on the ROI height and the channel count,
+// size = 8 * nChannels * (height + 5); width and element type are irrelevant
+// (probes: 32f C1R 6x5 -> 80, AC4R -> 320, 64f C1R -> 80, 256x1 -> 48).
+NppStatus fullNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize, int nChannels) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
-  *hpBufferSize = static_cast<int>(numBlocks(oi.width * oi.height) * 8 * (int)sizeof(Npp64f));
+  *hpBufferSize = 8 * nChannels * (oi.height + 5);
   return NPP_NO_ERROR;
 }
-NppStatus sameNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
-  return fullNormLevelGetBufferHostSize(oi, hpBufferSize);
+NppStatus sameNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize, int nChannels) {
+  return fullNormLevelGetBufferHostSize(oi, hpBufferSize, nChannels);
 }
-NppStatus validNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize) {
-  return fullNormLevelGetBufferHostSize(oi, hpBufferSize);
+NppStatus validNormLevelGetBufferHostSize(NppiSize oi, int *hpBufferSize, int nChannels) {
+  return fullNormLevelGetBufferHostSize(oi, hpBufferSize, nChannels);
 }
 
 // Unlike every other helper above, NVIDIA 13.4 accepts a zero-sized ROI here
