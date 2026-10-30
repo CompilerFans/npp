@@ -106,7 +106,13 @@ KERNELISH = ("pMask", "pKernel", "pTpl", "pTemplate", "pXMap", "pYMap")
 SCALAR_NAME_DEFAULTS = {"nMin": "0.5", "nMax": "100.5",
                         "eInterpolation": "NPPI_INTER_LINEAR",
                         "nAstigmatismRatio": "2.0f",
-                        "nOrientationRadians": "0.0f"}
+                        "nOrientationRadians": "0.0f",
+                        # PBA site range: the PRNG float sources cover [-1, 1),
+                        # so [0.5, 1.0] makes ~25% of the pixels sites and the
+                        # distance transform has real work to do.  Integral
+                        # site values fall through to the generic default (2,
+                        # 1/16 of the integral PRNG range) below.
+                        "nMinSiteValue": "0.5", "nMaxSiteValue": "1.0"}
 
 # --- Misc-mode extension (REF_MISC) -----------------------------------------
 # Everything below widens the rule sets for functions the legacy rules above
@@ -420,7 +426,8 @@ def scalar_value(p: Param) -> Optional[str]:
         if p.name == "eInterpolation" and t in SCALAR:
             return SCALAR_NAME_DEFAULTS[p.name]
         if p.name in ("nMin", "nMax", "nAstigmatismRatio",
-                      "nOrientationRadians") \
+                      "nOrientationRadians", "nMinSiteValue",
+                      "nMaxSiteValue") \
                 and t in ("Npp32f", "Npp64f", "float", "double"):
             return SCALAR_NAME_DEFAULTS[p.name]
     t = p.ctype
@@ -622,9 +629,25 @@ def generate(row: dict, ov: Optional[dict] = None,
         H = max(H, 16)
     elif misc and "MSSSIM_" in fn:
         # The single-image (W)MSSSIM metrics hard-reject small ROIs (probe:
-        # NPP_SIZE_ERROR at 17x13; 256x256 returns NPP_NO_ERROR).  Buffers
-        # and steps are sized from the enlarged WMAX/HMAX as usual.
+        # NPP_SIZE_ERROR at 17x13; 256x256 returns NPP_NO_ERROR).  WMAX/HMAX
+        # follow the enlarged ROI so steps and buffer counts stay consistent
+        # (a 256-wide ROI with a WMAX-sized pitch reads past the buffers).
         W, H = 256, 256
+        WMAX, HMAX = W + 4, H + 4
+    elif misc and "CFAToRGB" in fn:
+        # Bayer CFA demosaic needs an even ROI in both dimensions (probe:
+        # 17x13 -> NPP_SIZE_ERROR, 16x12 -> NPP_NO_ERROR), the same even-ROI
+        # rule the semi-planar paths above already follow.  Buffers and steps
+        # stay sized from WMAX/HMAX and remain oversized.
+        W, H = W - 1, H - 1
+    elif misc and "DistanceTransform" in fn and "PBA" in fn:
+        # The PBA distance transforms hard-require an ROI of at least 64x64
+        # in both dimensions (probe: 63x63 and 64x17 -> NPP_SIZE_ERROR,
+        # 64x64 and 65x65 -> NPP_NO_ERROR).  WMAX/HMAX follow the enlarged
+        # ROI so the transform pitch clears the NPP step checks
+        # (nDstTransformStep >= ROI width * 8 bytes).
+        W, H = 64, 64
+        WMAX, HMAX = W + 4, H + 4
 
     # Discover the image element type (first image pointer) for the fallback step.
     img_t = "Npp8u"
@@ -703,6 +726,12 @@ def generate(row: dict, ov: Optional[dict] = None,
     def count_for(p: Param) -> int:
         role = pr(p)
         if role == "scratch":
+            # The misc (W)MSSSIM metrics need 1.7-5.6 MB of scratch for
+            # their 256x256 ROI (per the GetBufferHostSize entry points);
+            # every other family stays far below 1 MB at the default
+            # geometry.
+            if misc and "MSSSIM" in fn:
+                return 8 * 1024 * 1024
             return 1024 * 1024
         if role == "host":
             return 1
@@ -714,6 +743,12 @@ def generate(row: dict, ov: Optional[dict] = None,
             # per channel (NPP docs size them nBatchSize * channels).
             return NBATCH * max(ch, 1) if is_batch else max(ch, 1)
         if role in ("in", "out", "inplace"):
+            if misc and p.name == "pMask":
+                # NPP masks are ROI-sized channel-blind bitmaps: the legacy
+                # 3x3 sizing is narrower than the default ROI, so the misc
+                # stream pitches the mask like a single-channel image
+                # (nMaskStep < ROI width -> NPP_STEP_ERROR).
+                return HMAX * (WMAX + 16)
             if p.name in ("pMask", "pKernel", "pTpl", "pTemplate"):
                 return 3 * (3 + 16)
             if kind == "signal":
@@ -752,7 +787,19 @@ def generate(row: dict, ov: Optional[dict] = None,
         if q is not None and q.ctype in SCALAR and not q.is_array:
             es = SCALAR[q.ctype][1]
             if matched in ("pMask", "pKernel", "pTpl"):
-                steps[p.name] = f"align16(3 * {es})"
+                if misc and matched == "pMask":
+                    # ROI-sized channel-blind mask pitch (see count_for).
+                    steps[p.name] = f"align16({WMAX} * {es})"
+                elif misc:
+                    # Correlation templates and filter kernels are
+                    # channel-packed: a 3-pixel row needs 3 * channels *
+                    # esize bytes, or NPP rejects the call with
+                    # NPP_STEP_ERROR (probed on 16u32f/32f/64f C3/C4
+                    # templates carrying a C1-sized pitch).  Legacy rows
+                    # keep the historic channel-blind pitch.
+                    steps[p.name] = f"align16(3 * {ch} * {es})"
+                else:
+                    steps[p.name] = f"align16(3 * {es})"
             else:
                 steps[p.name] = f"align16({WMAX} * {ch_of(q)} * {es})"
         elif q is not None and q.is_ptr_array and q.ctype in SCALAR:
@@ -1090,6 +1137,11 @@ def generate(row: dict, ov: Optional[dict] = None,
         if p.ctype == "NppiRect":
             if p.name in ("oDstROI", "oDstRectROI"):
                 args.append(f"{{0, 0, {WMAX}, {HMAX}}}")
+            elif p.name == "oRect":
+                # RectStdDev reads pSrc/pSqr over (oSizeROI + oRect) in both
+                # dimensions (header contract); the default full-ROI rect
+                # doubles the required pitch, so use a small interior rect.
+                args.append("{0, 0, 3, 3}")
             else:
                 args.append(f"{{0, 0, {W}, {H}}}")
             continue

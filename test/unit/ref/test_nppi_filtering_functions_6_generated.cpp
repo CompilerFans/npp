@@ -10,169 +10,169 @@ using namespace ref;
 
 TEST(RefSuite, nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp16s>(629, 0xa431b438);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x507fa07a);
+  auto pSrc = ref_device<Npp16s>(5712, 0xa431b438);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x507fa07a);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0xaa8ee174);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x5269bb26);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 2), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 2), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx", "nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp16u>(629, 0x3ba883f3);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x6cf55489);
+  auto pSrc = ref_device<Npp16u>(5712, 0x3ba883f3);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x6cf55489);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0xb5cc0dc4);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0xce81884d);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 2), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 2), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx", "nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp32f>(629, 0x778649d2);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x46bce4fe);
+  auto pSrc = ref_device<Npp32f>(5712, 0x778649d2);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x46bce4fe);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x450dd029);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x265c7329);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 4), 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 4), 0.5, 1.0, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx", "nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformAbsPBA_64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp64f>(629, 0x4d162001);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x20e706ff);
+  auto pSrc = ref_device<Npp64f>(5712, 0x4d162001);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x20e706ff);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x6fa318a5);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0xbff9a951);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformAbsPBA_64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformAbsPBA_64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 8), 0.5, 1.0, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformAbsPBA_64f_C1R_Ctx", "nppiDistanceTransformAbsPBA_64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp8s>(629, 0xaeaf9628);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x6a8dea09);
+  auto pSrc = ref_device<Npp8s>(5712, 0xaeaf9628);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x6a8dea09);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x09ba424b);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0xcef16c63);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 1), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 1), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx", "nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp8u>(629, 0x1e17a09c);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x88e25566);
+  auto pSrc = ref_device<Npp8u>(5712, 0x1e17a09c);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x88e25566);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x59a8d342);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0xf7221300);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 1), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 1), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx", "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformPBA_16s64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp16s>(629, 0x1c40218d);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x68ef9745);
+  auto pSrc = ref_device<Npp16s>(5712, 0x1c40218d);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x68ef9745);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0xb7339ce9);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x47ab4f93);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformPBA_16s64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 2), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformPBA_16s64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 2), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformPBA_16s64f_C1R_Ctx", "nppiDistanceTransformPBA_16s64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformPBA_16u64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp16u>(629, 0x9c1baa51);
-  auto pDstTransform = ref_device<Npp64f>(629, 0xc97e252e);
+  auto pSrc = ref_device<Npp16u>(5712, 0x9c1baa51);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0xc97e252e);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x95c3e2f9);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x82767b60);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformPBA_16u64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 2), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformPBA_16u64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 2), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformPBA_16u64f_C1R_Ctx", "nppiDistanceTransformPBA_16u64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformPBA_32f64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp32f>(629, 0x8f9e12e5);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x64f9c905);
+  auto pSrc = ref_device<Npp32f>(5712, 0x8f9e12e5);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x64f9c905);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x847f4922);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x2c182976);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformPBA_32f64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 4), 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformPBA_32f64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 4), 0.5, 1.0, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformPBA_32f64f_C1R_Ctx", "nppiDistanceTransformPBA_32f64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformPBA_64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp64f>(629, 0xe411591e);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x76697978);
+  auto pSrc = ref_device<Npp64f>(5712, 0xe411591e);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x76697978);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0xe86439cc);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0xe1fcdb44);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformPBA_64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformPBA_64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 8), 0.5, 1.0, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformPBA_64f_C1R_Ctx", "nppiDistanceTransformPBA_64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformPBA_8s64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp8s>(629, 0x20343a80);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x014a4a9d);
+  auto pSrc = ref_device<Npp8s>(5712, 0x20343a80);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x014a4a9d);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0xbb94dc17);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x39b60792);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformPBA_8s64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 1), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformPBA_8s64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 1), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformPBA_8s64f_C1R_Ctx", "nppiDistanceTransformPBA_8s64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiDistanceTransformPBA_8u64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp8u>(629, 0xdd1f9cca);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x907a6bed);
+  auto pSrc = ref_device<Npp8u>(5712, 0xdd1f9cca);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x907a6bed);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x91f64fbb);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x8abf46c8);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiDistanceTransformPBA_8u64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 1), 2, 2, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiDistanceTransformPBA_8u64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 1), 2, 2, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiDistanceTransformPBA_8u64f_C1R_Ctx", "nppiDistanceTransformPBA_8u64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
@@ -1789,56 +1789,56 @@ TEST(RefSuite, nppiSegmentWatershed_8u_C1IR_Ctx) {
 
 TEST(RefSuite, nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp32f>(629, 0x8163097c);
-  auto pDstTransform = ref_device<Npp64f>(629, 0xe1b04db1);
+  auto pSrc = ref_device<Npp32f>(5712, 0x8163097c);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0xe1b04db1);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x709669e3);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x2d3b0378);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 4), 0.5, 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 4), 0.5, 0.5, 0.5, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx", "nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp64f>(629, 0xbe9a70c8);
-  auto pDstTransform = ref_device<Npp64f>(629, 0xad222e45);
+  auto pSrc = ref_device<Npp64f>(5712, 0xbe9a70c8);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0xad222e45);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0xa982a631);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x34bee388);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), 0.5, 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 8), 0.5, 0.5, 0.5, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx", "nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp32f>(629, 0x2e2d3fd5);
-  auto pDstTransform = ref_device<Npp64f>(629, 0xd12f90fc);
+  auto pSrc = ref_device<Npp32f>(5712, 0x2e2d3fd5);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0xd12f90fc);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x0cf10a04);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0xf7b39f94);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 4), 0.5, 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 4), 0.5, 0.5, 0.5, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx", "nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
 
 TEST(RefSuite, nppiSignedDistanceTransformPBA_64f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
-  auto pSrc = ref_device<Npp64f>(629, 0x8891c5ea);
-  auto pDstTransform = ref_device<Npp64f>(629, 0x69eff997);
+  auto pSrc = ref_device<Npp64f>(5712, 0x8891c5ea);
+  auto pDstTransform = ref_device<Npp64f>(5712, 0x69eff997);
   auto pDeviceBuffer = ref_device<Npp8u>(1048576, 0x19f266a3);
   auto pAntialiasingDeviceBuffer = ref_device<Npp8u>(1048576, 0x473999df);
   npp_diff::clear_cuda_error();
-  NppStatus st = nppiSignedDistanceTransformPBA_64f_C1R_Ctx(pSrc->get(), align16(21 * 1 * 8), 0.5, 0.5, 0.5, nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), nullptr, align16(21 * 1 * 2), pDstTransform->get(), align16(21 * 1 * 8), {17, 13}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
+  NppStatus st = nppiSignedDistanceTransformPBA_64f_C1R_Ctx(pSrc->get(), align16(68 * 1 * 8), 0.5, 0.5, 0.5, nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), nullptr, align16(68 * 1 * 2), pDstTransform->get(), align16(68 * 1 * 8), {64, 64}, pDeviceBuffer->get(), pAntialiasingDeviceBuffer->get(), ctx);
   npp_diff::Case c("ref/nppiSignedDistanceTransformPBA_64f_C1R_Ctx", "nppiSignedDistanceTransformPBA_64f_C1R_Ctx");
   c.status(st);
-  ref_capture_bytes(c, pDstTransform->get(), 629 * sizeof(Npp64f));
+  ref_capture_bytes(c, pDstTransform->get(), 5712 * sizeof(Npp64f));
   c.finish();
 }
