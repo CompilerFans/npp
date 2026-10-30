@@ -137,19 +137,37 @@ __device__ __forceinline__ auto sampleNN(const Acc &acc, int c, float fx, float 
   return acc.at(c, x, y);
 }
 
+// Non-fused round-to-nearest arithmetic.  nvcc would otherwise contract
+// a*b+c into an FMA and change the last bits, which flips the exact .5
+// rounding ties in the 8u/16u goldens.
+__device__ __forceinline__ float mul_rn(float a, float b) { return a * b; }
+__device__ __forceinline__ float add_rn(float a, float b) { return a + b; }
+__device__ __forceinline__ float sub_rn(float a, float b) { return a - b; }
+__device__ __forceinline__ double mul_rn(double a, double b) { return a * b; }
+__device__ __forceinline__ double add_rn(double a, double b) { return a + b; }
+__device__ __forceinline__ double sub_rn(double a, double b) { return a - b; }
+
 template <typename Acc>
 __device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, float fy) -> decltype(acc.at(c, 0, 0)) {
   const int x0 = static_cast<int>(floorf(fx));
   const int y0 = static_cast<int>(floorf(fy));
-  const float dx = fx - static_cast<float>(x0);
-  const float dy = fy - static_cast<float>(y0);
+  const float dx = sub_rn(fx, static_cast<float>(x0));
+  const float dy = sub_rn(fy, static_cast<float>(y0));
   const auto v00 = acc.at(c, x0, y0);
   const auto v10 = acc.at(c, x0 + 1, y0);
   const auto v01 = acc.at(c, x0, y0 + 1);
   const auto v11 = acc.at(c, x0 + 1, y0 + 1);
-  const auto r0 = v00 + (v10 - v00) * dx;
-  const auto r1 = v01 + (v11 - v01) * dx;
-  return r0 + (r1 - r0) * dy;
+  using VT = decltype(v00);
+  const VT dxv = static_cast<VT>(dx);
+  const VT dyv = static_cast<VT>(dy);
+  // Weight form (matches NPP bit for bit; the lerp form differs by 1 ulp on
+  // exact .5 ties): v0 = (1-dx)v00 + dx v10, v1 likewise, v = (1-dy)v0 + dy v1.
+  const VT one = static_cast<VT>(1);
+  const VT ux = sub_rn(one, dxv);
+  const VT uy = sub_rn(one, dyv);
+  const auto v0 = add_rn(mul_rn(ux, v00), mul_rn(dxv, v10));
+  const auto v1 = add_rn(mul_rn(ux, v01), mul_rn(dxv, v11));
+  return add_rn(mul_rn(uy, v0), mul_rn(dyv, v1));
 }
 
 template <typename Acc>
@@ -185,6 +203,11 @@ inline int clipMax(int a, int b) { return a > b ? a : b; }
 // Intersection of the source ROI with the source image must be non-empty and
 // at least 2x2 pixels (NPP affine transform error codes).
 inline NppStatus validateSrcRoi(NppiSize oSrcSize, NppiRect oSrcROI) {
+  // 5090: a negative source ROI origin is a SIZE_ERROR (an ROI that is merely
+  // outside the image but non-negative is WRONG_INTERSECTION_ROI_ERROR).
+  if (oSrcROI.x < 0 || oSrcROI.y < 0 || oSrcROI.width < 0 || oSrcROI.height < 0) {
+    return NPP_SIZE_ERROR;
+  }
   const int x0 = clipMax(oSrcROI.x, 0);
   const int y0 = clipMax(oSrcROI.y, 0);
   const int x1 = clipMin(oSrcROI.x + oSrcROI.width, oSrcSize.width);
@@ -199,8 +222,10 @@ inline NppStatus validateSrcRoi(NppiSize oSrcSize, NppiRect oSrcROI) {
 }
 
 inline NppStatus validateDstRoi(NppiRect oDstROI) {
-  if (oDstROI.width < 1 || oDstROI.height < 1) {
-    return NPP_RECTANGLE_ERROR;
+  // 5090: a negative destination extent is a SIZE_ERROR; a zero extent is the
+  // empty-output no-op (NO_ERROR), even at a non-zero ROI offset.
+  if (oDstROI.width < 0 || oDstROI.height < 0) {
+    return NPP_SIZE_ERROR;
   }
   return NPP_NO_ERROR;
 }
@@ -267,20 +292,40 @@ inline bool affineFromQuads(const double aSrcQuad[4][2], const double aDstQuad[4
 // ============================================================================
 
 template <typename T, int Channels, bool AlphaPreserve, bool Planar>
-__global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, int nSrcStep, int nDstStep,
-                                 NppiRect oDstROI, double c00, double c01, double c02, double c10, double c11,
-                                 double c12, int eInterpolation) {
+__global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRect oSrcROI, int nSrcStep,
+                                 int nDstStep, NppiRect oDstROI, double c00, double c01, double c02, double c10,
+                                 double c11, double c12, int eInterpolation) {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= oDstROI.width || y >= oDstROI.height) {
     return;
   }
-  const double dx = static_cast<double>(oDstROI.x + x);
-  const double dy = static_cast<double>(oDstROI.y + y);
-  const double sx = c00 * dx + c01 * dy + c02;
-  const double sy = c10 * dx + c11 * dy + c12;
-  const float fx = static_cast<float>(sx);
-  const float fy = static_cast<float>(sy);
+  // NPP applies the affine map in single precision: the double coefficients
+  // are rounded to float and the multiply/add chain is evaluated in float.
+  // The last-bit differences decide exact .5 rounding ties (5090 replay:
+  // f64 coordinates leave 1/429 pixels off, f32 coordinates reproduce the
+  // golden exactly).
+  const float dx = static_cast<float>(oDstROI.x + x);
+  const float dy = static_cast<float>(oDstROI.y + y);
+  // Explicit round-to-nearest intrinsics keep nvcc from contracting the
+  // multiply/add chain into FMAs: the 5090 goldens match a non-fused float
+  // evaluation of the map bit for bit.
+  const float fx = __fadd_rn(__fadd_rn(__fmul_rn(static_cast<float>(c00), dx),
+                                        __fmul_rn(static_cast<float>(c01), dy)),
+                             static_cast<float>(c02));
+  const float fy = __fadd_rn(__fadd_rn(__fmul_rn(static_cast<float>(c10), dx),
+                                        __fmul_rn(static_cast<float>(c11), dy)),
+                             static_cast<float>(c12));
+  // NPP leaves the destination pixel untouched when the mapped source point
+  // falls outside the (clipped) source ROI (5090: the dst buffer keeps its
+  // previous value for those pixels, it is not zero-filled).  Samples inside
+  // the ROI whose bilinear/cubic neighbourhood crosses the image edge still
+  // read zero for the missing neighbours.
+  if (fx < static_cast<float>(oSrcROI.x) || fy < static_cast<float>(oSrcROI.y) ||
+      fx >= static_cast<float>(oSrcROI.x + oSrcROI.width) ||
+      fy >= static_cast<float>(oSrcROI.y + oSrcROI.height)) {
+    return;
+  }
 
   const SrcAccessor<T, Channels, Planar> src(planes, nSrcStep, oSrcSize);
   const DstAccessor<T, Channels, Planar> dst(planes, nDstStep);
@@ -307,17 +352,23 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, int nS
 }
 
 template <typename T, int Channels, bool AlphaPreserve, bool Planar>
-NppStatus launchWarp(const WarpPlanes<T> &planes, NppiSize oSrcSize, int nSrcStep, int nDstStep, NppiRect oDstROI,
-                     const double aMap[2][3], int eInterpolation, cudaStream_t stream) {
+NppStatus launchWarp(const WarpPlanes<T> &planes, NppiSize oSrcSize, NppiRect oSrcROI, int nSrcStep, int nDstStep,
+                     NppiRect oDstROI, const double aMap[2][3], int eInterpolation, cudaStream_t stream) {
   if (oDstROI.width <= 0 || oDstROI.height <= 0) {
     return NPP_NO_ERROR;
   }
+  const int rx = clipMax(oSrcROI.x, 0);
+  const int ry = clipMax(oSrcROI.y, 0);
+  const int rx1 = clipMin(oSrcROI.x + oSrcROI.width, oSrcSize.width);
+  const int ry1 = clipMin(oSrcROI.y + oSrcROI.height, oSrcSize.height);
+  const NppiRect roi{rx, ry, rx1 - rx, ry1 - ry};
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstROI.height + blockSize.y - 1) / blockSize.y);
   warpAffineKernel<T, Channels, AlphaPreserve, Planar>
-      <<<gridSize, blockSize, 0, stream>>>(planes, oSrcSize, nSrcStep, nDstStep, oDstROI, aMap[0][0], aMap[0][1],
-                                           aMap[0][2], aMap[1][0], aMap[1][1], aMap[1][2], eInterpolation);
+      <<<gridSize, blockSize, 0, stream>>>(planes, oSrcSize, roi, nSrcStep, nDstStep, oDstROI, aMap[0][0],
+                                           aMap[0][1], aMap[0][2], aMap[1][0], aMap[1][1], aMap[1][2],
+                                           eInterpolation);
   return npp_kernel::checkCudaKernelError();
 }
 
@@ -353,9 +404,28 @@ inline NppStatus validateWarp(const void *pSrc, const void *pDst, NppiSize oSrcS
 template <typename T, int Channels, bool AlphaPreserve, bool InvertMap>
 NppStatus warpAffineImpl(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, T *pDst, int nDstStep,
                          NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, cudaStream_t stream) {
-  const NppStatus status = validateWarp(pSrc, pDst, oSrcSize, oSrcROI, oDstROI, eInterpolation, 1);
+  const NppStatus status = validateWarp(pSrc, pDst, oSrcSize, oSrcROI, oDstROI, eInterpolation, 2);
   if (status != NPP_NO_ERROR) {
     return status;
+  }
+  if (oDstROI.width == 0 || oDstROI.height == 0) {
+    return NPP_NO_ERROR;  // empty destination: nothing written, steps unchecked
+  }
+  // Step validation (5090): the size check comes first, then the channel
+  // alignment modulus sizeof(element) * 2^v2(Channels); source before dest.
+  constexpr int chAlign = Channels & -Channels;
+  constexpr int align = static_cast<int>(sizeof(T)) * chAlign;
+  if (static_cast<unsigned>(nSrcStep) < static_cast<unsigned>(oSrcROI.width * Channels * static_cast<int>(sizeof(T)))) {
+    return NPP_STEP_ERROR;
+  }
+  if (nSrcStep % align != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
+  }
+  if (static_cast<unsigned>(nDstStep) < static_cast<unsigned>(oDstROI.width * Channels * static_cast<int>(sizeof(T)))) {
+    return NPP_STEP_ERROR;
+  }
+  if (nDstStep % align != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
   }
   double map[2][3];
   if (InvertMap) {
@@ -375,7 +445,7 @@ NppStatus warpAffineImpl(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   WarpPlanes<T> planes;
   planes.src[0] = pSrc;
   planes.dst[0] = pDst;
-  return launchWarp<T, Channels, AlphaPreserve, false>(planes, oSrcSize, nSrcStep, nDstStep, oDstROI, map,
+  return launchWarp<T, Channels, AlphaPreserve, false>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI, map,
                                                        eInterpolation, stream);
 }
 
@@ -406,7 +476,7 @@ NppStatus warpAffinePlanar(const T *const *pSrc, NppiSize oSrcSize, int nSrcStep
     planes.src[c] = pSrc[c];
     planes.dst[c] = pDst[c];
   }
-  return launchWarp<T, Channels, false, true>(planes, oSrcSize, nSrcStep, nDstStep, oDstROI, map, eInterpolation,
+  return launchWarp<T, Channels, false, true>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI, map, eInterpolation,
                                               stream);
 }
 
@@ -434,7 +504,7 @@ NppStatus warpAffineBackPlanar(const T *const *pSrc, NppiSize oSrcSize, int nSrc
     planes.src[c] = pSrc[c];
     planes.dst[c] = pDst[c];
   }
-  return launchWarp<T, Channels, false, true>(planes, oSrcSize, nSrcStep, nDstStep, oDstROI, map, eInterpolation,
+  return launchWarp<T, Channels, false, true>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI, map, eInterpolation,
                                               stream);
 }
 
@@ -461,7 +531,7 @@ NppStatus warpAffineQuad(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   planes.src[0] = pSrc;
   planes.dst[0] = pDst;
   const NppStatus warpStatus =
-      launchWarp<T, Channels, AlphaPreserve, false>(planes, oSrcSize, nSrcStep, nDstStep, oDstROI, map,
+      launchWarp<T, Channels, AlphaPreserve, false>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI, map,
                                                     eInterpolation, stream);
   if (warpStatus != NPP_NO_ERROR) {
     return warpStatus;
@@ -494,7 +564,7 @@ NppStatus warpAffineQuadPlanar(const T *const *pSrc, NppiSize oSrcSize, int nSrc
     planes.src[c] = pSrc[c];
     planes.dst[c] = pDst[c];
   }
-  const NppStatus warpStatus = launchWarp<T, Channels, false, true>(planes, oSrcSize, nSrcStep, nDstStep, oDstROI,
+  const NppStatus warpStatus = launchWarp<T, Channels, false, true>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI,
                                                                     map, eInterpolation, stream);
   if (warpStatus != NPP_NO_ERROR) {
     return warpStatus;
@@ -653,98 +723,98 @@ NppStatus warpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiR
 // ============================================================================
 // Explicit instantiations
 // ============================================================================
-template NppStatus nppi::geometry::warpAffine<Npp8u, 1, false>;
-template NppStatus nppi::geometry::warpAffine<Npp8u, 3, false>;
-template NppStatus nppi::geometry::warpAffine<Npp8u, 4, false>;
-template NppStatus nppi::geometry::warpAffine<Npp8u, 4, true>;
-template NppStatus nppi::geometry::warpAffine<Npp16u, 1, false>;
-template NppStatus nppi::geometry::warpAffine<Npp16u, 3, false>;
-template NppStatus nppi::geometry::warpAffine<Npp16u, 4, false>;
-template NppStatus nppi::geometry::warpAffine<Npp16u, 4, true>;
-template NppStatus nppi::geometry::warpAffine<Npp32s, 1, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32s, 3, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32s, 4, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32s, 4, true>;
-template NppStatus nppi::geometry::warpAffine<Npp16f, 1, false>;
-template NppStatus nppi::geometry::warpAffine<Npp16f, 3, false>;
-template NppStatus nppi::geometry::warpAffine<Npp16f, 4, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32f, 1, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32f, 3, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32f, 4, false>;
-template NppStatus nppi::geometry::warpAffine<Npp32f, 4, true>;
-template NppStatus nppi::geometry::warpAffine<Npp64f, 1, false>;
-template NppStatus nppi::geometry::warpAffine<Npp64f, 3, false>;
-template NppStatus nppi::geometry::warpAffine<Npp64f, 4, false>;
-template NppStatus nppi::geometry::warpAffine<Npp64f, 4, true>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp8u, 3>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp8u, 4>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp16u, 3>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp16u, 4>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp32s, 3>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp32s, 4>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp32f, 3>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp32f, 4>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp64f, 3>;
-template NppStatus nppi::geometry::warpAffinePlanar<Npp64f, 4>;
-template NppStatus nppi::geometry::warpAffineBack<Npp8u, 1, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp8u, 3, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp8u, 4, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp8u, 4, true>;
-template NppStatus nppi::geometry::warpAffineBack<Npp16u, 1, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp16u, 3, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp16u, 4, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp16u, 4, true>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32s, 1, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32s, 3, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32s, 4, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32s, 4, true>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32f, 1, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32f, 3, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32f, 4, false>;
-template NppStatus nppi::geometry::warpAffineBack<Npp32f, 4, true>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp8u, 3>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp8u, 4>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp16u, 3>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp16u, 4>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp32s, 3>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp32s, 4>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp32f, 3>;
-template NppStatus nppi::geometry::warpAffineBackPlanar<Npp32f, 4>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp8u, 1, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp8u, 3, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp8u, 4, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp8u, 4, true>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp16u, 1, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp16u, 3, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp16u, 4, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp16u, 4, true>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32s, 1, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32s, 3, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32s, 4, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32s, 4, true>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32f, 1, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32f, 3, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32f, 4, false>;
-template NppStatus nppi::geometry::warpAffineQuad<Npp32f, 4, true>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp8u, 3>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp8u, 4>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp16u, 3>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp16u, 4>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp32s, 3>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp32s, 4>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp32f, 3>;
-template NppStatus nppi::geometry::warpAffineQuadPlanar<Npp32f, 4>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp8u, 1, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp8u, 3, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp8u, 4, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp8u, 4, true>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp16f, 1, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp16f, 3, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp16f, 4, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp32f, 1, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp32f, 3, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp32f, 4, false>;
-template NppStatus nppi::geometry::warpAffineBatch<Npp32f, 4, true>;
+template NppStatus warpAffine<Npp8u, 1, false>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp8u, 3, false>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp8u, 4, false>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp8u, 4, true>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16u, 1, false>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16u, 3, false>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16u, 4, false>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16u, 4, true>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32s, 1, false>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32s, 3, false>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32s, 4, false>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32s, 4, true>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16f, 1, false>(const Npp16f *, NppiSize, int, NppiRect, Npp16f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16f, 3, false>(const Npp16f *, NppiSize, int, NppiRect, Npp16f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp16f, 4, false>(const Npp16f *, NppiSize, int, NppiRect, Npp16f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32f, 1, false>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32f, 3, false>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32f, 4, false>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp32f, 4, true>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp64f, 1, false>(const Npp64f *, NppiSize, int, NppiRect, Npp64f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp64f, 3, false>(const Npp64f *, NppiSize, int, NppiRect, Npp64f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp64f, 4, false>(const Npp64f *, NppiSize, int, NppiRect, Npp64f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffine<Npp64f, 4, true>(const Npp64f *, NppiSize, int, NppiRect, Npp64f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp8u, 3>(const Npp8u *const *, NppiSize, int, NppiRect, Npp8u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp8u, 4>(const Npp8u *const *, NppiSize, int, NppiRect, Npp8u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp16u, 3>(const Npp16u *const *, NppiSize, int, NppiRect, Npp16u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp16u, 4>(const Npp16u *const *, NppiSize, int, NppiRect, Npp16u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp32s, 3>(const Npp32s *const *, NppiSize, int, NppiRect, Npp32s *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp32s, 4>(const Npp32s *const *, NppiSize, int, NppiRect, Npp32s *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp32f, 3>(const Npp32f *const *, NppiSize, int, NppiRect, Npp32f *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp32f, 4>(const Npp32f *const *, NppiSize, int, NppiRect, Npp32f *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp64f, 3>(const Npp64f *const *, NppiSize, int, NppiRect, Npp64f *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffinePlanar<Npp64f, 4>(const Npp64f *const *, NppiSize, int, NppiRect, Npp64f *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp8u, 1, false>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp8u, 3, false>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp8u, 4, false>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp8u, 4, true>(const Npp8u *, NppiSize, int, NppiRect, Npp8u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp16u, 1, false>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp16u, 3, false>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp16u, 4, false>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp16u, 4, true>(const Npp16u *, NppiSize, int, NppiRect, Npp16u *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32s, 1, false>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32s, 3, false>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32s, 4, false>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32s, 4, true>(const Npp32s *, NppiSize, int, NppiRect, Npp32s *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32f, 1, false>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32f, 3, false>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32f, 4, false>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBack<Npp32f, 4, true>(const Npp32f *, NppiSize, int, NppiRect, Npp32f *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp8u, 3>(const Npp8u *const *, NppiSize, int, NppiRect, Npp8u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp8u, 4>(const Npp8u *const *, NppiSize, int, NppiRect, Npp8u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp16u, 3>(const Npp16u *const *, NppiSize, int, NppiRect, Npp16u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp16u, 4>(const Npp16u *const *, NppiSize, int, NppiRect, Npp16u *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp32s, 3>(const Npp32s *const *, NppiSize, int, NppiRect, Npp32s *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp32s, 4>(const Npp32s *const *, NppiSize, int, NppiRect, Npp32s *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp32f, 3>(const Npp32f *const *, NppiSize, int, NppiRect, Npp32f *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineBackPlanar<Npp32f, 4>(const Npp32f *const *, NppiSize, int, NppiRect, Npp32f *const *, int, NppiRect, const double[2][3], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp8u, 1, false>(const Npp8u *, NppiSize, int, NppiRect, const double[4][2], Npp8u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp8u, 3, false>(const Npp8u *, NppiSize, int, NppiRect, const double[4][2], Npp8u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp8u, 4, false>(const Npp8u *, NppiSize, int, NppiRect, const double[4][2], Npp8u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp8u, 4, true>(const Npp8u *, NppiSize, int, NppiRect, const double[4][2], Npp8u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp16u, 1, false>(const Npp16u *, NppiSize, int, NppiRect, const double[4][2], Npp16u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp16u, 3, false>(const Npp16u *, NppiSize, int, NppiRect, const double[4][2], Npp16u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp16u, 4, false>(const Npp16u *, NppiSize, int, NppiRect, const double[4][2], Npp16u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp16u, 4, true>(const Npp16u *, NppiSize, int, NppiRect, const double[4][2], Npp16u *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32s, 1, false>(const Npp32s *, NppiSize, int, NppiRect, const double[4][2], Npp32s *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32s, 3, false>(const Npp32s *, NppiSize, int, NppiRect, const double[4][2], Npp32s *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32s, 4, false>(const Npp32s *, NppiSize, int, NppiRect, const double[4][2], Npp32s *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32s, 4, true>(const Npp32s *, NppiSize, int, NppiRect, const double[4][2], Npp32s *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32f, 1, false>(const Npp32f *, NppiSize, int, NppiRect, const double[4][2], Npp32f *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32f, 3, false>(const Npp32f *, NppiSize, int, NppiRect, const double[4][2], Npp32f *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32f, 4, false>(const Npp32f *, NppiSize, int, NppiRect, const double[4][2], Npp32f *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuad<Npp32f, 4, true>(const Npp32f *, NppiSize, int, NppiRect, const double[4][2], Npp32f *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp8u, 3>(const Npp8u *const *, NppiSize, int, NppiRect, const double[4][2], Npp8u *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp8u, 4>(const Npp8u *const *, NppiSize, int, NppiRect, const double[4][2], Npp8u *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp16u, 3>(const Npp16u *const *, NppiSize, int, NppiRect, const double[4][2], Npp16u *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp16u, 4>(const Npp16u *const *, NppiSize, int, NppiRect, const double[4][2], Npp16u *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp32s, 3>(const Npp32s *const *, NppiSize, int, NppiRect, const double[4][2], Npp32s *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp32s, 4>(const Npp32s *const *, NppiSize, int, NppiRect, const double[4][2], Npp32s *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp32f, 3>(const Npp32f *const *, NppiSize, int, NppiRect, const double[4][2], Npp32f *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineQuadPlanar<Npp32f, 4>(const Npp32f *const *, NppiSize, int, NppiRect, const double[4][2], Npp32f *const *, int, NppiRect, const double[4][2], int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp8u, 1, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp8u, 3, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp8u, 4, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp8u, 4, true>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp16f, 1, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp16f, 3, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp16f, 4, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp32f, 1, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp32f, 3, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp32f, 4, false>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
+template NppStatus warpAffineBatch<Npp32f, 4, true>(NppiSize, NppiRect, NppiRect, int, NppiWarpAffineBatchCXR *, unsigned int, cudaStream_t);
 
 }  // namespace geometry
 }  // namespace nppi

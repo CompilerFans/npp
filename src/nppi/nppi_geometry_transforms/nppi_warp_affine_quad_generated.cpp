@@ -22,11 +22,11 @@ NppStatus nppiWarpAffineQuad_16u_C4R_Ctx(const Npp16u * pSrc, NppiSize oSrcSize,
 }
 
 NppStatus nppiWarpAffineQuad_16u_P3R_Ctx(const Npp16u * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp16u * pDst[3], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp16u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp16u, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_16u_P4R_Ctx(const Npp16u * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp16u * pDst[4], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp16u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp16u, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_32f_AC4R_Ctx(const Npp32f * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp32f * pDst, int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -46,11 +46,11 @@ NppStatus nppiWarpAffineQuad_32f_C4R_Ctx(const Npp32f * pSrc, NppiSize oSrcSize,
 }
 
 NppStatus nppiWarpAffineQuad_32f_P3R_Ctx(const Npp32f * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp32f * pDst[3], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp32f, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp32f, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_32f_P4R_Ctx(const Npp32f * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp32f * pDst[4], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp32f, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp32f, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_32s_AC4R_Ctx(const Npp32s * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp32s * pDst, int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -70,11 +70,11 @@ NppStatus nppiWarpAffineQuad_32s_C4R_Ctx(const Npp32s * pSrc, NppiSize oSrcSize,
 }
 
 NppStatus nppiWarpAffineQuad_32s_P3R_Ctx(const Npp32s * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp32s * pDst[3], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp32s, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp32s, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_32s_P4R_Ctx(const Npp32s * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp32s * pDst[4], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp32s, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp32s, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_8u_AC4R_Ctx(const Npp8u * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp8u * pDst, int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -94,11 +94,11 @@ NppStatus nppiWarpAffineQuad_8u_C4R_Ctx(const Npp8u * pSrc, NppiSize oSrcSize, i
 }
 
 NppStatus nppiWarpAffineQuad_8u_P3R_Ctx(const Npp8u * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp8u * pDst[3], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp8u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp8u, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_8u_P4R_Ctx(const Npp8u * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp8u * pDst[4], int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineQuadPlanar<Npp8u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineQuadPlanar<Npp8u, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineQuad_16u_AC4R(const Npp16u * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, const double aSrcQuad[4][2], Npp16u * pDst, int nDstStep, NppiRect oDstROI, const double aDstQuad[4][2], int eInterpolation) {

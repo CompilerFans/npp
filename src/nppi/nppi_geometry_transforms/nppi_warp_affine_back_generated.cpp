@@ -22,11 +22,11 @@ NppStatus nppiWarpAffineBack_16u_C4R_Ctx(const Npp16u * pSrc, NppiSize oSrcSize,
 }
 
 NppStatus nppiWarpAffineBack_16u_P3R_Ctx(const Npp16u * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp16u * pDst[3], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp16u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp16u, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_16u_P4R_Ctx(const Npp16u * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp16u * pDst[4], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp16u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp16u, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_32f_AC4R_Ctx(const Npp32f * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f * pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -46,11 +46,11 @@ NppStatus nppiWarpAffineBack_32f_C4R_Ctx(const Npp32f * pSrc, NppiSize oSrcSize,
 }
 
 NppStatus nppiWarpAffineBack_32f_P3R_Ctx(const Npp32f * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f * pDst[3], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp32f, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp32f, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_32f_P4R_Ctx(const Npp32f * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f * pDst[4], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp32f, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp32f, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_32s_AC4R_Ctx(const Npp32s * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32s * pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -70,11 +70,11 @@ NppStatus nppiWarpAffineBack_32s_C4R_Ctx(const Npp32s * pSrc, NppiSize oSrcSize,
 }
 
 NppStatus nppiWarpAffineBack_32s_P3R_Ctx(const Npp32s * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32s * pDst[3], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp32s, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp32s, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_32s_P4R_Ctx(const Npp32s * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32s * pDst[4], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp32s, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp32s, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_8u_AC4R_Ctx(const Npp8u * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u * pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
@@ -94,11 +94,11 @@ NppStatus nppiWarpAffineBack_8u_C4R_Ctx(const Npp8u * pSrc, NppiSize oSrcSize, i
 }
 
 NppStatus nppiWarpAffineBack_8u_P3R_Ctx(const Npp8u * pSrc[3], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u * pDst[3], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp8u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp8u, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_8u_P4R_Ctx(const Npp8u * pSrc[4], NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u * pDst[4], int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation, NppStreamContext nppStreamCtx) {
-  return nppi::geometry::warpAffineBackPlanar<Npp8u, 1>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
+  return nppi::geometry::warpAffineBackPlanar<Npp8u, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream);
 }
 
 NppStatus nppiWarpAffineBack_16u_AC4R(const Npp16u * pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp16u * pDst, int nDstStep, NppiRect oDstROI, const double aCoeffs[2][3], int eInterpolation) {

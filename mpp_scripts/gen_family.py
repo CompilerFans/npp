@@ -156,10 +156,10 @@ NPPI_LAYOUT_RE = re.compile(r"_AC4R")
 
 
 def nppi_channel_count(name: str) -> int:
-    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4)."""
+    """NPPI channel count from the layout suffix (C1..C4 / AC4 / P3 / P4)."""
     if NPPI_LAYOUT_RE.search(name):
         return 4
-    m = re.search(r"_C([1234])R", name)
+    m = re.search(r"_[PC]([1234])R", name)
     return int(m.group(1)) if m else 1
 
 
