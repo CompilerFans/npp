@@ -29,6 +29,12 @@
 //     dst step not a multiple of the alignment (NPP_NOT_EVEN_STEP_ERROR;
 //     element size for C1/C3, pixel size for C4/AC4).  The source step is
 //     never validated.
+//   * Legacy validation (PrewittHoriz/VertBorder, RobertsDown/UpBorder only,
+//     legacyValidation=true): null -> oSrcSize <= 0 (NPP_SIZE_ERROR) ->
+//     negative ROI (NPP_SIZE_ERROR) -> negative oSrcOffset
+//     (NPP_OUT_OFF_RANGE_ERROR) -> unsupported border type
+//     (NPP_NOT_SUPPORTED_MODE_ERROR) -> zero-size ROI (NPP_NO_ERROR, skips
+//     the step check) -> step checks.
 #ifndef NPPI_FILTER_DERIVATIVES_EXECUTOR_H
 #define NPPI_FILTER_DERIVATIVES_EXECUTOR_H
 
@@ -56,9 +62,12 @@ NppStatus filterDeriv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Np
                       cudaStream_t stream);
 
 // Border variant of the fixed 3x3 filter (NPP_BORDER_REPLICATE only).
+// legacyValidation selects the Prewitt/Roberts Border validation order (see
+// the header comment); it defaults to the modern (Sobel) order.
 template <typename Src, typename Dst, int Channels, bool AlphaPreserve, DerivOp Op>
 NppStatus filterDerivBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Dst *pDst,
-                            int nDstStep, NppiSize oSizeROI, NppBorderType eBorderType, cudaStream_t stream);
+                            int nDstStep, NppiSize oSizeROI, NppiBorderType eBorderType, cudaStream_t stream,
+                            bool legacyValidation = false);
 
 // Masked 3x3/5x5 filter (single channel): SobelHoriz/SobelVert conversion
 // variants, SobelCross, Sobel*Second and the SobelHoriz/VertMask families.
@@ -69,7 +78,7 @@ NppStatus filterDerivMask(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
 // Border variant of the masked 3x3/5x5 filter.
 template <typename Src, typename Dst, DerivOp Op>
 NppStatus filterDerivMaskBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Dst *pDst,
-                                int nDstStep, NppiSize oSizeROI, NppiMaskSize eMaskSize, NppBorderType eBorderType,
+                                int nDstStep, NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiBorderType eBorderType,
                                 cudaStream_t stream);
 
 }  // namespace filter

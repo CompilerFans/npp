@@ -5,5 +5,5 @@
   "includes": [
     "nppi_filter_derivatives_executor.h"
   ],
-  "call": "nppi::filter::filterDerivBorder<{dtype}, {dtype}, {chan}, {is_ac4}, nppi::filter::kRobertsUp>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eBorderType, nppStreamCtx.hStream)"
+  "call": "nppi::filter::filterDerivBorder<{dtype}, {dtype}, {chan}, {is_ac4}, nppi::filter::kRobertsUp>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eBorderType, nppStreamCtx.hStream, true)"
 }
