@@ -1,0 +1,8 @@
+{
+  "family": "nppiWarpAffineBatch",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_warp_affine_batch_generated.cpp",
+  "includes": ["nppi_warp_affine_executor.h"],
+  "families": ["nppiWarpAffineBatch"],
+  "call": "nppi::geometry::warpAffineBatch<{dtype}, {chan}, {is_ac4}>(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList, nBatchSize, nppStreamCtx.hStream)"
+}

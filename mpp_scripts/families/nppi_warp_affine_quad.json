@@ -1,0 +1,14 @@
+{
+  "family": "nppiWarpAffineQuad",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_warp_affine_quad_generated.cpp",
+  "includes": ["nppi_warp_affine_executor.h"],
+  "families": ["nppiWarpAffineQuad"],
+  "call_variants": [
+    {
+      "contains": "pSrc[",
+      "call": "nppi::geometry::warpAffineQuadPlanar<{dtype}, {chan}>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::geometry::warpAffineQuad<{dtype}, {chan}, {is_ac4}>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream)"
+}
