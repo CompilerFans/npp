@@ -69,6 +69,8 @@
 | G1 | NPPI WarpAffine 家族（实现+测试已写，cubic 边界核待对齐） | 156 | ⏸ 暂停 | `pkg/g1` → `84ee401` |
 | F1 | NPPI 基础滤波（Filter/FilterBorder/32f 行/列 + border） | 262 | ✅ 已合并 | `pkg/f1` → `6390cd6` |
 | F4 | NPPI 导数滤波（Sobel/Scharr/Prewitt/Roberts 及 mask/second/border 变体） | 348 | ✅ 已合并 | `pkg/f4` → `4ecdea2` |
+| opt_fix | 600U：形态学 word-per-pixel 向量化 + 8u C3 回退定位 | 0 | ✅ 已合并 | `pkg/opt_fix` → `409d5ef` |
+| opt_planar | 600U：平面↔打包拷贝 128-bit 逐平面向量化 | 0 | ✅ 已合并 | `pkg/opt_planar` → `409d5ef` |
 
 ## 4. 每个包的合并检查
 
@@ -80,6 +82,7 @@
 
 ## 5. 决策记录
 
+- **600U 优化结果（opt_fix + opt_planar，2026-10-31）**：两包合入 `409d5ef`。opt_fix：`nppiMorphWordPix_kernel`（8u C4R uchar4 SWAR、32f C1R float compare-select，保持 NaN/±0 与 clamped 边界，6 个接入点，不对齐自动回退）实测 8u C4R 3x3 1.19–1.49×、5x5/7x7 2.59–3.78×、32f C1R 2.68–3.98×；此前报告的 `nppiAdd_8u_C3RSfs` 147→108 GB/s “回退”经同设备 A/B/C 三臂复测确认是刷新 harness 的测量噪声（同二进制波动 2.8×），向量路径实际 1.34–1.65×。opt_planar：逐平面 128-bit 拷贝，C3P3 656–800 GB/s、P3C3 307–318 GB/s、C4P4/P4C4 188–698 GB/s，相对旧实现 1.4×–136×；P3C3 方向受读分散限制约 310 GB/s。验证：集成树 unit 4,823、diff 1,974；600U 上全量 unit 4,820/4,820（健康设备 4）。环境记录：node53 MCP 未挂载到子会话（当时 MCP 配置只含 5090），两个 opt agent 改用直连 SSH；opt_planar 报告设备 15/14/12/10/8 出现 per-device 驱动楔死（非阻塞流创建 ioctl 超时），疑似被 kill 的 GPU 进程泄漏队列资源，换设备 4 后全过。
 - **F4 结果**：Sobel/Scharr/Prewitt/Roberts 及其 mask、second-derivative、border 变体共 22 个 family、348 个函数合入，catalog real 9,476→9,824、missing 2,943→2,595、remaining 3,061→2,713。验证：`NppiFilterDerivDiff.*` 22/22、整树 unit 4,803、diff 1,974 全绿。f4 的 758 个 golden 已从其 worktree 并入共享 `artifacts/5090/npp_records/nppiFilterDeriv`。注意：第一次跑全量 unit 时 C500 发生一次设备复位（`ResetType=1`，之后所有分配返回 10002），全新进程重跑全量无失败，属一次性事件而非 f4 回归。
 - **F1 结果**：nppiFilter32f / nppiFilterBorder32f / nppiFilterBorder（整数 divisor）/ nppiFilterRow32f / nppiFilterColumn32f / 行/列 border 32f 共 262 个函数合入，catalog real 9,214→9,476、missing 3,205→2,943、remaining 3,323→3,061。验证：三个 filter 差分 suite 23/23、整树 unit 4,803、diff 1,952 全绿。5090 实测补齐的边界语义：空核/空 mask 会零填充但**保留最后一条线**（2D 保留最后一行+最后一列，行滤波保留最后一列，列滤波保留最后一行）；负 mask 在 border 行/列族是 NO_ERROR no-op，在非 border 族走 anchor 校验返回 OUT_OFF_RANGE；负 dst step 通过无符号 size 检查后 NPP 返回 NO_ERROR（我们跳过 launch）；整数 nppiFilterBorder 的 srcOffset 越界检查先于 divisor==0；16f 变体在 5090 上是真实可用的（golden 为 NO_ERROR），已改为 half→float→half 的真实实现（原实现错误地返回 NOT_SUFFICIENT_COMPUTE_CAPABILITY）。f1 的 254 个 golden 已从 agent 的远端目录拉回共享 `artifacts/5090/npp_records`（路径按 case id 扁平化，如 `nppiFilter32f_.../`）。
 - **G3 结果**：nppiMirror / nppiMirrorBatch 全变体（16s/16u/32s/32f/8u × C1/C3/C4/AC4 × R/IR + batch）合入，catalog real 9,166→9,214、stub 166→118、remaining 3,371→3,323。验证：`NppiMirrorDiff.*` 27/27、整树 unit 4,803、diff 1,929 全绿。关键修复：legacy Mirror 实现对空 ROI 会以 0 高度网格启动并返回 CUDA 错误，现按 NPP 语义改为 NO_ERROR no-op；MirrorBatch 差分测试的 input-only Case 无 status 会被 verifier 拒绝，已把输入哈希并入 output Case。g3 的 73 个 golden（nppiMirror*）已并入共享 `artifacts/5090/npp_records`。
