@@ -136,8 +136,9 @@ Never push to Gerrit or any remote, never force-push, never rewrite the integrat
 Commit your work on the current branch. If a requirement is impossible or ambiguous, stop and
 write the question into your final report instead of guessing. Prefer the existing executor,
 policy-template and differential-test patterns over new frameworks.
-The mcpp-5090 MCP server is available (tools: sync/build/test/record/pull/status/run).
-Its default remote_dir is the isolated directory for this package; use it for 5090 work.
+The mcpp-5090 and mcpp-node53 MCP servers are available (tools: sync/build/test/record/pull/status/run).
+Use the server named in your package document; each has its own isolated remote_dir.
+For mcpp-node53 (MXC600-U 8-card node) pass remote_dir explicitly (e.g. ~/mcMPP-opt-<pkg>).
 NEVER run cmake_maca or make_maca: they recreate and delete ~/cu-bridge, breaking the local
 toolchain for everyone. Use the cached ./build.sh in the main checkout; do not try to "repair" the toolkit.
 Keep tool output small: redirect builds/tests to files and inspect with grep/tail; never cat
@@ -151,7 +152,9 @@ Local builds are disabled for this run: fresh worktrees cannot configure the cu-
 with CMake 4.4. Do NOT run ./build.sh, unit_tests or diff_tests, and do not try to repair the
 toolkit. Implement, regenerate wrappers/tests, refresh coverage and package CSVs with the Python
 tools, run static checks (py_compile, gen_family --list, catalog/package counts), and commit
-incrementally. The lead builds and verifies your branch afterwards."
+incrementally. If your package document names a remote MCP server (e.g. mcpp-node53), do the
+build, correctness tests and benchmarks there through that server; otherwise the lead verifies
+your branch afterwards."
 fi
 
 prompt="Read docs/agent_packages/$pkg.md and execute it end to end. The package function list is api_analysis/packages/$pkg.csv. Work in the current checkout, commit on the current branch ($branch), and finish with the report described in the document. Do not push."
@@ -169,6 +172,7 @@ MCP_CFG="${MCPP_5090_MCP_CONFIG:-$HOME/.config/mcpp-5090-mcp.json}"
 if [[ -f "$MCP_CFG" ]]; then
   mcp_args=(--mcp-config "$MCP_CFG" --strict-mcp-config)
   allowed="$allowed mcp__mcpp-5090__sync mcp__mcpp-5090__build mcp__mcpp-5090__test mcp__mcpp-5090__record mcp__mcpp-5090__pull mcp__mcpp-5090__status mcp__mcpp-5090__run"
+  allowed="$allowed mcp__mcpp-node53__sync mcp__mcpp-node53__build mcp__mcpp-node53__test mcp__mcpp-node53__record mcp__mcpp-node53__pull mcp__mcpp-node53__status mcp__mcpp-node53__run"
 fi
 
 cmd=(claude -p --bare --permission-mode bypassPermissions

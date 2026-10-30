@@ -242,6 +242,212 @@ __global__ void binary_inplace_round_kernel(const A* a, D* d, NppSignalLength n,
   if (i < (size_t)n) d[i] = op.template apply_div<D, A, D>(d[i], a[i], m, sf);
 }
 
+// -- 128-bit packet kernels (package opt_elem) -------------------------------
+// Flat 1D grid-stride versions of the kernels above. The launch helpers below
+// dispatch to them only when every element type has the same size (so one
+// packet layout serves all pointers), every base pointer is 16B-aligned and
+// the last packet end stays below 2^32 elements; a partial trailing packet is
+// finished element-wise by its owning thread. The op functors are invoked per
+// element exactly as in the scalar kernels, so results are bit-identical and
+// misaligned / mixed-width / oversized inputs keep the scalar kernels above.
+
+template <typename A, typename B, typename D, int E, typename F>
+__global__ void binary_vec_kernel(const A* a, const B* b, D* d, unsigned packets, unsigned n, F op, int sf) {
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < packets;
+       i += gridDim.x * blockDim.x) {
+    const unsigned base = i * (unsigned)E;
+    if (base + (unsigned)E <= n) {
+      npp_kernel::vec::Packet<A, E> pa;
+      npp_kernel::vec::Packet<B, E> pb;
+      npp_kernel::vec::Packet<D, E> pd;
+      pa.raw = *reinterpret_cast<const uint4*>(a + base);
+      pb.raw = *reinterpret_cast<const uint4*>(b + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        pd.elem[e] = op.template apply<A, B, D>(pa.elem[e], pb.elem[e], sf);
+      *reinterpret_cast<uint4*>(d + base) = pd.raw;
+    } else {
+      for (unsigned g = base; g < n; ++g) d[g] = op.template apply<A, B, D>(a[g], b[g], sf);
+    }
+  }
+}
+
+template <typename A, typename D, int E, typename F>
+__global__ void binary_inplace_vec_kernel(const A* a, D* d, unsigned packets, unsigned n, F op, int sf) {
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < packets;
+       i += gridDim.x * blockDim.x) {
+    const unsigned base = i * (unsigned)E;
+    if (base + (unsigned)E <= n) {
+      npp_kernel::vec::Packet<D, E> pd;
+      npp_kernel::vec::Packet<A, E> pa;
+      pd.raw = *reinterpret_cast<const uint4*>(d + base);
+      pa.raw = *reinterpret_cast<const uint4*>(a + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        pd.elem[e] = op.template apply<D, A, D>(pd.elem[e], pa.elem[e], sf);
+      *reinterpret_cast<uint4*>(d + base) = pd.raw;
+    } else {
+      for (unsigned g = base; g < n; ++g) d[g] = op.template apply<D, A, D>(d[g], a[g], sf);
+    }
+  }
+}
+
+template <typename A, typename B, typename D, int E, typename F>
+__global__ void binary_accum_vec_kernel(const A* a, const B* b, D* d, unsigned packets, unsigned n,
+                                        F op, int sf) {
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < packets;
+       i += gridDim.x * blockDim.x) {
+    const unsigned base = i * (unsigned)E;
+    if (base + (unsigned)E <= n) {
+      npp_kernel::vec::Packet<D, E> pd;
+      npp_kernel::vec::Packet<A, E> pa;
+      npp_kernel::vec::Packet<B, E> pb;
+      pd.raw = *reinterpret_cast<const uint4*>(d + base);
+      pa.raw = *reinterpret_cast<const uint4*>(a + base);
+      pb.raw = *reinterpret_cast<const uint4*>(b + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        pd.elem[e] = op.template accumulate<D, A, B>(pd.elem[e], pa.elem[e], pb.elem[e], sf);
+      *reinterpret_cast<uint4*>(d + base) = pd.raw;
+    } else {
+      for (unsigned g = base; g < n; ++g) d[g] = op.accumulate(d[g], a[g], b[g], sf);
+    }
+  }
+}
+
+template <typename A, typename B, typename D, int E, typename F>
+__global__ void binary_round_vec_kernel(const A* a, const B* b, D* d, unsigned packets, unsigned n,
+                                        NppRoundMode m, F op, int sf) {
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < packets;
+       i += gridDim.x * blockDim.x) {
+    const unsigned base = i * (unsigned)E;
+    if (base + (unsigned)E <= n) {
+      npp_kernel::vec::Packet<A, E> pa;
+      npp_kernel::vec::Packet<B, E> pb;
+      npp_kernel::vec::Packet<D, E> pd;
+      pa.raw = *reinterpret_cast<const uint4*>(a + base);
+      pb.raw = *reinterpret_cast<const uint4*>(b + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        pd.elem[e] = op.template apply_div<A, B, D>(pa.elem[e], pb.elem[e], m, sf);
+      *reinterpret_cast<uint4*>(d + base) = pd.raw;
+    } else {
+      for (unsigned g = base; g < n; ++g) d[g] = op.template apply_div<A, B, D>(a[g], b[g], m, sf);
+    }
+  }
+}
+
+template <typename A, typename D, int E, typename F>
+__global__ void binary_inplace_round_vec_kernel(const A* a, D* d, unsigned packets, unsigned n,
+                                                NppRoundMode m, F op, int sf) {
+  for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < packets;
+       i += gridDim.x * blockDim.x) {
+    const unsigned base = i * (unsigned)E;
+    if (base + (unsigned)E <= n) {
+      npp_kernel::vec::Packet<D, E> pd;
+      npp_kernel::vec::Packet<A, E> pa;
+      pd.raw = *reinterpret_cast<const uint4*>(d + base);
+      pa.raw = *reinterpret_cast<const uint4*>(a + base);
+#pragma unroll
+      for (int e = 0; e < E; ++e)
+        pd.elem[e] = op.template apply_div<D, A, D>(pd.elem[e], pa.elem[e], m, sf);
+      *reinterpret_cast<uint4*>(d + base) = pd.raw;
+    } else {
+      for (unsigned g = base; g < n; ++g) d[g] = op.template apply_div<D, A, D>(d[g], a[g], m, sf);
+    }
+  }
+}
+
+namespace detail {
+
+// Host-side dispatch helpers for the 128-bit packet kernels above (package
+// opt_elem). Each returns true when the vectorized kernel was launched; the
+// caller then skips the original scalar launch. Guards: same-size element
+// types (compile time; mixed-width combos such as 16s16s32f keep the scalar
+// kernels), 16B-aligned base pointers, at least one full packet, and 32-bit
+// packet index safety (signals below 4 GiB per buffer). The kernels use
+// 32-bit index math because the 64-bit grid-stride walk of the scalar
+// kernels costs measurable time on MXC600 for these bandwidth-bound ops.
+
+template <typename A, typename B, typename D, typename F>
+inline bool launchVecBinary(const A* a, const B* b, D* d, size_t n, F op, int sf, cudaStream_t stream) {
+  if constexpr (sizeof(A) == sizeof(B) && sizeof(B) == sizeof(D)) {
+    constexpr int E = npp_kernel::vecElemsPerPacket<A>();
+    if (n >= (size_t)E && npp_kernel::vecAlignedPtr3(a, b, d) && npp_kernel::vec1dIndexSafe<A>(n)) {
+      const size_t packets = npp_kernel::vecPacketCount1D<A>(n);
+      binary_vec_kernel<A, B, D, E, F>
+          <<<npp_kernel::vecGridSize(packets), npp_kernel::kVecBlock, 0, stream>>>(
+              a, b, d, (unsigned)packets, (unsigned)n, op, sf);
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename A, typename D, typename F>
+inline bool launchVecInplace(const A* a, D* d, size_t n, F op, int sf, cudaStream_t stream) {
+  if constexpr (sizeof(A) == sizeof(D)) {
+    constexpr int E = npp_kernel::vecElemsPerPacket<A>();
+    if (n >= (size_t)E && npp_kernel::vecAlignedPtr2(a, d) && npp_kernel::vec1dIndexSafe<A>(n)) {
+      const size_t packets = npp_kernel::vecPacketCount1D<A>(n);
+      binary_inplace_vec_kernel<A, D, E, F>
+          <<<npp_kernel::vecGridSize(packets), npp_kernel::kVecBlock, 0, stream>>>(
+              a, d, (unsigned)packets, (unsigned)n, op, sf);
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename A, typename B, typename D, typename F>
+inline bool launchVecAccum(const A* a, const B* b, D* d, size_t n, F op, int sf, cudaStream_t stream) {
+  if constexpr (sizeof(A) == sizeof(B) && sizeof(B) == sizeof(D)) {
+    constexpr int E = npp_kernel::vecElemsPerPacket<A>();
+    if (n >= (size_t)E && npp_kernel::vecAlignedPtr3(a, b, d) && npp_kernel::vec1dIndexSafe<A>(n)) {
+      const size_t packets = npp_kernel::vecPacketCount1D<A>(n);
+      binary_accum_vec_kernel<A, B, D, E, F>
+          <<<npp_kernel::vecGridSize(packets), npp_kernel::kVecBlock, 0, stream>>>(
+              a, b, d, (unsigned)packets, (unsigned)n, op, sf);
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename A, typename B, typename D, typename F>
+inline bool launchVecRound(const A* a, const B* b, D* d, size_t n, NppRoundMode mode, F op, int sf,
+                           cudaStream_t stream) {
+  if constexpr (sizeof(A) == sizeof(B) && sizeof(B) == sizeof(D)) {
+    constexpr int E = npp_kernel::vecElemsPerPacket<A>();
+    if (n >= (size_t)E && npp_kernel::vecAlignedPtr3(a, b, d) && npp_kernel::vec1dIndexSafe<A>(n)) {
+      const size_t packets = npp_kernel::vecPacketCount1D<A>(n);
+      binary_round_vec_kernel<A, B, D, E, F>
+          <<<npp_kernel::vecGridSize(packets), npp_kernel::kVecBlock, 0, stream>>>(
+              a, b, d, (unsigned)packets, (unsigned)n, mode, op, sf);
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename A, typename D, typename F>
+inline bool launchVecRoundInplace(const A* a, D* d, size_t n, NppRoundMode mode, F op, int sf,
+                                  cudaStream_t stream) {
+  if constexpr (sizeof(A) == sizeof(D)) {
+    constexpr int E = npp_kernel::vecElemsPerPacket<A>();
+    if (n >= (size_t)E && npp_kernel::vecAlignedPtr2(a, d) && npp_kernel::vec1dIndexSafe<A>(n)) {
+      const size_t packets = npp_kernel::vecPacketCount1D<A>(n);
+      binary_inplace_round_vec_kernel<A, D, E, F>
+          <<<npp_kernel::vecGridSize(packets), npp_kernel::kVecBlock, 0, stream>>>(
+              a, d, (unsigned)packets, (unsigned)n, mode, op, sf);
+      return true;
+    }
+  }
+  return false;
+}
+
+}  // namespace detail
+
 #endif  // __CUDACC__
 
 // -- operation functors ------------------------------------------------------
