@@ -2,7 +2,7 @@
 
 message("GPU_TYPE: ${GPU_TYPE}")
 
-if (GPU_TYPE STREQUAL "METAX_GPU")
+if (GPU_TYPE STREQUAL "METAX_GPU" AND NOT USE_NVIDIA_NPP)
   set(MXCC_OPT_FLAGS "-use-dim-intrinsic \
                       -mllvm -metaxgpu-new-streg-abi=true"
                     )
