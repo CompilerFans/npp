@@ -1,0 +1,8 @@
+{
+  "skip_exact": [
+    {
+      "function": "nppiEvenLevelsHost_32s_Ctx",
+      "reason": "vendored header declares a _Ctx variant but NPP 13.4 real headers only export nppiEvenLevelsHost_32s (non-Ctx ABI); the _Ctx symbol does not exist and would fail to link"
+    }
+  ]
+}

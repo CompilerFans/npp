@@ -2221,7 +2221,7 @@
   },
   {
     "function": "nppiMulDeviceCScale_8u_C4IR_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "SIGSEGV inside libnppial.so.13 with valid arguments (cuda-gdb backtrace lands in nppiMulCScale_8u_C4R_Ctx); upstream NPP bug affecting only this C4IR DeviceCScale variant"
   },
   {
     "function": "nppiMulScale_16u_AC4IR",
@@ -3653,7 +3653,7 @@
   },
   {
     "function": "nppiSub_32s_C4IRSfs_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "declared by the NPP 13.4 headers but not exported by libnppial (header/library mismatch); the _Ctx symbol fails to link"
   },
   {
     "function": "nppiSub_32s_C4RSfs",
@@ -3661,7 +3661,7 @@
   },
   {
     "function": "nppiSub_32s_C4RSfs_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "declared by the NPP 13.4 headers but not exported by libnppial (header/library mismatch); the _Ctx symbol fails to link"
   },
   {
     "function": "nppiSub_32sc_AC4IRSfs",
