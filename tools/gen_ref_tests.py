@@ -21,7 +21,11 @@ buffers use a uniform two-channel-pitch step so every planar/semi-planar
 geometry stays in bounds, and batch lists are built host-side then uploaded.
 Functions using these layouts are emitted after the base-layout functions of
 their module (in separate chunk files) so already-recorded chunks stay
-byte-identical when the generator gains support for new layouts.
+byte-identical when the generator gains support for new layouts.  A third
+"misc" stream holds functions the legacy rules skipped but the widened
+misc-mode rules (extra scalar/struct types, enum defaults, host-visible
+outputs, optional-output nulls) can construct; it is emitted after the
+extended-layout chunks for the same reason.
 
 Usage:
   python3 tools/gen_ref_tests.py --module npps_arithmetic_and_logical_operations.h
@@ -100,7 +104,82 @@ HOST_ARRAY_PREFIXES = ("a",)
 KERNELISH = ("pMask", "pKernel", "pTpl", "pTemplate", "pXMap", "pYMap")
 # Scalar parameters whose safe value depends on the name, not the type.
 SCALAR_NAME_DEFAULTS = {"nMin": "0.5", "nMax": "100.5",
-                        "eInterpolation": "NPPI_INTER_LINEAR"}
+                        "eInterpolation": "NPPI_INTER_LINEAR",
+                        "nAstigmatismRatio": "2.0f",
+                        "nOrientationRadians": "0.0f",
+                        # PBA site range: the PRNG float sources cover [-1, 1),
+                        # so [0.5, 1.0] makes ~25% of the pixels sites and the
+                        # distance transform has real work to do.  Integral
+                        # site values use the traditional 0 (see scalar_value;
+                        # non-zero integral ranges are nondeterministic in
+                        # NPP 13.4).
+                        "nMinSiteValue": "0.5", "nMaxSiteValue": "1.0"}
+
+# --- Misc-mode extension (REF_MISC) -----------------------------------------
+# Everything below widens the rule sets for functions the legacy rules above
+# skipped.  Those functions are emitted into a third "misc" chunk stream (see
+# main()); the legacy snapshot classifies rows exactly as the pre-misc
+# generator did, so the two already-recorded streams stay byte-identical.
+LEGACY_SCALAR = dict(SCALAR)
+LEGACY_ENUMS = dict(ENUMS)
+LEGACY_SCRATCH_NAMES = set(SCRATCH_NAMES)
+LEGACY_HOST_NAMES = set(HOST_NAMES)
+LEGACY_OUTPUT_SCALAR = set(OUTPUT_SCALAR)
+LEGACY_KNOWN_INPUT_ARRAYS = set(KNOWN_INPUT_ARRAYS)
+LEGACY_BATCH_ONLY_SCALARS = set(BATCH_ONLY_SCALARS)
+
+# Extra scalar C types: the Npp64sc signal type and the small geometry
+# structs used as device outputs (NppiPoint indices, NppPointPolar Hough
+# lines, NppiProfileData radial-profile samples).  "Bytes" kinds capture the
+# raw struct bytes; the size column is sizeof(T).
+SCALAR.update({
+    "Npp64sc": ("CF64", 16),
+    "NppPointPolar": ("Bytes", 8),
+    "NppiPoint": ("Bytes", 8),
+    "NppiProfileData": ("Bytes", 12),
+})
+# Extra enums with a safe default constant (NPP 13.4 nppdefs.h names).
+ENUMS.update({
+    "NppiNorm": "nppiNormL1",
+    "NppiBayerGridPosition": "NPPI_BAYER_BGGR",
+    "NppDataType": "NPP_8U",
+    "NppiChannels": "NPP_CH_1",
+    "NppsZCType": "nppZCR",
+    "NppiWatershedSegmentBoundaryType": "NPP_WATERSHED_SEGMENT_BOUNDARIES_NONE",
+})
+# Extra scratch / working-buffer pointer names.
+SCRATCH_NAMES |= {"pAdvancedScratchBuffer", "pAntialiasingDeviceBuffer", "pBuffer64"}
+# Extra host-visible output scalars: NPP writes them through a host pointer;
+# the typed host variable is captured after the call.
+HOST_NAMES |= {"nBufferSize"}
+# Extra single-value device output pointers.
+OUTPUT_SCALAR |= {"pNormDiff", "pNormRel", "pDp", "pMinValue", "pMaxValue",
+                  "pIndexX", "pIndexY", "pIndx", "pMinIndx", "pMaxIndx",
+                  "pMaxAbs", "pMinAbs", "pCounts", "pValZC", "pMSSSIM",
+                  "pDeviceLineCount"}
+# Fixed-count device output arrays (element count; 257 == signal length N).
+OUTPUT_ARRAYS = {"pDeviceLines": 8, "pProfileData": 2, "pD2FVal": 257}
+# Host input helpers passed by address.  The FusedAbsDiff thresholds are
+# void* in the ABI; the element type follows the NPP_8U/NPP_CH_1 default.
+HOST_IN_SCALARS = {"pThreshold": "Npp8u", "pvalue": "Npp8u"}
+# Host input arrays: name -> (element type, count, brace initializer).
+# The two HOG descriptor windows are stacked vertically: NPP requires
+# nSrcStep >= 4 * (union x extent of the windows), which the natural
+# 8u C1 pitch (align16(21) == 32) only meets when the windows share x.
+HOST_IN_ARRAYS = {"hpLocations": ("NppiPoint", 2, "{0, 0}, {0, 4}")}
+# Host output structs written through a host pointer: name -> C type.
+HOST_STRUCT_OUT = {"pConnectedRegion": "NppiConnectedRegion"}
+# Optional device outputs declared "or NULL" in the headers (PBA voronoi
+# planes): pass nullptr so only the transform output is produced.
+NULL_PTR_NAMES = {"pDstVoronoi", "pDstVoronoiIndices",
+                  "pDstVoronoiAbsoluteManhattanDistances",
+                  "pDstVoronoiRelativeManhattanDistances"}
+# Image-shaped device outputs that do not follow the pDst naming.
+OUT_IMAGE_NAMES = {"pMarkerLabels"}
+# Extra per-channel input count arrays declared without a const.
+# oDstROI is the polar search-region input of FilterHoughLineRegion (the
+# header declares it without a const).
+KNOWN_INPUT_ARRAYS |= {"nColorKeyConst", "oDstROI"}
 
 # --- Extended layouts -------------------------------------------------------
 # Batched entry points take nBatchSize > 1; two images keep every family
@@ -245,14 +324,29 @@ def pointee(p: Param) -> Optional[str]:
     return p.ctype if p.ctype in SCALAR else None
 
 
-def pointer_role(p: Param) -> Optional[str]:
+def pointer_role(p: Param, legacy: bool = False) -> Optional[str]:
     n = p.name
-    if n in SCRATCH_NAMES:
+    if n in (LEGACY_SCRATCH_NAMES if legacy else SCRATCH_NAMES):
         return "scratch"
-    if n in HOST_NAMES:
+    if n in (LEGACY_HOST_NAMES if legacy else HOST_NAMES):
         return "host"
-    if n in OUTPUT_SCALAR:
+    if n in (LEGACY_OUTPUT_SCALAR if legacy else OUTPUT_SCALAR):
         return "scalar_out"
+    if not legacy:
+        if n in OUTPUT_ARRAYS:
+            return "array_out"
+        if n in HOST_IN_SCALARS:
+            return "host_in_scalar"
+        if n in HOST_IN_ARRAYS:
+            return "host_in_array"
+        if n in HOST_STRUCT_OUT:
+            return "host_out_struct"
+        if n in NULL_PTR_NAMES:
+            return "null"
+        if n == "pSqr":
+            return "in" if p.is_const else "out"
+        if n in OUT_IMAGE_NAMES:
+            return "out"
     if n in ("pSrcDst", "pSrcDst1", "pSrcDst2"):
         return "inplace"
     if n.startswith("pDst"):
@@ -326,14 +420,27 @@ def needs_ext_layout(fn: str, params: Optional[Sequence[Param]]) -> bool:
     return False
 
 
-def scalar_value(p: Param) -> Optional[str]:
+def scalar_value(p: Param, misc: bool = False) -> Optional[str]:
     if p.name in SCALAR_NAME_DEFAULTS:
         t = p.ctype
         # Name-based defaults only apply to the types where they make sense.
         if p.name == "eInterpolation" and t in SCALAR:
             return SCALAR_NAME_DEFAULTS[p.name]
-        if p.name in ("nMin", "nMax") and t in ("Npp32f", "Npp64f", "float", "double"):
+        if p.name in ("nMin", "nMax", "nAstigmatismRatio",
+                      "nOrientationRadians") \
+                and t in ("Npp32f", "Npp64f", "float", "double"):
             return SCALAR_NAME_DEFAULTS[p.name]
+        if misc and p.name in ("nMinSiteValue", "nMaxSiteValue"):
+            # PBA site range.  Integral site extraction is only
+            # run-to-run deterministic for the traditional all-zeros range
+            # (probe: 8/8 stable at [0,0] vs 5/6 unstable at [2,2]/[1,4]/
+            # [1,8] on RTX 5090, NPP 13.4); PRNG integral data covers
+            # 0..15, so [0,0] still selects ~1/16 of the pixels as sites.
+            # Float sources cover [-1, 1), so [0.5, 1.0] selects ~25%.
+            if t in ("Npp32f", "Npp64f", "float", "double"):
+                return SCALAR_NAME_DEFAULTS[p.name]
+            if t in SCALAR and t != "Npp16f":
+                return "0"
     t = p.ctype
     if t in ENUMS:
         return ENUMS[t]
@@ -343,11 +450,20 @@ def scalar_value(p: Param) -> Optional[str]:
         return "{1, 1}"
     if t == "NppiRect":
         return "{0, 0, 17, 13}"
+    if t == "NppiPoint32f":
+        return "{8.5f, 6.5f}"  # inside the default ROI (radial profiles)
+    if t == "NppPointPolar":
+        return "{1.0f, 1.0f}"  # Hough-line discretization step
+    if t == "NppiHOGConfig":
+        # Smallest valid HOG configuration (cell 4 <= block 8 <= window 8,
+        # 4 bins), probe-verified against the NPP 13.4 mode checks.
+        return "{4, 8, 4, {8, 8}}"
     if t in ("Npp32f", "Npp64f", "float", "double"):
         return "0.5"
     if t == "Npp16f":
         return "float_to_npp16f_host(0.5f)"
-    if t in ("Npp16sc", "Npp32sc", "Npp32fc", "Npp64fc", "Npp8uc", "Npp16uc", "Npp32uc"):
+    if t in ("Npp16sc", "Npp32sc", "Npp32fc", "Npp64fc", "Npp64sc",
+             "Npp8uc", "Npp16uc", "Npp32uc"):
         return f"{t}{{2, 2}}"
     if t in SCALAR:
         return "2"
@@ -364,6 +480,10 @@ def host_array_init(p: Param, toks: Sequence[int], W: int, H: int,
     safe, deterministic copy-like operation.
     """
     dims = p.arr_dims or ((p.array_len,) if p.array_len else (1,))
+    if p.name == "oDstROI":
+        # Hough-line region filter: two polar points (rho, theta) bounding
+        # the search wedge; probe-verified on the 5090.
+        return "{{0.0f, 0.0f}, {21.0f, 6.3f}}"
     if p.name == "aDstOrder":
         src_ch = toks[0] if toks else 1
         return "{%s}" % ", ".join(str(min(i, src_ch - 1)) for i in range(dims[0]))
@@ -393,7 +513,13 @@ def fn_kind(fn: str, params: Sequence[Param]) -> str:
     return "image"
 
 
-def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
+def skip_reason(row: dict, params: Optional[Sequence[Param]],
+                legacy: bool = False) -> Optional[str]:
+    """Reason a function cannot be constructed safely, or None.
+
+    ``legacy=True`` evaluates the pre-misc rule set; it classifies rows into
+    the recorded streams exactly as before (see main()).
+    """
     if row["ctx"] != "1":
         return "non-ctx (NPP 13 removed the ABI)"
     if params is None:
@@ -402,6 +528,12 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
         return "no parameters"
     batch = any(p.ctype in BATCH_STRUCTS for p in params)
     has_ptr_array = any(p.is_ptr_array for p in params)
+    scalar_t = LEGACY_SCALAR if legacy else SCALAR
+    enums = LEGACY_ENUMS if legacy else ENUMS
+    known_in = LEGACY_KNOWN_INPUT_ARRAYS if legacy else KNOWN_INPUT_ARRAYS
+    # Non-batch metric outputs (pMSE/...) are only constructed by the misc
+    # rules; the legacy classification keeps skipping them.
+    batch_only = LEGACY_BATCH_ONLY_SCALARS if legacy else frozenset()
     for p in params:
         if p.is_ptr_array:
             if (p.ctype == "NppiImageDescriptor" or p.ctype in SCALAR) \
@@ -416,11 +548,11 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
             # Fixed-size host constant array (channel orders, warp
             # coefficients, per-channel fill values, ...).  Per-channel LUT
             # level counts ride along with the pointer-array tables they
-            # describe (ext-layout functions only).
-            if p.ctype not in SCALAR:
+            # describe (ext-layout functions only in the legacy rules).
+            if p.ctype not in scalar_t:
                 return f"unsupported host array type {p.ctype} ({p.name})"
             if not (p.is_const or p.name.startswith(HOST_ARRAY_PREFIXES)
-                    or (p.name in KNOWN_INPUT_ARRAYS and has_ptr_array)):
+                    or (p.name in known_in and (has_ptr_array or not legacy))):
                 return f"unsupported host output array {p.name}"
             continue
         if p.is_pointer:
@@ -428,15 +560,27 @@ def skip_reason(row: dict, params: Optional[Sequence[Param]]) -> Optional[str]:
                 if batch_role(p) is None:
                     return f"unknown batch list role {p.name}"
                 continue
-            if p.ctype not in SCALAR:
+            role = pointer_role(p, legacy=legacy)
+            # Roles whose emission supplies its own type (host helpers and
+            # scratch buffers) are accepted regardless of the catalog type;
+            # the legacy rules matched the original ctype check only.
+            hostish = not legacy and role in (
+                "host", "host_in_scalar", "host_in_array", "host_out_struct",
+                "scratch")
+            if p.ctype not in scalar_t and not hostish \
+                    and not (not legacy and p.ctype == "void"
+                             and role in ("in", "out", "inplace")):
                 return f"unsupported pointer type {p.ctype} ({p.name})"
-            if pointer_role(p) is None or \
-                    (p.name in BATCH_ONLY_SCALARS and not batch):
+            if role is None or (p.name in batch_only and not batch):
                 return f"unknown pointer role {p.name}"
         else:
             if batch and p.ctype == "NppiNorm":
                 continue  # batched label entry points take an inf-norm default
-            if p.ctype in SCALAR or p.ctype in ENUMS or p.ctype in ("NppiSize", "NppiPoint", "NppiRect"):
+            structish = ("NppiSize", "NppiPoint", "NppiRect")
+            if not legacy:
+                # Small geometry structs the misc rules can default safely.
+                structish += ("NppiPoint32f", "NppPointPolar", "NppiHOGConfig")
+            if p.ctype in scalar_t or p.ctype in enums or p.ctype in structish:
                 continue
             return f"unsupported scalar type {p.ctype} ({p.name})"
     return None
@@ -446,11 +590,17 @@ def align_step(width: int, count: int, esize: int) -> str:
     return f"align16({width} * {count} * {esize})"
 
 
-def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optional[str]]:
+def generate(row: dict, ov: Optional[dict] = None,
+             misc: bool = False) -> Tuple[Optional[str], Optional[str]]:
     fn = row["function_name"]
     ov = ov or {}
     for exact in ov.get("skip_exact", []):
-        if fn == exact:
+        # Entries are either plain function names or objects carrying a
+        # precise, verifiable skip reason for the manifest.
+        if isinstance(exact, dict):
+            if fn == exact.get("function"):
+                return None, exact.get("reason") or "module override: skip_exact"
+        elif fn == exact:
             return None, "module override: skip_exact"
     for needle in ov.get("skip_contains", []):
         if needle in fn:
@@ -488,6 +638,27 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         # only ROIs of 16x16 pixels and above; smaller ROIs are undefined.
         # Buffers are sized from HMAX so the taller ROI still fits.
         H = max(H, 16)
+    elif misc and "MSSSIM_" in fn:
+        # The single-image (W)MSSSIM metrics hard-reject small ROIs (probe:
+        # NPP_SIZE_ERROR at 17x13; 256x256 returns NPP_NO_ERROR).  WMAX/HMAX
+        # follow the enlarged ROI so steps and buffer counts stay consistent
+        # (a 256-wide ROI with a WMAX-sized pitch reads past the buffers).
+        W, H = 256, 256
+        WMAX, HMAX = W + 4, H + 4
+    elif misc and "CFAToRGB" in fn:
+        # Bayer CFA demosaic needs an even ROI in both dimensions (probe:
+        # 17x13 -> NPP_SIZE_ERROR, 16x12 -> NPP_NO_ERROR), the same even-ROI
+        # rule the semi-planar paths above already follow.  Buffers and steps
+        # stay sized from WMAX/HMAX and remain oversized.
+        W, H = W - 1, H - 1
+    elif misc and "DistanceTransform" in fn and "PBA" in fn:
+        # The PBA distance transforms hard-require an ROI of at least 64x64
+        # in both dimensions (probe: 63x63 and 64x17 -> NPP_SIZE_ERROR,
+        # 64x64 and 65x65 -> NPP_NO_ERROR).  WMAX/HMAX follow the enlarged
+        # ROI so the transform pitch clears the NPP step checks
+        # (nDstTransformStep >= ROI width * 8 bytes).
+        W, H = 64, 64
+        WMAX, HMAX = W + 4, H + 4
 
     # Discover the image element type (first image pointer) for the fallback step.
     img_t = "Npp8u"
@@ -531,6 +702,11 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
 
     decls: List[str] = [f"  NppStreamContext ctx = ref_current_context();"]
 
+    def pr(p: Param) -> Optional[str]:
+        # Legacy rows resolve pointer roles with the legacy name sets so
+        # their emission stays byte-identical; misc rows use the new sets.
+        return pointer_role(p, legacy=not misc)
+
     # Per-pointer channel counts: the channel tokens in the layout suffix map,
     # in order, onto the image pointers that carry pixel data (C3C4R -> src 3,
     # dst 4).  Mask/kernel/template and coordinate-map pointers stay single
@@ -551,7 +727,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if p.name in KERNELISH:
             pch[p.name] = 1
             continue
-        if (batch_role(p) or pointer_role(p)) in ("in", "out", "inplace"):
+        if (batch_role(p) or pr(p)) in ("in", "out", "inplace"):
             pch[p.name] = toks[img_idx] if img_idx < len(toks) else toks[-1]
             img_idx += 1
 
@@ -559,16 +735,31 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         return pch.get(p.name, ch)
 
     def count_for(p: Param) -> int:
-        role = pointer_role(p)
+        role = pr(p)
         if role == "scratch":
+            # The misc (W)MSSSIM metrics need 1.7-5.6 MB of scratch for
+            # their 256x256 ROI (per the GetBufferHostSize entry points);
+            # every other family stays far below 1 MB at the default
+            # geometry.
+            if misc and "MSSSIM" in fn:
+                return 8 * 1024 * 1024
             return 1024 * 1024
         if role == "host":
             return 1
+        if role == "array_out":
+            # Fixed-count device output arrays (Hough lines, profile data).
+            return OUTPUT_ARRAYS[p.name]
         if role == "scalar_out":
             # Batched metric outputs carry one value per image in the batch,
             # per channel (NPP docs size them nBatchSize * channels).
             return NBATCH * max(ch, 1) if is_batch else max(ch, 1)
         if role in ("in", "out", "inplace"):
+            if misc and p.name == "pMask":
+                # NPP masks are ROI-sized channel-blind bitmaps: the legacy
+                # 3x3 sizing is narrower than the default ROI, so the misc
+                # stream pitches the mask like a single-channel image
+                # (nMaskStep < ROI width -> NPP_STEP_ERROR).
+                return HMAX * (WMAX + 16)
             if p.name in ("pMask", "pKernel", "pTpl", "pTemplate"):
                 return 3 * (3 + 16)
             if kind == "signal":
@@ -607,7 +798,19 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if q is not None and q.ctype in SCALAR and not q.is_array:
             es = SCALAR[q.ctype][1]
             if matched in ("pMask", "pKernel", "pTpl"):
-                steps[p.name] = f"align16(3 * {es})"
+                if misc and matched == "pMask":
+                    # ROI-sized channel-blind mask pitch (see count_for).
+                    steps[p.name] = f"align16({WMAX} * {es})"
+                elif misc:
+                    # Correlation templates and filter kernels are
+                    # channel-packed: a 3-pixel row needs 3 * channels *
+                    # esize bytes, or NPP rejects the call with
+                    # NPP_STEP_ERROR (probed on 16u32f/32f/64f C3/C4
+                    # templates carrying a C1-sized pitch).  Legacy rows
+                    # keep the historic channel-blind pitch.
+                    steps[p.name] = f"align16(3 * {ch} * {es})"
+                else:
+                    steps[p.name] = f"align16(3 * {es})"
             else:
                 steps[p.name] = f"align16({WMAX} * {ch_of(q)} * {es})"
         elif q is not None and q.is_ptr_array and q.ctype in SCALAR:
@@ -810,7 +1013,7 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         return f"unknown batch list role {n}"
 
     for p in params:
-        role = pointer_role(p) if p.is_pointer else None
+        role = pr(p) if p.is_pointer else None
         # Arrays of device pointers: planar planes, per-channel LUT tables,
         # per-plane histograms, per-plane batch lists.
         if p.is_ptr_array:
@@ -847,22 +1050,59 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             args.append(p.name)
             continue
         if p.is_pointer and role == "host":
-            decls.append(f"  SIZE_TYPE {p.name} = 0;")
+            if misc:
+                # Host-side outputs are captured after the call.  NPP 13.4
+                # writes the FilterMedian buffer size as an Npp32u; the other
+                # host outputs (hpBufferSize family) are size_t == SIZE_TYPE.
+                if p.name == "nBufferSize":
+                    decls.append(f"  Npp32u {p.name} = 0;")
+                    args.append(f"&{p.name}")
+                    captures.append(f"  ref_capture_host_bytes(c, &{p.name}, sizeof(Npp32u));")
+                else:
+                    decls.append(f"  SIZE_TYPE {p.name} = 0;")
+                    args.append(f"&{p.name}")
+                    captures.append(f"  ref_capture_host_bytes(c, &{p.name}, sizeof(SIZE_TYPE));")
+            else:
+                decls.append(f"  SIZE_TYPE {p.name} = 0;")
+                args.append(f"&{p.name}")
+            continue
+        if p.is_pointer and role == "host_in_scalar":
+            t = HOST_IN_SCALARS[p.name]
+            decls.append(f"  {t} {p.name} = 2;")
             args.append(f"&{p.name}")
             continue
+        if p.is_pointer and role == "host_in_array":
+            t, k, init = HOST_IN_ARRAYS[p.name]
+            decls.append(f"  {t} {p.name}[{k}] = {{{init}}};")
+            args.append(p.name)
+            continue
+        if p.is_pointer and role == "host_out_struct":
+            t = HOST_STRUCT_OUT[p.name]
+            decls.append(f"  {t} {p.name};")
+            decls.append(f"  std::memset(&{p.name}, 0xAB, sizeof({t}));")
+            args.append(f"&{p.name}")
+            captures.append(f"  ref_capture_host_bytes(c, &{p.name}, sizeof({t}));")
+            continue
+        if p.is_pointer and role == "null":
+            # Optional output the header declares "or NULL" (PBA voronoi).
+            args.append("nullptr")
+            continue
         if p.is_pointer and role:
-            if p.ctype not in SCALAR:
+            if p.ctype not in SCALAR and p.ctype != "void":
                 return None, f"unsupported pointer type {p.ctype}"
+            # void* image pointers (FusedAbsDiff family) use the discovered
+            # image element type, which defaults to Npp8u.
+            t = p.ctype if p.ctype in SCALAR else img_t
             n = p.name
             count = count_for(p)
-            decls.append(f"  auto {n} = ref_device<{p.ctype}>({count}, {seed_for(n)});")
+            decls.append(f"  auto {n} = ref_device<{t}>({count}, {seed_for(n)});")
             args.append(f"{n}->get()")
-            if role in ("out", "inplace", "scalar_out"):
+            if role in ("out", "inplace", "scalar_out", "array_out"):
                 # Captured by exact byte size: the ValueKind element size used by
                 # ref_capture<T> can exceed sizeof(T) for fixed-point complex types
                 # (e.g. Npp16sc is 4 bytes but maps to the 8-byte CF32 kind), which
                 # makes the D2H copy read past the allocation for scalar outputs.
-                captures.append(f'  ref_capture_bytes(c, {n}->get(), {count} * sizeof({p.ctype}));')
+                captures.append(f'  ref_capture_bytes(c, {n}->get(), {count} * sizeof({t}));')
             continue
         if p.is_pointer:
             return None, f"unsupported pointer role {p.name}"
@@ -878,11 +1118,10 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             args.append(str(WMAX if p.name == "nMaxWidth" else HMAX))
             continue
         if p.ctype == "NppiNorm":
-            # Batched label entry points only (skip_reason gates the rest).
-            if is_batch:
-                args.append("nppiNormInf")
-                continue
-            return None, f"unsupported scalar type NppiNorm ({p.name})"
+            # Batched label entry points keep the inf-norm default; the misc
+            # stream uses the general enum default (nppiNormL1).
+            args.append("nppiNormInf" if is_batch else ENUMS["NppiNorm"])
+            continue
         if p.name in steps:
             # Per-pointer step (mixed-type functions have different src/dst
             # element sizes; the steps dict already resolved the right one).
@@ -894,6 +1133,12 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
             elif p.name in ("oDstSize", "oDstSizeROI") or (is_batch and p.name == "oSmallestDstSize"):
                 # Padded destination geometry (border copies, sub-pixel copies).
                 args.append(f"{{{WMAX}, {HMAX}}}")
+            elif misc and p.name == "oSrcSize" \
+                    and any(q.name == "oSrcOffset" for q in params):
+                # Border entry points new to the misc stream: the padded
+                # source geometry keeps oSrcOffset + oSizeROI inside the
+                # source image (buffers are sized from WMAX/HMAX anyway).
+                args.append(f"{{{WMAX}, {HMAX}}}")
             else:
                 args.append(f"{{{W}, {H}}}")
             continue
@@ -903,13 +1148,18 @@ def generate(row: dict, ov: Optional[dict] = None) -> Tuple[Optional[str], Optio
         if p.ctype == "NppiRect":
             if p.name in ("oDstROI", "oDstRectROI"):
                 args.append(f"{{0, 0, {WMAX}, {HMAX}}}")
+            elif p.name == "oRect":
+                # RectStdDev reads pSrc/pSqr over (oSizeROI + oRect) in both
+                # dimensions (header contract); the default full-ROI rect
+                # doubles the required pitch, so use a small interior rect.
+                args.append("{0, 0, 3, 3}")
             else:
                 args.append(f"{{0, 0, {W}, {H}}}")
             continue
         if p.ctype == "size_t" and "Length" in p.name:
             args.append("static_cast<size_t>(257)")
             continue
-        val = scalar_value(p)
+        val = scalar_value(p, misc)
         if val is None:
             return None, f"unsupported scalar {p.ctype} {p.name}"
         args.append(val)
@@ -955,24 +1205,34 @@ def main() -> int:
         stem0 = re.sub(r"[^A-Za-z0-9]+", "_", module.replace(".h", ""))
         ov_path = args.out_dir / "overrides" / f"{stem0}.json"
         ov = json.loads(ov_path.read_text()) if ov_path.is_file() else {}
-        ok, skipped, ext = [], [], []
+        ok, skipped, ext, misc = [], [], [], []
         for r in mrows:
-            text, reason = generate(r, ov)
+            params = parse_params(r["params"])
+            # Functions the legacy rules skipped are emitted by the misc rules
+            # into a third chunk stream, so both already-recorded streams
+            # chunk exactly as before.
+            legacy_reason = skip_reason(r, params, legacy=True)
+            text, reason = generate(r, ov, misc=legacy_reason is not None)
             if text is None:
                 skipped.append({"function": r["function_name"], "reason": reason})
-            elif needs_ext_layout(r["function_name"], parse_params(r["params"])):
+            elif legacy_reason is not None:
+                misc.append((r["function_name"], text))
+            elif needs_ext_layout(r["function_name"], params):
                 ext.append((r["function_name"], text))
             else:
                 ok.append((r["function_name"], text))
-        total_ok += len(ok) + len(ext)
+        total_ok += len(ok) + len(ext) + len(misc)
         total_skip += len(skipped)
         stem = re.sub(r"[^A-Za-z0-9]+", "_", module.replace(".h", ""))
-        # Two streams keep already-recorded chunks byte-identical: base-layout
+        # Three streams keep already-recorded chunks byte-identical: base-layout
         # functions chunk exactly as before from index 0, extended-layout
         # functions (planar, pointer arrays, batch lists) start at the first
-        # free chunk index of their module.
+        # free chunk index of their module, and misc functions (newly
+        # constructible under the widened rules) start after both.
         base_chunks = -(-len(ok) // args.chunk_size)
-        for stream, start in ((ok, 0), (ext, base_chunks)):
+        ext_chunks = -(-len(ext) // args.chunk_size)
+        for stream, start in ((ok, 0), (ext, base_chunks),
+                              (misc, base_chunks + ext_chunks)):
             for idx in range(0, len(stream), args.chunk_size):
                 chunk = stream[idx : idx + args.chunk_size]
                 path = args.out_dir / f"test_{stem}_{start + idx // args.chunk_size}_generated.cpp"

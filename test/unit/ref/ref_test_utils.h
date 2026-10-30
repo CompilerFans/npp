@@ -44,6 +44,7 @@ template <typename T> constexpr npp_diff::ValueKind kind_for() {
   else if constexpr (std::is_same_v<T, Npp8uc>) return K::CF32;
   else if constexpr (std::is_same_v<T, Npp16uc>) return K::CF32;
   else if constexpr (std::is_same_v<T, Npp32uc>) return K::CF32;
+  else if constexpr (std::is_same_v<T, Npp64sc>) return K::CF64;
   else return K::Bytes;
 }
 
@@ -61,6 +62,7 @@ template <typename T> T ref_value(npp_diff::Rng &rng) {
     v.im = rng.unit_double() * 2.0 - 1.0;
     return v;
   } else if constexpr (std::is_same_v<T, Npp16sc> || std::is_same_v<T, Npp32sc> ||
+                       std::is_same_v<T, Npp64sc> ||
                        std::is_same_v<T, Npp8uc> ||
                        std::is_same_v<T, Npp16uc> || std::is_same_v<T, Npp32uc>) {
     T v;
@@ -96,6 +98,14 @@ template <typename T> void ref_capture(npp_diff::Case &c, const T *ptr, size_t c
 
 inline void ref_capture_bytes(npp_diff::Case &c, const void *ptr, size_t bytes) {
   c.device_output<uint8_t>(reinterpret_cast<const uint8_t *>(ptr), bytes, npp_diff::ValueKind::Bytes);
+}
+
+// Captures a scalar/array that lives in host memory (e.g. nBufferSize /
+// pDeviceLineCount / pNewNumber outputs).  The NPP call may be asynchronous on
+// the record stream, so wait for the device before copying.
+inline void ref_capture_host_bytes(npp_diff::Case &c, const void *ptr, size_t bytes) {
+  cudaDeviceSynchronize();
+  c.host_output<uint8_t>(static_cast<const uint8_t *>(ptr), bytes, npp_diff::ValueKind::Bytes);
 }
 
 // Batch descriptor structs embed device pointers, which are cudaMalloc

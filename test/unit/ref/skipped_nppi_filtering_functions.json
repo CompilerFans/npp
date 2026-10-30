@@ -17,11 +17,11 @@
   },
   {
     "function": "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx",
-    "reason": "unknown pointer role pNewNumber"
+    "reason": "requires genuine nppiLabelMarkersUF output as in-place input, an unpitched nSrcDstStep == oSizeROI.width * sizeof(Npp32u) and nStartingNumber == width*height (any deviation corrupts memory); cannot be constructed from synthetic seeded data"
   },
   {
     "function": "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx",
-    "reason": "unsupported pointer type NppiCompressedMarkerLabelsInfo (pMarkerLabelsInfoListDev)"
+    "reason": "consumes the NppiCompressedMarkerLabelsInfo/contour-direction state written by nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx; not constructible from synthetic data"
   },
   {
     "function": "nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R",
@@ -41,39 +41,27 @@
   },
   {
     "function": "nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx",
-    "reason": "unknown pointer role pCompressedMarkerLabels"
+    "reason": "consumes genuine compressed-marker-label state produced by nppiCompressMarkerLabelsUF_32u_C1IR_Ctx and fills an NppiCompressedMarkerLabelsInfo list plus four contour bookkeeping outputs; not constructible from synthetic data"
   },
   {
     "function": "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx",
-    "reason": "unknown pointer role pContoursImageDev"
+    "reason": "consumes genuine NppiContourPixelDirectionInfo/NppiContourPixelGeometryInfo/NppiContourBlockSegment pipeline state from the compressed-marker-labels contour stages; not constructible from synthetic data"
   },
   {
     "function": "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx",
-    "reason": "unknown pointer role pContoursImageDev"
+    "reason": "consumes genuine NppiContourPixelDirectionInfo/NppiContourPixelGeometryInfo/NppiContourBlockSegment pipeline state from the compressed-marker-labels contour stages; not constructible from synthetic data"
   },
   {
     "function": "nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformAbsPBA_16u64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformAbsPBA_32f64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformAbsPBA_64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 20 consecutive records of identical inputs produced 19 differing transform buffers even with the traditional all-zeros site range (measured with the recorded harness construction, 64x64 ROI); an unseeded parallel race in the NPP kernel, not a construction defect"
   },
   {
     "function": "nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 4 of 20 consecutive records of identical inputs produced differing transform buffers even with the traditional all-zeros site range; unseeded parallel race in the NPP kernel, not a construction defect"
   },
   {
     "function": "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 1 of 20 consecutive records of identical inputs produced a differing transform buffer even with the traditional all-zeros site range; unseeded parallel race in the NPP kernel, not a construction defect"
   },
   {
     "function": "nppiDistanceTransformPBAGetAntialiasingBufferSize",
@@ -84,28 +72,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiDistanceTransformPBA_16s64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformPBA_16u64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformPBA_32f64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformPBA_64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
     "function": "nppiDistanceTransformPBA_8s64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiDistanceTransformPBA_8u64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 7 of 20 consecutive records of identical inputs produced differing transform buffers even with the traditional all-zeros site range; unseeded parallel race in the NPP kernel, not a construction defect"
   },
   {
     "function": "nppiFilter32f_16f_C1R",
@@ -472,10 +440,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterBoxBorderAdvanced_64f_C1R_Ctx",
-    "reason": "unknown pointer role pBuffer64"
-  },
-  {
     "function": "nppiFilterBoxBorder_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -614,10 +578,6 @@
   {
     "function": "nppiFilterCannyBorder_8u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterCannyBorder_8u_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFilterColumn32f_16s_AC4R",
@@ -1296,16 +1256,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterHoughLineRegion_8u32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppPointPolar (nDelta)"
-  },
-  {
     "function": "nppiFilterHoughLine_8u32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterHoughLine_8u32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppPointPolar (nDelta)"
   },
   {
     "function": "nppiFilterLaplaceBorder_16s_AC4R",
@@ -1676,196 +1628,68 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianBorderGetBufferSize_16s_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16s_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16s_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16s_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16u_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16u_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16u_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_16u_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_32f_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_32f_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_32f_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_8u_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
-    "function": "nppiFilterMedianBorderGetBufferSize_8u_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_16s_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_16s_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_16s_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_16s_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_16s_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_16s_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_16s_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_16u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_16u_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_16u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_16u_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_16u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_16u_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_16u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_16u_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_32f_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_32f_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_32f_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_32f_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_32f_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_32f_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_8u_AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_8u_AC4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedianGetBufferSize_8u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_8u_C1R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_8u_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFilterMedianGetBufferSize_8u_C3R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
-  },
-  {
     "function": "nppiFilterMedianGetBufferSize_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFilterMedianGetBufferSize_8u_C4R_Ctx",
-    "reason": "unknown pointer role nBufferSize"
   },
   {
     "function": "nppiFilterMedian_16s_AC4R",
@@ -3416,48 +3240,24 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillBoundary_16u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillBoundary_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillBoundary_16u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillBoundary_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillBoundary_32u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillBoundary_32u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillBoundary_32u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillBoundary_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillBoundary_8u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillBoundary_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillBoundary_8u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGetBufferSize",
@@ -3468,80 +3268,40 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillGradientBoundary_16u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillGradientBoundary_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillGradientBoundary_16u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradientBoundary_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillGradientBoundary_32u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillGradientBoundary_32u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillGradientBoundary_32u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradientBoundary_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillGradientBoundary_8u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillGradientBoundary_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillGradientBoundary_8u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradient_16u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillGradient_16u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillGradient_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillGradient_16u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradient_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillGradient_32u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillGradient_32u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillGradient_32u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillGradient_8u_C1IR",
@@ -3549,159 +3309,83 @@
   },
   {
     "function": "nppiFloodFillGradient_8u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
+    "reason": "NVIDIA NPP 13.4 gradient flood fill evaluates tolerance against neighbor values, so its output depends on the parallel frontier visit order: 2 of 20 consecutive records of identical inputs produced differing fill buffers on RTX 5090; the seed-relative Range/Boundary/plain variants are deterministic (20/20 stable) and stay covered"
   },
   {
     "function": "nppiFloodFillGradient_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillGradient_8u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillRangeBoundary_16u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillRangeBoundary_16u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRangeBoundary_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillRangeBoundary_16u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillRangeBoundary_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillRangeBoundary_32u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRangeBoundary_32u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillRangeBoundary_32u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillRangeBoundary_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillRangeBoundary_8u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRangeBoundary_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillRangeBoundary_8u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillRange_16u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillRange_16u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRange_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillRange_16u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillRange_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillRange_32u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRange_32u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillRange_32u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFillRange_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFillRange_8u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFillRange_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFillRange_8u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFill_16u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFill_16u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFill_16u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFill_16u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFill_32u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFill_32u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiFloodFill_32u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFill_32u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFill_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiFloodFill_8u_C1IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiFloodFill_8u_C3IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFloodFill_8u_C3IR_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGetFilterGaussPyramidLayerDownBorderDstROI",
@@ -3716,192 +3400,96 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorPrewittBorder_16s32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorPrewittBorder_16s32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorPrewittBorder_16s32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorPrewittBorder_16u32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorPrewittBorder_16u32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorPrewittBorder_16u32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorPrewittBorder_16u32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorPrewittBorder_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorPrewittBorder_32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorPrewittBorder_32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorPrewittBorder_32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorPrewittBorder_8u16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorPrewittBorder_8u16s_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorPrewittBorder_8u16s_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorScharrBorder_16s32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorScharrBorder_16s32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorScharrBorder_16s32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorScharrBorder_16s32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorScharrBorder_16u32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorScharrBorder_16u32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorScharrBorder_16u32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorScharrBorder_16u32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorScharrBorder_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorScharrBorder_32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorScharrBorder_32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorScharrBorder_32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorScharrBorder_8u16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorScharrBorder_8u16s_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorScharrBorder_8u16s_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorScharrBorder_8u16s_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorSobelBorder_16s32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorSobelBorder_16s32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorSobelBorder_16s32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorSobelBorder_16s32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorSobelBorder_16u32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorSobelBorder_16u32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorSobelBorder_16u32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorSobelBorder_16u32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorSobelBorder_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorSobelBorder_32f_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorSobelBorder_32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorSobelBorder_32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientVectorSobelBorder_8u16s_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientVectorSobelBorder_8u16s_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientVectorSobelBorder_8u16s_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiHistogramOfGradientsBorderGetBufferSize",
@@ -3916,64 +3504,32 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
-  },
-  {
     "function": "nppiHistogramOfGradientsBorder_16s32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
   },
   {
     "function": "nppiHistogramOfGradientsBorder_16u32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
-  },
-  {
     "function": "nppiHistogramOfGradientsBorder_16u32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
   },
   {
     "function": "nppiHistogramOfGradientsBorder_32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramOfGradientsBorder_32f_C1R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
-  },
-  {
     "function": "nppiHistogramOfGradientsBorder_32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramOfGradientsBorder_32f_C3R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
   },
   {
     "function": "nppiHistogramOfGradientsBorder_8u32f_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
-  },
-  {
     "function": "nppiHistogramOfGradientsBorder_8u32f_C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx",
-    "reason": "unsupported pointer type NppiPoint (hpLocations)"
   },
   {
     "function": "nppiLabelMarkersUFBatch_16u32u_C1R",
@@ -4008,24 +3564,12 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiLabelMarkersUF_16u32u_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiLabelMarkersUF_32u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiLabelMarkersUF_32u_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiLabelMarkersUF_8u32u_C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiLabelMarkersUF_8u32u_C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiSegmentWatershedGetBufferSize_16u_C1R",
@@ -4040,24 +3584,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiSegmentWatershed_16u_C1IR_Ctx",
-    "reason": "unknown pointer role pMarkerLabels"
-  },
-  {
     "function": "nppiSegmentWatershed_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSegmentWatershed_8u_C1IR_Ctx",
-    "reason": "unknown pointer role pMarkerLabels"
-  },
-  {
-    "function": "nppiSignedDistanceTransformAbsPBA_32f64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiSignedDistanceTransformAbsPBA_64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
   },
   {
     "function": "nppiSignedDistanceTransformPBAGet64fBufferSize",
@@ -4070,14 +3598,6 @@
   {
     "function": "nppiSignedDistanceTransformPBAGetBufferSize",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
-  },
-  {
-    "function": "nppiSignedDistanceTransformPBA_64f_C1R_Ctx",
-    "reason": "unknown pointer role pAntialiasingDeviceBuffer"
   },
   {
     "function": "nppiSumWindowColumnBorder_16s32f_C1R",
