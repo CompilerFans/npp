@@ -19,7 +19,11 @@
 //     dtype range; C1/C2 packed, planar and all Npp16f variants have no bias
 //     (Npp16f converts with round-to-nearest).
 //   * "C" variants (nppiColorTwist32fC / nppiColorTwist_32fC): full 4x4 twist
-//     plus a per-channel additive constant, applied to all four channels.
+//     plus a per-channel additive constant, applied to all four channels
+//     (alpha is computed from the 4th matrix row, never copied).  The rounding
+//     rules match the packed 3x4 path: Npp8u adds the +0.5f bias with the
+//     truncate conversion, Npp32f keeps the bias in the output, Npp16f has no
+//     bias and converts round-to-nearest.
 //   * Batch variants: every NppiColorTwistBatchCXR entry carries its own twist
 //     matrix (12 floats, or 20 floats = 4x4 + 4 constants for the "C" forms);
 //     results are clamped to [nMin, nMax] before the dtype conversion.
@@ -27,8 +31,14 @@
 //     uses an unsigned range check (0 <= step < rowBytes -> NPP_STEP_ERROR,
 //     negative accepted); the packed src step is not validated; planar
 //     variants check both steps signed; null pointers -> NPP_NULL_POINTER_
-//     ERROR.  A null aTwist / null planar array crashes the NVIDIA reference;
-//     mcMPP returns NPP_NULL_POINTER_ERROR instead.
+//     ERROR; an empty ROI returns NPP_NO_ERROR before the even-step check.
+//     After those checks the destination steps must be a multiple of the
+//     vector width (2 elements for C2, 4 for C4/AC4, one element for C1/C3
+//     and the planar variants; the planar src step is checked too) or
+//     NPP_NOT_EVEN_STEP_ERROR is returned (signed modulo: an even negative
+//     step keeps the accepted-no-launch behavior).  A null aTwist / null
+//     planar array crashes the NVIDIA reference; mcMPP returns
+//     NPP_NULL_POINTER_ERROR instead.
 #ifndef NPPI_COLOR_TWIST_EXECUTOR_H
 #define NPPI_COLOR_TWIST_EXECUTOR_H
 

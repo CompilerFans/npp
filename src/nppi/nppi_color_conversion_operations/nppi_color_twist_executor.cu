@@ -82,6 +82,19 @@ template <typename T, int CH> __host__ __device__ constexpr bool packedBias() {
   return (CH >= 3) && has_rounding_bias<T>::value;
 }
 
+// Packed destination steps must be a multiple of the vector width NPP 13.4
+// loads per layout (measured on the RTX 5090): a full 2-element vector for C2,
+// a full 4-element vector for C4/AC4, a single element for C1/C3 (and for the
+// planar variants).  A violating step returns NPP_NOT_EVEN_STEP_ERROR; the
+// check is a signed modulo, so a negative step with a non-zero residue is
+// rejected while an even negative step keeps the "accepted, no launch"
+// behavior.  The check runs after the null/size/step-range/empty-ROI checks
+// and only against the destination steps (the packed src step is not
+// validated at all; the planar variants check both).
+template <int CH> __host__ __device__ constexpr int stepMultiple() {
+  return (CH == 2 || CH == 4) ? CH : 1;
+}
+
 __device__ __forceinline__ float clampRange(float v, const TwistParams &p) {
   return fminf(fmaxf(v, p.nMin), p.nMax);
 }
@@ -109,6 +122,12 @@ __device__ __forceinline__ void twistPixel(const T *s, T *d, const TwistParams &
       o1 = clampRange(o1, p);
       o2 = clampRange(o2, p);
       o3 = clampRange(o3, p);
+    }
+    if (BIAS) {
+      o0 = o0 + 0.5f;
+      o1 = o1 + 0.5f;
+      o2 = o2 + 0.5f;
+      o3 = o3 + 0.5f;
     }
   } else {
     o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3];
@@ -275,6 +294,9 @@ NppStatus twistR(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oS
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
   }
+  if (nDstStep % (stepMultiple<CH>() * (int)sizeof(T)) != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
+  }
   if (nSrcStep < 0 || nDstStep < 0) {
     // NPP launches and touches memory outside the buffers here; mcMPP keeps
     // the status but declines to launch (unobservable via the API).
@@ -305,6 +327,9 @@ NppStatus twistIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f a
   }
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
+  }
+  if (nSrcDstStep % (stepMultiple<CH>() * (int)sizeof(T)) != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
   }
   if (nSrcDstStep < 0) {
     return NPP_NO_ERROR;  // as above: no OOB launch
@@ -340,6 +365,9 @@ NppStatus twistP3(const T *const pSrc[3], int nSrcStep, T *const pDst[3], int nD
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
   }
+  if (nSrcStep % (int)sizeof(T) != 0 || nDstStep % (int)sizeof(T) != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
+  }
   TwistParams p;
   fillTwist(p, aTwist);
   colorTwistPlanarKernel<T>
@@ -366,6 +394,9 @@ NppStatus twistIP3(T *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, cons
   }
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
+  }
+  if (nSrcDstStep % (int)sizeof(T) != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
   }
   TwistParams p;
   fillTwist(p, aTwist);
@@ -394,12 +425,15 @@ NppStatus twistCR(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize o
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
   }
+  if (nDstStep % (4 * (int)sizeof(T)) != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
+  }
   if (nSrcStep < 0 || nDstStep < 0) {
     return NPP_NO_ERROR;  // no OOB launch (see twistR)
   }
   TwistParams p;
   fillTwistC(p, aTwist, aConstants);
-  colorTwistPackedKernel<T, 4, false, true, false, false>
+  colorTwistPackedKernel<T, 4, false, true, false, packedBias<T, 4>()>
       <<<gridSize(oSizeROI.width, oSizeROI.height), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep,
                                                                                           oSizeROI.width, oSizeROI.height,
                                                                                           p);
@@ -422,12 +456,15 @@ NppStatus twistCIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f 
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
     return NPP_NO_ERROR;
   }
+  if (nSrcDstStep % (4 * (int)sizeof(T)) != 0) {
+    return NPP_NOT_EVEN_STEP_ERROR;
+  }
   if (nSrcDstStep < 0) {
     return NPP_NO_ERROR;  // no OOB launch
   }
   TwistParams p;
   fillTwistC(p, aTwist, aConstants);
-  colorTwistPackedKernel<T, 4, false, true, false, false>
+  colorTwistPackedKernel<T, 4, false, true, false, packedBias<T, 4>()>
       <<<gridSize(oSizeROI.width, oSizeROI.height), dim3(kBlockX, kBlockY), 0, stream>>>(
           pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, p);
   return checkLaunch();

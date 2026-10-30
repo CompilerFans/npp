@@ -225,3 +225,110 @@ TEST_F(Twist32fDiff, Twist32f_Errors) {
            nppiColorTwist32f_8s_P3R_Ctx((const Npp8s *const *)srcs, 0, (Npp8s *const *)dsts, 8, NppiSize{8, 4}, tw,
                                         current_context()));
 }
+
+namespace {
+// Even-step residue probes for the ColorTwist32f integer / half destinations
+// (status only): pin the step modulus per dtype x layout.
+using Twist3 = const Npp32f (*)[4];
+template <typename T>
+using TwistRFn = NppStatus (*)(const T *, int, T *, int, NppiSize, Twist3, NppStreamContext);
+template <typename T>
+void raw_step(const char *fname, const std::string &id, const T *src, int srcStep, T *dst, int dstStep, int w, int h,
+              TwistRFn<T> f) {
+  clear_cuda_error();
+  const NppStatus st = f(src, srcStep, dst, dstStep, NppiSize{w, h}, twist3(), current_context());
+  Case c(id, fname);
+  c.status(st);
+  c.finish();
+}
+template <typename T>
+using TwistPFn = NppStatus (*)(const T *const *, int, T *const *, int, NppiSize, Twist3, NppStreamContext);
+template <typename T>
+void raw_step_p3(const char *fname, const std::string &id, const T *const *srcs, int srcStep, T *const *dsts,
+                 int dstStep, int w, int h, TwistPFn<T> f) {
+  clear_cuda_error();
+  const NppStatus st = f(srcs, srcStep, dsts, dstStep, NppiSize{w, h}, twist3(), current_context());
+  Case c(id, fname);
+  c.status(st);
+  c.finish();
+}
+}  // namespace
+
+TEST_F(Twist32fDiff, Err3_EvenStep) {
+  auto &s8 = arena<Npp8u>(4096);
+  auto &d8 = arena<Npp8u>(4096);
+  auto &s8s = arena<Npp8s>(4096);
+  auto &d8s = arena<Npp8s>(4096);
+  auto &s16u = arena<Npp16u>(4096);
+  auto &d16u = arena<Npp16u>(4096);
+  auto &s16s = arena<Npp16s>(4096);
+  auto &d16s = arena<Npp16s>(4096);
+  auto &s16f = arena<Npp16f>(4096);
+  auto &d16f = arena<Npp16f>(4096);
+  // w=8 packed: rowBytes = 8*chan*esz (C4 8u=32, C4 16x=64, C3 8u=24, C3 16x=48,
+  // C2 8u=16, C2 16f=32, C1 8u=8).
+  raw_step("nppiColorTwist32f_8u_C4R", "ct32f/err3_8u_c4_dststep_34", s8.get(), 32, d8.get(), 34, 8, 4,
+           &nppiColorTwist32f_8u_C4R_Ctx);
+  raw_step("nppiColorTwist32f_8s_C4R", "ct32f/err3_8s_c4_dststep_34", s8s.get(), 32, d8s.get(), 34, 8, 4,
+           &nppiColorTwist32f_8s_C4R_Ctx);
+  // 16u/16s have no C4R; AC4R shares the packed 4-channel step rules.
+  raw_step("nppiColorTwist32f_16u_AC4R", "ct32f/err3_16u_ac4_dststep_68", s16u.get(), 64, d16u.get(), 68, 8, 4,
+           &nppiColorTwist32f_16u_AC4R_Ctx);
+  raw_step("nppiColorTwist32f_16s_AC4R", "ct32f/err3_16s_ac4_dststep_68", s16s.get(), 64, d16s.get(), 68, 8, 4,
+           &nppiColorTwist32f_16s_AC4R_Ctx);
+  raw_step("nppiColorTwist32f_16f_C4R", "ct32f/err3_16f_c4_dststep_68", s16f.get(), 64, d16f.get(), 68, 8, 4,
+           &nppiColorTwist32f_16f_C4R_Ctx);
+  raw_step("nppiColorTwist32f_8s_C3R", "ct32f/err3_8s_c3_dststep_25", s8s.get(), 24, d8s.get(), 25, 8, 4,
+           &nppiColorTwist32f_8s_C3R_Ctx);
+  raw_step("nppiColorTwist32f_16s_C3R", "ct32f/err3_16s_c3_dststep_50", s16s.get(), 48, d16s.get(), 50, 8, 4,
+           &nppiColorTwist32f_16s_C3R_Ctx);
+  raw_step("nppiColorTwist32f_16f_C3R", "ct32f/err3_16f_c3_dststep_98", s16f.get(), 96, d16f.get(), 98, 8, 4,
+           &nppiColorTwist32f_16f_C3R_Ctx);
+  raw_step("nppiColorTwist32f_8s_C2R", "ct32f/err3_8s_c2_dststep_17", s8s.get(), 16, d8s.get(), 17, 8, 4,
+           &nppiColorTwist32f_8s_C2R_Ctx);
+  raw_step("nppiColorTwist32f_16f_C2R", "ct32f/err3_16f_c2_dststep_34", s16f.get(), 32, d16f.get(), 34, 8, 4,
+           &nppiColorTwist32f_16f_C2R_Ctx);
+  raw_step("nppiColorTwist32f_8s_C1R", "ct32f/err3_8s_c1_dststep_9", s8s.get(), 8, d8s.get(), 9, 8, 4,
+           &nppiColorTwist32f_8s_C1R_Ctx);
+  // Planar P3R: w=17 -> 8s rowBytes=17, 16s rowBytes=34 (16f has no P3R).
+  const Npp8s *p8s[3] = {s8s.get(), s8s.get(), s8s.get()};
+  Npp8s *q8s[3] = {d8s.get(), d8s.get(), d8s.get()};
+  raw_step_p3("nppiColorTwist32f_8s_P3R", "ct32f/err3_8s_p3_dststep_19", p8s, 17, q8s, 19, 17, 4,
+              &nppiColorTwist32f_8s_P3R_Ctx);
+  const Npp16s *p16s[3] = {s16s.get(), s16s.get(), s16s.get()};
+  Npp16s *q16s[3] = {d16s.get(), d16s.get(), d16s.get()};
+  raw_step_p3("nppiColorTwist32f_16s_P3R", "ct32f/err3_16s_p3_dststep_38", p16s, 34, q16s, 38, 17, 4,
+              &nppiColorTwist32f_16s_P3R_Ctx);
+}
+
+TEST_F(Twist32fDiff, Err4_EvenStepOddChannels) {
+  auto &s8 = arena<Npp8u>(4096);
+  auto &d8 = arena<Npp8u>(4096);
+  auto &s8s = arena<Npp8s>(4096);
+  auto &d8s = arena<Npp8s>(4096);
+  auto &s16u = arena<Npp16u>(4096);
+  auto &d16u = arena<Npp16u>(4096);
+  auto &s16s = arena<Npp16s>(4096);
+  auto &d16s = arena<Npp16s>(4096);
+  auto &s16f = arena<Npp16f>(4096);
+  auto &d16f = arena<Npp16f>(4096);
+  // C1 modulus (w=8): 8u/8s rowBytes=8, 16x rowBytes=16.
+  raw_step("nppiColorTwist32f_8u_C1R", "ct32f/err4_8u_c1_dststep_9", s8.get(), 8, d8.get(), 9, 8, 4,
+           &nppiColorTwist32f_8u_C1R_Ctx);
+  raw_step("nppiColorTwist32f_8s_C1R", "ct32f/err4_8s_c1_dststep_9", s8s.get(), 8, d8s.get(), 9, 8, 4,
+           &nppiColorTwist32f_8s_C1R_Ctx);
+  raw_step("nppiColorTwist32f_16u_C1R", "ct32f/err4_16u_c1_dststep_17", s16u.get(), 16, d16u.get(), 17, 8, 4,
+           &nppiColorTwist32f_16u_C1R_Ctx);
+  raw_step("nppiColorTwist32f_16s_C1R", "ct32f/err4_16s_c1_dststep_17", s16s.get(), 16, d16s.get(), 17, 8, 4,
+           &nppiColorTwist32f_16s_C1R_Ctx);
+  raw_step("nppiColorTwist32f_16f_C1R", "ct32f/err4_16f_c1_dststep_17", s16f.get(), 16, d16f.get(), 17, 8, 4,
+           &nppiColorTwist32f_16f_C1R_Ctx);
+  // C2 modulus (w=8): 16x rowBytes=32.
+  raw_step("nppiColorTwist32f_16u_C2R", "ct32f/err4_16u_c2_dststep_34", s16u.get(), 32, d16u.get(), 34, 8, 4,
+           &nppiColorTwist32f_16u_C2R_Ctx);
+  raw_step("nppiColorTwist32f_16s_C2R", "ct32f/err4_16s_c2_dststep_34", s16s.get(), 32, d16s.get(), 34, 8, 4,
+           &nppiColorTwist32f_16s_C2R_Ctx);
+  // negative odd dst step (8u C4).
+  raw_step("nppiColorTwist32f_8u_C4R", "ct32f/err4_8u_c4_dststep_negative_odd", s8.get(), 32, d8.get(), -34, 8, 4,
+           &nppiColorTwist32f_8u_C4R_Ctx);
+}

@@ -103,6 +103,40 @@ inline void twist4c(Npp32f m[4][4], Npp32f c[4]) {
   c[3] = 1.5f;
 }
 
+// Identity 4x4 + fractional constants: the pre-conversion value is v + c with
+// c in (0.5, 1.5, -0.5, 0.25), which separates "no bias + truncate toward
+// zero" (out = v, v+1, v, v) from "+0.5f bias + truncate" (v+1, v+2, v, v)
+// and from any round-to-nearest variant, for integer destinations; for float
+// destinations it exposes a bias kept in the output directly.
+inline void identity4c(Npp32f m[4][4], Npp32f c[4]) {
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      m[i][j] = (i == j) ? 1.0f : 0.0f;
+    }
+  }
+  c[0] = 0.5f;
+  c[1] = 1.5f;
+  c[2] = -0.5f;
+  c[3] = 0.25f;
+}
+
+// Big-coefficient 4x4 twist + big constants (saturation / overflow probe).
+inline void twist4cb(Npp32f m[4][4], Npp32f c[4]) {
+  const Npp32f src[4][4] = {{64.0f, 64.0f, 64.0f, 64.0f},
+                            {-96.0f, 32.0f, -8.0f, 16.0f},
+                            {8.0f, -16.0f, 128.0f, -32.0f},
+                            {16.0f, 32.0f, -64.0f, 96.0f}};
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      m[i][j] = src[i][j];
+    }
+  }
+  c[0] = 8192.0f;
+  c[1] = -4096.0f;
+  c[2] = 1024.0f;
+  c[3] = -2048.0f;
+}
+
 // Boundary pixel values for float images (NaN / inf / huge / exact .5 steps).
 inline std::vector<Npp32f> boundary_floats() {
   return {-1e30f,
@@ -298,11 +332,9 @@ void planarIP3_case(const char *fname, const std::string &id, int width, int hei
 
 // ---- 4x4 twist + constants ("C" variants) --------------------------------------
 template <typename T, typename Call>
-void packedC_case(const char *fname, const std::string &id, int width, int height, int pad, Call &&call, uint64_t seed,
+void packedC_case(const char *fname, const std::string &id, int width, int height, int pad,
+                  const Npp32f (&twist)[4][4], const Npp32f (&consts)[4], Call &&call, uint64_t seed,
                   bool boundary = false) {
-  Npp32f twist[4][4];
-  Npp32f consts[4];
-  twist4c(twist, consts);
   const int se = (int)sizeof(T);
   const int srcStep = align_step(width * 4 * se + pad, se);
   const int dstStep = align_step(width * 4 * se + pad, se);
@@ -331,11 +363,9 @@ void packedC_case(const char *fname, const std::string &id, int width, int heigh
 }
 
 template <typename T, typename Call>
-void packedCIR_case(const char *fname, const std::string &id, int width, int height, int pad, Call &&call, uint64_t seed,
+void packedCIR_case(const char *fname, const std::string &id, int width, int height, int pad,
+                    const Npp32f (&twist)[4][4], const Npp32f (&consts)[4], Call &&call, uint64_t seed,
                     bool boundary = false) {
-  Npp32f twist[4][4];
-  Npp32f consts[4];
-  twist4c(twist, consts);
   const int se = (int)sizeof(T);
   const int step = align_step(width * 4 * se + pad, se);
   const size_t elems = (size_t)height * step / se;

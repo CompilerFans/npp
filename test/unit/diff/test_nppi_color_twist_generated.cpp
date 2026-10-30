@@ -474,3 +474,101 @@ TEST_F(NppiColorTwistDiff, Err2_C1R_StepRules) {
   rawC1R_case("nppiColorTwist/err2_c1_dststep_negative", s.get(), 68, d.get(), -68, 17, 4);
   rawC1R_case("nppiColorTwist/err2_c1_srcstep_zero", s.get(), 0, d.get(), 68, 17, 4);
 }
+
+namespace {
+// Even-step residue probes (status only).  The 32f packed C4/AC4 kernels are
+// vectorized on full pixels, so a step that is not a multiple of the pixel
+// size is rejected with NPP_NOT_EVEN_STEP_ERROR before any write; these
+// probes pin the modulus per layout and the check order.
+using Twist3 = const Npp32f (*)[4];
+NppStatus raw3(const char *fname, const std::string &id, const Npp32f *src, int srcStep, Npp32f *dst, int dstStep,
+               int w, int h, NppStatus (*f)(const Npp32f *, int, Npp32f *, int, NppiSize, Twist3, NppStreamContext)) {
+  clear_cuda_error();
+  const NppStatus st = f(src, srcStep, dst, dstStep, NppiSize{w, h}, twist3(), current_context());
+  Case c(id, fname);
+  c.status(st);
+  c.finish();
+  return st;
+}
+NppStatus raw3ir(const char *fname, const std::string &id, Npp32f *buf, int step, int w, int h,
+                 NppStatus (*f)(Npp32f *, int, NppiSize, Twist3, NppStreamContext)) {
+  clear_cuda_error();
+  const NppStatus st = f(buf, step, NppiSize{w, h}, twist3(), current_context());
+  Case c(id, fname);
+  c.status(st);
+  c.finish();
+  return st;
+}
+NppStatus raw3p3(const char *fname, const std::string &id, Npp32f *const *srcs, int srcStep, Npp32f *const *dsts,
+                 int dstStep, int w, int h,
+                 NppStatus (*f)(const Npp32f *const *, int, Npp32f *const *, int, NppiSize, Twist3, NppStreamContext)) {
+  clear_cuda_error();
+  const NppStatus st = f(srcs, srcStep, dsts, dstStep, NppiSize{w, h}, twist3(), current_context());
+  Case c(id, fname);
+  c.status(st);
+  c.finish();
+  return st;
+}
+}  // namespace
+
+TEST_F(NppiColorTwistDiff, Err3_EvenStep) {
+  auto &s = arena<Npp32f>(4096);
+  auto &d = arena<Npp32f>(4096);
+  s.copyFromHost(make_uniform<Npp32f>(4096, 560));
+  d.copyFromHost(make_uniform<Npp32f>(4096, 561));
+  auto &b = arena<Npp32f>(4096);
+  b.copyFromHost(make_uniform<Npp32f>(4096, 562));
+  // w=17: C1 rowBytes=68, C2=136, C3=204, C4/AC4=272.
+  raw3("nppiColorTwist_32f_C1R", "nppiColorTwist/err3_c1_dststep_70", s.get(), 68, d.get(), 70, 17, 4,
+       &nppiColorTwist_32f_C1R_Ctx);
+  raw3("nppiColorTwist_32f_C2R", "nppiColorTwist/err3_c2_dststep_140", s.get(), 136, d.get(), 140, 17, 4,
+       &nppiColorTwist_32f_C2R_Ctx);
+  raw3("nppiColorTwist_32f_C3R", "nppiColorTwist/err3_c3_dststep_206", s.get(), 204, d.get(), 206, 17, 4,
+       &nppiColorTwist_32f_C3R_Ctx);
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_dststep_280", s.get(), 272, d.get(), 280, 17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_dststep_276", s.get(), 272, d.get(), 276, 17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  raw3("nppiColorTwist_32f_AC4R", "nppiColorTwist/err3_ac4_dststep_280", s.get(), 272, d.get(), 280, 17, 4,
+       &nppiColorTwist_32f_AC4R_Ctx);
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_srcstep_odd_dst_even", s.get(), 280, d.get(), 272, 17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_srcstep_even_dst_odd", s.get(), 272, d.get(), 280, 17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_dststep_negative_odd", s.get(), 272, d.get(), -280, 17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_nullsrc_oddstep", nullptr, 272, d.get(), 280, 17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  // w=5: C4 rowBytes=80 (multiple of 16 but not of 32).
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err3_c4_step80", s.get(), 80, d.get(), 80, 5, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  // IR: step 136 < rowBytes 144 (w=9) and odd.
+  raw3ir("nppiColorTwist_32f_C4IR", "nppiColorTwist/err3_c4ir_step_small_odd", b.get(), 136, 9, 4,
+         &nppiColorTwist_32f_C4IR_Ctx);
+  // Planar P3R: rowBytes=68 (w=17), step=70.
+  Npp32f *srcs[3] = {s.get(), s.get(), s.get()};
+  Npp32f *dsts[3] = {d.get(), d.get(), d.get()};
+  raw3p3("nppiColorTwist_32f_P3R", "nppiColorTwist/err3_p3_dststep_70", srcs, 68, dsts, 70, 17, 4,
+         &nppiColorTwist_32f_P3R_Ctx);
+}
+
+TEST_F(NppiColorTwistDiff, Err4_EvenStepOrder) {
+  auto &s = arena<Npp32f>(4096);
+  auto &d = arena<Npp32f>(4096);
+  s.copyFromHost(make_uniform<Npp32f>(4096, 570));
+  d.copyFromHost(make_uniform<Npp32f>(4096, 571));
+  // SIZE vs EVEN: negative ROI with an odd dst step.
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err4_c4_roi_negative_oddstep", s.get(), 272, d.get(), 280, -17, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  // empty ROI vs EVEN: zero width with an odd dst step.
+  raw3("nppiColorTwist_32f_C4R", "nppiColorTwist/err4_c4_roi_zero_oddstep", s.get(), 272, d.get(), 280, 0, 4,
+       &nppiColorTwist_32f_C4R_Ctx);
+  // planar: src step odd, dst step even.
+  Npp32f *srcs[3] = {s.get(), s.get(), s.get()};
+  Npp32f *dsts[3] = {d.get(), d.get(), d.get()};
+  raw3p3("nppiColorTwist_32f_P3R", "nppiColorTwist/err4_p3_srcstep_odd", srcs, 70, dsts, 68, 17, 4,
+         &nppiColorTwist_32f_P3R_Ctx);
+  // IR negative odd step.
+  raw3ir("nppiColorTwist_32f_C4IR", "nppiColorTwist/err4_c4ir_step_negative_odd", s.get(), -280, 17, 4,
+         &nppiColorTwist_32f_C4IR_Ctx);
+}
