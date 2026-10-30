@@ -235,7 +235,7 @@ void batch_contract_case(const std::string &key, NppiSize smallest, NppiRect src
   c.finish();
 }
 
-void batch_init_contract_case(const std::string &key, unsigned nBatch, bool nullCoeffs) {
+void batch_init_contract_case(const std::string &key, unsigned nBatch) {
   const int es = 1;
   const int sStep = align_step(48 * es + 8, es);
   const int dStep = align_step(48 * es + 8, es);
@@ -251,6 +251,7 @@ void batch_init_contract_case(const std::string &key, unsigned nBatch, bool null
     src->copyFromHost(std::vector<Npp8u>(se, 3));
     dst->copyFromHost(std::vector<Npp8u>(de, 0xA5));
   }
+  coeffs->copyFromHost(std::vector<double>{2, 0, 0, 0, 2, 0, 0, 0, 1});
   DeviceMemory<NppiWarpPerspectiveBatchCXR> &batch = batch_arena(nBatch > 0 ? nBatch : 1);
   NppiWarpPerspectiveBatchCXR entries[4];
   for (int i = 0; i < 4; ++i) {
@@ -261,11 +262,11 @@ void batch_init_contract_case(const std::string &key, unsigned nBatch, bool null
     entries[i].pCoeffs = reinterpret_cast<Npp64f *>(coeffs->get());
     std::memset(entries[i].aTransformedCoeffs, 0, sizeof(entries[i].aTransformedCoeffs));
   }
-  if (nullCoeffs) {
-    entries[1].pCoeffs = nullptr; // null pCoeffs probe
-  } else {
-    coeffs->copyFromHost(std::vector<double>{2, 0, 0, 0, 2, 0, 0, 0, 1});
-  }
+  // NOTE: a per-entry null pCoeffs is deliberately NOT probed here.  NVIDIA
+  // nppiWarpPerspectiveBatchInit does not validate it and dereferences the
+  // null device pointer, which poisons the CUDA context for the whole
+  // process (cudaErrorInvalidValue then an illegal-memory-access fault);
+  // mcMPP returns NPP_NULL_POINTER_ERROR instead.
   if (nBatch > 0) {
     batch.copyFromHost(std::vector<NppiWarpPerspectiveBatchCXR>(entries, entries + nBatch));
   }
@@ -427,9 +428,10 @@ TEST_F(NppiWarpPerspectiveBatchDiff, BatchInit_Contract) {
     c.status(st);
     c.finish();
   }
-  batch_init_contract_case("n0", 0, false);
-  batch_init_contract_case("n1", 1, false);
-  batch_init_contract_case("n3_null_coeffs", 3, true);
+  batch_init_contract_case("n0", 0);
+  batch_init_contract_case("n1", 1);
+  // n3_null_coeffs removed: NVIDIA dereferences a per-entry null pCoeffs and
+  // poisons the CUDA context; no golden can be recorded for it.
 }
 
 // ===== Non-Ctx adapters (representative _Ctx cases -> same golden) ==========
