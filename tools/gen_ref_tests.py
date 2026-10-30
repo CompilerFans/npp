@@ -110,8 +110,9 @@ SCALAR_NAME_DEFAULTS = {"nMin": "0.5", "nMax": "100.5",
                         # PBA site range: the PRNG float sources cover [-1, 1),
                         # so [0.5, 1.0] makes ~25% of the pixels sites and the
                         # distance transform has real work to do.  Integral
-                        # site values fall through to the generic default (2,
-                        # 1/16 of the integral PRNG range) below.
+                        # site values use the traditional 0 (see scalar_value;
+                        # non-zero integral ranges are nondeterministic in
+                        # NPP 13.4).
                         "nMinSiteValue": "0.5", "nMaxSiteValue": "1.0"}
 
 # --- Misc-mode extension (REF_MISC) -----------------------------------------
@@ -419,17 +420,27 @@ def needs_ext_layout(fn: str, params: Optional[Sequence[Param]]) -> bool:
     return False
 
 
-def scalar_value(p: Param) -> Optional[str]:
+def scalar_value(p: Param, misc: bool = False) -> Optional[str]:
     if p.name in SCALAR_NAME_DEFAULTS:
         t = p.ctype
         # Name-based defaults only apply to the types where they make sense.
         if p.name == "eInterpolation" and t in SCALAR:
             return SCALAR_NAME_DEFAULTS[p.name]
         if p.name in ("nMin", "nMax", "nAstigmatismRatio",
-                      "nOrientationRadians", "nMinSiteValue",
-                      "nMaxSiteValue") \
+                      "nOrientationRadians") \
                 and t in ("Npp32f", "Npp64f", "float", "double"):
             return SCALAR_NAME_DEFAULTS[p.name]
+        if misc and p.name in ("nMinSiteValue", "nMaxSiteValue"):
+            # PBA site range.  Integral site extraction is only
+            # run-to-run deterministic for the traditional all-zeros range
+            # (probe: 8/8 stable at [0,0] vs 5/6 unstable at [2,2]/[1,4]/
+            # [1,8] on RTX 5090, NPP 13.4); PRNG integral data covers
+            # 0..15, so [0,0] still selects ~1/16 of the pixels as sites.
+            # Float sources cover [-1, 1), so [0.5, 1.0] selects ~25%.
+            if t in ("Npp32f", "Npp64f", "float", "double"):
+                return SCALAR_NAME_DEFAULTS[p.name]
+            if t in SCALAR and t != "Npp16f":
+                return "0"
     t = p.ctype
     if t in ENUMS:
         return ENUMS[t]
@@ -1148,7 +1159,7 @@ def generate(row: dict, ov: Optional[dict] = None,
         if p.ctype == "size_t" and "Length" in p.name:
             args.append("static_cast<size_t>(257)")
             continue
-        val = scalar_value(p)
+        val = scalar_value(p, misc)
         if val is None:
             return None, f"unsupported scalar {p.ctype} {p.name}"
         args.append(val)

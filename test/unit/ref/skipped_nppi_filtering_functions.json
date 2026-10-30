@@ -52,12 +52,28 @@
     "reason": "consumes genuine NppiContourPixelDirectionInfo/NppiContourPixelGeometryInfo/NppiContourBlockSegment pipeline state from the compressed-marker-labels contour stages; not constructible from synthetic data"
   },
   {
+    "function": "nppiDistanceTransformAbsPBA_16s64f_C1R_Ctx",
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 20 consecutive records of identical inputs produced 19 differing transform buffers even with the traditional all-zeros site range (measured with the recorded harness construction, 64x64 ROI); an unseeded parallel race in the NPP kernel, not a construction defect"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_8s64f_C1R_Ctx",
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 4 of 20 consecutive records of identical inputs produced differing transform buffers even with the traditional all-zeros site range; unseeded parallel race in the NPP kernel, not a construction defect"
+  },
+  {
+    "function": "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx",
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 1 of 20 consecutive records of identical inputs produced a differing transform buffer even with the traditional all-zeros site range; unseeded parallel race in the NPP kernel, not a construction defect"
+  },
+  {
     "function": "nppiDistanceTransformPBAGetAntialiasingBufferSize",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
     "function": "nppiDistanceTransformPBAGetBufferSize",
     "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiDistanceTransformPBA_8s64f_C1R_Ctx",
+    "reason": "NVIDIA NPP 13.4 PBA integral-source site extraction is run-to-run nondeterministic on RTX 5090: 7 of 20 consecutive records of identical inputs produced differing transform buffers even with the traditional all-zeros site range; unseeded parallel race in the NPP kernel, not a construction defect"
   },
   {
     "function": "nppiFilter32f_16f_C1R",
@@ -3290,6 +3306,10 @@
   {
     "function": "nppiFloodFillGradient_8u_C1IR",
     "reason": "non-ctx (NPP 13 removed the ABI)"
+  },
+  {
+    "function": "nppiFloodFillGradient_8u_C1IR_Ctx",
+    "reason": "NVIDIA NPP 13.4 gradient flood fill evaluates tolerance against neighbor values, so its output depends on the parallel frontier visit order: 2 of 20 consecutive records of identical inputs produced differing fill buffers on RTX 5090; the seed-relative Range/Boundary/plain variants are deterministic (20/20 stable) and stay covered"
   },
   {
     "function": "nppiFloodFillGradient_8u_C3IR",
