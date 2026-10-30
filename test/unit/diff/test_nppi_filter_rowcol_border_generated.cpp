@@ -159,19 +159,17 @@ protected:
   rcb<S, S, Npp32s>("nppiFilterRowBorder", "nppiFilterRowBorder_" #TAG, "sweep/" #TAG, 7, 7, CH, \
                     9, 9, 2, 3, 5, 2, 0xC100 + case_id_++, dst_kind<S>(), make_ki(5, 0xC1FF),   \
                     [](const S *s, int ss, NppiSize sz, NppiPoint so, S *d, int ds, NppiSize o, \
-                       const Npp32s *k, int m, int a, int div, NppiBorderType bt,              \
-                       NppStreamContext c) {                                                   \
+                       const Npp32s *k, int m, int a, NppiBorderType bt, NppStreamContext c) { \
                       return nppiFilterRowBorder_##TAG##_Ctx(s, ss, sz, so, d, ds, o, k, m, a,  \
-                                                             div, bt, c);                      \
+                                                             7, bt, c);                        \
                     })
 #define CB_DIV_RUN(S, TAG, CH)                                                                 \
   rcb<S, S, Npp32s>("nppiFilterColumnBorder", "nppiFilterColumnBorder_" #TAG, "sweep/" #TAG, 7, \
                     7, CH, 9, 9, 2, 3, 5, 2, 0xC200 + case_id_++, dst_kind<S>(), make_ki(5, 0xC2FF), \
                     [](const S *s, int ss, NppiSize sz, NppiPoint so, S *d, int ds, NppiSize o, \
-                       const Npp32s *k, int m, int a, int div, NppiBorderType bt,              \
-                       NppStreamContext c) {                                                   \
+                       const Npp32s *k, int m, int a, NppiBorderType bt, NppStreamContext c) { \
                       return nppiFilterColumnBorder_##TAG##_Ctx(s, ss, sz, so, d, ds, o, k, m,  \
-                                                                a, div, bt, c);                 \
+                                                                a, 7, bt, c);                  \
                     })
 #define RB_F32_RUN(TAG, CH)                                                                    \
   rcb<Npp32f, Npp32f, Npp32f>("nppiFilterRowBorder", "nppiFilterRowBorder_" #TAG, "sweep/" #TAG, \
