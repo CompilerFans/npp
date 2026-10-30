@@ -48,3 +48,23 @@ NppStatus yCbCr444ToBgrJpegP3C3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u 
 } // namespace nppi
 
 #endif // NPPI_C3_CONVERSION_EXECUTOR_H
+
+// === JPEG 4:2:2 / 4:2:0 subsampled conversions ==============================
+// bgr != 0 swaps the R/B interpretation of the packed/planar RGB source (or
+// the R/B write order of the RGB destination).
+NppStatus rgbToYCbCr420JpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], const int aDstStep[3],
+                              NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus rgbToYCbCr420JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], const int aDstStep[3],
+                                NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus rgbToYCbCr422JpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], const int aDstStep[3],
+                              NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus rgbToYCbCr422JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], const int aDstStep[3],
+                                NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus yCbCr420ToRgbJpegP3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                              NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus yCbCr420ToRgbJpegP3C3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus yCbCr422ToRgbJpegP3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst[3], int nDstStep,
+                              NppiSize oSizeROI, cudaStream_t stream, int bgr);
+NppStatus yCbCr422ToRgbJpegP3C3(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst, int nDstStep,
+                                NppiSize oSizeROI, cudaStream_t stream, int bgr);
