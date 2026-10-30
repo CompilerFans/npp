@@ -34,18 +34,16 @@ namespace {
 constexpr double kRtol = 1e-9;
 constexpr double kAtol = 1e-12;
 
-struct AffineCase {
-  const char *key;
-  NppiRect roi;
-  double quad[4][2];
-};
+const double kAffIdent[2][3] = {{1, 0, 0}, {0, 1, 0}};
+const double kPerspIdent[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+const double kQuadUnit[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 
-void run_get_affine_transform(const AffineCase &tc) {
+void run_get_affine_transform(const char *key, NppiRect roi, const double quad[4][2]) {
   double coeffs[2][3] = {{0, 0, 0}, {0, 0, 0}};
   clear_cuda_error();
-  NppStatus st = nppiGetAffineTransform(tc.roi, tc.quad, coeffs);
-  Case c(make_id({"nppiGetAffineTransform", tc.key}), "nppiGetAffineTransform");
-  c.input(tc.quad, sizeof(tc.quad));
+  NppStatus st = nppiGetAffineTransform(roi, quad, coeffs);
+  Case c(make_id({"nppiGetAffineTransform", key}), "nppiGetAffineTransform");
+  c.input(quad, sizeof(double) * 8);
   c.status(st);
   c.host_output<double>(&coeffs[0][0], 6, ValueKind::F64, kRtol, kAtol);
   c.finish();
@@ -53,12 +51,12 @@ void run_get_affine_transform(const AffineCase &tc) {
 
 TEST(NppiGetTransformDiff, GetAffineTransform) {
   // Exactly consistent quads plus literal identity/translation cases.
-  run_get_affine_transform({"identity", NppiRect{0, 0, 16, 8},
-                            {{0, 0}, {16, 0}, {16, 8}, {0, 8}}});
-  run_get_affine_transform({"translate", NppiRect{2, 3, 16, 8},
-                            {{10, 10}, {24, 10}, {24, 18}, {10, 18}}});
-  run_get_affine_transform({"scale", NppiRect{1, 1, 10, 6},
-                            {{0, 0}, {20, 0}, {20, 12}, {0, 12}}});
+  const double q0[4][2] = {{0, 0}, {16, 0}, {16, 8}, {0, 8}};
+  run_get_affine_transform("identity", NppiRect{0, 0, 16, 8}, q0);
+  const double q1[4][2] = {{10, 10}, {24, 10}, {24, 18}, {10, 18}};
+  run_get_affine_transform("translate", NppiRect{2, 3, 16, 8}, q1);
+  const double q2[4][2] = {{0, 0}, {20, 0}, {20, 12}, {0, 12}};
+  run_get_affine_transform("scale", NppiRect{1, 1, 10, 6}, q2);
   // A generic affine (rotation + shear + translation) applied to the ROI
   // corners: quad[i] = A * corner_i.  The corner order shows up directly in
   // the recorded coefficients.
@@ -74,7 +72,7 @@ TEST(NppiGetTransformDiff, GetAffineTransform) {
       quad[i][0] = a[0][0] * xs[i] + a[0][1] * ys[i] + a[0][2];
       quad[i][1] = a[1][0] * xs[i] + a[1][1] * ys[i] + a[1][2];
     }
-    run_get_affine_transform({"generic", roi, quad});
+    run_get_affine_transform("generic", roi, quad);
     // Fourth vertex inconsistent by a wide margin: NVIDIA is expected to
     // return NPP_AFFINE_QUAD_INCORRECT_WARNING and still fill the
     // coefficients from the first three vertices.
@@ -85,7 +83,7 @@ TEST(NppiGetTransformDiff, GetAffineTransform) {
     }
     bad[3][0] += 3.5;
     bad[3][1] -= 2.25;
-    run_get_affine_transform({"inconsistent4", roi, bad});
+    run_get_affine_transform("inconsistent4", roi, bad);
     // Fourth vertex off by a tiny epsilon: pins the warning threshold.
     double tiny[4][2];
     for (int i = 0; i < 4; ++i) {
@@ -94,18 +92,19 @@ TEST(NppiGetTransformDiff, GetAffineTransform) {
     }
     tiny[3][0] += 1e-9;
     tiny[3][1] -= 1e-9;
-    run_get_affine_transform({"inconsistent4_eps", roi, tiny});
+    run_get_affine_transform("inconsistent4_eps", roi, tiny);
   }
   // Degenerate quads.
-  run_get_affine_transform({"duplicate01", NppiRect{0, 0, 16, 8},
-                            {{4, 4}, {4, 4}, {10, 8}, {2, 9}}});
-  run_get_affine_transform({"collinear", NppiRect{0, 0, 16, 8},
-                            {{0, 0}, {5, 5}, {10, 10}, {15, 15}}});
+  const double q3[4][2] = {{4, 4}, {4, 4}, {10, 8}, {2, 9}};
+  run_get_affine_transform("duplicate01", NppiRect{0, 0, 16, 8}, q3);
+  const double q4[4][2] = {{0, 0}, {5, 5}, {10, 10}, {15, 15}};
+  run_get_affine_transform("collinear", NppiRect{0, 0, 16, 8}, q4);
   // ROI contract.
-  run_get_affine_transform({"roi_w0", NppiRect{0, 0, 0, 8}, {{0, 0}, {1, 0}, {1, 1}, {0, 1}}});
-  run_get_affine_transform({"roi_h0", NppiRect{0, 0, 8, 0}, {{0, 0}, {1, 0}, {1, 1}, {0, 1}}});
-  run_get_affine_transform({"roi_neg", NppiRect{1, 1, -4, 8}, {{0, 0}, {1, 0}, {1, 1}, {0, 1}}});
-  run_get_affine_transform({"roi_1x1", NppiRect{3, 4, 1, 1}, {{7, 9}, {8, 9}, {8, 10}, {7, 10}}});
+  run_get_affine_transform("roi_w0", NppiRect{0, 0, 0, 8}, kQuadUnit);
+  run_get_affine_transform("roi_h0", NppiRect{0, 0, 8, 0}, kQuadUnit);
+  run_get_affine_transform("roi_neg", NppiRect{1, 1, -4, 8}, kQuadUnit);
+  const double q5[4][2] = {{7, 9}, {8, 9}, {8, 10}, {7, 10}};
+  run_get_affine_transform("roi_1x1", NppiRect{3, 4, 1, 1}, q5);
 }
 
 TEST(NppiGetTransformDiff, GetAffineQuad) {
@@ -119,15 +118,17 @@ TEST(NppiGetTransformDiff, GetAffineQuad) {
     c.host_output<double>(&quad[0][0], 8, ValueKind::F64, kRtol, kAtol);
     c.finish();
   };
-  run("identity", NppiRect{0, 0, 16, 8}, {{1, 0, 0}, {0, 1, 0}});
-  run("offset", NppiRect{3, 5, 16, 8}, {{1, 0, 0}, {0, 1, 0}});
-  run("rot30", NppiRect{2, 1, 20, 10},
-      {{std::cos(30.0 * M_PI / 180.0), -std::sin(30.0 * M_PI / 180.0), 4.0},
-       {std::sin(30.0 * M_PI / 180.0), std::cos(30.0 * M_PI / 180.0), -2.0}});
-  run("shear", NppiRect{0, 0, 12, 12}, {{1, 0.5, 1.0}, {0.25, 1, 2.0}});
-  run("mirror", NppiRect{1, 1, 10, 6}, {{-1.5, 0, 20.0}, {0, 1.5, -3.0}});
-  run("roi_w0", NppiRect{0, 0, 0, 8}, {{1, 0, 0}, {0, 1, 0}});
-  run("roi_neg", NppiRect{0, 0, 8, -3}, {{1, 0, 0}, {0, 1, 0}});
+  run("identity", NppiRect{0, 0, 16, 8}, kAffIdent);
+  run("offset", NppiRect{3, 5, 16, 8}, kAffIdent);
+  const double rot30[2][3] = {{std::cos(30.0 * M_PI / 180.0), -std::sin(30.0 * M_PI / 180.0), 4.0},
+                              {std::sin(30.0 * M_PI / 180.0), std::cos(30.0 * M_PI / 180.0), -2.0}};
+  run("rot30", NppiRect{2, 1, 20, 10}, rot30);
+  const double shear[2][3] = {{1, 0.5, 1.0}, {0.25, 1, 2.0}};
+  run("shear", NppiRect{0, 0, 12, 12}, shear);
+  const double mirror[2][3] = {{-1.5, 0, 20.0}, {0, 1.5, -3.0}};
+  run("mirror", NppiRect{1, 1, 10, 6}, mirror);
+  run("roi_w0", NppiRect{0, 0, 0, 8}, kAffIdent);
+  run("roi_neg", NppiRect{0, 0, 8, -3}, kAffIdent);
 }
 
 TEST(NppiGetTransformDiff, GetAffineBound) {
@@ -141,49 +142,52 @@ TEST(NppiGetTransformDiff, GetAffineBound) {
     c.host_output<double>(&bound[0][0], 4, ValueKind::F64, kRtol, kAtol);
     c.finish();
   };
-  run("identity", NppiRect{0, 0, 16, 8}, {{1, 0, 0}, {0, 1, 0}});
-  run("offset", NppiRect{3, 5, 16, 8}, {{1, 0, 10}, {0, 1, -4}});
-  run("rot30", NppiRect{0, 0, 20, 10},
-      {{std::cos(30.0 * M_PI / 180.0), -std::sin(30.0 * M_PI / 180.0), 0.0},
-       {std::sin(30.0 * M_PI / 180.0), std::cos(30.0 * M_PI / 180.0), 0.0}});
-  run("rot200", NppiRect{2, 3, 20, 10},
-      {{std::cos(200.0 * M_PI / 180.0), -std::sin(200.0 * M_PI / 180.0), 1.0},
-       {std::sin(200.0 * M_PI / 180.0), std::cos(200.0 * M_PI / 180.0), 1.0}});
-  run("shear", NppiRect{0, 0, 12, 12}, {{1, 0.5, 1.0}, {0.25, 1, 2.0}});
-  run("singular", NppiRect{0, 0, 12, 12}, {{0, 0, 0}, {0, 0, 0}});
-  run("roi_w0", NppiRect{0, 0, 0, 8}, {{1, 0, 0}, {0, 1, 0}});
+  run("identity", NppiRect{0, 0, 16, 8}, kAffIdent);
+  const double offset[2][3] = {{1, 0, 10}, {0, 1, -4}};
+  run("offset", NppiRect{3, 5, 16, 8}, offset);
+  const double rot30[2][3] = {{std::cos(30.0 * M_PI / 180.0), -std::sin(30.0 * M_PI / 180.0), 0.0},
+                              {std::sin(30.0 * M_PI / 180.0), std::cos(30.0 * M_PI / 180.0), 0.0}};
+  run("rot30", NppiRect{0, 0, 20, 10}, rot30);
+  const double rot200[2][3] = {{std::cos(200.0 * M_PI / 180.0), -std::sin(200.0 * M_PI / 180.0), 1.0},
+                               {std::sin(200.0 * M_PI / 180.0), std::cos(200.0 * M_PI / 180.0), 1.0}};
+  run("rot200", NppiRect{2, 3, 20, 10}, rot200);
+  const double shear[2][3] = {{1, 0.5, 1.0}, {0.25, 1, 2.0}};
+  run("shear", NppiRect{0, 0, 12, 12}, shear);
+  const double zeros[2][3] = {{0, 0, 0}, {0, 0, 0}};
+  run("singular", NppiRect{0, 0, 12, 12}, zeros);
+  run("roi_w0", NppiRect{0, 0, 0, 8}, kAffIdent);
 }
 
-struct PerspCase {
-  const char *key;
-  NppiRect roi;
-  double quad[4][2];
-};
-
 TEST(NppiGetTransformDiff, GetPerspectiveTransform) {
-  auto run = [](const PerspCase &tc) {
+  auto run = [](const char *key, NppiRect roi, const double quad[4][2]) {
     double coeffs[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     clear_cuda_error();
-    NppStatus st = nppiGetPerspectiveTransform(tc.roi, tc.quad, coeffs);
-    Case c(make_id({"nppiGetPerspectiveTransform", tc.key}), "nppiGetPerspectiveTransform");
-    c.input(tc.quad, sizeof(tc.quad));
+    NppStatus st = nppiGetPerspectiveTransform(roi, quad, coeffs);
+    Case c(make_id({"nppiGetPerspectiveTransform", key}), "nppiGetPerspectiveTransform");
+    c.input(quad, sizeof(double) * 8);
     c.status(st);
     c.host_output<double>(&coeffs[0][0], 9, ValueKind::F64, kRtol, kAtol);
     c.finish();
   };
   // Identity-like.
-  run({"identity", NppiRect{0, 0, 16, 8}, {{0, 0}, {16, 0}, {16, 8}, {0, 8}}});
+  const double q0[4][2] = {{0, 0}, {16, 0}, {16, 8}, {0, 8}};
+  run("identity", NppiRect{0, 0, 16, 8}, q0);
   // Genuinely perspective (non affine) destination quad.
-  run({"perspective", NppiRect{1, 2, 13, 9}, {{3, 5}, {25, 2}, {28, 21}, {6, 24}}});
-  run({"trapezoid", NppiRect{0, 0, 20, 10}, {{0, 0}, {20, 0}, {15, 10}, {5, 10}}});
+  const double q1[4][2] = {{3, 5}, {25, 2}, {28, 21}, {6, 24}};
+  run("perspective", NppiRect{1, 2, 13, 9}, q1);
+  const double q2[4][2] = {{0, 0}, {20, 0}, {15, 10}, {5, 10}};
+  run("trapezoid", NppiRect{0, 0, 20, 10}, q2);
   // Degenerate quads.
-  run({"duplicate01", NppiRect{0, 0, 16, 8}, {{4, 4}, {4, 4}, {10, 8}, {2, 9}}});
-  run({"collinear", NppiRect{0, 0, 16, 8}, {{0, 0}, {5, 5}, {10, 10}, {15, 15}}});
+  const double q3[4][2] = {{4, 4}, {4, 4}, {10, 8}, {2, 9}};
+  run("duplicate01", NppiRect{0, 0, 16, 8}, q3);
+  const double q4[4][2] = {{0, 0}, {5, 5}, {10, 10}, {15, 15}};
+  run("collinear", NppiRect{0, 0, 16, 8}, q4);
   // ROI contract.
-  run({"roi_w0", NppiRect{0, 0, 0, 8}, {{0, 0}, {1, 0}, {1, 1}, {0, 1}}});
-  run({"roi_h0", NppiRect{0, 0, 8, 0}, {{0, 0}, {1, 0}, {1, 1}, {0, 1}}});
-  run({"roi_neg", NppiRect{1, 1, -4, 8}, {{0, 0}, {1, 0}, {1, 1}, {0, 1}}});
-  run({"roi_1x1", NppiRect{3, 4, 1, 1}, {{7, 9}, {8, 9}, {8, 10}, {7, 10}}});
+  run("roi_w0", NppiRect{0, 0, 0, 8}, kQuadUnit);
+  run("roi_h0", NppiRect{0, 0, 8, 0}, kQuadUnit);
+  run("roi_neg", NppiRect{1, 1, -4, 8}, kQuadUnit);
+  const double q5[4][2] = {{7, 9}, {8, 9}, {8, 10}, {7, 10}};
+  run("roi_1x1", NppiRect{3, 4, 1, 1}, q5);
 }
 
 TEST(NppiGetTransformDiff, GetPerspectiveQuad) {
@@ -197,14 +201,16 @@ TEST(NppiGetTransformDiff, GetPerspectiveQuad) {
     c.host_output<double>(&quad[0][0], 8, ValueKind::F64, kRtol, kAtol);
     c.finish();
   };
-  run("identity", NppiRect{0, 0, 16, 8}, {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
-  run("offset", NppiRect{3, 5, 16, 8}, {{1, 0, 4}, {0, 1, -2}, {0, 0, 1}});
-  run("perspective", NppiRect{1, 1, 12, 8},
-      {{1.5, 0.2, 3.0}, {-0.1, 0.8, -2.0}, {0.001, 0.0005, 1.0}});
-  run("perspective2", NppiRect{0, 0, 20, 12},
-      {{0.9, -0.05, 2.0}, {0.04, 1.1, 1.0}, {-0.0008, 0.0006, 1.0}});
-  run("singular", NppiRect{0, 0, 12, 12}, {{1, 0, 0}, {0, 1, 0}, {0, 0, 0}});
-  run("roi_w0", NppiRect{0, 0, 0, 8}, {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+  run("identity", NppiRect{0, 0, 16, 8}, kPerspIdent);
+  const double offset[3][3] = {{1, 0, 4}, {0, 1, -2}, {0, 0, 1}};
+  run("offset", NppiRect{3, 5, 16, 8}, offset);
+  const double persp[3][3] = {{1.5, 0.2, 3.0}, {-0.1, 0.8, -2.0}, {0.001, 0.0005, 1.0}};
+  run("perspective", NppiRect{1, 1, 12, 8}, persp);
+  const double persp2[3][3] = {{0.9, -0.05, 2.0}, {0.04, 1.1, 1.0}, {-0.0008, 0.0006, 1.0}};
+  run("perspective2", NppiRect{0, 0, 20, 12}, persp2);
+  const double singular[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 0}};
+  run("singular", NppiRect{0, 0, 12, 12}, singular);
+  run("roi_w0", NppiRect{0, 0, 0, 8}, kPerspIdent);
 }
 
 TEST(NppiGetTransformDiff, GetPerspectiveBound) {
@@ -218,16 +224,18 @@ TEST(NppiGetTransformDiff, GetPerspectiveBound) {
     c.host_output<double>(&bound[0][0], 4, ValueKind::F64, kRtol, kAtol);
     c.finish();
   };
-  run("identity", NppiRect{0, 0, 16, 8}, {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
-  run("offset", NppiRect{3, 5, 16, 8}, {{1, 0, 4}, {0, 1, -2}, {0, 0, 1}});
-  run("perspective", NppiRect{1, 1, 12, 8},
-      {{1.5, 0.2, 3.0}, {-0.1, 0.8, -2.0}, {0.001, 0.0005, 1.0}});
-  run("rot30", NppiRect{0, 0, 20, 10},
-      {{std::cos(30.0 * M_PI / 180.0), -std::sin(30.0 * M_PI / 180.0), 0.0},
-       {std::sin(30.0 * M_PI / 180.0), std::cos(30.0 * M_PI / 180.0), 0.0},
-       {0.0, 0.0, 1.0}});
-  run("singular", NppiRect{0, 0, 12, 12}, {{1, 0, 0}, {0, 1, 0}, {0, 0, 0}});
-  run("roi_w0", NppiRect{0, 0, 0, 8}, {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+  run("identity", NppiRect{0, 0, 16, 8}, kPerspIdent);
+  const double offset[3][3] = {{1, 0, 4}, {0, 1, -2}, {0, 0, 1}};
+  run("offset", NppiRect{3, 5, 16, 8}, offset);
+  const double persp[3][3] = {{1.5, 0.2, 3.0}, {-0.1, 0.8, -2.0}, {0.001, 0.0005, 1.0}};
+  run("perspective", NppiRect{1, 1, 12, 8}, persp);
+  const double rot30[3][3] = {{std::cos(30.0 * M_PI / 180.0), -std::sin(30.0 * M_PI / 180.0), 0.0},
+                              {std::sin(30.0 * M_PI / 180.0), std::cos(30.0 * M_PI / 180.0), 0.0},
+                              {0.0, 0.0, 1.0}};
+  run("rot30", NppiRect{0, 0, 20, 10}, rot30);
+  const double singular[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 0}};
+  run("singular", NppiRect{0, 0, 12, 12}, singular);
+  run("roi_w0", NppiRect{0, 0, 0, 8}, kPerspIdent);
 }
 
 TEST(NppiGetTransformDiff, GetRotateQuad) {
