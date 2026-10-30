@@ -51,25 +51,26 @@
 //   * Validation order (5090-measured, every step returns before the next):
 //       1. [Advanced only] null pDeviceBuffer or pAdvancedScratchBuffer
 //          -> NPP_NULL_POINTER_ERROR (before any ROI check)
-//       2. null pSrc or pTpl          -> NPP_NULL_POINTER_ERROR
+//       2. null pSrc                  -> NPP_NULL_POINTER_ERROR
 //       3. src ROI zero-sized         -> NPP_NO_ERROR, nothing written
 //          src ROI negative           -> NPP_SIZE_ERROR
 //       4. tpl ROI likewise (src fully checked first)
-//       5. null pDst                  -> NPP_NULL_POINTER_ERROR
-//       6. src step: (uint32)nSrcStep < Ws * Channels * sizeof(S)
-//          -> NPP_STEP_ERROR; nSrcStep % sizeof(S) != 0
+//       5. src step: (uint32)nSrcStep < Ws * Channels * sizeof(S)
+//          -> NPP_STEP_ERROR; nSrcStep % (sizeof(S) * 2^v2(Channels)) != 0
 //          -> NPP_NOT_EVEN_STEP_ERROR (size check first; negative steps pass
-//          the size check through unsigned wraparound)
-//       7. [Valid only] dstW = Ws - tw + 1, dstH = Hs - th + 1; dstW <= 0 or
-//          dstH <= 0 -> NPP_NO_ERROR, nothing written (tpl/dst steps are NOT
-//          validated in that case)
+//          the size check through unsigned wraparound).  The step is checked
+//          BEFORE the pTpl/pDst pointers (null dst + bad src step -> -16).
+//       6. null pTpl or pDst          -> NPP_NULL_POINTER_ERROR
+//       7. [Valid only] dstW = Ws - tw + 1, dstH = Hs - th + 1; a negative
+//          dimension -> NPP_SIZE_ERROR; a zero dimension -> NPP_NO_ERROR
+//          (nothing written, tpl/dst steps are NOT validated in that case)
 //       8. dst step checks like the src step, against dstW * Channels *
 //          sizeof(D) (dst is fully validated before the tpl step)
 //       9. tpl step checks like the src step, against tw * Channels * sizeof(S)
-//      10. [Full/Same only] tw > Ws or th > Hs -> NPP_SIZE_ERROR (after all
-//          step checks; a single violating dimension suffices, equal dims ok)
-//      11. [NormLevel non-Advanced only] null pDeviceBuffer
-//          -> NPP_NULL_POINTER_ERROR (the LAST check)
+//      10. [NormLevel non-Advanced only] null pDeviceBuffer
+//          -> NPP_NULL_POINTER_ERROR (before the tpl>src geometry error)
+//      11. [Full/Same only] tw > Ws or th > Hs -> NPP_SIZE_ERROR (a single
+//          violating dimension suffices; equal dims are ok)
 //      12. launch the kernel
 //   * pDeviceBuffer (NormLevel) and pAdvancedScratchBuffer are scratch only
 //     and are never dereferenced by this implementation; exact sizes are not

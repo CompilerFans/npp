@@ -148,36 +148,50 @@ NppStatus runCrossCorr(const S *pSrc, int nSrcStep, NppiSize oSrcRoiSize, const 
                        Npp8u *pAdvancedScratchBuffer, cudaStream_t stream) {
   constexpr int esize = (int)sizeof(S);
   constexpr int dsize = (int)sizeof(D);
+  // NPP's "even step" modulus is sizeof(element) * 2^v2(Channels): 8u C3
+  // accepts odd steps (2^v2(3) = 1), C4 requires multiples of 4x the element
+  // size (5090 probes: 8u C4 src step 25 -> -108, 8u C3 src step 19 -> 0).
+  constexpr int chAlign = Channels & -Channels;
+  constexpr int srcAlign = esize * chAlign;
+  constexpr int dstAlign = dsize * chAlign;
   if constexpr (Op == CrossCorrOp::NormLevelAdvanced) {
     if (!pDeviceBuffer || !pAdvancedScratchBuffer) return NPP_NULL_POINTER_ERROR;
   }
-  if (!pSrc || !pTpl) return NPP_NULL_POINTER_ERROR;
+  if (!pSrc) return NPP_NULL_POINTER_ERROR;
   if (oSrcRoiSize.width == 0 || oSrcRoiSize.height == 0) return NPP_NO_ERROR;
   if (oSrcRoiSize.width < 0 || oSrcRoiSize.height < 0) return NPP_SIZE_ERROR;
   if (oTplRoiSize.width == 0 || oTplRoiSize.height == 0) return NPP_NO_ERROR;
   if (oTplRoiSize.width < 0 || oTplRoiSize.height < 0) return NPP_SIZE_ERROR;
-  if (!pDst) return NPP_NULL_POINTER_ERROR;
+  // The source step is validated before the template/destination pointers
+  // (5090: null dst + bad src step -> NPP_STEP_ERROR; null tpl + bad src
+  // step -> NPP_STEP_ERROR).
   if ((unsigned)nSrcStep < (unsigned)(oSrcRoiSize.width * Channels * esize)) return NPP_STEP_ERROR;
-  if (nSrcStep % esize != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if (nSrcStep % srcAlign != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if (!pTpl || !pDst) return NPP_NULL_POINTER_ERROR;
   int dstW, dstH;
   if (M == CrossCorrMode::Valid) {
     dstW = oSrcRoiSize.width - oTplRoiSize.width + 1;
     dstH = oSrcRoiSize.height - oTplRoiSize.height + 1;
-    if (dstW <= 0 || dstH <= 0) return NPP_NO_ERROR;  // tpl larger than src: empty, steps unchecked
+    // A negative destination dimension is a size error; a zero one is the
+    // empty-output no-op (5090: dst 5x-1 -> -6, 5x0 and 0x1 -> NO_ERROR).
+    if (dstW < 0 || dstH < 0) return NPP_SIZE_ERROR;
+    if (dstW == 0 || dstH == 0) return NPP_NO_ERROR;  // steps unchecked
   } else {
     dstW = (M == CrossCorrMode::Full) ? oSrcRoiSize.width + oTplRoiSize.width - 1 : oSrcRoiSize.width;
     dstH = (M == CrossCorrMode::Full) ? oSrcRoiSize.height + oTplRoiSize.height - 1 : oSrcRoiSize.height;
   }
   if ((unsigned)nDstStep < (unsigned)(dstW * Channels * dsize)) return NPP_STEP_ERROR;
-  if (nDstStep % dsize != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if (nDstStep % dstAlign != 0) return NPP_NOT_EVEN_STEP_ERROR;
   if ((unsigned)nTplStep < (unsigned)(oTplRoiSize.width * Channels * esize)) return NPP_STEP_ERROR;
-  if (nTplStep % esize != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if (nTplStep % srcAlign != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  if constexpr (Op == CrossCorrOp::NormLevel) {
+    // Before the Full/Same tpl>src geometry error (5090: null buffer + a
+    // larger template -> NPP_NULL_POINTER_ERROR).
+    if (!pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
+  }
   if (M != CrossCorrMode::Valid) {
     if (oTplRoiSize.width > oSrcRoiSize.width || oTplRoiSize.height > oSrcRoiSize.height)
       return NPP_SIZE_ERROR;
-  }
-  if constexpr (Op == CrossCorrOp::NormLevel) {
-    if (!pDeviceBuffer) return NPP_NULL_POINTER_ERROR;  // the LAST check (5090-measured)
   }
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
   const int blocks = numBlocks(dstW * dstH * nCh);
