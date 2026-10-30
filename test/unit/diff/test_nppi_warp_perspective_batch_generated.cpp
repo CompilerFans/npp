@@ -273,40 +273,40 @@ protected:
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_8u_C1) {
   batch_case<Npp8u, 1, false>("nppiWarpPerspectiveBatch_8u_C1R", "8u_C1R/n3", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                               &nppiWarpPerspectiveBatch_8u_C1R_Ctx, 800);
   batch_case<Npp8u, 1, false>("nppiWarpPerspectiveBatch_8u_C1R", "8u_C1R/n3_linear", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_LINEAR, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_LINEAR, true,
                               &nppiWarpPerspectiveBatch_8u_C1R_Ctx, 801);
   batch_case<Npp8u, 1, false>("nppiWarpPerspectiveBatch_8u_C1R", "8u_C1R/n3_cubic", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_CUBIC, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_CUBIC, true,
                               &nppiWarpPerspectiveBatch_8u_C1R_Ctx, 802);
   batch_case<Npp8u, 1, false>("nppiWarpPerspectiveBatch_8u_C1R", "8u_C1R/n2", 2, NppiSize{12, 9},
-                              NppiRect{0, 0, 12, 9}, NppiSize{12, 9}, NppiRect{0, 0, 12, 9}, {&kShift, &kPersp},
+                              NppiRect{0, 0, 12, 9}, NppiSize{12, 9}, NppiRect{0, 0, 12, 9}, {kShift, kPersp},
                               NPPI_INTER_NN, false, &nppiWarpPerspectiveBatch_8u_C1R_Ctx, 803);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_8u_C3) {
   batch_case<Npp8u, 3, false>("nppiWarpPerspectiveBatch_8u_C3R", "8u_C3R/n3", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                               &nppiWarpPerspectiveBatch_8u_C3R_Ctx, 810);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_8u_C4) {
   batch_case<Npp8u, 4, false>("nppiWarpPerspectiveBatch_8u_C4R", "8u_C4R/n3", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                               &nppiWarpPerspectiveBatch_8u_C4R_Ctx, 820);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_8u_AC4) {
   batch_case<Npp8u, 4, true>("nppiWarpPerspectiveBatch_8u_AC4R", "8u_AC4R/n3", 3, NppiSize{12, 9},
                              NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                             {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                             {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                              &nppiWarpPerspectiveBatch_8u_AC4R_Ctx, 830);
   batch_case<Npp8u, 4, true>("nppiWarpPerspectiveBatch_8u_AC4R", "8u_AC4R/n3_linear", 3, NppiSize{12, 9},
                              NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                             {&kIdent, &kScale2, &kPersp}, NPPI_INTER_LINEAR, true,
+                             {kIdent, kScale2, kPersp}, NPPI_INTER_LINEAR, true,
                              &nppiWarpPerspectiveBatch_8u_AC4R_Ctx, 831);
 }
 
@@ -314,19 +314,19 @@ TEST_F(NppiWarpPerspectiveBatchDiff, Batch_8u_AC4) {
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_16f_C1) {
   batch_case<Npp16f, 1, false>("nppiWarpPerspectiveBatch_16f_C1R", "16f_C1R/n3", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, false,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_NN, false,
                                &nppiWarpPerspectiveBatch_16f_C1R_Ctx, 840);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_16f_C3) {
   batch_case<Npp16f, 3, false>("nppiWarpPerspectiveBatch_16f_C3R", "16f_C3R/n3", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, false,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_NN, false,
                                &nppiWarpPerspectiveBatch_16f_C3R_Ctx, 841);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_16f_C4) {
   batch_case<Npp16f, 4, false>("nppiWarpPerspectiveBatch_16f_C4R", "16f_C4R/n3", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, false,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_NN, false,
                                &nppiWarpPerspectiveBatch_16f_C4R_Ctx, 842);
 }
 
@@ -334,33 +334,33 @@ TEST_F(NppiWarpPerspectiveBatchDiff, Batch_16f_C4) {
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_32f_C1) {
   batch_case<Npp32f, 1, false>("nppiWarpPerspectiveBatch_32f_C1R", "32f_C1R/n3", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                                &nppiWarpPerspectiveBatch_32f_C1R_Ctx, 850);
   batch_case<Npp32f, 1, false>("nppiWarpPerspectiveBatch_32f_C1R", "32f_C1R/n3_linear", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_LINEAR, true,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_LINEAR, true,
                                &nppiWarpPerspectiveBatch_32f_C1R_Ctx, 851);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_32f_C3) {
   batch_case<Npp32f, 3, false>("nppiWarpPerspectiveBatch_32f_C3R", "32f_C3R/n3", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                                &nppiWarpPerspectiveBatch_32f_C3R_Ctx, 860);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_32f_C4) {
   batch_case<Npp32f, 4, false>("nppiWarpPerspectiveBatch_32f_C4R", "32f_C4R/n3", 3, NppiSize{12, 9},
                                NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                               {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                               {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                                &nppiWarpPerspectiveBatch_32f_C4R_Ctx, 861);
 }
 TEST_F(NppiWarpPerspectiveBatchDiff, Batch_32f_AC4) {
   batch_case<Npp32f, 4, true>("nppiWarpPerspectiveBatch_32f_AC4R", "32f_AC4R/n3", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_NN, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_NN, true,
                               &nppiWarpPerspectiveBatch_32f_AC4R_Ctx, 870);
   batch_case<Npp32f, 4, true>("nppiWarpPerspectiveBatch_32f_AC4R", "32f_AC4R/n3_linear", 3, NppiSize{12, 9},
                               NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18},
-                              {&kIdent, &kScale2, &kPersp}, NPPI_INTER_LINEAR, true,
+                              {kIdent, kScale2, kPersp}, NPPI_INTER_LINEAR, true,
                               &nppiWarpPerspectiveBatch_32f_AC4R_Ctx, 871);
 }
 
