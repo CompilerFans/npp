@@ -6078,8 +6078,8 @@ nppiGetAffineTransform,nppi_geometry_transforms.h,no,,no,
 nppiGetPerspectiveBound,nppi_geometry_transforms.h,no,,no,
 nppiGetPerspectiveQuad,nppi_geometry_transforms.h,no,,no,
 nppiGetPerspectiveTransform,nppi_geometry_transforms.h,no,,no,
-nppiGetResizeRect,nppi_geometry_transforms.h,no,,no,
-nppiGetResizeTiledSourceOffset,nppi_geometry_transforms.h,no,,no,
+nppiGetResizeRect,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_resize_host_generated.cpp,yes,test/unit/diff/test_nppi_resize_host_generated.cpp
+nppiGetResizeTiledSourceOffset,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_resize_host_generated.cpp,yes,test/unit/diff/test_nppi_resize_host_generated.cpp
 nppiGetRotateBound,nppi_geometry_transforms.h,no,,no,
 nppiGetRotateQuad,nppi_geometry_transforms.h,no,,no,
 nppiMirrorBatch_32f_AC4IR,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_mirror_batch_ir_generated.cpp,no,
@@ -6238,7 +6238,7 @@ nppiRemap_8u_P3R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transform
 nppiRemap_8u_P3R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_remap.cpp,yes,test/unit/nppi/nppi_geometry_transforms/test_nppi_remap.cpp;test/unit/ref/test_nppi_geometry_transforms_2_generated.cpp
 nppiRemap_8u_P4R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_remap.cpp,no,
 nppiRemap_8u_P4R_Ctx,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_remap.cpp,yes,test/unit/ref/test_nppi_geometry_transforms_2_generated.cpp
-nppiResizeAdvancedGetBufferHostSize_8u_C1R,nppi_geometry_transforms.h,no,,no,
+nppiResizeAdvancedGetBufferHostSize_8u_C1R,nppi_geometry_transforms.h,yes,src/nppi/nppi_geometry_transforms/nppi_resize_host_generated.cpp,yes,test/unit/diff/test_nppi_resize_host_generated.cpp
 nppiResizeBatch_16f_C1R_Advanced,nppi_geometry_transforms.h,no,,no,
 nppiResizeBatch_16f_C1R_Advanced_Ctx,nppi_geometry_transforms.h,no,,yes,test/unit/ref/test_nppi_geometry_transforms_2_generated.cpp
 nppiResizeBatch_16f_C3R_Advanced,nppi_geometry_transforms.h,no,,no,

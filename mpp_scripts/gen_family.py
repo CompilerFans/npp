@@ -190,6 +190,22 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
         "channels": func.channels or "1",
         "layout": func.layout,
     }
+    if not func.ctx and ctx_twin is None:
+        # A non-Ctx function without a _Ctx twin (host-only helpers such as
+        # nppiGetResizeRect) is implemented directly, exactly like a Ctx
+        # function but without any stream parameter.
+        call_template = choose_call(spec, func)
+        if "{dtype}" in call_template and not dtype:
+            raise ValueError(f"{func.name}: spec uses {{dtype}} but the function has no dtype token")
+        if "nppStreamCtx" in call_template and "nppStreamCtx" not in param_names(func.params):
+            raise ValueError(f"{func.name}: spec references nppStreamCtx but the signature does not use that name")
+        call = call_template.format(**values)
+        return (
+            f"NppStatus {func.name}({func.params}) {{\n"
+            f"  return {call};\n"
+            f"}}\n"
+        )
+
     if func.ctx:
         call_template = choose_call(spec, func)
         if "{dtype}" in call_template and not dtype:
@@ -205,8 +221,6 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
             f"}}\n"
         )
 
-    if ctx_twin is None:
-        raise ValueError(f"{func.name}: non-Ctx function has no _Ctx twin")
     names = param_names(func.params)
     ctx_name = param_names(ctx_twin.params)[-1]
     ctx_type = split_params(ctx_twin.params)[-1]
@@ -267,7 +281,7 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
             skipped.append(f.name)
             continue
         twin = ctx_twin_of(f, funcs)
-        if twin is None:
+        if twin is None and f.ctx:
             raise SystemExit(f"{f.name}: no _Ctx twin found")
         chunks.append(render(spec, f, twin))
         emitted.append(f.name)
