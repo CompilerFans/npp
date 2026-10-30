@@ -8,19 +8,27 @@
 // Semantics (baseline NVIDIA NPP 13.4, pinned by the differential tests in
 // test/unit/diff/test_nppi_color_twist*_generated.cpp):
 //   * 3x4 twist: out_c = sum_j aTwist[c][j] * in_j + aTwist[c][3] for the first
-//     min(channels, 3) output channels; in_j for j >= channels is substituted
-//     with the replicated first channel (C1) / 0 (C2 blue), matching the
-//     hand-written nppi_color_twist.cu kernels for 8u/16u/16s.
-//   * C4 (packed, non-AC4): the alpha channel is copied from the source.
-//   * AC4: the alpha channel is neither read nor written.
-//   * P3/IP3: planar 3-channel variant of the same math.
+//     min(channels, 3) output channels; in_j for j >= channels reads as 0
+//     (measured; no channel replication).
+//   * C4 (packed, non-AC4): the alpha channel is copied bit-exact from the
+//     source.  AC4: the alpha channel is neither read nor written.
+//   * P3/IP3: planar 3-channel variant of the same math, no rounding bias.
+//   * rounding bias: the packed CH>=3 kernels add +0.5f to the accumulated
+//     value.  Npp32f keeps it in the output; integer dtypes combine it with a
+//     truncate-toward-zero conversion (round half up) and saturate to the
+//     dtype range; C1/C2 packed, planar and all Npp16f variants have no bias
+//     (Npp16f converts with round-to-nearest).
 //   * "C" variants (nppiColorTwist32fC / nppiColorTwist_32fC): full 4x4 twist
 //     plus a per-channel additive constant, applied to all four channels.
 //   * Batch variants: every NppiColorTwistBatchCXR entry carries its own twist
 //     matrix (12 floats, or 20 floats = 4x4 + 4 constants for the "C" forms);
 //     results are clamped to [nMin, nMax] before the dtype conversion.
-//   * integer destinations are clamped to the dtype range; rounding and the
-//     exact error-code order are pinned by the recorded goldens.
+//   * validation (measured): negative ROI -> NPP_SIZE_ERROR; packed dst step
+//     uses an unsigned range check (0 <= step < rowBytes -> NPP_STEP_ERROR,
+//     negative accepted); the packed src step is not validated; planar
+//     variants check both steps signed; null pointers -> NPP_NULL_POINTER_
+//     ERROR.  A null aTwist / null planar array crashes the NVIDIA reference;
+//     mcMPP returns NPP_NULL_POINTER_ERROR instead.
 #ifndef NPPI_COLOR_TWIST_EXECUTOR_H
 #define NPPI_COLOR_TWIST_EXECUTOR_H
 

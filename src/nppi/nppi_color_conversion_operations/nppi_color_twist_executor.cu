@@ -5,6 +5,7 @@
 #include <cuda_fp16.h>
 #include <cuda_runtime.h>
 #include <cstdint>
+#include <type_traits>
 
 namespace nppi {
 namespace colortwist {
@@ -36,32 +37,32 @@ __device__ __forceinline__ float toFloat(const Npp16f &v) {
   return __half2float(h);
 }
 
-__device__ __forceinline__ float roundHalfAway(float v) { return (v >= 0.0f) ? (v + 0.5f) : (v - 0.5f); }
+// Integer conversion, pinned by the recorded goldens (RTX 5090, NPP 13.4):
+// truncate toward zero, then saturate to the dtype range.  The +0.5f rounding
+// bias of the packed CH>=3 path is added by the caller (BIAS template flag)
+// BEFORE this conversion, so those layouts round half-up.
+template <typename T> __device__ __forceinline__ T fromFloatInt(float v, int lo, int hi) {
+  const int i = __float2int_rz(v);
+  if (i < lo) return static_cast<T>(lo);
+  if (i > hi) return static_cast<T>(hi);
+  return static_cast<T>(i);
+}
 
 template <typename T> __device__ __forceinline__ T fromFloat(float v);
 
-template <> __device__ __forceinline__ Npp8u fromFloat<Npp8u>(float v) {
-  v = fminf(fmaxf(v, 0.0f), 255.0f);
-  return static_cast<Npp8u>(roundHalfAway(v));
-}
+template <> __device__ __forceinline__ Npp8u fromFloat<Npp8u>(float v) { return fromFloatInt<Npp8u>(v, 0, 255); }
 
-template <> __device__ __forceinline__ Npp8s fromFloat<Npp8s>(float v) {
-  v = fminf(fmaxf(v, -128.0f), 127.0f);
-  return static_cast<Npp8s>(roundHalfAway(v));
-}
+template <> __device__ __forceinline__ Npp8s fromFloat<Npp8s>(float v) { return fromFloatInt<Npp8s>(v, -128, 127); }
 
-template <> __device__ __forceinline__ Npp16u fromFloat<Npp16u>(float v) {
-  v = fminf(fmaxf(v, 0.0f), 65535.0f);
-  return static_cast<Npp16u>(roundHalfAway(v));
-}
+template <> __device__ __forceinline__ Npp16u fromFloat<Npp16u>(float v) { return fromFloatInt<Npp16u>(v, 0, 65535); }
 
-template <> __device__ __forceinline__ Npp16s fromFloat<Npp16s>(float v) {
-  v = fminf(fmaxf(v, -32768.0f), 32767.0f);
-  return static_cast<Npp16s>(roundHalfAway(v));
+template <> __forceinline__ __device__ Npp16s fromFloat<Npp16s>(float v) {
+  return fromFloatInt<Npp16s>(v, -32768, 32767);
 }
 
 template <> __device__ __forceinline__ Npp32f fromFloat<Npp32f>(float v) { return v; }
 
+// Npp16f: plain round-to-nearest, NO rounding bias on any layout (measured).
 template <> __device__ __forceinline__ Npp16f fromFloat<Npp16f>(float v) {
   const __half h = __float2half_rn(v);
   Npp16f r;
@@ -69,7 +70,17 @@ template <> __device__ __forceinline__ Npp16f fromFloat<Npp16f>(float v) {
   return r;
 }
 
-// ---- per-pixel math ----------------------------------------------------------
+// The +0.5f bias is applied by the packed CH>=3 kernels of NPP 13.4 for the
+// float and integer dtypes; the Npp16f kernels have no bias on any layout.
+template <typename T> struct has_rounding_bias : std::is_same<T, Npp32f> {};
+template <> struct has_rounding_bias<Npp8u> : std::true_type {};
+template <> struct has_rounding_bias<Npp8s> : std::true_type {};
+template <> struct has_rounding_bias<Npp16u> : std::true_type {};
+template <> struct has_rounding_bias<Npp16s> : std::true_type {};
+
+template <typename T, int CH> __host__ __device__ constexpr bool packedBias() {
+  return (CH >= 3) && has_rounding_bias<T>::value;
+}
 
 __device__ __forceinline__ float clampRange(float v, const TwistParams &p) {
   return fminf(fmaxf(v, p.nMin), p.nMax);
@@ -191,7 +202,7 @@ __global__ void colorTwistBatchKernel(NppiColorTwistBatchCXR *list, int width, i
   const T *s =
       reinterpret_cast<const T *>(reinterpret_cast<const char *>(src) + (size_t)y * entry.nSrcStep) + (size_t)x * CH;
   T *d = reinterpret_cast<T *>(reinterpret_cast<char *>(dst) + (size_t)y * entry.nDstStep) + (size_t)x * CH;
-  twistPixel<T, CH, AC4, HAS_CONST, true, (CH >= 3)>(s, d, p);
+  twistPixel<T, CH, AC4, HAS_CONST, true, packedBias<T, CH>()>(s, d, p);
 }
 
 // ---- shared host-side validation ----------------------------------------------
@@ -271,7 +282,7 @@ NppStatus twistR(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oS
   }
   TwistParams p;
   fillTwist(p, aTwist);
-  colorTwistPackedKernel<T, CH, AC4, false, false, (CH >= 3)>
+  colorTwistPackedKernel<T, CH, AC4, false, false, packedBias<T, CH>()>
       <<<gridSize(oSizeROI.width, oSizeROI.height), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep,
                                                                                           oSizeROI.width, oSizeROI.height,
                                                                                           p);
@@ -300,7 +311,7 @@ NppStatus twistIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f a
   }
   TwistParams p;
   fillTwist(p, aTwist);
-  colorTwistPackedKernel<T, CH, AC4, false, false, (CH >= 3)>
+  colorTwistPackedKernel<T, CH, AC4, false, false, packedBias<T, CH>()>
       <<<gridSize(oSizeROI.width, oSizeROI.height), dim3(kBlockX, kBlockY), 0, stream>>>(
           pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI.width, oSizeROI.height, p);
   return checkLaunch();

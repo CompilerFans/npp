@@ -76,6 +76,15 @@ inline const Npp32f(&twist3b())[3][4] {
   return t;
 }
 
+// Identity 3x4 twist (bias probe: any output != input reveals a rounding bias
+// or a conversion-rounding effect).
+inline const Npp32f(&identity3())[3][4] {
+  static const Npp32f t[3][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
+                                 {0.0f, 1.0f, 0.0f, 0.0f},
+                                 {0.0f, 0.0f, 1.0f, 0.0f}};
+  return t;
+}
+
 // 4x4 twist + constants for the "C" variants (dyadic; the 4th row/column and
 // the constants make alpha handling observable).
 inline void twist4c(Npp32f m[4][4], Npp32f c[4]) {
