@@ -27,6 +27,7 @@
 #include "npp_test_base.h"
 
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -599,6 +600,72 @@ void val_indx_case_nc(const char *fname, const std::string &id, std::vector<T> s
 }
 #endif
 
+// (src, initial dst) -> dst                  [MinEvery/MaxEvery, in place]
+template <typename T>
+void every_case(const char *fname, const std::string &id, std::vector<T> src, std::vector<T> dst0,
+                NppStatus (*f)(const T *, T *, NppSignalLength, NppStreamContext)) {
+  ASSERT_EQ(src.size(), dst0.size());
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<T> dd(dst0.size());
+  dd.copyFromHost(dst0);
+  NppStreamContext ctx = current_context();
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), dd.get(), n, ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.input(dst0.data(), dst0.size() * sizeof(T));
+  c.status(st);
+  double rtol, atol;
+  tol_of<T>(rtol, atol);
+  c.device_output(dd.get(), dst0.size(), kind_of<T>(), rtol, atol);
+  c.finish();
+}
+
+// (src, lo, hi) -> count                     [CountInRange]
+inline void count_case(const char *fname, const std::string &id, std::vector<Npp32s> src,
+                       Npp32s lo, Npp32s hi,
+                       NppStatus (*f)(const Npp32s *, NppSignalLength, int *, Npp32s, Npp32s,
+                                      Npp8u *, NppStreamContext),
+                       CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<Npp32s> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<int> cd(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, cd.get(), lo, hi, buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(Npp32s));
+  c.status(st);
+  c.device_output(cd.get(), 1, ValueKind::I32, 0, 0);
+  c.finish();
+}
+
+// (src, mode) -> value                       [ZeroCrossing]
+template <typename T>
+void zc_case(const char *fname, const std::string &id, std::vector<T> src, NppsZCType mode,
+             NppStatus (*f)(const T *, NppSignalLength, Npp32f *, NppsZCType, Npp8u *, NppStreamContext),
+             CtxSizeFn szfn) {
+  const NppSignalLength n = (NppSignalLength)src.size();
+  DeviceMemory<T> sd(src.size());
+  sd.copyFromHost(src);
+  DeviceMemory<Npp32f> vd(1);
+  NppStreamContext ctx = current_context();
+  SIZE_TYPE bytes = query_size(szfn, n, ctx);
+  DeviceMemory<Npp8u> buf(bytes > 0 ? (size_t)bytes : 1);
+  clear_cuda_error();
+  NppStatus st = f(sd.get(), n, vd.get(), mode, buf.get(), ctx);
+  Case c(id, fname);
+  c.input(src.data(), src.size() * sizeof(T));
+  c.status(st);
+  c.device_output(vd.get(), 1, ValueKind::F32, 1e-4, 1e-4);
+  c.finish();
+}
+
 } // namespace
 
 class NppsStatisticsDiff : public ::testing::Test {
@@ -1107,6 +1174,171 @@ TEST_F(NppsStatisticsDiff, MeanStdDev_32f_Plain_n257) {
       gen<Npp32f>(257, 0x331), &nppsMeanStdDev_32f, &nppsMeanStdDevGetBufferSize_32f);
 }
 #endif
+
+// ===========================================================================
+// Norm / NormDiff: (src) -> O; (src1, src2) -> O
+// ===========================================================================
+
+#define STATS_NORM_PLAIN(NAME, T, O, GBHS)                                                \
+  TEST_F(NppsStatisticsDiff, Norm_##NAME##_n257) {                                        \
+    one_src_case<T, O>("nppsNorm_" #NAME, "stats/Norm/" #NAME "/n257",                    \
+        gen<T>(257, 0x501), &nppsNorm_##NAME##_Ctx, &GBHS);                               \
+  }
+#define STATS_NORM_SFS(NAME, T, O, GBHS)                                                  \
+  TEST_F(NppsStatisticsDiff, Norm_##NAME##_n257) {                                        \
+    one_src_sfs_case<T, O>("nppsNorm_" #NAME, "stats/Norm/" #NAME "/n257",                \
+        gen<T>(257, 0x501), 2, &nppsNorm_##NAME##_Ctx, &GBHS);                            \
+  }
+#define STATS_NORMDIFF_PLAIN(NAME, T, O, GBHS)                                            \
+  TEST_F(NppsStatisticsDiff, NormDiff_##NAME##_n257) {                                    \
+    two_src_case<T, T, O>("nppsNormDiff_" #NAME, "stats/NormDiff/" #NAME "/n257",         \
+        gen<T>(257, 0x502), gen<T>(257, 0x503), &nppsNormDiff_##NAME##_Ctx, &GBHS);       \
+  }
+#define STATS_NORMDIFF_SFS(NAME, T, O, GBHS)                                              \
+  TEST_F(NppsStatisticsDiff, NormDiff_##NAME##_n257) {                                    \
+    two_src_sfs_case<T, T, O>("nppsNormDiff_" #NAME, "stats/NormDiff/" #NAME "/n257",     \
+        gen<T>(257, 0x502), gen<T>(257, 0x503), 2, &nppsNormDiff_##NAME##_Ctx, &GBHS);    \
+  }
+
+STATS_NORM_PLAIN(Inf_16s32f, Npp16s, Npp32f, nppsNormInfGetBufferSize_16s32f_Ctx)
+STATS_NORM_PLAIN(Inf_32f, Npp32f, Npp32f, nppsNormInfGetBufferSize_32f_Ctx)
+STATS_NORM_PLAIN(Inf_32fc32f, Npp32fc, Npp32f, nppsNormInfGetBufferSize_32fc32f_Ctx)
+STATS_NORM_PLAIN(Inf_64f, Npp64f, Npp64f, nppsNormInfGetBufferSize_64f_Ctx)
+STATS_NORM_PLAIN(Inf_64fc64f, Npp64fc, Npp64f, nppsNormInfGetBufferSize_64fc64f_Ctx)
+STATS_NORM_SFS(Inf_16s32s_Sfs, Npp16s, Npp32s, nppsNormInfGetBufferSize_16s32s_Sfs_Ctx)
+
+STATS_NORM_PLAIN(L1_16s32f, Npp16s, Npp32f, nppsNormL1GetBufferSize_16s32f_Ctx)
+STATS_NORM_PLAIN(L1_32f, Npp32f, Npp32f, nppsNormL1GetBufferSize_32f_Ctx)
+STATS_NORM_PLAIN(L1_32fc64f, Npp32fc, Npp64f, nppsNormL1GetBufferSize_32fc64f_Ctx)
+STATS_NORM_PLAIN(L1_64f, Npp64f, Npp64f, nppsNormL1GetBufferSize_64f_Ctx)
+STATS_NORM_PLAIN(L1_64fc64f, Npp64fc, Npp64f, nppsNormL1GetBufferSize_64fc64f_Ctx)
+STATS_NORM_SFS(L1_16s32s_Sfs, Npp16s, Npp32s, nppsNormL1GetBufferSize_16s32s_Sfs_Ctx)
+STATS_NORM_SFS(L1_16s64s_Sfs, Npp16s, Npp64s, nppsNormL1GetBufferSize_16s64s_Sfs_Ctx)
+
+STATS_NORM_PLAIN(L2_16s32f, Npp16s, Npp32f, nppsNormL2GetBufferSize_16s32f_Ctx)
+STATS_NORM_PLAIN(L2_32f, Npp32f, Npp32f, nppsNormL2GetBufferSize_32f_Ctx)
+STATS_NORM_PLAIN(L2_32fc64f, Npp32fc, Npp64f, nppsNormL2GetBufferSize_32fc64f_Ctx)
+STATS_NORM_PLAIN(L2_64f, Npp64f, Npp64f, nppsNormL2GetBufferSize_64f_Ctx)
+STATS_NORM_PLAIN(L2_64fc64f, Npp64fc, Npp64f, nppsNormL2GetBufferSize_64fc64f_Ctx)
+STATS_NORM_SFS(L2_16s32s_Sfs, Npp16s, Npp32s, nppsNormL2GetBufferSize_16s32s_Sfs_Ctx)
+
+STATS_NORM_SFS(L2Sqr_16s64s_Sfs, Npp16s, Npp64s, nppsNormL2SqrGetBufferSize_16s64s_Sfs_Ctx)
+
+STATS_NORMDIFF_PLAIN(Inf_16s32f, Npp16s, Npp32f, nppsNormDiffInfGetBufferSize_16s32f_Ctx)
+STATS_NORMDIFF_PLAIN(Inf_32f, Npp32f, Npp32f, nppsNormDiffInfGetBufferSize_32f_Ctx)
+STATS_NORMDIFF_PLAIN(Inf_32fc32f, Npp32fc, Npp32f, nppsNormDiffInfGetBufferSize_32fc32f_Ctx)
+STATS_NORMDIFF_PLAIN(Inf_64f, Npp64f, Npp64f, nppsNormDiffInfGetBufferSize_64f_Ctx)
+STATS_NORMDIFF_PLAIN(Inf_64fc64f, Npp64fc, Npp64f, nppsNormDiffInfGetBufferSize_64fc64f_Ctx)
+STATS_NORMDIFF_SFS(Inf_16s32s_Sfs, Npp16s, Npp32s, nppsNormDiffInfGetBufferSize_16s32s_Sfs_Ctx)
+
+STATS_NORMDIFF_PLAIN(L1_16s32f, Npp16s, Npp32f, nppsNormDiffL1GetBufferSize_16s32f_Ctx)
+STATS_NORMDIFF_PLAIN(L1_32f, Npp32f, Npp32f, nppsNormDiffL1GetBufferSize_32f_Ctx)
+STATS_NORMDIFF_PLAIN(L1_32fc64f, Npp32fc, Npp64f, nppsNormDiffL1GetBufferSize_32fc64f_Ctx)
+STATS_NORMDIFF_PLAIN(L1_64f, Npp64f, Npp64f, nppsNormDiffL1GetBufferSize_64f_Ctx)
+STATS_NORMDIFF_PLAIN(L1_64fc64f, Npp64fc, Npp64f, nppsNormDiffL1GetBufferSize_64fc64f_Ctx)
+STATS_NORMDIFF_SFS(L1_16s32s_Sfs, Npp16s, Npp32s, nppsNormDiffL1GetBufferSize_16s32s_Sfs_Ctx)
+STATS_NORMDIFF_SFS(L1_16s64s_Sfs, Npp16s, Npp64s, nppsNormDiffL1GetBufferSize_16s64s_Sfs_Ctx)
+
+STATS_NORMDIFF_PLAIN(L2_16s32f, Npp16s, Npp32f, nppsNormDiffL2GetBufferSize_16s32f_Ctx)
+STATS_NORMDIFF_PLAIN(L2_32f, Npp32f, Npp32f, nppsNormDiffL2GetBufferSize_32f_Ctx)
+STATS_NORMDIFF_PLAIN(L2_32fc64f, Npp32fc, Npp64f, nppsNormDiffL2GetBufferSize_32fc64f_Ctx)
+STATS_NORMDIFF_PLAIN(L2_64f, Npp64f, Npp64f, nppsNormDiffL2GetBufferSize_64f_Ctx)
+STATS_NORMDIFF_PLAIN(L2_64fc64f, Npp64fc, Npp64f, nppsNormDiffL2GetBufferSize_64fc64f_Ctx)
+STATS_NORMDIFF_SFS(L2_16s32s_Sfs, Npp16s, Npp32s, nppsNormDiffL2GetBufferSize_16s32s_Sfs_Ctx)
+
+STATS_NORMDIFF_SFS(L2Sqr_16s64s_Sfs, Npp16s, Npp64s, nppsNormDiffL2SqrGetBufferSize_16s64s_Sfs_Ctx)
+
+#undef STATS_NORM_PLAIN
+#undef STATS_NORM_SFS
+#undef STATS_NORMDIFF_PLAIN
+#undef STATS_NORMDIFF_SFS
+
+// ===========================================================================
+// MinEvery / MaxEvery: pSrcDst = op(pSrcDst, pSrc)
+// ===========================================================================
+
+#define STATS_EVERY_CASE(KIND, DT)                                                        \
+  TEST_F(NppsStatisticsDiff, KIND##_##DT##_n257) {                                        \
+    every_case<Npp##DT>("npps" #KIND "_" #DT "_I", "stats/" #KIND "/" #DT "/n257",        \
+        gen<Npp##DT>(257, 0x511), gen<Npp##DT>(257, 0x512),                               \
+        &npps##KIND##_##DT##_I_Ctx);                                                      \
+  }
+
+STATS_EVERY_CASE(MinEvery, 8u)
+STATS_EVERY_CASE(MinEvery, 16s)
+STATS_EVERY_CASE(MinEvery, 16u)
+STATS_EVERY_CASE(MinEvery, 32f)
+STATS_EVERY_CASE(MinEvery, 32s)
+STATS_EVERY_CASE(MinEvery, 64f)
+STATS_EVERY_CASE(MaxEvery, 8u)
+STATS_EVERY_CASE(MaxEvery, 16s)
+STATS_EVERY_CASE(MaxEvery, 16u)
+STATS_EVERY_CASE(MaxEvery, 32f)
+STATS_EVERY_CASE(MaxEvery, 32s)
+
+#undef STATS_EVERY_CASE
+
+// ===========================================================================
+// CountInRange: (src, lo, hi) -> count
+// ===========================================================================
+
+TEST_F(NppsStatisticsDiff, CountInRange_32s_n257) {
+  count_case("nppsCountInRange_32s", "stats/CountInRange/32s/n257",
+      gen<Npp32s>(257, 0x531), -50000, 50000,
+      &nppsCountInRange_32s_Ctx, &nppsCountInRangeGetBufferSize_32s_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, CountInRange_32s_Full) {
+  count_case("nppsCountInRange_32s", "stats/CountInRange/32s/full",
+      gen<Npp32s>(257, 0x531), std::numeric_limits<Npp32s>::min(),
+      std::numeric_limits<Npp32s>::max(),
+      &nppsCountInRange_32s_Ctx, &nppsCountInRangeGetBufferSize_32s_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, CountInRange_32s_Empty) {
+  count_case("nppsCountInRange_32s", "stats/CountInRange/32s/empty",
+      gen<Npp32s>(257, 0x531), 10, 10,
+      &nppsCountInRange_32s_Ctx, &nppsCountInRangeGetBufferSize_32s_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, CountInRange_32s_Inverted) {
+  count_case("nppsCountInRange_32s", "stats/CountInRange/32s/inverted",
+      gen<Npp32s>(257, 0x531), 50000, -50000,
+      &nppsCountInRange_32s_Ctx, &nppsCountInRangeGetBufferSize_32s_Ctx);
+}
+
+TEST_F(NppsStatisticsDiff, CountInRange_32s_n1) {
+  count_case("nppsCountInRange_32s", "stats/CountInRange/32s/n1",
+      gen<Npp32s>(1, 0x532), -100000, 100000,
+      &nppsCountInRange_32s_Ctx, &nppsCountInRangeGetBufferSize_32s_Ctx);
+}
+
+// Range bounds are exclusive (probed: values 10 and 20 are not counted).
+TEST_F(NppsStatisticsDiff, CountInRange_32s_Bounds) {
+  count_case("nppsCountInRange_32s", "stats/CountInRange/32s/bounds",
+      {10, 11, 19, 20, 21}, 10, 20,
+      &nppsCountInRange_32s_Ctx, &nppsCountInRangeGetBufferSize_32s_Ctx);
+}
+
+// ===========================================================================
+// ZeroCrossing: (src, mode) -> value
+// ===========================================================================
+
+#define STATS_ZC_CASE(DT, T, TAG, MODE, SEED)                                             \
+  TEST_F(NppsStatisticsDiff, ZeroCrossing_##DT##_##TAG) {                                 \
+    zc_case<T>("nppsZeroCrossing_" #DT, "stats/ZeroCrossing/" #DT "/" #TAG,               \
+        gen<T>(257, SEED), MODE, &nppsZeroCrossing_##DT##_Ctx,                            \
+        &nppsZeroCrossingGetBufferSize_##DT##_Ctx);                                       \
+  }
+
+STATS_ZC_CASE(16s32f, Npp16s, ZCR, nppZCR, 0x521)
+STATS_ZC_CASE(16s32f, Npp16s, ZCXor, nppZCXor, 0x521)
+STATS_ZC_CASE(16s32f, Npp16s, ZCC, nppZCC, 0x521)
+STATS_ZC_CASE(32f, Npp32f, ZCR, nppZCR, 0x522)
+STATS_ZC_CASE(32f, Npp32f, ZCXor, nppZCXor, 0x522)
+STATS_ZC_CASE(32f, Npp32f, ZCC, nppZCC, 0x522)
+
+#undef STATS_ZC_CASE
 
 // ===========================================================================
 // Min / Max / MinIndx / MaxIndx / MinMax / MinMaxIndx / MinAbs / MaxAbs
