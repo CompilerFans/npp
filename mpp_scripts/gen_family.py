@@ -13,6 +13,7 @@ Spec (JSON):
   "includes": ["npps_sum_executor.h"],
   "call": "nppi::statistics::nppsSum::run<{dtype}>(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream)",
   "ctx_only": false,
+  "call_by_name": {"nppsSum_8u_Sfs_Ctx": "..."},  # optional per-Ctx-function call
   "exclude": ["nppsSum_32f"],              # optional exact names
   "functions": ["nppsSum_8u_Sfs"]           # optional exact-name mode
 }
@@ -138,6 +139,9 @@ def param_names(params: str) -> List[str]:
 
 
 def choose_call(spec: dict, func: Func) -> str:
+    by_name = spec.get("call_by_name", {})
+    if func.name in by_name:
+        return by_name[func.name]
     by_family = spec.get("call_by_family", {})
     if func.family in by_family:
         return by_family[func.family]
