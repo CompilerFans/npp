@@ -81,6 +81,78 @@ NppStatus filterColumnBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
                                 int nMaskSize, int nAnchor, NppiBorderType eBorderType,
                                 cudaStream_t stream);
 
+// nppiFilter_<dt>_<lay>R (integer source): general 2D filter, 32s kernel +
+// divisor, no border.  Accumulation wraps at 32 bits, division truncates
+// toward zero, the quotient saturates (same ring arithmetic as filterBorderDiv).
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize oSizeROI,
+                    const Npp32s *pKernel, NppiSize oKernelSize, NppiPoint oAnchor, Npp32s nDivisor,
+                    cudaStream_t stream);
+
+// nppiFilter_64f_C1R: general 2D filter, 64f kernel, no border.  The
+// accumulation is done in double; only Npp64f destinations are instantiated.
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filter64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize oSizeROI,
+                    const Npp64f *pKernel, NppiSize oKernelSize, NppiPoint oAnchor,
+                    cudaStream_t stream);
+
+// nppiFilterRow_<dt>_<lay>R / nppiFilterColumn_<dt>_<lay>R (integer source):
+// separable 1D filters, 32s kernel + divisor, no border.
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterRowDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize oROI,
+                       const Npp32s *pKernel, int nMaskSize, int nAnchor, Npp32s nDivisor,
+                       cudaStream_t stream);
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterColumnDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize oROI,
+                          const Npp32s *pKernel, int nMaskSize, int nAnchor, Npp32s nDivisor,
+                          cudaStream_t stream);
+
+// nppiFilterRow_64f_C1R / nppiFilterColumn_64f_C1R: separable 1D filters, 64f
+// kernel; accumulation in double, Npp64f destinations only.
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterRow64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize oROI,
+                       const Npp64f *pKernel, int nMaskSize, int nAnchor, cudaStream_t stream);
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterColumn64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, NppiSize oROI,
+                          const Npp64f *pKernel, int nMaskSize, int nAnchor, cudaStream_t stream);
+
+// nppiFilterRowBorder_<dt>_<lay>R / nppiFilterColumnBorder_<dt>_<lay>R
+// (integer source): separable 1D filters with border handling, 32s kernel +
+// divisor.
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterRowBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+                             Dst *pDst, int nDstStep, NppiSize oSizeROI, const Npp32s *pKernel,
+                             int nMaskSize, int nAnchor, Npp32s nDivisor,
+                             NppiBorderType eBorderType, cudaStream_t stream);
+template <typename Src, typename Dst, int Channels, bool AlphaPreserve>
+NppStatus filterColumnBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+                                Dst *pDst, int nDstStep, NppiSize oSizeROI, const Npp32s *pKernel,
+                                int nMaskSize, int nAnchor, Npp32s nDivisor,
+                                NppiBorderType eBorderType, cudaStream_t stream);
+
+// nppiSumWindowRow_<dt>32f_<lay>R / nppiSumWindowColumn_<dt>32f_<lay>R:
+// 1D running-window sum (unit weights) into an Npp32f destination, no border.
+// The window is the same tap range as the row/column filters
+// ([x+ax-mask+1, x+ax]); taps outside the ROI are skipped (clipped window sum).
+template <typename Src, int Channels>
+NppStatus sumWindowRow(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oROI,
+                       int nMaskSize, int nAnchor, cudaStream_t stream);
+template <typename Src, int Channels>
+NppStatus sumWindowColumn(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oROI,
+                          int nMaskSize, int nAnchor, cudaStream_t stream);
+
+// nppiSumWindowRowBorder_<dt>32f_<lay>R / nppiSumWindowColumnBorder_<dt>32f_<lay>R:
+// 1D running-window sum with replicate border handling (full window sum; the
+// non-filtered axis is replicate-clamped as well).
+template <typename Src, int Channels>
+NppStatus sumWindowRowBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+                             Npp32f *pDst, int nDstStep, NppiSize oROI, int nMaskSize, int nAnchor,
+                             NppiBorderType eBorderType, cudaStream_t stream);
+template <typename Src, int Channels>
+NppStatus sumWindowColumnBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+                                Npp32f *pDst, int nDstStep, NppiSize oROI, int nMaskSize, int nAnchor,
+                                NppiBorderType eBorderType, cudaStream_t stream);
+
 // 16f variants use the generic templates: samples are converted through float
 // (NPP 13.4 accepts them on the RTX 5090; the 5090 goldens are NO_ERROR).
 
