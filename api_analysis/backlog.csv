@@ -30,7 +30,6 @@ nppi_filtering_functions.h,nppiFilterRowBorder,32,0,0,32,16,16,16,32
 nppi_filtering_functions.h,nppiFilterSharpen,32,0,0,32,16,16,16,32
 nppi_filtering_functions.h,nppiFilterSharpenBorder,32,0,0,32,16,16,16,32
 nppi_filtering_functions.h,nppiFilterUnsharpBorder,32,0,0,32,16,16,16,32
-nppi_geometry_transforms.h,nppiMirror,80,48,32,0,16,16,63,32
 nppi_filtering_functions.h,nppiFilter,36,6,0,30,15,15,18,30
 nppi_geometry_transforms.h,nppiResize,54,24,0,30,15,15,32,30
 nppi_color_conversion.h,nppiColorTwistBatch32f,28,0,0,28,14,14,14,28
@@ -79,7 +78,6 @@ nppi_filtering_functions.h,nppiGradientVectorScharrBorder,16,0,0,16,8,8,8,16
 nppi_filtering_functions.h,nppiGradientVectorSobelBorder,16,0,0,16,8,8,8,16
 nppi_filtering_functions.h,nppiSumWindowColumn,18,2,0,16,8,8,10,16
 nppi_filtering_functions.h,nppiSumWindowRow,18,2,0,16,8,8,10,16
-nppi_geometry_transforms.h,nppiMirrorBatch,16,0,16,0,8,8,8,16
 nppi_geometry_transforms.h,nppiWarpPerspective,54,38,0,16,8,8,43,16
 nppi_geometry_transforms.h,nppiWarpPerspectiveBack,48,32,0,16,8,8,37,16
 nppi_morphological_operations.h,nppiDilate,24,8,0,16,8,8,16,16
@@ -369,6 +367,8 @@ nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFInfo,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiDistanceTransformPBAGetAntialiasingBufferSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterCannyBorder,3,3,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiSignedDistanceTransformPBAGet64fBufferSize,1,1,0,0,0,0,1,0
+nppi_geometry_transforms.h,nppiMirror,80,80,0,0,0,0,65,0
+nppi_geometry_transforms.h,nppiMirrorBatch,16,16,0,0,0,0,9,0
 nppi_geometry_transforms.h,nppiRemap,60,60,0,0,0,0,30,0
 nppi_geometry_transforms.h,nppiWarpPerspectiveBatchInit,2,2,0,0,0,0,2,0
 nppi_linear_transforms.h,nppiMagnitude,2,2,0,0,0,0,2,0

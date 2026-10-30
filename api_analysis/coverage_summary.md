@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 9166 (73.1%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
+- Real implementations: 9214 (73.5%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
 - Missing: 3205
-- Tested: 8233 (65.7%)
-- Real and tested: 6518
+- Tested: 8236 (65.7%)
+- Real and tested: 6545
 
 ## By module
 
@@ -15,7 +15,7 @@
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 997 |
-| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 431 |
+| nppi_geometry_transforms.h | 705 | 306 | 90 | 309 | 434 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
 | nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
@@ -63,7 +63,6 @@
 | nppi_filtering_functions.h | nppiFilterSharpenBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterSharpen | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
-| nppi_geometry_transforms.h | nppiMirror | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilter | 30 | 15 |
 | nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
@@ -72,3 +71,4 @@
 | nppi_filtering_functions.h | nppiFilterLaplace | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterSobelHorizBorder | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterSobelHoriz | 28 | 14 |
+| nppi_filtering_functions.h | nppiFilterSobelVertBorder | 28 | 14 |

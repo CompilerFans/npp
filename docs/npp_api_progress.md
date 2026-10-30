@@ -65,6 +65,8 @@
 | P1.8c | CrossCorr status/契约/scratch 对齐 | 0 | ✅ 已合并 | `pkg/p1.8c` → `e016ecd` |
 | P1.9 | NPPI 滤波 | 1,802 | 规划中 | — |
 | P1.10 | NPPI 颜色（待 238733 合入后） | 646 | 阻塞 | — |
+| G3 | NPPI Mirror / MirrorBatch 全变体 | 48 | ✅ 已合并 | `pkg/g3` → `e9d52ff` |
+| G1 | NPPI WarpAffine 家族（实现+测试已写，cubic 边界核待对齐） | 156 | ⏸ 暂停 | `pkg/g1` → `84ee401` |
 
 ## 4. 每个包的合并检查
 
@@ -76,6 +78,8 @@
 
 ## 5. 决策记录
 
+- **G3 结果**：nppiMirror / nppiMirrorBatch 全变体（16s/16u/32s/32f/8u × C1/C3/C4/AC4 × R/IR + batch）合入，catalog real 9,166→9,214、stub 166→118、remaining 3,371→3,323。验证：`NppiMirrorDiff.*` 27/27、整树 unit 4,803、diff 1,929 全绿。关键修复：legacy Mirror 实现对空 ROI 会以 0 高度网格启动并返回 CUDA 错误，现按 NPP 语义改为 NO_ERROR no-op；MirrorBatch 差分测试的 input-only Case 无 status 会被 verifier 拒绝，已把输入哈希并入 output Case。g3 的 73 个 golden（nppiMirror*）已并入共享 `artifacts/5090/npp_records`。
+- **G1 进展（暂停）**：WarpAffine/WarpAffineBack/Quad/Batch 实现与 5 个差分测试文件已完成（`pkg/g1` → `84ee401`），`NppiWarpAffineDiff.*` 已修到 9/12。已验证的语义：仿射映射用 float32 系数与非融合乘加、双线性用权重式、采样点落在（裁剪后的）src ROI 外时目标像素不写入、step 校验（size 先于 `sizeof·2^v2(Channels)` 对齐、src 先于 dst）、负 src ROI → SIZE、负 dst 尺寸 → SIZE、零 dst 尺寸 → NO_ERROR、src 图像需 ≥2x2。剩余：cubic 边界处理（探针确认权重是标准 Catmull-Rom，但越界 tap 的处理既非零填充也非边缘复制）、32s/C3 个别线性 ±1、Batch 家族仍用 double 坐标且缺 ROI/step 语义。未合入，不影响集成树。
 - **P1.8c 结果**：p1.8 的 466 个 CrossCorr/SqrDistance 函数全部 real（`api_analysis/packages/p1.8.csv` 466/466），p1.8b 修复数值算术，p1.8c 把剩余 11 个 status/contract/scratch 用例清零（`NppiCrossCorrDiff.*` 15/15）。catalog real 8,700→9,166、missing 3,671→3,205、remaining 3,837→3,371。验证：合并后 unit 4,803、diff 1,902 全绿。关键语义（5090 直接探针）：src step 在 pTpl/pDst 判空之前校验；even-step 模数为 `sizeof(element) * 2^v2(Channels)`（8u C3 接受奇数 step；C4/AC4 要求 4×元素大小，32f C4 dst 为 16）；Valid 模式下负的 dst 维度 → SIZE_ERROR、零 → 空 no-op；NormLevel 的 pDeviceBuffer 判空先于 Full/Same 的 tpl>src 几何错误；GetAdvancedScratchBufferSize 的 null 指针最先返回 NULL，Full 要求 dst 扩展为正（负 tpl 不直接报错），Same/Valid 拒绝零/负 src 且完全忽略 tpl；NormLevel GetBufferHostSize = `8 * channels * (height + 5)`（与宽度/元素类型无关），生成器改用 `{chan}` 占位符按布局后缀传通道数。
 - **P2.4b 结果**：p2.4 的 766 个 NPPS 统计函数全部 real（`api_analysis/packages/p2.4.csv` 766/766），p2.4b 共补 239 个 `NppsStatisticsDiff` 差分 case（5090 NPP 13.4 录制，0 failed / 0 crash），覆盖 DotProd、四类误差、Sum/Mean/StdDev/MeanStdDev、Min/Max/Indx/Abs/MinMax（含 tie/NaN 探针）、Norm/NormDiff（Inf/L1/L2/L2Sqr，plain+Sfs，含复数）、MinEvery/MaxEvery、CountInRange、ZeroCrossing（ZCR/ZCXor/ZCC）。catalog real 7,942→8,700、missing 4,429→3,671、remaining 4,595→3,837。验证：合并后 unit 4,803、diff 1,887 全绿。关键修复/语义（5090 直接探针，非 golden）：p2.4 executor 原先编译不过（header 内 `__global__` 需 `static`、`ExtSlot` 命名空间、unsigned complex traits、Norm_Inf 误用双输入 max 核）；Maximum/AverageRelativeError 实际是 `|a-b| / max(a,b)` 的**有符号** max（文档的 `max(|a|,|b|)` 对实型是错的），分母 ≤0 记 0，Average\* = max/n；Sfs StdDev/MeanStdDev 先把 `sqrt(var)` 截断为整数再按 `2^sf` 做 round-half-even（探针：sqrt 9.899→9；574/4 = 143.5→144）；CountInRange 是**严格开区间** `lo < x < hi`，`lo > hi` 记 0（原实现用无序乘积判断，反转区间会误计）；Norm/NormDiff/Every/ZC 的现有实现在 63 个新 golden 上直接通过。
 - **P1.3d 结果**：MaximumError/MaximumRelativeError + GBHS 共 352 个函数全部 real，package remaining=0；catalog real 7,580→7,932、missing 4,791→4,439。验证：5090 record 148 个 golden，本地 `NppiMaximumErrorDiff.*` 13/13 通过，全量 unit 4,803、全量 diff 1,638 通过。关键语义（5090 实测）：**输出对所有布局 C1–C4 都是单个 `Npp64f` 标量**（NPP 文档“C3/C4 每通道数组”的说法是错的）；零分母样本贡献 0（全零图 → 0.0）；无反号 2.0 截断（16s 极值为 1.999969482421875）；全零 MaximumError 写出 −0.0；空 ROI → NO_ERROR 且不写；校验顺序 null src → 负 ROI → 零 ROI → 每源 step（u32、NOT_EVEN 规则 `sizeof(D)·2^v2(Ch)`）→ null out → null scratch；C4 × 8 字节 dtype 需 step 为 32 的倍数。遗留：p1.3c 的 C4 64f/32fc/32sc 17×13 golden 存在 NOT_EVEN 盲区，后续补记。
