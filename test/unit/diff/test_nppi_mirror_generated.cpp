@@ -417,17 +417,15 @@ void mirror_batch(const char *fname, const std::string &key, int width, int heig
   }
   DeviceMemory<NppiMirrorBatchCXR> &dl = arena<NppiMirrorBatchCXR>(nBatch);
   dl.copyFromHost(list);
-  for (int i = 0; i < nBatch; ++i) {
-    Case c("nppiMirrorBatch/" + key + "/input" + std::to_string(i), fname);
-    c.input(host[i].data(), host[i].size() * sizeof(Npp32f));
-    c.input(hdst[i].data(), hdst[i].size() * sizeof(Npp32f));
-    c.finish();
-  }
   clear_cuda_error();
   NppStatus st = f(NppiSize{width, height}, flip, dl.get(), nBatch, current_ctx());
   for (int i = 0; i < nBatch; ++i) {
     Npp32f *out = inplace ? srcs[i]->get() : dsts[i]->get();
     Case c("nppiMirrorBatch/" + key + "/out" + std::to_string(i), fname);
+    // The inputs belong to the output cases: an input-only Case has no status
+    // and the verifier rejects status-less cases.
+    c.input(host[i].data(), host[i].size() * sizeof(Npp32f));
+    c.input(hdst[i].data(), hdst[i].size() * sizeof(Npp32f));
     c.status(st);
     c.device_output<Npp32f>(out, ne, ValueKind::F32, 1e-5, 1e-6);
     c.finish();
