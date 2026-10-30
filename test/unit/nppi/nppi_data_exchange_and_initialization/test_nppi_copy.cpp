@@ -1284,3 +1284,209 @@ TEST_F(CopyTest, RoundTrip_32s_Planar_Packed_Planar_4Channel) {
 TEST_F(CopyTest, RoundTrip_32f_Planar_Packed_Planar_4Channel) {
   testRoundTripPlanarToPackedToPlanar<Npp32f, 4>(32, 24, CopyTestHelper<Npp32f>::DataPattern::SINE_WAVE);
 }
+
+// ---------------------------------------------------------------------------
+// Odd-width planar<->packed tests.
+//
+// The 128-bit vectorized planar copy kernels process 16/sizeof(T) pixels per
+// unit; widths that are not a multiple of that exercise the trailing partial
+// (scalar) unit of each row. Width 13 leaves a partial unit for every element
+// size (P = 16, 8 or 4 pixels/unit).
+// ---------------------------------------------------------------------------
+TEST_F(CopyTest, Copy_16u_P3C3R_OddWidth) {
+  testCopyPlanarToPacked<Npp16u, 3>(13, 7, CopyTestHelper<Npp16u>::DataPattern::RANDOM);
+}
+
+TEST_F(CopyTest, Copy_16s_P3C3R_OddWidth) {
+  testCopyPlanarToPacked<Npp16s, 3>(13, 7, CopyTestHelper<Npp16s>::DataPattern::GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_32s_P3C3R_OddWidth) {
+  testCopyPlanarToPacked<Npp32s, 3>(13, 7, CopyTestHelper<Npp32s>::DataPattern::COORDINATE);
+}
+
+TEST_F(CopyTest, Copy_32f_P3C3R_OddWidth) {
+  testCopyPlanarToPacked<Npp32f, 3>(13, 7, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_16u_P4C4R_OddWidth) {
+  testCopyPlanarToPacked<Npp16u, 4>(13, 7, CopyTestHelper<Npp16u>::DataPattern::BOUNDARY);
+}
+
+TEST_F(CopyTest, Copy_32f_P4C4R_OddWidth) {
+  testCopyPlanarToPacked<Npp32f, 4>(13, 7, CopyTestHelper<Npp32f>::DataPattern::SINE_WAVE);
+}
+
+TEST_F(CopyTest, Copy_16u_C3P3R_OddWidth) {
+  testCopyPackedToPlanar<Npp16u, 3>(13, 7, CopyTestHelper<Npp16u>::DataPattern::CHECKERBOARD);
+}
+
+TEST_F(CopyTest, Copy_16s_C3P3R_OddWidth) {
+  testCopyPackedToPlanar<Npp16s, 3>(13, 7, CopyTestHelper<Npp16s>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, Copy_32s_C3P3R_OddWidth) {
+  testCopyPackedToPlanar<Npp32s, 3>(13, 7, CopyTestHelper<Npp32s>::DataPattern::GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_32f_C3P3R_OddWidth) {
+  testCopyPackedToPlanar<Npp32f, 3>(13, 7, CopyTestHelper<Npp32f>::DataPattern::COLOR_GRADIENT);
+}
+
+TEST_F(CopyTest, Copy_16u_C4P4R_OddWidth) {
+  testCopyPackedToPlanar<Npp16u, 4>(13, 7, CopyTestHelper<Npp16u>::DataPattern::RANDOM);
+}
+
+TEST_F(CopyTest, Copy_32f_C4P4R_OddWidth) {
+  testCopyPackedToPlanar<Npp32f, 4>(13, 7, CopyTestHelper<Npp32f>::DataPattern::COORDINATE);
+}
+
+// Round trips with odd widths exercise both directions' tail handling.
+TEST_F(CopyTest, RoundTrip_16u_Planar_Packed_Planar_3Channel_OddWidth) {
+  testRoundTripPlanarToPackedToPlanar<Npp16u, 3>(13, 7, CopyTestHelper<Npp16u>::DataPattern::SEQUENTIAL);
+}
+
+TEST_F(CopyTest, RoundTrip_32f_Planar_Packed_Planar_4Channel_OddWidth) {
+  testRoundTripPlanarToPackedToPlanar<Npp32f, 4>(13, 7, CopyTestHelper<Npp32f>::DataPattern::SINE_WAVE);
+}
+
+// ---------------------------------------------------------------------------
+// Fallback-path tests.
+//
+// The vectorized planar copy kernels require every base pointer and both steps
+// to be 16-byte aligned. Tight (unaligned) steps or unaligned plane pointers
+// must fall back to the scalar kernels and still produce correct results.
+// These tests use raw cudaMalloc buffers instead of the pitched test managers.
+// ---------------------------------------------------------------------------
+TEST_F(CopyTest, Copy_16u_C3P3R_TightSteps) {
+  using Helper = CopyTestHelper<Npp16u>;
+  const int w = 13, h = 7, C = 3;
+  auto testData = Helper::generateTestData(w, h, C, Helper::DataPattern::RANDOM);
+  const int packedStep = w * C * (int)sizeof(Npp16u); // 78: not a multiple of 16
+  const int planeStep = w * (int)sizeof(Npp16u);      // 26: not a multiple of 16
+
+  Npp16u *packed = nullptr;
+  Npp16u *planes[C];
+  ASSERT_EQ(cudaSuccess, cudaMalloc(&packed, (size_t)packedStep * h));
+  for (int c = 0; c < C; ++c) {
+    ASSERT_EQ(cudaSuccess, cudaMalloc(&planes[c], (size_t)planeStep * h));
+    ASSERT_EQ(cudaSuccess, cudaMemset(planes[c], 0xAB, (size_t)planeStep * h));
+  }
+  for (int y = 0; y < h; ++y) {
+    ASSERT_EQ(cudaSuccess, cudaMemcpy(packed + (size_t)y * (packedStep / 2),
+                                      testData.src.data() + (size_t)y * w * C, w * C * sizeof(Npp16u),
+                                      cudaMemcpyHostToDevice));
+  }
+
+  NppiSize roi = {w, h};
+  ASSERT_EQ(NPP_SUCCESS, nppiCopy_16u_C3P3R(packed, packedStep, (Npp16u *const *)planes, planeStep, roi));
+
+  std::vector<Npp16u> result((size_t)w * h * C);
+  std::vector<Npp16u> row(planeStep / 2);
+  for (int c = 0; c < C; ++c) {
+    for (int y = 0; y < h; ++y) {
+      ASSERT_EQ(cudaSuccess, cudaMemcpy(row.data(), planes[c] + (size_t)y * (planeStep / 2),
+                                        w * sizeof(Npp16u), cudaMemcpyDeviceToHost));
+      for (int x = 0; x < w; ++x) {
+        result[((size_t)y * w + x) * C + c] = row[x];
+      }
+    }
+  }
+  Helper::validateResults(result, testData.expected);
+
+  cudaFree(packed);
+  for (int c = 0; c < C; ++c) {
+    cudaFree(planes[c]);
+  }
+}
+
+TEST_F(CopyTest, Copy_32s_P3C3R_TightSteps) {
+  using Helper = CopyTestHelper<Npp32s>;
+  const int w = 13, h = 7, C = 3;
+  auto testData = Helper::generateTestData(w, h, C, Helper::DataPattern::GRADIENT);
+  const int packedStep = w * C * (int)sizeof(Npp32s); // 156: not a multiple of 16
+  const int planeStep = w * (int)sizeof(Npp32s);      // 52: not a multiple of 16
+
+  Npp32s *packed = nullptr;
+  Npp32s *planeBase[C];
+  const Npp32s *planes[C];
+  ASSERT_EQ(cudaSuccess, cudaMalloc(&packed, (size_t)packedStep * h));
+  ASSERT_EQ(cudaSuccess, cudaMemset(packed, 0xCD, (size_t)packedStep * h));
+  std::vector<Npp32s> row(w);
+  for (int c = 0; c < C; ++c) {
+    ASSERT_EQ(cudaSuccess, cudaMalloc(&planeBase[c], (size_t)planeStep * h));
+    ASSERT_EQ(cudaSuccess, cudaMemset(planeBase[c], 0xCD, (size_t)planeStep * h));
+    planes[c] = planeBase[c];
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        row[x] = testData.src[((size_t)y * w + x) * C + c];
+      }
+      ASSERT_EQ(cudaSuccess, cudaMemcpy(planes[c] + (size_t)y * w, row.data(), w * sizeof(Npp32s),
+                                        cudaMemcpyHostToDevice));
+    }
+  }
+
+  NppiSize roi = {w, h};
+  ASSERT_EQ(NPP_SUCCESS, nppiCopy_32s_P3C3R((const Npp32s *const *)planes, planeStep, packed, packedStep, roi));
+
+  std::vector<Npp32s> result((size_t)w * h * C);
+  std::vector<Npp32s> packedRow(packedStep / 4);
+  for (int y = 0; y < h; ++y) {
+    ASSERT_EQ(cudaSuccess, cudaMemcpy(packedRow.data(), packed + (size_t)y * (packedStep / 4),
+                                      w * C * sizeof(Npp32s), cudaMemcpyDeviceToHost));
+    for (int x = 0; x < w * C; ++x) {
+      result[(size_t)y * w * C + x] = packedRow[x];
+    }
+  }
+  Helper::validateResults(result, testData.expected);
+
+  cudaFree(packed);
+  for (int c = 0; c < C; ++c) {
+    cudaFree(planeBase[c]);
+  }
+}
+
+TEST_F(CopyTest, Copy_8u_P4C4R_UnalignedPlanes) {
+  using Helper = CopyTestHelper<Npp8u>;
+  const int w = 13, h = 7, C = 4;
+  auto testData = Helper::generateTestData(w, h, C, Helper::DataPattern::CHECKERBOARD);
+  const int packedStep = ((w * C + 15) / 16) * 16; // 64: aligned
+  const int planeStep = ((w + 15) / 16) * 16;      // 16: aligned
+
+  Npp8u *packed = nullptr;
+  Npp8u *planeBase[C];
+  const Npp8u *planes[C];
+  ASSERT_EQ(cudaSuccess, cudaMalloc(&packed, (size_t)packedStep * h));
+  ASSERT_EQ(cudaSuccess, cudaMemset(packed, 0xE7, (size_t)packedStep * h));
+  std::vector<Npp8u> row(w);
+  for (int c = 0; c < C; ++c) {
+    ASSERT_EQ(cudaSuccess, cudaMalloc(&planeBase[c], (size_t)planeStep * h + 1));
+    ASSERT_EQ(cudaSuccess, cudaMemset(planeBase[c], 0xE7, (size_t)planeStep * h + 1));
+    planes[c] = planeBase[c] + 1; // deliberately not 16B-aligned
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        row[x] = testData.src[((size_t)y * w + x) * C + c];
+      }
+      ASSERT_EQ(cudaSuccess, cudaMemcpy((void *)planes[c] + (size_t)y * planeStep, row.data(), w,
+                                        cudaMemcpyHostToDevice));
+    }
+  }
+
+  NppiSize roi = {w, h};
+  ASSERT_EQ(NPP_SUCCESS, nppiCopy_8u_P4C4R((const Npp8u *const *)planes, planeStep, packed, packedStep, roi));
+
+  std::vector<Npp8u> result((size_t)w * h * C);
+  std::vector<Npp8u> packedRow(packedStep);
+  for (int y = 0; y < h; ++y) {
+    ASSERT_EQ(cudaSuccess, cudaMemcpy(packedRow.data(), packed + (size_t)y * packedStep, w * C, cudaMemcpyDeviceToHost));
+    for (int x = 0; x < w * C; ++x) {
+      result[(size_t)y * w * C + x] = packedRow[x];
+    }
+  }
+  Helper::validateResults(result, testData.expected);
+
+  cudaFree(packed);
+  for (int c = 0; c < C; ++c) {
+    cudaFree(planeBase[c]);
+  }
+}
