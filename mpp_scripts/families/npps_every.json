@@ -1,0 +1,11 @@
+{
+  "family": "nppsMinEvery",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_every_generated.cpp",
+  "includes": ["npps_statistics_executor.h"],
+  "families": ["nppsMinEvery", "nppsMaxEvery"],
+  "call_by_family": {
+    "nppsMinEvery": "npps::statistics::every<{dtype}, false>(pSrc, pSrcDst, nLength, nppStreamCtx.hStream)",
+    "nppsMaxEvery": "npps::statistics::every<{dtype}, true>(pSrc, pSrcDst, nLength, nppStreamCtx.hStream)"
+  }
+}

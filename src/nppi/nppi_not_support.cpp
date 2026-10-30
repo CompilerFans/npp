@@ -607,423 +607,50 @@ NppStatus nppiRotate_32f_AC4R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcSte
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * 4 channel 8-bit unsigned image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_8u_AC4R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oROI,
-                                 NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_8u_AC4R(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 8-bit unsigned in place image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                  NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_8u_AC4IR(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit unsigned image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16u_AC4R_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oROI,
-                                  NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16u_AC4R(const Npp16u *pSrc, int nSrcStep, Npp16u *pDst, int nDstStep, NppiSize oROI,
-                              NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit unsigned in place image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16u_AC4IR_Ctx(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                   NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16u_AC4IR(Npp16u *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 1 channel 16-bit signed image mirror.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_C1R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                                 NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_C1R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                             NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 1 channel 16-bit signed in place image mirror.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_C1IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                  NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_C1IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 3 channel 16-bit signed image mirror.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_C3R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                                 NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_C3R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                             NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 3 channel 16-bit signed in place image mirror.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_C3IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                  NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_C3IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit signed image mirror.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_C4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                                 NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_C4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                             NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit signed in place image mirror.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_C4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                  NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_C4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit signed image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_AC4R_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                                  NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_AC4R(const Npp16s *pSrc, int nSrcStep, Npp16s *pDst, int nDstStep, NppiSize oROI,
-                              NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit signed in place image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_16s_AC4IR_Ctx(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                   NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_16s_AC4IR(Npp16s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_32s_AC4R_Ctx(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oROI,
-                                  NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_32s_AC4R(const Npp32s *pSrc, int nSrcStep, Npp32s *pDst, int nDstStep, NppiSize oROI,
-                              NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit signed in place image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_32s_AC4IR_Ctx(Npp32s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                   NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_32s_AC4IR(Npp32s *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit float image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_32f_AC4R_Ctx(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oROI,
-                                  NppiAxis flip, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_32f_AC4R(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oROI,
-                              NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit float in place image mirror not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorParameters">Common parameters for nppiMirror
- * functions</a>.
- *
- */
-NppStatus nppiMirror_32f_AC4IR_Ctx(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
-                                   NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirror_32f_AC4IR(Npp32f *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/** @} image_mirror */
 
-/** @defgroup mirror_batch MirrorBatch
- *  Mirrors batches of images horizontally, vertically or diagonally.
- *
- * MirrorBatch generally takes the same parameter list as Mirror except that there is a list of N instances of those
- * parameters (N > 1) and that list is passed in device memory.  A convenient data structure is provided that allows for
- * easy initialization of the parameter lists.  The only restriction on these functions is that there is one single ROI
- * and a single mirror flag which are applied respectively to each image in the batch.  The primary purpose of this
- * function is to provide improved performance for batches of smaller images as long as GPU resources are available.
- * Therefore it is recommended that the function not be used for very large images as there may not be resources
- * available for processing several large images simultaneously.
- *
- * <h3><a name="CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch non-inplace and inplace functions
- * include:</a></h3>
- *
- * \param oSizeROI \ref roi_specification.
- * \param flip Specifies the axis about which the images are to be mirrored.
- * \param pBatchList Device memory pointer to nBatchSize list of NppiMirrorBatchCXR structures.
- * \param nBatchSize Number of NppiMirrorBatchCXR structures in this call (must be > 1).
- * \param nppStreamCtx \ref application_managed_stream_context.
- * \return \ref image_data_error_codes, \ref roi_error_codes, \ref mirror_error_codes
- *
- * @{
- *
- */
 
-/**
- * 1 channel 32-bit float image mirror batch.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_C1R_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirrorBatch_32f_C1R(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 1 channel 32-bit float in place image mirror batch.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_C1IR_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirrorBatch_32f_C1IR(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 3 channel 32-bit float image mirror batch.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_C3R_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirrorBatch_32f_C3R(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 3 channel 32-bit float in place image mirror batch.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_C3IR_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirrorBatch_32f_C3IR(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit float image mirror batch.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_C4R_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                      NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiMirrorBatch_32f_C4R(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit float in place image mirror batch.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_C4IR_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiMirrorBatch_32f_C4IR(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * 4 channel 32-bit float image mirror batch not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_AC4R_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize,
-                                       NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiMirrorBatch_32f_AC4R(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-/**
- * 4 channel 32-bit float in place image mirror batch not affecting alpha.
- *
- * For common parameter descriptions, see <a href="#CommonMirrorBatchParameters">Common parameters for nppiMirrorBatch
- * functions</a>.
- *
- */
-NppStatus nppiMirrorBatch_32f_AC4IR_Ctx(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList,
-                                        int nBatchSize, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
-
-NppStatus nppiMirrorBatch_32f_AC4IR(NppiSize oSizeROI, NppiAxis flip, NppiMirrorBatchCXR *pBatchList, int nBatchSize) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 /**
  * Four-channel 8-bit unsigned integer backwards affine warp, ignoring alpha channel.

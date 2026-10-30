@@ -57,17 +57,39 @@ NppStatus nppiMirror_8u_C4IR_Ctx_impl(Npp8u *pSrcDst, int nSrcDstStep, NppiSize 
                                       cudaStream_t stream);
 }
 
+// Validation semantics measured against NVIDIA NPP 13.4 (RTX 5090):
+//   * negative ROI dimensions -> NPP_SIZE_ERROR;
+//   * step smaller than the row length -> NPP_STEP_ERROR;
+//   * empty ROI (a zero dimension) -> NPP_NO_ERROR (verified with {0, 5});
+//   * step not a multiple of the largest power of two dividing the pixel size
+//     (8u C3 -> 1, 32f C3 -> 4, 16s C4 -> 8, 32f C4/AC4 -> 16) ->
+//     NPP_NOT_EVEN_STEP_ERROR, checked before the null-pointer check;
+//   * in-place variants additionally require even width and height, NVIDIA
+//     NPP 13.4 returns NPP_SIZE_ERROR otherwise (see nppi_mirror_executor.h).
+static inline bool nppMirrorStepAligned(int pixelBytes, int step) {
+  const int align = pixelBytes & -pixelBytes;  // largest power-of-two divisor
+  return (step % align) == 0;
+}
+
 template <typename T>
 static inline NppStatus validateMirrorInputs(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oROI,
                                              NppiAxis flip, int channels) {
-  if (!pSrc || !pDst)
-    return NPP_NULL_POINTER_ERROR;
-  if (oROI.width <= 0 || oROI.height <= 0)
+  if (oROI.width < 0 || oROI.height < 0)
     return NPP_SIZE_ERROR;
 
   int minStep = oROI.width * channels * static_cast<int>(sizeof(T));
   if (nSrcStep < minStep || nDstStep < minStep)
     return NPP_STEP_ERROR;
+
+  if (oROI.width == 0 || oROI.height == 0)
+    return NPP_NO_ERROR;
+
+  if (!nppMirrorStepAligned(channels * static_cast<int>(sizeof(T)), nSrcStep) ||
+      !nppMirrorStepAligned(channels * static_cast<int>(sizeof(T)), nDstStep))
+    return NPP_NOT_EVEN_STEP_ERROR;
+
+  if (!pSrc || !pDst)
+    return NPP_NULL_POINTER_ERROR;
 
   if (flip != NPP_HORIZONTAL_AXIS && flip != NPP_VERTICAL_AXIS && flip != NPP_BOTH_AXIS)
     return NPP_MIRROR_FLIP_ERROR;
@@ -78,14 +100,27 @@ static inline NppStatus validateMirrorInputs(const T *pSrc, int nSrcStep, T *pDs
 template <typename T>
 static inline NppStatus validateMirrorInputsInPlace(T *pSrcDst, int nSrcDstStep, NppiSize oROI, NppiAxis flip,
                                                     int channels) {
-  if (!pSrcDst)
-    return NPP_NULL_POINTER_ERROR;
-  if (oROI.width <= 0 || oROI.height <= 0)
+  if (oROI.width < 0 || oROI.height < 0)
     return NPP_SIZE_ERROR;
 
   int minStep = oROI.width * channels * static_cast<int>(sizeof(T));
   if (nSrcDstStep < minStep)
     return NPP_STEP_ERROR;
+
+  if (oROI.width == 0 || oROI.height == 0)
+    return NPP_NO_ERROR;
+
+  if (!nppMirrorStepAligned(channels * static_cast<int>(sizeof(T)), nSrcDstStep))
+    return NPP_NOT_EVEN_STEP_ERROR;
+
+  if (!pSrcDst)
+    return NPP_NULL_POINTER_ERROR;
+
+  // NVIDIA NPP 13.4 only accepts even width and height for in-place mirror;
+  // the parity check fires before the flip check (measured on RTX 5090).
+  if (oROI.width % 2 != 0 || oROI.height % 2 != 0)
+    return NPP_SIZE_ERROR;
+
   if (flip != NPP_HORIZONTAL_AXIS && flip != NPP_VERTICAL_AXIS && flip != NPP_BOTH_AXIS)
     return NPP_MIRROR_FLIP_ERROR;
 

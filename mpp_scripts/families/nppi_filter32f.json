@@ -1,0 +1,19 @@
+{
+  "family": "nppiFilter32f",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter32f_generated.cpp",
+  "includes": [
+    "nppi_filter_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "const Npp8u * pSrc, int nSrcStep, Npp16s * pDst",
+      "call": "nppi::filter::filter32f<{dtype}, {dst_dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "const Npp8s * pSrc, int nSrcStep, Npp16s * pDst",
+      "call": "nppi::filter::filter32f<{dtype}, {dst_dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::filter::filter32f<{dtype}, {dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel, oKernelSize, oAnchor, nppStreamCtx.hStream)"
+}
