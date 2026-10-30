@@ -338,3 +338,5 @@ TEST(NppiGetTransformDiff, RoundTrip) {
   c6.host_output<double>(&rb[0][0], 4, ValueKind::F64, kRtol, kAtol);
   c6.finish();
 }
+
+}  // namespace
