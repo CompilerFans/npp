@@ -156,7 +156,10 @@ OUTPUT_ARRAYS = {"pDeviceLines": 8, "pProfileData": 2, "pD2FVal": 257}
 # void* in the ABI; the element type follows the NPP_8U/NPP_CH_1 default.
 HOST_IN_SCALARS = {"pThreshold": "Npp8u", "pvalue": "Npp8u"}
 # Host input arrays: name -> (element type, count, brace initializer).
-HOST_IN_ARRAYS = {"hpLocations": ("NppiPoint", 2, "{0, 0}, {4, 4}")}
+# The two HOG descriptor windows are stacked vertically: NPP requires
+# nSrcStep >= 4 * (union x extent of the windows), which the natural
+# 8u C1 pitch (align16(21) == 32) only meets when the windows share x.
+HOST_IN_ARRAYS = {"hpLocations": ("NppiPoint", 2, "{0, 0}, {0, 4}")}
 # Host output structs written through a host pointer: name -> C type.
 HOST_STRUCT_OUT = {"pConnectedRegion": "NppiConnectedRegion"}
 # Optional device outputs declared "or NULL" in the headers (PBA voronoi

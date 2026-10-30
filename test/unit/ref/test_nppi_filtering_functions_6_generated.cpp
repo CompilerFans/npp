@@ -1611,7 +1611,7 @@ TEST(RefSuite, nppiGradientVectorSobelBorder_8u16s_C3C1R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp16s>(629, 0x7adc0bc6);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(629, 0x6eedc28b);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0xb1cd39ff);
   npp_diff::clear_cuda_error();
@@ -1625,7 +1625,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_16s32f_C1R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp16s>(1343, 0xa497a0e3);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(1343, 0x28ae0599);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0x22e67f7c);
   npp_diff::clear_cuda_error();
@@ -1639,7 +1639,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_16s32f_C3R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp16u>(629, 0xd0a4c2e7);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(629, 0xd21a6500);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0x6c0c8388);
   npp_diff::clear_cuda_error();
@@ -1653,7 +1653,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_16u32f_C1R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp16u>(1343, 0xbeae85d5);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(1343, 0x16e2488d);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0x0c8d152a);
   npp_diff::clear_cuda_error();
@@ -1667,7 +1667,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_16u32f_C3R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_32f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp32f>(629, 0x13858976);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(629, 0x0d161c0f);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0xd6314c26);
   npp_diff::clear_cuda_error();
@@ -1681,7 +1681,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_32f_C1R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_32f_C3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp32f>(1343, 0x3d8aafa3);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(1343, 0x30298641);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0x3877d8d4);
   npp_diff::clear_cuda_error();
@@ -1695,7 +1695,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_32f_C3R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp8u>(629, 0x40a68042);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(629, 0x330f3173);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0xf7c235de);
   npp_diff::clear_cuda_error();
@@ -1709,7 +1709,7 @@ TEST(RefSuite, nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx) {
 TEST(RefSuite, nppiHistogramOfGradientsBorder_8u32f_C3R_Ctx) {
   NppStreamContext ctx = ref_current_context();
   auto pSrc = ref_device<Npp8u>(1343, 0x1988b351);
-  NppiPoint hpLocations[2] = {{0, 0}, {4, 4}};
+  NppiPoint hpLocations[2] = {{0, 0}, {0, 4}};
   auto pDstWindowDescriptorBuffer = ref_device<Npp32f>(1343, 0xf027644f);
   auto pScratchBuffer = ref_device<Npp8u>(1048576, 0xfd852cd6);
   npp_diff::clear_cuda_error();
