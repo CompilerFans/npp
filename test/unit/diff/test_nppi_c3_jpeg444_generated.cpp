@@ -127,29 +127,14 @@ void inv_planar(const char *fname, const std::string &key, int width, int height
   c.finish();
 }
 
-void error_cases(const char *fname, const std::string &key,
-                 NppStatus (*f)(const Npp8u *const *, int, Npp8u **, int, NppiSize, NppStreamContext),
-                 uint64_t seed) {
-  const int w = 8, h = 4, step = 16;
-  Planes src = make_planes(3, (size_t)step * h, seed);
-  Planes dst = make_planes(3, (size_t)step * h, seed + 1);
-  auto run = [&](const std::string &tag, const Npp8u **s, int ss, Npp8u **d, int ds, NppiSize roi) {
-    clear_cuda_error();
-    NppStatus st = f(s, ss, d, ds, roi, current_ctx());
-    Case c("nppiC3Jpeg444/" + key + "/" + tag, fname);
-    c.status(st);
-    c.finish();
-  };
-  Npp8u **sp = dst.ptrs.data();
-  run("null_src", nullptr, step, dst.ptrs.data(), step, NppiSize{w, h});
-  const Npp8u **nullsrc = nullptr;
-  run("null_src_ptr", nullsrc, step, dst.ptrs.data(), step, NppiSize{w, h});
-  run("null_dst", const_cast<const Npp8u **>(src.ptrs.data()), step, nullptr, step, NppiSize{w, h});
-  run("zero_step", const_cast<const Npp8u **>(src.ptrs.data()), 0, dst.ptrs.data(), step, NppiSize{w, h});
-  run("neg_step", const_cast<const Npp8u **>(src.ptrs.data()), -4, dst.ptrs.data(), step, NppiSize{w, h});
-  run("neg_roi", const_cast<const Npp8u **>(src.ptrs.data()), step, dst.ptrs.data(), step, NppiSize{-2, 4});
-  run("empty_roi", const_cast<const Npp8u **>(src.ptrs.data()), step, dst.ptrs.data(), step, NppiSize{0, 0});
-  (void)sp;
+void error_case(const char *fname, const std::string &key, const std::string &tag,
+                NppStatus (*f)(const Npp8u *const *, int, Npp8u **, int, NppiSize, NppStreamContext),
+                const Npp8u **s, int ss, Npp8u **d, int ds, NppiSize roi) {
+  clear_cuda_error();
+  NppStatus st = f(s, ss, d, ds, roi, current_ctx());
+  Case c("nppiC3Jpeg444/" + key + "/" + tag, fname);
+  c.status(st);
+  c.finish();
 }
 
 } // namespace
@@ -166,9 +151,9 @@ TEST(NppiC3Jpeg444Diff, RgbToYCbCr444Jpeg) {
 }
 
 TEST(NppiC3Jpeg444Diff, BgrToYCbCr444Jpeg) {
-  fwd_packed("nppiBGRToYCbCr444_JPEG_8u_C3P3R", "fwd_c3/17x13", 17, 13, true,
+  fwd_packed("nppiBGRToYCbCr444_JPEG_8u_C3P3R", "bgr/fwd_c3/17x13", 17, 13, true,
              nppiBGRToYCbCr444_JPEG_8u_C3P3R_Ctx, 0xC0FFEE6);
-  fwd_planar("nppiBGRToYCbCr444_JPEG_8u_P3R", "fwd_p3/17x13", 17, 13, nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx, 0xC0FFEE7);
+  fwd_planar("nppiBGRToYCbCr444_JPEG_8u_P3R", "bgr/fwd_p3/17x13", 17, 13, nppiBGRToYCbCr444_JPEG_8u_P3R_Ctx, 0xC0FFEE7);
 }
 
 TEST(NppiC3Jpeg444Diff, YCbCr444ToRgbJpeg) {
@@ -179,12 +164,112 @@ TEST(NppiC3Jpeg444Diff, YCbCr444ToRgbJpeg) {
 }
 
 TEST(NppiC3Jpeg444Diff, YCbCr444ToBgrJpeg) {
-  inv_packed("nppiYCbCr444ToBGR_JPEG_8u_P3C3R", "inv_c3/17x13", 17, 13, nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx,
+  inv_packed("nppiYCbCr444ToBGR_JPEG_8u_P3C3R", "bgr/inv_c3/17x13", 17, 13, nppiYCbCr444ToBGR_JPEG_8u_P3C3R_Ctx,
              0xC0FFEEB);
-  inv_planar("nppiYCbCr444ToBGR_JPEG_8u_P3R", "inv_p3/17x13", 17, 13, nppiYCbCr444ToBGR_JPEG_8u_P3R_Ctx, 0xC0FFEEC);
+  inv_planar("nppiYCbCr444ToBGR_JPEG_8u_P3R", "bgr/inv_p3/17x13", 17, 13, nppiYCbCr444ToBGR_JPEG_8u_P3R_Ctx, 0xC0FFEEC);
 }
 
-TEST(NppiC3Jpeg444Diff, ErrorPaths) {
-  error_cases("nppiYCbCr444ToRGB_JPEG_8u_P3R", "err/inv", nppiYCbCr444ToRGB_JPEG_8u_P3R_Ctx, 0xC0FFEED);
-  error_cases("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", nppiRGBToYCbCr444_JPEG_8u_P3R_Ctx, 0xC0FFEEE);
+namespace {
+NppStatus (*err_fwd)(const Npp8u *const *, int, Npp8u **, int, NppiSize, NppStreamContext) =
+    nppiRGBToYCbCr444_JPEG_8u_P3R_Ctx;
+NppStatus (*err_inv)(const Npp8u *const *, int, Npp8u **, int, NppiSize, NppStreamContext) =
+    nppiYCbCr444ToRGB_JPEG_8u_P3R_Ctx;
+
+struct ErrBufs {
+  Planes src, dst;
+  ErrBufs() : src(make_planes(3, 16 * 4, 0xC0FFEED)), dst(make_planes(3, 16 * 4, 0xC0FFEEE)) {}
+};
+
+const Npp8u **sbuf(const Planes &p) { return const_cast<const Npp8u **>(p.ptrs.data()); }
+} // namespace
+
+// NOTE (5090 measured, NPP 13.4): passing a null plane-array pointer (pSrc or
+// pDst) segfaults inside NVIDIA NPP, so those cases cannot be recorded and are
+// excluded here.  Null plane contents, bad steps and bad ROIs return statuses.
+
+TEST(NppiC3Jpeg444Diff, ErrorNullSrcPtr) {
+  ErrBufs b;
+  static Npp8u *nullplane[3] = {nullptr, nullptr, nullptr};
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "null_src_ptr", err_fwd,
+             const_cast<const Npp8u **>(nullplane), 16, b.dst.ptrs.data(), 16, NppiSize{8, 4});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorZeroStep) {
+  ErrBufs b;
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "zero_step", err_fwd, sbuf(b.src), 0, b.dst.ptrs.data(), 16,
+             NppiSize{8, 4});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorNegStep) {
+  ErrBufs b;
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "neg_step", err_fwd, sbuf(b.src), -4, b.dst.ptrs.data(), 16,
+             NppiSize{8, 4});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorNegRoi) {
+  ErrBufs b;
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "neg_roi", err_fwd, sbuf(b.src), 16, b.dst.ptrs.data(), 16,
+             NppiSize{-2, 4});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorEmptyRoi) {
+  ErrBufs b;
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "empty_roi", err_fwd, sbuf(b.src), 16, b.dst.ptrs.data(), 16,
+             NppiSize{0, 0});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorInvZeroStep) {
+  ErrBufs b;
+  error_case("nppiYCbCr444ToRGB_JPEG_8u_P3R", "err/inv", "zero_step", err_inv, sbuf(b.src), 0, b.dst.ptrs.data(), 16,
+             NppiSize{8, 4});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorInvNegRoi) {
+  ErrBufs b;
+  error_case("nppiYCbCr444ToRGB_JPEG_8u_P3R", "err/inv", "neg_roi", err_inv, sbuf(b.src), 16, b.dst.ptrs.data(), 16,
+             NppiSize{-2, 4});
+}
+
+TEST(NppiC3Jpeg444Diff, ErrorInvEmptyRoi) {
+  ErrBufs b;
+  error_case("nppiYCbCr444ToRGB_JPEG_8u_P3R", "err/inv", "empty_roi", err_inv, sbuf(b.src), 16, b.dst.ptrs.data(), 16,
+             NppiSize{0, 0});
+}
+
+// Probe the validation order used by NVIDIA NPP.
+TEST(NppiC3Jpeg444Diff, ErrorOrderProbes) {
+  ErrBufs b;
+  static Npp8u *nullplane[3] = {nullptr, nullptr, nullptr};
+  const Npp8u **nullp = const_cast<const Npp8u **>(nullplane);
+  // null src plane + zero step: which check wins?
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "order_null_and_zero_step", err_fwd, nullp, 0,
+             b.dst.ptrs.data(), 16, NppiSize{8, 4});
+  // zero step + negative ROI: which check wins?
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "order_zero_step_and_neg_roi", err_fwd, sbuf(b.src), 0,
+             b.dst.ptrs.data(), 16, NppiSize{-2, 4});
+  // negative step + negative ROI.
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "order_neg_step_and_neg_roi", err_fwd, sbuf(b.src), -4,
+             b.dst.ptrs.data(), 16, NppiSize{-2, 4});
+  // dst planes null with valid src.
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "null_dst_ptr", err_fwd, sbuf(b.src), 16, nullplane, 16,
+             NppiSize{8, 4});
+  // step smaller than the row width (rows would overlap).
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "small_step", err_fwd, sbuf(b.src), 2, b.dst.ptrs.data(), 16,
+             NppiSize{8, 4});
+  // dst zero step with valid src.
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "zero_dst_step", err_fwd, sbuf(b.src), 16,
+             b.dst.ptrs.data(), 0, NppiSize{8, 4});
+  // min-step boundary: step == width must pass, step == width-1 must fail.
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "step_eq_width", err_fwd, sbuf(b.src), 8,
+             b.dst.ptrs.data(), 16, NppiSize{8, 4});
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "step_below_width", err_fwd, sbuf(b.src), 7,
+             b.dst.ptrs.data(), 16, NppiSize{8, 4});
+  // null vs ROI precedence.
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "order_null_and_neg_roi", err_fwd, nullp, 16,
+             b.dst.ptrs.data(), 16, NppiSize{-2, 4});
+  // degenerate-but-valid ROIs.
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "roi_zero_width", err_fwd, sbuf(b.src), 16,
+             b.dst.ptrs.data(), 16, NppiSize{0, 4});
+  error_case("nppiRGBToYCbCr444_JPEG_8u_P3R", "err/fwd", "roi_zero_height", err_fwd, sbuf(b.src), 16,
+             b.dst.ptrs.data(), 16, NppiSize{8, 0});
 }

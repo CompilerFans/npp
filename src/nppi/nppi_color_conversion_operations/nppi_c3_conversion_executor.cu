@@ -138,41 +138,62 @@ __global__ void k_ycbcr444jpeg_p3_to_p3(const Npp8u *__restrict__ pSrcY, const N
   }
 }
 
-NppStatus validate3plane(const void *const *planes, int nSrcStep, void *const *dst, int nDstStep, NppiSize roi) {
+// Validation semantics measured against NVIDIA NPP 13.4 on an RTX 5090
+// (see test/unit/diff/test_nppi_c3_jpeg444_generated.cpp goldens):
+//   1. null plane pointers            -> NPP_NULL_POINTER_ERROR
+//      (a null plane-array pointer segfaults in NVIDIA NPP; we return
+//       NPP_NULL_POINTER_ERROR instead - such calls are never recorded)
+//   2. negative ROI width or height   -> NPP_SIZE_ERROR (checked before steps)
+//   3. step smaller than the row bytes (unsigned compare: negative steps pass)
+//                                      -> NPP_STEP_ERROR
+//   4. width == 0 or height == 0      -> NPP_NO_ERROR (no kernel launched)
+//   5. negative step passes validation; NVIDIA reads out of bounds, we simply
+//      do not touch memory and return NPP_NO_ERROR (no outputs recorded).
+bool roi_valid(const NppiSize roi) { return roi.width >= 0 && roi.height >= 0; }
+
+// NVIDIA compares the step as unsigned against the minimum row bytes.
+bool step_ok(const int nStep, const int nMinRowBytes) {
+  return static_cast<unsigned>(nStep) >= static_cast<unsigned>(nMinRowBytes);
+}
+
+template <class SrcPtrs, class DstPtrs>
+NppStatus validate3plane(const SrcPtrs planes, int nSrcStep, DstPtrs dst, int nDstStep, NppiSize roi) {
   if (!planes || !planes[0] || !planes[1] || !planes[2] || !dst || !dst[0] || !dst[1] || !dst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcStep <= 0 || nDstStep <= 0) {
-    return NPP_STEP_ERROR;
+  if (!roi_valid(roi)) {
+    return NPP_SIZE_ERROR;
   }
-  if (roi.width < 0 || roi.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (!step_ok(nSrcStep, roi.width) || !step_ok(nDstStep, roi.width)) {
+    return NPP_STEP_ERROR;
   }
   return NPP_NO_ERROR;
 }
 
-NppStatus validatePackedToP3(const void *pSrc, int nSrcStep, void *const *dst, int nDstStep, NppiSize roi) {
+template <class DstPtrs>
+NppStatus validatePackedToP3(const void *pSrc, int nSrcStep, DstPtrs dst, int nDstStep, NppiSize roi) {
   if (!pSrc || !dst || !dst[0] || !dst[1] || !dst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcStep <= 0 || nDstStep <= 0) {
-    return NPP_STEP_ERROR;
+  if (!roi_valid(roi)) {
+    return NPP_SIZE_ERROR;
   }
-  if (roi.width < 0 || roi.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (!step_ok(nSrcStep, 3 * roi.width) || !step_ok(nDstStep, roi.width)) {
+    return NPP_STEP_ERROR;
   }
   return NPP_NO_ERROR;
 }
 
-NppStatus validateP3ToPacked(const void *const *planes, int nSrcStep, const void *pDst, int nDstStep, NppiSize roi) {
+template <class SrcPtrs>
+NppStatus validateP3ToPacked(const SrcPtrs planes, int nSrcStep, const void *pDst, int nDstStep, NppiSize roi) {
   if (!planes || !planes[0] || !planes[1] || !planes[2] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcStep <= 0 || nDstStep <= 0) {
-    return NPP_STEP_ERROR;
+  if (!roi_valid(roi)) {
+    return NPP_SIZE_ERROR;
   }
-  if (roi.width < 0 || roi.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (!step_ok(nSrcStep, roi.width) || !step_ok(nDstStep, 3 * roi.width)) {
+    return NPP_STEP_ERROR;
   }
   return NPP_NO_ERROR;
 }
@@ -185,9 +206,15 @@ NppStatus launch_ok() {
 
 NppStatus rgbToYCbCr444JpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
                               NppiSize oSizeROI, cudaStream_t stream) {
-  NppStatus st = validate3plane((const void *const *)pSrc, nSrcStep, (void *const *)pDst, nDstStep, oSizeROI);
+  NppStatus st = validate3plane(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (st != NPP_NO_ERROR) {
     return st;
+  }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
   }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -202,6 +229,12 @@ NppStatus rgbToYCbCr444JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3],
   if (st != NPP_NO_ERROR) {
     return st;
   }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
+  }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
   k_rgb444jpeg_packed_to_p3<<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst[0], nDstStep, pDst[1], nDstStep, pDst[2],
@@ -211,9 +244,15 @@ NppStatus rgbToYCbCr444JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3],
 
 NppStatus bgrToYCbCr444JpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
                               NppiSize oSizeROI, cudaStream_t stream) {
-  NppStatus st = validate3plane((const void *const *)pSrc, nSrcStep, (void *const *)pDst, nDstStep, oSizeROI);
+  NppStatus st = validate3plane(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (st != NPP_NO_ERROR) {
     return st;
+  }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
   }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -228,6 +267,12 @@ NppStatus bgrToYCbCr444JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3],
   if (st != NPP_NO_ERROR) {
     return st;
   }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
+  }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
   k_rgb444jpeg_packed_to_p3<<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst[0], nDstStep, pDst[1], nDstStep, pDst[2],
@@ -237,9 +282,15 @@ NppStatus bgrToYCbCr444JpegC3P3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3],
 
 NppStatus yCbCr444ToRgbJpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
                               NppiSize oSizeROI, cudaStream_t stream) {
-  NppStatus st = validate3plane((const void *const *)pSrc, nSrcStep, (void *const *)pDst, nDstStep, oSizeROI);
+  NppStatus st = validate3plane(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (st != NPP_NO_ERROR) {
     return st;
+  }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
   }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -255,6 +306,12 @@ NppStatus yCbCr444ToRgbJpegP3C3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u 
   if (st != NPP_NO_ERROR) {
     return st;
   }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
+  }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
   k_ycbcr444jpeg_p3_to_packed<<<grid, block, 0, stream>>>(pSrc[0], pSrc[1], pSrc[2], nSrcStep, pDst, nDstStep,
@@ -264,9 +321,15 @@ NppStatus yCbCr444ToRgbJpegP3C3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u 
 
 NppStatus yCbCr444ToBgrJpegP3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep,
                               NppiSize oSizeROI, cudaStream_t stream) {
-  NppStatus st = validate3plane((const void *const *)pSrc, nSrcStep, (void *const *)pDst, nDstStep, oSizeROI);
+  NppStatus st = validate3plane(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (st != NPP_NO_ERROR) {
     return st;
+  }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
   }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
@@ -281,6 +344,12 @@ NppStatus yCbCr444ToBgrJpegP3C3(const Npp8u *const pSrc[3], int nSrcStep, Npp8u 
   NppStatus st = validateP3ToPacked(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (st != NPP_NO_ERROR) {
     return st;
+  }
+  // Degenerate ROIs and negative steps: NVIDIA returns NPP_NO_ERROR without
+  // producing defined output (negative steps read out of bounds there); we
+  // skip the launch entirely.
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0 || nSrcStep < 0 || nDstStep < 0) {
+    return NPP_NO_ERROR;
   }
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + block.x - 1) / block.x, (oSizeROI.height + block.y - 1) / block.y);
