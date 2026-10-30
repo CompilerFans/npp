@@ -43,7 +43,10 @@ NppStreamContext current_ctx() {
   return c;
 }
 
-int align_step(int step, int es) { return ((step + es - 1) / es) * es; }
+// Steps are rounded up to 256 bytes: the NVIDIA 32f C4R batch warp
+// kernel uses 16-byte vectorized accesses and faults on element-aligned
+// steps (observed on the RTX 5090, NPP 13.4).
+int align_step(int step, int es) { (void)es; return (step + 255) & ~255; }
 
 template <typename D> ValueKind out_kind() {
   if constexpr (std::is_same_v<D, Npp8u>) return ValueKind::U8;
