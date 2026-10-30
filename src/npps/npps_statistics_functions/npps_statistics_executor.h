@@ -127,8 +127,10 @@ constexpr int kBlock = 256;
 
 // ---------------------------------------------------------------------------
 // Device-side final rounding helpers
-//   fin_round : divide by 2^sf, round half-to-even, saturate (Sum/Mean/Norm)
-//   fin_trunc : divide by 2^sf, truncate toward zero, saturate (StdDev Sfs)
+//   fin_round : divide by 2^sf, round half-to-even, saturate
+//               (Sum/Mean/Norm, and StdDev after its integer sqrt truncation)
+//   fin_trunc : divide by 2^sf, truncate toward zero, saturate (kept for the
+//               callers that really truncate; StdDev does not use it)
 // ---------------------------------------------------------------------------
 template <typename D>
 __device__ __host__ __forceinline__ D fin_round(double x, int sf) {
@@ -355,7 +357,12 @@ struct FinStd {
   __device__ void operator()(const MSD& v, size_t n) const {
     double var = (v.sumsq - v.sum * v.sum / static_cast<double>(n)) / static_cast<double>(n - 1);
     if (!(var > 0.0)) var = 0.0;  // clamp cancellation noise (and NaN)
-    *out = fin_trunc<O>(sqrt(var), sf);
+    double sd = sqrt(var);
+    // NPP 13.4 truncates the sqrt to an integer before applying the scale
+    // factor, then rounds half-to-even (measured: sqrt 9.899 -> 9 at sf=0;
+    // 574/4 = 143.5 -> 144 at sf=2).  Float outputs keep the exact sqrt.
+    if constexpr (!std::is_floating_point_v<O>) sd = trunc(sd);
+    *out = fin_round<O>(sd, sf);
   }
 };
 
@@ -369,7 +376,11 @@ struct FinMeanStd {
     *pMean = fin_round<OM>(v.sum / dn, sf);
     double var = (v.sumsq - v.sum * v.sum / dn) / static_cast<double>(n - 1);
     if (!(var > 0.0)) var = 0.0;
-    *pStd = fin_trunc<OS>(sqrt(var), sf);
+    double sd = sqrt(var);
+    // Same integer-sqrt truncation + half-to-even scaling as FinStd (the
+    // recorded MeanStdDev_16s32s_Sfs golden pins 574/4 = 143.5 -> 144).
+    if constexpr (!std::is_floating_point_v<OS>) sd = trunc(sd);
+    *pStd = fin_round<OS>(sd, sf);
   }
 };
 
@@ -583,8 +594,12 @@ struct LoadDot {
 };
 
 // Error metric contribution (max-reduced).  MaxAbs/AvgAbs use |a-b|;
-// MaxRel/AvgRel use |a-b| / max(|a|,|b|) with 0 when both operands are 0.
-// Complex variants work on moduli.
+// MaxRel/AvgRel use |a-b| / max(a,b), i.e. the SIGNED maximum of the two
+// operands, which is what NPP 13.4 actually computes (the documented
+// max(|a|,|b|) is wrong for real types; measured on the RTX 5090).  A
+// non-positive denominator contributes 0 (probe: (-46,0), (-5,-3) and
+// all-negative inputs all return 0).  Complex variants work on moduli,
+// where |z| >= 0 makes the signed/absolute distinction moot.
 template <typename T, ErrKind K>
 struct LoadErr {
   static constexpr bool kRel = (K == ErrKind::MaxRel || K == ErrKind::AvgRel);
@@ -608,8 +623,7 @@ struct LoadErr {
       const double db = static_cast<double>(b);
       const double d = fabs(da - db);
       if constexpr (kRel) {
-        const double aa = fabs(da), ab = fabs(db);
-        const double den = aa > ab ? aa : ab;
+        const double den = da > db ? da : db;  // signed max, per NPP 13.4
         return den > 0.0 ? d / den : 0.0;
       } else {
         return d;
@@ -654,7 +668,7 @@ __device__ __forceinline__ ExtSlot<T> ext_combine(ExtSlot<T> a, ExtSlot<T> b) {
 
 // partial: one additive accumulator per block (single input)
 template <typename A, typename Acc, typename Load>
-__global__ void partial_add1_kernel(const A* src, size_t n, Acc* partials, Load load) {
+static __global__ void partial_add1_kernel(const A* src, size_t n, Acc* partials, Load load) {
   __shared__ Acc sdata[kBlock];
   const unsigned tid = threadIdx.x;
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
@@ -671,7 +685,7 @@ __global__ void partial_add1_kernel(const A* src, size_t n, Acc* partials, Load 
 
 // partial: one additive accumulator per block (two inputs)
 template <typename A, typename B, typename Acc, typename Load>
-__global__ void partial_add2_kernel(const A* a, const B* b, size_t n, Acc* partials, Load load) {
+static __global__ void partial_add2_kernel(const A* a, const B* b, size_t n, Acc* partials, Load load) {
   __shared__ Acc sdata[kBlock];
   const unsigned tid = threadIdx.x;
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
@@ -686,9 +700,26 @@ __global__ void partial_add2_kernel(const A* a, const B* b, size_t n, Acc* parti
   if (tid == 0) partials[blockIdx.x] = sdata[0];
 }
 
+// partial: block maximum of a per-element double (single input)
+template <typename A, typename Load>
+static __global__ void partial_max1_kernel(const A* a, size_t n, double* partials, Load load) {
+  __shared__ double sdata[kBlock];
+  const unsigned tid = threadIdx.x;
+  const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
+  double v = -INFINITY;
+  if (i < n) v = load(a[i]);
+  sdata[tid] = v;
+  __syncthreads();
+  for (unsigned s = kBlock / 2; s > 0; s >>= 1) {
+    if (tid < s) sdata[tid] = sdata[tid] > sdata[tid + s] ? sdata[tid] : sdata[tid + s];
+    __syncthreads();
+  }
+  if (tid == 0) partials[blockIdx.x] = sdata[0];
+}
+
 // partial: block maximum of a per-element double (two inputs)
 template <typename A, typename B, typename Load>
-__global__ void partial_max2_kernel(const A* a, const B* b, size_t n, double* partials, Load load) {
+static __global__ void partial_max2_kernel(const A* a, const B* b, size_t n, double* partials, Load load) {
   __shared__ double sdata[kBlock];
   const unsigned tid = threadIdx.x;
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
@@ -704,7 +735,7 @@ __global__ void partial_max2_kernel(const A* a, const B* b, size_t n, double* pa
 }
 
 // partial: per-block count of elements strictly inside (lo, hi)
-__global__ void count_partial_kernel(const Npp32s* src, size_t n, Npp32s lo, Npp32s hi,
+static __global__ void count_partial_kernel(const Npp32s* src, size_t n, Npp32s lo, Npp32s hi,
                                      int* partials) {
   __shared__ int sdata[kBlock];
   const unsigned tid = threadIdx.x;
@@ -726,7 +757,7 @@ __global__ void count_partial_kernel(const Npp32s* src, size_t n, Npp32s lo, Npp
 
 // partial: per-block min/max (optionally on |x|)
 template <typename T, bool AbsOnly>
-__global__ void partial_ext_kernel(const T* src, size_t n, ExtSlot<T>* partials) {
+static __global__ void partial_ext_kernel(const T* src, size_t n, ExtSlot<T>* partials) {
   __shared__ ExtSlot<T> sdata[kBlock];
   const unsigned tid = threadIdx.x;
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + tid;
@@ -774,7 +805,7 @@ __device__ __forceinline__ double zc_pair(const T& prev, const T& cur, NppsZCTyp
 }
 
 template <typename T>
-__global__ void zc_partial_kernel(const T* src, size_t n, NppsZCType mode, double* partials) {
+static __global__ void zc_partial_kernel(const T* src, size_t n, NppsZCType mode, double* partials) {
   __shared__ T sx[kBlock + 1];
   const unsigned tid = threadIdx.x;
   const size_t base = static_cast<size_t>(blockIdx.x) * kBlock;
@@ -800,7 +831,7 @@ __global__ void zc_partial_kernel(const T* src, size_t n, NppsZCType mode, doubl
 
 // elementwise MinEvery / MaxEvery : pSrcDst = op(pSrcDst, pSrc)
 template <typename T, bool IsMax>
-__global__ void every_kernel(const T* src, T* d, size_t n) {
+static __global__ void every_kernel(const T* src, T* d, size_t n) {
   const size_t i = static_cast<size_t>(blockIdx.x) * kBlock + threadIdx.x;
   if (i >= n) return;
   const T a = d[i];
@@ -814,7 +845,7 @@ __global__ void every_kernel(const T* src, T* d, size_t n) {
 
 // finalize: sum the partials in one block, then run the finalizer functor
 template <typename Acc, typename Fin>
-__global__ void finalize_add_kernel(const Acc* partials, size_t nblocks, size_t n, Fin fin) {
+static __global__ void finalize_add_kernel(const Acc* partials, size_t nblocks, size_t n, Fin fin) {
   __shared__ Acc sdata[kBlock];
   const unsigned tid = threadIdx.x;
   Acc v{};
@@ -830,7 +861,7 @@ __global__ void finalize_add_kernel(const Acc* partials, size_t nblocks, size_t 
 
 // finalize: max of the double partials, then run the finalizer functor
 template <typename Fin>
-__global__ void finalize_max_kernel(const double* partials, size_t nblocks, size_t n, Fin fin) {
+static __global__ void finalize_max_kernel(const double* partials, size_t nblocks, size_t n, Fin fin) {
   __shared__ double sdata[kBlock];
   const unsigned tid = threadIdx.x;
   double v = -INFINITY;
@@ -846,7 +877,7 @@ __global__ void finalize_max_kernel(const double* partials, size_t nblocks, size
 
 // finalize: combine the extrema partials, then write the requested outputs
 template <typename T, typename Fin>
-__global__ void finalize_ext_kernel(const ExtSlot<T>* partials, size_t nblocks, Fin fin) {
+static __global__ void finalize_ext_kernel(const ExtSlot<T>* partials, size_t nblocks, Fin fin) {
   __shared__ ExtSlot<T> sdata[kBlock];
   const unsigned tid = threadIdx.x;
   ExtSlot<T> v{};

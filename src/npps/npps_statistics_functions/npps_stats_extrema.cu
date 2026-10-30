@@ -32,12 +32,12 @@ NppStatus extrema(const T* pSrc, NppSignalLength nLength, T* pMin, int* pMinIndx
   (void)cudaGetLastError();
   detail::partial_ext_kernel<T, AbsOnly>
       <<<(unsigned)grid, detail::kBlock, 0, stream>>>(
-          pSrc, n, reinterpret_cast<detail::ExtSlot<T>*>(pDeviceBuffer));
+          pSrc, n, reinterpret_cast<ExtSlot<T>*>(pDeviceBuffer));
   NppStatus st = npp_kernel::checkCudaKernelError();
   if (st != NPP_NO_ERROR) return st;
   detail::finalize_ext_kernel<T, detail::FinExt<T>>
       <<<1, detail::kBlock, 0, stream>>>(
-          reinterpret_cast<const detail::ExtSlot<T>*>(pDeviceBuffer), grid,
+          reinterpret_cast<const ExtSlot<T>*>(pDeviceBuffer), grid,
           detail::FinExt<T>{pMin, pMinIndx, pMax, pMaxIndx});
   return npp_kernel::checkCudaKernelError();
 }

@@ -110,9 +110,9 @@ NppStatus norm(const T* pSrc, NppSignalLength nLength, O* pNorm, int nScaleFacto
   const size_t grid = (n + detail::kBlock - 1) / detail::kBlock;
   (void)cudaGetLastError();
   if constexpr (K == NormKind::Inf) {
-    detail::partial_max2_kernel<T, T, detail::LoadNormInf<T>>
+    detail::partial_max1_kernel<T, detail::LoadNormInf<T>>
         <<<(unsigned)grid, detail::kBlock, 0, stream>>>(
-            pSrc, pSrc, n, reinterpret_cast<double*>(pDeviceBuffer),
+            pSrc, n, reinterpret_cast<double*>(pDeviceBuffer),
             detail::LoadNormInf<T>{});
     NppStatus st = npp_kernel::checkCudaKernelError();
     if (st != NPP_NO_ERROR) return st;
