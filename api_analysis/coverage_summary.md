@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 9476 (75.6%)
+- Real implementations: 9824 (78.4%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 2943
+- Missing: 2595
 - Tested: 8236 (65.7%)
-- Real and tested: 6676
+- Real and tested: 6850
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 356 | 0 | 1540 | 997 |
+| nppi_filtering_functions.h | 1896 | 704 | 0 | 1192 | 997 |
 | nppi_geometry_transforms.h | 705 | 306 | 90 | 309 | 434 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -66,9 +66,9 @@
 | nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterLaplaceBorder | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterLaplace | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterSobelHorizBorder | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterSobelHoriz | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterSobelVertBorder | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterSobelVert | 28 | 14 |
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
 | nppi_filtering_functions.h | nppiFilterGauss | 26 | 13 |
+| nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
+| nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
+| nppi_filtering_functions.h | nppiFilterWienerBorder | 24 | 12 |
+| nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
