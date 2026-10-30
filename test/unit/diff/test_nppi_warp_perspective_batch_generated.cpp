@@ -421,13 +421,12 @@ TEST_F(NppiWarpPerspectiveBatchDiff, Batch_Contract) {
 
 // ===== BatchInit contract ===================================================
 TEST_F(NppiWarpPerspectiveBatchDiff, BatchInit_Contract) {
-  {
-    clear_cuda_error();
-    NppStatus st = nppiWarpPerspectiveBatchInit_Ctx(nullptr, 3, current_ctx());
-    Case c("nppiWarpPerspectiveBatch/init_contract/null_list", "nppiWarpPerspectiveBatchInit");
-    c.status(st);
-    c.finish();
-  }
+  // NOTE: a null list pointer is deliberately NOT probed here.  NVIDIA
+  // nppiWarpPerspectiveBatchInit does not validate it and dereferences the
+  // null device pointer (cudaErrorIllegalAddress, which poisons the CUDA
+  // context for the whole process); mcMPP returns NPP_NULL_POINTER_ERROR
+  // instead.  The batch entry points DO validate the null list (see
+  // Batch_Contract/null_list).
   batch_init_contract_case("n0", 0);
   batch_init_contract_case("n1", 1);
   // n3_null_coeffs removed: NVIDIA dereferences a per-entry null pCoeffs and
