@@ -64,12 +64,11 @@ __global__ void crossCorrKernel(const S *pSrc, int nSrcStep, int srcW, int srcH,
       wx = px;
       wy = py;
     }
-    double rst = 0.0;  // sum(w * t)
-    double rss = 0.0;  // sum(w * w)
+    double rst = 0.0;  // sum(w * t) over in-ROI positions
+    double rss = 0.0;  // sum(w * w) over in-ROI positions
     double rtt = 0.0;  // sum(t * t) over the full template
     double sw = 0.0;   // sum(w)
-    double rw = 0.0;   // sum(w * w) (== rss, kept for the ZNCC formula shape)
-    double st = 0.0;   // sum(t)
+    double st = 0.0;   // sum(t) over the full template
     double sd = 0.0;   // sum((w - t)^2) over padded positions
     for (int v = 0; v < tplH; ++v) {
       const int sy = wy + v;
@@ -86,7 +85,7 @@ __global__ void crossCorrKernel(const S *pSrc, int nSrcStep, int srcW, int srcH,
         if (rowIn && sx >= 0 && sx < srcW) {
           w = (double)srow[sx * Channels + ci];
           sw += w;
-          rw += w * w;
+          rss += w * w;
           rst += w * t;
         }
         if (isSqr) {
@@ -97,14 +96,21 @@ __global__ void crossCorrKernel(const S *pSrc, int nSrcStep, int srcW, int srcH,
     }
     double value = 0.0;
     if (isNorm || isSqr) {
-      value = (isSqr ? sd : rst) / std::sqrt(rss * rtt);
+      // 5090-measured: for 64f destinations the denominator is rounded
+      // through f32 (den = (double)sqrtf((float)(rss * rtt))); pure f64
+      // arithmetic is ~4e-8 off the golden values.
+      double den;
+      if constexpr (sizeof(D) == 8) {
+        den = (double)std::sqrt((float)(rss * rtt));
+      } else {
+        den = std::sqrt(rss * rtt);
+      }
+      value = (isSqr ? sd : rst) / den;
     } else if (isLevel) {
       const double n = (double)tplW * (double)tplH;
-      const double ms = sw / n;
-      const double mt = st / n;
-      const double num = rst - ms * st - mt * sw + n * ms * mt;
-      const double varW = rw + n * ms * ms - 2.0 * ms * sw;
-      const double varT = rtt - st * st / n;
+      const double num = (n * rst - sw * st) / n;
+      const double varW = (n * rss - sw * sw) / n;
+      const double varT = (n * rtt - st * st) / n;
       const double prod = varW * varT;
       if (prod == 0.0) {
         // 5090-measured sentinel: FLT_MAX for <= 4-byte dst (8u Sfs stores
@@ -112,7 +118,16 @@ __global__ void crossCorrKernel(const S *pSrc, int nSrcStep, int srcW, int srcH,
         value = (sizeof(D) <= 4) ? (double)std::numeric_limits<float>::max()
                                  : (double)std::numeric_limits<double>::max();
       } else {
-        value = num / std::sqrt(prod);
+        // 5090-measured: for 64f destinations the denominator is rounded
+        // through f32 (den = (double)sqrtf((float)(varW * varT))); pure f64
+        // arithmetic is ~4e-8 off the golden values.
+        double den;
+        if constexpr (sizeof(D) == 8) {
+          den = (double)std::sqrt((float)prod);
+        } else {
+          den = std::sqrt(prod);
+        }
+        value = num / den;
       }
     } else {
       value = rst;  // plain valid correlation: raw dot product
