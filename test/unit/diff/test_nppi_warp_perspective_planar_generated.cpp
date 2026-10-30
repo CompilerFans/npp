@@ -231,10 +231,13 @@ TEST_F(NppiWarpPerspectivePlanarDiff, Warp_Planar_Contract) {
   };
   const Npp8u *nullPlane[3] = {s0.get(), nullptr, s2.get()};
   Npp8u *nullDstPlane[3] = {d0.get(), nullptr, d2.get()};
-  run("null_src_array", nullptr, srcSize, sStep, srcROI, dstOk, dStep, dstROI, kIdentity, NPPI_INTER_NN);
-  run("null_dst_array", srcOk, srcSize, sStep, srcROI, nullptr, dStep, dstROI, kIdentity, NPPI_INTER_NN);
-  run("null_src_plane", nullPlane, srcSize, sStep, srcROI, dstOk, dStep, dstROI, kIdentity, NPPI_INTER_NN);
-  run("null_dst_plane", srcOk, srcSize, sStep, srcROI, nullDstPlane, dStep, dstROI, kIdentity, NPPI_INTER_NN);
+  // NOTE: null plane-array pointers (and null individual planes) are
+  // deliberately NOT probed: NVIDIA dereferences the plane array on the host
+  // without validating it (process segfault), and a null plane reaches the
+  // kernel as a device null pointer (illegal-address fault poisoning the
+  // context).  mcMPP returns NPP_NULL_POINTER_ERROR for both.
+  (void)nullPlane;
+  (void)nullDstPlane;
   run("src_step0", srcOk, srcSize, 0, srcROI, dstOk, dStep, dstROI, kIdentity, NPPI_INTER_NN);
   run("dst_step0", srcOk, srcSize, sStep, srcROI, dstOk, 0, dstROI, kIdentity, NPPI_INTER_NN);
   run("src_size_empty", srcOk, NppiSize{0, 14}, sStep, srcROI, dstOk, dStep, dstROI, kIdentity, NPPI_INTER_NN);

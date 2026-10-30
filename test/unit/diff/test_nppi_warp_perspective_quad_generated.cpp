@@ -351,9 +351,12 @@ TEST_F(NppiWarpPerspectiveQuadDiff, Quad_Contract) {
       c.status(st);
       c.finish();
     };
-    runPl("pl_null_src_array", nullptr, plDst, kQuadPerspSrc);
-    runPl("pl_null_dst_array", plOk, nullptr, kQuadPerspSrc);
-    runPl("pl_null_src_plane", plNull, plDst, kQuadPerspSrc);
+    // NOTE: null plane-array pointers and null individual planes are NOT
+    // probed for the planar quad entry points: NVIDIA dereferences the plane
+    // array on the host without validating it (process segfault), and a null
+    // plane reaches the kernel as a device null pointer (illegal-address
+    // fault).  mcMPP returns NPP_NULL_POINTER_ERROR for both.
+    (void)plNull;
     runPl("pl_degenerate_quad", plOk, plDst, kQuadDegenerate);
   }
 }
