@@ -2,9 +2,13 @@
   "family": "nppiSameNormLevelGetBufferHostSize",
   "module": "nppi_statistics_functions.h",
   "source": "src/nppi/nppi_statistics_functions/nppi_samenormlevel_generated.cpp",
-  "includes": ["nppi_statistics_executor.h"],
-  "families": ["nppiSameNormLevelGetBufferHostSize"],
+  "includes": [
+    "nppi_statistics_executor.h"
+  ],
+  "families": [
+    "nppiSameNormLevelGetBufferHostSize"
+  ],
   "call_by_family": {
-    "nppiSameNormLevelGetBufferHostSize": "nppi::statistics::sameNormLevelGetBufferHostSize(oSizeROI, hpBufferSize)"
+    "nppiSameNormLevelGetBufferHostSize": "nppi::statistics::sameNormLevelGetBufferHostSize(oSizeROI, hpBufferSize, {chan})"
   }
 }

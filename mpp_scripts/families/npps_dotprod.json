@@ -1,0 +1,117 @@
+{
+  "family": "nppsDotProd",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_dotprod_generated.cpp",
+  "includes": [
+    "npps_statistics_executor.h"
+  ],
+  "families": [
+    "nppsDotProd",
+    "nppsDotProdGetBufferSize"
+  ],
+  "call_by_family": {
+    "nppsDotProdGetBufferSize": "npps::statistics::dotprod_buffer_size(nLength, hpBufferSize)"
+  },
+  "call_variants": [
+    {
+      "contains": "Npp16s * pSrc1, const Npp16sc * pSrc2, int nLength, Npp32fc * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16sc, Npp32fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16sc * pSrc2, int nLength, Npp32sc * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16sc, Npp32sc>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16sc * pSrc2, int nLength, Npp64sc * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16sc, Npp64sc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16sc * pSrc2, int nLength, Npp16sc * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16sc, Npp16sc>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16s * pSrc2, int nLength, Npp32f * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16s, Npp32f>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp32s * pSrc2, int nLength, Npp32s * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp32s, Npp32s>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16s * pSrc2, int nLength, Npp32s * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16s, Npp32s>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16s * pSrc2, int nLength, Npp64s * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16s, Npp64s>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16sc * pSrc1, const Npp16sc * pSrc2, int nLength, Npp32fc * pDp",
+      "call": "npps::statistics::dotprod<Npp16sc, Npp16sc, Npp32fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16sc * pSrc1, const Npp16sc * pSrc2, int nLength, Npp32sc * pDp",
+      "call": "npps::statistics::dotprod<Npp16sc, Npp16sc, Npp32sc>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16sc * pSrc1, const Npp16sc * pSrc2, int nLength, Npp64sc * pDp",
+      "call": "npps::statistics::dotprod<Npp16sc, Npp16sc, Npp64sc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16sc * pSrc1, const Npp16sc * pSrc2, int nLength, Npp16sc * pDp",
+      "call": "npps::statistics::dotprod<Npp16sc, Npp16sc, Npp16sc>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp16s * pSrc1, const Npp16s * pSrc2, int nLength, Npp16s * pDp",
+      "call": "npps::statistics::dotprod<Npp16s, Npp16s, Npp16s>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pSrc1, const Npp32fc * pSrc2, int nLength, Npp64fc * pDp",
+      "call": "npps::statistics::dotprod<Npp32f, Npp32fc, Npp64fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pSrc1, const Npp32fc * pSrc2, int nLength, Npp32fc * pDp",
+      "call": "npps::statistics::dotprod<Npp32f, Npp32fc, Npp32fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pSrc1, const Npp32f * pSrc2, int nLength, Npp64f * pDp",
+      "call": "npps::statistics::dotprod<Npp32f, Npp32f, Npp64f>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32fc * pSrc1, const Npp32fc * pSrc2, int nLength, Npp64fc * pDp",
+      "call": "npps::statistics::dotprod<Npp32fc, Npp32fc, Npp64fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32fc * pSrc1, const Npp32fc * pSrc2, int nLength, Npp32fc * pDp",
+      "call": "npps::statistics::dotprod<Npp32fc, Npp32fc, Npp32fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pSrc1, const Npp32f * pSrc2, int nLength, Npp32f * pDp",
+      "call": "npps::statistics::dotprod<Npp32f, Npp32f, Npp32f>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32s * pSrc1, const Npp32sc * pSrc2, int nLength, Npp32sc * pDp",
+      "call": "npps::statistics::dotprod<Npp32s, Npp32sc, Npp32sc>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32sc * pSrc1, const Npp32sc * pSrc2, int nLength, Npp32sc * pDp",
+      "call": "npps::statistics::dotprod<Npp32sc, Npp32sc, Npp32sc>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32s * pSrc1, const Npp32s * pSrc2, int nLength, Npp32s * pDp",
+      "call": "npps::statistics::dotprod<Npp32s, Npp32s, Npp32s>(pSrc1, pSrc2, nLength, pDp, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp64f * pSrc1, const Npp64fc * pSrc2, int nLength, Npp64fc * pDp",
+      "call": "npps::statistics::dotprod<Npp64f, Npp64fc, Npp64fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp64fc * pSrc1, const Npp64fc * pSrc2, int nLength, Npp64fc * pDp",
+      "call": "npps::statistics::dotprod<Npp64fc, Npp64fc, Npp64fc>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp64f * pSrc1, const Npp64f * pSrc2, int nLength, Npp64f * pDp",
+      "call": "npps::statistics::dotprod<Npp64f, Npp64f, Npp64f>(pSrc1, pSrc2, nLength, pDp, 0, pDeviceBuffer, nppStreamCtx.hStream)"
+    }
+  ]
+}
