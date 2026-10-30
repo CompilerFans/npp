@@ -168,94 +168,94 @@ protected:
   TEST_F(NppiWarpPerspectiveQuadDiff, Quad_##TAG##_C1) {                                                      \
     quad_packed_case<DT, 1>("nppiWarpPerspectiveQuad_" DTS "_C1R", DTS "/C1R/identity", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadIdentitySrc, \
-                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C1R_Ctx,    \
+                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C1R_Ctx,    \
                             700);                                                                             \
     quad_packed_case<DT, 1>("nppiWarpPerspectiveQuad_" DTS "_C1R", DTS "/C1R/scale2", NppiSize{12, 9},        \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadScaleSrc,    \
-                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C1R_Ctx, 701); \
+                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C1R_Ctx, 701); \
     quad_packed_case<DT, 1>("nppiWarpPerspectiveQuad_" DTS "_C1R", DTS "/C1R/persp_nn", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C1R_Ctx, 702); \
+                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C1R_Ctx, 702); \
     quad_packed_case<DT, 1>("nppiWarpPerspectiveQuad_" DTS "_C1R", DTS "/C1R/persp_linear", NppiSize{20, 14}, \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveQuad_##DT##_C1R_Ctx,   \
+                            kQuadPerspDst, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveQuad_##TAG##_C1R_Ctx,   \
                             703);                                                                             \
     quad_packed_case<DT, 1>("nppiWarpPerspectiveQuad_" DTS "_C1R", DTS "/C1R/same_quad", NppiSize{20, 14},    \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadSameSrc,    \
-                            kQuadSameDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C1R_Ctx, 704);  \
+                            kQuadSameDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C1R_Ctx, 704);  \
     quad_packed_case<DT, 1>("nppiWarpPerspectiveQuad_" DTS "_C1R", DTS "/C1R/rng_tilt", NppiSize{12, 9},      \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadTiltSrc,     \
-                            kQuadTiltDst, NPPI_INTER_NN, false, &nppiWarpPerspectiveQuad_##DT##_C1R_Ctx, 705); \
+                            kQuadTiltDst, NPPI_INTER_NN, false, &nppiWarpPerspectiveQuad_##TAG##_C1R_Ctx, 705); \
   }                                                                                                           \
   TEST_F(NppiWarpPerspectiveQuadDiff, Quad_##TAG##_C3) {                                                      \
     quad_packed_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_C3R", DTS "/C3R/identity", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadIdentitySrc, \
-                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C3R_Ctx,    \
+                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C3R_Ctx,    \
                             710);                                                                             \
     quad_packed_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_C3R", DTS "/C3R/scale2", NppiSize{12, 9},        \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadScaleSrc,    \
-                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C3R_Ctx, 711); \
+                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C3R_Ctx, 711); \
     quad_packed_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_C3R", DTS "/C3R/persp_nn", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C3R_Ctx, 712); \
+                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C3R_Ctx, 712); \
     quad_packed_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_C3R", DTS "/C3R/persp_linear", NppiSize{20, 14}, \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveQuad_##DT##_C3R_Ctx,   \
+                            kQuadPerspDst, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveQuad_##TAG##_C3R_Ctx,   \
                             713);                                                                             \
   }                                                                                                           \
   TEST_F(NppiWarpPerspectiveQuadDiff, Quad_##TAG##_C4) {                                                      \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_C4R", DTS "/C4R/identity", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadIdentitySrc, \
-                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C4R_Ctx,    \
+                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C4R_Ctx,    \
                             720);                                                                             \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_C4R", DTS "/C4R/scale2", NppiSize{12, 9},        \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadScaleSrc,    \
-                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C4R_Ctx, 721); \
+                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C4R_Ctx, 721); \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_C4R", DTS "/C4R/persp_nn", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_C4R_Ctx, 722); \
+                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_C4R_Ctx, 722); \
   }                                                                                                           \
   TEST_F(NppiWarpPerspectiveQuadDiff, Quad_##TAG##_AC4) {                                                     \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_AC4R", DTS "/AC4R/identity", NppiSize{20, 14},   \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadIdentitySrc, \
-                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_AC4R_Ctx,   \
+                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_AC4R_Ctx,   \
                             730);                                                                             \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_AC4R", DTS "/AC4R/scale2", NppiSize{12, 9},      \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadScaleSrc,    \
-                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_AC4R_Ctx,      \
+                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_AC4R_Ctx,      \
                             731);                                                                             \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_AC4R", DTS "/AC4R/persp_nn", NppiSize{20, 14},   \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_AC4R_Ctx,      \
+                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_AC4R_Ctx,      \
                             732);                                                                             \
     quad_packed_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_AC4R", DTS "/AC4R/persp_linear", NppiSize{20, 14}, \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveQuad_##DT##_AC4R_Ctx,  \
+                            kQuadPerspDst, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveQuad_##TAG##_AC4R_Ctx,  \
                             733);                                                                             \
   }                                                                                                           \
   TEST_F(NppiWarpPerspectiveQuadDiff, Quad_##TAG##_P3) {                                                      \
     quad_planar_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_P3R", DTS "/P3R/identity", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadIdentitySrc, \
-                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_P3R_Ctx,    \
+                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_P3R_Ctx,    \
                             740);                                                                             \
     quad_planar_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_P3R", DTS "/P3R/scale2", NppiSize{12, 9},        \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadScaleSrc,    \
-                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_P3R_Ctx, 741); \
+                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_P3R_Ctx, 741); \
     quad_planar_case<DT, 3>("nppiWarpPerspectiveQuad_" DTS "_P3R", DTS "/P3R/persp_nn", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_P3R_Ctx, 742); \
+                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_P3R_Ctx, 742); \
   }                                                                                                           \
   TEST_F(NppiWarpPerspectiveQuadDiff, Quad_##TAG##_P4) {                                                      \
     quad_planar_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_P4R", DTS "/P4R/identity", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{20, 14}, NppiRect{0, 0, 20, 14}, kQuadIdentitySrc, \
-                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_P4R_Ctx,    \
+                            kQuadIdentityDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_P4R_Ctx,    \
                             750);                                                                             \
     quad_planar_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_P4R", DTS "/P4R/scale2", NppiSize{12, 9},        \
                             NppiRect{0, 0, 12, 9}, NppiSize{24, 18}, NppiRect{0, 0, 24, 18}, kQuadScaleSrc,    \
-                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_P4R_Ctx, 751); \
+                            kQuadScaleDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_P4R_Ctx, 751); \
     quad_planar_case<DT, 4>("nppiWarpPerspectiveQuad_" DTS "_P4R", DTS "/P4R/persp_nn", NppiSize{20, 14},     \
                             NppiRect{0, 0, 20, 14}, NppiSize{32, 24}, NppiRect{0, 0, 32, 24}, kQuadPerspSrc,   \
-                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##DT##_P4R_Ctx, 752); \
+                            kQuadPerspDst, NPPI_INTER_NN, true, &nppiWarpPerspectiveQuad_##TAG##_P4R_Ctx, 752); \
   }
 
 QUAD_PACKED_CASES(8u, Npp8u, "8u")

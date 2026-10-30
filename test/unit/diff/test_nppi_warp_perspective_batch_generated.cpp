@@ -82,6 +82,16 @@ template <typename T> bool has_positional() {
   return !std::is_same_v<T, Npp16f>;
 }
 
+// Destination pre-fill value (exposes the AC4 alpha rule): Npp16f has no
+// arithmetic conversions, so use a distinctive half value instead.
+template <typename T> T fill_value() {
+  if constexpr (std::is_same_v<T, Npp16f>) {
+    return to_npp16f(0.645f);
+  } else {
+    return (T)0xA5;
+  }
+}
+
 DeviceMemory<NppiWarpPerspectiveBatchCXR> &batch_arena(std::size_t n) {
   static std::vector<std::unique_ptr<DeviceMemory<NppiWarpPerspectiveBatchCXR>>> v;
   v.push_back(std::make_unique<DeviceMemory<NppiWarpPerspectiveBatchCXR>>(n));
@@ -108,9 +118,15 @@ void batch_case(const char *fname, const std::string &key, int nImages, NppiSize
   for (int i = 0; i < nImages; ++i) {
     DeviceMemory<T> &s = arena<T>(se);
     DeviceMemory<T> &d = arena<T>(de);
-    std::vector<T> hs = (positional && has_positional<T>()) ? make_packed_positional<T>(se, Stride, sStep / es)
-                                                            : make_uniform<T>(se, seed + 11 + (uint64_t)i * 13);
-    std::vector<T> hd(de, (T)0xA5);
+    std::vector<T> hs;
+    if constexpr (std::is_same_v<T, Npp16f>) {
+      // No positional pattern for half data (no host arithmetic on Npp16f).
+      hs = make_uniform<T>(se, seed + 11 + (uint64_t)i * 13);
+    } else {
+      hs = positional ? make_packed_positional<T>(se, Stride, sStep / es)
+                      : make_uniform<T>(se, seed + 11 + (uint64_t)i * 13);
+    }
+    std::vector<T> hd(de, fill_value<T>());
     s.copyFromHost(hs);
     d.copyFromHost(hd);
     srcs.push_back(&s);
