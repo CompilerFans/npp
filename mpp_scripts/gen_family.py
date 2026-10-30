@@ -142,20 +142,39 @@ def choose_call(spec: dict, func: Func) -> str:
     if func.family in by_family:
         return by_family[func.family]
     for variant in spec.get("call_variants", []):
-        needle = variant.get("contains", "")
-        if needle and needle in func.params:
+        if variant_matches(variant, func):
             return variant["call"]
     return spec["call"]
 
 
-NPPI_LAYOUT_RE = re.compile(r"_AC4R")
+def variant_matches(variant: dict, func: Func) -> bool:
+    """A call_variant applies when every given needle matches.
+
+    ``contains`` is matched against the parameter list (structural, e.g.
+    planar-array parameters); ``name_contains`` against the function name
+    (needed when variants share the exact same parameter list, e.g. the
+    batch families whose R and IR entry points are identical apart from the
+    name suffix).
+    """
+    needle = variant.get("contains", "")
+    name_needle = variant.get("name_contains", "")
+    if not needle and not name_needle:
+        return False
+    if needle and needle not in func.params:
+        return False
+    if name_needle and name_needle not in func.name:
+        return False
+    return True
+
+
+NPPI_LAYOUT_RE = re.compile(r"_AC4(I)?R")
 
 
 def nppi_channel_count(name: str) -> int:
-    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4)."""
+    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4, incl. IR)."""
     if NPPI_LAYOUT_RE.search(name):
         return 4
-    m = re.search(r"_C([1234])R", name)
+    m = re.search(r"_C([1234])(I)?R", name)
     return int(m.group(1)) if m else 1
 
 
