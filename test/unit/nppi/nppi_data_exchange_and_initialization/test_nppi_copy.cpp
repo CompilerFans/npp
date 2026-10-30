@@ -1421,7 +1421,7 @@ TEST_F(CopyTest, Copy_32s_P3C3R_TightSteps) {
       for (int x = 0; x < w; ++x) {
         row[x] = testData.src[((size_t)y * w + x) * C + c];
       }
-      ASSERT_EQ(cudaSuccess, cudaMemcpy(planes[c] + (size_t)y * w, row.data(), w * sizeof(Npp32s),
+      ASSERT_EQ(cudaSuccess, cudaMemcpy((char *)planes[c] + (size_t)y * planeStep, row.data(), w * sizeof(Npp32s),
                                         cudaMemcpyHostToDevice));
     }
   }
@@ -1467,7 +1467,7 @@ TEST_F(CopyTest, Copy_8u_P4C4R_UnalignedPlanes) {
       for (int x = 0; x < w; ++x) {
         row[x] = testData.src[((size_t)y * w + x) * C + c];
       }
-      ASSERT_EQ(cudaSuccess, cudaMemcpy((void *)planes[c] + (size_t)y * planeStep, row.data(), w,
+      ASSERT_EQ(cudaSuccess, cudaMemcpy((char *)planes[c] + (size_t)y * planeStep, row.data(), w,
                                         cudaMemcpyHostToDevice));
     }
   }
