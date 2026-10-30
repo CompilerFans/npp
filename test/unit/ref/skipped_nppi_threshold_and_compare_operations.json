@@ -5,7 +5,7 @@
   },
   {
     "function": "nppiCompareC_16s_AC4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_16s_C1R",
@@ -17,7 +17,7 @@
   },
   {
     "function": "nppiCompareC_16s_C3R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_16s_C4R",
@@ -25,7 +25,7 @@
   },
   {
     "function": "nppiCompareC_16s_C4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_16u_AC4R",
@@ -33,7 +33,7 @@
   },
   {
     "function": "nppiCompareC_16u_AC4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_16u_C1R",
@@ -45,7 +45,7 @@
   },
   {
     "function": "nppiCompareC_16u_C3R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_16u_C4R",
@@ -53,7 +53,7 @@
   },
   {
     "function": "nppiCompareC_16u_C4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_32f_AC4R",
@@ -61,7 +61,7 @@
   },
   {
     "function": "nppiCompareC_32f_AC4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_32f_C1R",
@@ -73,7 +73,7 @@
   },
   {
     "function": "nppiCompareC_32f_C3R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_32f_C4R",
@@ -81,7 +81,7 @@
   },
   {
     "function": "nppiCompareC_32f_C4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_8u_AC4R",
@@ -89,7 +89,7 @@
   },
   {
     "function": "nppiCompareC_8u_AC4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_8u_C1R",
@@ -101,7 +101,7 @@
   },
   {
     "function": "nppiCompareC_8u_C3R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareC_8u_C4R",
@@ -109,7 +109,7 @@
   },
   {
     "function": "nppiCompareC_8u_C4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareEqualEpsC_32f_AC4R",
@@ -117,7 +117,7 @@
   },
   {
     "function": "nppiCompareEqualEpsC_32f_AC4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareEqualEpsC_32f_C1R",
@@ -129,7 +129,7 @@
   },
   {
     "function": "nppiCompareEqualEpsC_32f_C3R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareEqualEpsC_32f_C4R",
@@ -137,7 +137,7 @@
   },
   {
     "function": "nppiCompareEqualEpsC_32f_C4R_Ctx",
-    "reason": "module override: skip_exact"
+    "reason": "NVIDIA NPP 13.4 segfaults on RTX 5090 when comparing against a per-channel device constant in C3/C4/AC4 layouts (reproduced in a minimal standalone NPP program); upstream NPP bug"
   },
   {
     "function": "nppiCompareEqualEps_32f_AC4R",
@@ -218,14 +218,6 @@
   {
     "function": "nppiCompare_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiFusedAbsDiff_Threshold_GTVal_Ctx",
-    "reason": "unsupported scalar type NppDataType (eSrcDstType)"
-  },
-  {
-    "function": "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx",
-    "reason": "unsupported scalar type NppDataType (eSrcDstType)"
   },
   {
     "function": "nppiThreshold_16s_AC4IR",

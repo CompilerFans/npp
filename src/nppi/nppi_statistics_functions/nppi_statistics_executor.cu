@@ -36,6 +36,46 @@ using npp_reduce::normRelMaskedKernel;
 using npp_reduce::normRelPartialKernel;
 using npp_reduce::numBlocks;
 using npp_reduce::reducePartialKernel;
+using npp_reduce::reduceGridBlocks;
+using npp_reduce::rows16Aligned;
+using npp_reduce::vec16Units;
+// Vectorized-walk helpers (package opt_reduce).
+using npp_reduce::VecPack;
+using npp_reduce::kVecElems;
+using npp_reduce::walkVecPacks;
+using npp_reduce::walkVecPacks2;
+using npp_reduce::walkVecGroups3;
+using npp_reduce::walkVecGroups3_2;
+using npp_reduce::walkVecCoi;
+using npp_reduce::walkVecFlat;
+using npp_reduce::walkVecFlat2;
+
+// Host-side launch geometry for the partial stage of the two-stage reduction
+// (package opt_reduce): the kernels take the 16-byte vectorized walk when every
+// row start of every source is 16-byte aligned, otherwise the original scalar
+// grid-stride loop.  The grid aims for kItemsPerThread 16-byte units (pixels
+// on the fallback path) per thread and is capped by the classic block count so
+// every existing *GetBufferHostSize helper stays sufficient.  The same block
+// count is passed to the finalize kernel (partial slabs are strided by
+// gridDim.x).
+struct ReduceLaunch {
+  int blocks;
+  int vecPath;
+};
+__host__ __forceinline__ ReduceLaunch reduceLaunch(const void *p, int step, int width, int height, int channels,
+                                                   int esize) {
+  const int area = width * height;
+  const bool vec = rows16Aligned(p, step);
+  const long long units = vec ? vec16Units(width, height, channels, esize) : (long long)area;
+  return ReduceLaunch{reduceGridBlocks(units, numBlocks(area)), vec ? 1 : 0};
+}
+__host__ __forceinline__ ReduceLaunch reduceLaunch2(const void *p1, int step1, const void *p2, int step2, int width,
+                                                    int height, int channels, int esize) {
+  const int area = width * height;
+  const bool vec = rows16Aligned(p1, step1) && rows16Aligned(p2, step2);
+  const long long units = vec ? vec16Units(width, height, channels, esize) : (long long)area;
+  return ReduceLaunch{reduceGridBlocks(units, numBlocks(area)), vec ? 1 : 0};
+}
 
 // Zero one device double (matches NVIDIA's nCOI<=0 convention for COI kernels).
 inline NppStatus zeroDevice(Npp64f *p, cudaStream_t s) {
@@ -68,29 +108,169 @@ template <typename D, bool IsMin> __device__ D blockReduceExtreme(D val) {
   return shared[0];
 }
 
+// vecPath selects the 16-byte pack walk (host-checked rows16Aligned) over the
+// original scalar grid-stride loop; min/max are order-independent, so the
+// element grouping change cannot alter the result.
 template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
-__global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int height, D *pPartial, int nch) {
+__global__ void reduceExtremeKernel(const D *pSrc, int nSrcStep, int width, int height, D *pPartial, int nch,
+                                    int vecPath) {
   D local[4];
   constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
   for (int c = 0; c < readCh; ++c) local[c] = extremeInit<D, IsMin>();
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
-    const int y = i / width;
-    const int x = i % width;
-    const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
-    for (int c = 0; c < readCh; ++c) {
-      const D v = row[x * Channels + c];
-      if (IsMin) {
-        local[c] = (v < local[c]) ? v : local[c];
-      } else {
-        local[c] = (v > local[c]) ? v : local[c];
+  if (vecPath) {
+    if constexpr (Channels == 3) {
+      auto groupFn = [&](const VecPack<D> &p0, const VecPack<D> &p1, const VecPack<D> &p2, int x0, int y) {
+#pragma unroll
+        for (int c = 0; c < 3; ++c) {
+#pragma unroll
+          for (int m = 0; m < kVecElems<D>(); ++m) {
+            const int e = 3 * m + c;
+            const int l = e & (kVecElems<D>() - 1);
+            const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
+            local[c] = IsMin ? ((v < local[c]) ? v : local[c]) : ((v > local[c]) ? v : local[c]);
+          }
+        }
+      };
+      auto remFn = [&](int c, D v, int x, int y) {
+        if (c == 0) local[0] = IsMin ? ((v < local[0]) ? v : local[0]) : ((v > local[0]) ? v : local[0]);
+        else if (c == 1) local[1] = IsMin ? ((v < local[1]) ? v : local[1]) : ((v > local[1]) ? v : local[1]);
+        else local[2] = IsMin ? ((v < local[2]) ? v : local[2]) : ((v > local[2]) ? v : local[2]);
+      };
+      walkVecGroups3(pSrc, nSrcStep, width, height, groupFn, remFn);
+    } else {
+      auto packFn = [&](const VecPack<D> &p, int x0, int y) {
+#pragma unroll
+        for (int c = 0; c < readCh; ++c) {
+#pragma unroll
+          for (int m = 0; m < kVecElems<D>() / Channels; ++m) {
+            const D v = p.v[m * Channels + c];
+            local[c] = IsMin ? ((v < local[c]) ? v : local[c]) : ((v > local[c]) ? v : local[c]);
+          }
+        }
+      };
+      auto remFn = [&](int c, D v, int x, int y) {
+        if (c == 0) local[0] = IsMin ? ((v < local[0]) ? v : local[0]) : ((v > local[0]) ? v : local[0]);
+        else if (c == 1) local[1] = IsMin ? ((v < local[1]) ? v : local[1]) : ((v > local[1]) ? v : local[1]);
+        else if (c == 2) local[2] = IsMin ? ((v < local[2]) ? v : local[2]) : ((v > local[2]) ? v : local[2]);
+        else if (!AlphaPreserve) local[3] = IsMin ? ((v < local[3]) ? v : local[3]) : ((v > local[3]) ? v : local[3]);
+      };
+      walkVecPacks<Channels>(pSrc, nSrcStep, width, height, packFn, remFn);
+    }
+  } else {
+    for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+      const int y = i / width;
+      const int x = i % width;
+      const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+      for (int c = 0; c < readCh; ++c) {
+        const D v = row[x * Channels + c];
+        if (IsMin) {
+          local[c] = (v < local[c]) ? v : local[c];
+        } else {
+          local[c] = (v > local[c]) ? v : local[c];
+        }
       }
     }
   }
   for (int c = 0; c < readCh; ++c) {
     const D r = blockReduceExtreme<D, IsMin>(local[c]);
     if (threadIdx.x == 0) pPartial[(size_t)c * gridDim.x + blockIdx.x] = r;
+  }
+}
+
+// Single-pass MinMax (package opt_reduce): one walk of the ROI produces both
+// the min and the max partial slabs, halving the global traffic of the
+// previous two reduceExtremeKernel launches and halving the intermediate
+// partial write-backs.  Results are identical to the two-pass version because
+// min and max are order-independent.
+template <typename D, int Channels, bool AlphaPreserve>
+__global__ void reduceMinMaxKernel(const D *pSrc, int nSrcStep, int width, int height, D *pMinPartial, D *pMaxPartial,
+                                   int nch, int vecPath) {
+  D lmin[4], lmax[4];
+  constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
+  for (int c = 0; c < readCh; ++c) {
+    lmin[c] = extremeInit<D, true>();
+    lmax[c] = extremeInit<D, false>();
+  }
+  const int totalPixels = width * height;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  if (vecPath) {
+    if constexpr (Channels == 3) {
+      auto groupFn = [&](const VecPack<D> &p0, const VecPack<D> &p1, const VecPack<D> &p2, int x0, int y) {
+#pragma unroll
+        for (int c = 0; c < 3; ++c) {
+#pragma unroll
+          for (int m = 0; m < kVecElems<D>(); ++m) {
+            const int e = 3 * m + c;
+            const int l = e & (kVecElems<D>() - 1);
+            const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
+            lmin[c] = (v < lmin[c]) ? v : lmin[c];
+            lmax[c] = (v > lmax[c]) ? v : lmax[c];
+          }
+        }
+      };
+      auto remFn = [&](int c, D v, int x, int y) {
+        if (c == 0) {
+          lmin[0] = (v < lmin[0]) ? v : lmin[0];
+          lmax[0] = (v > lmax[0]) ? v : lmax[0];
+        } else if (c == 1) {
+          lmin[1] = (v < lmin[1]) ? v : lmin[1];
+          lmax[1] = (v > lmax[1]) ? v : lmax[1];
+        } else {
+          lmin[2] = (v < lmin[2]) ? v : lmin[2];
+          lmax[2] = (v > lmax[2]) ? v : lmax[2];
+        }
+      };
+      walkVecGroups3(pSrc, nSrcStep, width, height, groupFn, remFn);
+    } else {
+      auto packFn = [&](const VecPack<D> &p, int x0, int y) {
+#pragma unroll
+        for (int c = 0; c < readCh; ++c) {
+#pragma unroll
+          for (int m = 0; m < kVecElems<D>() / Channels; ++m) {
+            const D v = p.v[m * Channels + c];
+            lmin[c] = (v < lmin[c]) ? v : lmin[c];
+            lmax[c] = (v > lmax[c]) ? v : lmax[c];
+          }
+        }
+      };
+      auto remFn = [&](int c, D v, int x, int y) {
+        if (c == 0) {
+          lmin[0] = (v < lmin[0]) ? v : lmin[0];
+          lmax[0] = (v > lmax[0]) ? v : lmax[0];
+        } else if (c == 1) {
+          lmin[1] = (v < lmin[1]) ? v : lmin[1];
+          lmax[1] = (v > lmax[1]) ? v : lmax[1];
+        } else if (c == 2) {
+          lmin[2] = (v < lmin[2]) ? v : lmin[2];
+          lmax[2] = (v > lmax[2]) ? v : lmax[2];
+        } else if (!AlphaPreserve) {
+          lmin[3] = (v < lmin[3]) ? v : lmin[3];
+          lmax[3] = (v > lmax[3]) ? v : lmax[3];
+        }
+      };
+      walkVecPacks<Channels>(pSrc, nSrcStep, width, height, packFn, remFn);
+    }
+  } else {
+    for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+      const int y = i / width;
+      const int x = i % width;
+      const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+      for (int c = 0; c < readCh; ++c) {
+        const D v = row[x * Channels + c];
+        lmin[c] = (v < lmin[c]) ? v : lmin[c];
+        lmax[c] = (v > lmax[c]) ? v : lmax[c];
+      }
+    }
+  }
+  for (int c = 0; c < readCh; ++c) {
+    const D rmin = blockReduceExtreme<D, true>(lmin[c]);
+    const D rmax = blockReduceExtreme<D, false>(lmax[c]);
+    if (threadIdx.x == 0) {
+      pMinPartial[(size_t)c * gridDim.x + blockIdx.x] = rmin;
+      pMaxPartial[(size_t)c * gridDim.x + blockIdx.x] = rmax;
+    }
   }
 }
 
@@ -136,8 +316,13 @@ template <typename D, bool IsMin> __device__ __forceinline__ bool extrBeats(D av
   return ax < bx;
 }
 
+// vecPath selects the 16-byte pack walk; the first-occurrence coordinates are
+// preserved exactly because extrBeats is a total order (associative and
+// commutative over candidates), so any element grouping yields the same
+// (value, first x, first y) winner.
 template <typename D, int Channels, bool AlphaPreserve, bool IsMin>
-__global__ void extrIndxKernel(const D *pSrc, int nSrcStep, int width, int height, D *pVal, int *pX, int *pY, int nch) {
+__global__ void extrIndxKernel(const D *pSrc, int nSrcStep, int width, int height, D *pVal, int *pX, int *pY, int nch,
+                               int vecPath) {
   constexpr int readCh = AlphaPreserve ? Channels - 1 : Channels;
   D lv[4];
   int lx[4], ly[4];
@@ -148,16 +333,102 @@ __global__ void extrIndxKernel(const D *pSrc, int nSrcStep, int width, int heigh
   }
   const int total = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int i = tid; i < total; i += gridDim.x * blockDim.x) {
-    const int y = i / width;
-    const int x = i % width;
-    const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
-    for (int c = 0; c < readCh; ++c) {
-      const D v = row[x * Channels + c];
-      if (extrBeats<D, IsMin>(v, x, y, lv[c], lx[c], ly[c])) {
-        lv[c] = v;
-        lx[c] = x;
-        ly[c] = y;
+  if (vecPath) {
+    if constexpr (Channels == 3) {
+      auto groupFn = [&](const VecPack<D> &p0, const VecPack<D> &p1, const VecPack<D> &p2, int x0, int y) {
+#pragma unroll
+        for (int c = 0; c < 3; ++c) {
+#pragma unroll
+          for (int m = 0; m < kVecElems<D>(); ++m) {
+            const int e = 3 * m + c;
+            const int l = e & (kVecElems<D>() - 1);
+            const D v = (e < kVecElems<D>()) ? p0.v[l] : (e < 2 * kVecElems<D>()) ? p1.v[l] : p2.v[l];
+            if (extrBeats<D, IsMin>(v, x0 + m, y, lv[c], lx[c], ly[c])) {
+              lv[c] = v;
+              lx[c] = x0 + m;
+              ly[c] = y;
+            }
+          }
+        }
+      };
+      auto remFn = [&](int c, D v, int x, int y) {
+        if (c == 0) {
+          if (extrBeats<D, IsMin>(v, x, y, lv[0], lx[0], ly[0])) {
+            lv[0] = v;
+            lx[0] = x;
+            ly[0] = y;
+          }
+        } else if (c == 1) {
+          if (extrBeats<D, IsMin>(v, x, y, lv[1], lx[1], ly[1])) {
+            lv[1] = v;
+            lx[1] = x;
+            ly[1] = y;
+          }
+        } else {
+          if (extrBeats<D, IsMin>(v, x, y, lv[2], lx[2], ly[2])) {
+            lv[2] = v;
+            lx[2] = x;
+            ly[2] = y;
+          }
+        }
+      };
+      walkVecGroups3(pSrc, nSrcStep, width, height, groupFn, remFn);
+    } else {
+      auto packFn = [&](const VecPack<D> &p, int x0, int y) {
+#pragma unroll
+        for (int c = 0; c < readCh; ++c) {
+#pragma unroll
+          for (int m = 0; m < kVecElems<D>() / Channels; ++m) {
+            const D v = p.v[m * Channels + c];
+            if (extrBeats<D, IsMin>(v, x0 + m, y, lv[c], lx[c], ly[c])) {
+              lv[c] = v;
+              lx[c] = x0 + m;
+              ly[c] = y;
+            }
+          }
+        }
+      };
+      auto remFn = [&](int c, D v, int x, int y) {
+        if (c == 0) {
+          if (extrBeats<D, IsMin>(v, x, y, lv[0], lx[0], ly[0])) {
+            lv[0] = v;
+            lx[0] = x;
+            ly[0] = y;
+          }
+        } else if (c == 1) {
+          if (extrBeats<D, IsMin>(v, x, y, lv[1], lx[1], ly[1])) {
+            lv[1] = v;
+            lx[1] = x;
+            ly[1] = y;
+          }
+        } else if (c == 2) {
+          if (extrBeats<D, IsMin>(v, x, y, lv[2], lx[2], ly[2])) {
+            lv[2] = v;
+            lx[2] = x;
+            ly[2] = y;
+          }
+        } else if (!AlphaPreserve) {
+          if (extrBeats<D, IsMin>(v, x, y, lv[3], lx[3], ly[3])) {
+            lv[3] = v;
+            lx[3] = x;
+            ly[3] = y;
+          }
+        }
+      };
+      walkVecPacks<Channels>(pSrc, nSrcStep, width, height, packFn, remFn);
+    }
+  } else {
+    for (int i = tid; i < total; i += gridDim.x * blockDim.x) {
+      const int y = i / width;
+      const int x = i % width;
+      const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+      for (int c = 0; c < readCh; ++c) {
+        const D v = row[x * Channels + c];
+        if (extrBeats<D, IsMin>(v, x, y, lv[c], lx[c], ly[c])) {
+          lv[c] = v;
+          lx[c] = x;
+          ly[c] = y;
+        }
       }
     }
   }
@@ -241,34 +512,53 @@ __global__ void extrIndxFinalKernel(const D *pVal, const int *pX, const int *pY,
 // ---------------------------------------------------------------------------
 // MinMaxIndx: scalar min + scalar max for one selected channel, each with its
 // coordinate.  pMask may be null (unmasked); when present a non-zero byte marks
-// a valid pixel.  channel is the 0-based source channel index.
+// a valid pixel.  Chan (package opt_reduce) is the 0-based source channel index
+// as a template parameter so the unmasked 16-byte path (vecPath) extracts
+// samples with compile-time constant indices; the masked path keeps the scalar
+// loop (mask alignment/steps are unconstrained).
 // ---------------------------------------------------------------------------
 
-template <typename D, int Channels>
+template <typename D, int Channels, int Chan>
 __global__ void minmaxIndxKernel(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMaskStep, int width, int height,
-                                 int channel, D *minV, int *minX, int *minY, D *maxV, int *maxX, int *maxY) {
+                                 D *minV, int *minX, int *minY, D *maxV, int *maxX, int *maxY, int vecPath) {
   D lmin = extremeInit<D, true>();
   D lmax = extremeInit<D, false>();
   int lminx = 0, lminy = 0, lmaxx = 0, lmaxy = 0;
   const int total = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int i = tid; i < total; i += gridDim.x * blockDim.x) {
-    const int y = i / width;
-    const int x = i % width;
-    const Npp8u *maskRow =
-        pMask ? reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pMask) + y * nMaskStep) : nullptr;
-    if (maskRow && maskRow[x] == 0) continue;
-    const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
-    const D v = row[x * Channels + channel];
-    if (extrBeats<D, true>(v, x, y, lmin, lminx, lminy)) {
-      lmin = v;
-      lminx = x;
-      lminy = y;
-    }
-    if (extrBeats<D, false>(v, x, y, lmax, lmaxx, lmaxy)) {
-      lmax = v;
-      lmaxx = x;
-      lmaxy = y;
+  if (!pMask && vecPath) {
+    auto sampleFn = [&](D v, int x, int y) {
+      if (extrBeats<D, true>(v, x, y, lmin, lminx, lminy)) {
+        lmin = v;
+        lminx = x;
+        lminy = y;
+      }
+      if (extrBeats<D, false>(v, x, y, lmax, lmaxx, lmaxy)) {
+        lmax = v;
+        lmaxx = x;
+        lmaxy = y;
+      }
+    };
+    walkVecCoi<Channels, Chan>(pSrc, nSrcStep, width, height, sampleFn);
+  } else {
+    for (int i = tid; i < total; i += gridDim.x * blockDim.x) {
+      const int y = i / width;
+      const int x = i % width;
+      const Npp8u *maskRow =
+          pMask ? reinterpret_cast<const Npp8u *>(reinterpret_cast<const char *>(pMask) + y * nMaskStep) : nullptr;
+      if (maskRow && maskRow[x] == 0) continue;
+      const D *row = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc) + y * nSrcStep);
+      const D v = row[x * Channels + Chan];
+      if (extrBeats<D, true>(v, x, y, lmin, lminx, lminy)) {
+        lmin = v;
+        lminx = x;
+        lminy = y;
+      }
+      if (extrBeats<D, false>(v, x, y, lmax, lmaxx, lmaxy)) {
+        lmax = v;
+        lmaxx = x;
+        lmaxy = y;
+      }
     }
   }
   __shared__ D smin[kBlock], smax[kBlock];
@@ -390,26 +680,46 @@ __device__ __forceinline__ double absVal(D a) {
   return fabs((double)a);
 }
 
-// One scalar partial per block (unlike dotProd's per-channel slab).
+// One scalar partial per block (unlike dotProd's per-channel slab).  vecPath
+// (package opt_reduce) walks the ROI as flat 16-byte element packs: every
+// element folds identically (single scalar accumulator), so no channel
+// structure is needed and all dtypes/channels (incl. 64f C4) work.
 template <typename D, int Channels, bool Relative>
 __global__ void avgErrPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
-                                    double *pPartial) {
+                                    double *pPartial, int vecPath) {
   double local = 0.0;
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
-    const int y = i / width;
-    const int x = i % width;
-    const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
-    const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
-    for (int c = 0; c < Channels; ++c) {
-      const D a = r1[x * Channels + c];
-      const D b = r2[x * Channels + c];
+  if (vecPath) {
+    auto fold = [&](D a, D b) {
       if (Relative) {
         const double den = fmax(absVal(a), absVal(b));
         local += (den > 0.0) ? absDiff(a, b) / den : 0.0;
       } else {
         local += absDiff(a, b);
+      }
+    };
+    auto packFn = [&](const VecPack<D> &pa, const VecPack<D> &pb) {
+#pragma unroll
+      for (int k = 0; k < kVecElems<D>(); ++k) fold(pa.v[k], pb.v[k]);
+    };
+    auto remFn = [&](D a, D b) { fold(a, b); };
+    walkVecFlat2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, width * Channels, height, packFn, remFn);
+  } else {
+    for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+      const int y = i / width;
+      const int x = i % width;
+      const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
+      const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
+      for (int c = 0; c < Channels; ++c) {
+        const D a = r1[x * Channels + c];
+        const D b = r2[x * Channels + c];
+        if (Relative) {
+          const double den = fmax(absVal(a), absVal(b));
+          local += (den > 0.0) ? absDiff(a, b) / den : 0.0;
+        } else {
+          local += absDiff(a, b);
+        }
       }
     }
   }
@@ -440,26 +750,43 @@ __global__ void avgErrFinalizeKernel(const double *pPartial, int nblocks, double
 // ---------------------------------------------------------------------------
 
 // One scalar max partial per block; the block reduce is the fmax variant of
-// the shared reduction core.
+// the shared reduction core.  vecPath walks flat 16-byte element packs.
 template <typename D, int Channels, bool Relative>
 __global__ void maxErrPartialKernel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, int width, int height,
-                                    double *pPartial) {
+                                    double *pPartial, int vecPath) {
   double local = 0.0;
   const int totalPixels = width * height;
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
-    const int y = i / width;
-    const int x = i % width;
-    const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
-    const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
-    for (int c = 0; c < Channels; ++c) {
-      const D a = r1[x * Channels + c];
-      const D b = r2[x * Channels + c];
+  if (vecPath) {
+    auto fold = [&](D a, D b) {
       if (Relative) {
         const double den = fmax(absVal(a), absVal(b));
         if (den > 0.0) local = fmax(local, absDiff(a, b) / den);
       } else {
         local = fmax(local, absDiff(a, b));
+      }
+    };
+    auto packFn = [&](const VecPack<D> &pa, const VecPack<D> &pb) {
+#pragma unroll
+      for (int k = 0; k < kVecElems<D>(); ++k) fold(pa.v[k], pb.v[k]);
+    };
+    auto remFn = [&](D a, D b) { fold(a, b); };
+    walkVecFlat2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, width * Channels, height, packFn, remFn);
+  } else {
+    for (int i = tid; i < totalPixels; i += gridDim.x * blockDim.x) {
+      const int y = i / width;
+      const int x = i % width;
+      const D *r1 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc1) + y * nSrc1Step);
+      const D *r2 = reinterpret_cast<const D *>(reinterpret_cast<const char *>(pSrc2) + y * nSrc2Step);
+      for (int c = 0; c < Channels; ++c) {
+        const D a = r1[x * Channels + c];
+        const D b = r2[x * Channels + c];
+        if (Relative) {
+          const double den = fmax(absVal(a), absVal(b));
+          if (den > 0.0) local = fmax(local, absDiff(a, b) / den);
+        } else {
+          local = fmax(local, absDiff(a, b));
+        }
       }
     }
   }
@@ -498,16 +825,15 @@ NppStatus runSum(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceB
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   Acc *partial = reinterpret_cast<Acc *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   reducePartialKernel<D, Channels, AlphaPreserve, Acc>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  finalizeOutKernel<Acc, false><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, 0.0, pSum);
+  finalizeOutKernel<Acc, false><<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, 0.0, pSum);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -526,16 +852,16 @@ NppStatus runMean(const DType *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDe
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
   const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   Npp64f *partial = reinterpret_cast<Npp64f *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   reducePartialKernel<DType, Channels, AlphaPreserve, Npp64f>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
   finalizeOutKernel<Npp64f, true>
-      <<<1, kBlock, 0, stream>>>(partial, blocks, nCh, static_cast<double>(area), pMean);
+      <<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, static_cast<double>(area), pMean);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -548,7 +874,10 @@ NppStatus runMeanMasked(const DType *pSrc, int nSrcStep, const Npp8u *pMask, int
   if (nSrcStep < oi.width * (int)sizeof(DType)) return NPP_STEP_ERROR;
   if (nMaskStep < oi.width) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  const int area = oi.width * oi.height;
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *sums = reinterpret_cast<double *>(pDeviceBuffer);
   double *counts = sums + blocks;
 
@@ -576,7 +905,8 @@ NppStatus runMeanMaskedCoi(const DType *pSrc, int nSrcStep, const Npp8u *pMask, 
   const int srcCh = nCOI - 1;
   if (nCOI <= 0) return zeroDevice(pMean, stream);       // nCOI <= 0 -> mean 0
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *sums = reinterpret_cast<double *>(pDeviceBuffer);
   double *counts = sums + blocks;
 
@@ -599,15 +929,15 @@ NppStatus runMeanStdDev(const DType *pSrc, int nSrcStep, NppiSize oi, Npp8u *pDe
   if (oi.width <= 0 || oi.height <= 0) return NPP_SIZE_ERROR;
   if (nSrcStep < oi.width * (int)sizeof(DType)) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oi.width, oi.height, 1, (int)sizeof(DType));
   double *sums = reinterpret_cast<double *>(pDeviceBuffer);
-  double *sq = sums + blocks;
+  double *sq = sums + rl.blocks;
 
   (void)cudaGetLastError();
-  msSumKernel<DType, 1><<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oi.width, oi.height, 0, sums, sq);
+  msSumKernel<DType, 1, 0><<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oi.width, oi.height, sums, sq, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  finalizeMSKernel<<<1, kBlock, 0, stream>>>(sums, sq, blocks, static_cast<double>(oi.width * oi.height), pMean,
+  finalizeMSKernel<<<1, kBlock, 0, stream>>>(sums, sq, rl.blocks, static_cast<double>(oi.width * oi.height), pMean,
                                              pStdDev);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
@@ -622,18 +952,30 @@ NppStatus runMeanStdDevCoi(const DType *pSrc, int nSrcStep, NppiSize oi, int nCO
   if (nSrcStep < oi.width * 3 * (int)sizeof(DType)) return NPP_STEP_ERROR;
 
   // NVIDIA NPP: COI channel is 1-based (channel = nCOI-1); nCOI<=0 -> COI error.
-  const int srcCh = nCOI - 1;
   if (nCOI <= 0) return NPP_COI_ERROR;
+  const int srcCh = nCOI - 1;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oi.width, oi.height, 3, (int)sizeof(DType));
   double *sums = reinterpret_cast<double *>(pDeviceBuffer);
-  double *sq = sums + blocks;
+  double *sq = sums + rl.blocks;
 
   (void)cudaGetLastError();
-  msSumKernel<DType, 3><<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oi.width, oi.height, srcCh, sums, sq);
+  // srcCh becomes a template parameter so the vectorized walk extracts the
+  // sample with compile-time constant indices.
+  switch (srcCh) {
+  case 0:
+    msSumKernel<DType, 3, 0><<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oi.width, oi.height, sums, sq, rl.vecPath);
+    break;
+  case 1:
+    msSumKernel<DType, 3, 1><<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oi.width, oi.height, sums, sq, rl.vecPath);
+    break;
+  default:
+    msSumKernel<DType, 3, 2><<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oi.width, oi.height, sums, sq, rl.vecPath);
+    break;
+  }
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  finalizeMSKernel<<<1, kBlock, 0, stream>>>(sums, sq, blocks, static_cast<double>(oi.width * oi.height), pMean,
+  finalizeMSKernel<<<1, kBlock, 0, stream>>>(sums, sq, rl.blocks, static_cast<double>(oi.width * oi.height), pMean,
                                              pStdDev);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
@@ -647,7 +989,8 @@ NppStatus runMeanStdDevMasked(const DType *pSrc, int nSrcStep, const Npp8u *pMas
   if (nSrcStep < oi.width * (int)sizeof(DType)) return NPP_STEP_ERROR;
   if (nMaskStep < oi.width) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *sums = reinterpret_cast<double *>(pDeviceBuffer);
   double *sq = sums + blocks;
   double *cnt = sq + blocks;
@@ -675,7 +1018,8 @@ NppStatus runMeanStdDevMaskedCoi(const DType *pSrc, int nSrcStep, const Npp8u *p
   const int srcCh = nCOI - 1;
   if (nCOI <= 0) return NPP_COI_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *sums = reinterpret_cast<double *>(pDeviceBuffer);
   double *sq = sums + blocks;
   double *cnt = sq + blocks;
@@ -706,16 +1050,15 @@ NppStatus runMin(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceB
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   D *partial = reinterpret_cast<D *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   reduceExtremeKernel<D, Channels, AlphaPreserve, true>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  finalizeExtremeKernel<D, true><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pMin);
+  finalizeExtremeKernel<D, true><<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, pMin);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -731,16 +1074,15 @@ NppStatus runMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDeviceB
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   D *partial = reinterpret_cast<D *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   reduceExtremeKernel<D, Channels, AlphaPreserve, false>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, partial, nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  finalizeExtremeKernel<D, false><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pMax);
+  finalizeExtremeKernel<D, false><<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, pMax);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -756,22 +1098,23 @@ NppStatus runMinMax(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDevi
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   D *minPart = reinterpret_cast<D *>(pDeviceBuffer);
-  D *maxPart = minPart + (size_t)blocks * nCh;
+  D *maxPart = minPart + (size_t)rl.blocks * nCh;
 
+  // Single pass over the source produces both partial slabs (package
+  // opt_reduce): half the global traffic and half the intermediate partial
+  // write-backs of the previous two reduceExtremeKernel launches; min and max
+  // are order-independent so the result is unchanged.
   (void)cudaGetLastError();
-  reduceExtremeKernel<D, Channels, AlphaPreserve, true>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, minPart, nCh);
-  if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  reduceExtremeKernel<D, Channels, AlphaPreserve, false>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, maxPart, nCh);
+  reduceMinMaxKernel<D, Channels, AlphaPreserve>
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, minPart, maxPart, nCh,
+                                         rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  finalizeExtremeKernel<D, true><<<1, kBlock, 0, stream>>>(minPart, blocks, nCh, pMin);
+  finalizeExtremeKernel<D, true><<<1, kBlock, 0, stream>>>(minPart, rl.blocks, nCh, pMin);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  finalizeExtremeKernel<D, false><<<1, kBlock, 0, stream>>>(maxPart, blocks, nCh, pMax);
+  finalizeExtremeKernel<D, false><<<1, kBlock, 0, stream>>>(maxPart, rl.blocks, nCh, pMax);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -789,24 +1132,25 @@ NppStatus runExtrIndx(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDe
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   // Align each partial section so 1/2-byte dtypes do not create misaligned
   // int position arrays (MACA traps on misaligned stores).
   char *base = reinterpret_cast<char *>(pDeviceBuffer);
   D *vPart = reinterpret_cast<D *>(base);
-  size_t off = (size_t)blocks * nCh * sizeof(D);
+  size_t off = (size_t)rl.blocks * nCh * sizeof(D);
   off = (off + 7u) & ~(size_t)7u;
   int *xPart = reinterpret_cast<int *>(base + off);
-  off += (size_t)blocks * nCh * sizeof(int);
+  off += (size_t)rl.blocks * nCh * sizeof(int);
   off = (off + 7u) & ~(size_t)7u;
   int *yPart = reinterpret_cast<int *>(base + off);
 
   (void)cudaGetLastError();
   extrIndxKernel<D, Channels, AlphaPreserve, IsMin>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, vPart, xPart, yPart, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, vPart, xPart, yPart, nCh,
+                                         rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  extrIndxFinalKernel<D, IsMin><<<1, kBlock, 0, stream>>>(vPart, xPart, yPart, blocks, nCh, pValue, pIndexX, pIndexY);
+  extrIndxFinalKernel<D, IsMin>
+      <<<1, kBlock, 0, stream>>>(vPart, xPart, yPart, rl.blocks, nCh, pValue, pIndexX, pIndexY);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -830,7 +1174,14 @@ NppStatus runMinMaxIndx(const D *p, int nSrcStep, const Npp8u *pMask, int nMaskS
   }
   if (nSrcStep < oi.width * Channels * (int)sizeof(D)) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Unmasked calls take the 16-byte vectorized walk (channel is a template
+  // parameter); masked calls keep the scalar loop and only get the re-sized
+  // grid (~4 pixels per thread).
+  const ReduceLaunch rl = (!pMask) ? reduceLaunch(p, nSrcStep, oi.width, oi.height, Channels, (int)sizeof(D))
+                                   : ReduceLaunch{reduceGridBlocks((long long)oi.width * oi.height,
+                                                                   numBlocks(oi.width * oi.height)),
+                                                  0};
+  const int blocks = rl.blocks;
   char *base = reinterpret_cast<char *>(pDeviceBuffer);
   D *minV = reinterpret_cast<D *>(base);
   size_t off = (size_t)blocks * sizeof(D);
@@ -850,8 +1201,28 @@ NppStatus runMinMaxIndx(const D *p, int nSrcStep, const Npp8u *pMask, int nMaskS
   int *maxY = reinterpret_cast<int *>(base + off);
 
   (void)cudaGetLastError();
-  minmaxIndxKernel<D, Channels><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
-                                                               channel, minV, minX, minY, maxV, maxX, maxY);
+  // Channel is a template parameter of the vectorized walk; guard so the
+  // C1 build only instantiates Chan=0 (walkVecCoi static_asserts Chan < Channels).
+  if constexpr (Channels == 1) {
+    (void)channel;
+    minmaxIndxKernel<D, 1, 0><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
+                                                             minV, minX, minY, maxV, maxX, maxY, rl.vecPath);
+  } else {
+    switch (channel) {
+    case 0:
+      minmaxIndxKernel<D, 3, 0><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
+                                                               minV, minX, minY, maxV, maxX, maxY, rl.vecPath);
+      break;
+    case 1:
+      minmaxIndxKernel<D, 3, 1><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
+                                                               minV, minX, minY, maxV, maxX, maxY, rl.vecPath);
+      break;
+    default:
+      minmaxIndxKernel<D, 3, 2><<<blocks, kBlock, 0, stream>>>(p, nSrcStep, pMask, nMaskStep, oi.width, oi.height,
+                                                               minV, minX, minY, maxV, maxX, maxY, rl.vecPath);
+      break;
+    }
+  }
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   minmaxIndxFinalKernel<D>
       <<<1, kBlock, 0, stream>>>(minV, minX, minY, maxV, maxX, maxY, blocks, pMinValue, pMinIndex, pMaxValue, pMaxIndex);
@@ -882,16 +1253,16 @@ NppStatus runNorm(const D *pSrc, int nSrcStep, NppiSize oSizeROI, Npp8u *pDevice
   if (nSrcStep < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, Channels, esize);
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   normPartialKernel<normKind(NT), D, Channels, AlphaPreserve, false>
-      <<<blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, nullptr, 0, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc, nSrcStep, nullptr, 0, oSizeROI.width, oSizeROI.height, partial, nCh,
+                                         rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  normFinalizeKernel<normKind(NT)><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pNorm);
+  normFinalizeKernel<normKind(NT)><<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -909,16 +1280,17 @@ NppStatus runNormDiff(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2St
   if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
+                                        esize);
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   normPartialKernel<normKind(NT), D, Channels, AlphaPreserve, true>
-      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial,
+                                         nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  normFinalizeKernel<normKind(NT)><<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pNorm);
+  normFinalizeKernel<normKind(NT)><<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -931,7 +1303,10 @@ NppStatus runNormMasked(const D *pSrc, int nSrcStep, const Npp8u *pMask, int nMa
   if (nSrcStep < oi.width * (int)sizeof(D)) return NPP_STEP_ERROR;
   if (nMaskStep < oi.width) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
@@ -958,7 +1333,10 @@ NppStatus runNormMaskedCoi(const D *pSrc, int nSrcStep, const Npp8u *pMask, int 
   const int srcCh = nCOI - 1;
   if (nCOI <= 0) return zeroDevice(pNorm, stream);
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
@@ -980,7 +1358,10 @@ NppStatus runNormDiffMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int n
   if (nSrc2Step < oi.width * (int)sizeof(D)) return NPP_STEP_ERROR;
   if (nMaskStep < oi.width) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
@@ -1007,7 +1388,10 @@ NppStatus runNormDiffMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, in
   const int srcCh = nCOI - 1;
   if (nCOI <= 0) return zeroDevice(pNorm, stream);
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
@@ -1042,19 +1426,20 @@ NppStatus runNormRel(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
   if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
+                                        esize);
   // Two partial slabs (numerator and denominator), nch columns each.
   double *pDiff = reinterpret_cast<double *>(pDeviceBuffer);
-  double *pNormP = pDiff + (size_t)nCh * blocks;
+  double *pNormP = pDiff + (size_t)nCh * rl.blocks;
 
   (void)cudaGetLastError();
   normRelPartialKernel<normKind(NT), D, Channels, AlphaPreserve>
-      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, pDiff, pNormP, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, pDiff,
+                                         pNormP, nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
   normRelFinalizeKernel<normKind(NT)>
-      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, blocks, nCh, normRelZeroDenomValue<D>(), pNorm);
+      <<<1, kBlock, 0, stream>>>(pDiff, pNormP, rl.blocks, nCh, normRelZeroDenomValue<D>(), pNorm);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1068,7 +1453,10 @@ NppStatus runNormRelMasked(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nS
   if (nSrc2Step < oi.width * (int)sizeof(D)) return NPP_STEP_ERROR;
   if (nMaskStep < oi.width) return NPP_STEP_ERROR;
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *pDiff = reinterpret_cast<double *>(pDeviceBuffer);
   double *pNormP = pDiff + blocks;
 
@@ -1097,7 +1485,10 @@ NppStatus runNormRelMaskedCoi(const D *pSrc1, int nSrc1Step, const D *pSrc2, int
   const int srcCh = nCOI - 1;
   if (nCOI <= 0) return zeroDevice(pNorm, stream);
 
-  const int blocks = numBlocks(oi.width * oi.height);
+  // Masked kernels keep the scalar walk (mask alignment is unconstrained);
+  // the grid is only re-sized to ~4 pixels per thread.
+  const int area = oi.width * oi.height;
+  const int blocks = reduceGridBlocks(area, numBlocks(area));
   double *pDiff = reinterpret_cast<double *>(pDeviceBuffer);
   double *pNormP = pDiff + blocks;
 
@@ -1127,16 +1518,17 @@ NppStatus runDotProd(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Ste
   if (nSrc2Step < oSizeROI.width * Channels * esize) return NPP_STEP_ERROR;
 
   constexpr int nCh = Channels - (AlphaPreserve ? 1 : 0);
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
+                                        esize);
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   dotProdPartialKernel<D, Channels, AlphaPreserve>
-      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial, nCh);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial,
+                                         nCh, rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  dotProdFinalizeKernel<<<1, kBlock, 0, stream>>>(partial, blocks, nCh, pDp);
+  dotProdFinalizeKernel<<<1, kBlock, 0, stream>>>(partial, rl.blocks, nCh, pDp);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1166,17 +1558,18 @@ NppStatus runAverageErrorImpl(const D *pSrc1, int nSrc1Step, const D *pSrc2, int
   if (!pError) return NPP_NULL_POINTER_ERROR;
   if (!pDeviceBuffer) return NPP_NULL_POINTER_ERROR;  // scratch IS validated (unlike Sum/Mean)
 
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
+                                        (int)sizeof(D));
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   avgErrPartialKernel<D, Channels, Relative>
-      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial,
+                                         rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
   avgErrFinalizeKernel<<<1, kBlock, 0, stream>>>(
-      partial, blocks, (double)oSizeROI.width * (double)oSizeROI.height * (double)Channels, pError);
+      partial, rl.blocks, (double)oSizeROI.width * (double)oSizeROI.height * (double)Channels, pError);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }
@@ -1220,16 +1613,17 @@ NppStatus runMaxErrorImpl(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
   if (!pError) return NPP_NULL_POINTER_ERROR;
   if (!pDeviceBuffer) return NPP_NULL_POINTER_ERROR;  // scratch IS validated (unlike Sum/Mean)
 
-  const int area = oSizeROI.width * oSizeROI.height;
-  const int blocks = numBlocks(area);
+  const ReduceLaunch rl = reduceLaunch2(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, Channels,
+                                        (int)sizeof(D));
   double *partial = reinterpret_cast<double *>(pDeviceBuffer);
 
   (void)cudaGetLastError();
   maxErrPartialKernel<D, Channels, Relative>
-      <<<blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial);
+      <<<rl.blocks, kBlock, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI.width, oSizeROI.height, partial,
+                                         rl.vecPath);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
 
-  maxErrFinalizeKernel<<<1, kBlock, 0, stream>>>(partial, blocks, pError);
+  maxErrFinalizeKernel<<<1, kBlock, 0, stream>>>(partial, rl.blocks, pError);
   if (cudaGetLastError() != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_NO_ERROR;
 }

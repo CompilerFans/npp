@@ -1,0 +1,13 @@
+{
+  "family": "nppiIntegral",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_integral_generated.cpp",
+  "includes": ["nppi_integral_executor.h"],
+  "families": ["nppiIntegral", "nppiSqrIntegral"],
+  "call_by_name": {
+    "nppiSqrIntegral_8u32s_C1R_Ctx": "nppi::statistics::runSqrIntegral<Npp8u,Npp32s,Npp32s>(pSrc, nSrcStep, pDst, nDstStep, pSqr, nSqrStep, oSrcROI, nVal, nValSqr, nppStreamCtx.hStream)",
+    "nppiSqrIntegral_8u32s64f_C1R_Ctx": "nppi::statistics::runSqrIntegral<Npp8u,Npp32s,Npp64f>(pSrc, nSrcStep, pDst, nDstStep, pSqr, nSqrStep, oSrcROI, nVal, nValSqr, nppStreamCtx.hStream)",
+    "nppiSqrIntegral_8u32f64f_C1R_Ctx": "nppi::statistics::runSqrIntegral<Npp8u,Npp32f,Npp64f>(pSrc, nSrcStep, pDst, nDstStep, pSqr, nSqrStep, oSrcROI, nVal, nValSqr, nppStreamCtx.hStream)"
+  },
+  "call": "nppi::statistics::runIntegral<{dtype},{dst_dtype}>(pSrc, nSrcStep, pDst, nDstStep, oROI, nVal, nppStreamCtx.hStream)"
+}

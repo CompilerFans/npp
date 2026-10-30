@@ -332,10 +332,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppsCauchyDD2_32f_I_Ctx",
-    "reason": "unknown pointer role pD2FVal"
-  },
-  {
     "function": "nppsCauchyD_32f_I",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },

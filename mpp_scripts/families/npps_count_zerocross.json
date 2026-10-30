@@ -1,0 +1,20 @@
+{
+  "family": "nppsZeroCrossing",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_count_zerocross_generated.cpp",
+  "includes": [
+    "npps_statistics_executor.h"
+  ],
+  "families": [
+    "nppsCountInRange",
+    "nppsCountInRangeGetBufferSize",
+    "nppsZeroCrossing",
+    "nppsZeroCrossingGetBufferSize"
+  ],
+  "call_by_family": {
+    "nppsCountInRange": "npps::statistics::count_in_range(pSrc, nLength, pCounts, nLowerBound, nUpperBound, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsCountInRangeGetBufferSize": "npps::statistics::count_buffer_size(nLength, hpBufferSize)",
+    "nppsZeroCrossing": "npps::statistics::zero_crossing<{dtype}>(pSrc, nLength, pValZC, tZCType, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsZeroCrossingGetBufferSize": "npps::statistics::zc_buffer_size(nLength, hpBufferSize)"
+  }
+}

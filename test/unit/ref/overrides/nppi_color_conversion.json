@@ -1,0 +1,10 @@
+{
+  "arg_overrides": {
+    "nppiCFAToRGB_8u_C1C3R_Ctx": {"eInterpolation": "NPPI_INTER_UNDEFINED"},
+    "nppiCFAToRGB_16u_C1C3R_Ctx": {"eInterpolation": "NPPI_INTER_UNDEFINED"},
+    "nppiCFAToRGB_32u_C1C3R_Ctx": {"eInterpolation": "NPPI_INTER_UNDEFINED"},
+    "nppiCFAToRGBA_8u_C1AC4R_Ctx": {"eInterpolation": "NPPI_INTER_UNDEFINED"},
+    "nppiCFAToRGBA_16u_C1AC4R_Ctx": {"eInterpolation": "NPPI_INTER_UNDEFINED"},
+    "nppiCFAToRGBA_32u_C1AC4R_Ctx": {"eInterpolation": "NPPI_INTER_UNDEFINED"}
+  }
+}

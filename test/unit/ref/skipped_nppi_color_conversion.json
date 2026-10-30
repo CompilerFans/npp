@@ -4,10 +4,6 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiAlphaCompColorKey_8u_AC4R_Ctx",
-    "reason": "unsupported host output array nColorKeyConst"
-  },
-  {
     "function": "nppiBGRToCbYCr422_709HDTV_8u_AC4C2R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
@@ -184,40 +180,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCFAToRGBA_16u_C1AC4R_Ctx",
-    "reason": "unsupported scalar type NppiBayerGridPosition (eGrid)"
-  },
-  {
-    "function": "nppiCFAToRGBA_32u_C1AC4R_Ctx",
-    "reason": "unsupported scalar type NppiBayerGridPosition (eGrid)"
-  },
-  {
     "function": "nppiCFAToRGBA_8u_C1AC4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCFAToRGBA_8u_C1AC4R_Ctx",
-    "reason": "unsupported scalar type NppiBayerGridPosition (eGrid)"
   },
   {
     "function": "nppiCFAToRGB_16u_C1C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCFAToRGB_16u_C1C3R_Ctx",
-    "reason": "unsupported scalar type NppiBayerGridPosition (eGrid)"
-  },
-  {
-    "function": "nppiCFAToRGB_32u_C1C3R_Ctx",
-    "reason": "unsupported scalar type NppiBayerGridPosition (eGrid)"
-  },
-  {
     "function": "nppiCFAToRGB_8u_C1C3R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCFAToRGB_8u_C1C3R_Ctx",
-    "reason": "unsupported scalar type NppiBayerGridPosition (eGrid)"
   },
   {
     "function": "nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R",
@@ -724,16 +696,8 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiCompColorKey_8u_C3R_Ctx",
-    "reason": "unsupported host output array nColorKeyConst"
-  },
-  {
     "function": "nppiCompColorKey_8u_C4R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiCompColorKey_8u_C4R_Ctx",
-    "reason": "unsupported host output array nColorKeyConst"
   },
   {
     "function": "nppiGammaFwd_8u_AC4IR",
@@ -788,32 +752,16 @@
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientColorToGray_16s_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientColorToGray_16u_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientColorToGray_16u_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiGradientColorToGray_32f_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
   },
   {
-    "function": "nppiGradientColorToGray_32f_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
-  },
-  {
     "function": "nppiGradientColorToGray_8u_C3C1R",
     "reason": "non-ctx (NPP 13 removed the ABI)"
-  },
-  {
-    "function": "nppiGradientColorToGray_8u_C3C1R_Ctx",
-    "reason": "unsupported scalar type NppiNorm (eNorm)"
   },
   {
     "function": "nppiHLSToBGR_8u_AC4P4R",
