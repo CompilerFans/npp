@@ -121,9 +121,16 @@ template <typename T> T *zero_arena(std::size_t n) {
 // margins derived from the mask reach; pSrc inset by (ml, mt).
 template <typename T, typename M, typename F>
 void morph_plain_ok(const std::string &fname, const std::string &key, int channels, int W, int H,
-                    const std::vector<M> &mask, NppiSize maskSize, NppiPoint anchor, int pad, F f) {
-  const int ml = anchor.x, mr = maskSize.width - 1 - anchor.x;
-  const int mt = anchor.y, mb = maskSize.height - 1 - anchor.y;
+                    const std::vector<M> &mask, NppiSize maskSize, NppiPoint anchor, int pad, F f,
+                    bool fullMargin = false) {
+  // fullMargin: leave a full mask extent of margin on every side so that reads
+  // within [-mw, W+mw) x [-mh, H+mh) relative to the ROI stay inside the buffer
+  // even for anchors outside the mask box (the kernel's actual read model for
+  // those anchors is what the probe measures).
+  const int ml = fullMargin ? maskSize.width : anchor.x;
+  const int mr = fullMargin ? maskSize.width : maskSize.width - 1 - anchor.x;
+  const int mt = fullMargin ? maskSize.height : anchor.y;
+  const int mb = fullMargin ? maskSize.height : maskSize.height - 1 - anchor.y;
   const int spx = channels * (int)sizeof(T);
   const int bw = W + ml + mr, bh = H + mt + mb;
   const int sStep = align_step(bw * spx, spx);
@@ -967,6 +974,104 @@ TEST_F(NppiMorphDiff, PlainTapMap) {
 #undef TAPD
 }
 
+// ==================== Plain tap map, round 2 ====================
+// Closes the remaining unknowns of the plain masked path:
+//   A. accepted out-of-range anchors (3x3): where do the reads actually go?
+//   B. anchor-validation boundary (which anchors return OUT_OFF_RANGE?)
+//   C. mask-size dispatch map (3x1 vs 4x1, 5x2, 4x4, 5x5, 6-wide) and the
+//      5x5 anomaly (constant-shift reads?), across 8u/16u/32f and C4
+//   D. cy disambiguation for 5x3 (H-3+ax vs H-3+ay) with anchor (3,1)
+//   E. H/W dependence of the wide-mask clamped reads
+//   G. 16u/32f empty-mask identities
+TEST_F(NppiMorphDiff, PlainTapMap2) {
+  auto tap = [](int w, int h, int tx, int ty) {
+    std::vector<Npp8u> m((size_t)w * h, 0);
+    m[(size_t)ty * w + tx] = 1;
+    return m;
+  };
+  auto box = [](int w, int h) { return std::vector<Npp8u>((size_t)w * h, 1); };
+#define TAP2(FN, T, LAY, NAME, W, H, MW, MH, AX, AY, MSK)                                             \
+  morph_plain_ok<T, Npp8u>(#FN "_Ctx", #FN "/" LAY "/C1/" NAME, 1, W, H, MSK, NppiSize{MW, MH},        \
+                           NppiPoint{AX, AY}, 5, FN##_Ctx)
+#define TAP2F(FN, T, LAY, NAME, W, H, MW, MH, AX, AY, MSK)                                            \
+  morph_plain_ok<T, Npp8u>(#FN "_Ctx", #FN "/" LAY "/C1/" NAME, 1, W, H, MSK, NppiSize{MW, MH},        \
+                           NppiPoint{AX, AY}, 5, FN##_Ctx, true)
+  // --- A: out-of-range anchors, single-tap 3x3 masks, full margins ---
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_a31_t11", 11, 9, 3, 3, 3, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_a31_t00", 11, 9, 3, 3, 3, 1, tap(3, 3, 0, 0));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_a31_t22", 11, 9, 3, 3, 3, 1, tap(3, 3, 2, 2));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_a03_t11", 11, 9, 3, 3, 0, 3, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_am11_t11", 11, 9, 3, 3, -1, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_a33_t11", 11, 9, 3, 3, 3, 3, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_a33_t00", 11, 9, 3, 3, 3, 3, tap(3, 3, 0, 0));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "oranchor_am1m1_t11", 11, 9, 3, 3, -1, -1, tap(3, 3, 1, 1));
+  // --- B: anchor-validation boundary pins (3x3 single tap at (1,1)) ---
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a41", 11, 9, 3, 3, 4, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a14", 11, 9, 3, 3, 1, 4, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a51", 11, 9, 3, 3, 5, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a15", 11, 9, 3, 3, 1, 5, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a44", 11, 9, 3, 3, 4, 4, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a40", 11, 9, 3, 3, 4, 0, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a04", 11, 9, 3, 3, 0, 4, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a50", 11, 9, 3, 3, 5, 0, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a05", 11, 9, 3, 3, 0, 5, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a61", 11, 9, 3, 3, 6, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a16", 11, 9, 3, 3, 1, 6, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a25", 11, 9, 3, 3, 2, 5, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a52", 11, 9, 3, 3, 5, 2, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_am21", 11, 9, 3, 3, -2, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a1m2", 11, 9, 3, 3, 1, -2, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_am31", 11, 9, 3, 3, -3, 1, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_a1m3", 11, 9, 3, 3, 1, -3, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_am2m2", 11, 9, 3, 3, -2, -2, tap(3, 3, 1, 1));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_5x5_a66", 11, 9, 5, 5, 6, 6, tap(5, 5, 2, 2));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_5x5_a77", 11, 9, 5, 5, 7, 7, tap(5, 5, 2, 2));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_5x1_a60", 11, 9, 5, 1, 6, 0, tap(5, 1, 2, 0));
+  TAP2F(nppiDilate_8u_C1R, Npp8u, "8u", "val_5x1_a70", 11, 9, 5, 1, 7, 0, tap(5, 1, 2, 0));
+  // --- C: mask-size dispatch map, 5x5 anomaly, dtype coverage ---
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a22_t00", 11, 9, 5, 5, 2, 2, tap(5, 5, 0, 0));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a22_t44", 11, 9, 5, 5, 2, 2, tap(5, 5, 4, 4));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a22_t11", 11, 9, 5, 5, 2, 2, tap(5, 5, 1, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a22_box", 11, 9, 5, 5, 2, 2, box(5, 5));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a11_t22", 11, 9, 5, 5, 1, 1, tap(5, 5, 2, 2));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a33_t22", 11, 9, 5, 5, 3, 3, tap(5, 5, 2, 2));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a44_t22", 11, 9, 5, 5, 4, 4, tap(5, 5, 2, 2));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x5_a00_t22", 11, 9, 5, 5, 0, 0, tap(5, 5, 2, 2));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p4x4_a11_t11", 11, 9, 4, 4, 1, 1, tap(4, 4, 1, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p3x5_a11_t11", 11, 9, 3, 5, 1, 1, tap(3, 5, 1, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p6x3_a21_t31", 11, 9, 6, 3, 2, 1, tap(6, 3, 3, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p6x1_a20_t40", 11, 9, 6, 1, 2, 0, tap(6, 1, 4, 0));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p2x3_a01_t01", 11, 9, 2, 3, 0, 1, tap(2, 3, 0, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x2_a11_t31", 11, 9, 5, 2, 1, 1, tap(5, 2, 3, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p3x1_a10_t20", 11, 9, 3, 1, 1, 0, tap(3, 1, 2, 0));
+  TAP2(nppiDilate_32f_C1R, Npp32f, "32f", "p5x5f_a22_t00", 11, 9, 5, 5, 2, 2, tap(5, 5, 0, 0));
+  TAP2(nppiDilate_32f_C1R, Npp32f, "32f", "p5x5f_a11_t22", 11, 9, 5, 5, 1, 1, tap(5, 5, 2, 2));
+  TAP2(nppiDilate_16u_C1R, Npp16u, "16u", "p5x5_a22_t00", 11, 9, 5, 5, 2, 2, tap(5, 5, 0, 0));
+  TAP2(nppiDilate_16u_C1R, Npp16u, "16u", "p5x3_a11_t31", 11, 9, 5, 3, 1, 1, tap(5, 3, 3, 1));
+  // --- D: cy for 5x3 with anchor (3,1): H-3+ax=9 vs H-3+ay=7 ---
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x3_a31_t31", 11, 9, 5, 3, 3, 1, tap(5, 3, 3, 1));
+  // --- E: H/W dependence of the wide-mask clamps ---
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x1h7_a20_t40", 11, 7, 5, 1, 2, 0, tap(5, 1, 4, 0));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x1h11_a20_t40", 11, 11, 5, 1, 2, 0, tap(5, 1, 4, 0));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x3h7_a11_t31", 11, 7, 5, 3, 1, 1, tap(5, 3, 3, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x3h11_a11_t31", 11, 11, 5, 3, 1, 1, tap(5, 3, 3, 1));
+  TAP2(nppiDilate_8u_C1R, Npp8u, "8u", "p5x3w7_a11_t41", 7, 9, 5, 3, 1, 1, tap(5, 3, 4, 1));
+  // --- F: dtype coverage of the 1-row wide path ---
+  TAP2(nppiDilate_32f_C1R, Npp32f, "32f", "p5x1f_a20_t40", 11, 9, 5, 1, 2, 0, tap(5, 1, 4, 0));
+  // 8u C4 5x5 sample (per-channel behaviour of the 5x5 path)
+  morph_plain_ok<Npp8u, Npp8u>("nppiDilate_8u_C4R_Ctx", "nppiDilate/8u/C4/p5x5_a22_t22", 4, 11, 9, tap(5, 5, 2, 2),
+                               NppiSize{5, 5}, NppiPoint{2, 2}, 5, nppiDilate_8u_C4R_Ctx);
+  // --- G: 16u/32f empty-mask identities ---
+  morph_plain_ok<Npp16u, Npp8u>("nppiDilate_16u_C1R_Ctx", "nppiDilate/16u/C1/maskzero", 1, 9, 9, maskZero3(),
+                                NppiSize{3, 3}, NppiPoint{1, 1}, 3, nppiDilate_16u_C1R_Ctx);
+  morph_plain_ok<Npp16u, Npp8u>("nppiErode_16u_C1R_Ctx", "nppiErode/16u/C1/maskzero", 1, 9, 9, maskZero3(),
+                                NppiSize{3, 3}, NppiPoint{1, 1}, 3, nppiErode_16u_C1R_Ctx);
+  morph_plain_ok<Npp32f, Npp8u>("nppiErode_32f_C1R_Ctx", "nppiErode/32f/C1/maskzero", 1, 9, 9, maskZero3(),
+                                NppiSize{3, 3}, NppiPoint{1, 1}, 3, nppiErode_32f_C1R_Ctx);
+#undef TAP2
+#undef TAP2F
+}
+
 // ==================== Dilate3x3 / Erode3x3 (plain) ====================
 TEST_F(NppiMorphDiff, Dilate3x3) { PLAIN3x3_MATRIX(nppiDilate3x3); }
 TEST_F(NppiMorphDiff, Erode3x3) { PLAIN3x3_MATRIX(nppiErode3x3); }
@@ -1363,6 +1468,36 @@ TEST_F(NppiMorphProbeDiff, DegenerateOutputComposite) {
                                                               dev_mask(maskZero3()), NppiSize{3, 3},
                                                               NppiPoint{1, 1}, buf, NPP_BORDER_REPLICATE, ctx);
                   });
+}
+
+// Empty-mask identities of the composite ops for the remaining dtypes
+// (16s signed, 32f float, 16u): Open/Close collapse to the dilate/erode
+// empty-mask identities of the two stages and TopHat/BlackHat/Gradient expose
+// the exact residual arithmetic per dtype.
+TEST_F(NppiMorphProbeDiff, DegenerateOutputComposite2) {
+  NppStreamContext ctx = current_ctx();
+  const NppiSize roi{9, 9};
+  const NppiSize sz{24, 24};
+  const NppiPoint off{8, 8};
+  Npp8u *buf = zero_arena<Npp8u>(65536);
+#define CE(FN, T, DT)                                                                                 \
+  probe_ok<T>(#FN "_" #DT "_C1R_Ctx", #FN "/out/maskzero_" #DT "_C1R_Ctx", 1, 48, 48, 8, 8,           \
+              [&](const T *ps, int st, T *pd, int dt) {                                               \
+                return FN##_##DT##_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(maskZero3()),       \
+                                            NppiSize{3, 3}, NppiPoint{1, 1}, buf, NPP_BORDER_REPLICATE, ctx); \
+              })
+  CE(nppiMorphOpenBorder, Npp16s, 16s);
+  CE(nppiMorphCloseBorder, Npp16s, 16s);
+  CE(nppiMorphGradientBorder, Npp16s, 16s);
+  CE(nppiMorphTopHatBorder, Npp16s, 16s);
+  CE(nppiMorphBlackHatBorder, Npp16s, 16s);
+  CE(nppiMorphOpenBorder, Npp32f, 32f);
+  CE(nppiMorphCloseBorder, Npp32f, 32f);
+  CE(nppiMorphGradientBorder, Npp32f, 32f);
+  CE(nppiMorphTopHatBorder, Npp32f, 32f);
+  CE(nppiMorphBlackHatBorder, Npp32f, 32f);
+  CE(nppiMorphOpenBorder, Npp16u, 16u);
+#undef CE
 }
 
 // ===========================================================================
