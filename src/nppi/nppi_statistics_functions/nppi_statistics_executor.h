@@ -220,9 +220,9 @@ NppStatus normRelL1GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus normRelL2GetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus normRelInfGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
 NppStatus dotProdGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
-NppStatus fullNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
-NppStatus sameNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
-NppStatus validNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize);
+NppStatus fullNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize, int nChannels);
+NppStatus sameNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize, int nChannels);
+NppStatus validNormLevelGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize, int nChannels);
 
 // ---------------------------------------------------------------------------
 // AverageError / AverageRelativeError (package p1.3c)

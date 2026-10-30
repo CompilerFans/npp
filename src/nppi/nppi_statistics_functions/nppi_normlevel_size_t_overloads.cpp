@@ -17,6 +17,7 @@ inline NppStatus store_size(int value, size_t *out) {
 
 NppStatus nppiFullNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                           NppStreamContext nppStreamCtx) {
+  if (hpBufferSize == nullptr) return NPP_NULL_POINTER_ERROR;
   int value = 0;
   NppStatus st = nppiFullNormLevelGetBufferHostSize_32f_AC4R_Ctx(oSizeROI, &value, nppStreamCtx);
   return st == NPP_NO_ERROR ? store_size(value, hpBufferSize) : st;
@@ -24,6 +25,7 @@ NppStatus nppiFullNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize oSizeROI, siz
 
 NppStatus nppiSameNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                           NppStreamContext nppStreamCtx) {
+  if (hpBufferSize == nullptr) return NPP_NULL_POINTER_ERROR;
   int value = 0;
   NppStatus st = nppiSameNormLevelGetBufferHostSize_32f_AC4R_Ctx(oSizeROI, &value, nppStreamCtx);
   return st == NPP_NO_ERROR ? store_size(value, hpBufferSize) : st;
@@ -31,6 +33,7 @@ NppStatus nppiSameNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize oSizeROI, siz
 
 NppStatus nppiValidNormLevelGetBufferHostSize_32f_AC4R_Ctx(NppiSize oSizeROI, size_t *hpBufferSize,
                                                            NppStreamContext nppStreamCtx) {
+  if (hpBufferSize == nullptr) return NPP_NULL_POINTER_ERROR;
   int value = 0;
   NppStatus st = nppiValidNormLevelGetBufferHostSize_32f_AC4R_Ctx(oSizeROI, &value, nppStreamCtx);
   return st == NPP_NO_ERROR ? store_size(value, hpBufferSize) : st;
