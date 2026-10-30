@@ -246,10 +246,13 @@ void morph3x3_border_ok(const std::string &fname, const std::string &key, int ch
 
 // Composite morphology (Open/Close/Gradient/TopHat/BlackHat): the scratch
 // buffer is sized through `gbs` and its size is recorded as its own golden.
+// `extraRows` appends allocation rows below the declared image so the raw
+// source reads that TopHat/BlackHat/Gradient perform beyond the image (when
+// offset + ROI overhangs srcSize) stay inside the recorded allocation.
 template <typename T, typename F, typename G>
 void morph_composite_ok(const std::string &fname, const std::string &key, int channels, int srcW, int srcH, int offX,
                         int offY, int W, int H, const std::vector<Npp8u> &mask, NppiSize maskSize, NppiPoint anchor,
-                        int pad, F f, G gbs) {
+                        int pad, F f, G gbs, int extraRows = 0) {
   int nbytes = 0;
   clear_cuda_error();
   NppStatus gs = gbs(NppiSize{W, H}, &nbytes);
@@ -265,7 +268,7 @@ void morph_composite_ok(const std::string &fname, const std::string &key, int ch
   const int dpx = channels * (int)sizeof(T);
   const int dAlign = channels == 4 ? dpx : (int)sizeof(T);
   const int dStep = align_step(W * dpx + pad, dAlign);
-  const size_t se = (size_t)srcH * sStep / sizeof(T);
+  const size_t se = (size_t)(srcH + extraRows) * sStep / sizeof(T);
   const size_t de = (size_t)H * dStep / sizeof(T);
   const uint64_t seed = seed_of(key);
   std::vector<T> hs = make_uniform<T>(se, seed + 11);
@@ -288,6 +291,84 @@ void morph_composite_ok(const std::string &fname, const std::string &key, int ch
   c.input(mask.data(), mask.size() * sizeof(Npp8u));
   c.status(st);
   c.device_output<T>(d.get(), de, kind_of<T>(), 1e-6, 1e-6);
+  c.finish();
+}
+
+// Composite morphology with a crafted (non-random) source pattern, C1 only.
+// `pattern(x, y)` returns the value at allocation element (x, y); x indexes
+// the full row stride in elements, so row padding is crafted too.  Used to
+// place exact max/min patterns that force the subtraction stages of
+// TopHat/BlackHat/Gradient negative, pinning the saturation semantics per
+// dtype.
+template <typename T, typename P, typename F, typename G>
+void morph_composite_crafted_ok(const std::string &fname, const std::string &key, int srcW, int srcH, int offX,
+                                int offY, int W, int H, const std::vector<Npp8u> &mask, NppiSize maskSize,
+                                NppiPoint anchor, int pad, P pattern, F f, G gbs, int extraRows = 0) {
+  int nbytes = 0;
+  clear_cuda_error();
+  NppStatus gs = gbs(NppiSize{W, H}, &nbytes);
+  {
+    Case c("nppiMorphGetBufferSize/bufsize/" + key, fname);
+    c.status(gs);
+    c.host_output<int>(&nbytes, 1, ValueKind::I32);
+    c.finish();
+  }
+  ASSERT_GT(nbytes, 0) << key << ": buffer size must be positive";
+  const int sStep = align_step(srcW * (int)sizeof(T) + pad, (int)sizeof(T));
+  const int dStep = align_step(W * (int)sizeof(T) + pad, (int)sizeof(T));
+  const size_t se = (size_t)(srcH + extraRows) * sStep / sizeof(T);
+  const size_t de = (size_t)H * dStep / sizeof(T);
+  const uint64_t seed = seed_of(key);
+  std::vector<T> hs(se);
+  const int strideE = sStep / (int)sizeof(T);
+  for (size_t i = 0; i < se; ++i)
+    hs[i] = pattern((int)(i % (size_t)strideE), (int)(i / (size_t)strideE));
+  std::vector<T> hd = make_uniform<T>(de, seed + 29);
+  DeviceMemory<T> &s = arena<T>(se);
+  DeviceMemory<T> &d = arena<T>(de);
+  DeviceMemory<Npp8u> &buf = arena<Npp8u>((size_t)nbytes);
+  s.copyFromHost(hs);
+  d.copyFromHost(hd);
+  std::vector<Npp8u> zb((size_t)nbytes, 0);
+  buf.copyFromHost(zb);
+  const Npp8u *pMask = dev_mask(mask);
+  const T *pSrc = s.get() + (size_t)offY * strideE + (size_t)offX;
+  clear_cuda_error();
+  NppStatus st = f(pSrc, sStep, NppiSize{srcW, srcH}, NppiPoint{offX, offY}, d.get(), dStep, NppiSize{W, H}, pMask,
+                   maskSize, anchor, buf.get(), NPP_BORDER_REPLICATE, current_ctx());
+  Case c(key, fname);
+  c.input(hs.data(), hs.size() * sizeof(T));
+  c.input(hd.data(), hd.size() * sizeof(T));
+  c.input(mask.data(), mask.size() * sizeof(Npp8u));
+  c.status(st);
+  c.device_output<T>(d.get(), de, kind_of<T>(), 1e-6, 1e-6);
+  c.finish();
+}
+
+// Output-capturing validation probe: uniform-random 48x48-element buffers are
+// recorded, pSrc is inset by (insetX, insetY) pixels and the call runs with
+// degenerate arguments.  Generous margins keep even unvalidated reads inside
+// the allocation, so accepted degenerate calls produce decodable goldens.
+template <typename T, typename F>
+void probe_ok(const std::string &fname, const std::string &key, int channels, int bufW, int bufH, int insetX,
+              int insetY, F f) {
+  const int step = bufW * channels * (int)sizeof(T);
+  const size_t se = (size_t)bufH * bufW * channels;
+  const uint64_t seed = seed_of(key);
+  std::vector<T> hs = make_uniform<T>(se, seed + 11);
+  std::vector<T> hd = make_uniform<T>(se, seed + 29);
+  DeviceMemory<T> &s = arena<T>(se);
+  DeviceMemory<T> &d = arena<T>(se);
+  s.copyFromHost(hs);
+  d.copyFromHost(hd);
+  const T *pSrc = s.get() + (size_t)insetY * bufW * channels + (size_t)insetX * channels;
+  clear_cuda_error();
+  NppStatus st = f(pSrc, step, d.get(), step);
+  Case c(key, fname);
+  c.input(hs.data(), hs.size() * sizeof(T));
+  c.input(hd.data(), hd.size() * sizeof(T));
+  c.status(st);
+  c.device_output<T>(d.get(), se, kind_of<T>(), 1e-6, 1e-6);
   c.finish();
 }
 
@@ -366,6 +447,17 @@ void plain_errors(const std::string &fam, const std::string &suffix, int channel
               [&] { return f(s, 16, d, 4 * dpx - 1, roi, m, ms, an, ctx); });
   if (dAlign > 1)
     only_status(fn, id + "stepodd" + suffix, [&] { return f(s, 16, d, 4 * dpx + 1, roi, m, ms, an, ctx); });
+  // Precedence pins across argument groups.
+  only_status(fn, id + "nullmask_negroi" + suffix,
+              [&] { return f(s, 16, d, 16, NppiSize{4, -1}, nullptr, ms, an, ctx); });
+  only_status(fn, id + "nullmask_stepsmall" + suffix,
+              [&] { return f(s, 16, d, 4 * dpx - 1, roi, nullptr, ms, an, ctx); });
+  only_status(fn, id + "maskneg_stepsmall" + suffix,
+              [&] { return f(s, 16, d, 4 * dpx - 1, roi, m, NppiSize{-1, 3}, an, ctx); });
+  only_status(fn, id + "negroi_maskneg" + suffix,
+              [&] { return f(s, 16, d, 16, NppiSize{4, -1}, m, NppiSize{-1, 3}, an, ctx); });
+  only_status(fn, id + "nullsrc_stepsmall" + suffix,
+              [&] { return f(nullptr, 16, d, 4 * dpx - 1, roi, m, ms, an, ctx); });
 }
 
 // Plain 3x3 variants (safe probes).
@@ -440,6 +532,12 @@ void border_mask_errors(const std::string &fam, const std::string &suffix, int c
               [&] { return f(s, 16, sz, off, d, 16, NppiSize{0, 0}, m, ms, an, bad, ctx); });
   only_status(fn, id + "zroi_badstep" + suffix,
               [&] { return f(s, 16, sz, off, d, 3, NppiSize{0, 0}, m, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{9, 0}, d, 16, roi, m, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt2" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{0, 9}, d, 16, roi, m, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "badborder_stepsmall" + suffix,
+              [&] { return f(s, 16, sz, off, d, 4 * dpx - 1, roi, m, ms, an, bad, ctx); });
 }
 
 // Border 3x3 variants (safe probes).
@@ -477,6 +575,10 @@ void border3x3_errors(const std::string &fam, const std::string &suffix, int cha
               [&] { return f(s, 16, sz, off, d, 16, NppiSize{4, -1}, bad, ctx); });
   only_status(fn, id + "zroi_badstep" + suffix,
               [&] { return f(s, 16, sz, off, d, 3, NppiSize{0, 0}, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{9, 0}, d, 16, roi, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt2" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{0, 9}, d, 16, roi, NPP_BORDER_REPLICATE, ctx); });
 }
 
 // Composite morphology (safe probes; scratch buffer is a real allocation).
@@ -517,6 +619,20 @@ void composite_errors(const std::string &fam, const std::string &suffix, int cha
               [&] { return f(s, 16, sz, off, d, 16, NppiSize{4, -1}, m, ms, an, buf, bad, ctx); });
   only_status(fn, id + "zroi_badstep" + suffix,
               [&] { return f(s, 16, sz, off, d, 3, NppiSize{0, 0}, m, ms, an, buf, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "nullmask" + suffix,
+              [&] { return f(s, 16, sz, off, d, 16, roi, nullptr, ms, an, buf, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "nullbuf" + suffix,
+              [&] { return f(s, 16, sz, off, d, 16, roi, m, ms, an, nullptr, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{9, 0}, d, 16, roi, m, ms, an, buf, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt2" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{0, 9}, d, 16, roi, m, ms, an, buf, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "nullbuf_badborder" + suffix,
+              [&] { return f(s, 16, sz, off, d, 16, roi, m, ms, an, nullptr, bad, ctx); });
+  only_status(fn, id + "nullbuf_offneg" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{-1, 0}, d, 16, roi, m, ms, an, nullptr, bad, ctx); });
+  only_status(fn, id + "nullbuf_negroi" + suffix,
+              [&] { return f(s, 16, sz, off, d, 16, NppiSize{4, -1}, m, ms, an, nullptr, NPP_BORDER_REPLICATE, ctx); });
 }
 
 // Gray dilate/erode (safe probes).
@@ -554,6 +670,14 @@ void gray_errors(const std::string &fam, const std::string &suffix, T *s, T *d, 
               [&] { return f(s, 16, sz, off, d, 16, NppiSize{4, -1}, m, ms, an, bad, ctx); });
   only_status(fn, id + "zroi_badstep" + suffix,
               [&] { return f(s, 16, sz, off, d, 3, NppiSize{0, 0}, m, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "nullmask" + suffix,
+              [&] { return f(s, 16, sz, off, d, 16, roi, nullptr, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{9, 0}, d, 16, roi, m, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "offgt2" + suffix,
+              [&] { return f(s, 16, sz, NppiPoint{0, 9}, d, 16, roi, m, ms, an, NPP_BORDER_REPLICATE, ctx); });
+  only_status(fn, id + "nullmask_negroi" + suffix,
+              [&] { return f(s, 16, sz, off, d, 16, NppiSize{4, -1}, nullptr, ms, an, NPP_BORDER_REPLICATE, ctx); });
 }
 
 // Buffer-size helper errors.
@@ -752,7 +876,10 @@ template <typename F> void gbs_errors(const std::string &fam, const std::string 
                               nppiMorphGetBufferSize_8u_C1R);                                         \
     morph_composite_ok<Npp8u>(#FAM "_8u_C1R_Ctx", #FAM "/8u/C1/overhang", 1, 13, 13, 10, 10, 5, 5,    \
                               maskBox3(), NppiSize{3, 3}, NppiPoint{1, 1}, 3, FAM##_8u_C1R_Ctx,       \
-                              nppiMorphGetBufferSize_8u_C1R);                                         \
+                              nppiMorphGetBufferSize_8u_C1R, 2);                                      \
+    morph_composite_ok<Npp32f>(#FAM "_32f_C1R_Ctx", #FAM "/32f/C1/overhang", 1, 13, 13, 10, 10, 5, 5, \
+                               maskBox3(), NppiSize{3, 3}, NppiPoint{1, 1}, 8, FAM##_32f_C1R_Ctx,    \
+                               nppiMorphGetBufferSize_32f_C1R, 2);                                   \
     morph_composite_ok<Npp8u>(#FAM "_8u_C1R_Ctx", #FAM "/8u/C1/cross3", 1, 13, 13, 2, 3, 9, 9,        \
                               maskCross3(), NppiSize{3, 3}, NppiPoint{1, 1}, 3, FAM##_8u_C1R_Ctx,     \
                               nppiMorphGetBufferSize_8u_C1R);                                         \
@@ -778,6 +905,68 @@ protected:
 TEST_F(NppiMorphDiff, Dilate) { PLAIN_MATRIX(nppiDilate); }
 TEST_F(NppiMorphDiff, Erode) { PLAIN_MATRIX(nppiErode); }
 
+// ==================== Plain tap map ====================
+// Single-tap structuring elements at every window position of wide masks
+// (5x3, 5x5, 4x1, 5x1) with various anchors.  A single tap is a shifted copy,
+// so the golden directly maps which source offset each output pixel actually
+// read - this pins down the position-dependent tap-set behaviour that the
+// random-data 5-wide cases expose.  The 3x3 tap is the known-good control.
+TEST_F(NppiMorphDiff, PlainTapMap) {
+  auto tap = [](int w, int h, int tx, int ty) {
+    std::vector<Npp8u> m((size_t)w * h, 0);
+    m[(size_t)ty * w + tx] = 1;
+    return m;
+  };
+  auto box = [](int w, int h) { return std::vector<Npp8u>((size_t)w * h, 1); };
+  auto taps2 = [](int w, int h, int t1x, int t1y, int t2x, int t2y) {
+    std::vector<Npp8u> m((size_t)w * h, 0);
+    m[(size_t)t1y * w + t1x] = 1;
+    m[(size_t)t2y * w + t2x] = 1;
+    return m;
+  };
+#define TAPD(FN, T, LAY, NAME, W, H, MW, MH, AX, AY, MSK)                                             \
+  morph_plain_ok<T, Npp8u>(#FN "_Ctx", #FN "/" LAY "/C1/" NAME, 1, W, H, MSK, NppiSize{MW, MH},        \
+                           NppiPoint{AX, AY}, 5, FN##_Ctx)
+  // 8u C1 dilate, ROI 11x9
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a00t00", 11, 9, 5, 3, 0, 0, tap(5, 3, 0, 0));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a00t40", 11, 9, 5, 3, 0, 0, tap(5, 3, 4, 0));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a00t02", 11, 9, 5, 3, 0, 0, tap(5, 3, 0, 2));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a11t21", 11, 9, 5, 3, 1, 1, tap(5, 3, 2, 1));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a11t42", 11, 9, 5, 3, 1, 1, tap(5, 3, 4, 2));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a11t02", 11, 9, 5, 3, 1, 1, tap(5, 3, 0, 2));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x3a42t42", 11, 9, 5, 3, 4, 2, tap(5, 3, 4, 2));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x5a22t22", 11, 9, 5, 5, 2, 2, tap(5, 5, 2, 2));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x5a44t44", 11, 9, 5, 5, 4, 4, tap(5, 5, 4, 4));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x5a00t00", 11, 9, 5, 5, 0, 0, tap(5, 5, 0, 0));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap4x1a10t30", 11, 9, 4, 1, 1, 0, tap(4, 1, 3, 0));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap5x1a20t40", 11, 9, 5, 1, 2, 0, tap(5, 1, 4, 0));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap3x3a11t00", 11, 9, 3, 3, 1, 1, tap(3, 3, 0, 0));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "tap2x5x3a11", 11, 9, 5, 3, 1, 1, taps2(5, 3, 0, 0, 4, 2));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "box5x3a11", 11, 9, 5, 3, 1, 1, box(5, 3));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "box5x3a21", 11, 9, 5, 3, 2, 1, box(5, 3));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "box4x1a10", 11, 9, 4, 1, 1, 0, box(4, 1));
+  TAPD(nppiDilate_8u_C1R, Npp8u, "8u", "box5x1a20", 11, 9, 5, 1, 2, 0, box(5, 1));
+  // 8u C1 dilate, larger ROI for the asymmetric 5x3 pattern
+  morph_plain_ok<Npp8u, Npp8u>("nppiDilate_8u_C1R_Ctx", "nppiDilate/8u/C1/m5x3big", 1, 13, 11, mask5x3(),
+                               NppiSize{5, 3}, NppiPoint{1, 1}, 5, nppiDilate_8u_C1R_Ctx);
+  // 8u C1 erode counterparts
+  TAPD(nppiErode_8u_C1R, Npp8u, "8u", "tap5x3a11t42", 11, 9, 5, 3, 1, 1, tap(5, 3, 4, 2));
+  TAPD(nppiErode_8u_C1R, Npp8u, "8u", "box5x3a11", 11, 9, 5, 3, 1, 1, box(5, 3));
+  TAPD(nppiErode_8u_C1R, Npp8u, "8u", "tap4x1a10t30", 11, 9, 4, 1, 1, 0, tap(4, 1, 3, 0));
+  TAPD(nppiErode_8u_C1R, Npp8u, "8u", "tap3x3a11t00", 11, 9, 3, 3, 1, 1, tap(3, 3, 0, 0));
+  // 32f C1 (separate kernel path)
+  TAPD(nppiDilate_32f_C1R, Npp32f, "32f", "tap5x3a11t42", 11, 9, 5, 3, 1, 1, tap(5, 3, 4, 2));
+  TAPD(nppiDilate_32f_C1R, Npp32f, "32f", "box5x3a11", 11, 9, 5, 3, 1, 1, box(5, 3));
+  TAPD(nppiDilate_32f_C1R, Npp32f, "32f", "tap5x5a22t22", 11, 9, 5, 5, 2, 2, tap(5, 5, 2, 2));
+  TAPD(nppiErode_32f_C1R, Npp32f, "32f", "tap5x3a11t42", 11, 9, 5, 3, 1, 1, tap(5, 3, 4, 2));
+  // 8u C4 (per-channel path, 4 pixels-wide rows)
+  morph_plain_ok<Npp8u, Npp8u>("nppiDilate_8u_C4R_Ctx", "nppiDilate/8u/C4/tap5x3a11t42", 4, 11, 9, tap(5, 3, 4, 2),
+                               NppiSize{5, 3}, NppiPoint{1, 1}, 5, nppiDilate_8u_C4R_Ctx);
+  morph_plain_ok<Npp8u, Npp8u>("nppiDilate_8u_C4R_Ctx", "nppiDilate/8u/C4/box5x3a11", 4, 11, 9, box(5, 3),
+                               NppiSize{5, 3}, NppiPoint{1, 1}, 5, nppiDilate_8u_C4R_Ctx);
+#undef TAPD
+}
+
 // ==================== Dilate3x3 / Erode3x3 (plain) ====================
 TEST_F(NppiMorphDiff, Dilate3x3) { PLAIN3x3_MATRIX(nppiDilate3x3); }
 TEST_F(NppiMorphDiff, Erode3x3) { PLAIN3x3_MATRIX(nppiErode3x3); }
@@ -796,6 +985,47 @@ TEST_F(NppiMorphDiff, MorphCloseBorder) { COMPOSITE_MATRIX(nppiMorphCloseBorder)
 TEST_F(NppiMorphDiff, MorphGradientBorder) { COMPOSITE_MATRIX(nppiMorphGradientBorder); }
 TEST_F(NppiMorphDiff, MorphTopHatBorder) { COMPOSITE_MATRIX(nppiMorphTopHatBorder); }
 TEST_F(NppiMorphDiff, MorphBlackHatBorder) { COMPOSITE_MATRIX(nppiMorphBlackHatBorder); }
+
+// ==================== Composite saturation semantics ====================
+// Period-3 stripes [A, B, C] over the whole source allocation with a 5x1
+// single-tap mask (tap (3,0), anchor (1,0)): every composite stage shifts by
+// +2 columns, so Open/Close read src(x+4) while the residual stages read
+// src(x), forcing TopHat/BlackHat/Gradient negative at a third of the
+// columns.  The goldens pin the saturation behaviour per dtype (clamp at 0
+// vs wraparound) and, for 16s, whether the residual is signed-saturating.
+TEST_F(NppiMorphDiff, CompositeSaturation) {
+  const std::vector<Npp8u> m{0, 0, 0, 1, 0};
+  const NppiSize ms{5, 1};
+  const NppiPoint an{1, 0};
+#define SAT(FN, T, SUF, GBS, PAT)                                                                     \
+  morph_composite_crafted_ok<T>(#FN "_Ctx", #FN "/" SUF "/C1/stripes", 15, 7, 3, 2, 9, 5, m, ms, an,  \
+                                8, PAT, FN##_Ctx, GBS)
+  auto p8 = [](int x, int) { return (Npp8u)(x % 3 == 0 ? 255 : 0); };
+  auto p16u = [](int x, int) { return (Npp16u)(x % 3 == 0 ? 65535 : 0); };
+  auto p16s = [](int x, int) { return (Npp16s)(x % 3 == 0 ? 32767 : (x % 3 == 1 ? -32768 : 0)); };
+  auto p32f = [](int x, int) { return (Npp32f)(x % 3 == 0 ? 1.5 : (x % 3 == 1 ? -2.25 : 0.5)); };
+  SAT(nppiMorphOpenBorder_8u_C1R, Npp8u, "8u", nppiMorphGetBufferSize_8u_C1R, p8);
+  SAT(nppiMorphCloseBorder_8u_C1R, Npp8u, "8u", nppiMorphGetBufferSize_8u_C1R, p8);
+  SAT(nppiMorphGradientBorder_8u_C1R, Npp8u, "8u", nppiMorphGetBufferSize_8u_C1R, p8);
+  SAT(nppiMorphTopHatBorder_8u_C1R, Npp8u, "8u", nppiMorphGetBufferSize_8u_C1R, p8);
+  SAT(nppiMorphBlackHatBorder_8u_C1R, Npp8u, "8u", nppiMorphGetBufferSize_8u_C1R, p8);
+  SAT(nppiMorphOpenBorder_16s_C1R, Npp16s, "16s", nppiMorphGetBufferSize_16s_C1R, p16s);
+  SAT(nppiMorphCloseBorder_16s_C1R, Npp16s, "16s", nppiMorphGetBufferSize_16s_C1R, p16s);
+  SAT(nppiMorphGradientBorder_16s_C1R, Npp16s, "16s", nppiMorphGetBufferSize_16s_C1R, p16s);
+  SAT(nppiMorphTopHatBorder_16s_C1R, Npp16s, "16s", nppiMorphGetBufferSize_16s_C1R, p16s);
+  SAT(nppiMorphBlackHatBorder_16s_C1R, Npp16s, "16s", nppiMorphGetBufferSize_16s_C1R, p16s);
+  SAT(nppiMorphOpenBorder_16u_C1R, Npp16u, "16u", nppiMorphGetBufferSize_16u_C1R, p16u);
+  SAT(nppiMorphCloseBorder_16u_C1R, Npp16u, "16u", nppiMorphGetBufferSize_16u_C1R, p16u);
+  SAT(nppiMorphGradientBorder_16u_C1R, Npp16u, "16u", nppiMorphGetBufferSize_16u_C1R, p16u);
+  SAT(nppiMorphTopHatBorder_16u_C1R, Npp16u, "16u", nppiMorphGetBufferSize_16u_C1R, p16u);
+  SAT(nppiMorphBlackHatBorder_16u_C1R, Npp16u, "16u", nppiMorphGetBufferSize_16u_C1R, p16u);
+  SAT(nppiMorphOpenBorder_32f_C1R, Npp32f, "32f", nppiMorphGetBufferSize_32f_C1R, p32f);
+  SAT(nppiMorphCloseBorder_32f_C1R, Npp32f, "32f", nppiMorphGetBufferSize_32f_C1R, p32f);
+  SAT(nppiMorphGradientBorder_32f_C1R, Npp32f, "32f", nppiMorphGetBufferSize_32f_C1R, p32f);
+  SAT(nppiMorphTopHatBorder_32f_C1R, Npp32f, "32f", nppiMorphGetBufferSize_32f_C1R, p32f);
+  SAT(nppiMorphBlackHatBorder_32f_C1R, Npp32f, "32f", nppiMorphGetBufferSize_32f_C1R, p32f);
+#undef SAT
+}
 
 // ==================== Gray dilate / erode (signed mask) ====================
 TEST_F(NppiMorphDiff, GrayDilateBorder) {
@@ -990,6 +1220,149 @@ TEST_F(NppiMorphProbeDiff, CompositeDegenerate) {
               [&] { return nppiMorphOpenBorder_8u_C1R_Ctx(s, step, sz, off, d, step, roi, m, ms, NppiPoint{3, 1}, buf, NPP_BORDER_REPLICATE, ctx); });
   only_status("nppiMorphCloseBorder_8u_C1R_Ctx", "nppiMorphCloseBorder/probe/nullbuf_8u_C1R_Ctx",
               [&] { return nppiMorphCloseBorder_8u_C1R_Ctx(s, step, sz, off, d, step, roi, m, ms, NppiPoint{1, 1}, nullptr, NPP_BORDER_REPLICATE, ctx); });
+}
+
+// ===========================================================================
+// Output-capturing degenerate probes: unlike the only_status probes above,
+// the buffers are uniform random and recorded, so a degenerate call that
+// NVIDIA accepts produces a decodable golden (what does a 0x0 or all-zero
+// mask compute? does an out-of-range anchor shift the window or is it
+// ignored?).  Buffers are 48x48 elements with pSrc inset by (8, 8) pixels;
+// every plausible read stays inside the allocation even for unvalidated
+// anchors.
+// ===========================================================================
+TEST_F(NppiMorphProbeDiff, DegenerateOutputPlain) {
+  NppStreamContext ctx = current_ctx();
+  const NppiSize roi{9, 9};
+  const std::string fn = "nppiDilate_8u_C1R_Ctx";
+  const std::string id = "nppiDilate/out/";
+#define POK(NAME, MW, MH, AX, AY, MSK)                                                                \
+  probe_ok<Npp8u>(fn, id + NAME, 1, 48, 48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {   \
+    return nppiDilate_8u_C1R_Ctx(ps, st, pd, dt, roi, dev_mask(MSK), NppiSize{MW, MH},                \
+                                 NppiPoint{AX, AY}, ctx);                                             \
+  })
+  POK("masksize0_8u_C1R_Ctx", 0, 0, 0, 0, maskZero3());
+  POK("maskzero_8u_C1R_Ctx", 3, 3, 1, 1, maskZero3());
+  POK("mask1x0_8u_C1R_Ctx", 1, 0, 0, 0, maskOne1());
+  POK("mask0x1_8u_C1R_Ctx", 0, 1, 0, 0, maskOne1());
+  POK("mask1x1zero_8u_C1R_Ctx", 1, 1, 0, 0, maskZero3());
+  POK("mask1x1one_8u_C1R_Ctx", 1, 1, 0, 0, maskOne1());
+  POK("anchorout_8u_C1R_Ctx", 3, 3, 3, 1, maskBox3());
+  POK("anchorout2_8u_C1R_Ctx", 3, 3, 0, 3, maskBox3());
+  POK("anchorneg_8u_C1R_Ctx", 3, 3, -1, 1, maskBox3());
+  POK("anchoreq_8u_C1R_Ctx", 3, 3, 3, 3, maskBox3());
+  POK("anchorbig_8u_C1R_Ctx", 3, 3, 5, 5, maskBox3());
+  POK("ctrl2x2_8u_C1R_Ctx", 2, 2, 1, 1, (std::vector<Npp8u>{1, 1, 1, 1}));
+#undef POK
+  probe_ok<Npp8u>("nppiErode_8u_C1R_Ctx", "nppiErode/out/maskzero_8u_C1R_Ctx", 1, 48, 48, 8, 8,
+                  [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiErode_8u_C1R_Ctx(ps, st, pd, dt, roi, dev_mask(maskZero3()), NppiSize{3, 3},
+                                                NppiPoint{1, 1}, ctx);
+                  });
+  probe_ok<Npp8u>("nppiErode_8u_C1R_Ctx", "nppiErode/out/mask1x1zero_8u_C1R_Ctx", 1, 48, 48, 8, 8,
+                  [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiErode_8u_C1R_Ctx(ps, st, pd, dt, roi, dev_mask(maskZero3()), NppiSize{1, 1},
+                                                NppiPoint{0, 0}, ctx);
+                  });
+  probe_ok<Npp32f>("nppiDilate_32f_C1R_Ctx", "nppiDilate/out/maskzero_32f_C1R_Ctx", 1, 48, 48, 8, 8,
+                   [&](const Npp32f *ps, int st, Npp32f *pd, int dt) {
+                     return nppiDilate_32f_C1R_Ctx(ps, st, pd, dt, roi, dev_mask(maskZero3()), NppiSize{3, 3},
+                                                   NppiPoint{1, 1}, ctx);
+                   });
+}
+
+TEST_F(NppiMorphProbeDiff, DegenerateOutputBorder) {
+  NppStreamContext ctx = current_ctx();
+  const NppiSize roi{9, 9};
+  const NppiSize sz{24, 24};
+  const NppiPoint off{8, 8};
+  const std::string fn = "nppiDilateBorder_8u_C1R_Ctx";
+  const std::string id = "nppiDilateBorder/out/";
+#define BOK(NAME, MW, MH, AX, AY, MSK)                                                                \
+  probe_ok<Npp8u>(fn, id + NAME, 1, 48, 48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {   \
+    return nppiDilateBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(MSK), NppiSize{MW, MH}, \
+                                       NppiPoint{AX, AY}, NPP_BORDER_REPLICATE, ctx);                 \
+  })
+  BOK("masksize0_8u_C1R_Ctx", 0, 0, 0, 0, maskZero3());
+  BOK("maskzero_8u_C1R_Ctx", 3, 3, 1, 1, maskZero3());
+  BOK("mask1x1zero_8u_C1R_Ctx", 1, 1, 0, 0, maskZero3());
+  BOK("mask1x1one_8u_C1R_Ctx", 1, 1, 0, 0, maskOne1());
+  BOK("anchorout_8u_C1R_Ctx", 3, 3, 3, 1, maskBox3());
+  BOK("anchorbig_8u_C1R_Ctx", 3, 3, 5, 5, maskBox3());
+  BOK("anchorneg_8u_C1R_Ctx", 3, 3, -1, 1, maskBox3());
+  BOK("ctrl2x2_8u_C1R_Ctx", 2, 2, 1, 1, (std::vector<Npp8u>{1, 1, 1, 1}));
+#undef BOK
+  probe_ok<Npp8u>("nppiErodeBorder_8u_C1R_Ctx", "nppiErodeBorder/out/maskzero_8u_C1R_Ctx", 1, 48, 48, 8, 8,
+                  [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiErodeBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(maskZero3()),
+                                                      NppiSize{3, 3}, NppiPoint{1, 1}, NPP_BORDER_REPLICATE, ctx);
+                  });
+}
+
+TEST_F(NppiMorphProbeDiff, DegenerateOutputGray) {
+  NppStreamContext ctx = current_ctx();
+  const NppiSize roi{9, 9};
+  const NppiSize sz{24, 24};
+  const NppiPoint off{8, 8};
+  const std::vector<Npp32s> gz{0, 0, 0, 0, 0, 0, 0, 0, 0};
+  const std::vector<Npp32s> g1{1};
+  probe_ok<Npp8u>("nppiGrayDilateBorder_8u_C1R_Ctx", "nppiGrayDilateBorder/out/maskzero_8u_C1R_Ctx", 1, 48, 48,
+                  8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiGrayDilateBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(gz),
+                                                           NppiSize{3, 3}, NppiPoint{1, 1}, NPP_BORDER_REPLICATE,
+                                                           ctx);
+                  });
+  probe_ok<Npp8u>("nppiGrayDilateBorder_8u_C1R_Ctx", "nppiGrayDilateBorder/out/mask1x1one_8u_C1R_Ctx", 1, 48,
+                  48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiGrayDilateBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(g1),
+                                                           NppiSize{1, 1}, NppiPoint{0, 0}, NPP_BORDER_REPLICATE,
+                                                           ctx);
+                  });
+  probe_ok<Npp8u>("nppiGrayDilateBorder_8u_C1R_Ctx", "nppiGrayDilateBorder/out/mask1x1zero_8u_C1R_Ctx", 1, 48,
+                  48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiGrayDilateBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(gz),
+                                                           NppiSize{1, 1}, NppiPoint{0, 0}, NPP_BORDER_REPLICATE,
+                                                           ctx);
+                  });
+  probe_ok<Npp8u>("nppiGrayErodeBorder_8u_C1R_Ctx", "nppiGrayErodeBorder/out/maskzero_8u_C1R_Ctx", 1, 48, 48,
+                  8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiGrayErodeBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(gz),
+                                                          NppiSize{3, 3}, NppiPoint{1, 1}, NPP_BORDER_REPLICATE,
+                                                          ctx);
+                  });
+}
+
+TEST_F(NppiMorphProbeDiff, DegenerateOutputComposite) {
+  NppStreamContext ctx = current_ctx();
+  const NppiSize roi{9, 9};
+  const NppiSize sz{24, 24};
+  const NppiPoint off{8, 8};
+  Npp8u *buf = zero_arena<Npp8u>(65536);
+  const std::string fn = "nppiMorphOpenBorder_8u_C1R_Ctx";
+  const std::string id = "nppiMorphOpenBorder/out/";
+#define COK(NAME, MW, MH, AX, AY, MSK)                                                                \
+  probe_ok<Npp8u>(fn, id + NAME, 1, 48, 48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {   \
+    return nppiMorphOpenBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi, dev_mask(MSK), NppiSize{MW, MH}, \
+                                          NppiPoint{AX, AY}, buf, NPP_BORDER_REPLICATE, ctx);         \
+  })
+  COK("masksize0_8u_C1R_Ctx", 0, 0, 0, 0, maskZero3());
+  COK("maskzero_8u_C1R_Ctx", 3, 3, 1, 1, maskZero3());
+  COK("mask1x1zero_8u_C1R_Ctx", 1, 1, 0, 0, maskZero3());
+  COK("anchorout_8u_C1R_Ctx", 3, 3, 3, 1, maskBox3());
+  COK("ctrl2x2_8u_C1R_Ctx", 2, 2, 1, 1, (std::vector<Npp8u>{1, 1, 1, 1}));
+#undef COK
+  probe_ok<Npp8u>("nppiMorphTopHatBorder_8u_C1R_Ctx", "nppiMorphTopHatBorder/out/maskzero_8u_C1R_Ctx", 1, 48,
+                  48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiMorphTopHatBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi,
+                                                            dev_mask(maskZero3()), NppiSize{3, 3},
+                                                            NppiPoint{1, 1}, buf, NPP_BORDER_REPLICATE, ctx);
+                  });
+  probe_ok<Npp8u>("nppiMorphGradientBorder_8u_C1R_Ctx", "nppiMorphGradientBorder/out/maskzero_8u_C1R_Ctx", 1,
+                  48, 48, 8, 8, [&](const Npp8u *ps, int st, Npp8u *pd, int dt) {
+                    return nppiMorphGradientBorder_8u_C1R_Ctx(ps, st, sz, off, pd, dt, roi,
+                                                              dev_mask(maskZero3()), NppiSize{3, 3},
+                                                              NppiPoint{1, 1}, buf, NPP_BORDER_REPLICATE, ctx);
+                  });
 }
 
 // ===========================================================================
