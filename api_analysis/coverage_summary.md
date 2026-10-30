@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 9214 (73.5%)
+- Real implementations: 9476 (75.6%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 3205
+- Missing: 2943
 - Tested: 8236 (65.7%)
-- Real and tested: 6545
+- Real and tested: 6676
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 997 |
+| nppi_filtering_functions.h | 1896 | 356 | 0 | 1540 | 997 |
 | nppi_geometry_transforms.h | 705 | 306 | 90 | 309 | 434 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -32,8 +32,6 @@
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| nppi_filtering_functions.h | nppiFilter32f | 66 | 33 |
-| nppi_filtering_functions.h | nppiFilterBorder32f | 66 | 33 |
 | nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
 | nppi_filtering_functions.h | nppiFilterMedian | 64 | 32 |
 | nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
@@ -45,7 +43,6 @@
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
-| nppi_filtering_functions.h | nppiFilterBorder | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterColumn | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterRow | 34 | 17 |
 | nppi_filtering_functions.h | nppiFilterColumnBorder | 32 | 16 |
@@ -72,3 +69,6 @@
 | nppi_filtering_functions.h | nppiFilterSobelHorizBorder | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterSobelHoriz | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterSobelVertBorder | 28 | 14 |
+| nppi_filtering_functions.h | nppiFilterSobelVert | 28 | 14 |
+| nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
+| nppi_filtering_functions.h | nppiFilterGauss | 26 | 13 |

@@ -67,6 +67,7 @@
 | P1.10 | NPPI 颜色（待 238733 合入后） | 646 | 阻塞 | — |
 | G3 | NPPI Mirror / MirrorBatch 全变体 | 48 | ✅ 已合并 | `pkg/g3` → `e9d52ff` |
 | G1 | NPPI WarpAffine 家族（实现+测试已写，cubic 边界核待对齐） | 156 | ⏸ 暂停 | `pkg/g1` → `84ee401` |
+| F1 | NPPI 基础滤波（Filter/FilterBorder/32f 行/列 + border） | 262 | ✅ 已合并 | `pkg/f1` → `6390cd6` |
 
 ## 4. 每个包的合并检查
 
@@ -78,6 +79,7 @@
 
 ## 5. 决策记录
 
+- **F1 结果**：nppiFilter32f / nppiFilterBorder32f / nppiFilterBorder（整数 divisor）/ nppiFilterRow32f / nppiFilterColumn32f / 行/列 border 32f 共 262 个函数合入，catalog real 9,214→9,476、missing 3,205→2,943、remaining 3,323→3,061。验证：三个 filter 差分 suite 23/23、整树 unit 4,803、diff 1,952 全绿。5090 实测补齐的边界语义：空核/空 mask 会零填充但**保留最后一条线**（2D 保留最后一行+最后一列，行滤波保留最后一列，列滤波保留最后一行）；负 mask 在 border 行/列族是 NO_ERROR no-op，在非 border 族走 anchor 校验返回 OUT_OFF_RANGE；负 dst step 通过无符号 size 检查后 NPP 返回 NO_ERROR（我们跳过 launch）；整数 nppiFilterBorder 的 srcOffset 越界检查先于 divisor==0；16f 变体在 5090 上是真实可用的（golden 为 NO_ERROR），已改为 half→float→half 的真实实现（原实现错误地返回 NOT_SUFFICIENT_COMPUTE_CAPABILITY）。f1 的 254 个 golden 已从 agent 的远端目录拉回共享 `artifacts/5090/npp_records`（路径按 case id 扁平化，如 `nppiFilter32f_.../`）。
 - **G3 结果**：nppiMirror / nppiMirrorBatch 全变体（16s/16u/32s/32f/8u × C1/C3/C4/AC4 × R/IR + batch）合入，catalog real 9,166→9,214、stub 166→118、remaining 3,371→3,323。验证：`NppiMirrorDiff.*` 27/27、整树 unit 4,803、diff 1,929 全绿。关键修复：legacy Mirror 实现对空 ROI 会以 0 高度网格启动并返回 CUDA 错误，现按 NPP 语义改为 NO_ERROR no-op；MirrorBatch 差分测试的 input-only Case 无 status 会被 verifier 拒绝，已把输入哈希并入 output Case。g3 的 73 个 golden（nppiMirror*）已并入共享 `artifacts/5090/npp_records`。
 - **G1 进展（暂停）**：WarpAffine/WarpAffineBack/Quad/Batch 实现与 5 个差分测试文件已完成（`pkg/g1` → `84ee401`），`NppiWarpAffineDiff.*` 已修到 9/12。已验证的语义：仿射映射用 float32 系数与非融合乘加、双线性用权重式、采样点落在（裁剪后的）src ROI 外时目标像素不写入、step 校验（size 先于 `sizeof·2^v2(Channels)` 对齐、src 先于 dst）、负 src ROI → SIZE、负 dst 尺寸 → SIZE、零 dst 尺寸 → NO_ERROR、src 图像需 ≥2x2。剩余：cubic 边界处理（探针确认权重是标准 Catmull-Rom，但越界 tap 的处理既非零填充也非边缘复制）、32s/C3 个别线性 ±1、Batch 家族仍用 double 坐标且缺 ROI/step 语义。未合入，不影响集成树。
 - **P1.8c 结果**：p1.8 的 466 个 CrossCorr/SqrDistance 函数全部 real（`api_analysis/packages/p1.8.csv` 466/466），p1.8b 修复数值算术，p1.8c 把剩余 11 个 status/contract/scratch 用例清零（`NppiCrossCorrDiff.*` 15/15）。catalog real 8,700→9,166、missing 3,671→3,205、remaining 3,837→3,371。验证：合并后 unit 4,803、diff 1,902 全绿。关键语义（5090 直接探针）：src step 在 pTpl/pDst 判空之前校验；even-step 模数为 `sizeof(element) * 2^v2(Channels)`（8u C3 接受奇数 step；C4/AC4 要求 4×元素大小，32f C4 dst 为 16）；Valid 模式下负的 dst 维度 → SIZE_ERROR、零 → 空 no-op；NormLevel 的 pDeviceBuffer 判空先于 Full/Same 的 tpl>src 几何错误；GetAdvancedScratchBufferSize 的 null 指针最先返回 NULL，Full 要求 dst 扩展为正（负 tpl 不直接报错），Same/Valid 拒绝零/负 src 且完全忽略 tpl；NormLevel GetBufferHostSize = `8 * channels * (height + 5)`（与宽度/元素类型无关），生成器改用 `{chan}` 占位符按布局后缀传通道数。
