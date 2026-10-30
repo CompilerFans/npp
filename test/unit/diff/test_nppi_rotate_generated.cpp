@@ -213,9 +213,11 @@ TEST_F(NppiRotateDiff, Rotate_Contract) {
   const int dStep = align_step(dstSize.width * es + 8, 1);
   const size_t se = (size_t)srcSize.height * sStep;
   const size_t de = (size_t)dstSize.height * dStep;
-  DeviceMemory<Npp8u> &s = arena<Npp8u>(se);
+  // Oversized allocation: the src_roi_oob probe reads up to (35, 15) if the
+  // implementation does not validate the ROI, which must not crash.
+  DeviceMemory<Npp8u> &s = arena<Npp8u>(8000);
   DeviceMemory<Npp8u> &d = arena<Npp8u>(de);
-  s.copyFromHost(std::vector<Npp8u>(se, 3));
+  s.copyFromHost(std::vector<Npp8u>(8000, 3));
   d.copyFromHost(std::vector<Npp8u>(de, 0xA5));
 
   auto run = [&](const std::string &key, const Npp8u *psrc, NppiSize ssize, int sstep, NppiRect sroi, Npp8u *pdst,
