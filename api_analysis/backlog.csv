@@ -504,13 +504,13 @@ npps_statistics_functions.h,nppsMaximumError,56,56,0,0,0,0,28,0
 npps_statistics_functions.h,nppsMaximumRelativeError,56,56,0,0,0,0,28,0
 npps_statistics_functions.h,nppsMean,28,28,0,0,0,0,16,0
 npps_statistics_functions.h,nppsMeanStdDev,16,16,0,0,0,0,10,0
-npps_statistics_functions.h,nppsMin,16,16,0,0,0,0,8,0
+npps_statistics_functions.h,nppsMin,16,16,0,0,0,0,10,0
 npps_statistics_functions.h,nppsMinAbs,8,8,0,0,0,0,4,0
 npps_statistics_functions.h,nppsMinAbsIndx,8,8,0,0,0,0,4,0
 npps_statistics_functions.h,nppsMinEvery,12,12,0,0,0,0,6,0
 npps_statistics_functions.h,nppsMinIndx,16,16,0,0,0,0,8,0
 npps_statistics_functions.h,nppsMinMax,28,28,0,0,0,0,14,0
-npps_statistics_functions.h,nppsMinMaxIndx,28,28,0,0,0,0,14,0
+npps_statistics_functions.h,nppsMinMaxIndx,28,28,0,0,0,0,16,0
 npps_statistics_functions.h,nppsNormDiffInf,12,12,0,0,0,0,6,0
 npps_statistics_functions.h,nppsNormDiffL1,14,14,0,0,0,0,7,0
 npps_statistics_functions.h,nppsNormDiffL2,12,12,0,0,0,0,6,0

@@ -4,8 +4,8 @@
 - Real implementations: 8700 (69.4%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
 - Missing: 3671
-- Tested: 8222 (65.6%)
-- Real and tested: 6253
+- Tested: 8226 (65.6%)
+- Real and tested: 6257
 
 ## By module
 
@@ -25,7 +25,7 @@
 | npps_conversion_functions.h | 174 | 174 | 0 | 0 | 89 |
 | npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
 | npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
-| npps_statistics_functions.h | 766 | 766 | 0 | 0 | 399 |
+| npps_statistics_functions.h | 766 | 766 | 0 | 0 | 403 |
 | npps_support_functions.h | 15 | 15 | 0 | 0 | 7 |
 
 ## Largest remaining groups
