@@ -22,6 +22,7 @@
 #include "npp_diff_harness.h"
 #include "npp_test_base.h"
 
+#include <cstdio>
 #include <memory>
 #include <vector>
 
@@ -193,6 +194,148 @@ PLANAR_CASES(8u, Npp8u, "8u", nppiWarpPerspective_8u, nppiWarpPerspectiveBack_8u
 PLANAR_CASES(16u, Npp16u, "16u", nppiWarpPerspective_16u, nppiWarpPerspectiveBack_16u)
 PLANAR_CASES(32f, Npp32f, "32f", nppiWarpPerspective_32f, nppiWarpPerspectiveBack_32f)
 PLANAR_CASES(32s, Npp32s, "32s", nppiWarpPerspective_32s, nppiWarpPerspectiveBack_32s)
+
+// ===== structure probes =====================================================
+// Shear / translate coefficient sets chosen so the sampling position's
+// fractional part is exactly representable (dyadic, or computable exactly in
+// f32) and, for the shears, one interpolation axis lands on integer positions
+// (so that axis contributes exact weights).  These cases pin down the exact
+// f32 arithmetic of the LINEAR / CUBIC interpolators and the tap-clamping
+// bounds under sub-rect source ROIs.
+//
+// fwd direction: M (dst->src) = inv3(aCoeffs).
+constexpr double kShearXFwd[3][3] = {{1, -0.0625, 0}, {0, 1, 0}, {0, 0, 1}};   // M: u = x + y/16, v = y
+constexpr double kShearYFwd[3][3] = {{1, 0, 0}, {-0.0625, 1, 0}, {0, 0, 1}};   // M: u = x, v = y + x/16
+constexpr double kShearX2Fwd[3][3] = {{1, -0.1, 0}, {0, 1, 0}, {0, 0, 1}};     // M: u = x + 0.1*y, v = y
+constexpr double kTransFwd[3][3] = {{1, 0, 0.375}, {0, 1, 0.6875}, {0, 0, 1}}; // M: u = x - 0.375, v = y - 0.6875
+
+TEST_F(NppiWarpPerspectivePlanarDiff, Warp_Probes) {
+  const NppiSize pSrc{20, 14};
+  const NppiRect pSrcROI{0, 0, 20, 14};
+  const NppiSize pDst{32, 24};
+  const NppiRect pDstROI{2, 3, 24, 18};
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/probe_shearx", pSrc, pSrcROI, pDst, pDstROI,
+                              kShearXFwd, NPPI_INTER_CUBIC, true, &nppiWarpPerspective_32f_P3R_Ctx, 650);
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/probe_sheary", pSrc, pSrcROI, pDst, pDstROI,
+                              kShearYFwd, NPPI_INTER_CUBIC, true, &nppiWarpPerspective_32f_P3R_Ctx, 651);
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/probe_shearx2", pSrc, pSrcROI, pDst, pDstROI,
+                              kShearX2Fwd, NPPI_INTER_CUBIC, true, &nppiWarpPerspective_32f_P3R_Ctx, 652);
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/probe_trans", pSrc, pSrcROI, pDst, pDstROI,
+                              kTransFwd, NPPI_INTER_CUBIC, true, &nppiWarpPerspective_32f_P3R_Ctx, 653);
+
+  // Sub-rect source ROI: interpolation taps reach outside the ROI but inside
+  // the image, which pins the clamping bounds.  kShift maps dst (x, y) ->
+  // src (x - 4, y - 2); srcROI x in [4, 19], y in [3, 13] of a 24x16 image.
+  const NppiSize sSrc{24, 16};
+  const NppiRect sSrcROI{4, 3, 16, 11};
+  const NppiRect sDstROI{6, 2, 16, 11};
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/subroi_shift_linear", sSrc, sSrcROI, sSrc,
+                              sDstROI, kShift, NPPI_INTER_LINEAR, true, &nppiWarpPerspective_32f_P3R_Ctx, 655);
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/subroi_shift_cubic", sSrc, sSrcROI, sSrc,
+                              sDstROI, kShift, NPPI_INTER_CUBIC, true, &nppiWarpPerspective_32f_P3R_Ctx, 656);
+  warp_planar_case<Npp8u, 3>("nppiWarpPerspective_8u_P3R", "fwd/8u_P3R/subroi_shift_linear", sSrc, sSrcROI, sSrc,
+                             sDstROI, kShift, NPPI_INTER_LINEAR, true, &nppiWarpPerspective_8u_P3R_Ctx, 657);
+  warp_planar_case<Npp8u, 3>("nppiWarpPerspective_8u_P3R", "fwd/8u_P3R/subroi_shift_cubic", sSrc, sSrcROI, sSrc,
+                             sDstROI, kShift, NPPI_INTER_CUBIC, true, &nppiWarpPerspective_8u_P3R_Ctx, 658);
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/persp_subroi_cubic", pSrc,
+                              NppiRect{4, 3, 12, 9}, pDst, pDstROI, kPersp, NPPI_INTER_CUBIC, true,
+                              &nppiWarpPerspective_32f_P3R_Ctx, 659);
+  warp_planar_case<Npp8u, 3>("nppiWarpPerspective_8u_P3R", "fwd/8u_P3R/persp_subroi_cubic", pSrc,
+                             NppiRect{4, 3, 12, 9}, pDst, pDstROI, kPersp, NPPI_INTER_CUBIC, true,
+                             &nppiWarpPerspective_8u_P3R_Ctx, 660);
+  warp_planar_case<Npp32f, 3>("nppiWarpPerspectiveBack_32f_P3R", "back/32f_P3R/subroi_shift_linear", sSrc, sSrcROI,
+                              sSrc, sDstROI, kShift, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveBack_32f_P3R_Ctx,
+                              661);
+  warp_planar_case<Npp8u, 3>("nppiWarpPerspectiveBack_8u_P3R", "back/8u_P3R/subroi_shift_linear", sSrc, sSrcROI, sSrc,
+                             sDstROI, kShift, NPPI_INTER_LINEAR, true, &nppiWarpPerspectiveBack_8u_P3R_Ctx, 662);
+}
+
+// ===== cubic-weight impulse probes ==========================================
+// A plane whose only non-zero element is 1.0 makes the interpolator emit the
+// exact f32 weight of the tap that covers the impulse (products with 0/1 and
+// the single-term accumulation are exact).  With translations that keep the
+// other axis on integer positions, each case reads the four 1-D cubic weights
+// of one fractional offset; sweeping the offset recovers the weight function.
+template <typename T>
+std::vector<T> make_planar_impulse(size_t count, int row_elems, int col, int row, bool full_row) {
+  std::vector<T> v(count, T(0));
+  if (full_row) {
+    for (int c = 0; c < row_elems; ++c) v[(size_t)row * row_elems + c] = T(1);
+  } else {
+    v[(size_t)row * row_elems + col] = T(1);
+  }
+  return v;
+}
+
+template <typename T, int Planes>
+void warp_planar_impulse_case(const char *fname, const std::string &key, NppiSize srcSize, NppiRect srcROI,
+                              NppiSize dstSize, NppiRect dstROI, const double coeffs[3][3], PlanarFn<T> f, int col,
+                              int row, bool full_row) {
+  const int es = (int)sizeof(T);
+  const int sStep = align_step(srcSize.width * es + 8, es);
+  const int dStep = align_step(dstSize.width * es + 8, es);
+  const size_t se = (size_t)srcSize.height * sStep / es;
+  const size_t de = (size_t)dstSize.height * dStep / es;
+
+  std::vector<const T *> srcPtrs(Planes);
+  std::vector<T *> dstPtrs(Planes);
+  std::vector<std::vector<T>> hsrc(Planes);
+  std::vector<std::vector<T>> hdst(Planes, std::vector<T>(de, (T)0xA5));
+  for (int p = 0; p < Planes; ++p) {
+    hsrc[p] = (p == 0) ? make_planar_impulse<T>(se, sStep / es, col, row, full_row)
+                       : std::vector<T>(se, T(0));
+    DeviceMemory<T> &s = arena<T>(se);
+    DeviceMemory<T> &d = arena<T>(de);
+    s.copyFromHost(hsrc[p]);
+    d.copyFromHost(hdst[p]);
+    srcPtrs[p] = s.get();
+    dstPtrs[p] = d.get();
+  }
+
+  clear_cuda_error();
+  NppStatus st = f(srcPtrs.data(), srcSize, sStep, srcROI, dstPtrs.data(), dStep, dstROI, coeffs, NPPI_INTER_CUBIC,
+                   current_ctx());
+  Case c("nppiWarpPerspective/" + key, fname);
+  for (int p = 0; p < Planes; ++p) c.input(hsrc[p].data(), hsrc[p].size() * sizeof(T));
+  c.status(st);
+  for (int p = 0; p < Planes; ++p) c.device_output<T>(dstPtrs[p], de, out_kind<T>(), 1e-5, 1e-6);
+  c.finish();
+}
+
+TEST_F(NppiWarpPerspectivePlanarDiff, Warp_CubicImpulse) {
+  const NppiSize pSrc{20, 14};
+  const NppiRect pSrcROI{0, 0, 20, 14};
+  const NppiSize pDst{32, 24};
+  const NppiRect pDstROI{2, 3, 24, 18};
+  char tag[8];
+  // x weights: M = {{1,0,tau},{0,1,0}} (aCoeffs = inverse), impulse (10,10).
+  // Read-offs land on dst row 10, columns 8..11 -> taps j = 3..0.
+  for (int i = 0; i < 20; ++i) {
+    const double tau = 0.02 + 0.05 * i;
+    const double cx[3][3] = {{1, 0, -tau}, {0, 1, 0}, {0, 0, 1}};
+    snprintf(tag, sizeof(tag), "%02d", i);
+    warp_planar_impulse_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/cubw_x" + std::string(tag), pSrc,
+                                        pSrcROI, pDst, pDstROI, cx, &nppiWarpPerspective_32f_P3R_Ctx, 10, 10, false);
+  }
+  // y weights: M = {{1,0,0},{0,1,tau}}, impulse = full row 10.
+  // Read-offs land on dst rows 8..11 at every column -> taps j = 3..0.
+  for (int i = 0; i < 20; ++i) {
+    const double tau = 0.02 + 0.05 * i;
+    const double cy[3][3] = {{1, 0, 0}, {0, 1, -tau}, {0, 0, 1}};
+    snprintf(tag, sizeof(tag), "%02d", i);
+    warp_planar_impulse_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/cubw_y" + std::string(tag), pSrc,
+                                        pSrcROI, pDst, pDstROI, cy, &nppiWarpPerspective_32f_P3R_Ctx, 10, 10, true);
+  }
+  // 2-D weight products: both axes fractional, impulse (10,10); read-offs at
+  // dst (8..11, 8..11) cover all 16 (k, j) tap pairs.
+  const double kXY[3][2] = {{0.11, 0.19}, {0.38, 0.47}, {0.63, 0.83}};
+  for (int i = 0; i < 3; ++i) {
+    const double cxy[3][3] = {{1, 0, -kXY[i][0]}, {0, 1, -kXY[i][1]}, {0, 0, 1}};
+    snprintf(tag, sizeof(tag), "%d", i);
+    warp_planar_impulse_case<Npp32f, 3>("nppiWarpPerspective_32f_P3R", "fwd/32f_P3R/cubw_xy" + std::string(tag), pSrc,
+                                        pSrcROI, pDst, pDstROI, cxy, &nppiWarpPerspective_32f_P3R_Ctx, 10, 10, false);
+  }
+}
 
 // ===== contract: null planes, steps, sizes, ROIs, interpolation, coeffs ====
 TEST_F(NppiWarpPerspectivePlanarDiff, Warp_Planar_Contract) {
