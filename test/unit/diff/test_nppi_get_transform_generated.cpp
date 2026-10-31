@@ -49,6 +49,132 @@ void run_get_affine_transform(const char *key, NppiRect roi, const double quad[4
   c.finish();
 }
 
+void run_perspective_transform(const char *key, NppiRect roi, const double quad[4][2]) {
+  double coeffs[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+  clear_cuda_error();
+  NppStatus st = nppiGetPerspectiveTransform(roi, quad, coeffs);
+  Case c(make_id({"nppiGetPerspectiveTransform", key}), "nppiGetPerspectiveTransform");
+  c.input(quad, sizeof(double) * 8);
+  c.status(st);
+  c.host_output<double>(&coeffs[0][0], 9, ValueKind::F64, kRtol, kAtol);
+  c.finish();
+}
+
+// quad[i] = a * corner_i for the full-extent ROI corners
+// (x,y), (x+w,y), (x+w,y+h), (x,y+h).
+void affine_quad_from_coeffs(NppiRect roi, const double a[2][3], double quad[4][2]) {
+  const double xs[4] = {(double)roi.x, (double)(roi.x + roi.width), (double)(roi.x + roi.width),
+                        (double)roi.x};
+  const double ys[4] = {(double)roi.y, (double)roi.y, (double)(roi.y + roi.height),
+                        (double)(roi.y + roi.height)};
+  for (int i = 0; i < 4; ++i) {
+    quad[i][0] = a[0][0] * xs[i] + a[0][1] * ys[i] + a[0][2];
+    quad[i][1] = a[1][0] * xs[i] + a[1][1] * ys[i] + a[1][2];
+  }
+}
+
+// The recorded goldens show that NVIDIA's affine solve is exact for
+// axis-aligned quads but shifts aCoeffs[1][2] for sheared ones.  These probes
+// vary the ROI position / size (and the two off-diagonal coefficients
+// separately) so the exact formula can be read out of the recorded bytes.
+TEST(NppiGetTransformDiff, GetAffineTransformShear) {
+  const double a[2][3] = {{1.2, 0.1, 5.0}, {-0.2, 0.9, -3.0}};
+  const NppiRect rois[] = {NppiRect{0, 2, 13, 9},  NppiRect{5, 2, 13, 9},  NppiRect{1, 0, 13, 9},
+                           NppiRect{1, 7, 13, 9},  NppiRect{1, 2, 26, 9},  NppiRect{1, 2, 13, 18},
+                           NppiRect{3, 4, 7, 5},   NppiRect{0, 0, 13, 9},  NppiRect{4, 6, 20, 11}};
+  const char *keys[] = {"shear_x0", "shear_x5", "shear_y0", "shear_y7",
+                        "shear_w26", "shear_h18", "shear_small", "shear_origin", "shear_generic2"};
+  for (size_t k = 0; k < sizeof(rois) / sizeof(rois[0]); ++k) {
+    double quad[4][2];
+    affine_quad_from_coeffs(rois[k], a, quad);
+    run_get_affine_transform(keys[k], rois[k], quad);
+  }
+  // Off-diagonal terms separated: only a01 != 0, then only a10 != 0.
+  {
+    const double ax[2][3] = {{1, 0.4, 2}, {0, 1, 1}};
+    double quad[4][2];
+    affine_quad_from_coeffs(NppiRect{2, 3, 15, 10}, ax, quad);
+    run_get_affine_transform("shear_only01", NppiRect{2, 3, 15, 10}, quad);
+  }
+  {
+    const double ay[2][3] = {{1, 0, 2}, {0.3, 1, 1}};
+    double quad[4][2];
+    affine_quad_from_coeffs(NppiRect{2, 3, 15, 10}, ay, quad);
+    run_get_affine_transform("shear_only10", NppiRect{2, 3, 15, 10}, quad);
+  }
+  // 4th vertex consistent with the shifted affine (a12 - 3.3 instead of -3.0)
+  // but vertices 0..2 consistent with the exact one: if NVIDIA checks the 4th
+  // vertex against its own (shifted) result this must return NPP_NO_ERROR.
+  {
+    const NppiRect roi{1, 2, 13, 9};
+    double quad[4][2];
+    affine_quad_from_coeffs(roi, a, quad);
+    quad[3][1] += -0.3;
+    run_get_affine_transform("shifted_consistent4", roi, quad);
+  }
+  // ROI width/height of exactly 1 (degenerate under the w-1/h-1 corner
+  // convention used by the Quad/Bound helpers).
+  {
+    double quad[4][2];
+    affine_quad_from_coeffs(NppiRect{3, 4, 2, 2}, a, quad);
+    run_get_affine_transform("roi_2x2", NppiRect{3, 4, 2, 2}, quad);
+    affine_quad_from_coeffs(NppiRect{3, 4, 1, 8}, a, quad);
+    run_get_affine_transform("roi_w1", NppiRect{3, 4, 1, 8}, quad);
+    affine_quad_from_coeffs(NppiRect{3, 4, 8, 1}, a, quad);
+    run_get_affine_transform("roi_h1", NppiRect{3, 4, 8, 1}, quad);
+  }
+}
+
+// Pins the tolerance of the 4th-vertex consistency check: an exactly
+// consistent translation quad with the 4th vertex perturbed by eps.
+TEST(NppiGetTransformDiff, GetAffineTransformWarnThreshold) {
+  const NppiRect roi{2, 3, 16, 8};
+  const double t[2][3] = {{1, 0, 8}, {0, 1, 7}};
+  double base[4][2];
+  affine_quad_from_coeffs(roi, t, base);
+  const double eps[] = {1e-3, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-12, 1e-15};
+  const char *keys[] = {"eps1e-3", "eps1e-6", "eps1e-7", "eps1e-8",
+                        "eps1e-9", "eps1e-10", "eps1e-12", "eps1e-15"};
+  for (size_t k = 0; k < sizeof(eps) / sizeof(eps[0]); ++k) {
+    double quad[4][2];
+    for (int i = 0; i < 4; ++i) {
+      quad[i][0] = base[i][0];
+      quad[i][1] = base[i][1];
+    }
+    quad[3][0] += eps[k];
+    quad[3][1] -= eps[k];
+    run_get_affine_transform(keys[k], roi, quad);
+  }
+  {
+    double quad[4][2];
+    for (int i = 0; i < 4; ++i) {
+      quad[i][0] = base[i][0];
+      quad[i][1] = base[i][1];
+    }
+    quad[3][0] += 1e-9;
+    run_get_affine_transform("eps_x_only", roi, quad);
+  }
+  {
+    double quad[4][2];
+    for (int i = 0; i < 4; ++i) {
+      quad[i][0] = base[i][0];
+      quad[i][1] = base[i][1];
+    }
+    quad[3][1] += 1e-9;
+    run_get_affine_transform("eps_y_only", roi, quad);
+  }
+  {
+    double quad[4][2];
+    for (int i = 0; i < 4; ++i) {
+      quad[i][0] = base[i][0];
+      quad[i][1] = base[i][1];
+    }
+    quad[3][0] -= 1e-9;
+    quad[3][1] += 1e-9;
+    run_get_affine_transform("eps_neg", roi, quad);
+  }
+}
+
 TEST(NppiGetTransformDiff, GetAffineTransform) {
   // Exactly consistent quads plus literal identity/translation cases.
   const double q0[4][2] = {{0, 0}, {16, 0}, {16, 8}, {0, 8}};
@@ -177,6 +303,24 @@ TEST(NppiGetTransformDiff, GetPerspectiveTransform) {
   run("perspective", NppiRect{1, 2, 13, 9}, q1);
   const double q2[4][2] = {{0, 0}, {20, 0}, {15, 10}, {5, 10}};
   run("trapezoid", NppiRect{0, 0, 20, 10}, q2);
+  // Genuinely perspective quad at a non-origin ROI: quad[i] = H * corner_i
+  // with a non-degenerate projective row, so only an exact four-pair
+  // homography solve reproduces it.
+  {
+    const double h[3][3] = {{1.1, 0.15, 2.0}, {-0.08, 0.95, 1.0}, {0.002, 0.001, 1.0}};
+    const NppiRect roi{2, 3, 10, 7};
+    const double xs[4] = {(double)roi.x, (double)(roi.x + roi.width), (double)(roi.x + roi.width),
+                          (double)roi.x};
+    const double ys[4] = {(double)roi.y, (double)roi.y, (double)(roi.y + roi.height),
+                          (double)(roi.y + roi.height)};
+    double quad[4][2];
+    for (int i = 0; i < 4; ++i) {
+      const double w = h[2][0] * xs[i] + h[2][1] * ys[i] + h[2][2];
+      quad[i][0] = (h[0][0] * xs[i] + h[0][1] * ys[i] + h[0][2]) / w;
+      quad[i][1] = (h[1][0] * xs[i] + h[1][1] * ys[i] + h[1][2]) / w;
+    }
+    run("persp_nonorigin", roi, quad);
+  }
   // Degenerate quads.
   const double q3[4][2] = {{4, 4}, {4, 4}, {10, 8}, {2, 9}};
   run("duplicate01", NppiRect{0, 0, 16, 8}, q3);
@@ -337,6 +481,94 @@ TEST(NppiGetTransformDiff, RoundTrip) {
   c6.status(st6);
   c6.host_output<double>(&rb[0][0], 4, ValueKind::F64, kRtol, kAtol);
   c6.finish();
+}
+
+// Degenerate / threshold probes that pin down the remaining unknowns:
+//  - GetAffineTransform: is the singular-matrix check an exact determinant
+//    comparison or an epsilon test?  Does the ROI contract win over the
+//    degenerate-quad path?  How do NaN quad entries propagate?
+//  - GetPerspectiveTransform: how close to degenerate may a quad be before
+//    NVIDIA's solver returns all-NaN coefficients?
+//  - GetPerspectiveQuad: are the coefficients treated as scale invariant
+//    (i.e. is the projection row really divided through)?
+TEST(NppiGetTransformDiff, GetTransformDegenerateProbes) {
+  const NppiRect roi{1, 2, 13, 9};
+  const double kCollinear[4][2] = {{0, 0}, {5, 5}, {10, 10}, {3, 8}};
+
+  // Determinant of the solved 2x2 linear part is exactly d: exact-zero
+  // comparison returns the warning path, an epsilon test returns
+  // NPP_COEFFICIENT_ERROR.
+  const double dets[] = {1e-9, 1e-13, 1e-15};
+  const char *det_keys[] = {"affdet_1e-9", "affdet_1e-13", "affdet_1e-15"};
+  for (size_t k = 0; k < 3; ++k) {
+    const double a[2][3] = {{1, 0.4, 2}, {0, dets[k], 1}};
+    double quad[4][2];
+    affine_quad_from_coeffs(roi, a, quad);
+    run_get_affine_transform(det_keys[k], roi, quad);
+  }
+  // ROI contract (w < 2) with a degenerate quad: which status wins?
+  run_get_affine_transform("aff_roi1x1_collinear", NppiRect{3, 4, 1, 1}, kCollinear);
+  // NaN in the quad entries.
+  {
+    const double a[2][3] = {{1, 0.4, 2}, {0, 1, 1}};
+    double quad[4][2];
+    affine_quad_from_coeffs(roi, a, quad);
+    quad[2][0] = std::nan("");
+    run_get_affine_transform("aff_nan_quad", roi, quad);
+  }
+
+  // Perspective: exactly / nearly degenerate quads.  The base quad is the
+  // affine image of the ROI corners; the variants break one pair.
+  const double ap[2][3] = {{2, 0.3, 4}, {0.2, 1.5, -1}};
+  double base[4][2];
+  affine_quad_from_coeffs(roi, ap, base);
+  {
+    double q[4][2];
+    for (int i = 0; i < 4; ++i) { q[i][0] = base[i][0]; q[i][1] = base[i][1]; }
+    q[2][0] = base[3][0]; q[2][1] = base[3][1];
+    run_perspective_transform("persp_dup23", roi, q);
+  }
+  const double nears[] = {1e-3, 1e-6, 1e-9, 1e-12};
+  const char *near_keys[] = {"persp_near01_1e-3", "persp_near01_1e-6",
+                             "persp_near01_1e-9", "persp_near01_1e-12"};
+  for (size_t k = 0; k < 4; ++k) {
+    double q[4][2];
+    for (int i = 0; i < 4; ++i) { q[i][0] = base[i][0]; q[i][1] = base[i][1]; }
+    q[1][0] = q[0][0] + nears[k];
+    q[1][1] = q[0][1];
+    run_perspective_transform(near_keys[k], roi, q);
+  }
+  run_perspective_transform("persp_collinear3", roi, kCollinear);
+  const double col_eps[] = {1e-6, 1e-9, 1e-12};
+  const char *col_keys[] = {"persp_nearcol3_1e-6", "persp_nearcol3_1e-9", "persp_nearcol3_1e-12"};
+  for (size_t k = 0; k < 3; ++k) {
+    double q[4][2] = {{0, 0}, {5, 5}, {10 + col_eps[k], 10}, {3, 8}};
+    run_perspective_transform(col_keys[k], roi, q);
+  }
+  run_perspective_transform("persp_roi1x1_collinear", NppiRect{3, 4, 1, 1}, kCollinear);
+
+  // GetPerspectiveQuad with an unnormalised (scaled) coefficient matrix.
+  {
+    const double h[3][3] = {{2, 0, 0}, {0, 2, 0}, {0, 0, 2}};
+    double quad[4][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
+    clear_cuda_error();
+    NppStatus st = nppiGetPerspectiveQuad(NppiRect{2, 3, 10, 7}, quad, h);
+    Case c(make_id({"nppiGetPerspectiveQuad", "unnormalized"}), "nppiGetPerspectiveQuad");
+    c.input(h, sizeof(double) * 9);
+    c.status(st);
+    c.host_output<double>(&quad[0][0], 8, ValueKind::F64, kRtol, kAtol);
+    c.finish();
+  }
+  // Rotation angle wrapping.
+  {
+    double quad[4][2];
+    clear_cuda_error();
+    NppStatus st = nppiGetRotateQuad(NppiRect{5, 7, 20, 12}, quad, 720.0, 1.0, 2.0);
+    Case c(make_id({"nppiGetRotateQuad", "angle720"}), "nppiGetRotateQuad");
+    c.status(st);
+    c.host_output<double>(&quad[0][0], 8, ValueKind::F64, kRtol, kAtol);
+    c.finish();
+  }
 }
 
 }  // namespace
