@@ -850,6 +850,111 @@ static void wiener4() {
   }
 }
 
+
+// ---------------- stage wiener5 : 2D impulse response, V>n regime -------------
+static void w5(const char *tag, const std::vector<float> &src, int W, int H,
+               int mw, int mh, int ax, int ay, float n) {
+  float *d_s, *d_d;
+  cudaMalloc(&d_s, (size_t)W * H * 4); cudaMalloc(&d_d, (size_t)W * H * 4);
+  cudaMemcpy(d_s, src.data(), (size_t)W * H * 4, cudaMemcpyHostToDevice);
+  std::vector<float> dst((size_t)W * H, -1.f);
+  cudaMemcpy(d_d, dst.data(), dst.size() * 4, cudaMemcpyHostToDevice);
+  float noise[4] = {n, n, n, n};
+  NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                    W * 4, NppiSize{W, H}, NppiSize{mw, mh},
+                                                    NppiPoint{ax, ay}, noise, NPP_BORDER_REPLICATE, ctx());
+  cudaMemcpy(dst.data(), d_d, dst.size() * 4, cudaMemcpyDeviceToHost);
+  printf("== %s status=%d\n", tag, (int)st);
+  for (int y = 0; y < H; ++y) {
+    for (int x = 0; x < W; ++x) printf(" %.9g", dst[(size_t)y * W + x]);
+    printf("\n");
+  }
+  cudaFree(d_s); cudaFree(d_d);
+}
+
+static void wiener5() {
+  // A. 9x9 impulse (30 at center), m33/m55 : clean 2D impulse response, V >> 1
+  {
+    const int W = 9, H = 9;
+    std::vector<float> src((size_t)W * H, 0.f);
+    src[(size_t)4 * W + 4] = 30.f;
+    for (float n : {1.f, 0.5f, 0.25f, 2.f})
+      for (auto &m : {NppiSize{3, 3}, NppiSize{5, 5}}) {
+        char tag[64];
+        snprintf(tag, sizeof tag, "imp %dx%d n%g", m.width, m.height, n);
+        w5(tag, src, W, H, m.width, m.height, m.width / 2, m.height / 2, n);
+      }
+  }
+  // B. noise sweep across V=88.9 boundary at the impulse center (m33)
+  {
+    const int W = 9, H = 9;
+    std::vector<float> src((size_t)W * H, 0.f);
+    src[(size_t)4 * W + 4] = 30.f;
+    float *d_s, *d_d;
+    cudaMalloc(&d_s, src.size() * 4); cudaMalloc(&d_d, src.size() * 4);
+    cudaMemcpy(d_s, src.data(), src.size() * 4, cudaMemcpyHostToDevice);
+    for (float n : {0.f, 0.25f, 0.5f, 1.f, 2.f, 4.f, 8.f, 16.f, 32.f, 64.f, 80.f, 88.f, 88.9f, 90.f, 100.f, 200.f, 1000.f}) {
+      std::vector<float> dst(src.size(), -1.f);
+      cudaMemcpy(d_d, dst.data(), dst.size() * 4, cudaMemcpyHostToDevice);
+      float noise[4] = {n, n, n, n};
+      NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                        W * 4, NppiSize{W, H}, NppiSize{3, 3},
+                                                        NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, ctx());
+      cudaMemcpy(dst.data(), d_d, dst.size() * 4, cudaMemcpyDeviceToHost);
+      printf("== imp n%g m33 status=%d\n", n, (int)st);
+      for (int y = 3; y <= 5; ++y) {
+        for (int x = 3; x <= 5; ++x) printf(" %.9g", dst[(size_t)y * W + x]);
+        printf("\n");
+      }
+    }
+    cudaFree(d_s); cudaFree(d_d);
+  }
+  // C. 1D impulses at V>n (delta 30): h1 m31 / h1w m33 / w1 m13
+  {
+    std::vector<float> row(7, 0.f), col(7, 0.f);
+    row[3] = 30.f; col[3] = 30.f;
+    for (float n : {1.f, 0.5f})
+      for (auto &t : {std::pair<int, int>{3, 1}, std::pair<int, int>{1, 3}, std::pair<int, int>{3, 3}}) {
+        char tag[64];
+        snprintf(tag, sizeof tag, "h1 imp m%dx%d n%g", t.first, t.second, n);
+        w5(tag, row, 7, 1, t.first, t.second, t.first / 2, 0, n);
+        snprintf(tag, sizeof tag, "w1 imp m%dx%d n%g", t.first, t.second, n);
+        w5(tag, col, 1, 7, t.first, t.second, 0, t.second / 2, n);
+      }
+  }
+  // D. vertical bar 3x5 (cols 0,5,0) : does the vertical mask see neighbours?
+  {
+    const int W = 3, H = 5;
+    std::vector<float> src((size_t)W * H, 0.f);
+    for (int y = 0; y < H; ++y) src[(size_t)y * W + 1] = 5.f;
+    for (float n : {1.f, 0.5f}) {
+      char tag[64];
+      snprintf(tag, sizeof tag, "bar m13 a01 n%g", n); w5(tag, src, W, H, 1, 3, 0, 1, n);
+      snprintf(tag, sizeof tag, "bar m31 a10 n%g", n); w5(tag, src, W, H, 3, 1, 1, 0, n);
+      snprintf(tag, sizeof tag, "bar m33 a11 n%g", n); w5(tag, src, W, H, 3, 3, 1, 1, n);
+    }
+  }
+  // E. const-value sweep : gamma_v(c) (m13 W=1), gamma_2D(c) (h1w m33, 7x7 m33)
+  for (float c : {0.f, 0.5f, 1.f, 2.f, 5.f, 10.f, 20.f, 50.f}) {
+    char tag[64];
+    std::vector<float> col(7, c);
+    snprintf(tag, sizeof tag, "cv w1 m13 c%g n1", c); w5(tag, col, 1, 7, 1, 3, 0, 1, 1.f);
+    snprintf(tag, sizeof tag, "cv h1w m33 c%g n1", c); w5(tag, col, 7, 1, 3, 3, 1, 1, 1.f);
+    std::vector<float> sq((size_t)7 * 7, c);
+    snprintf(tag, sizeof tag, "cv 7x7 m33 c%g n1", c); w5(tag, sq, 7, 7, 3, 3, 1, 1, 1.f);
+    snprintf(tag, sizeof tag, "cv 7x7 m55 c%g n1", c); w5(tag, sq, 7, 7, 5, 5, 2, 2, 1.f);
+  }
+  // F. two-delta superposition : 30 at (1,1) and (3,3) on 5x5
+  {
+    const int W = 5, H = 5;
+    std::vector<float> two((size_t)W * H, 0.f), one((size_t)W * H, 0.f);
+    two[(size_t)1 * W + 1] = 30.f; two[(size_t)3 * W + 3] = 30.f;
+    one[(size_t)1 * W + 1] = 30.f;
+    w5("two m33 n1", two, W, H, 3, 3, 1, 1, 1.f);
+    w5("one m33 n1", one, W, H, 3, 3, 1, 1, 1.f);
+  }
+}
+
 // ---------------- stage valmat : validation matrices for all 5 families ------
 static void valmat() {
   const int W = 9, H = 9;
@@ -1071,6 +1176,7 @@ int main(int argc, char **argv) {
   if (!strcmp(stage, "round") || !strcmp(stage, "all")) { printf("== round ==\n"); round_stage(); }
   if (!strcmp(stage, "edge3") || !strcmp(stage, "all")) { printf("== edge3 ==\n"); edge3(); }
   if (!strcmp(stage, "wiener4")) { printf("== wiener4 ==\n"); wiener4(); }
+  if (!strcmp(stage, "wiener5")) { printf("== wiener5 ==\n"); wiener5(); }
   if (!strcmp(stage, "valmat") || !strcmp(stage, "all")) { printf("== valmat ==\n"); valmat(); }
   printf("done\n");
   return 0;
