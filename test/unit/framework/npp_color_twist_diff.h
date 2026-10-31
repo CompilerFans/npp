@@ -387,4 +387,166 @@ void packedCIR_case(const char *fname, const std::string &id, int width, int hei
   c.finish();
 }
 
+// ---- batch (NppiColorTwistBatchCXR list, shared ROI, nMin/nMax) ---------------
+// Steps are always a multiple of 16 bytes: the NVIDIA batch kernel performs
+// vectorized loads and validates NOTHING host-side, so any other step could
+// fault the reference recorder (measured).  The row padding still proves the
+// kernel never writes out of the ROI.  Image i uses coef_i and seed offsets
+// 2*i; `call` receives (nMin, nMax, roi, dList, nBatchSize).
+inline int batch_step(int rowBytes) {
+  const int s = ((rowBytes + 15) / 16) * 16;
+  return (rowBytes % 16 == 0) ? s + 16 : s;
+}
+
+template <typename T, typename Call>
+void batchR_case(const char *fname, const std::string &id, int width, int height, int chan,
+                 const std::vector<Npp32f> &coef0, const std::vector<Npp32f> &coef1, Npp32f nMin, Npp32f nMax,
+                 Call &&call, uint64_t seed, bool boundary = false) {
+  const int step = batch_step(width * chan * (int)sizeof(T));
+  const size_t elems = (size_t)height * step / sizeof(T);
+  std::vector<T> hs[2], hd[2];
+  DeviceMemory<T> *s[2];
+  DeviceMemory<T> *d[2];
+  for (int i = 0; i < 2; ++i) {
+    hs[i] = make_uniform<T>(elems, seed + 11 + 2 * i);
+    hd[i] = make_uniform<T>(elems, seed + 29 + 2 * i);
+    if (boundary) {
+      fill_roi_pattern<T>(hs[i], height, step / sizeof(T), width * chan, boundary_pixels<T>());
+    }
+    s[i] = &arena<T>(elems);
+    d[i] = &arena<T>(elems);
+    s[i]->copyFromHost(hs[i]);
+    d[i]->copyFromHost(hd[i]);
+  }
+  DeviceMemory<Npp32f> &t0 = arena<Npp32f>(coef0.size());
+  DeviceMemory<Npp32f> &t1 = arena<Npp32f>(coef1.size());
+  t0.copyFromHost(coef0);
+  t1.copyFromHost(coef1);
+  NppiColorTwistBatchCXR hb[2];
+  hb[0].pSrc = s[0]->get();
+  hb[0].nSrcStep = step;
+  hb[0].pDst = d[0]->get();
+  hb[0].nDstStep = step;
+  hb[0].pTwist = t0.get();
+  hb[1].pSrc = s[1]->get();
+  hb[1].nSrcStep = step;
+  hb[1].pDst = d[1]->get();
+  hb[1].nDstStep = step;
+  hb[1].pTwist = t1.get();
+  DeviceMemory<NppiColorTwistBatchCXR> &list = arena<NppiColorTwistBatchCXR>(2);
+  list.copyFromHost(std::vector<NppiColorTwistBatchCXR>(hb, hb + 2));
+  NppiSize roi{width, height};
+  clear_cuda_error();
+  const NppStatus st = call(nMin, nMax, roi, list.get(), 2);
+  Case c(id, fname);
+  for (int i = 0; i < 2; ++i) {
+    c.input(hs[i].data(), hs[i].size() * sizeof(T));
+    c.input(hd[i].data(), hd[i].size() * sizeof(T));
+  }
+  c.input(coef0.data(), coef0.size() * sizeof(Npp32f));
+  c.input(coef1.data(), coef1.size() * sizeof(Npp32f));
+  c.input(&nMin, sizeof(nMin));
+  c.input(&nMax, sizeof(nMax));
+  c.status(st);
+  for (int i = 0; i < 2; ++i) {
+    c.device_output<T>(d[i]->get(), elems, out_kind<T>(), 1e-5, 1e-6);
+  }
+  c.finish();
+}
+
+// In-place batch: one buffer per image (seed offset 41 + 2*i).
+template <typename T, typename Call>
+void batchIR_case(const char *fname, const std::string &id, int width, int height, int chan,
+                  const std::vector<Npp32f> &coef0, const std::vector<Npp32f> &coef1, Npp32f nMin, Npp32f nMax,
+                  Call &&call, uint64_t seed, bool boundary = false) {
+  const int step = batch_step(width * chan * (int)sizeof(T));
+  const size_t elems = (size_t)height * step / sizeof(T);
+  std::vector<T> hb[2];
+  DeviceMemory<T> *b[2];
+  for (int i = 0; i < 2; ++i) {
+    hb[i] = make_uniform<T>(elems, seed + 41 + 2 * i);
+    if (boundary) {
+      fill_roi_pattern<T>(hb[i], height, step / sizeof(T), width * chan, boundary_pixels<T>());
+    }
+    b[i] = &arena<T>(elems);
+    b[i]->copyFromHost(hb[i]);
+  }
+  DeviceMemory<Npp32f> &t0 = arena<Npp32f>(coef0.size());
+  DeviceMemory<Npp32f> &t1 = arena<Npp32f>(coef1.size());
+  t0.copyFromHost(coef0);
+  t1.copyFromHost(coef1);
+  NppiColorTwistBatchCXR hl[2];
+  for (int i = 0; i < 2; ++i) {
+    hl[i].pSrc = b[i]->get();
+    hl[i].nSrcStep = step;
+    hl[i].pDst = b[i]->get();
+    hl[i].nDstStep = step;
+    hl[i].pTwist = (i == 0) ? t0.get() : t1.get();
+  }
+  DeviceMemory<NppiColorTwistBatchCXR> &list = arena<NppiColorTwistBatchCXR>(2);
+  list.copyFromHost(std::vector<NppiColorTwistBatchCXR>(hl, hl + 2));
+  NppiSize roi{width, height};
+  clear_cuda_error();
+  const NppStatus st = call(nMin, nMax, roi, list.get(), 2);
+  Case c(id, fname);
+  for (int i = 0; i < 2; ++i) {
+    c.input(hb[i].data(), hb[i].size() * sizeof(T));
+  }
+  c.input(coef0.data(), coef0.size() * sizeof(Npp32f));
+  c.input(coef1.data(), coef1.size() * sizeof(Npp32f));
+  c.input(&nMin, sizeof(nMin));
+  c.input(&nMax, sizeof(nMax));
+  c.status(st);
+  for (int i = 0; i < 2; ++i) {
+    c.device_output<T>(b[i]->get(), elems, out_kind<T>(), 1e-5, 1e-6);
+  }
+  c.finish();
+}
+
+// Build a two-entry batch list over pre-filled arenas and expose the raw
+// device pointer, for the status-only error probes (null list / bad sizes /
+// ROI shapes).  Returns nullptr on a null-list probe.
+template <typename T>
+NppiColorTwistBatchCXR *batch_list(DeviceMemory<T> &s0, DeviceMemory<T> &d0, DeviceMemory<T> &s1, DeviceMemory<T> &d1,
+                                   DeviceMemory<Npp32f> &t, int step) {
+  NppiColorTwistBatchCXR hb[2];
+  hb[0].pSrc = s0.get();
+  hb[0].nSrcStep = step;
+  hb[0].pDst = d0.get();
+  hb[0].nDstStep = step;
+  hb[0].pTwist = t.get();
+  hb[1].pSrc = s1.get();
+  hb[1].nSrcStep = step;
+  hb[1].pDst = d1.get();
+  hb[1].nDstStep = step;
+  hb[1].pTwist = t.get();
+  DeviceMemory<NppiColorTwistBatchCXR> &list = arena<NppiColorTwistBatchCXR>(2);
+  list.copyFromHost(std::vector<NppiColorTwistBatchCXR>(hb, hb + 2));
+  return list.get();
+}
+
+// Coefficient vector builders: the 3x4 batch matrices mirror twist3()/twist3b()
+// (row-major 12 floats) and the 4x5 "C" forms mirror identity4c()/twist4cb()
+// (row-major 20 floats: 4x4 plus the constant column).
+inline std::vector<Npp32f> coef3(const Npp32f (&m)[3][4]) {
+  std::vector<Npp32f> v;
+  for (int r = 0; r < 3; ++r) {
+    for (int c = 0; c < 4; ++c) {
+      v.push_back(m[r][c]);
+    }
+  }
+  return v;
+}
+
+inline std::vector<Npp32f> coef45(const Npp32f (&m)[4][4], const Npp32f (&cst)[4]) {
+  std::vector<Npp32f> v;
+  for (int r = 0; r < 4; ++r) {
+    for (int c = 0; c < 4; ++c) {
+      v.push_back(m[r][c]);
+    }
+    v.push_back(cst[r]);
+  }
+  return v;
+}
+
 }  // namespace npp_color_twist_diff

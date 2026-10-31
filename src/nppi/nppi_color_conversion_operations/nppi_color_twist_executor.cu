@@ -82,6 +82,13 @@ template <typename T, int CH> __host__ __device__ constexpr bool packedBias() {
   return (CH >= 3) && has_rounding_bias<T>::value;
 }
 
+// The BATCH kernels bias differently (measured on the RTX 5090): Npp32f adds
+// the +0.5f bias on EVERY layout (even 32f C1R keeps src + 0.5f), the integer
+// dtypes follow the packed CH >= 3 rule and Npp16f never has a bias.
+template <typename T, int CH> __host__ __device__ constexpr bool batchBias() {
+  return std::is_same<T, Npp32f>::value || packedBias<T, CH>();
+}
+
 // Packed destination steps must be a multiple of the vector width NPP 13.4
 // loads per layout (measured on the RTX 5090): a full 2-element vector for C2,
 // a full 4-element vector for C4/AC4, a single element for C1/C3 (and for the
@@ -95,8 +102,23 @@ template <int CH> __host__ __device__ constexpr int stepMultiple() {
   return (CH == 2 || CH == 4) ? CH : 1;
 }
 
+// Batch clamp (measured on the RTX 5090): comparison-based, so a NaN produced
+// by the dot product (0 * +-inf terms) survives instead of being replaced by
+// fminf/fmaxf NaN-suppression semantics.
 __device__ __forceinline__ float clampRange(float v, const TwistParams &p) {
-  return fminf(fmaxf(v, p.nMin), p.nMax);
+  return (v < p.nMin) ? p.nMin : ((v > p.nMax) ? p.nMax : v);
+}
+
+// Batch dtype conversion (measured): the 8u batch kernels store the LOW BYTE of
+// the u32 conversion - (Npp8u)__float2uint_rz(x), i.e. negative -> 0 and NO
+// [0,255] saturation (64 * v + 8192 wraps around) - unlike the packed
+// single-image kernels, which saturate (fromFloat).  The one exception is the
+// AC4 channel-2 path below, which does saturate.  All other dtypes convert
+// exactly like the single-image kernels.
+template <typename T> __device__ __forceinline__ T batchFromFloat(float v) { return fromFloat<T>(v); }
+
+template <> __device__ __forceinline__ Npp8u batchFromFloat<Npp8u>(float v) {
+  return static_cast<Npp8u>(__float2uint_rz(v));
 }
 
 // Apply the twist to one packed pixel (CH channels at s / d).  Semantics of the
@@ -112,51 +134,72 @@ __device__ __forceinline__ void twistPixel(const T *s, T *d, const TwistParams &
   const float v3 = (CH == 4 && !AC4) ? toFloat(s[3]) : 0.0f;
 
   float o0, o1, o2, o3;
+  // BATCH order (measured): the +0.5f bias is added FIRST, then the clamp
+  // min(max(acc + 0.5f, nMin), nMax) is applied, then the value is converted.
+  // The AC4 batch kernels exempt output channel 2 from the clamp and push it
+  // through the saturating conversion instead (measured on the 5090).
   if (HAS_CONST) {
     o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3] * v3 + p.m[16];
     o1 = p.m[4] * v0 + p.m[5] * v1 + p.m[6] * v2 + p.m[7] * v3 + p.m[17];
     o2 = p.m[8] * v0 + p.m[9] * v1 + p.m[10] * v2 + p.m[11] * v3 + p.m[18];
     o3 = p.m[12] * v0 + p.m[13] * v1 + p.m[14] * v2 + p.m[15] * v3 + p.m[19];
-    if (BATCH) {
-      o0 = clampRange(o0, p);
-      o1 = clampRange(o1, p);
-      o2 = clampRange(o2, p);
-      o3 = clampRange(o3, p);
-    }
     if (BIAS) {
       o0 = o0 + 0.5f;
       o1 = o1 + 0.5f;
       o2 = o2 + 0.5f;
       o3 = o3 + 0.5f;
     }
-  } else {
-    o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3];
-    o1 = p.m[4] * v0 + p.m[5] * v1 + p.m[6] * v2 + p.m[7];
-    o2 = p.m[8] * v0 + p.m[9] * v1 + p.m[10] * v2 + p.m[11];
     if (BATCH) {
       o0 = clampRange(o0, p);
       o1 = clampRange(o1, p);
       o2 = clampRange(o2, p);
+      o3 = clampRange(o3, p);
     }
+  } else {
+    o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3];
+    o1 = p.m[4] * v0 + p.m[5] * v1 + p.m[6] * v2 + p.m[7];
+    o2 = p.m[8] * v0 + p.m[9] * v1 + p.m[10] * v2 + p.m[11];
     if (BIAS) {
       o0 = o0 + 0.5f;
       o1 = o1 + 0.5f;
       o2 = o2 + 0.5f;
     }
+    if (BATCH) {
+      o0 = clampRange(o0, p);
+      o1 = clampRange(o1, p);
+      if (!AC4) {
+        o2 = clampRange(o2, p);
+      }
+    }
   }
 
-  d[0] = fromFloat<T>(o0);
-  if (CH >= 2)
-    d[1] = fromFloat<T>(o1);
-  if (CH >= 3)
-    d[2] = fromFloat<T>(o2);
-  if (CH == 4) {
-    if (AC4) {
-      // alpha is neither read nor written
-    } else if (HAS_CONST) {
-      d[3] = fromFloat<T>(o3);
-    } else {
-      d[3] = s[3];
+  if (BATCH) {
+    d[0] = batchFromFloat<T>(o0);
+    if (CH >= 2)
+      d[1] = batchFromFloat<T>(o1);
+    if (CH >= 3)
+      d[2] = (AC4 && !HAS_CONST) ? fromFloat<T>(o2) : batchFromFloat<T>(o2);
+    if (CH == 4) {
+      if (HAS_CONST) {
+        d[3] = batchFromFloat<T>(o3);
+      } else if (std::is_same<T, Npp16f>::value) {
+        // The 16f batch kernels copy the source alpha (measured); the 8u/32f
+        // batch kernels leave the destination alpha untouched.
+        d[3] = s[3];
+      }
+    }
+  } else {
+    d[0] = fromFloat<T>(o0);
+    if (CH >= 2)
+      d[1] = fromFloat<T>(o1);
+    if (CH >= 3)
+      d[2] = fromFloat<T>(o2);
+    if (CH == 4) {
+      if (HAS_CONST) {
+        d[3] = fromFloat<T>(o3);
+      } else if (!AC4) {
+        d[3] = s[3];
+      }
     }
   }
 }
@@ -203,6 +246,12 @@ __global__ void colorTwistPlanarKernel(const T *s0, const T *s1, const T *s2, in
 template <typename T, int CH, bool AC4, bool HAS_CONST, bool INPLACE>
 __global__ void colorTwistBatchKernel(NppiColorTwistBatchCXR *list, int width, int height, float nMin, float nMax) {
   const NppiColorTwistBatchCXR entry = list[blockIdx.z];
+  // Negative per-entry steps are unspecified in NPP (probing them would fault
+  // the reference recorder); mcMPP defensively skips such entries instead of
+  // reading/writing at negative offsets.
+  if (entry.nSrcStep < 0 || entry.nDstStep < 0) {
+    return;
+  }
   TwistParams p;
   p.nMin = nMin;
   p.nMax = nMax;
@@ -221,7 +270,7 @@ __global__ void colorTwistBatchKernel(NppiColorTwistBatchCXR *list, int width, i
   const T *s =
       reinterpret_cast<const T *>(reinterpret_cast<const char *>(src) + (size_t)y * entry.nSrcStep) + (size_t)x * CH;
   T *d = reinterpret_cast<T *>(reinterpret_cast<char *>(dst) + (size_t)y * entry.nDstStep) + (size_t)x * CH;
-  twistPixel<T, CH, AC4, HAS_CONST, true, packedBias<T, CH>()>(s, d, p);
+  twistPixel<T, CH, AC4, HAS_CONST, true, batchBias<T, CH>()>(s, d, p);
 }
 
 // ---- shared host-side validation ----------------------------------------------
@@ -475,17 +524,21 @@ NppStatus twistCIR(T *pSrcDst, int nSrcDstStep, NppiSize oSizeROI, const Npp32f 
 template <typename T, int CH, bool AC4, bool INPLACE, bool HAS_CONST>
 NppStatus batchTwist(Npp32f nMin, Npp32f nMax, NppiSize oSizeROI, NppiColorTwistBatchCXR *pBatchList, int nBatchSize,
                      cudaStream_t stream) {
+  // Validation order measured against NPP 13.4 (RTX 5090): a null list, then
+  // nBatchSize < 2 (NPP_BAD_ARGUMENT_ERROR - "must be > 1" is enforced), then
+  // a negative ROI.  Steps and per-entry pointers are NOT validated: NPP
+  // launches anyway (a null entry pointer returns NPP_NO_ERROR and faults on
+  // the device).  An empty ROI also launches - with a zero grid dimension -
+  // and yields NPP_CUDA_KERNEL_EXECUTION_ERROR, which checkLaunch() below
+  // reproduces through the same degenerate launch.
   if (!pBatchList) {
     return NPP_NULL_POINTER_ERROR;
   }
+  if (nBatchSize < 2) {
+    return NPP_BAD_ARGUMENT_ERROR;
+  }
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
-  }
-  if (nBatchSize <= 0) {
-    return NPP_SIZE_ERROR;
-  }
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    return NPP_NO_ERROR;
   }
   dim3 grid = gridSize(oSizeROI.width, oSizeROI.height);
   grid.z = static_cast<unsigned>(nBatchSize);

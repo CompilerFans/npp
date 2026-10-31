@@ -25,8 +25,33 @@
 //     truncate conversion, Npp32f keeps the bias in the output, Npp16f has no
 //     bias and converts round-to-nearest.
 //   * Batch variants: every NppiColorTwistBatchCXR entry carries its own twist
-//     matrix (12 floats, or 20 floats = 4x4 + 4 constants for the "C" forms);
-//     results are clamped to [nMin, nMax] before the dtype conversion.
+//     matrix (12 floats, or 20 floats = 4x4 + 4 constants for the "C" forms).
+//     Measured on the RTX 5090:
+//     - the +0.5f bias is applied FIRST, then out = clamp(acc + 0.5f, nMin,
+//       nMax), then the dtype conversion (an inverted [nMin, nMax] range
+//       yields nMax); Npp32f is biased on EVERY layout (even C1), integer
+//       dtypes only for CH >= 3, Npp16f never.  The clamp is comparison-based,
+//       so a NaN produced by the dot product (0 * +-inf) survives it.
+//     - Npp8u conversion: the LOW BYTE of (Npp8u)__float2uint_rz(x) - no
+//       [0,255] saturation (values past 255 wrap, negatives become 0), unlike
+//       every non-batch kernel.  Npp16f / Npp32f convert as usual.
+//     - the non-const C4/AC4 batch kernels never twist alpha: Npp8u/Npp32f
+//       leave the destination alpha untouched, Npp16f COPIES the source alpha
+//       (unlike the single-image C4 of every dtype, which copies it); the "C"
+//       batch forms compute alpha from the 4th matrix row + constant like the
+//       "C" single-image forms (clamped and low-byte converted).
+//     - the AC4 batch kernels exempt output channel 2 from the [nMin, nMax]
+//       clamp and convert it with the saturating [0,255] conversion instead
+//       (both sides measured: 32f identity for the min side, 8u twist3b for
+//       the max side); channels 0/1 clamp normally.
+//     - validation: null list -> NPP_NULL_POINTER_ERROR; nBatchSize < 2 ->
+//       NPP_BAD_ARGUMENT_ERROR ("must be > 1" is enforced); negative ROI ->
+//       NPP_SIZE_ERROR; an empty ROI launches a degenerate grid and returns
+//       NPP_CUDA_KERNEL_EXECUTION_ERROR.  Steps and per-entry pointers are
+//       NOT validated: a null entry pointer returns NPP_NO_ERROR and faults
+//       on the device, a misaligned src step faults; negative steps are
+//       unspecified (not measurable without faulting the reference), mcMPP
+//       defensively skips those entries.
 //   * validation (measured): negative ROI -> NPP_SIZE_ERROR; packed dst step
 //     uses an unsigned range check (0 <= step < rowBytes -> NPP_STEP_ERROR,
 //     negative accepted); the packed src step is not validated; planar
