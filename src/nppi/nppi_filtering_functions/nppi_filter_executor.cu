@@ -764,10 +764,11 @@ NppStatus filterDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
       oAnchor.y > kh) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
+  // 5090: step size and the empty-ROI no-op are checked before the divisor.
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   if (kw <= 0 || kh <= 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
   }
@@ -792,10 +793,8 @@ NppStatus filter64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   const int kw = oKernelSize.width;
   const int kh = oKernelSize.height;
-  if (oAnchor.x < 1 - oSizeROI.width || oAnchor.x > kw || oAnchor.y < 1 - oSizeROI.height ||
-      oAnchor.y > kh) {
-    return NPP_OUT_OFF_RANGE_ERROR;
-  }
+  // 5090: nppiFilter_64f_C1R does NOT validate the anchor (anchor {4,1} with a
+  // 3x3 kernel is NO_ERROR); the integer/32f variants keep the check.
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
@@ -865,11 +864,15 @@ NppStatus filterRowDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
                        cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  if (nAnchor < 1 - oROI.width || nAnchor > nMaskSize) return NPP_OUT_OFF_RANGE_ERROR;
-  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
+  // 5090: the filter-axis empty ROI is the no-op and is checked before the
+  // anchor; a zero cross-axis is a SIZE error.  An anchor above the mask is
+  // accepted for the 1D families; only a too-negative anchor is OUT_OFF_RANGE.
+  if (oROI.width == 0) return NPP_NO_ERROR;
+  if (oROI.height == 0) return NPP_SIZE_ERROR;  // cross axis: SIZE, not a no-op
+  if (nAnchor < 1 - oROI.width) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
-  if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
+  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
   }
@@ -888,11 +891,12 @@ NppStatus filterColumnDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
                           cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  if (nAnchor < 1 - oROI.height || nAnchor > nMaskSize) return NPP_OUT_OFF_RANGE_ERROR;
-  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
+  if (oROI.height == 0) return NPP_NO_ERROR;
+  if (oROI.width == 0) return NPP_SIZE_ERROR;  // cross axis: SIZE
+  if (nAnchor < 1 - oROI.height) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
-  if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
+  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
   }
@@ -1023,15 +1027,16 @@ NppStatus filterRowBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
+  // 5090: the source-offset check runs before the border-mode check.
   if (oSrcOffset.x < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y < 0 ||
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   if (nMaskSize < 0) return NPP_NO_ERROR;
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height, stream);
@@ -1054,15 +1059,15 @@ NppStatus filterColumnBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
   if (oSrcOffset.x < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y < 0 ||
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
   if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  if (nDivisor == 0) return NPP_DIVISOR_ERROR;
   if (nMaskSize < 0) return NPP_NO_ERROR;
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width, oSizeROI.height - 1, stream);
@@ -1085,13 +1090,16 @@ NppStatus sumWindowRow(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep
                        int nMaskSize, int nAnchor, cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  if (nAnchor < 1 - oROI.width || nAnchor > nMaskSize) return NPP_OUT_OFF_RANGE_ERROR;
+  // 5090 sum-window contract: mask <= 0 -> MASK_SIZE; anchor >= mask ->
+  // ANCHOR; anchor <= 1-dim -> OUT_OFF_RANGE; a zero cross-axis is a SIZE
+  // error while a zero filter-axis is the no-op.
+  if (oROI.width == 0) return NPP_NO_ERROR;   // filter axis: empty no-op
+  if (oROI.height == 0) return NPP_SIZE_ERROR;  // cross axis: SIZE
+  if (nMaskSize <= 0) return NPP_MASK_SIZE_ERROR;
+  if (nAnchor >= nMaskSize) return NPP_ANCHOR_ERROR;
+  if (nAnchor <= 1 - oROI.width) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
-  if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
-  if (nMaskSize == 0) {
-    return launchZeroFill<Npp32f, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
-  }
   if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
@@ -1105,13 +1113,13 @@ NppStatus sumWindowColumn(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstS
                           int nMaskSize, int nAnchor, cudaStream_t stream) {
   if (pSrc == nullptr || pDst == nullptr) return NPP_NULL_POINTER_ERROR;
   if (oROI.width < 0 || oROI.height < 0) return NPP_SIZE_ERROR;
-  if (nAnchor < 1 - oROI.height || nAnchor > nMaskSize) return NPP_OUT_OFF_RANGE_ERROR;
+  if (oROI.height == 0) return NPP_NO_ERROR;   // filter axis: empty no-op
+  if (oROI.width == 0) return NPP_SIZE_ERROR;   // cross axis: SIZE
+  if (nMaskSize <= 0) return NPP_MASK_SIZE_ERROR;
+  if (nAnchor >= nMaskSize) return NPP_ANCHOR_ERROR;
+  if (nAnchor <= 1 - oROI.height) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
-  if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
-  if (nMaskSize == 0) {
-    return launchZeroFill<Npp32f, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
-  }
   if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
@@ -1135,13 +1143,11 @@ NppStatus sumWindowRowBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
+  if (nMaskSize <= 0) return NPP_MASK_SIZE_ERROR;
+  if (nAnchor >= nMaskSize) return NPP_ANCHOR_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
   if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
-  if (nMaskSize < 0) return NPP_NO_ERROR;
-  if (nMaskSize == 0) {
-    return launchZeroFill<Npp32f, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
-  }
   if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
@@ -1163,13 +1169,11 @@ NppStatus sumWindowColumnBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
+  if (nMaskSize <= 0) return NPP_MASK_SIZE_ERROR;
+  if (nAnchor >= nMaskSize) return NPP_ANCHOR_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
   if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
-  if (nMaskSize < 0) return NPP_NO_ERROR;
-  if (nMaskSize == 0) {
-    return launchZeroFill<Npp32f, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
-  }
   if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
