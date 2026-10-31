@@ -1182,11 +1182,11 @@ static void gap1() {
   cudaMemcpy(d_k, idk, 12, cudaMemcpyHostToDevice);
   auto dump = [&](const char *tag, NppStatus st, NppiSize roi) {
     printf("gap1 %s st=%d\n", tag, (int)st);
-    std::vector<float> out((size_t)roi.width * roi.height, -777.f);
-    cudaMemcpy(out.data(), d_d, out.size() * 4, cudaMemcpyDeviceToHost);
+    std::vector<float> buf((size_t)W * H, -777.f);
+    cudaMemcpy(buf.data(), d_d, buf.size() * 4, cudaMemcpyDeviceToHost);
     for (int y = 0; y < roi.height; ++y) {
       printf("  ");
-      for (int x = 0; x < roi.width; ++x) printf(" %g", out[(size_t)y * roi.width + x]);
+      for (int x = 0; x < roi.width; ++x) printf(" %g", buf[(size_t)y * W + x]);
       printf("\n");
     }
   };
