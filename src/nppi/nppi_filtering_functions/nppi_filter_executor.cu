@@ -565,12 +565,12 @@ __global__ void sum_window_row_kernel(const Src *__restrict__ pSrc, int nSrcStep
   const char *srow = (const char *)pSrc + (long long)y * nSrcStep;
   for (int c = 0; c < CH; ++c) {
     float acc = 0.0f;
+    // Non-border sum-window reads raw source taps (no clipping/replication);
+    // the differential buffers carry margins for the window overhang.
     for (int i = 0; i < mask; ++i) {
-      const int k = x + ax - i;
-      if (k >= 0 && k < W) {
-        const Src *sp = (const Src *)(srow + ((long long)k * CH + c) * (long long)sizeof(Src));
-        acc += to_float(*sp);
-      }
+      const int k = x - ax + i;  // NPP window: [x-ax, x-ax+mask-1]
+      const Src *sp = (const Src *)(srow + ((long long)k * CH + c) * (long long)sizeof(Src));
+      acc += to_float(*sp);
     }
     char *dp = (char *)pDst + (long long)y * nDstStep + ((long long)x * CH + c) * (long long)sizeof(Npp32f);
     *reinterpret_cast<Npp32f *>(dp) = acc;
@@ -587,12 +587,10 @@ __global__ void sum_window_col_kernel(const Src *__restrict__ pSrc, int nSrcStep
   for (int c = 0; c < CH; ++c) {
     float acc = 0.0f;
     for (int i = 0; i < mask; ++i) {
-      const int k = y + ay - i;
-      if (k >= 0 && k < H) {
-        const char *srow = (const char *)pSrc + (long long)k * nSrcStep;
-        const Src *sp = (const Src *)(srow + ((long long)x * CH + c) * (long long)sizeof(Src));
-        acc += to_float(*sp);
-      }
+      const int k = y - ay + i;  // NPP window: [y-ay, y-ay+mask-1]
+      const char *srow = (const char *)pSrc + (long long)k * nSrcStep;
+      const Src *sp = (const Src *)(srow + ((long long)x * CH + c) * (long long)sizeof(Src));
+      acc += to_float(*sp);
     }
     char *dp = (char *)pDst + (long long)y * nDstStep + ((long long)x * CH + c) * (long long)sizeof(Npp32f);
     *reinterpret_cast<Npp32f *>(dp) = acc;
@@ -617,7 +615,7 @@ __global__ void sum_window_row_border_kernel(const Src *__restrict__ pSrc, int n
   for (int c = 0; c < CH; ++c) {
     float acc = 0.0f;
     for (int i = 0; i < mask; ++i) {
-      const int ix = clampi(x + offx + ax - i, 0, sw - 1);
+      const int ix = clampi(x + offx - ax + i, 0, sw - 1);
       const Src *sp = (const Src *)(srow + ((long long)ix * CH + c) * (long long)sizeof(Src));
       acc += to_float(*sp);
     }
@@ -639,7 +637,7 @@ __global__ void sum_window_col_border_kernel(const Src *__restrict__ pSrc, int n
   for (int c = 0; c < CH; ++c) {
     float acc = 0.0f;
     for (int i = 0; i < mask; ++i) {
-      const int iy = clampi(y + offy + ay - i, 0, sh - 1);
+      const int iy = clampi(y + offy - ay + i, 0, sh - 1);
       const char *srow = origin + (long long)iy * nSrcStep;
       const Src *sp = (const Src *)(srow + ((long long)ix * CH + c) * (long long)sizeof(Src));
       acc += to_float(*sp);
@@ -676,7 +674,6 @@ NppStatus filter32f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
   if (kw <= 0 || kh <= 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;  // NPP accepts negative steps (launch stays in bounds)
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -708,7 +705,6 @@ NppStatus filterBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Nppi
   if (oKernelSize.width <= 0 || oKernelSize.height <= 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -772,7 +768,6 @@ NppStatus filterDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
   if (kw <= 0 || kh <= 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;  // NPP accepts negative steps (launch stays in bounds)
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -801,7 +796,6 @@ NppStatus filter64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, Nppi
   if (kw <= 0 || kh <= 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;  // NPP accepts negative steps (launch stays in bounds)
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -826,7 +820,6 @@ NppStatus filterRow32f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_row_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -846,7 +839,6 @@ NppStatus filterColumn32f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_col_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -876,7 +868,6 @@ NppStatus filterRowDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_row_div_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -900,7 +891,6 @@ NppStatus filterColumnDiv(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_col_div_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -924,7 +914,6 @@ NppStatus filterRow64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep, N
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width - 1, oROI.height, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_row_64f_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -944,7 +933,6 @@ NppStatus filterColumn64f(const Src *pSrc, int nSrcStep, Dst *pDst, int nDstStep
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oROI.width, oROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   filter_col_64f_kernel<Src, Dst, CH, AC4><<<grid, block, 0, stream>>>(
@@ -975,7 +963,6 @@ NppStatus filterRowBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -1005,7 +992,6 @@ NppStatus filterColumnBorder32f(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width, oSizeROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -1041,7 +1027,6 @@ NppStatus filterRowBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width - 1, oSizeROI.height, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -1072,7 +1057,6 @@ NppStatus filterColumnBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
   if (nMaskSize == 0) {
     return launchZeroFill<Dst, CH>(pDst, nDstStep, oSizeROI.width, oSizeROI.height - 1, stream);
   }
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -1100,7 +1084,6 @@ NppStatus sumWindowRow(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep
   if (nAnchor <= 1 - oROI.width) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   sum_window_row_kernel<Src, CH><<<grid, block, 0, stream>>>(
@@ -1120,7 +1103,6 @@ NppStatus sumWindowColumn(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstS
   if (nAnchor <= 1 - oROI.height) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   sum_window_col_kernel<Src, CH><<<grid, block, 0, stream>>>(
@@ -1148,7 +1130,6 @@ NppStatus sumWindowRowBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
   if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   sum_window_row_border_kernel<Src, CH><<<grid, block, 0, stream>>>(
@@ -1174,7 +1155,6 @@ NppStatus sumWindowColumnBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
   const int rowBytes = oROI.width * CH * (int)sizeof(Npp32f);
   if (step_too_small(nDstStep, rowBytes, oROI.height)) return NPP_STEP_ERROR;
   if (oROI.width == 0 || oROI.height == 0) return NPP_NO_ERROR;
-  if (nDstStep < 0) return NPP_NO_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oROI.width + kBlockX - 1) / kBlockX, (oROI.height + kBlockY - 1) / kBlockY);
   sum_window_col_border_kernel<Src, CH><<<grid, block, 0, stream>>>(
