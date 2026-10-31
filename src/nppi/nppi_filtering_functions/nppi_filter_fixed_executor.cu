@@ -52,9 +52,10 @@ inline FixedCoef coef5(const int *k25, int bias, int denom) {
 }
 
 inline FixedCoef fixed_coef(FixedOp op, int maskSize) {
-  // HighPass: n*center - sum(window), n = 9 (3x3) or 25 (5x5).
-  static const int HighPass3[9] = {-1, -1, -1, -1, 9, -1, -1, -1, -1};
-  static const int HighPass5[25] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, -1, -1,
+  // HighPass: n*n*center - sum(window) with n = 3 / 5, i.e. a zero-sum kernel
+  // with center tap n*n-1 (8 resp. 24) and -1 elsewhere (probe-verified).
+  static const int HighPass3[9] = {-1, -1, -1, -1, 8, -1, -1, -1, -1};
+  static const int HighPass5[25] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 24, -1, -1,
                                     -1, -1, -1, -1, -1,  -1, -1, -1, -1, -1};
   // LowPass: box sum / n.
   static const int Box3[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};

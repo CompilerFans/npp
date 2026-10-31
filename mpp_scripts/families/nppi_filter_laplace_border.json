@@ -7,11 +7,11 @@
   ],
   "call_variants": [
     {
-      "contains": "Npp8u * pSrc, Npp32s nSrcStep, Npp16s * pDst",
+      "contains": "Npp8u * pSrc, Npp32s nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s * pDst",
       "call": "nppi::filter::filterFixedMaskBorder<{dtype}, {dst_dtype}, 1, 0, nppi::filter::kLaplace>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream)"
     },
     {
-      "contains": "Npp8s * pSrc, Npp32s nSrcStep, Npp16s * pDst",
+      "contains": "Npp8s * pSrc, Npp32s nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s * pDst",
       "call": "nppi::filter::filterFixedMaskBorder<{dtype}, {dst_dtype}, 1, 0, nppi::filter::kLaplace>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream)"
     }
   ],

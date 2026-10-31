@@ -38,11 +38,11 @@ NppStatus nppiFilterLaplaceBorder_32f_C4R_Ctx(const Npp32f * pSrc, Npp32s nSrcSt
 }
 
 NppStatus nppiFilterLaplaceBorder_8s16s_C1R_Ctx(const Npp8s * pSrc, Npp32s nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s * pDst, Npp32s nDstStep, NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
-  return nppi::filter::filterFixedMaskBorder<Npp8s, Npp8s, 1, 0, nppi::filter::kLaplace>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream);
+  return nppi::filter::filterFixedMaskBorder<Npp8s, Npp16s, 1, 0, nppi::filter::kLaplace>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream);
 }
 
 NppStatus nppiFilterLaplaceBorder_8u16s_C1R_Ctx(const Npp8u * pSrc, Npp32s nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp16s * pDst, Npp32s nDstStep, NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
-  return nppi::filter::filterFixedMaskBorder<Npp8u, Npp8u, 1, 0, nppi::filter::kLaplace>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream);
+  return nppi::filter::filterFixedMaskBorder<Npp8u, Npp16s, 1, 0, nppi::filter::kLaplace>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream);
 }
 
 NppStatus nppiFilterLaplaceBorder_8u_AC4R_Ctx(const Npp8u * pSrc, Npp32s nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset, Npp8u * pDst, Npp32s nDstStep, NppiSize oSizeROI, NppiMaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx) {
