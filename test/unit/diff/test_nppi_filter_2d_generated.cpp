@@ -295,8 +295,8 @@ TEST_F(NppiFilter2dDiff, FloatGeometry) {
   g32("small", 1, 1, 3, 3, 1, 1, m, 0x620C, make_kf(9, 0x620C));
   g32("emptyw", 0, 13, 5, 5, 2, 2, m, 0x620D, make_kf(25, 0x620D));
   g32("emptyh", 17, 0, 5, 5, 2, 2, m, 0x620E, make_kf(25, 0x620E));
-  g32("negstep", 17, 13, 5, 5, 2, 2, m, 0x620F, make_kf(25, 0x620F), -48);
-  g32("bigstep", 17, 13, 5, 5, 2, 2, m, 0x6210, make_kf(25, 0x6210), 98);
+  g32("negstep", 17, 13, 5, 5, 2, 2, m, 0x620F, make_kf(25, 0x620F), -252);
+  g32("bigstep", 17, 13, 5, 5, 2, 2, m, 0x6210, make_kf(25, 0x6210), 264);
   g32("sstep_small", 8, 8, 3, 3, 1, 1, m, 0x6211, make_kf(9, 0x6211), 0, 4);
   f2<Npp64f, Npp64f, Npp64f>("nppiFilter", "nppiFilter_64f_C1R", "geom/64f/a0", 17, 13, 1, 5, 5, 0,
                              0, kMargin, 0x6301, dst_kind<Npp64f>(), make_kd(25, 0x6301),
@@ -325,6 +325,19 @@ TEST_F(NppiFilter2dDiff, FloatGeometry) {
                              });
   f2<Npp64f, Npp64f, Npp64f>("nppiFilter", "nppiFilter_64f_C1R", "geom/64f/emptyw", 0, 13, 1, 5,
                              5, 2, 2, kMargin, 0x6305, dst_kind<Npp64f>(), make_kd(25, 0x6305),
+                             [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
+                                const Npp64f *k, NppiSize ks, NppiPoint a, NppStreamContext c) {
+                               return nppiFilter_64f_C1R_Ctx(s, ss, d, ds, o, k, ks, a, c);
+                             });
+  // 2D 64f degenerate-kernel probes: empty taps along one axis only.
+  f2<Npp64f, Npp64f, Npp64f>("nppiFilter", "nppiFilter_64f_C1R", "geom/64f/kevw", 17, 13, 1, 0, 5,
+                             0, 2, kMargin, 0x6306, dst_kind<Npp64f>(), make_kd(5, 0x6306),
+                             [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
+                                const Npp64f *k, NppiSize ks, NppiPoint a, NppStreamContext c) {
+                               return nppiFilter_64f_C1R_Ctx(s, ss, d, ds, o, k, ks, a, c);
+                             });
+  f2<Npp64f, Npp64f, Npp64f>("nppiFilter", "nppiFilter_64f_C1R", "geom/64f/kevh", 17, 13, 1, 5, 0,
+                             2, 0, kMargin, 0x6307, dst_kind<Npp64f>(), make_kd(5, 0x6307),
                              [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
                                 const Npp64f *k, NppiSize ks, NppiPoint a, NppStreamContext c) {
                                return nppiFilter_64f_C1R_Ctx(s, ss, d, ds, o, k, ks, a, c);
@@ -408,6 +421,29 @@ TEST_F(NppiFilter2dDiff, LayoutGeometry) {
                                 const Npp32f *k, NppiSize ks, NppiPoint a, NppStreamContext c) {
                                return nppiFilter_32f_C1R_Ctx(s, ss, d, ds, o, k, ks, a, c);
                              });
+  // 32f_C1R shape probes: whether reads past the ROI are clamped into the ROI
+  // or taken raw from the surrounding arena depends on the kernel shape
+  // (5x5@a(0,0) clamps, 3x1@a(0,0) reads raw).  These pin the boundary.
+  auto g1c = [&](const char *tag, int kw, int kh, int ax, int ay, uint64_t seed, size_t nk) {
+    f2<Npp32f, Npp32f, Npp32f>("nppiFilter", "nppiFilter_32f_C1R",
+                               std::string("geom/32f_C1/") + tag, 17, 13, 1, kw, kh, ax, ay,
+                               kMargin, seed, dst_kind<Npp32f>(), make_kf(nk, seed),
+                               [](const Npp32f *s, int ss, Npp32f *d, int ds, NppiSize o,
+                                  const Npp32f *k, NppiSize ks, NppiPoint a, NppStreamContext c) {
+                                 return nppiFilter_32f_C1R_Ctx(s, ss, d, ds, o, k, ks, a, c);
+                               });
+  };
+  g1c("p13", 1, 3, 0, 0, 0x6430, 3);
+  g1c("p31", 3, 1, 0, 0, 0x6431, 3);
+  g1c("p22", 2, 2, 0, 0, 0x6432, 4);
+  g1c("p33", 3, 3, 0, 0, 0x6433, 9);
+  g1c("p44", 4, 4, 0, 0, 0x6434, 16);
+  g1c("p51", 5, 1, 0, 0, 0x6435, 5);
+  g1c("p15", 1, 5, 0, 0, 0x6436, 5);
+  g1c("p53", 5, 3, 0, 0, 0x6437, 15);
+  g1c("p35", 3, 5, 0, 0, 0x6438, 15);
+  g1c("p33c", 3, 3, 2, 2, 0x6439, 9);
+  g1c("p55c", 5, 5, 2, 2, 0x643A, 25);
 }
 
 // ---------------------------------------------------------------------------
@@ -581,6 +617,13 @@ TEST_F(NppiFilter2dDiff, FloatErrors) {
   });
   status_case("nppiFilter", "nppiFilter_64f_C1R", "ok/64f/empty_roi", [&] {
     return nppiFilter_64f_C1R_Ctx(ps64, 64, pd64, 64, NppiSize{0, 8}, pk64, {3, 3}, {1, 1}, ctx);
+  });
+  // 2D 64f anchor lower-bound probes (roi is 8x8, W = 8): 1-W = -7.
+  status_case("nppiFilter", "nppiFilter_64f_C1R", "err/64f/anchor_low", [&] {
+    return nppiFilter_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, {3, 3}, {-8, 1}, ctx);
+  });
+  status_case("nppiFilter", "nppiFilter_64f_C1R", "ok/64f/anchor_1w", [&] {
+    return nppiFilter_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, {3, 3}, {-7, 1}, ctx);
   });
   // Divisor errors on an AC4 variant.
   DeviceMemory<Npp16u> &s2 = arena<Npp16u>(4096);

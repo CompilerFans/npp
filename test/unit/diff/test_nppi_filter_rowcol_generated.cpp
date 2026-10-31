@@ -333,7 +333,7 @@ TEST_F(NppiFilterRowColDiff, FloatGeometry) {
   row32("mask9", 17, 13, 9, 4, m, 0x7206, make_kf(9, 0x7206));
   row32("mask0", 17, 13, 0, 0, m, 0x7207, make_kf(1, 0x7207));
   row32("emptyw", 0, 13, 3, 1, m, 0x7208, make_kf(3, 0x7208));
-  row32("negstep", 17, 13, 5, 2, m, 0x7209, make_kf(5, 0x7209), -48);
+  row32("negstep", 17, 13, 5, 2, m, 0x7209, make_kf(5, 0x7209), -252);
   row32("sstep_small", 8, 8, 3, 1, m, 0x720A, make_kf(3, 0x720A), 0, 4);
   col32("a0", 17, 13, 5, 0, m, 0x7211, make_kf(5, 0x7211));
   col32("amax", 17, 13, 5, 5, m, 0x7212, make_kf(5, 0x7212));
@@ -363,6 +363,33 @@ TEST_F(NppiFilterRowColDiff, FloatGeometry) {
                              });
   rc<Npp64f, Npp64f, Npp64f>("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "geom/64f_col/mask0",
                              17, 13, 1, 0, 0, 0x7304, dst_kind<Npp64f>(), make_kd(1, 0x7304),
+                             [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
+                                const Npp64f *k, int m, int a, NppStreamContext c) {
+                               return nppiFilterColumn_64f_C1R_Ctx(s, ss, d, ds, o, k, m, a, c);
+                             });
+  // 64f probes: does the mask0 fast path use k[0] or k[a], and what does a
+  // negative mask do?
+  rc<Npp64f, Npp64f, Npp64f>("nppiFilterRow", "nppiFilterRow_64f_C1R", "geom/64f_row/mask0_a2", 17,
+                             13, 1, 0, 2, 0x7305, dst_kind<Npp64f>(), make_kd(3, 0x7305),
+                             [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
+                                const Npp64f *k, int m, int a, NppStreamContext c) {
+                               return nppiFilterRow_64f_C1R_Ctx(s, ss, d, ds, o, k, m, a, c);
+                             });
+  rc<Npp64f, Npp64f, Npp64f>("nppiFilterRow", "nppiFilterRow_64f_C1R", "geom/64f_row/maskneg", 17,
+                             13, 1, -3, 0, 0x7306, dst_kind<Npp64f>(), make_kd(5, 0x7306),
+                             [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
+                                const Npp64f *k, int m, int a, NppStreamContext c) {
+                               return nppiFilterRow_64f_C1R_Ctx(s, ss, d, ds, o, k, m, a, c);
+                             });
+  rc<Npp64f, Npp64f, Npp64f>("nppiFilterColumn", "nppiFilterColumn_64f_C1R",
+                             "geom/64f_col/mask0_a2", 17, 13, 1, 0, 2, 0x7307,
+                             dst_kind<Npp64f>(), make_kd(3, 0x7307),
+                             [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
+                                const Npp64f *k, int m, int a, NppStreamContext c) {
+                               return nppiFilterColumn_64f_C1R_Ctx(s, ss, d, ds, o, k, m, a, c);
+                             });
+  rc<Npp64f, Npp64f, Npp64f>("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "geom/64f_col/maskneg",
+                             17, 13, 1, -3, 0, 0x7308, dst_kind<Npp64f>(), make_kd(5, 0x7308),
                              [](const Npp64f *s, int ss, Npp64f *d, int ds, NppiSize o,
                                 const Npp64f *k, int m, int a, NppStreamContext c) {
                                return nppiFilterColumn_64f_C1R_Ctx(s, ss, d, ds, o, k, m, a, c);
@@ -477,67 +504,67 @@ TEST_F(NppiFilterRowColDiff, DivErrors) {
                  int div) {
     return nppiFilterColumn_16s_C1R_Ctx(src, ss, dst, ds, o, pk, m, a, div, ctx);
   };
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/null_src",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/null_src",
               [&] { return row(nullptr, 16, pd, 16, roi, 3, 1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/null_dst",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/null_dst",
               [&] { return row(ps, 16, nullptr, 16, roi, 3, 1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/neg_roi",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/neg_roi",
               [&] { return row(ps, 16, pd, 16, NppiSize{-1, 8}, 3, 1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/neg_roi_vs_anchor",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/neg_roi_vs_anchor",
               [&] { return row(ps, 16, pd, 16, NppiSize{-1, 8}, 3, 9, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/anchor_high",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/anchor_high",
               [&] { return row(ps, 16, pd, 16, roi, 3, 4, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/anchor_low",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/anchor_low",
               [&] { return row(ps, 16, pd, 16, roi, 3, -8, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/anchor_high_vs_step",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/anchor_high_vs_step",
               [&] { return row(ps, 16, pd, 15, roi, 3, 4, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/anchor_high_vs_div0",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/anchor_high_vs_div0",
               [&] { return row(ps, 16, pd, 16, roi, 3, 4, 0); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/step_small",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/step_small",
               [&] { return row(ps, 16, pd, 15, roi, 3, 1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/step_zero",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/step_zero",
               [&] { return row(ps, 16, pd, 0, roi, 3, 1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/step_small_vs_div0",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/step_small_vs_div0",
               [&] { return row(ps, 16, pd, 15, roi, 3, 1, 0); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/div0",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/div0",
               [&] { return row(ps, 16, pd, 16, roi, 3, 1, 0); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/div0_vs_negroi",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/div0_vs_negroi",
               [&] { return row(ps, 16, pd, 16, NppiSize{-1, 8}, 3, 1, 0); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/div0_vs_empty",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/div0_vs_empty",
               [&] { return row(ps, 16, pd, 16, NppiSize{0, 8}, 3, 1, 0); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/div0_vs_mask0",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/div0_vs_mask0",
               [&] { return row(ps, 16, pd, 16, roi, 0, 0, 0); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/mask_neg_anchor0",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "err/16s/mask_neg_anchor0",
               [&] { return row(ps, 16, pd, 16, roi, -1, 0, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "ok/mask_neg_anchor_ok",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "ok/16s/mask_neg_anchor_ok",
               [&] { return row(ps, 16, pd, 16, roi, -1, -1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "ok/neg_step",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "ok/16s/neg_step",
               [&] { return row(ps, 16, pd + 3000, -64, roi, 3, 1, 7); });
-  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "ok/empty_roi",
+  status_case("nppiFilterRow", "nppiFilterRow_16s_C1R", "ok/16s/empty_roi",
               [&] { return row(ps, 16, pd, 16, NppiSize{0, 8}, 3, 1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/null_src",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/null_src",
               [&] { return col(nullptr, 16, pd, 16, roi, 3, 1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/null_dst",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/null_dst",
               [&] { return col(ps, 16, nullptr, 16, roi, 3, 1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/anchor_high",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/anchor_high",
               [&] { return col(ps, 16, pd, 16, roi, 3, 4, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/anchor_low",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/anchor_low",
               [&] { return col(ps, 16, pd, 16, roi, 3, -8, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/neg_roi",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/neg_roi",
               [&] { return col(ps, 16, pd, 16, NppiSize{8, -1}, 3, 1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/step_small",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/step_small",
               [&] { return col(ps, 16, pd, 15, roi, 3, 1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/div0",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/div0",
               [&] { return col(ps, 16, pd, 16, roi, 3, 1, 0); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/div0_vs_empty",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/div0_vs_empty",
               [&] { return col(ps, 16, pd, 16, NppiSize{8, 0}, 3, 1, 0); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/mask_neg_anchor0",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "err/16s/mask_neg_anchor0",
               [&] { return col(ps, 16, pd, 16, roi, -1, 0, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "ok/mask_neg_anchor_ok",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "ok/16s/mask_neg_anchor_ok",
               [&] { return col(ps, 16, pd, 16, roi, -1, -1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "ok/neg_step",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "ok/16s/neg_step",
               [&] { return col(ps, 16, pd + 3000, -64, roi, 3, 1, 7); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "ok/empty_roi",
+  status_case("nppiFilterColumn", "nppiFilterColumn_16s_C1R", "ok/16s/empty_roi",
               [&] { return col(ps, 16, pd, 16, NppiSize{8, 0}, 3, 1, 7); });
 }
 
@@ -557,31 +584,31 @@ TEST_F(NppiFilterRowColDiff, FloatErrors) {
   auto col = [&](const Npp32f *src, int ss, Npp32f *dst, int ds, NppiSize o, int m, int a) {
     return nppiFilterColumn_32f_C3R_Ctx(src, ss, dst, ds, o, pk, m, a, ctx);
   };
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/null_src",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/32f/null_src",
               [&] { return row(nullptr, 96, pd, 96, roi, 3, 1); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/anchor_high",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/32f/anchor_high",
               [&] { return row(ps, 96, pd, 96, roi, 3, 4); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/anchor_low",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/32f/anchor_low",
               [&] { return row(ps, 96, pd, 96, roi, 3, -8); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/anchor_high_vs_step",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/32f/anchor_high_vs_step",
               [&] { return row(ps, 96, pd, 95, roi, 3, 4); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/step_small",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/32f/step_small",
               [&] { return row(ps, 96, pd, 95, roi, 3, 1); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/step_zero",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "err/32f/step_zero",
               [&] { return row(ps, 96, pd, 0, roi, 3, 1); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "ok/mask_neg_anchor_ok",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "ok/32f/mask_neg_anchor_ok",
               [&] { return row(ps, 96, pd, 96, roi, -1, -1); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "ok/neg_step",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "ok/32f/neg_step",
               [&] { return row(ps, 96, pd + 3000, -192, roi, 3, 1); });
-  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "ok/empty_roi",
+  status_case("nppiFilterRow", "nppiFilterRow_32f_C3R", "ok/32f/empty_roi",
               [&] { return row(ps, 96, pd, 96, NppiSize{0, 8}, 3, 1); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "err/null_dst",
+  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "err/32f/null_dst",
               [&] { return col(ps, 96, nullptr, 96, roi, 3, 1); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "err/anchor_high",
+  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "err/32f/anchor_high",
               [&] { return col(ps, 96, pd, 96, roi, 3, 4); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "err/step_small",
+  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "err/32f/step_small",
               [&] { return col(ps, 96, pd, 95, roi, 3, 1); });
-  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "ok/empty_roi",
+  status_case("nppiFilterColumn", "nppiFilterColumn_32f_C3R", "ok/32f/empty_roi",
               [&] { return col(ps, 96, pd, 96, NppiSize{8, 0}, 3, 1); });
   DeviceMemory<Npp64f> &s64 = arena<Npp64f>(4096);
   DeviceMemory<Npp64f> &d64 = arena<Npp64f>(4096);
@@ -590,22 +617,35 @@ TEST_F(NppiFilterRowColDiff, FloatErrors) {
   const Npp64f *ps64 = s64.get();
   Npp64f *pd64 = d64.get();
   const Npp64f *pk64 = k64.get();
-  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/null_src", [&] {
+  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/64f/null_src", [&] {
     return nppiFilterRow_64f_C1R_Ctx(nullptr, 64, pd64, 64, roi, pk64, 3, 1, ctx);
   });
-  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/anchor_high", [&] {
+  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/64f/anchor_high", [&] {
     return nppiFilterRow_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 3, 4, ctx);
   });
-  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/step_small", [&] {
+  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/64f/step_small", [&] {
     return nppiFilterRow_64f_C1R_Ctx(ps64, 64, pd64, 63, roi, pk64, 3, 1, ctx);
   });
-  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "ok/empty_roi", [&] {
+  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "ok/64f/empty_roi", [&] {
     return nppiFilterRow_64f_C1R_Ctx(ps64, 64, pd64, 64, NppiSize{0, 8}, pk64, 3, 1, ctx);
   });
-  status_case("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "err/anchor_high", [&] {
+  status_case("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "err/64f/anchor_high", [&] {
     return nppiFilterColumn_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 3, 4, ctx);
   });
-  status_case("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "ok/mask0", [&] {
+  status_case("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "ok/64f/mask0", [&] {
     return nppiFilterColumn_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 0, 0, ctx);
+  });
+  // 64f anchor lower-bound probes (roi is 8x8, W = 8): 1-W = -7.
+  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "err/64f/anchor_low", [&] {
+    return nppiFilterRow_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 3, -8, ctx);
+  });
+  status_case("nppiFilterRow", "nppiFilterRow_64f_C1R", "ok/64f/anchor_1w", [&] {
+    return nppiFilterRow_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 3, -7, ctx);
+  });
+  status_case("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "err/64f/anchor_low", [&] {
+    return nppiFilterColumn_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 3, -8, ctx);
+  });
+  status_case("nppiFilterColumn", "nppiFilterColumn_64f_C1R", "ok/64f/anchor_1w", [&] {
+    return nppiFilterColumn_64f_C1R_Ctx(ps64, 64, pd64, 64, roi, pk64, 3, -7, ctx);
   });
 }

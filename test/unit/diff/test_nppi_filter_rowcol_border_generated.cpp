@@ -413,65 +413,65 @@ TEST_F(NppiFilterRowColBorderDiff, DivErrors) {
                  NppiSize o, int m, int a, int div, NppiBorderType bt) {
     return nppiFilterColumnBorder_16s_C1R_Ctx(src, ss, szb, ofb, dst, ds, o, pk, m, a, div, bt, ctx);
   };
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/null_src",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/null_src",
               [&] { return row(nullptr, 16, sz, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/null_dst",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/null_dst",
               [&] { return row(ps, 16, sz, off, nullptr, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/src_size_zero",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/src_size_zero",
               [&] { return row(ps, 16, NppiSize{0, 9}, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/src_size_neg",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/src_size_neg",
               [&] { return row(ps, 16, NppiSize{-1, 9}, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/neg_roi",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/neg_roi",
               [&] { return row(ps, 16, sz, off, pd, 16, NppiSize{-1, 7}, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/neg_roi_beats_border",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/neg_roi_beats_border",
               [&] { return row(ps, 16, sz, off, pd, 16, NppiSize{-1, 7}, 3, 1, 7, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/bad_border",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/bad_border",
               [&] { return row(ps, 16, sz, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/border_wrap",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/border_wrap",
               [&] { return row(ps, 16, sz, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_WRAP); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/border_beats_offset",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/border_beats_offset",
               [&] { return row(ps, 16, sz, NppiPoint{9, 3}, pd, 16, roi, 3, 1, 7, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/offset_oob",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/offset_oob",
               [&] { return row(ps, 16, sz, NppiPoint{9, 3}, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/offset_neg",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/offset_neg",
               [&] { return row(ps, 16, sz, NppiPoint{2, -1}, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/offset_vs_div0",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/offset_vs_div0",
               [&] { return row(ps, 16, sz, NppiPoint{9, 3}, pd, 16, roi, 3, 1, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/div0",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/div0",
               [&] { return row(ps, 16, sz, off, pd, 16, roi, 3, 1, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/div0_vs_step",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/div0_vs_step",
               [&] { return row(ps, 16, sz, off, pd, 15, roi, 3, 1, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/div0_vs_empty",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/div0_vs_empty",
               [&] { return row(ps, 16, sz, off, pd, 16, NppiSize{0, 7}, 3, 1, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/div0_vs_mask0",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/div0_vs_mask0",
               [&] { return row(ps, 16, sz, off, pd, 16, roi, 0, 0, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/step_small",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/step_small",
               [&] { return row(ps, 16, sz, off, pd, 15, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/step_zero",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "err/16s/step_zero",
               [&] { return row(ps, 16, sz, off, pd, 0, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "ok/empty_roi",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "ok/16s/empty_roi",
               [&] { return row(ps, 16, sz, off, pd, 16, NppiSize{0, 7}, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "ok/mask0",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "ok/16s/mask0",
               [&] { return row(ps, 16, sz, off, pd, 16, roi, 0, 0, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "ok/neg_step",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_16s_C1R", "ok/16s/neg_step",
               [&] { return row(ps, 16, sz, off, pd + 3000, -64, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/null_src",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/16s/null_src",
               [&] { return col(nullptr, 16, sz, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/bad_border",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/16s/bad_border",
               [&] { return col(ps, 16, sz, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/src_size_zero",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/16s/src_size_zero",
               [&] { return col(ps, 16, NppiSize{9, 0}, off, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/offset_oob",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/16s/offset_oob",
               [&] { return col(ps, 16, sz, NppiPoint{3, 9}, pd, 16, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/div0",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/16s/div0",
               [&] { return col(ps, 16, sz, off, pd, 16, roi, 3, 1, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/step_small",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "err/16s/step_small",
               [&] { return col(ps, 16, sz, off, pd, 15, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "ok/empty_roi",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "ok/16s/empty_roi",
               [&] { return col(ps, 16, sz, off, pd, 16, NppiSize{7, 0}, 3, 1, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "ok/mask0",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "ok/16s/mask0",
               [&] { return col(ps, 16, sz, off, pd, 16, roi, 0, 0, 7, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "ok/neg_step",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_16s_C1R", "ok/16s/neg_step",
               [&] { return col(ps, 16, sz, off, pd + 3000, -64, roi, 3, 1, 7, NPP_BORDER_REPLICATE); });
 }
 
@@ -495,38 +495,38 @@ TEST_F(NppiFilterRowColBorderDiff, FloatErrors) {
                  NppiSize o, int m, int a, NppiBorderType bt) {
     return nppiFilterColumnBorder_32f_C3R_Ctx(src, ss, szb, ofb, dst, ds, o, pk, m, a, bt, ctx);
   };
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/null_src",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/null_src",
               [&] { return row(nullptr, 96, sz, off, pd, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/null_dst",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/null_dst",
               [&] { return row(ps, 96, sz, off, nullptr, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/src_size_zero",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/src_size_zero",
               [&] { return row(ps, 96, NppiSize{0, 9}, off, pd, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/neg_roi_beats_border",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/neg_roi_beats_border",
               [&] { return row(ps, 96, sz, off, pd, 96, NppiSize{-1, 7}, 3, 1, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/bad_border",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/bad_border",
               [&] { return row(ps, 96, sz, off, pd, 96, roi, 3, 1, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/offset_oob",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/offset_oob",
               [&] { return row(ps, 96, sz, NppiPoint{9, 3}, pd, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/offset_neg",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/offset_neg",
               [&] { return row(ps, 96, sz, NppiPoint{2, -1}, pd, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/step_small",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "err/32f/step_small",
               [&] { return row(ps, 96, sz, off, pd, 95, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "ok/empty_roi",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "ok/32f/empty_roi",
               [&] { return row(ps, 96, sz, off, pd, 96, NppiSize{0, 7}, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "ok/mask0",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "ok/32f/mask0",
               [&] { return row(ps, 96, sz, off, pd, 96, roi, 0, 0, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "ok/neg_step",
+  status_case("nppiFilterRowBorder", "nppiFilterRowBorder_32f_C3R", "ok/32f/neg_step",
               [&] { return row(ps, 96, sz, off, pd + 3000, -192, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/null_dst",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/32f/null_dst",
               [&] { return col(ps, 96, sz, off, nullptr, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/bad_border",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/32f/bad_border",
               [&] { return col(ps, 96, sz, off, pd, 96, roi, 3, 1, NPP_BORDER_CONSTANT); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/offset_oob",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/32f/offset_oob",
               [&] { return col(ps, 96, sz, NppiPoint{3, 9}, pd, 96, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/step_small",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "err/32f/step_small",
               [&] { return col(ps, 96, sz, off, pd, 95, roi, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "ok/empty_roi",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "ok/32f/empty_roi",
               [&] { return col(ps, 96, sz, off, pd, 96, NppiSize{7, 0}, 3, 1, NPP_BORDER_REPLICATE); });
-  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "ok/mask0",
+  status_case("nppiFilterColumnBorder", "nppiFilterColumnBorder_32f_C3R", "ok/32f/mask0",
               [&] { return col(ps, 96, sz, off, pd, 96, roi, 0, 0, NPP_BORDER_REPLICATE); });
 }
