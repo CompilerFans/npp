@@ -47,7 +47,7 @@ inline int align_step(int step, int esize) { return ((step + esize - 1) / esize)
 // that some pixels match, padded row strides, whole buffer captured (proves the
 // padding is untouched).
 void roi_case(const char *fname, const std::string &idBase, int width, int height, int channels, int pad,
-              uint64_t seed) {
+              uint64_t seed, bool nonctx = false) {
   const int esize = 1;
   const int step = align_step(width * channels * esize + pad, esize);
   const size_t elems = (size_t)height * step / esize;
@@ -80,11 +80,17 @@ void roi_case(const char *fname, const std::string &idBase, int width, int heigh
   clear_cuda_error();
   NppStatus st;
   if (channels == 1) {
-    st = nppiCompColorKey_8u_C1R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key[0], current_context());
+    st = nonctx ? nppiCompColorKey_8u_C1R(s1.get(), step, s2.get(), step, d.get(), step, o, key[0])
+                : nppiCompColorKey_8u_C1R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key[0],
+                                              current_context());
   } else if (channels == 3) {
-    st = nppiCompColorKey_8u_C3R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(), current_context());
+    st = nonctx ? nppiCompColorKey_8u_C3R(s1.get(), step, s2.get(), step, d.get(), step, o, key.data())
+                : nppiCompColorKey_8u_C3R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(),
+                                              current_context());
   } else {
-    st = nppiCompColorKey_8u_C4R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(), current_context());
+    st = nonctx ? nppiCompColorKey_8u_C4R(s1.get(), step, s2.get(), step, d.get(), step, o, key.data())
+                : nppiCompColorKey_8u_C4R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(),
+                                              current_context());
   }
   const std::string id = "nppiCompColorKey/" + idBase + std::to_string(width) + "x" + std::to_string(height) + "c" +
                          std::to_string(channels);
@@ -182,68 +188,15 @@ TEST_F(NppiCompColorKeyDiff, C4R_Errors) {
 }
 
 #if NPP_DIFF_HAS_NONCTX
+// The non-Ctx entry points replay the Ctx ROI cases (same ids and inputs), so
+// the recorded goldens cover both call paths.
 TEST_F(NppiCompColorKeyDiff, NonCtx_C1R) {
-  const int width = 12, height = 7, step = width;
-  const size_t elems = (size_t)height * step;
-  std::vector<Npp8u> hs1 = make_uniform<Npp8u>(elems, 501);
-  std::vector<Npp8u> hs2 = make_uniform<Npp8u>(elems, 502);
-  std::vector<Npp8u> hd = make_uniform<Npp8u>(elems, 503);
-  for (size_t i = 0; i < elems; i += 3) {
-    hs1[i] = 42;
-  }
-  DeviceMemory<Npp8u> &s1 = arena<Npp8u>(elems);
-  DeviceMemory<Npp8u> &s2 = arena<Npp8u>(elems);
-  DeviceMemory<Npp8u> &d = arena<Npp8u>(elems);
-  s1.copyFromHost(hs1);
-  s2.copyFromHost(hs2);
-  d.copyFromHost(hd);
-  clear_cuda_error();
-  NppStatus st = nppiCompColorKey_8u_C1R(s1.get(), step, s2.get(), step, d.get(), step, {width, height}, 42);
-  Case c("nppiCompColorKey/nonctx_c1", "nppiCompColorKey_8u_C1R");
-  c.input(hs1.data(), hs1.size());
-  c.input(hs2.data(), hs2.size());
-  c.status(st);
-  c.device_output<Npp8u>(d.get(), elems, u8_kind());
-  c.finish();
+  roi_case("nppiCompColorKey_8u_C1R", "plain", 17, 13, 1, 16, 102, /*nonctx=*/true);
 }
 
 TEST_F(NppiCompColorKeyDiff, NonCtx_C3R_C4R) {
-  const int width = 9, height = 5;
-  for (int channels = 3; channels <= 4; ++channels) {
-    const int step = width * channels;
-    const size_t elems = (size_t)height * step;
-    std::vector<Npp8u> hs1 = make_uniform<Npp8u>(elems, 601 + channels);
-    std::vector<Npp8u> hs2 = make_uniform<Npp8u>(elems, 603 + channels);
-    std::vector<Npp8u> hd = make_uniform<Npp8u>(elems, 605 + channels);
-    std::vector<Npp8u> key(channels, 5);
-    // Make pixel (2,1) and (4,3) match the key exactly.
-    for (int y = 1; y < height; y += 2) {
-      for (int x = 2; x < width; x += 2) {
-        const size_t base = ((size_t)y * step) + (size_t)x * channels;
-        for (int c = 0; c < channels; ++c) {
-          hs1[base + c] = key[c];
-        }
-      }
-    }
-    DeviceMemory<Npp8u> &s1 = arena<Npp8u>(elems);
-    DeviceMemory<Npp8u> &s2 = arena<Npp8u>(elems);
-    DeviceMemory<Npp8u> &d = arena<Npp8u>(elems);
-    s1.copyFromHost(hs1);
-    s2.copyFromHost(hs2);
-    d.copyFromHost(hd);
-    clear_cuda_error();
-    NppStatus st = channels == 3 ? nppiCompColorKey_8u_C3R(s1.get(), step, s2.get(), step, d.get(), step,
-                                                           {width, height}, key.data())
-                                 : nppiCompColorKey_8u_C4R(s1.get(), step, s2.get(), step, d.get(), step,
-                                                           {width, height}, key.data());
-    Case c(std::string("nppiCompColorKey/nonctx_c") + std::to_string(channels),
-           channels == 3 ? "nppiCompColorKey_8u_C3R" : "nppiCompColorKey_8u_C4R");
-    c.input(hs1.data(), hs1.size());
-    c.input(hs2.data(), hs2.size());
-    c.input(key.data(), key.size());
-    c.status(st);
-    c.device_output<Npp8u>(d.get(), elems, u8_kind());
-    c.finish();
-  }
+  roi_case("nppiCompColorKey_8u_C3R", "plain", 17, 13, 3, 16, 201, /*nonctx=*/true);
+  roi_case("nppiCompColorKey_8u_C4R", "plain", 17, 13, 4, 16, 301, /*nonctx=*/true);
 }
 #endif  // NPP_DIFF_HAS_NONCTX
+
