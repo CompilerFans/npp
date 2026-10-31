@@ -1694,7 +1694,7 @@ static void gap5() {
   printf("gap5 gauss8uC1 dststep5 st=%d\n", (int)nppiFilterGauss_8u_C1R_Ctx(s8, W, d8, 5, roi, NPP_MASK_SIZE_3_X_3, c));
   printf("gap5 gauss8uC3 dststep16 st=%d\n", (int)nppiFilterGauss_8u_C3R_Ctx(s8, 27, d8, 16, roi, NPP_MASK_SIZE_3_X_3, c));
   printf("gap5 gauss8uC3 dststep17 st=%d\n", (int)nppiFilterGauss_8u_C3R_Ctx(s8, 27, d8, 17, roi, NPP_MASK_SIZE_3_X_3, c));
-  printf("gap5 gauss16uC1 dststep11 st=%d\n", (int)nppiFilterGauss_16u_C1R_Ctx(s16, 18, d8, 11, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss16uC1 dststep11 st=%d\n", (int)nppiFilterGauss_16u_C1R_Ctx(s16, 18, (unsigned short *)d8, 11, roi, NPP_MASK_SIZE_3_X_3, c));
   printf("gap5 gauss16sC3 dststep31 st=%d\n", (int)nppiFilterGauss_16s_C3R_Ctx(s16s, 54, (short *)d8, 31, roi, NPP_MASK_SIZE_3_X_3, c));
   printf("gap5 gauss32fC3 dststep61 st=%d\n", (int)nppiFilterGauss_32f_C3R_Ctx(sf, 108, (float *)d8, 61, roi, NPP_MASK_SIZE_3_X_3, c));
   printf("gap5 gauss32fC3 dststep64 st=%d\n", (int)nppiFilterGauss_32f_C3R_Ctx(sf, 108, (float *)d8, 64, roi, NPP_MASK_SIZE_3_X_3, c));
