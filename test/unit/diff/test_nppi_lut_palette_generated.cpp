@@ -139,22 +139,22 @@ TEST_F(NppiLutPaletteDiff, Palette_8u_C1) {
 }
 
 TEST_F(NppiLutPaletteDiff, Palette_8u_Multi) {
-  auto rnd = make_uniform<Npp8u>(17 * 13 * 4, 801);
+  auto rnd = make_uniform<Npp8u>(17 * 76, 801);
   std::vector<std::vector<Npp8u>> t3 = {{11, 21, 31, 41}, {12, 22, 32, 42}, {13, 23, 33, 43}};
   std::vector<std::vector<Npp8u>> t4 = {{11, 21, 31, 41}, {12, 22, 32, 42}, {13, 23, 33, 43}, {14, 24, 34, 44}};
-  pal_multi<Npp8u, Npp8u, Npp8u, 3>("nppiLUTPalette_8u_C3R", "8u/C3/bits2", 17, 13, 5, 3, 1, 3, rnd, t3, 2,
+  pal_multi<Npp8u, Npp8u, Npp8u, 3>("nppiLUTPalette_8u_C3R", "8u/C3/bits2", 17, 13, 5, 3, 3, 3, rnd, t3, 2,
                                     ValueKind::U8,
                                     [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp8u *t[],
                                        int n, NppStreamContext c) {
                                       return nppiLUTPalette_8u_C3R_Ctx(s, ss, d, ds, o, t, n, c);
                                     });
-  pal_multi<Npp8u, Npp8u, Npp8u, 4>("nppiLUTPalette_8u_C4R", "8u/C4/bits2", 17, 13, 5, 3, 1, 4, rnd, t4, 2,
+  pal_multi<Npp8u, Npp8u, Npp8u, 4>("nppiLUTPalette_8u_C4R", "8u/C4/bits2", 17, 13, 5, 3, 4, 4, rnd, t4, 2,
                                     ValueKind::U8,
                                     [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp8u *t[],
                                        int n, NppStreamContext c) {
                                       return nppiLUTPalette_8u_C4R_Ctx(s, ss, d, ds, o, t, n, c);
                                     });
-  pal_multi<Npp8u, Npp8u, Npp8u, 3>("nppiLUTPalette_8u_AC4R", "8u/AC4/bits2", 17, 13, 5, 3, 1, 4, rnd, t3, 2,
+  pal_multi<Npp8u, Npp8u, Npp8u, 3>("nppiLUTPalette_8u_AC4R", "8u/AC4/bits2", 17, 13, 5, 3, 4, 4, rnd, t3, 2,
                                     ValueKind::U8,
                                     [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp8u *t[],
                                        int n, NppStreamContext c) {
@@ -208,23 +208,23 @@ TEST_F(NppiLutPaletteDiff, Palette_16u_C1) {
 }
 
 TEST_F(NppiLutPaletteDiff, Palette_16u_Multi) {
-  auto rnd = make_uniform<Npp16u>(17 * 13 * 4, 811);
+  auto rnd = make_uniform<Npp16u>(17 * 72, 811);
   std::vector<std::vector<Npp16u>> t3 = {{1111, 2222, 3333, 4444}, {1212, 2323, 3434, 4545}, {1313, 2424, 3535, 4646}};
   std::vector<std::vector<Npp16u>> t4 = {{1111, 2222, 3333, 4444}, {1212, 2323, 3434, 4545},
                                          {1313, 2424, 3535, 4646}, {1414, 2525, 3636, 4747}};
-  pal_multi<Npp16u, Npp16u, Npp16u, 3>("nppiLUTPalette_16u_C3R", "16u/C3/bits2", 17, 13, 6, 5, 1, 3, rnd, t3, 2,
+  pal_multi<Npp16u, Npp16u, Npp16u, 3>("nppiLUTPalette_16u_C3R", "16u/C3/bits2", 17, 13, 6, 5, 3, 3, rnd, t3, 2,
                                        ValueKind::U16,
                                        [](const Npp16u *s, int ss, Npp16u *d, int ds, NppiSize o, const Npp16u *t[],
                                           int n, NppStreamContext c) {
                                          return nppiLUTPalette_16u_C3R_Ctx(s, ss, d, ds, o, t, n, c);
                                        });
-  pal_multi<Npp16u, Npp16u, Npp16u, 4>("nppiLUTPalette_16u_C4R", "16u/C4/bits2", 17, 13, 6, 5, 1, 4, rnd, t4, 2,
+  pal_multi<Npp16u, Npp16u, Npp16u, 4>("nppiLUTPalette_16u_C4R", "16u/C4/bits2", 17, 13, 6, 5, 4, 4, rnd, t4, 2,
                                        ValueKind::U16,
                                        [](const Npp16u *s, int ss, Npp16u *d, int ds, NppiSize o, const Npp16u *t[],
                                           int n, NppStreamContext c) {
                                          return nppiLUTPalette_16u_C4R_Ctx(s, ss, d, ds, o, t, n, c);
                                        });
-  pal_multi<Npp16u, Npp16u, Npp16u, 3>("nppiLUTPalette_16u_AC4R", "16u/AC4/bits2", 17, 13, 6, 5, 1, 4, rnd, t3, 2,
+  pal_multi<Npp16u, Npp16u, Npp16u, 3>("nppiLUTPalette_16u_AC4R", "16u/AC4/bits2", 17, 13, 6, 5, 4, 4, rnd, t3, 2,
                                        ValueKind::U16,
                                        [](const Npp16u *s, int ss, Npp16u *d, int ds, NppiSize o, const Npp16u *t[],
                                           int n, NppStreamContext c) {

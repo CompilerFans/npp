@@ -363,6 +363,19 @@ TEST_F(NppiLutDiff, Lut_MaxLevels) {
                             int n, NppStreamContext c) {
                            return nppiLUT_16u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
                          });
+  // 256 levels with a duplicated tail: distinguishes the 8-bit fast path
+  // (dst = values[src], levels ignored) from the binary-search path
+  // (x >= levels[255] = 200 would pass through).
+  std::vector<Npp32s> lvd(256), vvd(256);
+  for (int i = 0; i < 256; ++i) {
+    lvd[i] = i < 200 ? i : 200;
+    vvd[i] = (i * 3 + 1) & 0xFF;
+  }
+  lut_c1<Npp8u, Npp32s>("nppiLUT_8u_C1R", "8u/C1/maxlevelsdup", 256, 2, 3, ramp8u(512), vvd, lvd, ValueKind::U8,
+                        [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v, const Npp32s *l,
+                           int n, NppStreamContext c) {
+                          return nppiLUT_8u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                        });
 }
 
 // ===== nppiLUT: contract (status codes) ==================================
@@ -491,7 +504,7 @@ TEST_F(NppiLutLinearDiff, Linear_MultiChannel) {
                          });
   lut_multi_i<Npp16u, Npp32s, 4>("nppiLUT_Linear_16u_C4IR", "linear/16u/C4IR/random", 17, 13, 6, 4,
                                  make_uniform<Npp16u>(17 * 13 * 4, 402),
-                                 {{1, 900}, {2, 800}, {3, 700}, {4, 600}},
+                                 {{1, 900, 2700}, {2, 800}, {3, 700}, {4, 600}},
                                  {{1000, 20000, 60000}, {2000, 30000}, {3000, 40000}, {400, 50000}}, ValueKind::U16,
                                  [](Npp16u *sd, int ss, NppiSize o, const Npp32s *v[], const Npp32s *l[], int n[],
                                     NppStreamContext c) {
