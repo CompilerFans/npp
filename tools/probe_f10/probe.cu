@@ -692,6 +692,369 @@ static void wiener3() {
   }
 }
 
+// ---------------- stage wiener4 : formula disambiguation --------------------
+static void w4_status(const char *tag, const float *h_src, int W, int H, int mw, int mh, int ax, int ay,
+                      float n, NppiBorderType b) {
+  float *d_s, *d_d;
+  cudaMalloc(&d_s, (size_t)W * H * 4);
+  cudaMalloc(&d_d, (size_t)W * H * 4);
+  cudaMemcpy(d_s, h_src, (size_t)W * H * 4, cudaMemcpyHostToDevice);
+  float noise[4] = {n, n, n, n};
+  NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                    W * 4, NppiSize{W, H}, NppiSize{mw, mh},
+                                                    NppiPoint{ax, ay}, noise, b, ctx());
+  float o0 = -12345.f;
+  cudaMemcpy(&o0, d_d, 4, cudaMemcpyDeviceToHost);
+  printf("w4 %s status=%d out00=%.9g\n", tag, (int)st, o0);
+  cudaFree(d_s);
+  cudaFree(d_d);
+}
+
+static void wiener4() {
+  const int W = 7, H = 7;
+  std::vector<float> src((size_t)W * H);
+  unsigned rng = 12345;
+  for (auto &v : src) { rng = rng * 1103515245u + 12345u; v = (float)((rng >> 16) % 21); }
+  std::vector<float> cst((size_t)W * H, 7.5f);
+  // A. noise range sweep (random image has window variances down to ~3.5)
+  for (float n : {0.f, 0.25f, 0.5f, 0.75f, 1.f, 1.25f, 1.5f, 1.75f, 2.f, 3.f, 4.f, 5.f, 100.f, 1000.f, -0.5f, -1.f})
+    w4_status("rand m33 n-sweep", src.data(), W, H, 3, 3, 1, 1, n, NPP_BORDER_REPLICATE);
+  for (float n : {0.f, 0.5f, 1.f, 2.f, 4.f, 1000.f, -1.f})
+    w4_status("const m33 n-sweep", cst.data(), W, H, 3, 3, 1, 1, n, NPP_BORDER_REPLICATE);
+  for (float n : {0.f, 0.5f, 1.f, 2.f, 4.f})
+    w4_status("rand m11 n-sweep", src.data(), W, H, 1, 1, 0, 0, n, NPP_BORDER_REPLICATE);
+  for (float n : {0.f, 0.5f, 1.f, 2.f, 4.f})
+    w4_status("rand m55 n-sweep", src.data(), W, H, 5, 5, 2, 2, n, NPP_BORDER_REPLICATE);
+  // B. 2D mask-shape sweep on the same random image (n=1 and n=0.5)
+  struct MS { int mw, mh, ax, ay; } mss[] = {{3, 3, 1, 1}, {5, 5, 2, 2}, {3, 5, 1, 2}, {5, 3, 2, 1},
+                                             {3, 7, 1, 3}, {7, 3, 3, 1}, {2, 2, 0, 0}, {4, 4, 1, 1},
+                                             {6, 6, 2, 2}, {2, 4, 0, 1}};
+  for (auto &m : mss) {
+    char tag[64];
+    snprintf(tag, sizeof tag, "r7 m%dx%d a%d%d n1", m.mw, m.mh, m.ax, m.ay);
+    wiener_run_1d(src.data(), W, H, m.mw, m.mh, m.ax, m.ay, 1.f, tag);
+    snprintf(tag, sizeof tag, "r7 m%dx%d a%d%d n05", m.mw, m.mh, m.ax, m.ay);
+    wiener_run_1d(src.data(), W, H, m.mw, m.mh, m.ax, m.ay, 0.5f, tag);
+  }
+  // C. 1D anchor sweep both orientations (asymmetry check)
+  {
+    std::vector<float> col(7), row(7);
+    const float V0[7] = {3, 17, 5, 9, 0, 12, 8};
+    for (int i = 0; i < 7; ++i) { col[i] = V0[i]; row[i] = V0[i]; }
+    for (int a = 0; a < 3; ++a) {
+      char tag[64];
+      snprintf(tag, sizeof tag, "w1 m13 a0%d n1", a);
+      wiener_run_1d(col.data(), 1, 7, 1, 3, 0, a, 1.f, tag);
+      snprintf(tag, sizeof tag, "h1 m31 a%d0 n1", a);
+      wiener_run_1d(row.data(), 7, 1, 3, 1, a, 0, 1.f, tag);
+    }
+  }
+  // D. structured 1D patterns (n = 1, 0.5, 0.25, 0)
+  struct Pat { const float v[7]; const char *tag; } pats[] = {
+      {{0, 1, 2, 3, 4, 5, 6}, "ramp"},       {{0, 0, 0, 1, 0, 0, 0}, "delta"},
+      {{5, 5, 6, 5, 5, 5, 5}, "nearconst"},  {{5, 5, 5, 5, 5, 5, 5}, "const5"},
+      {{1, 2, 3, 4, 5, 6, 7}, "ramp1"},      {{0, 0, 1, 0, 0, 0, 0}, "delta0"},
+      {{10, 0, 10, 0, 10, 0, 10}, "alt"},    {{2, 2, 2, 8, 2, 2, 2}, "step"},
+  };
+  for (auto &p : pats) {
+    std::vector<float> col(p.v, p.v + 7), row(p.v, p.v + 7);
+    for (float n : {1.f, 0.5f, 0.f}) {
+      char tag[64];
+      snprintf(tag, sizeof tag, "w1 %s m13 a01 n%g", p.tag, n);
+      wiener_run_1d(col.data(), 1, 7, 1, 3, 0, 1, n, tag);
+      snprintf(tag, sizeof tag, "h1 %s m31 a10 n%g", p.tag, n);
+      wiener_run_1d(row.data(), 7, 1, 3, 1, 1, 0, n, tag);
+      snprintf(tag, sizeof tag, "h1w %s m33 a11 n%g", p.tag, n);
+      wiener_run_1d(row.data(), 7, 1, 3, 3, 1, 1, n, tag);
+    }
+  }
+  // E. border types (32f, replicate image identity row0/col0)
+  {
+    float *d_s, *d_d;
+    cudaMalloc(&d_s, (size_t)W * H * 4);
+    cudaMalloc(&d_d, (size_t)W * H * 4);
+    cudaMemcpy(d_s, src.data(), (size_t)W * H * 4, cudaMemcpyHostToDevice);
+    const int bs[] = {0, 1, 2, 3, 4, 5, 6, 100, -1};
+    for (int b : bs) {
+      std::vector<float> dst((size_t)W * H, -1.f);
+      cudaMemcpy(d_d, dst.data(), dst.size() * 4, cudaMemcpyHostToDevice);
+      float noise[4] = {1.f, 1.f, 1.f, 1.f};
+      NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                        W * 4, NppiSize{W, H}, NppiSize{3, 3}, NppiPoint{1, 1},
+                                                        noise, (NppiBorderType)b, ctx());
+      cudaMemcpy(dst.data(), d_d, dst.size() * 4, cudaMemcpyDeviceToHost);
+      printf("w4 border=%d status=%d\n  row0:", b, (int)st);
+      for (int x = 0; x < W; ++x) printf(" %.9g", dst[x]);
+      printf("\n  col0:");
+      for (int y = 0; y < H; ++y) printf(" %.9g", dst[(size_t)y * W]);
+      printf("\n");
+    }
+    // anchor / mask validation on the same buffers
+    struct AV { int mw, mh, ax, ay; const char *tag; } avs[] = {
+        {3, 3, 1, 1, "ok"},      {3, 3, 3, 3, "a33"},   {3, 3, -1, 0, "a-1"},
+        {3, 3, 0, 0, "a00"},     {3, 3, 2, 2, "a22"},   {3, 3, 5, 0, "a50"},
+        {0, 0, 0, 0, "m00"},     {-3, -3, 0, 0, "m-3"}, {2, 2, 0, 0, "m22"},
+        {4, 4, 1, 1, "m44"},     {8, 8, 3, 3, "m88"},   {17, 17, 8, 8, "m1717"},
+        {1, 1, 0, 0, "m11"},     {3, 2, 1, 0, "m32"},   {2, 3, 0, 1, "m23"},
+        {100, 100, 50, 50, "m100"}, {7, 7, 3, 3, "m77"},
+    };
+    for (auto &a : avs) {
+      float noise[4] = {1.f, 1.f, 1.f, 1.f};
+      NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                        W * 4, NppiSize{W, H}, NppiSize{a.mw, a.mh},
+                                                        NppiPoint{a.ax, a.ay}, noise, NPP_BORDER_REPLICATE, ctx());
+      printf("w4 anchor/mask %s status=%d\n", a.tag, (int)st);
+    }
+    cudaFree(d_s);
+    cudaFree(d_d);
+  }
+  // F. 8u / 16s rounding + saturation
+  {
+    const int W8 = 9, H8 = 9;
+    std::vector<unsigned char> s8((size_t)W8 * H8), d8((size_t)W8 * H8, 0xEE);
+    for (int i = 0; i < W8 * H8; ++i) s8[i] = (unsigned char)((i * 37 + 11) & 0xFF);
+    std::vector<short> s16((size_t)W8 * H8), d16((size_t)W8 * H8, -12345);
+    for (int i = 0; i < W8 * H8; ++i) s16[i] = (short)(((i * 137 + 51) % 600) - 300);
+    unsigned char *d_s8; short *d_s16;
+    unsigned char *d_d8; short *d_d16;
+    cudaMalloc(&d_s8, s8.size()); cudaMalloc(&d_d8, d8.size());
+    cudaMalloc(&d_s16, s16.size() * 2); cudaMalloc(&d_d16, d16.size() * 2);
+    cudaMemcpy(d_s8, s8.data(), s8.size(), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_s16, s16.data(), s16.size() * 2, cudaMemcpyHostToDevice);
+    for (float n : {1.f, 0.5f, 0.25f}) {
+      float noise[4] = {n, n, n, n};
+      cudaMemcpy(d_d8, d8.data(), d8.size(), cudaMemcpyHostToDevice);
+      NppStatus st = nppiFilterWienerBorder_8u_C1R_Ctx(d_s8, W8, NppiSize{W8, H8}, NppiPoint{0, 0}, d_d8, W8,
+                                                       NppiSize{W8, H8}, NppiSize{3, 3}, NppiPoint{1, 1}, noise,
+                                                       NPP_BORDER_REPLICATE, ctx());
+      cudaMemcpy(d8.data(), d_d8, d8.size(), cudaMemcpyDeviceToHost);
+      printf("w4 8u n=%g status=%d\n", n, (int)st);
+      for (int y = 0; y < 3; ++y) {
+        printf("  row%d:", y);
+        for (int x = 0; x < W8; ++x) printf(" %3d", d8[(size_t)y * W8 + x]);
+        printf("\n");
+      }
+      cudaMemcpy(d_d16, d16.data(), d16.size() * 2, cudaMemcpyHostToDevice);
+      st = nppiFilterWienerBorder_16s_C1R_Ctx(d_s16, W8 * 2, NppiSize{W8, H8}, NppiPoint{0, 0}, d_d16, W8 * 2,
+                                              NppiSize{W8, H8}, NppiSize{3, 3}, NppiPoint{1, 1}, noise,
+                                              NPP_BORDER_REPLICATE, ctx());
+      cudaMemcpy(d16.data(), d_d16, d16.size() * 2, cudaMemcpyDeviceToHost);
+      printf("w4 16s n=%g status=%d\n", n, (int)st);
+      for (int y = 0; y < 3; ++y) {
+        printf("  row%d:", y);
+        for (int x = 0; x < W8; ++x) printf(" %6d", d16[(size_t)y * W8 + x]);
+        printf("\n");
+      }
+    }
+    cudaFree(d_s8); cudaFree(d_d8); cudaFree(d_s16); cudaFree(d_d16);
+  }
+}
+
+// ---------------- stage valmat : validation matrices for all 5 families ------
+static void valmat() {
+  const int W = 9, H = 9;
+  float *d_s, *d_d;
+  cudaMalloc(&d_s, (size_t)W * H * 4);
+  cudaMalloc(&d_d, (size_t)W * H * 4);
+  cudaMemset(d_s, 0x3f, (size_t)W * H * 4);
+  float k3[3] = {0.25f, 0.5f, 0.25f};
+  float *d_k;
+  cudaMalloc(&d_k, 3 * 4);
+  cudaMemcpy(d_k, k3, 12, cudaMemcpyHostToDevice);
+  float noise[4] = {0.5f, 0.5f, 0.5f, 0.5f};
+  const NppiSize roi{5, 5};
+  const NppiSize sz{9, 9};
+  const NppiPoint off{2, 2};
+  NppStreamContext c = ctx();
+  auto P = [](const char *tag, NppStatus st) { printf("vm %s status=%d\n", tag, (int)st); };
+  // ---- Gauss plain
+  P("gauss ok", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss nullsrc", nppiFilterGauss_32f_C1R_Ctx(nullptr, 36, d_d, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss nulldst", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, nullptr, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss negroi", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{5, -1}, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss zeroroi", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{0, 0}, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss zroi_badmask", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{0, 0}, (NppiMaskSize)0, c));
+  P("gauss badmask0", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, (NppiMaskSize)0, c));
+  P("gauss badmask900", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, (NppiMaskSize)900, c));
+  P("gauss badmask-1", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, (NppiMaskSize)-1, c));
+  P("gauss negroi_badmask", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{-1, 5}, (NppiMaskSize)0, c));
+  P("gauss stepsmall", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 19, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss stepodd", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 21, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss zroi_badstep", nppiFilterGauss_32f_C1R_Ctx(d_s, 36, d_d, 3, NppiSize{0, 0}, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss srcstep0", nppiFilterGauss_32f_C1R_Ctx(d_s, 0, d_d, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss srcstepneg", nppiFilterGauss_32f_C1R_Ctx(d_s, -36, d_d, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+  P("gauss srcstepodd", nppiFilterGauss_32f_C1R_Ctx(d_s, 34, d_d, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+  // ---- GaussBorder
+  P("gb ok", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NPP_MASK_SIZE_3_X_3,
+                                              NPP_BORDER_REPLICATE, c));
+  P("gb nullsrc", nppiFilterGaussBorder_32f_C1R_Ctx(nullptr, 36, sz, off, d_d, 36, roi, NPP_MASK_SIZE_3_X_3,
+                                                   NPP_BORDER_REPLICATE, c));
+  P("gb nulldst", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, nullptr, 36, roi, NPP_MASK_SIZE_3_X_3,
+                                                   NPP_BORDER_REPLICATE, c));
+  P("gb negroi", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{5, -1},
+                                                  NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb zeroroi", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{0, 0},
+                                                   NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb srcsize0", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, NppiSize{0, 5}, off, d_d, 36, roi,
+                                                     NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb srcsizeneg", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, NppiSize{-1, 5}, off, d_d, 36, roi,
+                                                       NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb offneg", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{-1, 0}, d_d, 36, roi,
+                                                   NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb offpast", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{5, 5}, d_d, 36, roi,
+                                                    NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb offway", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{20, 20}, d_d, 36, roi,
+                                                   NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb offpluroi", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{5, 5}, d_d, 36, NppiSize{5, 5},
+                                                      NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb badborder", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NPP_MASK_SIZE_3_X_3,
+                                                      NPP_BORDER_CONSTANT, c));
+  P("gb border100", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NPP_MASK_SIZE_3_X_3,
+                                                      (NppiBorderType)100, c));
+  P("gb border-1", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NPP_MASK_SIZE_3_X_3,
+                                                     (NppiBorderType)-1, c));
+  P("gb badmask", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, (NppiMaskSize)0,
+                                                    NPP_BORDER_REPLICATE, c));
+  P("gb mask15", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NPP_MASK_SIZE_15_X_15,
+                                                   NPP_BORDER_REPLICATE, c));
+  P("gb stepsmall", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 19, roi, NPP_MASK_SIZE_3_X_3,
+                                                      NPP_BORDER_REPLICATE, c));
+  P("gb stepodd", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 21, roi, NPP_MASK_SIZE_3_X_3,
+                                                    NPP_BORDER_REPLICATE, c));
+  P("gb zroi_offneg", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{0, -1}, d_d, 36, NppiSize{0, 0},
+                                                        NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  P("gb zroi_badborder", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{0, 0},
+                                                           NPP_MASK_SIZE_3_X_3, NPP_BORDER_CONSTANT, c));
+  P("gb zroi_badstep", nppiFilterGaussBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 3, NppiSize{0, 0},
+                                                         NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  // ---- GaussAdvanced plain
+  P("adv ok", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 3, d_k, c));
+  P("adv nullsrc", nppiFilterGaussAdvanced_32f_C1R_Ctx(nullptr, 36, d_d, 36, roi, 3, d_k, c));
+  P("adv nulldst", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, nullptr, 36, roi, 3, d_k, c));
+  P("adv nullkernel", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 3, nullptr, c));
+  P("adv negroi", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{5, -1}, 3, d_k, c));
+  P("adv zeroroi", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{0, 0}, 3, d_k, c));
+  P("adv taps0", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 0, d_k, c));
+  P("adv taps-1", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, -1, d_k, c));
+  P("adv taps1", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 1, d_k, c));
+  P("adv taps2", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 2, d_k, c));
+  P("adv taps33", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 33, d_k, c));
+  P("adv taps65", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, roi, 65, d_k, c));
+  P("adv stepsmall", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 19, roi, 3, d_k, c));
+  P("adv stepodd", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 21, roi, 3, d_k, c));
+  P("adv zroi_nullkernel", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{0, 0}, 3, nullptr, c));
+  P("adv zroi_taps0", nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, 36, d_d, 36, NppiSize{0, 0}, 0, d_k, c));
+  // ---- GaussAdvancedBorder
+  P("advb ok", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, 3, d_k,
+                                                         NPP_BORDER_REPLICATE, c));
+  P("advb nullsrc", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(nullptr, 36, sz, off, d_d, 36, roi, 3, d_k,
+                                                              NPP_BORDER_REPLICATE, c));
+  P("advb nulldst", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, nullptr, 36, roi, 3, d_k,
+                                                              NPP_BORDER_REPLICATE, c));
+  P("advb nullkernel", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, 3, nullptr,
+                                                                 NPP_BORDER_REPLICATE, c));
+  P("advb negroi", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{5, -1}, 3, d_k,
+                                                             NPP_BORDER_REPLICATE, c));
+  P("advb zeroroi", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{0, 0}, 3, d_k,
+                                                              NPP_BORDER_REPLICATE, c));
+  P("advb srcsize0", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, NppiSize{0, 5}, off, d_d, 36, roi, 3, d_k,
+                                                               NPP_BORDER_REPLICATE, c));
+  P("advb offneg", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{-1, 0}, d_d, 36, roi, 3, d_k,
+                                                             NPP_BORDER_REPLICATE, c));
+  P("advb offpluroi", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{5, 5}, d_d, 36,
+                                                                NppiSize{5, 5}, 3, d_k, NPP_BORDER_REPLICATE, c));
+  P("advb badborder", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, 3, d_k,
+                                                                NPP_BORDER_CONSTANT, c));
+  P("advb border100", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, 3, d_k,
+                                                                (NppiBorderType)100, c));
+  P("advb taps0", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, 0, d_k,
+                                                            NPP_BORDER_REPLICATE, c));
+  P("advb taps-1", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, -1, d_k,
+                                                             NPP_BORDER_REPLICATE, c));
+  P("advb taps33", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, 33, d_k,
+                                                             NPP_BORDER_REPLICATE, c));
+  P("advb stepsmall", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 19, roi, 3, d_k,
+                                                                NPP_BORDER_REPLICATE, c));
+  P("advb stepodd", nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 21, roi, 3, d_k,
+                                                              NPP_BORDER_REPLICATE, c));
+  // ---- WienerBorder (32f C1)
+  P("wi ok", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi nullsrc", nppiFilterWienerBorder_32f_C1R_Ctx(nullptr, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                     NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi nulldst", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, nullptr, 36, roi, NppiSize{3, 3},
+                                                     NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi negroi", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{5, -1}, NppiSize{3, 3},
+                                                    NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi zeroroi", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, NppiSize{0, 0}, NppiSize{3, 3},
+                                                     NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi srcsize0", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, NppiSize{0, 5}, off, d_d, 36, roi,
+                                                      NppiSize{3, 3}, NppiPoint{1, 1}, noise,
+                                                      NPP_BORDER_REPLICATE, c));
+  P("wi offneg", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{-1, 0}, d_d, 36, roi, NppiSize{3, 3},
+                                                    NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi offpluroi", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, NppiPoint{5, 5}, d_d, 36, NppiSize{5, 5},
+                                                       NppiSize{3, 3}, NppiPoint{1, 1}, noise,
+                                                       NPP_BORDER_REPLICATE, c));
+  P("wi badborder", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                       NppiPoint{1, 1}, noise, NPP_BORDER_CONSTANT, c));
+  P("wi border100", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                       NppiPoint{1, 1}, noise, (NppiBorderType)100, c));
+  P("wi anchor33", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                      NppiPoint{3, 3}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi anchor-1", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                      NppiPoint{-1, 0}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi mask0", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{0, 0},
+                                                   NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi mask-3", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{-3, -3},
+                                                    NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi mask2x2", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{2, 2},
+                                                     NppiPoint{0, 0}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi stepsmall", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 19, roi, NppiSize{3, 3},
+                                                       NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  P("wi stepodd", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 21, roi, NppiSize{3, 3},
+                                                     NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  // 8u C4 step alignment (pixel-aligned steps)
+  {
+    unsigned char *s4, *d4;
+    cudaMalloc(&s4, (size_t)W * H * 4);
+    cudaMalloc(&d4, (size_t)W * H * 4);
+    cudaMemset(s4, 0x5a, (size_t)W * H * 4);
+    P("gauss8uc4 ok", nppiFilterGauss_8u_C4R_Ctx(s4, 36, d4, 36, roi, NPP_MASK_SIZE_3_X_3, c));
+    P("gauss8uc4 step21", nppiFilterGauss_8u_C4R_Ctx(s4, 36, d4, 21, roi, NPP_MASK_SIZE_3_X_3, c));
+    P("gauss8uc4 step22", nppiFilterGauss_8u_C4R_Ctx(s4, 36, d4, 22, roi, NPP_MASK_SIZE_3_X_3, c));
+    P("gb8uc4 step22", nppiFilterGaussBorder_8u_C4R_Ctx(s4, 36, sz, off, d4, 22, roi, NPP_MASK_SIZE_3_X_3,
+                                                        NPP_BORDER_REPLICATE, c));
+    P("advb8uc4 step22", nppiFilterGaussAdvancedBorder_8u_C4R_Ctx(s4, 36, sz, off, d4, 22, roi, 3, d_k,
+                                                                  NPP_BORDER_REPLICATE, c));
+    P("wi8uc4 step22", nppiFilterWienerBorder_8u_C4R_Ctx(s4, 36, sz, off, d4, 22, roi, NppiSize{3, 3},
+                                                         NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+    P("wi8uc4 step21", nppiFilterWienerBorder_8u_C4R_Ctx(s4, 36, sz, off, d4, 21, roi, NppiSize{3, 3},
+                                                         NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+    // AC4 alpha-preserve check: prefill dst alpha, run, dump one pixel's alpha
+    cudaMemset(d4, 0xEE, (size_t)W * H * 4);
+    NppStatus st = nppiFilterGauss_8u_AC4R_Ctx(s4, 36, d4, 36, roi, NPP_MASK_SIZE_3_X_3, c);
+    unsigned char px[4] = {0, 0, 0, 0};
+    cudaMemcpy(px, d4 + 2 * 36 + 2 * 4, 4, cudaMemcpyDeviceToHost);
+    printf("vm gauss8uac4 status=%d px=[%d %d %d %d]\n", (int)st, px[0], px[1], px[2], px[3]);
+    cudaMemset(d4, 0xEE, (size_t)W * H * 4);
+    st = nppiFilterWienerBorder_8u_AC4R_Ctx(s4, 36, sz, off, d4, 36, roi, NppiSize{3, 3}, NppiPoint{1, 1},
+                                            noise, NPP_BORDER_REPLICATE, c);
+    cudaMemcpy(px, d4 + 2 * 36 + 2 * 4, 4, cudaMemcpyDeviceToHost);
+    printf("vm wiener8uac4 status=%d px=[%d %d %d %d]\n", (int)st, px[0], px[1], px[2], px[3]);
+    cudaFree(s4);
+    cudaFree(d4);
+  }
+  // NOTE: null aNoise SEGFAULTS host-side on NPP 13.4 (last so the rest of the
+  // matrix completes before the crash); keep as the final call.
+  P("wi nullnoise", nppiFilterWienerBorder_32f_C1R_Ctx(d_s, 36, sz, off, d_d, 36, roi, NppiSize{3, 3},
+                                                       NppiPoint{1, 1}, nullptr, NPP_BORDER_REPLICATE, c));
+  fflush(stdout);
+  cudaFree(d_s);
+  cudaFree(d_d);
+  cudaFree(d_k);
+}
+
 int main(int argc, char **argv) {
   const char *stage = argc > 1 ? argv[1] : "all";
   if (!strcmp(stage, "gauss32") || !strcmp(stage, "all")) { printf("== gauss32 ==\n"); gauss32(); }
@@ -707,6 +1070,8 @@ int main(int argc, char **argv) {
   if (!strcmp(stage, "edge2") || !strcmp(stage, "all")) { printf("== edge2 ==\n"); edge2(); }
   if (!strcmp(stage, "round") || !strcmp(stage, "all")) { printf("== round ==\n"); round_stage(); }
   if (!strcmp(stage, "edge3") || !strcmp(stage, "all")) { printf("== edge3 ==\n"); edge3(); }
+  if (!strcmp(stage, "wiener4")) { printf("== wiener4 ==\n"); wiener4(); }
+  if (!strcmp(stage, "valmat") || !strcmp(stage, "all")) { printf("== valmat ==\n"); valmat(); }
   printf("done\n");
   return 0;
 }
