@@ -258,6 +258,39 @@ TEST_F(NppiSumWindowDiff, Geometry) {
   row8("a0", 17, 13, 5, 0, 0xD531);
   row8("mask0", 17, 13, 0, 0, 0xD532);
   row8("anchor_eq_mask", 17, 13, 3, 3, 0xD533);
+  // Negative-anchor probes: the window is [p-a, p-a+mask-1] (anchor sign
+  // inverted w.r.t. the filters).  With a < 0 the window extends to the right
+  // of the pixel; the last columns of the ROI deviate from that rule in a way
+  // that is characterised by these probes (width/mask/anchor/margin sweep).
+  auto prow = [&](const char *tag, int W, int H, int mask, int anchor, uint64_t seed,
+                  int margin = 16) {
+    sw_data<Npp16u>("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R",
+                    std::string("probe/row/") + tag, W, H, 1, mask, anchor, margin, seed, 0, 0,
+                    [](const Npp16u *s, int ss, Npp32f *d, int ds, NppiSize o, int m, int a,
+                       NppStreamContext c) {
+                      return nppiSumWindowRow_16u32f_C1R_Ctx(s, ss, d, ds, o, m, a, c);
+                    });
+  };
+  prow("a_neg1", 17, 13, 5, -1, 0xD701);
+  prow("a_neg2", 17, 13, 5, -2, 0xD702);
+  prow("a_neg4", 17, 13, 5, -4, 0xD703);
+  prow("a_neg6", 17, 13, 5, -6, 0xD704);
+  prow("m3_a_neg3", 17, 13, 3, -3, 0xD705);
+  prow("m9_a_neg3", 17, 13, 9, -3, 0xD706);
+  prow("m7_a_neg4", 17, 13, 7, -4, 0xD707);
+  prow("m2_a_neg3", 17, 13, 2, -3, 0xD708);
+  prow("w9_a_neg3", 9, 13, 5, -3, 0xD709);
+  prow("w15_a_neg3", 15, 13, 5, -3, 0xD70A);
+  prow("w16_a_neg3", 16, 13, 5, -3, 0xD70B);
+  prow("w18_a_neg3", 18, 13, 5, -3, 0xD70C);
+  prow("w24_a_neg3", 24, 13, 5, -3, 0xD70D);
+  prow("w31_a_neg3", 31, 13, 5, -3, 0xD70E);
+  prow("w32_a_neg3", 32, 13, 5, -3, 0xD70F);
+  prow("w33_a_neg3", 33, 13, 5, -3, 0xD710);
+  prow("w40_a_neg3", 40, 13, 5, -3, 0xD711);
+  prow("a_neg3_m8", 17, 13, 5, -3, 0xD712, 8);
+  prow("a_neg3_m24", 17, 13, 5, -3, 0xD713, 24);
+  prow("a_neg3_h1", 17, 1, 5, -3, 0xD714);
   row8("anchor_neg", 17, 13, 3, -1, 0xD534);
   row8("emptyw", 0, 13, 3, 1, 0xD535);
   row8("negstep", 17, 13, 5, 2, 0xD536);
@@ -345,6 +378,24 @@ TEST_F(NppiSumWindowDiff, Errors) {
               [&] { return row(ps, 16, pd, 32, roi, 3, 4); });
   status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "err/anchor_low",
               [&] { return row(ps, 16, pd, 32, roi, 3, -8); });
+  // Lower-anchor-bound discriminators for W=8: candidate bounds are
+  // a >= 1-W, a >= 2-W, a >= 1-mask and a >= -W/2.
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m3_a_neg2",
+              [&] { return row(ps, 16, pd, 32, roi, 3, -2); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m3_a_neg3",
+              [&] { return row(ps, 16, pd, 32, roi, 3, -3); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m3_a_neg5",
+              [&] { return row(ps, 16, pd, 32, roi, 3, -5); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m3_a_neg6",
+              [&] { return row(ps, 16, pd, 32, roi, 3, -6); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m3_a_neg7",
+              [&] { return row(ps, 16, pd, 32, roi, 3, -7); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m5_a_neg5",
+              [&] { return row(ps, 16, pd, 32, roi, 5, -5); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/m1_a_neg1",
+              [&] { return row(ps, 16, pd, 32, roi, 1, -1); });
+  status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "bound/w5_m3_a_neg3",
+              [&] { return row(ps, 16, pd, 32, NppiSize{5, 8}, 3, -3); });
   status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "err/anchor_high_vs_step",
               [&] { return row(ps, 16, pd, 31, roi, 3, 4); });
   status_case("nppiSumWindowRow", "nppiSumWindowRow_16u32f_C1R", "err/step_small",
