@@ -141,9 +141,15 @@ TEST_F(TwistCDiff, TwistC_Errors) {
   // order: null src vs odd dst step.
   err_case("ctc/err3_32f_c4r_nullsrc_oddstep", "nppiColorTwist_32fC_C4R",
            nppiColorTwist_32fC_C4R_Ctx(nullptr, 272, d32.get(), 280, NppiSize{17, 4}, m, c, current_context()));
-  // src step odd (>= rowBytes), dst step even.
+  // src step odd (>= rowBytes), dst step even.  NPP validates only the dst
+  // step and launches (NPP_NO_ERROR, recorded at 17x4 in
+  // artifacts/5090/npp_records/nppiColorTwistEvenStep), but the reference
+  // kernel then does misaligned vectorized loads on rows >= 1 and the async
+  // cudaErrorMisalignedAddress poisons every later test in the process; the
+  // height-1 ROI keeps the kernel on the aligned row 0 while the host still
+  // proves the odd src step is accepted.
   err_case("ctc/err3_32f_c4r_srcstep_odd", "nppiColorTwist_32fC_C4R",
-           nppiColorTwist_32fC_C4R_Ctx(s32.get(), 280, d32.get(), 272, NppiSize{17, 4}, m, c, current_context()));
+           nppiColorTwist_32fC_C4R_Ctx(s32.get(), 280, d32.get(), 272, NppiSize{17, 1}, m, c, current_context()));
   // src step even, dst step odd.
   err_case("ctc/err3_32f_c4r_dststep_odd", "nppiColorTwist_32fC_C4R",
            nppiColorTwist_32fC_C4R_Ctx(s32.get(), 272, d32.get(), 280, NppiSize{17, 4}, m, c, current_context()));
