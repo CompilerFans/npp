@@ -66,6 +66,11 @@ inline DerivCoef deriv_coef(DerivOp op, int maskSize) {
   static const int VertSecond3[9] = {1, -2, 1, 2, -4, 2, 1, -2, 1};
   static const int VertSecond5[25] = {1, 0, -2,  0, 1, 4, 0, -8,  0, 4, 6, 0, -12, 0, 6,
                                       4, 0, -8,  0, 4, 1, 0, -2,  0, 1};
+  // Scharr 3x3 taps measured against NVIDIA NPP 13.4 (RTX 5090) impulse
+  // responses: bottom-right tap is +3 for both orientations, i.e. the same
+  // sign convention as the Sobel tables above.
+  static const int ScharrHoriz3[9] = {-3, -10, -3, 0, 0, 0, 3, 10, 3};
+  static const int ScharrVert3[9] = {-3, 0, 3, -10, 0, 10, -3, 0, 3};
   switch (op) {
     case kPrewittHoriz: return coef3(PrewittHoriz3);
     case kPrewittVert: return coef3(PrewittVert3);
@@ -73,6 +78,8 @@ inline DerivCoef deriv_coef(DerivOp op, int maskSize) {
     case kRobertsUp: return coef3(RobertsUp3);
     case kSobelHoriz: return maskSize == 5 ? coef5(SobelHoriz5) : coef3(SobelHoriz3);
     case kSobelVert: return maskSize == 5 ? coef5(SobelVert5) : coef3(SobelVert3);
+    case kScharrHoriz: return coef3(ScharrHoriz3);
+    case kScharrVert: return coef3(ScharrVert3);
     case kSobelCross: return maskSize == 5 ? coef5(Cross5) : coef3(Cross3);
     case kSobelHorizSecond: return maskSize == 5 ? coef5(HorizSecond5) : coef3(HorizSecond3);
     case kSobelVertSecond: return maskSize == 5 ? coef5(VertSecond5) : coef3(VertSecond3);
@@ -393,6 +400,20 @@ template NppStatus nppi::filter::filterDeriv<Npp32f, Npp32f, 4, false, nppi::fil
 template NppStatus nppi::filter::filterDerivBorder<Npp32f, Npp32f, 4, false, nppi::filter::kSobelVert>(const Npp32f*, int, NppiSize, NppiPoint, Npp32f*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
 template NppStatus nppi::filter::filterDeriv<Npp32f, Npp32f, 4, true, nppi::filter::kSobelVert>(const Npp32f*, int, Npp32f*, int, NppiSize, cudaStream_t);
 template NppStatus nppi::filter::filterDerivBorder<Npp32f, Npp32f, 4, true, nppi::filter::kSobelVert>(const Npp32f*, int, NppiSize, NppiPoint, Npp32f*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
+// kScharrHoriz (8u/8s -> 16s and 32f -> 32f, C1 only; legacy validation order)
+template NppStatus nppi::filter::filterDeriv<Npp8u, Npp16s, 1, false, nppi::filter::kScharrHoriz>(const Npp8u*, int, Npp16s*, int, NppiSize, cudaStream_t);
+template NppStatus nppi::filter::filterDerivBorder<Npp8u, Npp16s, 1, false, nppi::filter::kScharrHoriz>(const Npp8u*, int, NppiSize, NppiPoint, Npp16s*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
+template NppStatus nppi::filter::filterDeriv<Npp8s, Npp16s, 1, false, nppi::filter::kScharrHoriz>(const Npp8s*, int, Npp16s*, int, NppiSize, cudaStream_t);
+template NppStatus nppi::filter::filterDerivBorder<Npp8s, Npp16s, 1, false, nppi::filter::kScharrHoriz>(const Npp8s*, int, NppiSize, NppiPoint, Npp16s*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
+template NppStatus nppi::filter::filterDeriv<Npp32f, Npp32f, 1, false, nppi::filter::kScharrHoriz>(const Npp32f*, int, Npp32f*, int, NppiSize, cudaStream_t);
+template NppStatus nppi::filter::filterDerivBorder<Npp32f, Npp32f, 1, false, nppi::filter::kScharrHoriz>(const Npp32f*, int, NppiSize, NppiPoint, Npp32f*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
+// kScharrVert (8u/8s -> 16s and 32f -> 32f, C1 only; legacy validation order)
+template NppStatus nppi::filter::filterDeriv<Npp8u, Npp16s, 1, false, nppi::filter::kScharrVert>(const Npp8u*, int, Npp16s*, int, NppiSize, cudaStream_t);
+template NppStatus nppi::filter::filterDerivBorder<Npp8u, Npp16s, 1, false, nppi::filter::kScharrVert>(const Npp8u*, int, NppiSize, NppiPoint, Npp16s*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
+template NppStatus nppi::filter::filterDeriv<Npp8s, Npp16s, 1, false, nppi::filter::kScharrVert>(const Npp8s*, int, Npp16s*, int, NppiSize, cudaStream_t);
+template NppStatus nppi::filter::filterDerivBorder<Npp8s, Npp16s, 1, false, nppi::filter::kScharrVert>(const Npp8s*, int, NppiSize, NppiPoint, Npp16s*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
+template NppStatus nppi::filter::filterDeriv<Npp32f, Npp32f, 1, false, nppi::filter::kScharrVert>(const Npp32f*, int, Npp32f*, int, NppiSize, cudaStream_t);
+template NppStatus nppi::filter::filterDerivBorder<Npp32f, Npp32f, 1, false, nppi::filter::kScharrVert>(const Npp32f*, int, NppiSize, NppiPoint, Npp32f*, int, NppiSize, NppiBorderType, cudaStream_t, bool);
 // kSobelHoriz (masked / conversion variants)
 template NppStatus nppi::filter::filterDerivMask<Npp8u, Npp16s, nppi::filter::kSobelHoriz>(const Npp8u*, int, Npp16s*, int, NppiSize, NppiMaskSize, cudaStream_t);
 template NppStatus nppi::filter::filterDerivMaskBorder<Npp8u, Npp16s, nppi::filter::kSobelHoriz>(const Npp8u*, int, NppiSize, NppiPoint, Npp16s*, int, NppiSize, NppiMaskSize, NppiBorderType, cudaStream_t);

@@ -1,4 +1,4 @@
-// Derivative-filter family executor: nppiFilterPrewitt*/Roberts*/Sobel*
+// Derivative-filter family executor: nppiFilterPrewitt*/Roberts*/Sobel*/Scharr*
 // (first and second derivative, plain / Border / Mask / MaskBorder variants).
 //
 // Host-visible surface (safe for plain .cpp translation units): the entry-point
@@ -53,6 +53,8 @@ enum DerivOp {
   kSobelCross,
   kSobelHorizSecond,
   kSobelVertSecond,
+  kScharrHoriz,
+  kScharrVert,
 };
 
 // Fixed 3x3 filter (Prewitt / Roberts / Sobel first derivative; C1/C3/C4/AC4).

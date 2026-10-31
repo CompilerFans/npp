@@ -108,10 +108,6 @@ nppi_color_conversion.h,nppiCompColorKey,6,0,0,6,3,3,3,6
 nppi_color_conversion.h,nppiLUT_Trilinear,6,0,0,6,3,3,3,6
 nppi_color_conversion.h,nppiRGBToYUV422,12,6,0,6,6,0,12,6
 nppi_color_conversion.h,nppiYCbCr411ToYCbCr420,6,0,0,6,3,3,3,6
-nppi_filtering_functions.h,nppiFilterScharrHoriz,6,0,0,6,3,3,3,6
-nppi_filtering_functions.h,nppiFilterScharrHorizBorder,6,0,0,6,3,3,3,6
-nppi_filtering_functions.h,nppiFilterScharrVert,6,0,0,6,3,3,3,6
-nppi_filtering_functions.h,nppiFilterScharrVertBorder,6,0,0,6,3,3,3,6
 nppi_geometry_transforms.h,nppiRotate,24,18,6,0,3,3,19,6
 nppi_color_conversion.h,nppiCFAToRGBA,5,0,0,5,3,2,3,5
 nppi_color_conversion.h,nppiBGRToCbYCr422_709HDTV,4,0,0,4,2,2,2,4
@@ -352,6 +348,10 @@ nppi_filtering_functions.h,nppiFilterRobertsUp,24,24,0,0,0,0,12,0
 nppi_filtering_functions.h,nppiFilterRobertsUpBorder,24,24,0,0,0,0,12,0
 nppi_filtering_functions.h,nppiFilterRow32f,24,24,0,0,0,0,12,0
 nppi_filtering_functions.h,nppiFilterRowBorder32f,24,24,0,0,0,0,12,0
+nppi_filtering_functions.h,nppiFilterScharrHoriz,6,6,0,0,0,0,3,0
+nppi_filtering_functions.h,nppiFilterScharrHorizBorder,6,6,0,0,0,0,3,0
+nppi_filtering_functions.h,nppiFilterScharrVert,6,6,0,0,0,0,3,0
+nppi_filtering_functions.h,nppiFilterScharrVertBorder,6,6,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterSobelCross,6,6,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterSobelCrossBorder,6,6,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterSobelHoriz,28,28,0,0,0,0,14,0
