@@ -356,7 +356,9 @@ TEST_F(NppiSumWindowDiff, BorderGeometry) {
 TEST_F(NppiSumWindowDiff, Errors) {
   DeviceMemory<Npp16u> &s = arena<Npp16u>(4096);
   DeviceMemory<Npp32f> &d = arena<Npp32f>(4096);
-  const Npp16u *ps = s.get();
+  // Status probes only: raw window taps outside the ROI must stay inside the
+  // allocation (MXC faults on reads before the buffer), so start at a margin.
+  const Npp16u *ps = s.get() + 64;
   Npp32f *pd = d.get();
   auto ctx = current_ctx();
   const NppiSize roi{8, 8};

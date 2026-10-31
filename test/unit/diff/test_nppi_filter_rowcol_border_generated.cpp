@@ -398,7 +398,9 @@ TEST_F(NppiFilterRowColBorderDiff, DivErrors) {
   DeviceMemory<Npp16s> &d = arena<Npp16s>(4096);
   DeviceMemory<Npp32s> &k = arena<Npp32s>(5);
   k.copyFromHost(hk);
-  const Npp16s *ps = s.get();
+  // Status probes only: the replicate border origin sits at pSrc - offset, so
+  // the source must start at a margin (MXC faults on reads before the buffer).
+  const Npp16s *ps = s.get() + 256;
   Npp16s *pd = d.get();
   const Npp32s *pk = k.get();
   auto ctx = current_ctx();
@@ -480,7 +482,7 @@ TEST_F(NppiFilterRowColBorderDiff, FloatErrors) {
   DeviceMemory<Npp32f> &d = arena<Npp32f>(4096);
   DeviceMemory<Npp32f> &k = arena<Npp32f>(5);
   k.copyFromHost(make_kf(5, 0xB701));
-  const Npp32f *ps = s.get();
+  const Npp32f *ps = s.get() + 256;
   Npp32f *pd = d.get();
   const Npp32f *pk = k.get();
   auto ctx = current_ctx();

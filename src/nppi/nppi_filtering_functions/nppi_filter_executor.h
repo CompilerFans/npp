@@ -7,21 +7,37 @@
 // mpp_scripts/gen_family.py (mpp_scripts/families/nppi_filter*.json).
 //
 // Semantics (NVIDIA NPP 13.4 on the RTX 5090, validated by probes/diff tests):
+//   * kernel/mask arrays follow the NPP contract: HOST pointers, staged to the
+//     device internally (cudaMemcpyDefault also accepts device pointers, which
+//     the differential harness uses).
 //   * generic filter: dst(x,y)[c] = sum_{i,j} src(x+ax-i, y+ay-j)[c] * k[j*kw+i]
 //     (row: src(x+ax-i, y);  column: src(x, y+ay-i)).
 //   * float kernels accumulate in float; integer destinations truncate the sum
 //     toward zero and then saturate (0.75->0, -1.5->-1, -30000*2 -> -32768).
 //   * integer kernels (nppiFilterBorder_<int>) accumulate with int32 wrap-around,
 //     divide by nDivisor with C truncation toward zero, then saturate.
-//   * AC4 filters the first three channels only; the alpha channel is preserved.
+//     Exception (measured): the 8u C4R/AC4R ROW/COLUMN 1D families use unsigned
+//     32-bit ring arithmetic and unsigned division, so negative sums wrap high
+//     and saturate to 255.  The 2D 8u families are signed.
+//   * AC4 filters the first three channels only; the alpha channel is preserved
+//     (also by the empty-kernel/zero-mask fill).
 //   * non-border variants read raw (no bounds handling); border variants accept
 //     only NPP_BORDER_REPLICATE and clamp image coordinates to [0, oSrcSize-1]
 //     in BOTH axes (also for the row/column border variants).
+//   * exception (measured): the 32f C1R family clamps taps into the ROI for odd
+//     square kernels >= 3 (2D) and odd masks >= 3 (row/column); every other
+//     32f layout/shape and all integer families read raw.
+//   * 64f row/column never validate the anchor; nMaskSize <= 0 is a single
+//     k[0] tap at the (signed) anchor.  64f empty 2D kernels zero the whole ROI.
+//   * empty/zero/negative kernel or mask: the destination is zero-filled over
+//     limit(dim, k) = clamp(dim - 1 + k, 0, dim) on each axis (so a size-0 axis
+//     leaves the last line untouched and a negative size shrinks the fill).
 //   * border source image origin is pSrc - oSrcOffset; dst(x,y) filters around
 //     image pixel (x + oSrcOffset.x, y + oSrcOffset.y).
 //   * validation order (all families): null pointers first, then negative sizes
 //     (NPP_SIZE_ERROR), then family-specific checks:
-//       - non-border anchor: 1-roiDim <= anchor <= kernelDim (NPP_OUT_OFF_RANGE_ERROR)
+//       - 2D non-border anchor: 1-roiDim <= anchor <= kernelDim (OUT_OFF_RANGE)
+//       - row/column integer anchor: 1-roiDim <= anchor <= mask; 64f never checks
 //       - border: unsupported mode -> NPP_NOT_SUPPORTED_MODE_ERROR,
 //         divisor 0 -> NPP_DIVISOR_ERROR, srcOffset outside [0, oSrcSize) ->
 //         NPP_OUT_OFF_RANGE_ERROR; anchor/mask are NOT validated.
@@ -132,8 +148,9 @@ NppStatus filterColumnBorderDiv(const Src *pSrc, int nSrcStep, NppiSize oSrcSize
 
 // nppiSumWindowRow_<dt>32f_<lay>R / nppiSumWindowColumn_<dt>32f_<lay>R:
 // 1D running-window sum (unit weights) into an Npp32f destination, no border.
-// The window is the same tap range as the row/column filters
-// ([x+ax-mask+1, x+ax]); taps outside the ROI are skipped (clipped window sum).
+// The window is [p-a, p-a+mask-1] (anchor sign inverted w.r.t. the filters);
+// taps are read raw from the surrounding buffer.  Measured quirk: the row
+// kernel clamps the tap coordinate to W+mask-1 (the column kernel does not).
 template <typename Src, int Channels>
 NppStatus sumWindowRow(const Src *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oROI,
                        int nMaskSize, int nAnchor, cudaStream_t stream);

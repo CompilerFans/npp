@@ -505,7 +505,9 @@ TEST_F(NppiFilter2dDiff, DivErrors) {
   DeviceMemory<Npp16s> &d = arena<Npp16s>(4096);
   DeviceMemory<Npp32s> &k = arena<Npp32s>(9);
   k.copyFromHost(hk);
-  const Npp16s *ps = s.get();
+  // Status probes only: raw taps outside the ROI must stay inside the
+  // allocation (MXC faults on reads before the buffer), so start at a margin.
+  const Npp16s *ps = s.get() + 64;
   Npp16s *pd = d.get();
   const Npp32s *pk = k.get();
   auto ctx = current_ctx();
@@ -562,7 +564,7 @@ TEST_F(NppiFilter2dDiff, FloatErrors) {
   DeviceMemory<Npp32f> &d = arena<Npp32f>(4096);
   DeviceMemory<Npp32f> &k = arena<Npp32f>(9);
   k.copyFromHost(hk);
-  const Npp32f *ps = s.get();
+  const Npp32f *ps = s.get() + 64;
   Npp32f *pd = d.get();
   const Npp32f *pk = k.get();
   auto ctx = current_ctx();
@@ -597,7 +599,7 @@ TEST_F(NppiFilter2dDiff, FloatErrors) {
   DeviceMemory<Npp64f> &d64 = arena<Npp64f>(4096);
   DeviceMemory<Npp64f> &k64 = arena<Npp64f>(9);
   k64.copyFromHost(make_kd(9, 0x6702));
-  const Npp64f *ps64 = s64.get();
+  const Npp64f *ps64 = s64.get() + 64;
   Npp64f *pd64 = d64.get();
   const Npp64f *pk64 = k64.get();
   status_case("nppiFilter", "nppiFilter_64f_C1R", "err/64f/null_src", [&] {
@@ -630,7 +632,7 @@ TEST_F(NppiFilter2dDiff, FloatErrors) {
   DeviceMemory<Npp16u> &d2 = arena<Npp16u>(4096);
   DeviceMemory<Npp32s> &k2 = arena<Npp32s>(9);
   k2.copyFromHost(make_ki(9, 0x6702));
-  const Npp16u *ps2 = s2.get();
+  const Npp16u *ps2 = s2.get() + 64;
   Npp16u *pd2 = d2.get();
   const Npp32s *pk2 = k2.get();
   status_case("nppiFilter", "nppiFilter_16u_AC4R", "err/16u_AC4/div0", [&] {
@@ -656,7 +658,7 @@ TEST_F(NppiFilter2dDiff, LegacyErrors) {
   DeviceMemory<Npp8u> &d = arena<Npp8u>(4096);
   DeviceMemory<Npp32s> &k = arena<Npp32s>(9);
   k.copyFromHost(hk);
-  const Npp8u *ps = s.get();
+  const Npp8u *ps = s.get() + 64;
   Npp8u *pd = d.get();
   const Npp32s *pk = k.get();
   auto ctx = current_ctx();
