@@ -1,0 +1,4 @@
+== part9 Border auto with sigma<=0 (HANG RISK)
+P9 before signeg r=0
+P9 signeg_auto status=-6
+P9 sigzero_auto status=-6

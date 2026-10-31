@@ -1,0 +1,9 @@
+== part4 GBS auto with sigma<0
+GBSA dt=0 s=-0x1p+0 status=-6 size=-1
+GBSA dt=0 s=-0x1p-1 status=-6 size=-1
+GBSA dt=1 s=-0x1p+0 status=-6 size=-1
+GBSA dt=1 s=-0x1p-1 status=-6 size=-1
+GBSA dt=2 s=-0x1p+0 status=-6 size=-1
+GBSA dt=2 s=-0x1p-1 status=-6 size=-1
+GBSA dt=3 s=-0x1p+0 status=-6 size=-1
+GBSA dt=3 s=-0x1p-1 status=-6 size=-1
