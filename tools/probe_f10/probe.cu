@@ -1160,6 +1160,596 @@ static void valmat() {
   cudaFree(d_k);
 }
 
+
+// ---------------- stage gap1 : offset read geometry via identity kernel ------
+static void sync_chk(const char *tag, NppStatus st) {
+  cudaError_t e = cudaDeviceSynchronize();
+  cudaError_t le = cudaGetLastError();
+  printf("%s st=%d sync=%d lasterr=%d\n", tag, (int)st, (int)e, (int)le);
+}
+
+static void gap1() {
+  const int W = 9, H = 9;
+  std::vector<float> src((size_t)W * H);
+  for (int y = 0; y < H; ++y)
+    for (int x = 0; x < W; ++x) src[(size_t)y * W + x] = (float)(y * 10 + x);
+  float *d_s, *d_d, *d_k;
+  cudaMalloc(&d_s, src.size() * 4);
+  cudaMalloc(&d_d, 81 * 4);
+  cudaMalloc(&d_k, 3 * 4);
+  cudaMemcpy(d_s, src.data(), src.size() * 4, cudaMemcpyHostToDevice);
+  float idk[3] = {0.f, 1.f, 0.f};
+  cudaMemcpy(d_k, idk, 12, cudaMemcpyHostToDevice);
+  auto dump = [&](const char *tag, NppStatus st, NppiSize roi) {
+    printf("gap1 %s st=%d\n", tag, (int)st);
+    std::vector<float> out((size_t)roi.width * roi.height, -777.f);
+    cudaMemcpy(out.data(), d_d, out.size() * 4, cudaMemcpyDeviceToHost);
+    for (int y = 0; y < roi.height; ++y) {
+      printf("  ");
+      for (int x = 0; x < roi.width; ++x) printf(" %g", out[(size_t)y * roi.width + x]);
+      printf("\n");
+    }
+  };
+  auto runb = [&](const char *tag, NppiPoint off, NppiSize roi, NppiBorderType b) {
+    std::vector<float> mark((size_t)roi.width * roi.height, -777.f);
+    cudaMemcpy(d_d, mark.data(), mark.size() * 4, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(
+        d_s, W * 4, NppiSize{W, H}, off, d_d, W * 4, roi, 3, d_k, b, ctx());
+    cudaDeviceSynchronize();
+    dump(tag, st, roi);
+  };
+  runb("advb-id off23 r55 rep", NppiPoint{2, 3}, NppiSize{5, 5}, NPP_BORDER_REPLICATE);
+  runb("advb-id off23 r77 rep", NppiPoint{2, 3}, NppiSize{7, 7}, NPP_BORDER_REPLICATE);
+  runb("advb-id off66 r55 rep", NppiPoint{6, 6}, NppiSize{5, 5}, NPP_BORDER_REPLICATE);
+  runb("advb-id off00 r99 rep", NppiPoint{0, 0}, NppiSize{9, 9}, NPP_BORDER_REPLICATE);
+  runb("advb-id off23 r55 mir", NppiPoint{2, 3}, NppiSize{5, 5}, (NppiBorderType)4);
+  runb("advb-id off00 r99 mir", NppiPoint{0, 0}, NppiSize{9, 9}, (NppiBorderType)4);
+  runb("advb-id off77 r55 mir", NppiPoint{7, 7}, NppiSize{5, 5}, (NppiBorderType)4);
+  float n05[1] = {0.5f};
+  float n5[5] = {0.5f, 0.5f, 0.5f, 0.5f, 0.5f};
+  auto runw = [&](const char *tag, NppiPoint off, NppiSize roi) {
+    std::vector<float> mark((size_t)roi.width * roi.height, -777.f);
+    cudaMemcpy(d_d, mark.data(), mark.size() * 4, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(
+        d_s, W * 4, NppiSize{W, H}, off, d_d, W * 4, roi, NppiSize{1, 1}, NppiPoint{0, 0},
+        n05, NPP_BORDER_REPLICATE, ctx());
+    cudaDeviceSynchronize();
+    dump(tag, st, roi);
+  };
+  runw("wi-1x1 off23 r55", NppiPoint{2, 3}, NppiSize{5, 5});
+  runw("wi-1x1 off66 r55", NppiPoint{6, 6}, NppiSize{5, 5});
+  // Wiener 1x3 a00 on delta image: reveals row mapping under offset
+  {
+    std::vector<float> imp((size_t)W * H, 0.f);
+    imp[(size_t)4 * W + 4] = 30.f;
+    cudaMemcpy(d_s, imp.data(), imp.size() * 4, cudaMemcpyHostToDevice);
+    float noise[1] = {0.0f};
+    std::vector<float> mark(25, -777.f);
+    cudaMemcpy(d_d, mark.data(), 100, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(
+        d_s, W * 4, NppiSize{W, H}, NppiPoint{2, 3}, d_d, W * 4, NppiSize{5, 5},
+        NppiSize{1, 3}, NppiPoint{0, 0}, noise, NPP_BORDER_REPLICATE, ctx());
+    cudaDeviceSynchronize();
+    dump("wi-1x3a00-delta off23 r55", st, NppiSize{5, 5});
+    cudaMemcpy(d_s, src.data(), src.size() * 4, cudaMemcpyHostToDevice);
+  }
+  // GaussBorder 3x3 with offset (cross-check executor + fixed taps)
+  auto rung = [&](const char *tag, NppiPoint off, NppiSize roi) {
+    std::vector<float> mark((size_t)roi.width * roi.height, -777.f);
+    cudaMemcpy(d_d, mark.data(), mark.size() * 4, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGaussBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, off, d_d,
+                                                     W * 4, roi, NPP_MASK_SIZE_3_X_3,
+                                                     NPP_BORDER_REPLICATE, ctx());
+    cudaDeviceSynchronize();
+    dump(tag, st, roi);
+  };
+  rung("gb-3x3 off23 r55", NppiPoint{2, 3}, NppiSize{5, 5});
+  rung("gb-3x3 off00 r99", NppiPoint{0, 0}, NppiSize{9, 9});
+  {
+    std::vector<float> mark(25, -777.f);
+    cudaMemcpy(d_d, mark.data(), 100, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGaussBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{2, 3},
+                                                     d_d, W * 4, NppiSize{5, 5},
+                                                     NPP_MASK_SIZE_5_X_5, NPP_BORDER_REPLICATE, ctx());
+    cudaDeviceSynchronize();
+    dump("gb-5x5 off23 r55", st, NppiSize{5, 5});
+  }
+  (void)n5;
+  cudaFree(d_s); cudaFree(d_d); cudaFree(d_k);
+}
+
+// ---------------- stage gap2 : AC4 alpha behavior per family ------------------
+static void gap2() {
+  const int W = 9, H = 9, MW = 4;  // margin for plain families (3-tap max)
+  const NppiSize roi{5, 5};
+  const NppiSize sz{W, H};
+  const NppiPoint off{2, 3};
+  NppStreamContext c = ctx();
+  // 8u: 13x13 buffer, RGB=100/101/102, A=200; plain families get interior pointer
+  {
+    const int BW = W + 2 * MW, BH = H + 2 * MW;
+    std::vector<unsigned char> s4((size_t)BW * BH * 4);
+    for (int y = 0; y < BH; ++y)
+      for (int x = 0; x < BW; ++x) {
+        s4[((size_t)y * BW + x) * 4 + 0] = 100;
+        s4[((size_t)y * BW + x) * 4 + 1] = 101;
+        s4[((size_t)y * BW + x) * 4 + 2] = 102;
+        s4[((size_t)y * BW + x) * 4 + 3] = 200;
+      }
+    unsigned char *d_buf, *d_dst;
+    cudaMalloc(&d_buf, s4.size());
+    cudaMalloc(&d_dst, (size_t)W * H * 4);
+    cudaMemcpy(d_buf, s4.data(), s4.size(), cudaMemcpyHostToDevice);
+    unsigned char *p = d_buf + ((size_t)MW * BW + MW) * 4;
+    auto case8 = [&](const char *tag, NppStatus st) {
+      cudaDeviceSynchronize();
+      unsigned char px[8] = {0};
+      cudaMemcpy(px, d_dst + ((size_t)2 * (W * 4) + 2 * 4), 4, cudaMemcpyDeviceToHost);
+      cudaMemcpy(px + 4, d_dst + 4, 4, cudaMemcpyDeviceToHost);
+      printf("gap2 %s st=%d p22=[%d %d %d %d] p00=[%d %d %d %d] lasterr=%d\n", tag, (int)st,
+             px[0], px[1], px[2], px[3], px[4], px[5], px[6], px[7], (int)cudaGetLastError());
+    };
+    std::vector<unsigned char> mark((size_t)W * H * 4, 0x77);
+    auto pre = [&]() { cudaMemcpy(d_dst, mark.data(), mark.size(), cudaMemcpyHostToDevice); };
+    pre();
+    case8("gauss8u-AC4", nppiFilterGauss_8u_AC4R_Ctx(p, BW * 4, d_dst, W * 4, roi,
+                                                     NPP_MASK_SIZE_3_X_3, c));
+    pre();
+    case8("gauss8u-C4", nppiFilterGauss_8u_C4R_Ctx(p, BW * 4, d_dst, W * 4, roi,
+                                                    NPP_MASK_SIZE_3_X_3, c));
+    pre();
+    float noise4[4] = {0.5f, 0.5f, 0.5f, 0.5f};
+    case8("wiener8u-AC4",
+          nppiFilterWienerBorder_8u_AC4R_Ctx(p, BW * 4, sz, NppiPoint{MW, MW}, d_dst, W * 4,
+                                             roi, NppiSize{3, 3}, NppiPoint{1, 1}, noise4,
+                                             NPP_BORDER_REPLICATE, c));
+    pre();
+    case8("wiener8u-C4",
+          nppiFilterWienerBorder_8u_C4R_Ctx(p, BW * 4, sz, NppiPoint{MW, MW}, d_dst, W * 4,
+                                            roi, NppiSize{3, 3}, NppiPoint{1, 1}, noise4,
+                                            NPP_BORDER_REPLICATE, c));
+    // 32f AC4 on the same geometry
+    std::vector<float> sf((size_t)BW * BH * 4);
+    for (size_t i = 0; i < sf.size(); i += 4) {
+      sf[i] = 100.f; sf[i + 1] = 101.f; sf[i + 2] = 102.f; sf[i + 3] = 200.f;
+    }
+    float *d_fbuf, *d_fdst;
+    cudaMalloc(&d_fbuf, sf.size() * 4);
+    cudaMalloc(&d_fdst, (size_t)W * H * 4);
+    cudaMemcpy(d_fbuf, sf.data(), sf.size() * 4, cudaMemcpyHostToDevice);
+    float *pf = d_fbuf + ((size_t)MW * BW + MW) * 4;
+    float kern[3] = {0.f, 1.f, 0.f};
+    float *d_k; cudaMalloc(&d_k, 12); cudaMemcpy(d_k, kern, 12, cudaMemcpyHostToDevice);
+    std::vector<float> fmark((size_t)W * H * 4, -12345.f);
+    auto fpre = [&]() { cudaMemcpy(d_fdst, fmark.data(), fmark.size() * 4, cudaMemcpyHostToDevice); };
+    auto casef = [&](const char *tag, NppStatus st) {
+      cudaDeviceSynchronize();
+      float px[8] = {0};
+      cudaMemcpy(px, d_fdst + (size_t)2 * (W * 4) + 2 * 4, 8, cudaMemcpyDeviceToHost);
+      cudaMemcpy(px + 4, d_fdst + 4, 8, cudaMemcpyDeviceToHost);
+      printf("gap2 %s st=%d p22=[%g %g %g %g] p00=[%g %g %g %g] lasterr=%d\n", tag, (int)st,
+             px[0], px[1], px[2], px[3], px[4], px[5], px[6], px[7], (int)cudaGetLastError());
+    };
+    fpre();
+    casef("gauss32f-AC4", nppiFilterGauss_32f_AC4R_Ctx(pf, BW * 4, d_fdst, W * 4, roi,
+                                                        NPP_MASK_SIZE_3_X_3, c));
+    fpre();
+    casef("gauss32f-C4", nppiFilterGauss_32f_C4R_Ctx(pf, BW * 4, d_fdst, W * 4, roi,
+                                                      NPP_MASK_SIZE_3_X_3, c));
+    fpre();
+    casef("gb32f-AC4", nppiFilterGaussBorder_32f_AC4R_Ctx(pf, BW * 4, sz, NppiPoint{MW, MW},
+                                                           d_fdst, W * 4, roi,
+                                                           NPP_MASK_SIZE_3_X_3,
+                                                           NPP_BORDER_REPLICATE, c));
+    fpre();
+    casef("adv32f-AC4", nppiFilterGaussAdvanced_32f_AC4R_Ctx(pf, BW * 4, d_fdst, W * 4, roi,
+                                                              3, d_k, c));
+    fpre();
+    casef("advb32f-AC4",
+          nppiFilterGaussAdvancedBorder_32f_AC4R_Ctx(pf, BW * 4, sz, NppiPoint{MW, MW},
+                                                     d_fdst, W * 4, roi, 3, d_k,
+                                                     NPP_BORDER_REPLICATE, c));
+    fpre();
+    float noise3[3] = {0.5f, 0.5f, 0.5f};
+    casef("wiener32f-AC4",
+          nppiFilterWienerBorder_32f_AC4R_Ctx(pf, BW * 4, sz, NppiPoint{MW, MW}, d_fdst,
+                                              W * 4, roi, NppiSize{3, 3}, NppiPoint{1, 1},
+                                              noise3, NPP_BORDER_REPLICATE, c));
+    fpre();
+    casef("wiener32f-C4",
+          nppiFilterWienerBorder_32f_C4R_Ctx(pf, BW * 4, sz, NppiPoint{MW, MW}, d_fdst,
+                                             W * 4, roi, NppiSize{3, 3}, NppiPoint{1, 1},
+                                             noise4, NPP_BORDER_REPLICATE, c));
+    // 16s AC4 (negative RGB + alpha)
+    std::vector<short> s16((size_t)BW * BH * 4);
+    for (size_t i = 0; i < s16.size(); i += 4) {
+      s16[i] = -100; s16[i + 1] = -101; s16[i + 2] = -102; s16[i + 3] = -200;
+    }
+    short *d_s16, *d_d16;
+    cudaMalloc(&d_s16, s16.size() * 2);
+    cudaMalloc(&d_d16, (size_t)W * H * 4 * 2);
+    cudaMemcpy(d_s16, s16.data(), s16.size() * 2, cudaMemcpyHostToDevice);
+    short *p16 = d_s16 + ((size_t)MW * BW + MW) * 4;
+    std::vector<short> m16((size_t)W * H * 4, -12345);
+    cudaMemcpy(d_d16, m16.data(), m16.size() * 2, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGauss_16s_AC4R_Ctx(p16, BW * 8, d_d16, W * 8, roi,
+                                                NPP_MASK_SIZE_3_X_3, c);
+    cudaDeviceSynchronize();
+    short q[8] = {0};
+    cudaMemcpy(q, d_d16 + (size_t)2 * (W * 4) + 2 * 4, 8, cudaMemcpyDeviceToHost);
+    printf("gap2 gauss16s-AC4 st=%d p22=[%d %d %d %d] lasterr=%d\n", (int)st, q[0], q[1], q[2],
+           q[3], (int)cudaGetLastError());
+    cudaFree(d_s16); cudaFree(d_d16);
+    cudaFree(d_fbuf); cudaFree(d_fdst); cudaFree(d_k);
+    cudaFree(d_buf); cudaFree(d_dst);
+  }
+}
+
+// ---------------- stage gap3 : Wiener 8u/16s integer semantics ---------------
+static void gap3() {
+  const int W = 9, H = 9;
+  NppStreamContext c = ctx();
+  // 8u dumps
+  {
+    unsigned char *d_s, *d_d;
+    cudaMalloc(&d_s, (size_t)W * H);
+    cudaMalloc(&d_d, (size_t)W * H);
+    auto run = [&](const char *tag, const std::vector<unsigned char> &img, NppiSize mask,
+                   NppiPoint anc, float n, int rows0, int rows1, bool allrows) {
+      cudaMemcpy(d_s, img.data(), img.size(), cudaMemcpyHostToDevice);
+      std::vector<unsigned char> mark((size_t)W * H, 0x77);
+      cudaMemcpy(d_d, mark.data(), mark.size(), cudaMemcpyHostToDevice);
+      float noise[1] = {n};
+      NppStatus st = nppiFilterWienerBorder_8u_C1R_Ctx(
+          d_s, W, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W, NppiSize{W, H}, mask, anc, noise,
+          NPP_BORDER_REPLICATE, c);
+      cudaDeviceSynchronize();
+      std::vector<unsigned char> out((size_t)W * H, 0x77);
+      cudaMemcpy(out.data(), d_d, out.size(), cudaMemcpyDeviceToHost);
+      printf("gap3 %s st=%d\n", tag, (int)st);
+      int y0 = allrows ? 0 : rows0, y1 = allrows ? H - 1 : rows1;
+      for (int y = y0; y <= y1; ++y) {
+        printf("  r%d:", y);
+        for (int x = 0; x < W; ++x) printf(" %d", out[(size_t)y * W + x]);
+        printf("\n");
+      }
+    };
+    std::vector<unsigned char> ramp((size_t)W * H), z((size_t)W * H), imp((size_t)W * H),
+        c2((size_t)W * H, 2), c9((size_t)W * H, 9), c10((size_t)W * H, 10), c101((size_t)W * H, 101);
+    for (size_t i = 0; i < ramp.size(); ++i) ramp[i] = (unsigned char)((i * 37 + 11) & 0xFF);
+    imp[(size_t)4 * W + 4] = 30;
+    std::vector<unsigned char> imp100((size_t)W * H); imp100[(size_t)4 * W + 4] = 100;
+    std::vector<unsigned char> imp255((size_t)W * H); imp255[(size_t)4 * W + 4] = 255;
+    run("w8u ramp m33 n1", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 2, 6, true);
+    run("w8u ramp m33 n0", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 2, 6, true);
+    run("w8u ramp m33 n05", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.5f, 4, 4, false);
+    run("w8u ramp m33 n025", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.25f, 4, 4, false);
+    run("w8u imp30 m33 n1", imp, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 3, 5, true);
+    run("w8u imp30 m33 n0", imp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 3, 5, true);
+    run("w8u imp100 m33 n0", imp100, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 3, 5, true);
+    run("w8u imp255 m55 n0", imp255, NppiSize{5, 5}, NppiPoint{2, 2}, 0.f, 2, 6, true);
+    run("w8u imp255 m55 n1", imp255, NppiSize{5, 5}, NppiPoint{2, 2}, 1.f, 2, 6, true);
+    run("w8u c2 m33 n1", c2, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 3, 5, true);
+    run("w8u c2 m33 n0", c2, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 3, 5, true);
+    run("w8u c9 m33 n1", c9, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 3, 5, true);
+    run("w8u c10 m33 n0", c10, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 3, 5, true);
+    run("w8u c10 m33 n1", c10, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 3, 5, true);
+    run("w8u c101 m22a00 n1", c101, NppiSize{2, 2}, NppiPoint{0, 0}, 1.f, 3, 5, true);
+    run("w8u c101 m22a00 n0", c101, NppiSize{2, 2}, NppiPoint{0, 0}, 0.f, 3, 5, true);
+    run("w8u c101 m55 n0", c101, NppiSize{5, 5}, NppiPoint{2, 2}, 0.f, 4, 4, false);
+    // n-dependence on a mixed image
+    for (float n : {0.1f, 0.9f}) run("w8u ramp m33 nx", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, n, 4, 4, false);
+    // 2x1 / 1x2 masks on ramp
+    run("w8u ramp m21a00 n0", ramp, NppiSize{2, 1}, NppiPoint{0, 0}, 0.f, 4, 4, false);
+    run("w8u ramp m12a00 n0", ramp, NppiSize{1, 2}, NppiPoint{0, 0}, 0.f, 4, 4, false);
+    // per-channel noise validation (32f C3)
+    cudaFree(d_s); cudaFree(d_d);
+  }
+  {
+    float *d_s, *d_d;
+    cudaMalloc(&d_s, (size_t)W * H * 3 * 4);
+    cudaMalloc(&d_d, (size_t)W * H * 3 * 4);
+    cudaMemset(d_s, 0x5A, (size_t)W * H * 3 * 4);
+    float bad1[3] = {0.5f, 1.5f, 0.5f};
+    float bad2[3] = {-0.5f, 0.5f, 0.5f};
+    float good[3] = {0.5f, 0.5f, 0.5f};
+    printf("gap3 wi-c3 noise155 st=%d\n", (int)nppiFilterWienerBorder_32f_C3R_Ctx(
+        d_s, W * 12, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 12, NppiSize{W, H},
+        NppiSize{3, 3}, NppiPoint{1, 1}, bad1, NPP_BORDER_REPLICATE, c));
+    printf("gap3 wi-c3 noisem05 st=%d\n", (int)nppiFilterWienerBorder_32f_C3R_Ctx(
+        d_s, W * 12, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 12, NppiSize{W, H},
+        NppiSize{3, 3}, NppiPoint{1, 1}, bad2, NPP_BORDER_REPLICATE, c));
+    printf("gap3 wi-c3 noisegood st=%d\n", (int)nppiFilterWienerBorder_32f_C3R_Ctx(
+        d_s, W * 12, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 12, NppiSize{W, H},
+        NppiSize{3, 3}, NppiPoint{1, 1}, good, NPP_BORDER_REPLICATE, c));
+    printf("gap3 wi-c1 noise11 st=%d\n", (int)nppiFilterWienerBorder_32f_C1R_Ctx(
+        d_s, W * 12, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 12, NppiSize{W, H},
+        NppiSize{3, 3}, NppiPoint{1, 1}, bad1, NPP_BORDER_REPLICATE, c));
+    cudaFree(d_s); cudaFree(d_d);
+  }
+  // 16s dumps
+  {
+    short *d_s, *d_d;
+    cudaMalloc(&d_s, (size_t)W * H * 2);
+    cudaMalloc(&d_d, (size_t)W * H * 2);
+    auto run = [&](const char *tag, const std::vector<short> &img, NppiSize mask,
+                   NppiPoint anc, float n, int rows0, int rows1, bool allrows) {
+      cudaMemcpy(d_s, img.data(), img.size() * 2, cudaMemcpyHostToDevice);
+      std::vector<short> mark((size_t)W * H, -12345);
+      cudaMemcpy(d_d, mark.data(), mark.size() * 2, cudaMemcpyHostToDevice);
+      float noise[1] = {n};
+      NppStatus st = nppiFilterWienerBorder_16s_C1R_Ctx(
+          d_s, W * 2, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 2, NppiSize{W, H}, mask, anc,
+          noise, NPP_BORDER_REPLICATE, c);
+      cudaDeviceSynchronize();
+      std::vector<short> out((size_t)W * H, -12345);
+      cudaMemcpy(out.data(), d_d, out.size() * 2, cudaMemcpyDeviceToHost);
+      printf("gap3 %s st=%d\n", tag, (int)st);
+      int y0 = allrows ? 0 : rows0, y1 = allrows ? H - 1 : rows1;
+      for (int y = y0; y <= y1; ++y) {
+        printf("  r%d:", y);
+        for (int x = 0; x < W; ++x) printf(" %d", out[(size_t)y * W + x]);
+        printf("\n");
+      }
+    };
+    std::vector<short> ramp((size_t)W * H), imp((size_t)W * H), c9((size_t)W * H, 9),
+        c10((size_t)W * H, 10), cm9((size_t)W * H, -9), cm10((size_t)W * H, -10);
+    for (size_t i = 0; i < ramp.size(); ++i) ramp[i] = (short)(((i * 137 + 51) % 600) - 300);
+    imp[(size_t)4 * W + 4] = 1000;
+    run("w16s ramp m33 n1", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 3, 5, true);
+    run("w16s ramp m33 n0", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 3, 5, true);
+    run("w16s ramp m33 n05", ramp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.5f, 4, 4, false);
+    run("w16s imp1000 m33 n0", imp, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 3, 5, true);
+    run("w16s imp1000 m33 n1", imp, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 3, 5, true);
+    run("w16s c9 m33 n1", c9, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 4, 4, false);
+    run("w16s c10 m33 n0", c10, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 4, 4, false);
+    run("w16s c10 m33 n1", c10, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 4, 4, false);
+    run("w16s cm9 m33 n1", cm9, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 4, 4, false);
+    run("w16s cm10 m33 n0", cm10, NppiSize{3, 3}, NppiPoint{1, 1}, 0.f, 4, 4, false);
+    run("w16s cm10 m33 n1", cm10, NppiSize{3, 3}, NppiPoint{1, 1}, 1.f, 4, 4, false);
+    cudaFree(d_s); cudaFree(d_d);
+  }
+}
+
+// ---------------- stage gap4 : GaussAdvanced anchors/even taps/arithmetic ----
+static void gap4() {
+  NppStreamContext c = ctx();
+  // 32f anchor probes: 21x21 zero image, impulse at (10,10), plain Advanced
+  {
+    const int W = 21, H = 21;
+    std::vector<float> src((size_t)W * H, 0.f), dst((size_t)W * H, -777.f);
+    src[(size_t)10 * W + 10] = 1.f;
+    float *d_s, *d_d, *d_k;
+    cudaMalloc(&d_s, src.size() * 4);
+    cudaMalloc(&d_d, dst.size() * 4);
+    cudaMalloc(&d_k, 8 * 4);
+    cudaMemcpy(d_s, src.data(), src.size() * 4, cudaMemcpyHostToDevice);
+    struct K { int taps; float k[8]; const char *tag; } cases[] = {
+        {3, {1.f, 0.f, 0.f}, "t3-100"},
+        {3, {0.f, 0.f, 1.f}, "t3-001"},
+        {4, {1.f, 0.f, 0.f, 0.f}, "t4-1000"},
+        {4, {0.f, 0.f, 0.f, 1.f}, "t4-0001"},
+        {4, {0.f, 1.f, 0.f, 0.f}, "t4-0100"},
+        {6, {1.f, 0.f, 0.f, 0.f, 0.f, 0.f}, "t6-100000"},
+        {6, {0.f, 0.f, 0.f, 0.f, 0.f, 1.f}, "t6-000001"},
+    };
+    for (auto &kc : cases) {
+      cudaMemcpy(d_k, kc.k, kc.taps * 4, cudaMemcpyHostToDevice);
+      std::vector<float> mark((size_t)W * H, -777.f);
+      cudaMemcpy(d_d, mark.data(), mark.size() * 4, cudaMemcpyHostToDevice);
+      NppStatus st = nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, W * 4, d_d, W * 4,
+                                                         NppiSize{W, H}, kc.taps, d_k, c);
+      cudaDeviceSynchronize();
+      std::vector<float> out((size_t)W * H, -777.f);
+      cudaMemcpy(out.data(), d_d, out.size() * 4, cudaMemcpyDeviceToHost);
+      printf("gap4 adv-anchor %s st=%d", kc.tag, (int)st);
+      for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x)
+          if (out[(size_t)y * W + x] > 0.5f) printf(" hit(%d,%d)=%.6g", x, y, out[(size_t)y * W + x]);
+      printf("\n");
+    }
+    // even/odd taps status checks (plain)
+    for (int t : {2, 4, 6, -1, -3}) {
+      NppStatus st = nppiFilterGaussAdvanced_32f_C1R_Ctx(d_s, W * 4, d_d, W * 4,
+                                                         NppiSize{5, 5}, t, d_k, c);
+      printf("gap4 adv taps=%d st=%d\n", t, (int)st);
+    }
+    // AdvancedBorder taps status + even-tap identity dump
+    float idk[4] = {0.f, 1.f, 0.f, 0.f};
+    cudaMemcpy(d_k, idk, 16, cudaMemcpyHostToDevice);
+    for (int t : {4, 6, -3}) {
+      NppStatus st = nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(
+          d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 4, NppiSize{5, 5}, t, d_k,
+          NPP_BORDER_REPLICATE, c);
+      printf("gap4 advb taps=%d st=%d\n", t, (int)st);
+    }
+    float idk1[4] = {1.f, 0.f, 0.f, 0.f};
+    cudaMemcpy(d_k, idk1, 16, cudaMemcpyHostToDevice);
+    std::vector<float> imp2((size_t)W * H, 0.f);
+    imp2[(size_t)2 * W + 2] = 1.f;
+    cudaMemcpy(d_s, imp2.data(), imp2.size() * 4, cudaMemcpyHostToDevice);
+    std::vector<float> mark((size_t)W * H, -777.f);
+    cudaMemcpy(d_d, mark.data(), mark.size() * 4, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(
+        d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 4, NppiSize{5, 5}, 4, d_k,
+        NPP_BORDER_REPLICATE, c);
+    cudaDeviceSynchronize();
+    std::vector<float> out((size_t)W * H, -777.f);
+    cudaMemcpy(out.data(), d_d, out.size() * 4, cudaMemcpyDeviceToHost);
+    printf("gap4 advb-id t4-1000 rep st=%d:\n", (int)st);
+    for (int y = 0; y < 5; ++y) {
+      printf("  ");
+      for (int x = 0; x < 5; ++x) printf(" %g", out[(size_t)y * W + x]);
+      printf("\n");
+    }
+    cudaMemcpy(d_d, mark.data(), mark.size() * 4, cudaMemcpyHostToDevice);
+    st = nppiFilterGaussAdvancedBorder_32f_C1R_Ctx(
+        d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 4, NppiSize{5, 5}, 4, d_k,
+        (NppiBorderType)4, c);
+    cudaDeviceSynchronize();
+    cudaMemcpy(out.data(), d_d, out.size() * 4, cudaMemcpyDeviceToHost);
+    printf("gap4 advb-id t4-1000 mir st=%d:\n", (int)st);
+    for (int y = 0; y < 5; ++y) {
+      printf("  ");
+      for (int x = 0; x < 5; ++x) printf(" %g", out[(size_t)y * W + x]);
+      printf("\n");
+    }
+    cudaFree(d_s); cudaFree(d_d); cudaFree(d_k);
+  }
+  // 8u/16s arithmetic: interior rows of 9x9 with k3/k5 (2D-pre vs separable fit)
+  {
+    const int W = 9, H = 9;
+    float k3[3] = {0.25f, 0.5f, 0.25f};
+    float k5[5] = {0.0625f, 0.25f, 0.375f, 0.25f, 0.0625f};
+    float ku[3] = {1.f, 2.f, 1.f};
+    float *d_k; cudaMalloc(&d_k, 5 * 4);
+    unsigned char *d_s, *d_d;
+    cudaMalloc(&d_s, (size_t)W * H);
+    cudaMalloc(&d_d, (size_t)W * H);
+    std::vector<unsigned char> img((size_t)W * H);
+    for (size_t i = 0; i < img.size(); ++i) img[i] = (unsigned char)((i * 37 + 11) & 0xFF);
+    cudaMemcpy(d_s, img.data(), img.size(), cudaMemcpyHostToDevice);
+    auto run8 = [&](const char *tag, int taps, const float *k) {
+      cudaMemcpy(d_k, k, taps * 4, cudaMemcpyHostToDevice);
+      std::vector<unsigned char> mark((size_t)W * H, 0x77);
+      cudaMemcpy(d_d, mark.data(), mark.size(), cudaMemcpyHostToDevice);
+      NppStatus st = nppiFilterGaussAdvanced_8u_C1R_Ctx(d_s, W, d_d, W, NppiSize{W, H}, taps,
+                                                        d_k, c);
+      cudaDeviceSynchronize();
+      std::vector<unsigned char> out((size_t)W * H, 0x77);
+      cudaMemcpy(out.data(), d_d, out.size(), cudaMemcpyDeviceToHost);
+      printf("gap4 adv8 %s st=%d r2/r4/r6:\n", tag, (int)st);
+      for (int y : {2, 4, 6}) {
+        printf("  r%d:", y);
+        for (int x = 1; x < 8; ++x) printf(" %d", out[(size_t)y * W + x]);
+        printf("\n");
+      }
+    };
+    run8("k3", 3, k3);
+    run8("k5", 5, k5);
+    run8("ku123", 3, ku);
+    // AdvancedBorder 8u (replicate) with k3: rows 0/4/8
+    cudaMemcpy(d_k, k3, 12, cudaMemcpyHostToDevice);
+    std::vector<unsigned char> mark((size_t)W * H, 0x77);
+    cudaMemcpy(d_d, mark.data(), mark.size(), cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGaussAdvancedBorder_8u_C1R_Ctx(
+        d_s, W, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W, NppiSize{W, H}, 3, d_k,
+        NPP_BORDER_REPLICATE, c);
+    cudaDeviceSynchronize();
+    std::vector<unsigned char> out((size_t)W * H, 0x77);
+    cudaMemcpy(out.data(), d_d, out.size(), cudaMemcpyDeviceToHost);
+    printf("gap4 advb8 k3 rep st=%d:\n", (int)st);
+    for (int y : {0, 4, 8}) {
+      printf("  r%d:", y);
+      for (int x = 0; x < W; ++x) printf(" %d", out[(size_t)y * W + x]);
+      printf("\n");
+    }
+    cudaFree(d_s); cudaFree(d_d); cudaFree(d_k);
+    // 16s
+    short *d_ss, *d_dd;
+    cudaMalloc(&d_ss, (size_t)W * H * 2);
+    cudaMalloc(&d_dd, (size_t)W * H * 2);
+    std::vector<short> img16((size_t)W * H);
+    for (size_t i = 0; i < img16.size(); ++i) img16[i] = (short)(((i * 137 + 51) % 600) - 300);
+    cudaMemcpy(d_ss, img16.data(), img16.size() * 2, cudaMemcpyHostToDevice);
+    float *d_kk; cudaMalloc(&d_kk, 5 * 4);
+    cudaMemcpy(d_kk, k3, 12, cudaMemcpyHostToDevice);
+    std::vector<short> mark16((size_t)W * H, -12345);
+    cudaMemcpy(d_dd, mark16.data(), mark16.size() * 2, cudaMemcpyHostToDevice);
+    st = nppiFilterGaussAdvanced_16s_C1R_Ctx(d_ss, W * 2, d_dd, W * 2, NppiSize{W, H}, 3, d_kk, c);
+    cudaDeviceSynchronize();
+    std::vector<short> out16((size_t)W * H, -12345);
+    cudaMemcpy(out16.data(), d_dd, out16.size() * 2, cudaMemcpyDeviceToHost);
+    printf("gap4 adv16s k3 st=%d:\n", (int)st);
+    for (int y : {2, 4, 6}) {
+      printf("  r%d:", y);
+      for (int x = 1; x < 8; ++x) printf(" %d", out16[(size_t)y * W + x]);
+      printf("\n");
+    }
+    cudaFree(d_ss); cudaFree(d_dd); cudaFree(d_kk);
+  }
+}
+
+// ---------------- stage gap5 : step alignment matrix -------------------------
+static void gap5() {
+  NppStreamContext c = ctx();
+  const int W = 9, H = 9;
+  const NppiSize roi{5, 5};
+  const NppiSize sz{W, H};
+  unsigned char *s8, *d8;
+  unsigned short *s16;
+  short *s16s;
+  float *sf;
+  cudaMalloc(&s8, (size_t)W * H * 4);
+  cudaMalloc(&d8, (size_t)W * H * 4);
+  cudaMalloc(&s16, (size_t)W * H * 2);
+  cudaMalloc(&s16s, (size_t)W * H * 2);
+  cudaMalloc(&sf, (size_t)W * H * 4 * 4);
+  cudaMemset(s8, 0x5A, (size_t)W * H * 4);
+  cudaMemset(s16, 0x11, (size_t)W * H * 2);
+  cudaMemset(s16s, 0x11, (size_t)W * H * 2);
+  cudaMemset(sf, 0x3F, (size_t)W * H * 4 * 4);
+  printf("gap5 gauss8uC1 dststep11 st=%d\n", (int)nppiFilterGauss_8u_C1R_Ctx(s8, W, d8, 11, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss8uC1 dststep10 st=%d\n", (int)nppiFilterGauss_8u_C1R_Ctx(s8, W, d8, 10, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss8uC1 dststep5 st=%d\n", (int)nppiFilterGauss_8u_C1R_Ctx(s8, W, d8, 5, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss8uC3 dststep16 st=%d\n", (int)nppiFilterGauss_8u_C3R_Ctx(s8, 27, d8, 16, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss8uC3 dststep17 st=%d\n", (int)nppiFilterGauss_8u_C3R_Ctx(s8, 27, d8, 17, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss16uC1 dststep11 st=%d\n", (int)nppiFilterGauss_16u_C1R_Ctx(s16, 18, d8, 11, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss16sC3 dststep31 st=%d\n", (int)nppiFilterGauss_16s_C3R_Ctx(s16s, 54, (short *)d8, 31, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss32fC3 dststep61 st=%d\n", (int)nppiFilterGauss_32f_C3R_Ctx(sf, 108, (float *)d8, 61, roi, NPP_MASK_SIZE_3_X_3, c));
+  printf("gap5 gauss32fC3 dststep64 st=%d\n", (int)nppiFilterGauss_32f_C3R_Ctx(sf, 108, (float *)d8, 64, roi, NPP_MASK_SIZE_3_X_3, c));
+  float noise[4] = {0.5f, 0.5f, 0.5f, 0.5f};
+  printf("gap5 wi8uC1 dststep11 st=%d\n", (int)nppiFilterWienerBorder_8u_C1R_Ctx(s8, 9, sz, NppiPoint{0, 0}, d8, 11, roi, NppiSize{3, 3}, NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  printf("gap5 gb32fC1 srcstep37 st=%d\n", (int)nppiFilterGaussBorder_32f_C1R_Ctx(sf, 37, sz, NppiPoint{2, 2}, (float *)d8, 20, roi, NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  printf("gap5 gb8uC1 srcstep10 st=%d\n", (int)nppiFilterGaussBorder_8u_C1R_Ctx(s8, 10, sz, NppiPoint{2, 2}, d8, 5, roi, NPP_MASK_SIZE_3_X_3, NPP_BORDER_REPLICATE, c));
+  printf("gap5 wi32fC1 srcstep37 st=%d\n", (int)nppiFilterWienerBorder_32f_C1R_Ctx(sf, 37, sz, NppiPoint{2, 2}, (float *)d8, 20, roi, NppiSize{3, 3}, NppiPoint{1, 1}, noise, NPP_BORDER_REPLICATE, c));
+  cudaFree(s8); cudaFree(d8); cudaFree(s16); cudaFree(s16s); cudaFree(sf);
+}
+
+// ---------------- stage gap6 : Gauss integer masks 5/9/15 --------------------
+static void gap6() {
+  const int W = 17, H = 17;
+  NppStreamContext c = ctx();
+  unsigned char *d_s, *d_d;
+  cudaMalloc(&d_s, (size_t)W * H);
+  cudaMalloc(&d_d, (size_t)W * H);
+  std::vector<unsigned char> img((size_t)W * H);
+  for (size_t i = 0; i < img.size(); ++i) img[i] = (unsigned char)((i * 37 + 11) & 0xFF);
+  cudaMemcpy(d_s, img.data(), img.size(), cudaMemcpyHostToDevice);
+  const NppiMaskSize ms[] = {NPP_MASK_SIZE_3_X_3, NPP_MASK_SIZE_5_X_5, NPP_MASK_SIZE_9_X_9,
+                             NPP_MASK_SIZE_15_X_15};
+  for (NppiMaskSize m : ms) {
+    std::vector<unsigned char> mark((size_t)W * H, 0x77);
+    cudaMemcpy(d_d, mark.data(), mark.size(), cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGauss_8u_C1R_Ctx(d_s, W, d_d, W, NppiSize{W, H}, m, c);
+    cudaDeviceSynchronize();
+    std::vector<unsigned char> out((size_t)W * H, 0x77);
+    cudaMemcpy(out.data(), d_d, out.size(), cudaMemcpyDeviceToHost);
+    printf("gap6 g8u mask=%d st=%d r8:", (int)m, (int)st);
+    for (int x = 0; x < W; ++x) printf(" %d", out[(size_t)8 * W + x]);
+    printf("\n");
+  }
+  cudaFree(d_s); cudaFree(d_d);
+  short *d_ss, *d_dd;
+  cudaMalloc(&d_ss, (size_t)W * H * 2);
+  cudaMalloc(&d_dd, (size_t)W * H * 2);
+  std::vector<short> img16((size_t)W * H);
+  for (size_t i = 0; i < img16.size(); ++i) img16[i] = (short)(((i * 137 + 51) % 1800) - 900);
+  cudaMemcpy(d_ss, img16.data(), img16.size() * 2, cudaMemcpyHostToDevice);
+  for (NppiMaskSize m : ms) {
+    std::vector<short> mark((size_t)W * H, -12345);
+    cudaMemcpy(d_dd, mark.data(), mark.size() * 2, cudaMemcpyHostToDevice);
+    NppStatus st = nppiFilterGauss_16s_C1R_Ctx(d_ss, W * 2, d_dd, W * 2, NppiSize{W, H}, m, c);
+    cudaDeviceSynchronize();
+    std::vector<short> out((size_t)W * H, -12345);
+    cudaMemcpy(out.data(), d_dd, out.size() * 2, cudaMemcpyDeviceToHost);
+    printf("gap6 g16s mask=%d st=%d r8:", (int)m, (int)st);
+    for (int x = 0; x < W; ++x) printf(" %d", out[(size_t)8 * W + x]);
+    printf("\n");
+  }
+  cudaFree(d_ss); cudaFree(d_dd);
+}
+
 int main(int argc, char **argv) {
   const char *stage = argc > 1 ? argv[1] : "all";
   if (!strcmp(stage, "gauss32") || !strcmp(stage, "all")) { printf("== gauss32 ==\n"); gauss32(); }
@@ -1178,6 +1768,12 @@ int main(int argc, char **argv) {
   if (!strcmp(stage, "wiener4")) { printf("== wiener4 ==\n"); wiener4(); }
   if (!strcmp(stage, "wiener5")) { printf("== wiener5 ==\n"); wiener5(); }
   if (!strcmp(stage, "valmat") || !strcmp(stage, "all")) { printf("== valmat ==\n"); valmat(); }
+  if (!strcmp(stage, "gap1")) { printf("== gap1 ==\n"); gap1(); }
+  if (!strcmp(stage, "gap2")) { printf("== gap2 ==\n"); gap2(); }
+  if (!strcmp(stage, "gap3")) { printf("== gap3 ==\n"); gap3(); }
+  if (!strcmp(stage, "gap4")) { printf("== gap4 ==\n"); gap4(); }
+  if (!strcmp(stage, "gap5")) { printf("== gap5 ==\n"); gap5(); }
+  if (!strcmp(stage, "gap6")) { printf("== gap6 ==\n"); gap6(); }
   printf("done\n");
   return 0;
 }
