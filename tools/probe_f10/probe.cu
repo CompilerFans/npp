@@ -606,6 +606,92 @@ static void edge3() {
   }
 }
 
+// ---------------- stage wiener3 : isolate horizontal / vertical structure -------
+static void wiener_run_1d(const float *h_src, int W, int H, int mw, int mh, int ax, int ay, float n,
+                          const char *tag) {
+  float *d_s, *d_d;
+  cudaMalloc(&d_s, (size_t)W * H * 4); cudaMalloc(&d_d, (size_t)W * H * 4);
+  cudaMemcpy(d_s, h_src, (size_t)W * H * 4, cudaMemcpyHostToDevice);
+  std::vector<float> dst((size_t)W * H, -1.f);
+  cudaMemcpy(d_d, dst.data(), dst.size() * 4, cudaMemcpyHostToDevice);
+  float noise[4] = {n, n, n, n};
+  NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                    W * 4, NppiSize{W, H}, NppiSize{mw, mh},
+                                                    NppiPoint{ax, ay}, noise, NPP_BORDER_REPLICATE, ctx());
+  cudaMemcpy(dst.data(), d_d, dst.size() * 4, cudaMemcpyDeviceToHost);
+  printf("== %s status=%d\n", tag, (int)st);
+  for (int y = 0; y < H; ++y) {
+    for (int x = 0; x < W; ++x) printf(" %.9g", dst[(size_t)y * W + x]);
+    printf("\n");
+  }
+  cudaFree(d_s); cudaFree(d_d);
+}
+
+static void wiener3() {
+  const int V0[7] = {3, 17, 5, 9, 0, 12, 8};
+  { // H=1 : single row, 7 columns
+    std::vector<float> src(7);
+    for (int x = 0; x < 7; ++x) src[x] = (float)V0[x];
+    wiener_run_1d(src.data(), 7, 1, 3, 3, 1, 1, 1.f, "h1 m33 a11 n1");
+    wiener_run_1d(src.data(), 7, 1, 3, 3, 1, 1, 0.f, "h1 m33 a11 n0");
+    wiener_run_1d(src.data(), 7, 1, 5, 5, 2, 2, 1.f, "h1 m55 a22 n1");
+    wiener_run_1d(src.data(), 7, 1, 3, 1, 1, 0, 1.f, "h1 m31 a10 n1");
+    wiener_run_1d(src.data(), 7, 1, 3, 3, 0, 0, 1.f, "h1 m33 a00 n1");
+    wiener_run_1d(src.data(), 7, 1, 3, 3, 2, 2, 1.f, "h1 m33 a22 n1");
+    wiener_run_1d(src.data(), 7, 1, 3, 3, 1, 1, 2.f, "h1 m33 a11 n2");
+  }
+  { // W=1 : single column, 7 rows
+    std::vector<float> src(7);
+    for (int y = 0; y < 7; ++y) src[y] = (float)V0[y];
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 1, 1, 1.f, "w1 m33 a11 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 1, 1, 0.f, "w1 m33 a11 n0");
+    wiener_run_1d(src.data(), 1, 7, 1, 3, 0, 1, 1.f, "w1 m13 a01 n1");
+    wiener_run_1d(src.data(), 1, 7, 1, 3, 0, 1, 0.f, "w1 m13 a01 n0");
+    wiener_run_1d(src.data(), 1, 7, 5, 5, 2, 2, 1.f, "w1 m55 a22 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 0, 0, 1.f, "w1 m33 a00 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 2, 2, 1.f, "w1 m33 a22 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 0, 2, 1.f, "w1 m33 a02 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 2, 0, 1.f, "w1 m33 a20 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 1, 1, 0, 1.f, "w1 m31 a10 n1");
+    wiener_run_1d(src.data(), 1, 7, 3, 3, 1, 1, 2.f, "w1 m33 a11 n2");
+  }
+  { // 7x7 random image, anchor variants with n=1 (verify convention on the n>0 path)
+    const int W = 7, H = 7;
+    std::vector<float> src((size_t)W * H);
+    unsigned rng = 12345;
+    for (auto &v : src) { rng = rng * 1103515245u + 12345u; v = (float)((rng >> 16) % 21); }
+    float *d_s, *d_d;
+    cudaMalloc(&d_s, src.size() * 4); cudaMalloc(&d_d, src.size() * 4);
+    cudaMemcpy(d_s, src.data(), src.size() * 4, cudaMemcpyHostToDevice);
+    struct AC { int ax, ay; const char *tag; } acs[] = {{0,0,"a00"},{1,1,"a11"},{2,2,"a22"},{0,2,"a02"},{2,0,"a20"}};
+    for (auto &a : acs) {
+      std::vector<float> dst((size_t)W * H, -1.f);
+      cudaMemcpy(d_d, dst.data(), dst.size() * 4, cudaMemcpyHostToDevice);
+      float noise[4] = {1.f, 1.f, 1.f, 1.f};
+      NppStatus st = nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d,
+                                                        W * 4, NppiSize{W, H}, NppiSize{3, 3},
+                                                        NppiPoint{a.ax, a.ay}, noise, NPP_BORDER_REPLICATE, ctx());
+      cudaMemcpy(dst.data(), d_d, dst.size() * 4, cudaMemcpyDeviceToHost);
+      printf("== r7 %s-n1 status=%d\n", a.tag, (int)st);
+      for (int y = 0; y < H; ++y) { for (int x = 0; x < W; ++x) printf(" %.9g", dst[(size_t)y*W+x]); printf("\n"); }
+    }
+    // determinism: same case 3x, different dst preinit
+    for (int rep = 0; rep < 3; ++rep) {
+      std::vector<float> dst((size_t)W * H, rep == 2 ? 999.f : -1.f);
+      cudaMemcpy(d_d, dst.data(), dst.size() * 4, cudaMemcpyHostToDevice);
+      float noise[4] = {1.f, 1.f, 1.f, 1.f};
+      nppiFilterWienerBorder_32f_C1R_Ctx(d_s, W * 4, NppiSize{W, H}, NppiPoint{0, 0}, d_d, W * 4,
+                                         NppiSize{W, H}, NppiSize{3, 3}, NppiPoint{1, 1}, noise,
+                                         NPP_BORDER_REPLICATE, ctx());
+      cudaMemcpy(dst.data(), d_d, dst.size() * 4, cudaMemcpyDeviceToHost);
+      printf("== r7 det rep=%d :", rep);
+      for (int i = 0; i < W; ++i) printf(" %.9g", dst[(size_t)3 * W + i]);
+      printf("\n");
+    }
+    cudaFree(d_s); cudaFree(d_d);
+  }
+}
+
 int main(int argc, char **argv) {
   const char *stage = argc > 1 ? argv[1] : "all";
   if (!strcmp(stage, "gauss32") || !strcmp(stage, "all")) { printf("== gauss32 ==\n"); gauss32(); }
@@ -617,6 +703,7 @@ int main(int argc, char **argv) {
   if (!strcmp(stage, "advb") || !strcmp(stage, "all")) { printf("== advb ==\n"); advb(); }
   if (!strcmp(stage, "wiener") || !strcmp(stage, "all")) { printf("== wiener ==\n"); wiener(); }
   if (!strcmp(stage, "wiener2")) { printf("== wiener2 ==\n"); wiener2(); }
+  if (!strcmp(stage, "wiener3")) { printf("== wiener3 ==\n"); wiener3(); }
   if (!strcmp(stage, "edge2") || !strcmp(stage, "all")) { printf("== edge2 ==\n"); edge2(); }
   if (!strcmp(stage, "round") || !strcmp(stage, "all")) { printf("== round ==\n"); round_stage(); }
   if (!strcmp(stage, "edge3") || !strcmp(stage, "all")) { printf("== edge3 ==\n"); edge3(); }
