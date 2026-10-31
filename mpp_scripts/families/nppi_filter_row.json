@@ -1,0 +1,17 @@
+{
+  "family": "nppiFilterRow",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_row_generated.cpp",
+  "includes": ["nppi_filter_executor.h"],
+  "call_variants": [
+    {
+      "contains": "const Npp64f * pKernel",
+      "call": "nppi::filter::filterRow64f<{dtype}, {dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oROI, pKernel, nMaskSize, nAnchor, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "const Npp32f * pKernel",
+      "call": "nppi::filter::filterRow32f<{dtype}, {dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oROI, pKernel, nMaskSize, nAnchor, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::filter::filterRowDiv<{dtype}, {dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oROI, pKernel, nMaskSize, nAnchor, nDivisor, nppStreamCtx.hStream)"
+}

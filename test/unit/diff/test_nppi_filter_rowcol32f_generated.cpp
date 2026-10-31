@@ -349,7 +349,9 @@ TEST_F(NppiFilterRowCol32fDiff, RowColErrors) {
   DeviceMemory<Npp8u> &d = arena<Npp8u>(4096);
   DeviceMemory<Npp32f> &k = arena<Npp32f>(3);
   k.copyFromHost(hk);
-  const Npp8u *ps = s.get();
+  // Status probes only: raw taps outside the ROI must stay inside the
+  // allocation (MXC faults on reads before the buffer), so start at a margin.
+  const Npp8u *ps = s.get() + 64;
   Npp8u *pd = d.get();
   const Npp32f *pk = k.get();
   auto ctx = current_ctx();
