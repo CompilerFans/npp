@@ -407,5 +407,21 @@
       "nppsZeroCrossing",
       "nppsZeroCrossingGetBufferSize"
     ]
+  },
+  "c2": {
+    "title": "NPPI ColorTwist families",
+    "module": "nppi_color_conversion.h",
+    "families": [
+      "nppiColorTwist",
+      "nppiColorTwist32f",
+      "nppiColorTwist32fC",
+      "nppiColorTwistBatch",
+      "nppiColorTwistBatch32f",
+      "nppiColorTwistBatch32fC",
+      "nppiColorTwistBatch_32fC_C4R",
+      "nppiColorTwistBatch_32fC_C4IR",
+      "nppiColorTwist_32fC_C4R",
+      "nppiColorTwist_32fC_C4IR"
+    ]
   }
 }
