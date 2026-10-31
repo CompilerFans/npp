@@ -392,6 +392,10 @@ TEST_F(NppiResizeSqrPixelDiff, Advanced_8u_C1) {
       {"advanced/mode_nn", 8, 8, 16, 16, 2.0, 2.0, kInterpNN, 502, false},
       {"advanced/mode_linear", 8, 8, 16, 16, 2.0, 2.0, kInterpLinear, 503, false},
       {"advanced/zero_factor", 8, 8, 16, 16, 0.0, 2.0, NPPI_INTER_LANCZOS3_ADVANCED, 504, false},
+      // Large random images so the LANCZOS3_ADVANCED tap weights can be
+      // recovered by least squares from the rounded 8u golden.
+      {"advanced/lanczos3_big_up2", 96, 96, 192, 192, 2.0, 2.0, NPPI_INTER_LANCZOS3_ADVANCED, 505, true},
+      {"advanced/lanczos3_big_down2", 192, 192, 96, 96, 0.5, 0.5, NPPI_INTER_LANCZOS3_ADVANCED, 506, true},
   };
   for (const auto &cfg : cfgs) {
     const int es = 1;
@@ -421,23 +425,10 @@ TEST_F(NppiResizeSqrPixelDiff, Advanced_8u_C1) {
     c.device_output<Npp8u>(d.get(), de, ValueKind::U8, 1e-5, 1e-6);
     c.finish();
   }
-  // null pBuffer with otherwise valid arguments
-  {
-    const int sStep = align_step(8, 1), dStep = align_step(16, 1);
-    const size_t se = 8 * sStep, de = 16 * dStep;
-    DeviceMemory<Npp8u> &s = arena<Npp8u>(se);
-    DeviceMemory<Npp8u> &d = arena<Npp8u>(de);
-    s.copyFromHost(make_uniform<Npp8u>(se, 511));
-    d.copyFromHost(std::vector<Npp8u>(de, 0xEE));
-    clear_cuda_error();
-    NppStatus st = nppiResizeSqrPixel_8u_C1R_Advanced_Ctx(
-        s.get(), NppiSize{8, 8}, sStep, NppiRect{0, 0, 8, 8}, d.get(), dStep, NppiRect{0, 0, 16, 16}, 2.0, 2.0,
-        nullptr, NPPI_INTER_LANCZOS3_ADVANCED, current_ctx());
-    Case c("nppiResizeSqrPixel/advanced/null_buffer", fname);
-    c.status(st);
-    c.device_output<Npp8u>(d.get(), de, ValueKind::U8, 1e-5, 1e-6);
-    c.finish();
-  }
+  // NOTE: a NULL pBuffer probe is deliberately absent: NVIDIA 13.4 crashes
+  // (illegal memory access) on nppiResizeSqrPixel_8u_C1R_Advanced with a NULL
+  // pBuffer, so the path cannot be recorded; the wrapper keeps its own
+  // NULL_POINTER check to stay safe (documented deviation, see g4 report).
 }
 
 // ===== error / contract paths ===============================================
@@ -539,7 +530,10 @@ TEST_F(NppiResizeSqrPixelDiff, Contract_8u_C1) {
 }
 
 TEST_F(NppiResizeSqrPixelDiff, Contract_Planar_32f_P3) {
-  // Planar null-pointer and zero-size probes.
+  // Planar contract probes.  NOTE: NVIDIA NPP 13.4 SEGFAULTS on the planar
+  // entry points when a plane pointer is NULL, so null-plane probes cannot be
+  // recorded; the mcMPP wrapper keeps its own NULL_POINTER_12 check to stay
+  // safe.  Zero-dimension probes below are the recordable subset.
   const int es = 4;
   const int sStep = align_step(8 * es, es);
   const int dStep = align_step(16 * es, es);
@@ -555,24 +549,149 @@ TEST_F(NppiResizeSqrPixelDiff, Contract_Planar_32f_P3) {
   for (auto *m : {&d0, &d1, &d2}) m->copyFromHost(std::vector<Npp32f>(de, -1e30f));
   const Npp32f *srcs[3] = {s0.get(), s1.get(), s2.get()};
   Npp32f *dsts[3] = {d0.get(), d1.get(), d2.get()};
-  {
+  struct P {
+    const char *key;
+    NppiSize srcSize;
+    NppiRect srcROI, dstROI;
+    int interp;
+  };
+  const P ps[] = {
+      {"contract/planar_src_zero_w", NppiSize{0, 8}, NppiRect{0, 0, 8, 8}, NppiRect{0, 0, 16, 16}, kInterpNN},
+      {"contract/planar_src_too_small", NppiSize{1, 8}, NppiRect{0, 0, 8, 8}, NppiRect{0, 0, 16, 16}, kInterpNN},
+      {"contract/planar_dst_zero_w", NppiSize{8, 8}, NppiRect{0, 0, 8, 8}, NppiRect{0, 0, 0, 16}, kInterpNN},
+      {"contract/planar_bad_interp", NppiSize{8, 8}, NppiRect{0, 0, 8, 8}, NppiRect{0, 0, 16, 16}, 35},
+  };
+  for (const auto &p : ps) {
     clear_cuda_error();
-    NppStatus st = nppiResizeSqrPixel_32f_P3R_Ctx(nullptr, NppiSize{8, 8}, sStep, NppiRect{0, 0, 8, 8}, dsts, dStep,
-                                                  NppiRect{0, 0, 16, 16}, 2.0, 2.0, 0.0, 0.0, kInterpNN,
-                                                  current_ctx());
-    Case c("nppiResizeSqrPixel/contract/planar_null_src", "nppiResizeSqrPixel_32f_P3R_Ctx");
+    NppStatus st = nppiResizeSqrPixel_32f_P3R_Ctx(srcs, p.srcSize, sStep, p.srcROI, dsts, dStep, p.dstROI, 2.0, 2.0,
+                                                  0.0, 0.0, p.interp, current_ctx());
+    Case c(std::string("nppiResizeSqrPixel/") + p.key, "nppiResizeSqrPixel_32f_P3R_Ctx");
     c.status(st);
     c.device_output<Npp32f>(d0.get(), de, ValueKind::F32, 1e-5, 1e-6);
     c.finish();
   }
-  {
+}
+
+
+// ===== second-round probes: interpolation weights, ties, clip bounds =======
+// The *_big cases use large random images so that the tap weights of every
+// interpolation mode can be recovered exactly by least squares from the
+// golden (the small cases cannot determine wide tap windows).
+TEST_F(NppiResizeSqrPixelDiff, WeightDecode_32f_C1) {
+  const int W = 96, H = 96;
+  auto big = [&](const char *name, int srcW, int srcH, int dstW, int dstH, double fx, double fy, int interp,
+                 uint64_t seed) {
+    sqr_packed<Npp32f>("nppiResizeSqrPixel_32f_C1R_Ctx", std::string("32f_C1/") + name, srcW, srcH,
+                       NppiRect{0, 0, srcW, srcH}, dstW, dstH, NppiRect{0, 0, dstW, dstH}, fx, fy, 0.0, 0.0, interp,
+                       &nppiResizeSqrPixel_32f_C1R_Ctx, seed, (Npp32f)-1e30f, false, 1);
+  };
+  big("cubic_big_up2", W, H, W * 2, H * 2, 2.0, 2.0, kInterpCubic, 600);
+  big("cubic_big_down2", W * 2, H * 2, W, H, 0.5, 0.5, kInterpCubic, 601);
+  big("cubic_big_frac15", W, H, 144, 144, 1.5, 1.5, kInterpCubic, 602);
+  big("lanczos_big_up2", W, H, W * 2, H * 2, 2.0, 2.0, kInterpLanczos, 603);
+  big("lanczos_big_down2", W * 2, H * 2, W, H, 0.5, 0.5, kInterpLanczos, 604);
+  big("lanczos_big_frac15", W, H, 144, 144, 1.5, 1.5, kInterpLanczos, 605);
+  big("super_big_down2", W * 2, H * 2, W, H, 0.5, 0.5, kInterpSuper, 606);
+  big("super_big_down4", W * 4, H * 4, W, H, 0.25, 0.25, kInterpSuper, 607);
+  big("super_big_frac08", 96, 96, 76, 76, 0.8, 0.8, kInterpSuper, 608);
+  big("linear_big_frac15", W, H, 144, 144, 1.5, 1.5, kInterpLinear, 609);
+  // SUPER factor limits.
+  big("super_up101", W, H, 106, 106, 1.1, 1.1, kInterpSuper, 610);
+  big("super_up100", W, H, 96, 96, 1.0, 1.0, kInterpSuper, 611);
+}
+
+TEST_F(NppiResizeSqrPixelDiff, Ties_And_Clip_Bounds) {
+  // NN exact-tie rounding: fx=0.5, shift 0.5 gives srcX = 2*dx - 0.5, so
+  // every destination column samples an exact k+0.5 coordinate.
+  sqr_packed<Npp16u>("nppiResizeSqrPixel_16u_C1R_Ctx", "16u_C1/nn_tie_shift", 16, 16, NppiRect{0, 0, 16, 16}, 8, 8,
+                     NppiRect{0, 0, 8, 8}, 0.5, 0.5, 0.5, 0.5, kInterpNN, &nppiResizeSqrPixel_16u_C1R_Ctx, 620,
+                     (Npp16u)0xEEEE, true, 1);
+  // Per-dtype coordinate precision: fx=1.5 lands dstX=7 on srcX=4.5, which
+  // differs between float32 (4.5000005 -> 5) and double (4.4999999 -> 4).
+  sqr_packed<Npp16u>("nppiResizeSqrPixel_16u_C1R_Ctx", "16u_C1/nn_frac_tie", 8, 8, NppiRect{0, 0, 8, 8}, 12, 12,
+                     NppiRect{0, 0, 12, 12}, 1.5, 1.5, 0.0, 0.0, kInterpNN, &nppiResizeSqrPixel_16u_C1R_Ctx, 621,
+                     (Npp16u)0xEEEE, true, 1);
+  sqr_packed<Npp32f>("nppiResizeSqrPixel_32f_C1R_Ctx", "32f_C1/nn_frac_tie", 8, 8, NppiRect{0, 0, 8, 8}, 12, 12,
+                     NppiRect{0, 0, 12, 12}, 1.5, 1.5, 0.0, 0.0, kInterpNN, &nppiResizeSqrPixel_32f_C1R_Ctx, 622,
+                     (Npp32f)-1e30f, true, 1);
+  sqr_packed<Npp64f>("nppiResizeSqrPixel_64f_C1R_Ctx", "64f_C1/nn_frac_tie", 8, 8, NppiRect{0, 0, 8, 8}, 12, 12,
+                     NppiRect{0, 0, 12, 12}, 1.5, 1.5, 0.0, 0.0, kInterpNN, &nppiResizeSqrPixel_64f_C1R_Ctx, 623,
+                     -1e300, true, 1);
+  // Exact clip boundaries: fx=fy=1, shift 1 gives srcX = dstX - 1.  With
+  // srcROI {2,3,8,6} the left edge is srcX == 1 (dstX == 2) and the right
+  // edge is srcX == 10 (dstX == 11); a written poison entry there means the
+  // boundary is closed.
+  sqr_packed<Npp16u>("nppiResizeSqrPixel_16u_C1R_Ctx", "16u_C1/nn_clip_bounds", 16, 16, NppiRect{2, 3, 8, 6}, 16, 16,
+                     NppiRect{0, 0, 16, 16}, 1.0, 1.0, 1.0, 1.0, kInterpNN, &nppiResizeSqrPixel_16u_C1R_Ctx, 624,
+                     (Npp16u)0xEEEE, true, 1);
+  // srcROI extending beyond the right image edge: intersection is non-empty,
+  // the clip rule uses the raw ROI edge, taps clamp to the image.
+  sqr_packed<Npp16u>("nppiResizeSqrPixel_16u_C1R_Ctx", "16u_C1/nn_srcroi_beyond", 16, 16, NppiRect{8, 0, 16, 16}, 16,
+                     16, NppiRect{0, 0, 16, 16}, 1.0, 1.0, 0.0, 0.0, kInterpNN, &nppiResizeSqrPixel_16u_C1R_Ctx, 625,
+                     (Npp16u)0xEEEE, true, 1);
+  // LINEAR at exact .5 fractions (weights must be exactly half/half).
+  sqr_packed<Npp16u>("nppiResizeSqrPixel_16u_C1R_Ctx", "16u_C1/linear_tie", 16, 16, NppiRect{0, 0, 16, 16}, 8, 8,
+                     NppiRect{0, 0, 8, 8}, 0.5, 0.5, 0.5, 0.5, kInterpLinear, &nppiResizeSqrPixel_16u_C1R_Ctx, 626,
+                     (Npp16u)0xEEEE, true, 1);
+}
+
+TEST_F(NppiResizeSqrPixelDiff, Contract_Order_8u_C1) {
+  // Remaining validation-order probes (two violations at once).
+  const char *fname = "nppiResizeSqrPixel_8u_C1R_Ctx";
+  struct P {
+    const char *key;
+    NppiSize srcSize;
+    int sStep;
+    NppiRect srcROI, dstROI;
+    double fx, fy;
+    int interp;
+    bool nullSrc, nullDst;
+  };
+  const NppiSize good{8, 8};
+  const int gs = align_step(8, 1);
+  const NppiRect gsr{0, 0, 8, 8};
+  const NppiRect gdr{0, 0, 16, 16};
+  const P ps[] = {
+      {"contract/order_null_and_step", good, 2, gsr, gdr, 2.0, 2.0, kInterpNN, true, false},
+      {"contract/order_null_and_size1", NppiSize{1, 8}, gs, NppiRect{0, 0, 1, 8}, gdr, 2.0, 2.0, kInterpNN, true,
+       false},
+      {"contract/order_null_and_sroizerow", good, gs, NppiRect{0, 0, 0, 8}, gdr, 2.0, 2.0, kInterpNN, true, false},
+      {"contract/order_null_and_dstneg", good, gs, gsr, NppiRect{0, 0, -1, 16}, 2.0, 2.0, kInterpNN, true, false},
+      {"contract/order_null_and_interp", good, gs, gsr, gdr, 2.0, 2.0, 3, true, false},
+      {"contract/order_null_and_nointersect", good, gs, NppiRect{20, 0, 4, 4}, gdr, 2.0, 2.0, kInterpNN, true,
+       false},
+      {"contract/order_step_and_size1", NppiSize{1, 8}, 2, NppiRect{0, 0, 1, 8}, gdr, 2.0, 2.0, kInterpNN, false,
+       false},
+      {"contract/order_step_and_sroizerow", good, 2, NppiRect{0, 0, 0, 8}, gdr, 2.0, 2.0, kInterpNN, false, false},
+      {"contract/order_step_and_dstneg", good, 2, gsr, NppiRect{0, 0, -1, 16}, 2.0, 2.0, kInterpNN, false, false},
+      {"contract/order_step_and_interp", good, 2, gsr, gdr, 2.0, 2.0, 3, false, false},
+      {"contract/order_stepdst_and_interp", good, gs, gsr, gdr, 2.0, 2.0, 3, false, false},
+      {"contract/order_size1_and_sroizerow", NppiSize{1, 8}, gs, NppiRect{0, 0, 0, 8}, gdr, 2.0, 2.0, kInterpNN,
+       false, false},
+      {"contract/order_dstneg_and_sroizerow", good, gs, NppiRect{0, 0, 0, 8}, NppiRect{0, 0, -1, 16}, 2.0, 2.0,
+       kInterpNN, false, false},
+      {"contract/order_dstneg_and_interp", good, gs, gsr, NppiRect{0, 0, -1, 16}, 2.0, 2.0, 3, false, false},
+      {"contract/order_dstneg_and_srcneg", NppiSize{-4, 8}, gs, gsr, NppiRect{0, 0, -1, 16}, 2.0, 2.0, kInterpNN,
+       false, false},
+      {"contract/order_sroinegw_and_srcneg", NppiSize{-4, 8}, gs, NppiRect{0, 0, -2, 8}, gdr, 2.0, 2.0, kInterpNN,
+       false, false},
+      {"contract/order_dstneg_and_factor", good, gs, gsr, NppiRect{0, 0, -1, 16}, 0.0, 2.0, kInterpNN, false, false},
+      {"contract/order_nulldst_and_dstneg", good, gs, gsr, NppiRect{0, 0, -1, 16}, 2.0, 2.0, kInterpNN, false, true},
+  };
+  for (const auto &p : ps) {
+    const size_t se = (size_t)p.srcSize.height * p.sStep;
+    const size_t de = (size_t)16 * align_step(16, 1);
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(se);
+    DeviceMemory<Npp8u> &d = arena<Npp8u>(de);
+    s.copyFromHost(make_uniform<Npp8u>(se, 710));
+    d.copyFromHost(std::vector<Npp8u>(de, 0xEE));
     clear_cuda_error();
-    NppStatus st = nppiResizeSqrPixel_32f_P3R_Ctx(srcs, NppiSize{8, 8}, sStep, NppiRect{0, 0, 8, 8}, nullptr, dStep,
-                                                  NppiRect{0, 0, 16, 16}, 2.0, 2.0, 0.0, 0.0, kInterpNN,
-                                                  current_ctx());
-    Case c("nppiResizeSqrPixel/contract/planar_null_dst", "nppiResizeSqrPixel_32f_P3R_Ctx");
+    NppStatus st = nppiResizeSqrPixel_8u_C1R_Ctx(p.nullSrc ? nullptr : s.get(), p.srcSize, p.sStep, p.srcROI,
+                                                 p.nullDst ? nullptr : d.get(), align_step(16, 1), p.dstROI, p.fx,
+                                                 p.fy, 0.0, 0.0, p.interp, current_ctx());
+    Case c(std::string("nppiResizeSqrPixel/") + p.key, fname);
     c.status(st);
-    c.device_output<Npp32f>(d0.get(), de, ValueKind::F32, 1e-5, 1e-6);
+    c.device_output<Npp8u>(d.get(), de, ValueKind::U8, 1e-5, 1e-6);
     c.finish();
   }
 }
