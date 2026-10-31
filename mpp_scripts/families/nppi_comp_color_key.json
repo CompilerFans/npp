@@ -1,0 +1,14 @@
+{
+  "family": "nppiCompColorKey",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_comp_color_key_generated.cpp",
+  "includes": ["nppi_color_key_executor.h"],
+  "families": ["nppiCompColorKey"],
+  "call_variants": [
+    {
+      "contains": "nColorKeyConst[",
+      "call": "nppi::color_key::compColorKey<{dtype}, {chan}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, nColorKeyConst, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::color_key::compColorKey<{dtype}, {chan}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, &nColorKeyConst, nppStreamCtx.hStream)"
+}
