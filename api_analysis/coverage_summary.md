@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10054 (80.2%)
+- Real implementations: 10302 (82.2%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 2365
+- Missing: 2117
 - Tested: 8236 (65.7%)
-- Real and tested: 6965
+- Real and tested: 7089
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 934 | 0 | 962 | 997 |
+| nppi_filtering_functions.h | 1896 | 1182 | 0 | 714 | 997 |
 | nppi_geometry_transforms.h | 705 | 306 | 90 | 309 | 434 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -46,21 +46,13 @@
 | nppi_filtering_functions.h | nppiFilterGaussAdvancedBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterGaussAdvanced | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterGaussBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterHighPassBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterHighPass | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterLowPassBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterLowPass | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
 | nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterSharpenBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterSharpen | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
 | nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterLaplaceBorder | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterLaplace | 28 | 14 |
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
 | nppi_filtering_functions.h | nppiFilterGauss | 26 | 13 |
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
@@ -72,3 +64,11 @@
 | nppi_morphological_operations.h | nppiErode3x3Border | 24 | 12 |
 | nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
 | nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
+| nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
+| nppi_geometry_transforms.h | nppiWarpPerspectiveBatch | 22 | 11 |
+| nppi_morphological_operations.h | nppiDilate3x3 | 22 | 11 |
+| nppi_morphological_operations.h | nppiErode3x3 | 22 | 11 |
+| nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
+| nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
+| nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
+| nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
