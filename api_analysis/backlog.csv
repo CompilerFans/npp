@@ -55,8 +55,6 @@ nppi_color_conversion.h,nppiColorTwistBatch,16,0,0,16,8,8,8,16
 nppi_filtering_functions.h,nppiFilterMax,32,16,0,16,8,8,21,16
 nppi_filtering_functions.h,nppiFilterMin,32,16,0,16,8,8,21,16
 nppi_filtering_functions.h,nppiFilterUnsharp,16,0,0,16,0,16,0,16
-nppi_filtering_functions.h,nppiGradientVectorScharrBorder,16,0,0,16,8,8,8,16
-nppi_filtering_functions.h,nppiGradientVectorSobelBorder,16,0,0,16,8,8,8,16
 nppi_filtering_functions.h,nppiSumWindowColumn,18,2,0,16,8,8,10,16
 nppi_filtering_functions.h,nppiSumWindowRow,18,2,0,16,8,8,10,16
 nppi_geometry_transforms.h,nppiWarpPerspective,54,38,0,16,8,8,43,16
@@ -69,7 +67,6 @@ nppi_morphological_operations.h,nppiMorphGradientBorder,16,0,0,16,8,8,8,16
 nppi_morphological_operations.h,nppiMorphOpenBorder,16,0,0,16,8,8,8,16
 nppi_morphological_operations.h,nppiMorphTopHatBorder,16,0,0,16,8,8,8,16
 nppi_statistics_functions.h,nppiHistogramRange,64,48,16,0,8,8,48,16
-nppi_filtering_functions.h,nppiGradientVectorPrewittBorder,16,2,0,14,7,7,9,14
 nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,1,0,13,13,0,11,13
 nppi_filtering_functions.h,nppiFilterBoxBorderAdvanced,13,0,0,13,13,0,13,13
 nppi_filtering_functions.h,nppiFloodFill,13,0,0,13,6,7,6,13
@@ -366,6 +363,9 @@ nppi_filtering_functions.h,nppiFilterSobelVertMask,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterSobelVertMaskBorder,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterSobelVertSecond,6,6,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterSobelVertSecondBorder,6,6,0,0,0,0,3,0
+nppi_filtering_functions.h,nppiGradientVectorPrewittBorder,16,16,0,0,0,0,8,0
+nppi_filtering_functions.h,nppiGradientVectorScharrBorder,16,16,0,0,0,0,8,0
+nppi_filtering_functions.h,nppiGradientVectorSobelBorder,16,16,0,0,0,0,8,0
 nppi_filtering_functions.h,nppiSignedDistanceTransformPBAGet64fBufferSize,1,1,0,0,0,0,1,0
 nppi_geometry_transforms.h,nppiMirror,80,80,0,0,0,0,65,0
 nppi_geometry_transforms.h,nppiMirrorBatch,16,16,0,0,0,0,9,0
