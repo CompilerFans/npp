@@ -1,0 +1,22 @@
+{
+  "call": "nppi::c3conv::yCbCr422ToRgbC2(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 3, 0, 0, 0)",
+  "call_variants": [
+    {
+      "contains": "Npp8u * pDst[3], int nDstStep",
+      "call": "nppi::c3conv::yCbCr422ToRgbC2P3(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 0)"
+    },
+    {
+      "contains": "const Npp8u * const pSrc[3]",
+      "call": "nppi::c3conv::yCbCr422ToRgbP3C3(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 0)"
+    }
+  ],
+  "family": "nppiYCbCr422ToRGB",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYCbCr422ToRGB_generated.cpp",
+  "includes": [
+    "nppi_c3_conversion_executor.h"
+  ],
+  "families": [
+    "nppiYCbCr422ToRGB"
+  ]
+}

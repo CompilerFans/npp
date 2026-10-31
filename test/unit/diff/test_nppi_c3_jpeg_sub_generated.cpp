@@ -186,6 +186,20 @@ TEST(NppiC3JpegSubDiff, BgrToYCbCr420Jpeg) {
              0xC10FF06);
 }
 
+// Even width + odd height: the status is the parity warning, so the recorded
+// values are NOT compared by the harness; these goldens pin down the odd-row
+// processing extent (analyzed manually against the 5090 record).
+TEST(NppiC3JpegSubDiff, OddHeightExtents) {
+  fwd_packed("nppiRGBToYCbCr420_JPEG_8u_C3P3R", "odd/fwd420_c3/16x13", 16, 13, 2,
+             nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx, 0xC10FF1E);
+  inv_packed("nppiYCbCr420ToRGB_JPEG_8u_P3C3R", "odd/inv420_c3/16x13", 16, 13, 2,
+             nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx, 0xC10FF1F);
+  inv_planar("nppiYCbCr420ToRGB_JPEG_8u_P3R", "odd/inv420_p3/16x13", 16, 13, 2, nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx,
+             0xC10FF20);
+  inv_planar("nppiYCbCr422ToRGB_JPEG_8u_P3R", "odd/inv422_p3/16x13", 16, 13, 1, nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx,
+             0xC10FF21);
+}
+
 TEST(NppiC3JpegSubDiff, RgbToYCbCr422Jpeg) {
   fwd_packed("nppiRGBToYCbCr422_JPEG_8u_C3P3R", "fwd422_c3/17x13", 17, 13, 1,
              nppiRGBToYCbCr422_JPEG_8u_C3P3R_Ctx, 0xC10FF07);
@@ -302,7 +316,10 @@ TEST(NppiC3JpegSubDiff, ErrorAndProbePaths) {
 }
 
 namespace {
-void probe_status(const std::string &tag, const char *fname, NppStatus st) {
+template <class Call>
+void probe_status(const std::string &tag, const char *fname, Call &&call) {
+  clear_cuda_error(); // drop any sticky CUDA error from earlier cases
+  NppStatus st = call();
   Case c("nppiC3JpegSub/probe2/" + tag, fname);
   c.status(st);
   c.finish();
@@ -324,40 +341,40 @@ TEST(NppiC3JpegSubDiff, ProbeRound2) {
   NppStreamContext ctx = current_ctx();
   // parity of the trailing dimension, per variant
   probe_status("fwd420_c3_16x13", "nppiRGBToYCbCr420_JPEG_8u_C3P3R",
-               nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 48, dst.ptrs.data(), st16, NppiSize{16, 13}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 48, dst.ptrs.data(), st16, NppiSize{16, 13}, ctx); });
   probe_status("fwd420_p3_16x13", "nppiRGBToYCbCr420_JPEG_8u_P3R",
-               nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(sbuf(src), 16, dst.ptrs.data(), st16, NppiSize{16, 13}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(sbuf(src), 16, dst.ptrs.data(), st16, NppiSize{16, 13}, ctx); });
   probe_status("fwd422_p3_16x13", "nppiRGBToYCbCr422_JPEG_8u_P3R",
-               nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(sbuf(src), 16, dst.ptrs.data(), st16, NppiSize{16, 13}, ctx));
+               [&] { return nppiRGBToYCbCr422_JPEG_8u_P3R_Ctx(sbuf(src), 16, dst.ptrs.data(), st16, NppiSize{16, 13}, ctx); });
   probe_status("inv420_c3_16x13", "nppiYCbCr420ToRGB_JPEG_8u_P3C3R",
-               nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(sbuf(src), st16, pdst.get(), 64, NppiSize{16, 13}, ctx));
+               [&] { return nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(sbuf(src), st16, pdst.get(), 64, NppiSize{16, 13}, ctx); });
   probe_status("inv420_p3_16x13", "nppiYCbCr420ToRGB_JPEG_8u_P3R",
-               nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 16, NppiSize{16, 13}, ctx));
+               [&] { return nppiYCbCr420ToRGB_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 16, NppiSize{16, 13}, ctx); });
   probe_status("inv422_p3_16x13", "nppiYCbCr422ToRGB_JPEG_8u_P3R",
-               nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 16, NppiSize{16, 13}, ctx));
+               [&] { return nppiYCbCr422ToRGB_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 16, NppiSize{16, 13}, ctx); });
   probe_status("inv422_bgrp3_16x13_wide", "nppiYCbCr422ToBGR_JPEG_8u_P3R",
-               nppiYCbCr422ToBGR_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 64, NppiSize{16, 13}, ctx));
+               [&] { return nppiYCbCr422ToBGR_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 64, NppiSize{16, 13}, ctx); });
   probe_status("inv420_bgrp3_16x13_narrow", "nppiYCbCr420ToBGR_JPEG_8u_P3R",
-               nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 16, NppiSize{16, 13}, ctx));
+               [&] { return nppiYCbCr420ToBGR_JPEG_8u_P3R_Ctx(sbuf(src), st16, dst.ptrs.data(), 16, NppiSize{16, 13}, ctx); });
   // src-plane step validation on the inverse: Y plane below width
   int sy[3] = {7, 8, 8};
   probe_status("inv420_c3_srcy_small", "nppiYCbCr420ToRGB_JPEG_8u_P3C3R",
-               nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(sbuf(src), sy, pdst.get(), 64, NppiSize{8, 4}, ctx));
+               [&] { return nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(sbuf(src), sy, pdst.get(), 64, NppiSize{8, 4}, ctx); });
   // dst Y step below width for the packed-source forward
   int dy[3] = {7, 4, 4};
   probe_status("fwd420_c3_dsty_small", "nppiRGBToYCbCr420_JPEG_8u_C3P3R",
-               nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 24, dst.ptrs.data(), dy, NppiSize{8, 4}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 24, dst.ptrs.data(), dy, NppiSize{8, 4}, ctx); });
   probe_status("fwd420_c3_dsty_eq", "nppiRGBToYCbCr420_JPEG_8u_C3P3R",
-               nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 24, dst.ptrs.data(), st16, NppiSize{8, 4}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 24, dst.ptrs.data(), st16, NppiSize{8, 4}, ctx); });
   // packed src step boundary for C3P3R (min = 3*width?)
   probe_status("fwd420_c3_src_23", "nppiRGBToYCbCr420_JPEG_8u_C3P3R",
-               nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 23, dst.ptrs.data(), st16, NppiSize{8, 4}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 23, dst.ptrs.data(), st16, NppiSize{8, 4}, ctx); });
   probe_status("fwd420_c3_src_24", "nppiRGBToYCbCr420_JPEG_8u_C3P3R",
-               nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 24, dst.ptrs.data(), st16, NppiSize{8, 4}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_C3P3R_Ctx(ps, 24, dst.ptrs.data(), st16, NppiSize{8, 4}, ctx); });
   // zero chroma steps (both directions)
   int cz[3] = {16, 0, 8};
   probe_status("fwd420_p3_chroma0", "nppiRGBToYCbCr420_JPEG_8u_P3R",
-               nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(sbuf(src), 16, dst.ptrs.data(), cz, NppiSize{8, 4}, ctx));
+               [&] { return nppiRGBToYCbCr420_JPEG_8u_P3R_Ctx(sbuf(src), 16, dst.ptrs.data(), cz, NppiSize{8, 4}, ctx); });
   probe_status("inv420_c3_chroma0", "nppiYCbCr420ToRGB_JPEG_8u_P3C3R",
-               nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(sbuf(src), cz, pdst.get(), 64, NppiSize{8, 4}, ctx));
+               [&] { return nppiYCbCr420ToRGB_JPEG_8u_P3C3R_Ctx(sbuf(src), cz, pdst.get(), 64, NppiSize{8, 4}, ctx); });
 }
