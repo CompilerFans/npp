@@ -297,8 +297,12 @@ TEST_F(NppiFilterBorderDiff, Border32fErrors) {
   DeviceMemory<Npp8u> &d = arena<Npp8u>(4096);
   DeviceMemory<Npp32f> &k = arena<Npp32f>(9);
   k.copyFromHost(hk);
-  const Npp8u *ps = s.get();
+  // Status probes only: the replicate border origin sits at pSrc - offset, so
+  // the source must start at a margin (MXC faults on reads before the buffer).
+  const Npp8u *ps = s.get() + 256;
   Npp8u *pd = d.get();
+  // Allocate the negative-step target up front (see NppiFilter32fDiff.Errors).
+  Npp8u *pd2 = arena<Npp8u>(8192).get() + 512;
   const Npp32f *pk = k.get();
   auto ctx = current_ctx();
   const NppiSize sz{9, 9};
@@ -360,7 +364,6 @@ TEST_F(NppiFilterBorderDiff, Border32fErrors) {
                                           NPP_BORDER_REPLICATE, ctx);
   });
   status_case("nppiFilterBorder32f_8u_C1R", "err/step_neg", [&] {
-    Npp8u *pd2 = arena<Npp8u>(8192).get() + 512;
     return nppiFilterBorder32f_8u_C1R_Ctx(ps, 16, sz, off, pd2, -16, roi, pk, ksz, an,
                                           NPP_BORDER_REPLICATE, ctx);
   });
@@ -459,7 +462,9 @@ TEST_F(NppiFilterBorderDiff, BorderDivErrors) {
   DeviceMemory<Npp8u> &d = arena<Npp8u>(4096);
   DeviceMemory<Npp32s> &k = arena<Npp32s>(9);
   k.copyFromHost(hk);
-  const Npp8u *ps = s.get();
+  // Status probes only: the replicate border origin sits at pSrc - offset, so
+  // the source must start at a margin (MXC faults on reads before the buffer).
+  const Npp8u *ps = s.get() + 256;
   Npp8u *pd = d.get();
   const Npp32s *pk = k.get();
   auto ctx = current_ctx();
