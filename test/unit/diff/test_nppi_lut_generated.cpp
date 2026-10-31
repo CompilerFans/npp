@@ -641,3 +641,87 @@ TEST_F(NppiLutCubicDiff, Cubic_Contract) {
   c2.status(st);
   c2.finish();
 }
+
+// ===== full-ramp probes: complete transfer curves with no ramp gaps =====
+// (the 512-pixel ramp above skips a few input values per row; these feed
+// src[i] == i so every representable input is recorded exactly once)
+TEST_F(NppiLutLinearDiff, Linear_FullRamp) {
+  std::vector<Npp8u> full(256);
+  for (int i = 0; i < 256; ++i) full[i] = static_cast<Npp8u>(i);
+  auto run = [&](const std::string &key, std::vector<Npp32s> values, std::vector<Npp32s> levels) {
+    lut_c1<Npp8u, Npp32s>("nppiLUT_Linear_8u_C1R", "linear/8u/C1/" + key, 256, 1, 7, full, values, levels,
+                          ValueKind::U8,
+                          [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v,
+                             const Npp32s *l, int n, NppStreamContext c) {
+                            return nppiLUT_Linear_8u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                          });
+  };
+  run("fullneg", {240, 10}, {50, 200});          // negative slope: floor vs trunc
+  run("fullwrap", {-40, 300}, {0, 255});         // negative outputs -> wrap
+  run("full3", {5, 250, 3}, {0, 100, 255});      // mixed slopes, odd deltas
+  run("fullunsorted", {7, 8, 9}, {100, 50, 200}); // unsorted levels
+  // 16-bit full curve: src[i] == i, 65536 wide
+  std::vector<Npp16u> f16(65536);
+  for (int i = 0; i < 65536; ++i) f16[i] = static_cast<Npp16u>(i);
+  lut_c1<Npp16u, Npp32s>("nppiLUT_Linear_16u_C1R", "linear/16u/C1/full", 65536, 1, 5, f16,
+                         {11, 40001, 20003, 65529}, {0, 16384, 49152, 65535}, ValueKind::U16,
+                         [](const Npp16u *s, int ss, Npp16u *d, int ds, NppiSize o, const Npp32s *v,
+                            const Npp32s *l, int n, NppStreamContext c) {
+                           return nppiLUT_Linear_16u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                         });
+}
+
+TEST_F(NppiLutCubicDiff, Cubic_FullRamp) {
+  std::vector<Npp8u> full(256);
+  for (int i = 0; i < 256; ++i) full[i] = static_cast<Npp8u>(i);
+  auto run = [&](const std::string &key, std::vector<Npp32s> values, std::vector<Npp32s> levels) {
+    lut_c1<Npp8u, Npp32s>("nppiLUT_Cubic_8u_C1R", "cubic/8u/C1/" + key, 256, 1, 7, full, values, levels,
+                          ValueKind::U8,
+                          [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v,
+                             const Npp32s *l, int n, NppStreamContext c) {
+                            return nppiLUT_Cubic_8u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                          });
+  };
+  run("fullresp", {10, 74, 138, 202, 250}, {0, 64, 128, 192, 255});
+  run("fullover", {0, 255, 0, 255}, {50, 100, 150, 200});
+  run("fullnonuni", {0, 255, 10, 251}, {0, 10, 240, 255}); // non-uniform spacing
+  run("full3", {5, 250, 3}, {0, 100, 255});
+  run("full2", {10, 240}, {50, 200});
+  run("fullunsorted", {7, 8, 9}, {100, 50, 200});
+  // 16-bit full curve: src[i] == i, 65536 wide
+  std::vector<Npp16u> f16(65536);
+  for (int i = 0; i < 65536; ++i) f16[i] = static_cast<Npp16u>(i);
+  lut_c1<Npp16u, Npp32s>("nppiLUT_Cubic_16u_C1R", "cubic/16u/C1/full", 65536, 1, 5, f16,
+                         {10, 20000, 40000, 60000, 65530}, {0, 16384, 32768, 49152, 65535}, ValueKind::U16,
+                         [](const Npp16u *s, int ss, Npp16u *d, int ds, NppiSize o, const Npp32s *v,
+                            const Npp32s *l, int n, NppStreamContext c) {
+                           return nppiLUT_Cubic_16u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                         });
+}
+
+// height-0 ROI (non-empty width): does the kernel still launch?
+TEST_F(NppiLutDiff, Lut_EmptyRoi_H0) {
+  const std::vector<Npp32s> okv = {1, 2, 3}, okl = {10, 100, 200};
+  std::vector<Npp8u> hs = make_uniform<Npp8u>(4096, 715);
+  std::vector<Npp8u> hd = make_uniform<Npp8u>(4096, 716);
+  DeviceMemory<Npp8u> &s = dev_buf(hs);
+  DeviceMemory<Npp8u> &d = dev_buf(hd);
+  DeviceMemory<Npp32s> &v = dev_buf(okv);
+  DeviceMemory<Npp32s> &l = dev_buf(okl);
+  NppStreamContext ctx = current_ctx();
+  clear_cuda_error();
+  NppStatus st = nppiLUT_8u_C1R_Ctx(s.get(), 16, d.get(), 16, NppiSize{16, 0}, v.get(), l.get(), 3, ctx);
+  Case c("nppiLUT/contract/h0", "nppiLUT_8u_C1R");
+  c.status(st);
+  c.finish();
+  clear_cuda_error();
+  st = nppiLUT_Linear_8u_C1R_Ctx(s.get(), 16, d.get(), 16, NppiSize{16, 0}, v.get(), l.get(), 3, ctx);
+  Case c2("nppiLUT/linear/contract/h0", "nppiLUT_Linear_8u_C1R");
+  c2.status(st);
+  c2.finish();
+  clear_cuda_error();
+  st = nppiLUT_Cubic_8u_C1R_Ctx(s.get(), 16, d.get(), 16, NppiSize{16, 0}, v.get(), l.get(), 3, ctx);
+  Case c3("nppiLUT/cubic/contract/h0", "nppiLUT_Cubic_8u_C1R");
+  c3.status(st);
+  c3.finish();
+}

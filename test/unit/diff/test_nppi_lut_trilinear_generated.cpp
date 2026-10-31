@@ -234,6 +234,7 @@ TEST_F(NppiLutTrilinearDiff, Trilinear_Contract) {
   run("emptyRoi", NppiSize{0, 4});
   run("negRoi", NppiSize{-4, 4});
   run("zeroRoi", NppiSize{0, 0});
+  run("h0", NppiSize{16, 0});
   // level count above 256 on one axis
   {
     std::vector<Npp8u> hs = make_uniform<Npp8u>(4096, 905);

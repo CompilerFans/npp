@@ -373,6 +373,21 @@ TEST_F(NppiLutPaletteDiff, Palette_Contract) {
     Case c2("nppiLUTPalette/contract/16uBits16", "nppiLUTPalette_16u_C1R");
     c2.status(st);
     c2.finish();
+    clear_cuda_error();
+    st = nppiLUTPalette_16u_C1R_Ctx(s.get(), 32, d.get(), 32, NppiSize{16, 4}, td.get(), 0, current_ctx());
+    Case c3("nppiLUTPalette/contract/16uBits0", "nppiLUTPalette_16u_C1R");
+    c3.status(st);
+    c3.finish();
+    clear_cuda_error();
+    st = nppiLUTPalette_16u_C1R_Ctx(s.get(), 32, d.get(), 32, NppiSize{16, 4}, td.get(), -1, current_ctx());
+    Case c4("nppiLUTPalette/contract/16uBitsNeg", "nppiLUTPalette_16u_C1R");
+    c4.status(st);
+    c4.finish();
+    clear_cuda_error();
+    st = nppiLUTPalette_16u_C1R_Ctx(s.get(), 32, d.get(), 32, NppiSize{16, 0}, td.get(), 8, current_ctx());
+    Case c5("nppiLUTPalette/contract/16uH0", "nppiLUTPalette_16u_C1R");
+    c5.status(st);
+    c5.finish();
   }
   {
     // Swap with bad bit size / bad ROI; alpha in range so rows would be
