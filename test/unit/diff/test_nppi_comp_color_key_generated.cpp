@@ -79,18 +79,27 @@ void roi_case(const char *fname, const std::string &idBase, int width, int heigh
   NppiSize o{width, height};
   clear_cuda_error();
   NppStatus st;
-  if (channels == 1) {
-    st = nonctx ? nppiCompColorKey_8u_C1R(s1.get(), step, s2.get(), step, d.get(), step, o, key[0])
-                : nppiCompColorKey_8u_C1R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key[0],
-                                              current_context());
-  } else if (channels == 3) {
-    st = nonctx ? nppiCompColorKey_8u_C3R(s1.get(), step, s2.get(), step, d.get(), step, o, key.data())
-                : nppiCompColorKey_8u_C3R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(),
-                                              current_context());
-  } else {
-    st = nonctx ? nppiCompColorKey_8u_C4R(s1.get(), step, s2.get(), step, d.get(), step, o, key.data())
-                : nppiCompColorKey_8u_C4R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(),
-                                              current_context());
+#if NPP_DIFF_HAS_NONCTX
+  if (nonctx) {
+    if (channels == 1) {
+      st = nppiCompColorKey_8u_C1R(s1.get(), step, s2.get(), step, d.get(), step, o, key[0]);
+    } else if (channels == 3) {
+      st = nppiCompColorKey_8u_C3R(s1.get(), step, s2.get(), step, d.get(), step, o, key.data());
+    } else {
+      st = nppiCompColorKey_8u_C4R(s1.get(), step, s2.get(), step, d.get(), step, o, key.data());
+    }
+  } else
+#endif
+  {
+    if (channels == 1) {
+      st = nppiCompColorKey_8u_C1R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key[0], current_context());
+    } else if (channels == 3) {
+      st = nppiCompColorKey_8u_C3R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(),
+                                       current_context());
+    } else {
+      st = nppiCompColorKey_8u_C4R_Ctx(s1.get(), step, s2.get(), step, d.get(), step, o, key.data(),
+                                       current_context());
+    }
   }
   const std::string id = "nppiCompColorKey/" + idBase + std::to_string(width) + "x" + std::to_string(height) + "c" +
                          std::to_string(channels);

@@ -94,11 +94,17 @@ void blend_case(const std::string &id, int width, int height, int pad, int a1, i
   d.copyFromHost(hd);
   NppiSize o{width, height};
   clear_cuda_error();
-  NppStatus st =
-      nonctx ? nppiAlphaCompColorKey_8u_AC4R(s1.get(), step, (Npp8u)a1, s2.get(), step, (Npp8u)a2, d.get(), step, o,
-                                             key.data(), (NppiAlphaOp)op)
-             : nppiAlphaCompColorKey_8u_AC4R_Ctx(s1.get(), step, (Npp8u)a1, s2.get(), step, (Npp8u)a2, d.get(), step, o,
-                                                 key.data(), (NppiAlphaOp)op, current_context());
+  NppStatus st;
+#if NPP_DIFF_HAS_NONCTX
+  if (nonctx) {
+    st = nppiAlphaCompColorKey_8u_AC4R(s1.get(), step, (Npp8u)a1, s2.get(), step, (Npp8u)a2, d.get(), step, o,
+                                       key.data(), (NppiAlphaOp)op);
+  } else
+#endif
+  {
+    st = nppiAlphaCompColorKey_8u_AC4R_Ctx(s1.get(), step, (Npp8u)a1, s2.get(), step, (Npp8u)a2, d.get(), step, o,
+                                           key.data(), (NppiAlphaOp)op, current_context());
+  }
   Case c("nppiAlphaCompColorKey/" + id, kFname);
   c.input(hs1.data(), hs1.size());
   c.input(hs2.data(), hs2.size());
@@ -128,10 +134,16 @@ void error_case(const std::string &id, Npp8u *nullPtr, NppiSize roi, int step, i
   Npp8u *pDst = (nullPtr == (Npp8u *)3) ? nullptr : d.get();
   NppiSize o = roi;
   clear_cuda_error();
-  NppStatus st =
-      nonctx ? nppiAlphaCompColorKey_8u_AC4R(pSrc1, step, 200, pSrc2, step, 100, pDst, step, o, key.data(), (NppiAlphaOp)op)
-             : nppiAlphaCompColorKey_8u_AC4R_Ctx(pSrc1, step, 200, pSrc2, step, 100, pDst, step, o, key.data(),
-                                                 (NppiAlphaOp)op, current_context());
+  NppStatus st;
+#if NPP_DIFF_HAS_NONCTX
+  if (nonctx) {
+    st = nppiAlphaCompColorKey_8u_AC4R(pSrc1, step, 200, pSrc2, step, 100, pDst, step, o, key.data(), (NppiAlphaOp)op);
+  } else
+#endif
+  {
+    st = nppiAlphaCompColorKey_8u_AC4R_Ctx(pSrc1, step, 200, pSrc2, step, 100, pDst, step, o, key.data(),
+                                           (NppiAlphaOp)op, current_context());
+  }
   Case c("nppiAlphaCompColorKey/" + id, kFname);
   c.input(hs1.data(), hs1.size());
   c.input(hs2.data(), hs2.size());
