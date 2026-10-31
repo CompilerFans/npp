@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 9824 (78.4%)
+- Real implementations: 10054 (80.2%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 2595
+- Missing: 2365
 - Tested: 8236 (65.7%)
-- Real and tested: 6850
+- Real and tested: 6965
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 704 | 0 | 1192 | 997 |
+| nppi_filtering_functions.h | 1896 | 934 | 0 | 962 | 997 |
 | nppi_geometry_transforms.h | 705 | 306 | 90 | 309 | 434 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -43,9 +43,6 @@
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
-| nppi_filtering_functions.h | nppiFilterColumn | 34 | 17 |
-| nppi_filtering_functions.h | nppiFilterRow | 34 | 17 |
-| nppi_filtering_functions.h | nppiFilterColumnBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterGaussAdvancedBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterGaussAdvanced | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterGaussBorder | 32 | 16 |
@@ -56,11 +53,9 @@
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
 | nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterRowBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterSharpenBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterSharpen | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilter | 30 | 15 |
 | nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
@@ -72,3 +67,8 @@
 | nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
 | nppi_filtering_functions.h | nppiFilterWienerBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
+| nppi_morphological_operations.h | nppiDilate3x3Border | 24 | 12 |
+| nppi_morphological_operations.h | nppiDilateBorder | 24 | 12 |
+| nppi_morphological_operations.h | nppiErode3x3Border | 24 | 12 |
+| nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
+| nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
