@@ -518,66 +518,105 @@ static void probe_radial() {
 // ======================= RectStdDev variants ================================
 static void probe_rect() {
   NppStreamContext c = ctx();
-  const int W = 8, H = 8;
-  std::vector<Npp32f> img((size_t)W * H);
-  std::vector<Npp32s> sqr((size_t)W * H);
-  std::vector<Npp64f> sqrd((size_t)W * H);
-  for (int y = 0; y < H; ++y)
-    for (int x = 0; x < W; ++x) {
-      float v = (float)((x + y) % 7);
-      img[(size_t)y * W + x] = v;
-      sqr[(size_t)y * W + x] = (Npp32s)(v * v);
-      sqrd[(size_t)y * W + x] = (double)v * v;
-    }
-  Dev<Npp32f> src((size_t)W * H);
-  Dev<Npp32s> srci((size_t)W * H);
-  Dev<Npp32s> sqri((size_t)W * H);
-  Dev<Npp64f> sqrdD((size_t)W * H);
-  src.put(img);
-  srci.put(sqr);
-  sqri.put(sqr);
-  sqrdD.put(sqrd);
+  // original 12x12 image; integral images are 13x13 (zero first row/col)
+  const int OW = 12, OH = 12;
+  const int IW = OW + 1, IH = OH + 1;
+  std::vector<double> img((size_t)OW * OH);
+  for (int y = 0; y < OH; ++y)
+    for (int x = 0; x < OW; ++x) img[(size_t)y * OW + x] = (double)((x * 5 + y * 3) % 7);
+  auto integ = [&](int w, int h) {
+    std::vector<double> I((size_t)w * h, 0.0), S((size_t)w * h, 0.0);
+    for (int y = 1; y < h; ++y)
+      for (int x = 1; x < w; ++x) {
+        double v = img[(size_t)(y - 1) * OW + (x - 1)];
+        I[(size_t)y * w + x] = v + I[(size_t)(y - 1) * w + x] + I[(size_t)y * w + x - 1] - I[(size_t)(y - 1) * w + x - 1];
+        double q = v * v;
+        S[(size_t)y * w + x] = q + S[(size_t)(y - 1) * w + x] + S[(size_t)y * w + x - 1] - S[(size_t)(y - 1) * w + x - 1];
+      }
+    return std::make_pair(I, S);
+  };
+  auto IS = integ(IW, IH);
+  std::vector<Npp32f> If((size_t)IW * IH), Sf((size_t)IW * IH);
+  std::vector<Npp32s> Ii((size_t)IW * IH), Si((size_t)IW * IH);
+  std::vector<Npp64f> Sd((size_t)IW * IH);
+  for (size_t i = 0; i < (size_t)IW * IH; ++i) {
+    If[i] = (Npp32f)IS.first[i];
+    Sf[i] = (Npp32f)IS.second[i];
+    Ii[i] = (Npp32s)IS.first[i];
+    Si[i] = (Npp32s)IS.second[i];
+    Sd[i] = IS.second[i];
+  }
+  Dev<Npp32f> dIf((size_t)IW * IH), dSf((size_t)IW * IH);
+  Dev<Npp32s> dIi((size_t)IW * IH), dSi((size_t)IW * IH);
+  Dev<Npp64f> dSd((size_t)IW * IH);
+  dIf.put(If); dSf.put(Sf); dIi.put(Ii); dSi.put(Si); dSd.put(Sd);
+  const int W = 8, H = 8;  // ROI
+  NppiRect rect{1, 1, 3, 3};
   Dev<Npp32f> dstf((size_t)W * H);
   Dev<Npp32s> dsti((size_t)W * H);
-  dstf.fill(-1e30f);
-  dsti.fill(-12345);
-  NppiRect rect{1, 1, 3, 3};
-  NppStatus s = nppiRectStdDev_32f_C1R_Ctx(src.p, W * 4, sqrdD.p, W * 8, dstf.p, W * 4, NppiSize{W, H}, rect, c);
-  PS("RectStdDev_32f", s);
-  auto vf = dstf.get();
-  printf("  dst row0..3 col0..3: %g %g %g / %g %g %g / %g %g %g\n", vf[0], vf[1], vf[2], vf[W], vf[W + 1], vf[W + 2],
-         vf[2 * W], vf[2 * W + 1], vf[2 * W + 2]);
-  CHK("rect32f");
-  s = nppiRectStdDev_32s_C1RSfs_Ctx(srci.p, W * 4, sqri.p, W * 4, dsti.p, W * 4, NppiSize{W, H}, rect, 0, c);
-  PS("RectStdDev_32sSfs0", s);
-  auto vi = dsti.get();
-  printf("  dst row0..3 col0..3: %d %d %d / %d %d %d / %d %d %d\n", vi[0], vi[1], vi[2], vi[W], vi[W + 1], vi[W + 2],
-         vi[2 * W], vi[2 * W + 1], vi[2 * W + 2]);
-  CHK("rect32s");
-  dsti.fill(-12345);
-  s = nppiRectStdDev_32s_C1RSfs_Ctx(srci.p, W * 4, sqri.p, W * 4, dsti.p, W * 4, NppiSize{W, H}, rect, 2, c);
-  PS("RectStdDev_32sSfs2", s);
-  vi = dsti.get();
-  printf("  dst row0..3 col0..3: %d %d %d / %d %d %d / %d %d %d\n", vi[0], vi[1], vi[2], vi[W], vi[W + 1], vi[W + 2],
-         vi[2 * W], vi[2 * W + 1], vi[2 * W + 2]);
-  // reference computation (window at x+rect.x, y+rect.y)
-  for (int py = 0; py < 3; ++py) {
+  NppStatus s;
+  {  // 32f variant with proper integral images
+    dstf.fill(-1e30f);
+    s = nppiRectStdDev_32f_C1R_Ctx(dIf.p, IW * 4, dSd.p, IW * 8, dstf.p, W * 4, NppiSize{W, H}, rect, c);
+    PS("RectStdDev_32f", s);
+    auto vf = dstf.get();
+    printf("  dst row0: %g %g %g %g row1: %g %g %g\n", vf[0], vf[1], vf[2], vf[3], vf[W], vf[W + 1], vf[W + 2]);
+  }
+  {  // 32f variant with 32f squared integral (wrong dtype but steps right)
+    dstf.fill(-1e30f);
+    s = nppiRectStdDev_32f_C1R_Ctx(dIf.p, IW * 4, (const Npp64f *)dSf.p, IW * 8, dstf.p, W * 4, NppiSize{W, H}, rect, c);
+    PS("RectStdDev_32f_32fSqr", s);
+  }
+  {  // 32s Sfs variant
+    dsti.fill(-12345);
+    s = nppiRectStdDev_32s_C1RSfs_Ctx(dIi.p, IW * 4, dSi.p, IW * 4, dsti.p, W * 4, NppiSize{W, H}, rect, 0, c);
+    PS("RectStdDev_32sSfs0", s);
+    auto vi = dsti.get();
+    printf("  dst row0: %d %d %d %d row1: %d %d %d\n", vi[0], vi[1], vi[2], vi[3], vi[W], vi[W + 1], vi[W + 2]);
+  }
+  {  // 32s Sfs with scale 2
+    dsti.fill(-12345);
+    s = nppiRectStdDev_32s_C1RSfs_Ctx(dIi.p, IW * 4, dSi.p, IW * 4, dsti.p, W * 4, NppiSize{W, H}, rect, 2, c);
+    PS("RectStdDev_32sSfs2", s);
+    auto vi = dsti.get();
+    printf("  dst row0: %d %d %d %d row1: %d %d %d\n", vi[0], vi[1], vi[2], vi[3], vi[W], vi[W + 1], vi[W + 2]);
+  }
+  // reference: window over ORIGINAL image at (x+rect.x, y+rect.y), size rect
+  printf("  ref rows 0..1:");
+  for (int py = 0; py < 2; ++py) {
     double m1 = 0, m2 = 0;
     int n = rect.width * rect.height;
     for (int dy = 0; dy < rect.height; ++dy)
       for (int dx = 0; dx < rect.width; ++dx) {
-        m1 += img[(size_t)(py + dy) * W + dx + rect.x];
-        m2 += sqrd[(size_t)(py + dy) * W + dx + rect.x];
+        double v = img[(size_t)(py + rect.y + dy) * OW + (rect.x + dx)];
+        m1 += v;
+        m2 += v * v;
       }
-    double mean = m1 / n, meanSq = m2 / n;
-    double var = meanSq - mean * mean;
+    double var = m2 / n - (m1 / n) * (m1 / n);
     if (var < 0) var = 0;
-    printf("  ref row%d sqrt=%g\n", py, sqrt(var));
+    printf(" [row%d sqrt=%.9g]", py, sqrt(var));
   }
+  printf("\n");
+  // step validation: too-small src step for 13-wide integral (needs 52)
+  {
+    dstf.fill(-1e30f);
+    s = nppiRectStdDev_32f_C1R_Ctx(dIf.p, 32, dSd.p, IW * 8, dstf.p, W * 4, NppiSize{W, H}, rect, c);
+    PS("32f_shortSrcStep", s);
+    dstf.fill(-1e30f);
+    s = nppiRectStdDev_32f_C1R_Ctx(dIf.p, IW * 4, dSd.p, 64, dstf.p, W * 4, NppiSize{W, H}, rect, c);
+    PS("32f_shortSqrStep", s);
+    dstf.fill(-1e30f);
+    s = nppiRectStdDev_32f_C1R_Ctx(dIf.p, IW * 4, dSd.p, IW * 8, dstf.p, 16, NppiSize{W, H}, rect, c);
+    PS("32f_shortDstStep", s);
+    dstf.fill(-1e30f);
+    s = nppiRectStdDev_32f_C1R_Ctx(dIf.p, 36, dSd.p, IW * 8, dstf.p, W * 4, NppiSize{W, H}, rect, c);
+    PS("32f_oddSrcStep", s);
+  }
+  CHK("rect");
 }
 
 // ======================= batch metrics ======================================
-static void probe_batch() {
+static void probe_batch(int stage) {
   NppStreamContext c = ctx();
   const int N = 3;
   int w[N] = {16, 24, 32}, h[N] = {8, 12, 16};
@@ -608,7 +647,7 @@ static void probe_batch() {
     bufs[i].nBufferSize = 21 << 20;
   }
   dbufs.put(std::vector<NppiBufferDescriptor>(bufs, bufs + N));
-  {  // MSEBatch with common ROI (16x8: min of all sizes)
+  if (stage <= 0) {  // MSEBatch with common ROI (16x8: min of all sizes)
     out.fill(-1e30f);
     NppStatus s = nppiMSEBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, out.p, dbufs.p, c);
     PS("MSEBatch", s);
@@ -622,7 +661,7 @@ static void probe_batch() {
     PS("MSE_single_img0", s1);
     printf("  single=[%g]\n", one.get()[0]);
   }
-  {  // MSEBatch Advanced (per-image sizes)
+  if (stage <= 1) {  // MSEBatch Advanced (per-image sizes)
     out.fill(-1e30f);
     NppStatus s = nppiMSEBatch_8u_C1R_Advanced_Ctx(dd1.p, dd2.p, N, NppiSize{32, 16}, out.p, dbufs.p, c);
     PS("MSEBatchAdv", s);
@@ -638,7 +677,7 @@ static void probe_batch() {
       printf("  single full img%d=[%g] st=%d\n", i, one.get()[0], (int)s1);
     }
   }
-  {  // PSNRBatch
+  if (stage <= 1) {  // PSNRBatch
     out.fill(-1e30f);
     NppStatus s = nppiPSNRBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, out.p, dbufs.p, c);
     PS("PSNRBatch", s);
@@ -651,7 +690,7 @@ static void probe_batch() {
     v = out.get();
     printf("  out=[%g %g %g %g ...]\n", v[0], v[1], v[2], v[3]);
   }
-  {  // SSIMBatch
+  if (stage <= 2) {  // SSIMBatch
     out.fill(-1e30f);
     NppStatus s = nppiSSIMBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, out.p, dbufs.p, c);
     PS("SSIMBatch", s);
@@ -663,7 +702,7 @@ static void probe_batch() {
     NppStatus s1 = nppiSSIM_8u_C1R_Ctx((Npp8u *)d1[0].pData, 16, (Npp8u *)d2[0].pData, 16, NppiSize{16, 8}, one.p, gBuf64, c);
     printf("  single img0=[%g] st=%d\n", one.get()[0], (int)s1);
   }
-  {  // WMSSSIMBatch (needs bigger ROIs?)
+  if (stage <= 2) {  // WMSSSIMBatch (needs bigger ROIs?)
     out.fill(-1e30f);
     NppStatus s = nppiWMSSSIMBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, out.p, dbufs.p, c);
     PS("WMSSSIMBatch", s);
@@ -676,7 +715,7 @@ static void probe_batch() {
     v = out.get();
     printf("  out=[%g %g %g %g ...]\n", v[0], v[1], v[2], v[3]);
   }
-  {  // C3R batch
+  if (stage <= 3) {  // C3R batch
     // build 3-channel images
     const int W = 16, H = 8;
     Dev<Npp8u> pool3((size_t)W * H * 3 * 2 * N);
@@ -706,7 +745,7 @@ static void probe_batch() {
     v = out.get();
     printf("  out=[%g %g %g %g %g %g ...]\n", v[0], v[1], v[2], v[3], v[4], v[5]);
   }
-  {  // batch zero size / null
+  if (stage <= 4) {  // batch zero size / null
     out.fill(-1e30f);
     NppStatus s = nppiMSEBatch_8u_C1R_Ctx(nullptr, nullptr, 0, NppiSize{16, 8}, out.p, dbufs.p, c);
     PS("MSEBatch_n0_null", s);
@@ -714,14 +753,380 @@ static void probe_batch() {
     PS("MSEBatch_n0", s);
     s = nppiMSEBatch_8u_C1R_Ctx(nullptr, dd2.p, N, NppiSize{16, 8}, out.p, dbufs.p, c);
     PS("MSEBatch_null1", s);
-    s = nppiMSEBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{0, 8}, out.p, dbufs.p, c);
-    PS("MSEBatch_zroi", s);
     s = nppiMSEBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{-1, 8}, out.p, dbufs.p, c);
     PS("MSEBatch_negroi", s);
+    s = nppiMSEBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{0, 8}, out.p, dbufs.p, c);
+    PS("MSEBatch_zroi_CRASHES", s);
     s = nppiMSEBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, nullptr, dbufs.p, c);
     PS("MSEBatch_nullout", s);
     s = nppiMSEBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, out.p, nullptr, c);
     PS("MSEBatch_nullbuf", s);
+  }
+}
+
+// ======================= SSIMBatch layout diagnostics ========================
+// The plain SSIMBatch gave ~1e-5 for images whose (step != ROI.w || oSize != ROI).
+// Diagnose what NPP actually reads: fill pool/workspace with known patterns.
+static void probe_ssimb2() {
+  NppStreamContext c = ctx();
+  const int N = 3;
+  int w[N] = {16, 24, 32}, h[N] = {8, 12, 16};
+  NppiImageDescriptor d1[N], d2[N];
+  NppiBufferDescriptor bufs[N];
+  Dev<Npp8u> pool(64 * 64 * 2 * N);
+  Dev<Npp8u> scratch(64 << 20);
+  for (int i = 0; i < N; ++i) {
+    bufs[i].pData = scratch.p + (size_t)i * (21 << 20);
+    bufs[i].nBufferSize = 21 << 20;
+  }
+  Dev<NppiBufferDescriptor> dbufs(N);
+  dbufs.put(std::vector<NppiBufferDescriptor>(bufs, bufs + N));
+  Dev<NppiImageDescriptor> dd1(N), dd2(N);
+  Dev<Npp32f> out(N * 4);
+
+  // V0: pool filled with position pattern (k&0xff), scratch zeroed
+  // V1: pool 0xAB, scratch zeroed
+  // V2: pool 0xAB, scratch 0xCD
+  for (int variant = 0; variant < 3; ++variant) {
+    std::vector<Npp8u> blob(pool.n);
+    for (size_t k = 0; k < blob.size(); ++k) blob[k] = (variant == 0) ? (Npp8u)(k & 0xff) : (Npp8u)0xAB;
+    size_t off = 0;
+    for (int i = 0; i < N; ++i) {
+      std::vector<Npp8u> a = tex8(w[i], h[i], 1, 10 + i), b = tex8(w[i], h[i], 1, 20 + i);
+      memcpy(blob.data() + off, a.data(), a.size());
+      d1[i].pData = pool.p + off; d1[i].nStep = w[i]; d1[i].oSize = NppiSize{w[i], h[i]};
+      off += a.size();
+      memcpy(blob.data() + off, b.data(), b.size());
+      d2[i].pData = pool.p + off; d2[i].nStep = w[i]; d2[i].oSize = NppiSize{w[i], h[i]};
+      off += b.size();
+    }
+    pool.put(blob);
+    if (variant >= 1) cudaMemset(scratch.p, variant == 1 ? 0x00 : 0xCD, 64 << 20);
+    else cudaMemset(scratch.p, 0x00, 64 << 20);
+    dd1.put(std::vector<NppiImageDescriptor>(d1, d1 + N));
+    dd2.put(std::vector<NppiImageDescriptor>(d2, d2 + N));
+    out.fill(-1e30f);
+    NppStatus s = nppiSSIMBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{16, 8}, out.p, dbufs.p, c);
+    printf("  V%d(st=%d) out=[%g %g %g]\n", variant, (int)s, out.get()[0], out.get()[1], out.get()[2]);
+    CHK("ssimb2");
+  }
+  // V3: uniform 16x8 images, steps 16 (control)
+  // V4: uniform 16x8 data, steps 16/24/32 (padded)
+  // V5: all images 24x12 step 24, common ROI 16x8
+  for (int variant = 3; variant <= 5; ++variant) {
+    const int RW = 16, RH = 8;
+    std::vector<Npp8u> blob(pool.n, 0xAB);
+    size_t off = 0;
+    for (int i = 0; i < N; ++i) {
+      int iw, ih, istep;
+      if (variant == 3) { iw = 16; ih = 8; istep = 16; }
+      else if (variant == 4) { iw = 16; ih = 8; istep = 16 + 8 * i; }
+      else { iw = 24; ih = 12; istep = 24; }
+      std::vector<Npp8u> a = tex8(iw, ih, 1, 10 + i), b = tex8(iw, ih, 1, 20 + i);
+      for (int y = 0; y < ih; ++y) memcpy(blob.data() + off + (size_t)y * istep, a.data() + (size_t)y * iw, iw);
+      d1[i].pData = pool.p + off; d1[i].nStep = istep; d1[i].oSize = NppiSize{iw, ih};
+      off += (size_t)ih * istep + 64;
+      for (int y = 0; y < ih; ++y) memcpy(blob.data() + off + (size_t)y * istep, b.data() + (size_t)y * iw, iw);
+      d2[i].pData = pool.p + off; d2[i].nStep = istep; d2[i].oSize = NppiSize{iw, ih};
+      off += (size_t)ih * istep + 64;
+    }
+    pool.put(blob);
+    cudaMemset(scratch.p, 0x00, 64 << 20);
+    dd1.put(std::vector<NppiImageDescriptor>(d1, d1 + N));
+    dd2.put(std::vector<NppiImageDescriptor>(d2, d2 + N));
+    out.fill(-1e30f);
+    NppStatus s = nppiSSIMBatch_8u_C1R_Ctx(dd1.p, dd2.p, N, NppiSize{RW, RH}, out.p, dbufs.p, c);
+    printf("  V%d(st=%d) out=[%g %g %g]\n", variant, (int)s, out.get()[0], out.get()[1], out.get()[2]);
+    CHK("ssimb2v");
+  }
+}
+
+// ======================= WMSSSIM / MSSSIM internals =========================
+static void probe_wmss2() {
+  NppStreamContext c = ctx();
+  Dev<Npp32f> out(8);
+  // A. C3R with channel-independent data (same value in all 3 channels)
+  {
+    struct Sz { int w, h; };
+    Sz sizes[] = {{64, 64}, {32, 32}, {16, 16}};
+    for (auto &z : sizes) {
+      std::vector<Npp8u> a, b;
+      for (int y = 0; y < z.h; ++y)
+        for (int x = 0; x < z.w; ++x)
+          for (int cc = 0; cc < 3; ++cc) {
+            a.push_back((Npp8u)((x * 7 + y * 13 + 5) & 0xff));
+            b.push_back((Npp8u)((x * 7 + y * 13 + 6) & 0xff));
+          }
+      Dev<Npp8u> s1(a.size()), s2(b.size());
+      s1.put(a); s2.put(b);
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C3R_Ctx(s1.p, z.w * 3, s2.p, z.w * 3, NppiSize{z.w, z.h}, out.p, gBuf64, c);
+      auto v = out.get();
+      printf("  C3R_samech %dx%d st=%d val=[%g %g %g]\n", z.w, z.h, (int)s, v[0], v[1], v[2]);
+      CHK("wmss2a");
+      // C1R on the same logical image
+      std::vector<Npp8u> a1, b1;
+      for (int y = 0; y < z.h; ++y)
+        for (int x = 0; x < z.w; ++x) {
+          a1.push_back((Npp8u)((x * 7 + y * 13 + 5) & 0xff));
+          b1.push_back((Npp8u)((x * 7 + y * 13 + 6) & 0xff));
+        }
+      Dev<Npp8u> t1(a1.size()), t2(b1.size());
+      t1.put(a1); t2.put(b1);
+      out.fill(-1e30f);
+      s = nppiWMSSSIM_8u_C1R_Ctx(t1.p, z.w, t2.p, z.w, NppiSize{z.w, z.h}, out.p, gBuf64, c);
+      printf("    C1R ref val=[%g]\n", out.get()[0]);
+    }
+  }
+  // B. const C3R
+  {
+    Dev<Npp8u> s1((size_t)64 * 64 * 3); Dev<Npp8u> s2((size_t)64 * 64 * 3);
+    s1.fill(100); s2.fill(110);
+    out.fill(-1e30f);
+    NppStatus s = nppiWMSSSIM_8u_C3R_Ctx(s1.p, 64 * 3, s2.p, 64 * 3, NppiSize{64, 64}, out.p, gBuf64, c);
+    auto v = out.get();
+    printf("  C3R_const64 st=%d val=[%g %g %g]\n", (int)s, v[0], v[1], v[2]);
+    Dev<Npp8u> u1((size_t)64 * 64); Dev<Npp8u> u2((size_t)64 * 64);
+    u1.fill(100); u2.fill(110);
+    out.fill(-1e30f);
+    s = nppiWMSSSIM_8u_C1R_Ctx(u1.p, 64, u2.p, 64, NppiSize{64, 64}, out.p, gBuf64, c);
+    printf("  C1R_const64 st=%d val=[%g]\n", (int)s, out.get()[0]);
+  }
+  // C. C1R more sizes/seeds for weight fitting
+  {
+    struct SZ { int w, h; int s1, s2; };
+    SZ cases[] = {{18,18,5,6},{20,20,5,6},{24,24,5,6},{28,28,5,6},{40,40,5,6},{48,48,5,6},
+                  {96,96,5,6},{128,128,5,6},{64,64,1,2},{128,128,1,2},{64,64,7,9},{64,32,5,6},
+                  {32,64,5,6},{48,16,5,6},{64,64,5,5}};
+    for (auto &k : cases) {
+      Dev<Npp8u> s1((size_t)k.w * k.h), s2((size_t)k.w * k.h);
+      s1.put(tex8(k.w, k.h, 1, k.s1));
+      s2.put(tex8(k.w, k.h, 1, k.s2));
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, k.w, s2.p, k.w, NppiSize{k.w, k.h}, out.p, gBuf64, c);
+      printf("  C1R %dx%d s%d/%d st=%d val=[%g]\n", k.w, k.h, k.s1, k.s2, (int)s, out.get()[0]);
+      CHK("wmss2c");
+    }
+    // const C1R
+    int csz[] = {16, 32, 64, 256};
+    for (int sz : csz) {
+      Dev<Npp8u> s1((size_t)sz * sz); Dev<Npp8u> s2((size_t)sz * sz);
+      s1.fill(100); s2.fill(110);
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+      printf("  C1R_const%d val=[%g] st=%d\n", sz, out.get()[0], (int)s);
+      out.fill(-1e30f);
+      s = nppiMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+      printf("  MSSSIM_const%d val=[%g] st=%d\n", sz, out.get()[0], (int)s);
+    }
+  }
+  // D. MSSSIM size thresholds
+  {
+    struct SZ { int w, h; };
+    SZ cases[] = {{128,128},{200,200},{255,255},{257,257},{512,512},{300,300},{256,128},{128,256}};
+    for (auto &k : cases) {
+      Dev<Npp8u> s1((size_t)k.w * k.h), s2((size_t)k.w * k.h);
+      s1.put(tex8(k.w, k.h, 1, 5));
+      s2.put(tex8(k.w, k.h, 1, 6));
+      out.fill(-1e30f);
+      NppStatus s = nppiMSSSIM_8u_C1R_Ctx(s1.p, k.w, s2.p, k.w, NppiSize{k.w, k.h}, out.p, gBuf64, c);
+      printf("  MSSSIM %dx%d st=%d val=[%g]\n", k.w, k.h, (int)s, out.get()[0]);
+      CHK("wmss2d");
+      out.fill(-1e30f);
+      s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, k.w, s2.p, k.w, NppiSize{k.w, k.h}, out.p, gBuf64, c);
+      printf("  WMSSSIM %dx%d st=%d val=[%g]\n", k.w, k.h, (int)s, out.get()[0]);
+    }
+  }
+}
+
+// ======================= WMSSSIM pyramid sampling ===========================
+// Determine how NPP downsamples between scales: put a single outlier pixel in
+// src2 at positions that decimation (stride-2 subsampling) would keep vs drop.
+static void probe_wmss3() {
+  NppStreamContext c = ctx();
+  Dev<Npp32f> out(8);
+  struct P { int x, y; };
+  P posns[] = {{0,0},{1,1},{32,32},{33,33},{62,62},{63,63},{16,16},{2,2}};
+  for (int sz : {64, 65}) {
+    for (auto &pp : posns) {
+      if (pp.x >= sz || pp.y >= sz) continue;
+      std::vector<Npp8u> a, b;
+      for (int y = 0; y < sz; ++y)
+        for (int x = 0; x < sz; ++x) {
+          Npp8u v = (Npp8u)(((x + y) & 0x3f) + 10);
+          a.push_back(v);
+          b.push_back(v);
+        }
+      b[(size_t)pp.y * sz + pp.x] = 200;  // single outlier (a=10 at (0,0))
+      Dev<Npp8u> s1(a.size()), s2(b.size());
+      s1.put(a); s2.put(b);
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+      printf("  WMSSSIM %d outlier(%d,%d) st=%d val=[%g]\n", sz, pp.x, pp.y, (int)s, out.get()[0]);
+      CHK("wmss3");
+    }
+  }
+  // SSIM at more sizes (scale-0 validation)
+  {
+    Dev<Npp32f> o2(4);
+    for (int sz : {9, 10, 12, 17, 18, 20, 24, 28, 40, 48, 96, 128}) {
+      Dev<Npp8u> s1((size_t)sz * sz), s2((size_t)sz * sz);
+      s1.put(tex8(sz, sz, 1, 5));
+      s2.put(tex8(sz, sz, 1, 6));
+      o2.fill(-1e30f);
+      NppStatus s = nppiSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, o2.p, gBuf64, c);
+      printf("  SSIM %dx%d st=%d val=[%g]\n", sz, sz, (int)s, o2.get()[0]);
+      CHK("wmss3s");
+    }
+  }
+  // same outlier trick for MSSSIM at 256
+  {
+    for (auto &pp : (P[]){{0,0},{1,1},{128,128},{254,254}}) {
+      std::vector<Npp8u> a, b;
+      for (int y = 0; y < 256; ++y)
+        for (int x = 0; x < 256; ++x) {
+          Npp8u v = (Npp8u)(((x + y) & 0x3f) + 10);
+          a.push_back(v); b.push_back(v);
+        }
+      b[(size_t)pp.y * 256 + pp.x] = 200;
+      Dev<Npp8u> s1(a.size()), s2(b.size());
+      s1.put(a); s2.put(b);
+      out.fill(-1e30f);
+      NppStatus s = nppiMSSSIM_8u_C1R_Ctx(s1.p, 256, s2.p, 256, NppiSize{256, 256}, out.p, gBuf64, c);
+      printf("  MSSSIM 256 outlier(%d,%d) st=%d val=[%g]\n", pp.x, pp.y, (int)s, out.get()[0]);
+      out.fill(-1e30f);
+      s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, 256, s2.p, 256, NppiSize{256, 256}, out.p, gBuf64, c);
+      printf("  WMSSSIM 256 outlier(%d,%d) st=%d val=[%g]\n", pp.x, pp.y, (int)s, out.get()[0]);
+      CHK("wmss3m");
+    }
+  }
+  // MSSSIM size threshold between 128 and 200
+  {
+    for (int sz : {129, 130, 132, 136, 144, 148, 152, 160, 164, 168, 176, 180, 184, 192, 196, 198, 199}) {
+      Dev<Npp8u> s1((size_t)sz * sz), s2((size_t)sz * sz);
+      s1.put(tex8(sz, sz, 1, 5));
+      s2.put(tex8(sz, sz, 1, 6));
+      out.fill(-1e30f);
+      NppStatus s = nppiMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+      printf("  MSSSIM_thr %d st=%d val=[%g]\n", sz, (int)s, out.get()[0]);
+      CHK("wmss3t");
+    }
+  }
+}
+
+// ======================= WMSSSIM level isolation =============================
+// (a) single-pixel outlier scan along one axis reveals the level-2 block layout:
+//     standard {2i,2i+1}, shifted {2i-1,2i} (corner exact), base-clamp (spike at
+//     x=1 from overlapping blocks {0,1},{1,2});
+// (b) last row/col modification reveals whether row N-1 survives decimation;
+// (c) separable anti-symmetric patterns H_k cancel in every 2x2 block after k
+//     decimations -> isolates per-level css contributions and the weights;
+// (d) const pairs at various sizes pin the level-5 luminance term exactly.
+static int hk1(int x, int k) {  // h_0(x)=alt; h_{k+1}(x)=h_k(x>0 ? (x-1)/2 : 0)
+  if (k == 0) return (x & 1) ? -1 : 1;
+  return hk1(x > 0 ? ((x - 1) >> 1) : 0, k - 1);
+}
+static void probe_wmss4() {
+  NppStreamContext c = ctx();
+  Dev<Npp32f> out(8);
+  // A. axis scans of single-pixel outliers on the no-wrap ramp
+  for (int n : {64, 65}) {
+    for (int axis = 0; axis < 2; ++axis) {
+      for (int p = 0; p < n; ++p) {
+        std::vector<Npp8u> a, b;
+        for (int y = 0; y < n; ++y)
+          for (int x = 0; x < n; ++x) {
+            Npp8u v = (Npp8u)(((x + y) & 0x3f) + 10);
+            a.push_back(v);
+            b.push_back(v);
+          }
+        int ox = axis ? 16 : p, oy = axis ? p : 16;
+        b[(size_t)oy * n + ox] = 200;
+        Dev<Npp8u> s1(a.size()), s2(b.size());
+        s1.put(a); s2.put(b);
+        out.fill(-1e30f);
+        NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, n, s2.p, n, NppiSize{n, n}, out.p, gBuf64, c);
+        printf("  SCAN n=%d ax=%d p=%d st=%d v=[%.6f]\n", n, axis, p, (int)s, out.get()[0]);
+      }
+      CHK("wmss4scan");
+    }
+  }
+  // B. last row / column wholesale modification
+  for (int n : {64, 65}) {
+    for (int mode = 0; mode < 4; ++mode) {  // 0:row n-1  1:row n-2  2:col n-1  3:col n-2
+      std::vector<Npp8u> a, b;
+      for (int y = 0; y < n; ++y)
+        for (int x = 0; x < n; ++x) {
+          Npp8u v = (Npp8u)(((x + y) & 0x3f) + 10);
+          a.push_back(v);
+          b.push_back(v);
+        }
+      int line = (mode & 1) ? n - 2 : n - 1;
+      for (int i = 0; i < n; ++i) {
+        if (mode < 2) b[(size_t)line * n + i] = 200;
+        else b[(size_t)i * n + line] = 200;
+      }
+      Dev<Npp8u> s1(a.size()), s2(b.size());
+      s1.put(a); s2.put(b);
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, n, s2.p, n, NppiSize{n, n}, out.p, gBuf64, c);
+      printf("  LINE n=%d mode=%d st=%d v=[%.6f]\n", n, mode, (int)s, out.get()[0]);
+      CHK("wmss4line");
+    }
+  }
+  // C. H_k anti-symmetric separable patterns (A/B sign-flipped)
+  {
+    for (int k = 0; k < 4; ++k) {
+      int n = 64;
+      std::vector<Npp8u> a, b;
+      for (int y = 0; y < n; ++y)
+        for (int x = 0; x < n; ++x) {
+          int h = hk1(x, k) * hk1(y, k);
+          a.push_back((Npp8u)(20 + 8 * h));
+          b.push_back((Npp8u)(20 - 8 * h));
+        }
+      Dev<Npp8u> s1(a.size()), s2(b.size());
+      s1.put(a); s2.put(b);
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, n, s2.p, n, NppiSize{n, n}, out.p, gBuf64, c);
+      printf("  HK k=%d st=%d v=[%.6f]\n", k, (int)s, out.get()[0]);
+      CHK("wmss4hk");
+    }
+  }
+  // D. const pairs across sizes (exact level-5 luminance)
+  {
+    struct CP { int va, vb; };
+    for (auto &cp : (CP[]){{100, 110}, {5, 6}}) {
+      for (int n : {16, 17, 31, 32, 63, 64, 65, 176, 200}) {
+        Dev<Npp8u> s1((size_t)n * n), s2((size_t)n * n);
+        s1.fill((Npp8u)cp.va); s2.fill((Npp8u)cp.vb);
+        out.fill(-1e30f);
+        NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, n, s2.p, n, NppiSize{n, n}, out.p, gBuf64, c);
+        printf("  CONST a=%d b=%d n=%d st=%d v=[%.7f]\n", cp.va, cp.vb, n, (int)s, out.get()[0]);
+        CHK("wmss4const");
+      }
+    }
+  }
+  // E. 2x2 corner block probe: outlier at the four corner taps of block (0,0)
+  {
+    struct P2 { int x, y; };
+    for (auto &pp : (P2[]){{0,0},{0,1},{1,0},{1,1},{0,2},{2,0},{0,3},{3,0}}) {
+      int n = 64;
+      std::vector<Npp8u> a, b;
+      for (int y = 0; y < n; ++y)
+        for (int x = 0; x < n; ++x) {
+          Npp8u v = (Npp8u)(((x + y) & 0x3f) + 10);
+          a.push_back(v);
+          b.push_back(v);
+        }
+      b[(size_t)pp.y * n + pp.x] = 200;
+      Dev<Npp8u> s1(a.size()), s2(b.size());
+      s1.put(a); s2.put(b);
+      out.fill(-1e30f);
+      NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, n, s2.p, n, NppiSize{n, n}, out.p, gBuf64, c);
+      printf("  CORNER (%d,%d) st=%d v=[%.6f]\n", pp.x, pp.y, (int)s, out.get()[0]);
+      CHK("wmss4corner");
+    }
   }
 }
 
@@ -1061,6 +1466,81 @@ static void probe_qidx2() {
   CHK("qidx2");
 }
 
+// ======================= dense GBHS dump (formula fitting) ==================
+static void dump_gbsz(const char *which) {
+  NppStreamContext c = ctx();
+  struct Ent { const char *tag; NppStatus (*fn)(NppiSize, size_t *, NppStreamContext); };
+  Ent ents[24];
+  int n = 0;
+  if (!strcmp(which, "qidx")) {
+    ents[n++] = {"q8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiQualityIndexGetBufferHostSize_8u32f_C1R_Ctx};
+    ents[n++] = {"q16c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiQualityIndexGetBufferHostSize_16u32f_C1R_Ctx};
+    ents[n++] = {"qfc1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiQualityIndexGetBufferHostSize_32f_C1R_Ctx};
+    ents[n++] = {"q8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiQualityIndexGetBufferHostSize_8u32f_C3R_Ctx};
+    ents[n++] = {"q8ac4", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiQualityIndexGetBufferHostSize_8u32f_AC4R_Ctx};
+  } else if (!strcmp(which, "cir")) {
+    ents[n++] = {"cir8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiCountInRangeGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"cirfc1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiCountInRangeGetBufferHostSize_32f_C1R_Ctx};
+    ents[n++] = {"cir8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiCountInRangeGetBufferHostSize_8u_C3R_Ctx};
+    ents[n++] = {"cir8ac4", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiCountInRangeGetBufferHostSize_8u_AC4R_Ctx};
+    ents[n++] = {"cirfc3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiCountInRangeGetBufferHostSize_32f_C3R_Ctx};
+    ents[n++] = {"cirfac4", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiCountInRangeGetBufferHostSize_32f_AC4R_Ctx};
+  } else if (!strcmp(which, "metric")) {
+    ents[n++] = {"mse8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiMSEGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"mse8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiMSEGetBufferHostSize_8u_C3R_Ctx};
+    ents[n++] = {"psnr8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiPSNRGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"ssim8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiSSIMGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"ssim8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiSSIMGetBufferHostSize_8u_C3R_Ctx};
+    ents[n++] = {"msssim8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiMSSSIMGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"wmsssim8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiWMSSSIMGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"wmsssim8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiWMSSSIMGetBufferHostSize_8u_C3R_Ctx};
+  } else if (!strcmp(which, "batch")) {
+    ents[n++] = {"mseB8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiMSEBatchGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"mseB8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiMSEBatchGetBufferHostSize_8u_C3R_Ctx};
+    ents[n++] = {"psnrB8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiPSNRBatchGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"ssimB8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiSSIMBatchGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"ssimB8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiSSIMBatchGetBufferHostSize_8u_C3R_Ctx};
+    ents[n++] = {"wmsssimB8c1", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiWMSSSIMBatchGetBufferHostSize_8u_C1R_Ctx};
+    ents[n++] = {"wmsssimB8c3", (NppStatus (*)(NppiSize, size_t *, NppStreamContext))nppiWMSSSIMBatchGetBufferHostSize_8u_C3R_Ctx};
+  } else {
+    printf("unknown family\n");
+    return;
+  }
+  static const int sweep[] = {1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 20,
+                              24, 28, 31, 32, 33, 40, 48, 60, 63, 64, 65, 80, 96, 112, 120, 127, 128, 129, 160,
+                              176, 192, 224, 240, 255, 256, 257, 320, 384, 448, 511, 512, 513, 640, 768, 896, 1023,
+                              1024, 1025, 1280, 1536, 2047, 2048, 2560, 3072, 4096, 6144, 8192};
+  const int ns = (int)(sizeof(sweep) / sizeof(sweep[0]));
+  struct P { int w, h; };
+  static const P pairs[] = {{2, 3},  {3, 2},   {17, 13},  {13, 17},  {32, 32},  {48, 48},  {64, 64},  {100, 100},
+                            {128, 128}, {176, 176}, {256, 256}, {320, 240}, {640, 480}, {1024, 768}, {1920, 1080},
+                            {2048, 2048}, {4096, 4096}, {8192, 64}, {64, 8192}, {1, 4096}, {4096, 1}};
+  const int np = (int)(sizeof(pairs) / sizeof(pairs[0]));
+  for (int e = 0; e < n; ++e) {
+    for (int i = 0; i < ns; ++i) {
+      size_t buf = (size_t)-1;
+      NppStatus s = ents[e].fn(NppiSize{sweep[i], 8}, &buf, c);
+      printf("%s %d 8 %lld %d\n", ents[e].tag, sweep[i], (long long)buf, (int)s);
+      buf = (size_t)-1;
+      s = ents[e].fn(NppiSize{8, sweep[i]}, &buf, c);
+      printf("%s 8 %d %lld %d\n", ents[e].tag, sweep[i], (long long)buf, (int)s);
+      if (sweep[i] <= 18) {
+        buf = (size_t)-1;
+        s = ents[e].fn(NppiSize{sweep[i], 1}, &buf, c);
+        printf("%s %d 1 %lld %d\n", ents[e].tag, sweep[i], (long long)buf, (int)s);
+        buf = (size_t)-1;
+        s = ents[e].fn(NppiSize{1, sweep[i]}, &buf, c);
+        printf("%s 1 %d %lld %d\n", ents[e].tag, sweep[i], (long long)buf, (int)s);
+      }
+    }
+    for (int i = 0; i < np; ++i) {
+      size_t buf = (size_t)-1;
+      NppStatus s = ents[e].fn(NppiSize{pairs[i].w, pairs[i].h}, &buf, c);
+      printf("%s %d %d %lld %d\n", ents[e].tag, pairs[i].w, pairs[i].h, (long long)buf, (int)s);
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   if (argc < 2) {
     fprintf(stderr, "usage: %s <probe>\n", argv[0]);
@@ -1073,6 +1553,7 @@ int main(int argc, char **argv) {
     return 3;
   }
   const char *p = argv[1];
+  setbuf(stdout, nullptr);  // unbuffered: survive crashes when redirected
   if (!strcmp(p, "cir_dev_all")) probe_cir("dev_all");
   else if (!strcmp(p, "cir_devc_hostb")) probe_cir("devc_hostb");
   else if (!strcmp(p, "cir_host_all")) probe_cir("host_all");
@@ -1083,10 +1564,15 @@ int main(int argc, char **argv) {
   else if (!strcmp(p, "mse")) probe_mse_psnr();
   else if (!strcmp(p, "ssim")) probe_ssim();
   else if (!strcmp(p, "msssim")) probe_msssim();
+  else if (!strcmp(p, "ssimb2")) probe_ssimb2();
+  else if (!strcmp(p, "wmss2")) probe_wmss2();
+  else if (!strcmp(p, "wmss3")) probe_wmss3();
+  else if (!strcmp(p, "wmss4")) probe_wmss4();
   else if (!strcmp(p, "hist")) probe_hist();
   else if (!strcmp(p, "radial")) probe_radial();
   else if (!strcmp(p, "rect")) probe_rect();
-  else if (!strcmp(p, "batch")) probe_batch();
+  else if (!strncmp(p, "batch", 5)) probe_batch(p[5] ? atoi(p + 5) : 0);
+  else if (!strncmp(p, "gbsz:", 5)) dump_gbsz(p + 5);
   else if (!strcmp(p, "bufsz")) probe_bufsz();
   else if (!strcmp(p, "contract")) probe_contract();
   else if (!strcmp(p, "levels")) probe_levels();
