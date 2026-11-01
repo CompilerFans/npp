@@ -675,8 +675,11 @@ TEST_F(ColorTwistFunctionalTest, ColorTwist32f_16s_C3R_Ctx_Identity) {
   cudaMemcpy2D(dstData.data(), width * sizeof(Npp16s) * 3, d_dst, dstStepBytes, width * sizeof(Npp16s) * 3, height,
                cudaMemcpyDeviceToHost);
 
+  // 5090 probe: the packed 3-channel path adds the +0.5f rounding bias, so an
+  // identity twist maps -512 -> -511 and -1 -> 0 (truncation toward zero).
   for (int i = 0; i < width * height * 3; i++) {
-    ASSERT_EQ(srcData[i], dstData[i]);
+    const Npp16s expected = static_cast<Npp16s>(static_cast<float>(srcData[i]) + 0.5f);
+    ASSERT_EQ(expected, dstData[i]);
   }
 
   cudaFree(d_src);

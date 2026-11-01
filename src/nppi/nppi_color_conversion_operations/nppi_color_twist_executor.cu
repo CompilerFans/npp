@@ -60,7 +60,13 @@ template <> __forceinline__ __device__ Npp16s fromFloat<Npp16s>(float v) {
   return fromFloatInt<Npp16s>(v, -32768, 32767);
 }
 
-template <> __device__ __forceinline__ Npp32f fromFloat<Npp32f>(float v) { return v; }
+// NPP saturates float results to [-FLT_MAX, FLT_MAX] (a +inf result is stored
+// as FLT_MAX); measured on the 5090 for the overflowing C3/planar cases.
+template <> __device__ __forceinline__ Npp32f fromFloat<Npp32f>(float v) {
+  if (v > 3.402823466e+38F) return 3.402823466e+38F;
+  if (v < -3.402823466e+38F) return -3.402823466e+38F;
+  return v;
+}
 
 // Npp16f: plain round-to-nearest, NO rounding bias on any layout (measured).
 template <> __device__ __forceinline__ Npp16f fromFloat<Npp16f>(float v) {
@@ -139,10 +145,21 @@ __device__ __forceinline__ void twistPixel(const T *s, T *d, const TwistParams &
   // The AC4 batch kernels exempt output channel 2 from the clamp and push it
   // through the saturating conversion instead (measured on the 5090).
   if (HAS_CONST) {
-    o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3] * v3 + p.m[16];
-    o1 = p.m[4] * v0 + p.m[5] * v1 + p.m[6] * v2 + p.m[7] * v3 + p.m[17];
-    o2 = p.m[8] * v0 + p.m[9] * v1 + p.m[10] * v2 + p.m[11] * v3 + p.m[18];
-    o3 = p.m[12] * v0 + p.m[13] * v1 + p.m[14] * v2 + p.m[15] * v3 + p.m[19];
+    if constexpr (BATCH) {
+      // Batch "C" forms take a 4x5 matrix: the constant is the fifth element
+      // of each row (m[4], m[9], m[14], m[19]).
+      o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3] * v3 + p.m[4];
+      o1 = p.m[5] * v0 + p.m[6] * v1 + p.m[7] * v2 + p.m[8] * v3 + p.m[9];
+      o2 = p.m[10] * v0 + p.m[11] * v1 + p.m[12] * v2 + p.m[13] * v3 + p.m[14];
+      o3 = p.m[15] * v0 + p.m[16] * v1 + p.m[17] * v2 + p.m[18] * v3 + p.m[19];
+    } else {
+      // Single-image "C" forms take a 4x4 twist plus a trailing constant block
+      // (fillTwistC packs it at m[16..19]).
+      o0 = p.m[0] * v0 + p.m[1] * v1 + p.m[2] * v2 + p.m[3] * v3 + p.m[16];
+      o1 = p.m[4] * v0 + p.m[5] * v1 + p.m[6] * v2 + p.m[7] * v3 + p.m[17];
+      o2 = p.m[8] * v0 + p.m[9] * v1 + p.m[10] * v2 + p.m[11] * v3 + p.m[18];
+      o3 = p.m[12] * v0 + p.m[13] * v1 + p.m[14] * v2 + p.m[15] * v3 + p.m[19];
+    }
     if (BIAS) {
       o0 = o0 + 0.5f;
       o1 = o1 + 0.5f;
@@ -559,6 +576,21 @@ INST_TWIST_R(Npp32f, 2, false)
 INST_TWIST_R(Npp32f, 3, false)
 INST_TWIST_R(Npp32f, 4, false)
 INST_TWIST_R(Npp32f, 4, true)
+// nppiColorTwist32f 8u/16u/16s image variants (the nppi_color_twist.cpp
+// wrappers for the 8u/16u/16s families call these directly).
+INST_TWIST_R(Npp8u, 1, false)
+INST_TWIST_R(Npp8u, 2, false)
+INST_TWIST_R(Npp8u, 3, false)
+INST_TWIST_R(Npp8u, 4, false)
+INST_TWIST_R(Npp8u, 4, true)
+INST_TWIST_R(Npp16u, 1, false)
+INST_TWIST_R(Npp16u, 2, false)
+INST_TWIST_R(Npp16u, 3, false)
+INST_TWIST_R(Npp16u, 4, true)
+INST_TWIST_R(Npp16s, 1, false)
+INST_TWIST_R(Npp16s, 2, false)
+INST_TWIST_R(Npp16s, 3, false)
+INST_TWIST_R(Npp16s, 4, true)
 // family nppiColorTwist32f, missing dtypes 8s / 16f
 INST_TWIST_R(Npp8s, 1, false)
 INST_TWIST_R(Npp8s, 2, false)
@@ -576,6 +608,9 @@ INST_TWIST_R(Npp16f, 4, false)
 
 INST_TWIST_P3(Npp32f)
 INST_TWIST_P3(Npp8s)
+INST_TWIST_P3(Npp8u)
+INST_TWIST_P3(Npp16u)
+INST_TWIST_P3(Npp16s)
 
 #define INST_TWIST_C(T)                                                                                                \
   template NppStatus twistCR<T>(const T *, int, T *, int, NppiSize, const Npp32f[4][4], const Npp32f[4], cudaStream_t); \
