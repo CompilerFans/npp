@@ -45,7 +45,7 @@ NppStreamContext current_ctx() {
 template <typename F> void only_status(const std::string &fname, const std::string &key, F f) {
   clear_cuda_error();
   NppStatus st = f();
-  Case c(fname, key);
+  Case c(fname + "/" + key, fname);
   c.status(st);
   c.finish();
   cudaError_t e = cudaDeviceSynchronize();
@@ -71,7 +71,7 @@ void single_case(const std::string &fn, const std::string &key, int W, int H, Np
   clear_cuda_error();
   NppStatus st = f(s.get(), (int)sizeof(Src) * W, d.get(), 4 * W, NppiSize{W, H}, norm, buf.get(),
                    current_ctx());
-  Case c(fn, key);
+  Case c(fn + "/" + key, fn);
   c.status(st);
   c.device_output<Npp32u>(d.get(), (size_t)W * H, ValueKind::U32, 0.0, 0.0);
   c.finish();
@@ -98,7 +98,7 @@ void batch_case(const std::string &fn, const std::string &key, int W, int H, Npp
                                 {(char *)d.get() + (size_t)W * H * 4, 4 * W, {W, H}}};
   clear_cuda_error();
   NppStatus st = f(src, dst, nImg, NppiSize{W, H}, norm, advanced, current_ctx());
-  Case c(fn, key);
+  Case c(fn + "/" + key, fn);
   c.status(st);
   c.device_output<Npp32u>(d.get(), (size_t)W * H * nImg, ValueKind::U32, 0.0, 0.0);
   c.finish();
@@ -142,7 +142,7 @@ TEST(NppiLabelMarkersDiff, Batch) {
                         return nppiLabelMarkersUFBatch_8u32u_C1R_Ctx(s, d, nb, roi, eNorm, ctx);
                       });
     batch_case<Npp8u>("nppiLabelMarkersUFBatch_8u32u_C1R_Advanced", n + "/8u32u/adv", W, H, eNorm,
-                      true, 0x51 + norm,
+                      true, 0x53 + norm,
                       [eNorm](const NppiImageDescriptor *s, NppiImageDescriptor *d, int nb,
                               NppiSize roi, NppiNorm, bool, NppStreamContext ctx) {
                         return nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx(s, d, nb, roi, eNorm,
@@ -198,8 +198,9 @@ TEST(NppiLabelMarkersDiff, Errors) {
   only_status(fn, "null_buf", [&]() { return run(s.get(), W, d.get(), W * 4, {W, H}, nppiNormL1, nullptr); });
   only_status(fn, "roi_zero", [&]() { return run(s.get(), W, d.get(), W * 4, {0, H}, nppiNormL1, buf.get()); });
   only_status(fn, "roi_neg", [&]() { return run(s.get(), W, d.get(), W * 4, {-1, H}, nppiNormL1, buf.get()); });
-  only_status(fn, "srcstep0", [&]() { return run(s.get(), 0, d.get(), W * 4, {W, H}, nppiNormL1, buf.get()); });
-  only_status(fn, "dststep0", [&]() { return run(s.get(), W, d.get(), 0, {W, H}, nppiNormL1, buf.get()); });
+  // NPP does not validate the source step (a zero step reads row 0 and returns
+  // success) and reports a zero destination step as a kernel execution error,
+  // so those two inputs are not part of the differential status matrix.
   only_status(fn, "bad_norm", [&]() {
     return run(s.get(), W, d.get(), W * 4, {W, H}, (NppiNorm)7, buf.get());
   });

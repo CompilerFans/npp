@@ -437,6 +437,30 @@ NppStatus labelMarkersBatchImpl(const NppiImageDescriptor *pSrcBatchList,
   int maxWidth = oMaxSizeROI.width;
   int maxHeight = oMaxSizeROI.height;
 
+  // NPP documents the batch lists as device memory, but the differential
+  // harness (and plenty of caller code) passes host arrays.  Stage them so the
+  // kernels always see device memory.
+  NppiImageDescriptor *dSrc = nullptr;
+  NppiImageDescriptor *dDst = nullptr;
+  const size_t listBytes = (size_t)nBatchSize * sizeof(NppiImageDescriptor);
+  if (cudaMallocAsync(reinterpret_cast<void **>(&dSrc), listBytes, nppStreamCtx.hStream) !=
+          cudaSuccess ||
+      cudaMallocAsync(reinterpret_cast<void **>(&dDst), listBytes, nppStreamCtx.hStream) !=
+          cudaSuccess) {
+    if (dSrc != nullptr) cudaFreeAsync(dSrc, nppStreamCtx.hStream);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+  if (cudaMemcpyAsync(dSrc, pSrcBatchList, listBytes, cudaMemcpyDefault, nppStreamCtx.hStream) !=
+          cudaSuccess ||
+      cudaMemcpyAsync(dDst, pDstBatchList, listBytes, cudaMemcpyDefault, nppStreamCtx.hStream) !=
+          cudaSuccess) {
+    cudaFreeAsync(dSrc, nppStreamCtx.hStream);
+    cudaFreeAsync(dDst, nppStreamCtx.hStream);
+    return NPP_MEMCPY_ERROR;
+  }
+  pSrcBatchList = dSrc;
+  pDstBatchList = dDst;
+
   dim3 blockSize(16, 16);
   dim3 gridSize((maxWidth + blockSize.x - 1) / blockSize.x,
                 (maxHeight + blockSize.y - 1) / blockSize.y, nBatchSize);
@@ -467,6 +491,8 @@ NppStatus labelMarkersBatchImpl(const NppiImageDescriptor *pSrcBatchList,
       pDstBatchList, nBatchSize, maxWidth, maxHeight);
 
   cudaError_t cudaStatus = cudaGetLastError();
+  cudaFreeAsync(dSrc, nppStreamCtx.hStream);
+  cudaFreeAsync(dDst, nppStreamCtx.hStream);
   if (cudaStatus != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_SUCCESS;
 }

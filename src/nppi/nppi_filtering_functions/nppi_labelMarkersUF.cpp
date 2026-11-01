@@ -43,13 +43,21 @@ NppStatus labelMarkersValidateSingle(const void *pSrc, const Npp32u *pDst, const
   return NPP_NO_ERROR;
 }
 
+// Batch statuses measured on the 5090 (NPP 13.4, probe f13_probe45): a
+// negative ROI or batch count is NPP_SIZE_ERROR, while a zero ROI or a zero
+// batch count surfaces as NPP_CUDA_KERNEL_EXECUTION_ERROR; a batch size of 1 is
+// accepted (the header says > 1, NPP does not enforce it) and an unknown
+// NppiNorm is not rejected (it runs the 4-way path).
 NppStatus labelMarkersValidateBatch(const NppiImageDescriptor *pSrcBatchList,
                                     const NppiImageDescriptor *pDstBatchList, int nBatchSize,
                                     NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext ctx) {
+  (void)eNorm;
   if (pSrcBatchList == nullptr || pDstBatchList == nullptr) return NPP_NULL_POINTER_ERROR;
-  if (nBatchSize <= 0) return NPP_BAD_ARGUMENT_ERROR;
-  if (oMaxSizeROI.width <= 0 || oMaxSizeROI.height <= 0) return NPP_SIZE_ERROR;
-  if (eNorm != nppiNormL1 && eNorm != nppiNormInf) return NPP_BAD_ARGUMENT_ERROR;
+  if (oMaxSizeROI.width < 0 || oMaxSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (nBatchSize < 0) return NPP_SIZE_ERROR;
+  if (nBatchSize == 0 || oMaxSizeROI.width == 0 || oMaxSizeROI.height == 0) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
   if (ctx.nCudaDeviceId < -1) return NPP_BAD_ARGUMENT_ERROR;
   return NPP_NO_ERROR;
 }
@@ -162,27 +170,12 @@ NppStatus nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx(
     NppiImageDescriptor *pDstBatchList,
     int nBatchSize, NppiSize oMaxSizeROI,
     NppiNorm eNorm, NppStreamContext nppStreamCtx) {
-  // Parameter validation
-  if (pSrcBatchList == nullptr || pDstBatchList == nullptr) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-
-  if (nBatchSize <= 0) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
-  if (oMaxSizeROI.width <= 0 || oMaxSizeROI.height <= 0) {
-    return NPP_SIZE_ERROR;
-  }
-
-  // Validate norm type (only L1 and Inf are supported)
-  if (eNorm != nppiNormL1 && eNorm != nppiNormInf) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
-  // Validate stream context
-  if (nppStreamCtx.nCudaDeviceId < -1) {
-    return NPP_BAD_ARGUMENT_ERROR;
+  // Parameter validation (see labelMarkersValidateBatch for the measured NPP
+  // statuses).
+  NppStatus vst = labelMarkersValidateBatch(pSrcBatchList, pDstBatchList, nBatchSize, oMaxSizeROI,
+                                            eNorm, nppStreamCtx);
+  if (vst != NPP_NO_ERROR) {
+    return vst;
   }
 
   return nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx_impl(

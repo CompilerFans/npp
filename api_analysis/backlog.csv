@@ -170,7 +170,6 @@ nppi_color_conversion.h,nppiYCrCb420ToRGB,2,0,0,2,1,1,1,2
 nppi_color_conversion.h,nppiYCrCb422ToYCbCr411,2,0,0,2,1,1,1,2
 nppi_color_conversion.h,nppiYCrCb422ToYCbCr420,2,0,0,2,1,1,1,2
 nppi_color_conversion.h,nppiYCrCb422ToYCbCr422,2,0,0,2,1,1,1,2
-nppi_filtering_functions.h,nppiCompressMarkerLabelsUFBatch,4,2,0,2,1,1,2,2
 nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,0,0,2,2,0,0,2
 nppi_filtering_functions.h,nppiFilterHoughLineRegion,2,0,0,2,1,1,1,2
 nppi_geometry_transforms.h,nppiWarpAffineBatchInit,2,0,0,2,1,1,1,2
@@ -293,6 +292,7 @@ nppi_data_exchange_and_initialization.h,nppiSwapChannels,70,70,0,0,0,0,45,0
 nppi_data_exchange_and_initialization.h,nppiTranspose,30,30,0,0,0,0,18,0
 nppi_filtering_functions.h,nppiCompressMarkerLabels,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressMarkerLabelsUF,2,2,0,0,0,0,2,0
+nppi_filtering_functions.h,nppiCompressMarkerLabelsUFBatch,4,4,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFGetGeometryListsSize_C1R,1,1,0,0,0,0,1,0
