@@ -1,6 +1,7 @@
 #ifndef MPP_LOGGER_H
 #define MPP_LOGGER_H
 
+#include <atomic>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -34,8 +35,8 @@ private:
 
   void log(LogLevel level, const char *level_str, const char *format, va_list args);
 
-  LogLevel level_;
-  bool enabled_;
+  std::atomic<LogLevel> level_;
+  std::atomic<bool> enabled_;
 };
 
 // Convenience macros for logging

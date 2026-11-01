@@ -1,0 +1,34 @@
+roi0           plain=   0 OK                 val=3735928559  border=   0 OK                 val=0
+roi_neg        plain=  -6 SIZE               val=3735928559  border=  -6 SIZE               val=0
+mask0          plain=   0 OK                 val=3735928559  border=   0 OK                 val=0
+mask_w0        plain=   0 OK                 val=3735928559  border=   0 OK                 val=0
+mask_neg       plain=  -6 SIZE               val=3735928559  border=  -6 SIZE               val=0
+mask_neg_h     plain=  -6 SIZE               val=3735928559  border=  -6 SIZE               val=0
+mask_gt_roi    plain=   0 OK                 val=0  border=   0 OK                 val=0
+mask_gt_roi_h  plain=   0 OK                 val=0  border=   0 OK                 val=0
+big            plain=   0 OK                 val=0  border=   0 OK                 val=0
+roi1_mask1     plain=   0 OK                 val=0  border=   0 OK                 val=0
+border type  0 ->    0 OK                 val=0
+border type  1 ->    0 OK                 val=0
+border type  2 ->    0 OK                 val=0
+border type  3 ->    0 OK                 val=0
+border type  4 ->    0 OK                 val=0
+border type  5 ->    0 OK                 val=0
+border type  7 ->    0 OK                 val=0
+border type -1 ->    0 OK                 val=0
+scale 8uC1    12x12 plain=0(0) border=0(0)
+scale 8uC3    12x12 plain=0(0) border=0(0)
+scale 8uC4    12x12 plain=7077888(0) border=0(0)
+scale 8uAC4   12x12 plain=7077888(0) border=0(0)
+scale 16uC1   12x12 plain=14155776(0) border=14155776(0)
+scale 16uC3   12x12 plain=14155776(0) border=14155776(0)
+scale 16uC4   12x12 plain=14155776(0) border=14155776(0)
+scale 16uAC4  12x12 plain=14155776(0) border=14155776(0)
+scale 16sC1   12x12 plain=14155776(0) border=14155776(0)
+scale 16sC3   12x12 plain=14155776(0) border=14155776(0)
+scale 16sC4   12x12 plain=14155776(0) border=14155776(0)
+scale 16sAC4  12x12 plain=14155776(0) border=14155776(0)
+scale 32fC1   12x12 plain=28311552(0) border=28311552(0)
+scale 32fC3   12x12 plain=28311552(0) border=28311552(0)
+scale 32fC4   12x12 plain=28311552(0) border=28311552(0)
+scale 32fAC4  12x12 plain=28311552(0) border=28311552(0)

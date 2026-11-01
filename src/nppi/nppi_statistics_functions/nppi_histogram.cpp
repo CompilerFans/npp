@@ -658,10 +658,6 @@ NppStatus nppiEvenLevelsHost_32s(Npp32s *pLevels, int nLevels, Npp32s nLowerBoun
     return NPP_HISTOGRAM_NUMBER_OF_LEVELS_ERROR;
   }
 
-  if (nLowerBound >= nUpperBound) {
-    return NPP_RANGE_ERROR;
-  }
-
   // Generate evenly spaced levels
   for (int i = 0; i < nLevels; i++) {
     double ratio = static_cast<double>(i) / static_cast<double>(nLevels - 1);

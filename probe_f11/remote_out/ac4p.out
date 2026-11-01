@@ -1,0 +1,5 @@
+== part2 AC4/C4 alpha sentinel
+AC4 dt=0 status=0 alpha_first=170 rgb=0
+AC4 dt=1 status=0 alpha_first=43690 rgb=0
+AC4 dt=2 status=0 alpha_first=-12345 rgb=-32768
+AC4 dt=3 status=0 alpha_first=-0x1.848p+9 rgb=-0x1.12976p+4

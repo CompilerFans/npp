@@ -1,0 +1,13 @@
+{
+  "family": "nppiMirrorBatchR",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_mirror_batch_generated.cpp",
+  "includes": ["nppi_mirror_executor.h"],
+  "call": "nppi::mirror::mirrorBatch<{dtype}, {chan}, {is_ac4}>(oSizeROI, flip, pBatchList, nBatchSize, nppStreamCtx.hStream)",
+  "functions": [
+    "nppiMirrorBatch_32f_C1R", "nppiMirrorBatch_32f_C1R_Ctx",
+    "nppiMirrorBatch_32f_C3R", "nppiMirrorBatch_32f_C3R_Ctx",
+    "nppiMirrorBatch_32f_C4R", "nppiMirrorBatch_32f_C4R_Ctx",
+    "nppiMirrorBatch_32f_AC4R", "nppiMirrorBatch_32f_AC4R_Ctx"
+  ]
+}

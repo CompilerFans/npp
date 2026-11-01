@@ -108,6 +108,10 @@ __global__ void nppiMirrorInPlace_kernel_template(T *pSrcDst, int nSrcDstStep, i
 template <typename T>
 NppStatus launch_mirror_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int width, int height, NppiAxis flip,
                                int channels, cudaStream_t stream) {
+  // An empty ROI is a no-op; launching a zero-height grid would fault.
+  if (width <= 0 || height <= 0) {
+    return NPP_NO_ERROR;
+  }
   dim3 blockSize(16, 16);
   dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
@@ -131,6 +135,10 @@ NppStatus launch_mirror_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstSte
 template <typename T>
 NppStatus launch_mirror_inplace_kernel(T *pSrcDst, int nSrcDstStep, int width, int height, NppiAxis flip, int channels,
                                        cudaStream_t stream) {
+  // An empty ROI is a no-op; launching a zero-height grid would fault.
+  if (width <= 0 || height <= 0) {
+    return NPP_NO_ERROR;
+  }
 
   // Use a stream-ordered temporary copy to preserve row stride and avoid
   // read-after-write hazards without synchronizing the host.

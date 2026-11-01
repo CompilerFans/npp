@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterHarrisCornersBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_harris_corners_border_generated.cpp",
+  "includes": [
+    "nppi_filter_tail_executor.h"
+  ],
+  "call": "nppi::filter::harrisCornersBorder(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eFilterType, eMaskSize, eAvgWindowSize, nK, nScale, eBorderType, pDeviceBuffer, nppStreamCtx.hStream)"
+}

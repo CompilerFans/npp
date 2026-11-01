@@ -1,0 +1,13 @@
+8u_C1R       es= 1 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=OK dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+8u_C3R       es= 3 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=OK dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+8u_C4R       es= 4 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+16u_C1R      es= 2 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+16u_C3R      es= 6 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+16u_C4R      es= 8 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+16s_C1R      es= 2 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+16s_C3R      es= 6 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+16s_C4R      es= 8 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+32f_C1R      es= 4 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+32f_C3R      es=12 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+32f_C4R      es=16 : base=OK nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=SIZE zROI=OK zROIW=STEP negMsk=OK ancBad=OK dStSml=STEP dStOdd=NOTEVEN dSt0=STEP sStSml=OK mirror=NOTSUP bigRoi=OK
+64f_C1R      es= 8 : base=NULLPTR nulS=NULLPTR nulD=NULLPTR nulB=NULLPTR negROI=NULLPTR zROI=NULLPTR zROIW=NULLPTR negMsk=NULLPTR ancBad=NULLPTR dStSml=NULLPTR dStOdd=NULLPTR dSt0=NULLPTR sStSml=NULLPTR mirror=NULLPTR bigRoi=NULLPTR

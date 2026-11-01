@@ -1,0 +1,63 @@
+8u   max m3x3 a1,1: 0 OK mism=0
+8u   min m3x3 a1,1: 0 OK mism=0
+8u   max m2x2 a1,1: 0 OK mism=0
+8u   min m3x1 a3,0: 0 OK mism=0
+16u  max m3x3 a0,0: 0 OK mism=0
+16u  min m3x3 a2,2: 0 OK mism=0
+16s  max m3x3 a1,1: 0 OK mism=0
+16s  min m2x2 a1,1: 0 OK mism=0
+32f  max m3x3 a1,1: 0 OK mism=0
+32f  min m3x1 a0,0: 0 OK mism=0
+B 8u   max mode2: 0 OK mism=0
+B 8u   max mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   max mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   max mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   max mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   min mode2: 0 OK mism=0
+B 8u   min mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   min mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   min mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 8u   min mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  max mode2: 0 OK mism=0
+B 16u  max mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  max mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  max mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  max mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  min mode2: 0 OK mism=0
+B 16u  min mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  min mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  min mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 16u  min mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  max mode2: 0 OK mism=0
+B 16s  max mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  max mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  max mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  max mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  min mode2: 0 OK mism=0
+B 16s  min mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  min mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  min mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 16s  min mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  max mode2: 0 OK mism=0
+B 32f  max mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  max mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  max mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  max mode5: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  min mode2: 0 OK mism=0
+B 32f  min mode1: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  min mode3: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  min mode4: -14 NOT_SUPPORTED_MODE mism=-1
+B 32f  min mode5: -14 NOT_SUPPORTED_MODE mism=-1
+plain mask>roi 8u   max: 0 OK
+plain mask>roi 8u   median: 0 OK
+border mask>roi 8u   median: 0 OK
+plain mask>roi 16u  max: 0 OK
+plain mask>roi 16u  median: 0 OK
+border mask>roi 16u  median: 0 OK
+plain mask>roi 16s  max: 0 OK
+plain mask>roi 16s  median: 0 OK
+border mask>roi 16s  median: 0 OK
+plain mask>roi 32f  max: 0 OK
+CUDA ERROR #700 (using FilterMedian kernel #1): an illegal memory access was encountered
+plain mask>roi 32f  median: -1000 other
+border mask>roi 32f  median: -8 NULL

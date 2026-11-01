@@ -1,5 +1,6 @@
 #include "npp.h"
 #include <cmath>
+#include <cstring>
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -233,4 +234,236 @@ TEST_F(ColorConversionTest, YUVToRGB_RoundTrip_CtxMatches) {
   for (size_t i = 0; i < ref_rgb.size(); ++i) {
     EXPECT_EQ(ctx_rgb[i], ref_rgb[i]) << "Mismatch at " << i;
   }
+}
+
+// Contract checks for the planar/422 conversion entry points: an empty ROI is
+// a no-op and a destination step below the row size is rejected.
+namespace {
+struct ContractBuffers {
+  static constexpr int W = 64;
+  static constexpr int H = 64;
+  Npp8u *y = nullptr;
+  Npp8u *u = nullptr;
+  Npp8u *v = nullptr;
+  Npp8u *p0 = nullptr;
+  Npp8u *p1 = nullptr;
+  Npp8u *p2 = nullptr;
+  Npp8u *rgb = nullptr;
+  Npp8u *src422 = nullptr;
+  Npp8u *dst = nullptr;
+  Npp8u *uv = nullptr;
+
+  ContractBuffers() {
+    // Over-allocate so the single fill size below is valid for every buffer.
+    const size_t bytes = static_cast<size_t>(W) * H * 4;
+    for (Npp8u **p : {&y, &u, &v, &p0, &p1, &p2, &rgb, &src422, &dst, &uv}) {
+      cudaMalloc(reinterpret_cast<void **>(p), bytes);
+      if (*p != nullptr) {
+        cudaMemset(*p, 128, bytes);
+      }
+    }
+  }
+  ~ContractBuffers() {
+    for (Npp8u *p : {y, u, v, p0, p1, p2, rgb, src422, dst, uv}) {
+      if (p != nullptr) {
+        cudaFree(p);
+      }
+    }
+  }
+};
+} // namespace
+
+TEST(ColorConversionContractTest, EmptyRoiIsNoOp) {
+  ContractBuffers b;
+  const Npp8u *src3[3] = {b.y, b.u, b.v};
+  const Npp8u *src2[2] = {b.y, b.uv};
+  int srcSteps[3] = {ContractBuffers::W, ContractBuffers::W, ContractBuffers::W};
+  Npp8u *dst3[3] = {b.p0, b.p1, b.p2};
+  int dstSteps[3] = {ContractBuffers::W, ContractBuffers::W / 2, ContractBuffers::W / 2};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  const NppiSize empty = {0, 0};
+  const int W = ContractBuffers::W;
+
+  EXPECT_EQ(nppiYUV420ToBGR_8u_P3C3R_Ctx(src3, srcSteps, b.dst, W * 3, empty, ctx), NPP_NO_ERROR);
+  EXPECT_EQ(nppiYCbCr420ToBGR_8u_P3C3R_Ctx(src3, srcSteps, b.dst, W * 3, empty, ctx), NPP_NO_ERROR);
+  EXPECT_EQ(nppiRGBToYUV420_8u_C3P3R_Ctx(b.rgb, W * 3, dst3, dstSteps, empty, ctx), NPP_NO_ERROR);
+  EXPECT_EQ(nppiYUV422ToRGB_8u_C2C3R_Ctx(b.src422, W * 2, b.dst, W * 3, empty, ctx), NPP_NO_ERROR);
+  EXPECT_EQ(nppiYCbCr422ToBGR_8u_C2C4R_Ctx(b.src422, W * 2, b.dst, W * 4, empty, 255, ctx), NPP_NO_ERROR);
+  EXPECT_EQ(nppiRGBToYUV422_8u_C3C2R_Ctx(b.rgb, W * 3, b.dst, W * 2, empty, ctx), NPP_NO_ERROR);
+  EXPECT_EQ(nppiNV12ToYUV420_8u_P2P3R_Ctx(src2, W, dst3, dstSteps, empty, ctx), NPP_NO_ERROR);
+}
+
+TEST(ColorConversionContractTest, RejectsTooSmallDstStep) {
+  ContractBuffers b;
+  const Npp8u *src3[3] = {b.y, b.u, b.v};
+  const Npp8u *src2[2] = {b.y, b.uv};
+  int srcSteps[3] = {ContractBuffers::W, ContractBuffers::W, ContractBuffers::W};
+  Npp8u *dst3[3] = {b.p0, b.p1, b.p2};
+  const int W = ContractBuffers::W;
+  const int H = ContractBuffers::H;
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  const NppiSize roi = {W, H};
+
+  EXPECT_EQ(nppiYUV420ToBGR_8u_P3C3R_Ctx(src3, srcSteps, b.dst, W * 3 - 1, roi, ctx), NPP_STEP_ERROR);
+  EXPECT_EQ(nppiYCbCr420ToBGR_8u_P3C3R_Ctx(src3, srcSteps, b.dst, W * 3 - 1, roi, ctx), NPP_STEP_ERROR);
+  int badDstSteps[3] = {W - 1, W / 2, W / 2};
+  EXPECT_EQ(nppiRGBToYUV420_8u_C3P3R_Ctx(b.rgb, W * 3, dst3, badDstSteps, roi, ctx), NPP_STEP_ERROR);
+  EXPECT_EQ(nppiYUV422ToRGB_8u_C2C3R_Ctx(b.src422, W * 2, b.dst, W * 3 - 1, roi, ctx), NPP_STEP_ERROR);
+  EXPECT_EQ(nppiYCbCr422ToBGR_8u_C2C4R_Ctx(b.src422, W * 2, b.dst, W * 4 - 1, roi, 255, ctx), NPP_STEP_ERROR);
+  EXPECT_EQ(nppiRGBToYUV422_8u_C3C2R_Ctx(b.rgb, W * 3, b.dst, W * 2 - 1, roi, ctx), NPP_STEP_ERROR);
+  EXPECT_EQ(nppiNV12ToYUV420_8u_P2P3R_Ctx(src2, W, dst3, badDstSteps, roi, ctx), NPP_STEP_ERROR);
+}
+
+// Odd ROIs are processed as a crop for the 420/422 decode paths.  The encoder
+// kernels average pixel pairs, so they keep requiring even dimensions.
+namespace {
+struct OddRoiBuffers {
+  static constexpr int W = 64;
+  static constexpr int H = 64;
+  Npp8u *y = nullptr;
+  Npp8u *u = nullptr;
+  Npp8u *v = nullptr;
+  Npp8u *p0 = nullptr;
+  Npp8u *p1 = nullptr;
+  Npp8u *p2 = nullptr;
+  Npp8u *rgb = nullptr;
+  Npp8u *src422 = nullptr;
+  Npp8u *dst = nullptr;
+
+  OddRoiBuffers() {
+    // Over-allocate so the single fill size below is valid for every buffer.
+    const size_t bytes = static_cast<size_t>(W) * H * 4;
+    for (Npp8u **ptr : {&y, &u, &v, &p0, &p1, &p2, &rgb, &src422, &dst}) {
+      cudaMalloc(reinterpret_cast<void **>(ptr), bytes);
+      if (*ptr != nullptr) {
+        cudaMemset(*ptr, 128, bytes);
+      }
+    }
+  }
+  ~OddRoiBuffers() {
+    for (Npp8u *ptr : {y, u, v, p0, p1, p2, rgb, src422, dst}) {
+      if (ptr != nullptr) {
+        cudaFree(ptr);
+      }
+    }
+  }
+};
+} // namespace
+
+TEST(ColorConversionContractTest, OddRoiDecodeMatchesEvenCrop) {
+  OddRoiBuffers b;
+  const int W = OddRoiBuffers::W;
+  const int H = OddRoiBuffers::H;
+  std::vector<Npp8u> y(static_cast<size_t>(W) * H);
+  std::vector<Npp8u> u(static_cast<size_t>(W / 2) * (H / 2));
+  std::vector<Npp8u> v(u.size());
+  std::vector<Npp8u> packed422(static_cast<size_t>(W) * H * 2);
+  for (size_t i = 0; i < y.size(); ++i) y[i] = static_cast<Npp8u>((i * 7 + 13) & 0xFF);
+  for (size_t i = 0; i < u.size(); ++i) {
+    u[i] = static_cast<Npp8u>((i * 11 + 29) & 0xFF);
+    v[i] = static_cast<Npp8u>((i * 17 + 5) & 0xFF);
+  }
+  for (size_t i = 0; i < packed422.size(); i += 2) {
+    packed422[i] = static_cast<Npp8u>((i * 3) & 0xFF);
+    packed422[i + 1] = 128;
+  }
+  ASSERT_EQ(cudaMemcpy(b.y, y.data(), y.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(b.u, u.data(), u.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(b.v, v.data(), v.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(b.src422, packed422.data(), packed422.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  const Npp8u *src3[3] = {b.y, b.u, b.v};
+  int srcSteps[3] = {W, W / 2, W / 2};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  const int outStep = W * 4;
+  std::vector<Npp8u> even(static_cast<size_t>(outStep) * H);
+  std::vector<Npp8u> odd(even.size());
+
+  auto runAndCompare = [&](const char *name, auto &&convert, int oddW, int oddH) {
+    ASSERT_EQ(convert(NppiSize{W, H}), NPP_NO_ERROR);
+    ASSERT_EQ(cudaMemcpy(even.data(), b.dst, even.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+    ASSERT_EQ(convert(NppiSize{oddW, oddH}), NPP_NO_ERROR);
+    ASSERT_EQ(cudaMemcpy(odd.data(), b.dst, odd.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+    int diffs = 0;
+    for (int row = 0; row < oddH; ++row) {
+      for (int col = 0; col < oddW * 3; ++col) {
+        if (odd[static_cast<size_t>(row) * outStep + col] != even[static_cast<size_t>(row) * outStep + col]) {
+          ++diffs;
+        }
+      }
+    }
+    EXPECT_EQ(diffs, 0) << name << " odd ROI differs from the even crop";
+  };
+
+  runAndCompare(
+      "YUV420ToBGR", [&](NppiSize roi) { return nppiYUV420ToBGR_8u_P3C3R_Ctx(src3, srcSteps, b.dst, outStep, roi, ctx); },
+      W - 1, H - 1);
+  runAndCompare(
+      "YCbCr420ToBGR",
+      [&](NppiSize roi) { return nppiYCbCr420ToBGR_8u_P3C3R_Ctx(src3, srcSteps, b.dst, outStep, roi, ctx); }, W - 1,
+      H - 1);
+  runAndCompare(
+      "YUV422ToRGB",
+      [&](NppiSize roi) { return nppiYUV422ToRGB_8u_C2C3R_Ctx(b.src422, W * 2, b.dst, outStep, roi, ctx); }, W - 1,
+      H - 1);
+  runAndCompare(
+      "YCbCr422ToBGR",
+      [&](NppiSize roi) { return nppiYCbCr422ToBGR_8u_C2C3R_Ctx(b.src422, W * 2, b.dst, outStep, roi, ctx); }, W - 1,
+      H - 1);
+
+  Npp8u *dst3[3] = {b.p0, b.p1, b.p2};
+  int dstSteps[3] = {W, W / 2, W / 2};
+  const NppiSize oddRoi = {W - 1, H - 1};
+  EXPECT_EQ(nppiRGBToYUV420_8u_C3P3R_Ctx(b.rgb, W * 3, dst3, dstSteps, oddRoi, ctx),
+            NPP_WRONG_INTERSECTION_ROI_ERROR);
+  EXPECT_EQ(nppiRGBToYUV422_8u_C3C2R_Ctx(b.rgb, W * 3, b.dst, W * 2, oddRoi, ctx),
+            NPP_WRONG_INTERSECTION_ROI_ERROR);
+}
+
+// NV12ToYUV420 handles odd ROIs by writing ceil(width/2) x ceil(height/2)
+// chroma samples; the result matches the even-size crop.
+TEST(ColorConversionContractTest, OddRoiNv12ToYuv420MatchesEvenCrop) {
+  OddRoiBuffers b;
+  const int W = OddRoiBuffers::W;
+  const int H = OddRoiBuffers::H;
+  std::vector<Npp8u> y(static_cast<size_t>(W) * H);
+  std::vector<Npp8u> uv(static_cast<size_t>(W) * (H / 2));
+  for (size_t i = 0; i < y.size(); ++i) y[i] = static_cast<Npp8u>((i * 7 + 13) & 0xFF);
+  for (size_t i = 0; i < uv.size(); ++i) uv[i] = static_cast<Npp8u>((i * 11 + 29) & 0xFF);
+  ASSERT_EQ(cudaMemcpy(b.y, y.data(), y.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(b.src422, uv.data(), uv.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  const Npp8u *src[2] = {b.y, b.src422};
+  Npp8u *dst[3] = {b.p0, b.p1, b.p2};
+  int dstSteps[3] = {W, W / 2, W / 2};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  const size_t lumaBytes = static_cast<size_t>(W) * H;
+  const size_t chromaBytes = static_cast<size_t>(W / 2) * (H / 2);
+  std::vector<Npp8u> evenY(lumaBytes), evenCb(chromaBytes), evenCr(chromaBytes);
+  std::vector<Npp8u> oddY(lumaBytes), oddCb(chromaBytes), oddCr(chromaBytes);
+
+  auto run = [&](NppiSize roi, std::vector<Npp8u> &outY, std::vector<Npp8u> &outCb, std::vector<Npp8u> &outCr) {
+    ASSERT_EQ(nppiNV12ToYUV420_8u_P2P3R_Ctx(src, W, dst, dstSteps, roi, ctx), NPP_NO_ERROR);
+    ASSERT_EQ(cudaMemcpy(outY.data(), b.p0, lumaBytes, cudaMemcpyDeviceToHost), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(outCb.data(), b.p1, chromaBytes, cudaMemcpyDeviceToHost), cudaSuccess);
+    ASSERT_EQ(cudaMemcpy(outCr.data(), b.p2, chromaBytes, cudaMemcpyDeviceToHost), cudaSuccess);
+  };
+  run(NppiSize{W, H}, evenY, evenCb, evenCr);
+  run(NppiSize{W - 1, H - 1}, oddY, oddCb, oddCr);
+
+  int diffs = 0;
+  for (int row = 0; row < H - 1; ++row) {
+    for (int col = 0; col < W - 1; ++col) {
+      if (oddY[static_cast<size_t>(row) * W + col] != evenY[static_cast<size_t>(row) * W + col]) {
+        ++diffs;
+      }
+    }
+  }
+  EXPECT_EQ(diffs, 0) << "luma differs from the even crop";
+  EXPECT_EQ(std::memcmp(oddCb.data(), evenCb.data(), chromaBytes), 0);
+  EXPECT_EQ(std::memcmp(oddCr.data(), evenCr.data(), chromaBytes), 0);
 }

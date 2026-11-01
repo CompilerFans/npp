@@ -1,0 +1,33 @@
+== part2 GBS edges
+GBSE dt=0 r05_s0 r=0x1p-1 s=0x0p+0 status=0 size=36
+GBSE dt=0 r1_s0 r=0x1p+0 s=0x0p+0 status=0 size=36
+GBSE dt=0 r2_s0 r=0x1p+1 s=0x0p+0 status=0 size=100
+GBSE dt=0 r1_snan r=0x1p+0 s=nan status=0 size=36
+GBSE dt=1 r05_s0 r=0x1p-1 s=0x0p+0 status=0 size=36
+GBSE dt=1 r1_s0 r=0x1p+0 s=0x0p+0 status=0 size=36
+GBSE dt=1 r2_s0 r=0x1p+1 s=0x0p+0 status=0 size=100
+GBSE dt=1 r1_snan r=0x1p+0 s=nan status=0 size=36
+GBSE dt=2 r05_s0 r=0x1p-1 s=0x0p+0 status=0 size=36
+GBSE dt=2 r1_s0 r=0x1p+0 s=0x0p+0 status=0 size=36
+GBSE dt=2 r2_s0 r=0x1p+1 s=0x0p+0 status=0 size=100
+GBSE dt=2 r1_snan r=0x1p+0 s=nan status=0 size=36
+GBSE dt=3 r05_s0 r=0x1p-1 s=0x0p+0 status=0 size=36
+GBSE dt=3 r1_s0 r=0x1p+0 s=0x0p+0 status=0 size=36
+GBSE dt=3 r2_s0 r=0x1p+1 s=0x0p+0 status=0 size=100
+GBSE dt=3 r1_snan r=0x1p+0 s=nan status=0 size=36
+GBSE dt=0 six sig=0x1.0c6f7ap-20 status=0 size=36
+GBSE dt=0 six sig=0x1.0c6f7cp-20 status=0 size=36
+GBSE dt=0 six sig=0x1.0c6f7ep-20 status=0 size=36
+GBSE dt=0 six sig=0x1.0c6f8p-20 status=0 size=36
+GBSE dt=1 six sig=0x1.0c6f7ap-20 status=0 size=36
+GBSE dt=1 six sig=0x1.0c6f7cp-20 status=0 size=36
+GBSE dt=1 six sig=0x1.0c6f7ep-20 status=0 size=36
+GBSE dt=1 six sig=0x1.0c6f8p-20 status=0 size=36
+GBSE dt=2 six sig=0x1.0c6f7ap-20 status=0 size=36
+GBSE dt=2 six sig=0x1.0c6f7cp-20 status=0 size=36
+GBSE dt=2 six sig=0x1.0c6f7ep-20 status=0 size=36
+GBSE dt=2 six sig=0x1.0c6f8p-20 status=0 size=36
+GBSE dt=3 six sig=0x1.0c6f7ap-20 status=0 size=36
+GBSE dt=3 six sig=0x1.0c6f7cp-20 status=0 size=36
+GBSE dt=3 six sig=0x1.0c6f7ep-20 status=0 size=36
+GBSE dt=3 six sig=0x1.0c6f8p-20 status=0 size=36
