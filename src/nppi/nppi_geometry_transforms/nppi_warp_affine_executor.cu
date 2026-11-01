@@ -369,6 +369,16 @@ inline bool affineFromQuads(const double aSrcQuad[4][2], const double aDstQuad[4
   return true;
 }
 
+// 5090 sampling gate shared by the single-image and batch kernels: the mapped
+// point must lie inside the clipped source ROI with an inclusive upper bound of
+// the last pixel coordinate (x1-1, y1-1).  Probed on both entry points: a
+// coordinate of 6.4 on a 7-wide ROI is rejected for NN, linear and cubic even
+// though it would round to pixel 6, while exactly 6.0 is accepted.
+__device__ __forceinline__ bool inSourceRoi(float fx, float fy, NppiRect roi) {
+  return fx >= static_cast<float>(roi.x) && fx <= static_cast<float>(roi.x + roi.width - 1) &&
+         fy >= static_cast<float>(roi.y) && fy <= static_cast<float>(roi.y + roi.height - 1);
+}
+
 // ============================================================================
 // Resampling kernel
 // ============================================================================
@@ -398,9 +408,10 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
   // previous value for those pixels, it is not zero-filled).  Samples inside
   // the ROI whose bilinear/cubic neighbourhood crosses the image edge
   // edge-replicate the missing neighbours (see SrcAccessor).
-  if (fx < static_cast<float>(oSrcROI.x) || fy < static_cast<float>(oSrcROI.y) ||
-      fx >= static_cast<float>(oSrcROI.x + oSrcROI.width) ||
-      fy >= static_cast<float>(oSrcROI.y + oSrcROI.height)) {
+  // The gate compares the double-precision map: a quad coordinate of
+  // 2.99999994 is rejected while the same pixel reached through an exactly
+  // representable map (3.0) is written.
+  if (!inSourceRoi(fx, fy, oSrcROI)) {
     return;
   }
 
@@ -603,6 +614,12 @@ NppStatus warpAffineQuad(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   if (!affineFromQuads(aSrcQuad, aDstQuad, fwd, &quadWarning)) {
     return NPP_COEFFICIENT_ERROR;
   }
+  // 5090: the quad kernel is fed float-rounded map coefficients.
+  for (int r = 0; r < 2; ++r) {
+    for (int k = 0; k < 3; ++k) {
+      fwd[r][k] = static_cast<double>(static_cast<float>(fwd[r][k]));
+    }
+  }
   double map[2][3];
   if (!invertAffine(fwd, map)) {
     return NPP_COEFFICIENT_ERROR;
@@ -711,11 +728,6 @@ __device__ __forceinline__ void batchMap(const double c[2][3], int x, int y, flo
   fy = static_cast<float>(__dadd_rn(__fma_rn(c[1][1], dy, __dmul_rn(c[1][0], dx)), c[1][2]));
 }
 
-__device__ __forceinline__ bool batchGate(float fx, float fy, NppiRect roi) {
-  return fx >= static_cast<float>(roi.x) && fx <= static_cast<float>(roi.x + roi.width - 1) &&
-         fy >= static_cast<float>(roi.y) && fy <= static_cast<float>(roi.y + roi.height - 1);
-}
-
 // The batch kernel mirrors the single-image one: same absolute destination
 // addressing, same source-ROI gate and same interpolators.  The 5090 SASS
 // (warpAffineNaiveBatchBy2Rows<float, ...>) evaluates the map in double and
@@ -753,7 +765,7 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   // with an inclusive upper bound of the last pixel (x1-1, y1-1).  Unlike the
   // single-image kernel this rejects coordinates such as 6.4 on a 7-wide ROI
   // even when they would round to pixel 6.
-  if (!batchGate(fx, fy, oSrcRectROI)) {
+  if (!inSourceRoi(fx, fy, oSrcRectROI)) {
     return;
   }
   // The NPP batch kernel resamples two rows per iteration and only advances
@@ -765,7 +777,7 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   if ((y & 1) != 0) {
     float ex, ey;
     batchMap(item.aTransformedCoeffs, x, y - 1, ex, ey);
-    if (!batchGate(ex, ey, oSrcRectROI)) {
+    if (!inSourceRoi(ex, ey, oSrcRectROI)) {
       return;
     }
     // The float kernel loads one row-pair tap block per iteration and only

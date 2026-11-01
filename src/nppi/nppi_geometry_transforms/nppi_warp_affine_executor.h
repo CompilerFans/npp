@@ -8,9 +8,10 @@
 //
 // Semantics (NPP 13.4 header contract, pinned by the differential tests
 // test/unit/diff/test_nppi_warp_affine*.cpp against the 5090 goldens):
-//   * All families map *absolute* (full image) coordinates: the affine
-//     coefficients are applied to the destination pixel position to obtain the
-//     source sample position.
+//   * The single-image / quad families map *absolute* (full image)
+//     coordinates: the affine coefficients are applied to the destination
+//     pixel position to obtain the source sample position.  The batch family
+//     maps the ROI-relative index instead (see below).
 //   * nppiWarpAffine:       aCoeffs maps source -> destination and is inverted
 //                           internally (NPP_COEFFICIENT_ERROR when singular).
 //   * nppiWarpAffineBack:   aCoeffs already is the inverse (dst -> src) map.
@@ -22,14 +23,26 @@
 //                           memory and must have been initialized by
 //                           nppiWarpAffineBatchInit (which pre-inverts the
 //                           per-image coefficient matrices).
-//   * Sampling outside the source image contributes 0 (no border padding).
+//   * Samples whose neighbourhood crosses the source image edge replicate the
+//     edge pixel (the 5090 clamps the taps to [0, size-1]).  Destination
+//     pixels whose mapped point falls outside the clipped source ROI are left
+//     untouched; the gate accepts [roi.x, roi.x + roi.width - 1] inclusive.
+//   * nppiWarpAffineBatch maps the destination ROI-relative index and writes
+//     at absolute coordinates, gates with the same rule, drops an odd row when
+//     its even partner is outside the gate and reuses the even row's x tap
+//     block when both rows share a tap base row.
 //   * AC4 variants warp channels 0..2 and leave the alpha channel untouched.
 //   * Interpolation modes: NPPI_INTER_NN (round half up), NPPI_INTER_LINEAR
 //     (bilinear) and NPPI_INTER_CUBIC (Catmull-Rom).
 //   * Error paths: null pointers, degenerate image size, empty / disjoint
 //     source ROI (NPP_WRONG_INTERSECTION_ROI_ERROR), <= 1 px source ROI
 //     intersection (NPP_RECTANGLE_ERROR), degenerate destination ROI, illegal
-//     interpolation mode and singular coefficients.
+//     interpolation mode and singular coefficients.  The batch family differs:
+//     nBatchSize < 2 is NPP_BAD_ARGUMENT_ERROR, every degenerate ROI is
+//     NPP_RECTANGLE_ERROR, per-image steps are not validated and
+//     BatchInit(0) reports NPP_CUDA_KERNEL_EXECUTION_ERROR.
+//   * Quad maps: the derived affine is rounded to float before inversion (the
+//     5090 feeds the kernel float coefficients).
 #ifndef NPPI_WARP_AFFINE_EXECUTOR_H
 #define NPPI_WARP_AFFINE_EXECUTOR_H
 
