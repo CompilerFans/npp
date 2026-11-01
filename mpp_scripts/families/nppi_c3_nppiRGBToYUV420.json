@@ -1,0 +1,22 @@
+{
+  "call": "nppi::c3twist::fwd420(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)",
+  "family": "nppiRGBToYUV420",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiRGBToYUV420_generated.cpp",
+  "includes": [
+    "nppi_c3_twist_executor.h"
+  ],
+  "families": [
+    "nppiRGBToYUV420"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "C3P3R",
+      "call": "nppi::c3twist::fwd420(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    }
+  ],
+  "exclude": [
+    "nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx",
+    "nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx"
+  ]
+}

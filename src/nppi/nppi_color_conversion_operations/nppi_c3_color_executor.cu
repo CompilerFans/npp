@@ -247,6 +247,47 @@ __global__ void k_invC2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__r
   }
 }
 
+// Packed YCrCb422 [Y0 Cr Y1 Cb] -> RGB.
+__device__ __forceinline__ void ycrcb422_pixel(const Npp8u *__restrict__ pSrc, int nSrcStep, int x, int y, int w,
+                                               int &r, int &g, int &b) {
+  int p = x >> 1;
+  const int lastPair = (w >> 1) - 1;
+  if (p > lastPair) {
+    p = lastPair;
+  }
+  const Npp8u *s = pSrc + (size_t)y * nSrcStep + (size_t)p * 4;
+  yuv_to_rgb(s[(x & 1) ? 2 : 0], s[3], s[1], 0, r, g, b);
+}
+
+__global__ void k_ycrcb422_to_rgb_c2(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
+                                     int nDstStep, int pp, int w, int h) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= w || y >= h) {
+    return;
+  }
+  int r, g, b;
+  ycrcb422_pixel(pSrc, nSrcStep, x, y, w, r, g, b);
+  Npp8u *d = pDst + (size_t)y * nDstStep + (size_t)x * pp;
+  d[0] = (Npp8u)r;
+  d[1] = (Npp8u)g;
+  d[2] = (Npp8u)b;
+}
+
+__global__ void k_ycrcb422_to_rgb_p3(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pR,
+                                     Npp8u *__restrict__ pG, Npp8u *__restrict__ pB, int nDstStep, int w, int h) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= w || y >= h) {
+    return;
+  }
+  int r, g, b;
+  ycrcb422_pixel(pSrc, nSrcStep, x, y, w, r, g, b);
+  pR[(size_t)y * nDstStep + x] = (Npp8u)r;
+  pG[(size_t)y * nDstStep + x] = (Npp8u)g;
+  pB[(size_t)y * nDstStep + x] = (Npp8u)b;
+}
+
 // PhotoYCC forward/inverse (packed C3/AC4).
 template <int PP, int BGR>
 __global__ void k_rgb_to_ycc(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst, int nDstStep,
@@ -555,6 +596,46 @@ NppStatus invC2(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int 
     return NPP_NO_ERROR;
   }
   k_invC2<<<gridFor(w, h), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, dstPp, w, h, nAval);
+  return launch_ok();
+}
+
+NppStatus yCrCb422ToRgbC2(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int dstPp, NppiSize oSizeROI,
+                          cudaStream_t stream) {
+  if (!pSrc || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (!roi_valid(oSizeROI)) {
+    return NPP_SIZE_ERROR;
+  }
+  if (!step_ok(nSrcStep, 2 * oSizeROI.width) || !step_ok(nDstStep, dstPp * oSizeROI.width)) {
+    return NPP_STEP_ERROR;
+  }
+  const int w = oSizeROI.width, h = oSizeROI.height;
+  if (w == 0 || h == 0) {
+    return NPP_NO_ERROR;
+  }
+  k_ycrcb422_to_rgb_c2<<<gridFor(w, h), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, dstPp, w,
+                                                                            h);
+  return launch_ok();
+}
+
+NppStatus yCrCb422ToRgbP3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep, NppiSize oSizeROI,
+                          cudaStream_t stream) {
+  if (!pSrc || !pDst) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (!roi_valid(oSizeROI)) {
+    return NPP_SIZE_ERROR;
+  }
+  if (!step_ok(nSrcStep, 2 * oSizeROI.width) || !step_ok(nDstStep, oSizeROI.width)) {
+    return NPP_STEP_ERROR;
+  }
+  const int w = oSizeROI.width, h = oSizeROI.height;
+  if (w == 0 || h == 0) {
+    return NPP_NO_ERROR;
+  }
+  k_ycrcb422_to_rgb_p3<<<gridFor(w, h), dim3(kBlockX, kBlockY), 0, stream>>>(pSrc, nSrcStep, pDst[0], pDst[1], pDst[2],
+                                                                          nDstStep, w, h);
   return launch_ok();
 }
 

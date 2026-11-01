@@ -11843,6 +11843,11 @@ nppiLUTPaletteSwap_16u_C3A0C4R(const Npp16u * pSrc, int nSrcStep, int nAlphaValu
 } /* extern "C" */
 #endif
 
+/* The supplemental declarations below are part of the same C API. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Supplemental declarations merged from API-12.8.
  * These declarations are absent from the 12.2 baseline header and are appended
@@ -11984,5 +11989,9 @@ NppStatus nppiNV12ToRGB_8u_ColorTwist32f_P2C3R_Ctx(const Npp8u * const pSrc[2], 
 NppStatus nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx(const Npp16u * const pSrc[2], int aSrcStep[2],
     Npp16u * pDst, int nDstStep,
     NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* NV_NPPI_COLOR_CONVERSION_H */

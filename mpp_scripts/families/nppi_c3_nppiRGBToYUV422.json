@@ -1,0 +1,27 @@
+{
+  "call": "nppi::c3twist::fwd422P3(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)",
+  "family": "nppiRGBToYUV422",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiRGBToYUV422_generated.cpp",
+  "includes": [
+    "nppi_c3_twist_executor.h"
+  ],
+  "families": [
+    "nppiRGBToYUV422"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "8u_ColorTwist32f_C3C2R",
+      "call": "nppi::c3twist::fwd422C2(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    },
+    {
+      "name_contains": "8u_ColorTwist32f_C3P3R",
+      "call": "nppi::c3twist::fwd422C3P3(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    }
+  ],
+  "exclude": [
+    "nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx",
+    "nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx",
+    "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx"
+  ]
+}

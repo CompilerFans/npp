@@ -52,6 +52,12 @@ NppStatus inv422Planar(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst, in
 NppStatus invC2(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int dstPp, Npp8u nAval, NppiSize oSizeROI,
                 cudaStream_t stream);
 
+// --- packed YCrCb422 [Y0 Cr Y1 Cb] -> packed/planar RGB ------------------
+NppStatus yCrCb422ToRgbC2(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, int dstPp, NppiSize oSizeROI,
+                          cudaStream_t stream);
+NppStatus yCrCb422ToRgbP3(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst[3], int nDstStep, NppiSize oSizeROI,
+                          cudaStream_t stream);
+
 // --- PhotoYCC -------------------------------------------------------------
 // Packed RGB/AC4 -> packed YCC (C3/AC4), and the inverse.  The alpha slot is
 // copied through.
