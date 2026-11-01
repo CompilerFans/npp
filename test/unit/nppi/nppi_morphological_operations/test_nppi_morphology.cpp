@@ -3334,3 +3334,211 @@ INSTANTIATE_TEST_SUITE_P(MorphologyComprehensive, MorphologyComprehensiveTest,
                          [](const testing::TestParamInfo<MorphologyTestConfig> &info) {
                            return info.param.description;
                          });
+// =====================================================================================
+// Exact-value tests for the vectorized 8u C4 / 32f C1 morphology paths
+// (nppiMorphWordPix_kernel): one word per pixel, arbitrary structuring
+// elements with holes, odd anchors, clamped (replicate) borders.  Buffers
+// come from nppiMalloc (pitch is 16-byte aligned), so these configurations
+// run the vectorized kernel; the CPU reference below is the per-pixel
+// definition of erode / dilate with mask gating.
+// =====================================================================================
+
+namespace {
+
+int morphVecClampRef(int v, int hi) { return v < 0 ? 0 : (v > hi ? hi : v); }
+
+Npp8u morphVecCpuC4(const std::vector<Npp8u> &src, int width, int height, int x, int y,
+                    const std::vector<Npp8u> &mask, int maskW, int maskH, int ax, int ay, int channel, bool dilate) {
+  Npp8u val = dilate ? 0 : 255;
+  for (int my = 0; my < maskH; ++my) {
+    for (int mx = 0; mx < maskW; ++mx) {
+      if (!mask[(size_t)my * maskW + mx])
+        continue;
+      const int sx = morphVecClampRef(x + mx - ax, width - 1);
+      const int sy = morphVecClampRef(y + my - ay, height - 1);
+      const Npp8u v = src[((size_t)sy * width + sx) * 4 + channel];
+      if (dilate ? (v > val) : (v < val))
+        val = v;
+    }
+  }
+  return val;
+}
+
+Npp32f morphVecCpu32f(const std::vector<Npp32f> &src, int width, int height, int x, int y,
+                      const std::vector<Npp8u> &mask, int maskW, int maskH, int ax, int ay, bool dilate) {
+  Npp32f val = dilate ? -1e10f : 1e10f;
+  for (int my = 0; my < maskH; ++my) {
+    for (int mx = 0; mx < maskW; ++mx) {
+      if (!mask[(size_t)my * maskW + mx])
+        continue;
+      const int sx = morphVecClampRef(x + mx - ax, width - 1);
+      const int sy = morphVecClampRef(y + my - ay, height - 1);
+      const Npp32f v = src[(size_t)sy * width + sx];
+      if (dilate ? (v > val) : (v < val))
+        val = v;
+    }
+  }
+  return val;
+}
+
+struct MorphVecMaskCase {
+  std::vector<Npp8u> mask;
+  int maskW, maskH, ax, ay;
+  const char *name;
+};
+
+const std::vector<MorphVecMaskCase> &morphVecMaskCases() {
+  static const std::vector<MorphVecMaskCase> cases = {
+      // fully populated 5x5 (separable reduction path)
+      MorphVecMaskCase{std::vector<Npp8u>(25, 1), 5, 5, 2, 2, "5x5_all_ones"},
+      // holed 5x5 (per-tap reduction path)
+      MorphVecMaskCase{{1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1}, 5, 5, 2, 2,
+                       "5x5_holed"},
+      // fully populated 7x7
+      MorphVecMaskCase{std::vector<Npp8u>(49, 1), 7, 7, 3, 3, "7x7_all_ones"},
+      // 3x9 with off-centre anchor
+      MorphVecMaskCase{{1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1}, 3, 9, 1, 4,
+                       "3x9_anchor_1_4"},
+  };
+  return cases;
+}
+
+} // namespace
+
+class MorphologyVecExactTest : public NppTestBase {};
+
+TEST_F(MorphologyVecExactTest, ErodeDilate_8u_C4R_Exact_VectorizedPaths) {
+  for (auto dims : {std::pair<int, int>{37, 23}, {6, 5}}) {
+    const int width = dims.first, height = dims.second;
+    std::vector<Npp8u> src((size_t)width * height * 4);
+    std::mt19937 rng(0xC0FFEEu);
+    std::uniform_int_distribution<int> dist(0, 255);
+    for (auto &v : src)
+      v = (Npp8u)dist(rng);
+
+    for (const auto &tc : morphVecMaskCases()) {
+      for (int dilate = 0; dilate < 2; ++dilate) {
+        int srcStep = 0, dstStep = 0;
+        Npp8u *d_src = nppiMalloc_8u_C4(width, height, &srcStep);
+        Npp8u *d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
+        ASSERT_NE(d_src, nullptr);
+        ASSERT_NE(d_dst, nullptr);
+        Npp8u *d_mask = nullptr;
+        ASSERT_EQ(cudaMalloc(&d_mask, tc.mask.size()), cudaSuccess);
+        cudaMemcpy(d_mask, tc.mask.data(), tc.mask.size(), cudaMemcpyHostToDevice);
+        cudaMemcpy2D(d_src, srcStep, src.data(), width * 4, width * 4, height, cudaMemcpyHostToDevice);
+
+        NppiSize roi = {width, height};
+        NppiSize msz = {tc.maskW, tc.maskH};
+        NppiPoint anc = {tc.ax, tc.ay};
+        NppStatus st = dilate ? nppiDilate_8u_C4R(d_src, srcStep, d_dst, dstStep, roi, d_mask, msz, anc)
+                              : nppiErode_8u_C4R(d_src, srcStep, d_dst, dstStep, roi, d_mask, msz, anc);
+        ASSERT_EQ(st, NPP_SUCCESS) << tc.name << " dilate=" << dilate;
+
+        std::vector<Npp8u> dst((size_t)width * height * 4);
+        cudaMemcpy2D(dst.data(), width * 4, d_dst, dstStep, width * 4, height, cudaMemcpyDeviceToHost);
+        for (int y = 0; y < height; ++y)
+          for (int x = 0; x < width; ++x)
+            for (int c = 0; c < 4; ++c)
+              EXPECT_EQ(dst[((size_t)y * width + x) * 4 + c],
+                        morphVecCpuC4(src, width, height, x, y, tc.mask, tc.maskW, tc.maskH, tc.ax, tc.ay, c,
+                                      dilate != 0))
+                  << "mask=" << tc.name << " dilate=" << dilate << " x=" << x << " y=" << y << " c=" << c;
+
+        nppiFree(d_src);
+        nppiFree(d_dst);
+        cudaFree(d_mask);
+      }
+    }
+  }
+}
+
+TEST_F(MorphologyVecExactTest, ErodeDilate_32f_C1R_Exact_VectorizedPaths) {
+  for (auto dims : {std::pair<int, int>{37, 23}, {6, 5}}) {
+    const int width = dims.first, height = dims.second;
+    std::vector<Npp32f> src((size_t)width * height);
+    std::mt19937 rng(0x5EEDu);
+    std::uniform_real_distribution<float> dist(-100.0f, 100.0f);
+    for (auto &v : src)
+      v = dist(rng);
+
+    for (const auto &tc : morphVecMaskCases()) {
+      for (int dilate = 0; dilate < 2; ++dilate) {
+        int srcStep = 0, dstStep = 0;
+        Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+        Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+        ASSERT_NE(d_src, nullptr);
+        ASSERT_NE(d_dst, nullptr);
+        Npp8u *d_mask = nullptr;
+        ASSERT_EQ(cudaMalloc(&d_mask, tc.mask.size()), cudaSuccess);
+        cudaMemcpy(d_mask, tc.mask.data(), tc.mask.size(), cudaMemcpyHostToDevice);
+        cudaMemcpy2D(d_src, srcStep, src.data(), width * (int)sizeof(Npp32f), width * (int)sizeof(Npp32f), height,
+                     cudaMemcpyHostToDevice);
+
+        NppiSize roi = {width, height};
+        NppiSize msz = {tc.maskW, tc.maskH};
+        NppiPoint anc = {tc.ax, tc.ay};
+        NppStatus st = dilate ? nppiDilate_32f_C1R(d_src, srcStep, d_dst, dstStep, roi, d_mask, msz, anc)
+                              : nppiErode_32f_C1R(d_src, srcStep, d_dst, dstStep, roi, d_mask, msz, anc);
+        ASSERT_EQ(st, NPP_SUCCESS) << tc.name << " dilate=" << dilate;
+
+        std::vector<Npp32f> dst((size_t)width * height);
+        cudaMemcpy2D(dst.data(), width * (int)sizeof(Npp32f), d_dst, dstStep, width * (int)sizeof(Npp32f), height,
+                     cudaMemcpyDeviceToHost);
+        for (int y = 0; y < height; ++y)
+          for (int x = 0; x < width; ++x)
+            EXPECT_FLOAT_EQ(dst[(size_t)y * width + x],
+                            morphVecCpu32f(src, width, height, x, y, tc.mask, tc.maskW, tc.maskH, tc.ax, tc.ay,
+                                           dilate != 0))
+                << "mask=" << tc.name << " dilate=" << dilate << " x=" << x << " y=" << y;
+
+        nppiFree(d_src);
+        nppiFree(d_dst);
+        cudaFree(d_mask);
+      }
+    }
+  }
+}
+
+// The dedicated 3x3 float APIs now route through the same vectorized kernel
+// (mask == nullptr, all nine taps active).
+TEST_F(MorphologyVecExactTest, ErodeDilate3x3_32f_C1R_Exact_VectorizedPaths) {
+  const int width = 45, height = 19;
+  std::vector<Npp32f> src((size_t)width * height);
+  std::mt19937 rng(0x33333u);
+  std::uniform_real_distribution<float> dist(-50.0f, 50.0f);
+  for (auto &v : src)
+    v = dist(rng);
+
+  int srcStep = 0, dstStep = 0;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+  cudaMemcpy2D(d_src, srcStep, src.data(), width * (int)sizeof(Npp32f), width * (int)sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  ASSERT_EQ(nppiErode3x3_32f_C1R(d_src, srcStep, d_dst, dstStep, roi), NPP_SUCCESS);
+  std::vector<Npp32f> dst((size_t)width * height);
+  cudaMemcpy2D(dst.data(), width * (int)sizeof(Npp32f), d_dst, dstStep, width * (int)sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+  const std::vector<Npp8u> allOnes9(9, 1);
+  for (int y = 0; y < height; ++y)
+    for (int x = 0; x < width; ++x)
+      EXPECT_FLOAT_EQ(dst[(size_t)y * width + x],
+                      morphVecCpu32f(src, width, height, x, y, allOnes9, 3, 3, 1, 1, false))
+          << "erode3x3 x=" << x << " y=" << y;
+
+  ASSERT_EQ(nppiDilate3x3_32f_C1R(d_src, srcStep, d_dst, dstStep, roi), NPP_SUCCESS);
+  cudaMemcpy2D(dst.data(), width * (int)sizeof(Npp32f), d_dst, dstStep, width * (int)sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y)
+    for (int x = 0; x < width; ++x)
+      EXPECT_FLOAT_EQ(dst[(size_t)y * width + x],
+                      morphVecCpu32f(src, width, height, x, y, allOnes9, 3, 3, 1, 1, true))
+          << "dilate3x3 x=" << x << " y=" << y;
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}
