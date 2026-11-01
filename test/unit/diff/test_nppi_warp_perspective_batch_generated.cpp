@@ -467,19 +467,45 @@ TEST_F(NppiWarpPerspectiveBatchDiff, NonCtx_Batch) {
   }
   DeviceMemory<NppiWarpPerspectiveBatchCXR> &batch = batch_arena(3);
   batch.copyFromHost(std::vector<NppiWarpPerspectiveBatchCXR>(entries, entries + 3));
+  // The non-Ctx entries share the golden case ids of the _Ctx cases, so they
+  // have to record the same outputs: status plus the post-Init and post-call
+  // aTransformedCoeffs read back from the device list.
+  std::vector<NppiWarpPerspectiveBatchCXR> readback(3);
+  auto readList = [&]() {
+    cudaMemcpy(readback.data(), batch.get(), sizeof(NppiWarpPerspectiveBatchCXR) * 3, cudaMemcpyDeviceToHost);
+  };
+  auto transformed = [&]() {
+    std::vector<double> flat;
+    flat.reserve(27);
+    for (int i = 0; i < 3; ++i) flat.insert(flat.end(), &readback[i].aTransformedCoeffs[0][0], &readback[i].aTransformedCoeffs[0][0] + 9);
+    return flat;
+  };
+
   clear_cuda_error();
   NppStatus stInit = nppiWarpPerspectiveBatchInit(batch.get(), 3);
   Case ci("nppiWarpPerspectiveBatch/8u_C1R/n3/init", "nppiWarpPerspectiveBatchInit");
+  ci.input(entries, sizeof(entries[0]) * 3);
   ci.status(stInit);
+  readList();
+  {
+    std::vector<double> flat = transformed();
+    ci.host_output<double>(flat.data(), flat.size(), ValueKind::F64, 1e-9, 1e-12);
+  }
   ci.finish();
 
   clear_cuda_error();
   NppStatus st = nppiWarpPerspectiveBatch_8u_C1R(NppiSize{12, 9}, NppiRect{0, 0, 12, 9}, NppiRect{0, 0, 24, 18},
                                                  NPPI_INTER_NN, batch.get(), 3);
   Case c("nppiWarpPerspectiveBatch/8u_C1R/n3", "nppiWarpPerspectiveBatch_8u_C1R");
+  for (int i = 0; i < 3; ++i) c.input(&coeffData[i][0], sizeof(double) * 9);
   c.status(st);
   for (int i = 0; i < 3; ++i) {
     c.device_output<Npp8u>(dsts[i]->get(), de, ValueKind::U8, 1e-5, 1e-6);
+  }
+  readList();
+  {
+    std::vector<double> flat = transformed();
+    c.host_output<double>(flat.data(), flat.size(), ValueKind::F64, 1e-9, 1e-12);
   }
   c.finish();
 }

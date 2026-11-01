@@ -147,16 +147,28 @@ void quad_planar_case(const char *fname, const std::string &key, NppiSize srcSiz
 
 // Quad geometries.  Vertex order convention assumed: [0]=top-left,
 // [1]=top-right, [2]=bottom-right, [3]=bottom-left.
-constexpr double kQuadIdentitySrc[4][2] = {{0, 0}, {20, 0}, {20, 14}, {0, 14}};
-constexpr double kQuadIdentityDst[4][2] = {{0, 0}, {20, 0}, {20, 14}, {0, 14}};
-constexpr double kQuadScaleSrc[4][2] = {{0, 0}, {12, 0}, {12, 9}, {0, 9}};
-constexpr double kQuadScaleDst[4][2] = {{0, 0}, {24, 0}, {24, 18}, {0, 18}};
-constexpr double kQuadPerspSrc[4][2] = {{1, 1}, {19, 2}, {18, 12}, {2, 11}};
-constexpr double kQuadPerspDst[4][2] = {{2, 3}, {30, 1}, {27, 20}, {5, 17}};
-constexpr double kQuadTiltSrc[4][2] = {{0, 0}, {12, 0}, {12, 9}, {0, 9}};
-constexpr double kQuadTiltDst[4][2] = {{3, 1}, {21, 4}, {18, 17}, {1, 12}};
-constexpr double kQuadSameSrc[4][2] = {{2, 1}, {18, 3}, {16, 12}, {4, 13}};
-constexpr double kQuadSameDst[4][2] = {{2, 1}, {18, 3}, {16, 12}, {4, 13}};
+//
+// Every quad pair is shifted by the same sub-pixel offset (0.31, 0.17) relative
+// to the integer corners used by the first recording.  With integer corners
+// the projected destination vertices of kQuadPersp* / kQuadTilt* land exactly
+// on destination pixel centres, so the "is the destination pixel inside the
+// quad" decision is made on an exact boundary and depends on the last bit of
+// NVIDIA's coefficient arithmetic (an unreproducible 1-ULP coin flip: two
+// vertex pixels of kQuadPersp* are skipped while the vertex pixels of
+// kQuadSame* are written).  The offset keeps the *mapping* unchanged (both
+// quads move together) while moving every edge decision ~0.1 px away from the
+// pixel centres, so the recorded goldens pin down the quad semantics rather
+// than NVIDIA's rounding noise.
+constexpr double kQuadIdentitySrc[4][2] = {{0.31, 0.17}, {20.31, 0.17}, {20.31, 14.17}, {0.31, 14.17}};
+constexpr double kQuadIdentityDst[4][2] = {{0.31, 0.17}, {20.31, 0.17}, {20.31, 14.17}, {0.31, 14.17}};
+constexpr double kQuadScaleSrc[4][2] = {{0.31, 0.17}, {12.31, 0.17}, {12.31, 9.17}, {0.31, 9.17}};
+constexpr double kQuadScaleDst[4][2] = {{0.31, 0.17}, {24.31, 0.17}, {24.31, 18.17}, {0.31, 18.17}};
+constexpr double kQuadPerspSrc[4][2] = {{1.31, 1.17}, {19.31, 2.17}, {18.31, 12.17}, {2.31, 11.17}};
+constexpr double kQuadPerspDst[4][2] = {{2.31, 3.17}, {30.31, 1.17}, {27.31, 20.17}, {5.31, 17.17}};
+constexpr double kQuadTiltSrc[4][2] = {{0.31, 0.17}, {12.31, 0.17}, {12.31, 9.17}, {0.31, 9.17}};
+constexpr double kQuadTiltDst[4][2] = {{3.31, 1.17}, {21.31, 4.17}, {18.31, 17.17}, {1.31, 12.17}};
+constexpr double kQuadSameSrc[4][2] = {{2.31, 1.17}, {18.31, 3.17}, {16.31, 12.17}, {4.31, 13.17}};
+constexpr double kQuadSameDst[4][2] = {{2.31, 1.17}, {18.31, 3.17}, {16.31, 12.17}, {4.31, 13.17}};
 constexpr double kQuadDegenerate[4][2] = {{4, 4}, {4, 4}, {10, 8}, {2, 9}};
 constexpr double kQuadCollinear[4][2] = {{0, 0}, {5, 5}, {10, 10}, {15, 15}};
 
