@@ -1,60 +1,74 @@
-# Coverage Summary
+# NPP API Catalog Summary
 
-- Total API Functions: 12500
-- Implemented: 8119 (65.0%)
-- Tested: 8294 (66.4%)
-- Implemented but not tested: 2116
+- Public functions (API/): 12537
+- Real implementations: 8070 (64.4%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
+- Missing: 4301
+- Tested: 8210 (65.5%)
+- Real and tested: 5926
 
-## By Module
+## By module
 
-### NPPI
+| module | total | real | stub | missing | tested |
+|---|---:|---:|---:|---:|---:|
+| nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
+| nppi_color_conversion.h | 1074 | 533 | 0 | 541 | 704 |
+| nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
+| nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 997 |
+| nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 431 |
+| nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
+| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
+| nppi_statistics_functions.h | 3246 | 2595 | 28 | 623 | 1719 |
+| nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
+| nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
+| npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
+| npps_conversion_functions.h | 174 | 174 | 0 | 0 | 89 |
+| npps_filtering_functions.h | 3 | 3 | 0 | 0 | 3 |
+| npps_initialization.h | 70 | 70 | 0 | 0 | 70 |
+| npps_statistics_functions.h | 766 | 8 | 0 | 758 | 387 |
+| npps_support_functions.h | 15 | 15 | 0 | 0 | 7 |
 
-**nppi_arithmetic_and_logical_operations.h**
-- Total: 2137, Impl: 2137 (100.0%), Test: 2133 (99.8%)
+## Largest remaining groups
 
-**nppi_color_conversion.h**
-- Total: 1040, Impl: 460 (44.2%), Test: 670 (64.4%)
-
-**nppi_data_exchange_and_initialization.h**
-- Total: 966, Impl: 931 (96.4%), Test: 675 (69.9%)
-
-**nppi_filtering_functions.h**
-- Total: 1895, Impl: 93 (4.9%), Test: 997 (52.6%)
-
-**nppi_geometry_transforms.h**
-- Total: 705, Impl: 388 (55.0%), Test: 515 (73.0%)
-
-**nppi_linear_transforms.h**
-- Total: 4, Impl: 4 (100.0%), Test: 4 (100.0%)
-
-**nppi_morphological_operations.h**
-- Total: 292, Impl: 24 (8.2%), Test: 154 (52.7%)
-
-**nppi_statistics_functions.h**
-- Total: 3244, Impl: 2623 (80.9%), Test: 1716 (52.9%)
-
-**nppi_support_functions.h**
-- Total: 31, Impl: 31 (100.0%), Test: 16 (51.6%)
-
-**nppi_threshold_and_compare_operations.h**
-- Total: 418, Impl: 418 (100.0%), Test: 226 (54.1%)
-
-### NPPS
-
-**npps_arithmetic_and_logical_operations.h**
-- Total: 740, Impl: 740 (100.0%), Test: 632 (85.4%)
-
-**npps_conversion_functions.h**
-- Total: 174, Impl: 174 (100.0%), Test: 89 (51.1%)
-
-**npps_filtering_functions.h**
-- Total: 3, Impl: 3 (100.0%), Test: 3 (100.0%)
-
-**npps_initialization.h**
-- Total: 70, Impl: 70 (100.0%), Test: 70 (100.0%)
-
-**npps_statistics_functions.h**
-- Total: 766, Impl: 8 (1.0%), Test: 387 (50.5%)
-
-**npps_support_functions.h**
-- Total: 15, Impl: 15 (100.0%), Test: 7 (46.7%)
+| module | group | remaining | ctx |
+|---|---|---:|---:|
+| npps_statistics_functions.h | nppsDotProd | 100 | 50 |
+| nppi_filtering_functions.h | nppiFilter32f | 66 | 33 |
+| nppi_filtering_functions.h | nppiFilterBorder32f | 66 | 33 |
+| nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
+| nppi_filtering_functions.h | nppiFilterMedian | 64 | 32 |
+| nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
+| nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
+| nppi_color_conversion.h | nppiLUT | 56 | 28 |
+| nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
+| npps_statistics_functions.h | nppsAverageError | 56 | 28 |
+| npps_statistics_functions.h | nppsAverageRelativeError | 56 | 28 |
+| npps_statistics_functions.h | nppsMaximumError | 56 | 28 |
+| npps_statistics_functions.h | nppsMaximumRelativeError | 56 | 28 |
+| nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
+| nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrFull_NormLevel | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrFull_Norm | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrSame_NormLevel | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrSame_Norm | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrValid_NormLevel | 48 | 24 |
+| nppi_statistics_functions.h | nppiCrossCorrValid_Norm | 48 | 24 |
+| nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
+| nppi_statistics_functions.h | nppiSqrDistanceFull_Norm | 40 | 20 |
+| nppi_statistics_functions.h | nppiSqrDistanceSame_Norm | 40 | 20 |
+| nppi_statistics_functions.h | nppiSqrDistanceValid_Norm | 40 | 20 |
+| nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
+| nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
+| nppi_filtering_functions.h | nppiFilterBorder | 34 | 17 |
+| nppi_filtering_functions.h | nppiFilterColumn | 34 | 17 |
+| nppi_filtering_functions.h | nppiFilterRow | 34 | 17 |
+| nppi_filtering_functions.h | nppiFilterColumnBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterGaussAdvancedBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterGaussAdvanced | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterGaussBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterHighPassBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterHighPass | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterLowPassBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterLowPass | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
+| nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |

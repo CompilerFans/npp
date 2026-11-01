@@ -1,0 +1,18 @@
+{
+  "call": "nppi::c3yuv::c2ToP3(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, nppStreamCtx.hStream, 2, 1, 2, 0)",
+  "family": "nppiCbYCr422ToYCbCr420",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiCbYCr422ToYCbCr420_generated.cpp",
+  "includes": [
+    "nppi_c3_yuv_layout_executor.h"
+  ],
+  "families": [
+    "nppiCbYCr422ToYCbCr420"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_C2P2R",
+      "call": "nppi::c3yuv::c2ToP2(pSrc, nSrcStep, pDstY, nDstYStep, pDstCbCr, nDstCbCrStep, oSizeROI, nppStreamCtx.hStream, 2, 1, 2)"
+    }
+  ]
+}
