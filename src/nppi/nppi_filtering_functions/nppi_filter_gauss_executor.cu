@@ -22,12 +22,15 @@ __host__ __device__ __forceinline__ Dst gauss_emit(float acc) {
   if constexpr (std::is_floating_point_v<Dst>) {
     return static_cast<Dst>(acc);
   } else {
-    // NPP truncates toward zero, then saturates.
-    const float clamped =
-        acc < 0.0f ? 0.0f
-                   : (std::is_same_v<Dst, Npp8u> ? 255.0f
-                                                 : (std::is_same_v<Dst, Npp16u> ? 65535.0f : 32767.0f));
-    const float v = acc > clamped ? clamped : acc;
+    // NPP truncates toward zero, then saturates to the full destination range
+    // (including the negative side; a user kernel in GaussAdvanced can drive
+    // the accumulator below zero).
+    constexpr float kLo = std::is_same_v<Dst, Npp16s> ? -32768.0f : 0.0f;
+    constexpr float kHi = std::is_same_v<Dst, Npp8u> ? 255.0f
+                         : std::is_same_v<Dst, Npp16u> ? 65535.0f
+                                                       : 32767.0f;
+    const float lo = acc < kLo ? kLo : acc;
+    const float v = lo > kHi ? kHi : lo;
     const int truncated = static_cast<int>(v);
     return static_cast<Dst>(truncated);
   }
@@ -48,18 +51,22 @@ __global__ void gauss_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
   extern __shared__ float sK[];
   const int r = taps >> 1;
   const bool useShared = !Advanced || taps <= kMaxSharedTaps;
+  const int tid = static_cast<int>(threadIdx.y * blockDim.x + threadIdx.x);
+  const int nthreads = static_cast<int>(blockDim.x * blockDim.y);
   if (useShared) {
     if constexpr (Advanced) {
-      for (int i = threadIdx.x; i < taps; i += blockDim.x) sK[i] = pUserKernel[i];
+      for (int i = tid; i < taps; i += nthreads) sK[i] = pUserKernel[i];
     } else {
       const float sigma = 0.6f + 0.4f * static_cast<float>(r);
       const float denom = 2.0f * sigma * sigma;
-      for (int i = threadIdx.x; i < taps; i += blockDim.x) {
+      for (int i = tid; i < taps; i += nthreads) {
         const float d = static_cast<float>(i - r);
         sK[i] = expf(-(d * d) / denom);
       }
       __syncthreads();
-      if (threadIdx.x == 0) {
+      // One thread per block, not one per block row: every thread with
+      // threadIdx.x == 0 would otherwise re-normalise sK concurrently.
+      if (tid == 0) {
         float s = 0.0f;
         for (int i = 0; i < taps; ++i) s += sK[i];
         for (int i = 0; i < taps; ++i) sK[i] = sK[i] / s;
@@ -97,7 +104,10 @@ __global__ void gauss_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *__
 }
 
 inline NppStatus finish_launch(cudaStream_t stream) {
-  cudaStreamSynchronize(stream);
+  // NPP's Ctx entry points are asynchronous and stream-capture safe: no
+  // cudaStreamSynchronize here (the value is only used to keep the signature
+  // uniform with the other executors).
+  (void)stream;
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
@@ -186,7 +196,15 @@ NppStatus filterGaussAdvanced(const Src *pSrc, int nSrcStep, Dst *pDst, int nDst
     return NPP_NO_ERROR;
   }
   if (nFilterTaps < 0) return NPP_OUT_OFF_RANGE_ERROR;
-  if (nFilterTaps == 0 || nFilterTaps < 3 || (nFilterTaps & 1) == 0) return NPP_MASK_SIZE_ERROR;
+  // 5090 order: tap counts below 3 are rejected before the dst-step check, but
+  // an even tap count >= 3 is rejected only after it (taps4 + small step ->
+  // STEP_ERROR; taps0 + small step -> MASK_SIZE_ERROR).
+  if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
+  {
+    const NppStatus stepSt = check_dst_step<Dst, Channels>(nDstStep, oSizeROI.width);
+    if (stepSt != NPP_NO_ERROR) return stepSt;
+  }
+  if ((nFilterTaps & 1) == 0) return NPP_MASK_SIZE_ERROR;
   return launch<Src, Dst, Channels, AlphaPreserve, false, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel,
                                                                 nFilterTaps, NppiSize{0, 0}, NppiPoint{0, 0},
                                                                 stream);
@@ -208,7 +226,15 @@ NppStatus filterGaussAdvancedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrc
     if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
     return NPP_NO_ERROR;
   }
-  if (nFilterTaps < 0 || nFilterTaps < 3 || (nFilterTaps & 1) == 0) return NPP_MASK_SIZE_ERROR;
+  // Border family: negative tap counts are MASK_SIZE_ERROR (unlike the plain
+  // family's OUT_OFF_RANGE), checked before the dst step; even counts >= 3 are
+  // checked after it.
+  if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
+  {
+    const NppStatus stepSt = check_dst_step<Dst, Channels>(nDstStep, oSizeROI.width);
+    if (stepSt != NPP_NO_ERROR) return stepSt;
+  }
+  if ((nFilterTaps & 1) == 0) return NPP_MASK_SIZE_ERROR;
   return launch<Src, Dst, Channels, AlphaPreserve, true, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel,
                                                                nFilterTaps, oSrcSize, oSrcOffset, stream);
 }
