@@ -1,0 +1,12 @@
+{
+  "family": "nppiPSNR",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_psnr_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "families": [
+    "nppiPSNR"
+  ],
+  "call": "nppi::statistics::runPSNR<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, {is_ac4} != 0, pPSNR, nppStreamCtx.hStream)"
+}

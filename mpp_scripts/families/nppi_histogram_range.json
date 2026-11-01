@@ -1,0 +1,17 @@
+{
+  "family": "nppiHistogramRange",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_histogram_range_channels_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h",
+    "<type_traits>"
+  ],
+  "families": [
+    "nppiHistogramRange"
+  ],
+  "call": "nppi::statistics::runHistogramRangeI(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, {chan}, {is_ac4} != 0, sizeof({dtype}) == 1 ? 0 : (std::is_signed<{dtype}>::value ? 2 : 1), nppStreamCtx.hStream)",
+  "call_by_name": {
+    "nppiHistogramRange_32f_C3R_Ctx": "nppi::statistics::runHistogramRangeF(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, 3, false, nppStreamCtx.hStream)",
+    "nppiHistogramRange_32f_AC4R_Ctx": "nppi::statistics::runHistogramRangeF(pSrc, nSrcStep, oSizeROI, pHist, pLevels, nLevels, 4, true, nppStreamCtx.hStream)"
+  }
+}

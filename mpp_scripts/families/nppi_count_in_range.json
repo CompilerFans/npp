@@ -1,0 +1,23 @@
+{
+  "family": "nppiCountInRange",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_count_in_range_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "families": [
+    "nppiCountInRange"
+  ],
+  "call_name": "unused",
+  "call_variants": [
+    {
+      "contains": "aLowerBound",
+      "call": "nppi::statistics::runCountInRangeN<{dtype}>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, {chan}, {is_ac4} != 0, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "nLowerBound",
+      "call": "nppi::statistics::runCountInRange1<{dtype}>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::runCountInRange1<{dtype}>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, nppStreamCtx.hStream)"
+}

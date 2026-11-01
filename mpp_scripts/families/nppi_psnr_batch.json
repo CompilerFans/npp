@@ -1,0 +1,18 @@
+{
+  "family": "nppiPSNRBatch",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_psnr_batch_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "families": [
+    "nppiPSNRBatch"
+  ],
+  "call_variants": [
+    {
+      "contains": "oMaxSizeROI",
+      "call": "nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, {chan}, pPSNR, true, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, {chan}, pPSNR, false, nppStreamCtx.hStream)"
+}

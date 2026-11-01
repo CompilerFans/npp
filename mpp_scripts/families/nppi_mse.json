@@ -1,0 +1,12 @@
+{
+  "family": "nppiMSE",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_mse_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "families": [
+    "nppiMSE"
+  ],
+  "call": "nppi::statistics::runMSE<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, {is_ac4} != 0, pMSE, nppStreamCtx.hStream)"
+}

@@ -153,7 +153,7 @@ def choose_call(spec: dict, func: Func) -> str:
 
 
 NPPI_LAYOUT_RE = re.compile(r"_AC4")
-NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?:_Ctx)?$")
+NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?=_|$)")
 
 
 def nppi_channel_count(name: str) -> int:
@@ -282,7 +282,7 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
         '#include "npp.h"',
     ]
     for inc in spec.get("includes", []):
-        header.append(f'#include "{inc}"')
+        header.append(f"#include {inc}" if inc.startswith("<") else f'#include "{inc}"')
     header.append("")
     body = "\n".join(chunks)
     return "\n".join(header) + "\n" + body, emitted, skipped, stubs
