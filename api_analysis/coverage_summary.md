@@ -4,8 +4,8 @@
 - Real implementations: 11309 (90.2%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
 - Missing: 1144
-- Tested: 8268 (65.9%)
-- Real and tested: 7636
+- Tested: 8267 (65.9%)
+- Real and tested: 7635
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1633 | 0 | 263 | 1003 |
+| nppi_filtering_functions.h | 1896 | 1633 | 0 | 263 | 1002 |
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |

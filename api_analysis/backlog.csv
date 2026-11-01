@@ -263,7 +263,7 @@ nppi_filtering_functions.h,nppiFilter,36,36,0,0,0,0,18,0
 nppi_filtering_functions.h,nppiFilter32f,66,66,0,0,0,0,33,0
 nppi_filtering_functions.h,nppiFilterBorder,34,34,0,0,0,0,17,0
 nppi_filtering_functions.h,nppiFilterBorder32f,66,66,0,0,0,0,33,0
-nppi_filtering_functions.h,nppiFilterBox,34,34,0,0,0,0,20,0
+nppi_filtering_functions.h,nppiFilterBox,34,34,0,0,0,0,19,0
 nppi_filtering_functions.h,nppiFilterBoxBorder,32,32,0,0,0,0,20,0
 nppi_filtering_functions.h,nppiFilterBoxBorderAdvanced,13,13,0,0,0,0,13,0
 nppi_filtering_functions.h,nppiFilterCannyBorder,3,3,0,0,0,0,3,0
@@ -281,12 +281,12 @@ nppi_filtering_functions.h,nppiFilterLaplace,28,28,0,0,0,0,14,0
 nppi_filtering_functions.h,nppiFilterLaplaceBorder,28,28,0,0,0,0,14,0
 nppi_filtering_functions.h,nppiFilterLowPass,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiFilterLowPassBorder,32,32,0,0,0,0,16,0
-nppi_filtering_functions.h,nppiFilterMax,32,32,0,0,0,0,21,0
-nppi_filtering_functions.h,nppiFilterMaxBorder,32,32,0,0,0,0,16,0
+nppi_filtering_functions.h,nppiFilterMax,32,32,0,0,0,0,16,0
+nppi_filtering_functions.h,nppiFilterMaxBorder,32,32,0,0,0,0,21,0
 nppi_filtering_functions.h,nppiFilterMedian,64,64,0,0,0,0,32,0
 nppi_filtering_functions.h,nppiFilterMedianBorder,32,32,0,0,0,0,32,0
-nppi_filtering_functions.h,nppiFilterMin,32,32,0,0,0,0,21,0
-nppi_filtering_functions.h,nppiFilterMinBorder,32,32,0,0,0,0,16,0
+nppi_filtering_functions.h,nppiFilterMin,32,32,0,0,0,0,16,0
+nppi_filtering_functions.h,nppiFilterMinBorder,32,32,0,0,0,0,21,0
 nppi_filtering_functions.h,nppiFilterPrewittHoriz,24,24,0,0,0,0,12,0
 nppi_filtering_functions.h,nppiFilterPrewittHorizBorder,24,24,0,0,0,0,12,0
 nppi_filtering_functions.h,nppiFilterPrewittVert,24,24,0,0,0,0,12,0
