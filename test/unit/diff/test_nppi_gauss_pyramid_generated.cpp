@@ -96,7 +96,7 @@ void pyr_ok(const std::string &fname, const std::string &key, int ch, int srcW, 
   clear_cuda_error();
   NppStatus st = f(pSrc, sStep, NppiSize{srcW, srcH}, NppiPoint{offX, offY}, d.get(), dStep,
                    NppiSize{W, H}, rate, taps, k.get(), border, current_ctx());
-  Case c("nppiGaussPyramid/" + key, fname);
+  Case c("nppiGaussPyramid/" + fname + "/" + key, fname);
   c.input(hs.data(), hs.size() * sizeof(S));
   c.status(st);
   c.device_output<D>(d.get(), de, kind_of<D>(), kind_rtol<D>(), kind_atol<D>());
@@ -107,7 +107,7 @@ void pyr_ok(const std::string &fname, const std::string &key, int ch, int srcW, 
 template <typename F> void only_status(const std::string &fname, const std::string &key, F f) {
   clear_cuda_error();
   NppStatus st = f();
-  Case c("nppiGaussPyramid/" + key, fname);
+  Case c("nppiGaussPyramid/" + fname + "/" + key, fname);
   c.status(st);
   c.finish();
   cudaError_t e = cudaDeviceSynchronize();

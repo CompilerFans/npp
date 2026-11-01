@@ -317,3 +317,14 @@ as they are so the gap is visible.
 
 New harness `ValueKind`s added for this: `U8Tol`, `I8Tol`, `U16Tol` (byte-wide
 and 16-bit tolerant comparisons).
+
+### 9.8 Pyramid-down differential after fixing the record ids
+
+`test_nppi_gauss_pyramid_generated.cpp` also used one record id per key without
+the function name, so the 8u/16u/32f variants of a case overwrote each other
+(the surviving goldens were always 32f).  With `function/case` ids the suite
+records and verifies properly:
+
+* `NppiGaussPyramidDiff.Down` matches NPP for every 8u/16u/32f C1/C3 value case
+  except rate 3.7 with MIRROR (a handful of LSBs on 8u, element 3/12);
+* `DownErrors` still shows the status-name mismatches explained in 9.6.
