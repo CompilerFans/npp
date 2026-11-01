@@ -49,7 +49,7 @@ inline bool isDevicePointer(const void *ptr) {
     (void)cudaGetLastError();
     return false;
   }
-  return attributes.type == cudaMemoryTypeDevice || attributes.type == cudaMemoryTypeManaged;
+  return attributes.type == cudaMemoryTypeDevice;
 }
 
 // Forward interval scan.  Returns -1 when the sample is outside the mapping
