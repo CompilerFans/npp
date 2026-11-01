@@ -1,0 +1,14 @@
+== part1 GBS degenerates + tiny sigma
+DEG 8u rneg r=-0x1p+0 s=0x1p+0 status=-6 size=-1
+DEG 8u rnegfrac r=-0x1p-1 s=0x1p+0 status=-6 size=-1
+DEG 8u rexpsigneg r=0x1p+1 s=-0x1p+0 status=-6 size=-1
+DEG 8u rexpsignegfrac r=0x1p+1 s=-0x1p-1 status=-6 size=-1
+DEG 8u auto s=0x1.4f8b58p-17 status=0 size=36
+DEG 8u auto s=0x1.0f1eacp-20 status=0 size=36
+DEG 8u auto s=0x1.0c6f7ep-20 status=0 size=36
+DEG 8u auto s=0x1.0c6f7cp-20 status=0 size=36
+DEG 8u auto s=0x1.0c6f7ap-20 status=0 size=36
+DEG 8u auto s=0x1.09c048p-20 status=0 size=36
+DEG 8u auto s=0x1.ad7f2ap-24 status=0 size=36
+DEG 8u auto s=0x1.12e0bep-30 status=0 size=36
+DEG 8u auto s=0x1.79ca1p-67 status=0 size=36

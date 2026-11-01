@@ -1,0 +1,5 @@
+== edge2 ==
+gauss8 3x3(3) status=0 margin=19/25 clamp=8/25 dst00=133
+gauss8 5x5(5) status=0 margin=12/25 clamp=1/25 dst00=100
+gauss8 7x7(7) status=0 margin=11/25 clamp=0/25 dst00=117
+done

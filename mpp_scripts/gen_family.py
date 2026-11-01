@@ -13,6 +13,8 @@ Spec (JSON):
   "includes": ["npps_sum_executor.h"],
   "call": "nppi::statistics::nppsSum::run<{dtype}>(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream)",
   "ctx_only": false,
+  "plain_self": false,      # families without _Ctx twins: emit the plain
+                            # function from its own signature + call template
   "call_by_name": {"nppsSum_8u_Sfs_Ctx": "..."},  # optional per-Ctx-function call
   "exclude": ["nppsSum_32f"],              # optional exact names
   "functions": ["nppsSum_8u_Sfs"]           # optional exact-name mode
@@ -190,30 +192,22 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
         "channels": func.channels or "1",
         "layout": func.layout,
     }
-    if not func.ctx and ctx_twin is None:
+    if func.ctx or ctx_twin is None:
         # A non-Ctx function without a _Ctx twin (host-only helpers such as
-        # nppiMorphGetBufferSize_*) is implemented directly, exactly like a
-        # Ctx function but without any stream parameter.
+        # nppiMorphGetBufferSize_* or the unsharp GetBufferSize family, which
+        # sets plain_self) is implemented directly, exactly like a Ctx
+        # function but without any stream parameter.
         call_template = choose_call(spec, func)
         if "{dtype}" in call_template and not dtype:
             raise ValueError(f"{func.name}: spec uses {{dtype}} but the function has no dtype token")
         if "nppStreamCtx" in call_template and "nppStreamCtx" not in param_names(func.params):
             raise ValueError(f"{func.name}: spec references nppStreamCtx but the signature does not use that name")
         call = call_template.format(**values)
-        return (
-            f"NppStatus {func.name}({func.params}) {{\n"
-            f"  return {call};\n"
-            f"}}\n"
+        unused = (
+            "  (void)nppStreamCtx;\n"
+            if "nppStreamCtx" not in call and "nppStreamCtx" in param_names(func.params)
+            else ""
         )
-
-    if func.ctx:
-        call_template = choose_call(spec, func)
-        if "{dtype}" in call_template and not dtype:
-            raise ValueError(f"{func.name}: spec uses {{dtype}} but the function has no dtype token")
-        if "nppStreamCtx" in call_template and "nppStreamCtx" not in param_names(func.params):
-            raise ValueError(f"{func.name}: spec references nppStreamCtx but the signature does not use that name")
-        call = call_template.format(**values)
-        unused = "  (void)nppStreamCtx;\n" if "nppStreamCtx" not in call else ""
         return (
             f"NppStatus {func.name}({func.params}) {{\n"
             f"{unused}"
