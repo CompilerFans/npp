@@ -229,8 +229,14 @@ TEST_F(NppiFilter32fDiff, Errors) {
   DeviceMemory<Npp8u> &d = arena<Npp8u>(4096);
   DeviceMemory<Npp32f> &k = arena<Npp32f>(9);
   k.copyFromHost(hk);
-  const Npp8u *ps = s.get();
+  // Status probes only: raw taps outside the ROI must stay inside the
+  // allocation (MXC faults on reads before the buffer), so start at a margin.
+  const Npp8u *ps = s.get() + 64;
   Npp8u *pd = d.get();
+  // Allocate the negative-step target up front: allocating between the case's
+  // error clear and the launch leaves an MXC allocator "invalid argument" in
+  // the sticky error slot, which finish_launch would misread as a launch error.
+  Npp8u *pd2 = arena<Npp8u>(8192).get() + 512;
   const Npp32f *pk = k.get();
   auto ctx = current_ctx();
 
@@ -263,9 +269,8 @@ TEST_F(NppiFilter32fDiff, Errors) {
                                     NppiPoint{1, 1}, ctx);
   });
   status_case("nppiFilter32f_8u_C1R", "err/step_neg", [&] {
-    // Negative dst steps pass the unsigned comparison; point into the middle
-    // of a large arena so the (successful) launch stays in bounds.
-    Npp8u *pd2 = arena<Npp8u>(8192).get() + 512;
+    // Negative dst steps pass the unsigned comparison; pd2 points into the
+    // middle of the large arena so the (successful) launch stays in bounds.
     return nppiFilter32f_8u_C1R_Ctx(ps, 16, pd2, -16, NppiSize{4, 4}, pk, NppiSize{3, 3},
                                     NppiPoint{1, 1}, ctx);
   });
