@@ -203,11 +203,19 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
         wy[i] = lanczos3((double)oy[i] - (double)sy);
       }
       // The truncated Lanczos-3 weights do not sum to one; NVIDIA normalises
-      // by their sum (verified against the 32f/64f impulse goldens).
-      normalize = true;
-      normSum = 0.0;
-      for (int j = 0; j < 6; ++j) {
-        for (int i = 0; i < 6; ++i) normSum += wx[i] * wy[j];
+      // each axis by its own weight sum (the recorded 64f impulse responses
+      // are reproduced exactly by per-axis normalised weights).
+      normalize = false;
+      double sumX = 0.0, sumY = 0.0;
+      for (int i = 0; i < 6; ++i) {
+        sumX += wx[i];
+        sumY += wy[i];
+      }
+      if (sumX != 0.0 && sumY != 0.0) {
+        for (int i = 0; i < 6; ++i) {
+          wx[i] /= sumX;
+          wy[i] /= sumY;
+        }
       }
     }
   } else {

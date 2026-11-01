@@ -45,22 +45,31 @@
 //     covered by the differential suite.
 //
 // Device-side semantics (measured, see docs/npp_resize_semantics.md and the
-// NppiResizeProbeDiff suite):
+// NppiResizeProbeDiff / NppiResizeSqrPixelDiff suites):
 //   * SqrPixel coordinate: adjF = 1/f; adjS = shift*adjF + (1-adjF)*0.5;
 //     srcX = fma(adjF, dstX, -adjS) with a single float32 rounding (double for
 //     Npp64f).  There is no oDstROI offset in the mapping.
 //   * nppiResize coordinate: adjF = oSrcROI.width / oDstROI.width and
-//     srcX = oSrcROI.x + (dstX - oDstROI.x + 0.5) * adjF - 0.5.
+//     srcX = (dstX - (oDstROI.x - 0.5)) * adjF + (oSrcROI.x - 0.5).  The
+//     explicit pixel-centre form matters: its float32 rounding is visible in
+//     the `*_full_dstsub` goldens.
+//   * Interpolation is separable (horizontal pass, then vertical); the kernel
+//     accumulates the x taps into a per-row sum before combining the rows, so
+//     the float32 rounding matches NPP (a value of exactly 128.5 stays 128).
 //   * NPPI_INTER_NN rounds half up (floor(x + 0.5)); NPPI_INTER_LINEAR uses
 //     floor/frac; NPPI_INTER_CUBIC is a 4-point *Lagrange* stencil
-//     {x0-1, x0, x0+1, x0+2}; NPPI_INTER_LANCZOS is the standard 6-tap
-//     Lanczos-3 (sinc(x)*sinc(x/3)); NPPI_INTER_SUPER is an area (box)
-//     average with a source-space box of width 1/f starting at srcX-0.5.
-//   * NPPI_INTER_CUBIC2P_BSPLINE / _CATMULLROM / _B05C03 are rejected with
-//     NPP_INTERPOLATION_ERROR by every nppiResizeSqrPixel dtype (measured),
-//     even though the header documentation lists them.
+//     {x0-1, x0, x0+1, x0+2}; NPPI_INTER_LANCZOS samples NPP's 301-entry
+//     float32 table at d = i/100 and interpolates linearly in double;
+//     NPPI_INTER_SUPER is the area average over the source interval
+//     [af*(x-shift), af*(x-shift+1)) and rejects factors >= 1.
+//   * NPPI_INTER_CUBIC2P_BSPLINE / _CATMULLROM / _B05C03 pass the mode
+//     validation but are rejected with NPP_INTERPOLATION_ERROR after the step
+//     checks (measured).
 //   * destination pixels whose source coordinate is clipped by the source ROI
-//     are not written.
+//     are not written; the lower clip bound is inclusive.
+//   * nppiResize clamps interpolation taps to
+//     [roiStart, roiEnd - 1 + filterRadius]; nppiResizeBatch does not clamp
+//     them to the ROI at all (measured with the 32f batch ROI golden).
 
 #ifndef NPPI_RESIZE_EXECUTOR_H
 #define NPPI_RESIZE_EXECUTOR_H
