@@ -6,19 +6,19 @@
 #include "nppi_quality_metrics_executor.h"
 
 NppStatus nppiPSNRBatch_8u_C1R_Advanced_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, Npp32f * pPSNR, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 1, pPSNR, true, nppStreamCtx.hStream);
+  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 1, pPSNR, pDeviceBufferList, true, nppStreamCtx.hStream);
 }
 
 NppStatus nppiPSNRBatch_8u_C1R_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pPSNR, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 1, pPSNR, false, nppStreamCtx.hStream);
+  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 1, pPSNR, pDeviceBufferList, false, nppStreamCtx.hStream);
 }
 
 NppStatus nppiPSNRBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, Npp32f * pPSNR, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 3, pPSNR, true, nppStreamCtx.hStream);
+  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 3, pPSNR, pDeviceBufferList, true, nppStreamCtx.hStream);
 }
 
 NppStatus nppiPSNRBatch_8u_C3R_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pPSNR, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 3, pPSNR, false, nppStreamCtx.hStream);
+  return nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 3, pPSNR, pDeviceBufferList, false, nppStreamCtx.hStream);
 }
 
 NppStatus nppiPSNRBatch_8u_C1R(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pPSNR, NppiBufferDescriptor * pDeviceBufferList) {

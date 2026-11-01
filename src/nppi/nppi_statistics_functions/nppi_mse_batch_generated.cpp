@@ -6,19 +6,19 @@
 #include "nppi_quality_metrics_executor.h"
 
 NppStatus nppiMSEBatch_8u_C1R_Advanced_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, Npp32f * pMSE, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 1, pMSE, true, nppStreamCtx.hStream);
+  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 1, pMSE, pDeviceBufferList, true, nppStreamCtx.hStream);
 }
 
 NppStatus nppiMSEBatch_8u_C1R_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pMSE, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 1, pMSE, false, nppStreamCtx.hStream);
+  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 1, pMSE, pDeviceBufferList, false, nppStreamCtx.hStream);
 }
 
 NppStatus nppiMSEBatch_8u_C3R_Advanced_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, Npp32f * pMSE, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 3, pMSE, true, nppStreamCtx.hStream);
+  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, 3, pMSE, pDeviceBufferList, true, nppStreamCtx.hStream);
 }
 
 NppStatus nppiMSEBatch_8u_C3R_Ctx(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pMSE, NppiBufferDescriptor * pDeviceBufferList, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 3, pMSE, false, nppStreamCtx.hStream);
+  return nppi::statistics::runMSEBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, 3, pMSE, pDeviceBufferList, false, nppStreamCtx.hStream);
 }
 
 NppStatus nppiMSEBatch_8u_C1R(const NppiImageDescriptor * pSrc1BatchList, const NppiImageDescriptor * pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, Npp32f * pMSE, NppiBufferDescriptor * pDeviceBufferList) {

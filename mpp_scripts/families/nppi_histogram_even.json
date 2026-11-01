@@ -6,8 +6,19 @@
     "nppi_quality_metrics_executor.h",
     "<type_traits>"
   ],
-  "families": [
-    "nppiHistogramEven"
-  ],
-  "call": "nppi::statistics::runHistogramEven(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel, {chan}, {is_ac4} != 0, sizeof({dtype}) == 1 ? 0 : (sizeof({dtype}) == 2 ? (std::is_signed<{dtype}>::value ? 2 : 1) : 3), nppStreamCtx.hStream)"
+  "call": "nppi::statistics::runHistogramEven(pSrc, nSrcStep, oSizeROI, pHist, nLevels, nLowerLevel, nUpperLevel, {chan}, {is_ac4} != 0, sizeof({dtype}) == 1 ? 0 : (sizeof({dtype}) == 2 ? (std::is_signed<{dtype}>::value ? 2 : 1) : 3), nppStreamCtx.hStream)",
+  "functions": [
+    "nppiHistogramEven_16s_AC4R",
+    "nppiHistogramEven_16s_AC4R_Ctx",
+    "nppiHistogramEven_16s_C3R",
+    "nppiHistogramEven_16s_C3R_Ctx",
+    "nppiHistogramEven_16u_AC4R",
+    "nppiHistogramEven_16u_AC4R_Ctx",
+    "nppiHistogramEven_16u_C3R",
+    "nppiHistogramEven_16u_C3R_Ctx",
+    "nppiHistogramEven_8u_AC4R",
+    "nppiHistogramEven_8u_AC4R_Ctx",
+    "nppiHistogramEven_8u_C3R",
+    "nppiHistogramEven_8u_C3R_Ctx"
+  ]
 }

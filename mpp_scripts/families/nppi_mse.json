@@ -8,5 +8,5 @@
   "families": [
     "nppiMSE"
   ],
-  "call": "nppi::statistics::runMSE<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, {is_ac4} != 0, pMSE, nppStreamCtx.hStream)"
+  "call": "nppi::statistics::runMSE<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, {is_ac4} != 0, pMSE, pDeviceBuffer, nppStreamCtx.hStream)"
 }

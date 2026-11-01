@@ -11,8 +11,8 @@
   "call_variants": [
     {
       "contains": "oMaxSizeROI",
-      "call": "nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, {chan}, pPSNR, true, nppStreamCtx.hStream)"
+      "call": "nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, {chan}, pPSNR, pDeviceBufferList, true, nppStreamCtx.hStream)"
     }
   ],
-  "call": "nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, {chan}, pPSNR, false, nppStreamCtx.hStream)"
+  "call": "nppi::statistics::runPSNRBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, {chan}, pPSNR, pDeviceBufferList, false, nppStreamCtx.hStream)"
 }

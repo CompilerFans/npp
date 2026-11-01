@@ -8,5 +8,5 @@
   "families": [
     "nppiPSNR"
   ],
-  "call": "nppi::statistics::runPSNR<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, {is_ac4} != 0, pPSNR, nppStreamCtx.hStream)"
+  "call": "nppi::statistics::runPSNR<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, {is_ac4} != 0, pPSNR, pDeviceBuffer, nppStreamCtx.hStream)"
 }

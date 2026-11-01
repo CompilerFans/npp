@@ -285,8 +285,7 @@ NppStatus msssimGetBufferHostSize(NppiSize oSizeROI, int *hpBufferSize) {
 
 NppStatus runSSIM(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                   int channels, Npp32f *pSSIM, Npp8u *pDeviceBuffer, cudaStream_t stream) {
-  (void)pDeviceBuffer;
-  if (!pSrc1 || !pSrc2 || !pSSIM) return NPP_NULL_POINTER_ERROR;
+  if (!pSrc1 || !pSrc2 || !pSSIM || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (nSrc1Step < oSizeROI.width * channels || nSrc2Step < oSizeROI.width * channels) return NPP_STEP_ERROR;
@@ -311,7 +310,7 @@ NppStatus runSSIMBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescript
     const NppiSize roi = advanced ? h1[i].oSize : oSizeROI;
     if (roi.width <= 0 || roi.height <= 0) return NPP_SIZE_ERROR;
     st = runSSIM((const Npp8u *)h1[i].pData, h1[i].nStep, (const Npp8u *)h2[i].pData, h2[i].nStep, roi, channels,
-                 pSSIM + (size_t)i * channels, nullptr, stream);
+                 pSSIM + (size_t)i * channels, (Npp8u *)pSSIM, stream);
     if (st != NPP_NO_ERROR) return st;
   }
   return NPP_NO_ERROR;
@@ -319,8 +318,7 @@ NppStatus runSSIMBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescript
 
 NppStatus runWMSSSIM(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                      int channels, Npp32f *pWMSSSIM, Npp8u *pDeviceBuffer, cudaStream_t stream) {
-  (void)pDeviceBuffer;
-  if (!pSrc1 || !pSrc2 || !pWMSSSIM) return NPP_NULL_POINTER_ERROR;
+  if (!pSrc1 || !pSrc2 || !pWMSSSIM || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (oSizeROI.width < 16 || oSizeROI.height < 16) return NPP_SIZE_ERROR;
@@ -346,7 +344,7 @@ NppStatus runWMSSSIMBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescr
     const NppiSize roi = advanced ? h1[i].oSize : oSizeROI;
     if (roi.width <= 0 || roi.height <= 0) return NPP_SIZE_ERROR;
     st = runWMSSSIM((const Npp8u *)h1[i].pData, h1[i].nStep, (const Npp8u *)h2[i].pData, h2[i].nStep, roi, channels,
-                    pWMSSSIM + (size_t)i * channels, nullptr, stream);
+                    pWMSSSIM + (size_t)i * channels, (Npp8u *)pWMSSSIM, stream);
     if (st != NPP_NO_ERROR) return st;
   }
   return NPP_NO_ERROR;

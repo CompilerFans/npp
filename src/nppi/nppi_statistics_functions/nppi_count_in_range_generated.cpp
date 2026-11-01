@@ -6,27 +6,27 @@
 #include "nppi_quality_metrics_executor.h"
 
 NppStatus nppiCountInRange_32f_AC4R_Ctx(const Npp32f * pSrc, int nSrcStep, NppiSize oSizeROI, int aCounts[3], Npp32f aLowerBound[3], Npp32f aUpperBound[3], Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runCountInRangeN<Npp32f>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 4, 1 != 0, nppStreamCtx.hStream);
+  return nppi::statistics::runCountInRangeN<Npp32f>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 4, 1 != 0, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiCountInRange_32f_C1R_Ctx(const Npp32f * pSrc, int nSrcStep, NppiSize oSizeROI, int * pCounts, Npp32f nLowerBound, Npp32f nUpperBound, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runCountInRange1<Npp32f>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, nppStreamCtx.hStream);
+  return nppi::statistics::runCountInRange1<Npp32f>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiCountInRange_32f_C3R_Ctx(const Npp32f * pSrc, int nSrcStep, NppiSize oSizeROI, int aCounts[3], Npp32f aLowerBound[3], Npp32f aUpperBound[3], Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runCountInRangeN<Npp32f>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 3, 0 != 0, nppStreamCtx.hStream);
+  return nppi::statistics::runCountInRangeN<Npp32f>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 3, 0 != 0, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiCountInRange_8u_AC4R_Ctx(const Npp8u * pSrc, int nSrcStep, NppiSize oSizeROI, int aCounts[3], Npp8u aLowerBound[3], Npp8u aUpperBound[3], Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runCountInRangeN<Npp8u>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 4, 1 != 0, nppStreamCtx.hStream);
+  return nppi::statistics::runCountInRangeN<Npp8u>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 4, 1 != 0, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiCountInRange_8u_C1R_Ctx(const Npp8u * pSrc, int nSrcStep, NppiSize oSizeROI, int * pCounts, Npp8u nLowerBound, Npp8u nUpperBound, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runCountInRange1<Npp8u>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, nppStreamCtx.hStream);
+  return nppi::statistics::runCountInRange1<Npp8u>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiCountInRange_8u_C3R_Ctx(const Npp8u * pSrc, int nSrcStep, NppiSize oSizeROI, int aCounts[3], Npp8u aLowerBound[3], Npp8u aUpperBound[3], Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runCountInRangeN<Npp8u>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 3, 0 != 0, nppStreamCtx.hStream);
+  return nppi::statistics::runCountInRangeN<Npp8u>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, 3, 0 != 0, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiCountInRange_32f_AC4R(const Npp32f * pSrc, int nSrcStep, NppiSize oSizeROI, int aCounts[3], Npp32f aLowerBound[3], Npp32f aUpperBound[3], Npp8u * pDeviceBuffer) {

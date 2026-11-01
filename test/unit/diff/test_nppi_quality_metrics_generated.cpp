@@ -466,6 +466,10 @@ TEST_F(NppiQualityMetricsDiff, CIR_Errors) {
                 nppiCountInRange_8u_C1R_Ctx(a.get(), 4, NppiSize{8, 8}, cnt.get(), 0, 255, buf.get(), ctx));
   qi_error_case("s2/CIR/err/c3rev", "nppiCountInRange_8u_C3R_Ctx",
                 nppiCountInRange_8u_C3R_Ctx(a.get(), 24, NppiSize{8, 8}, cnt.get(), hi3, lo, buf.get(), ctx));
+  qi_error_case("s2/CIR/err/nullbuf", "nppiCountInRange_8u_C1R_Ctx",
+                nppiCountInRange_8u_C1R_Ctx(a.get(), 8, NppiSize{8, 8}, cnt.get(), 0, 255, nullptr, ctx));
+  qi_error_case("s2/CIR/err/nullbuf_c3", "nppiCountInRange_8u_C3R_Ctx",
+                nppiCountInRange_8u_C3R_Ctx(a.get(), 24, NppiSize{8, 8}, cnt.get(), lo3, hi3, nullptr, ctx));
 }
 #if NPP_DIFF_HAS_NONCTX
 TEST_F(NppiQualityMetricsDiff, CIR_8u_C1_Plain) {
@@ -549,6 +553,10 @@ TEST_F(NppiQualityMetricsDiff, MSE_Errors) {
                 nppiMSE_8u_C1R_Ctx(a.get(), 16, b.get(), 16, NppiSize{-1, 16}, out.get(), buf.get(), ctx));
   qi_error_case("s2/MSE/err/step", "nppiMSE_8u_C1R_Ctx",
                 nppiMSE_8u_C1R_Ctx(a.get(), 4, b.get(), 16, NppiSize{16, 16}, out.get(), buf.get(), ctx));
+  qi_error_case("s2/MSE/err/nullbuf", "nppiMSE_8u_C1R_Ctx",
+                nppiMSE_8u_C1R_Ctx(a.get(), 16, b.get(), 16, NppiSize{16, 16}, out.get(), nullptr, ctx));
+  qi_error_case("s2/PSNR/err/nullbuf", "nppiPSNR_8u_C1R_Ctx",
+                nppiPSNR_8u_C1R_Ctx(a.get(), 16, b.get(), 16, NppiSize{16, 16}, out.get(), nullptr, ctx));
 }
 TEST_F(NppiQualityMetricsDiff, MSE_GBHS) {
   struct R { int w, h; };

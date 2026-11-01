@@ -6,11 +6,11 @@
 #include "nppi_quality_metrics_executor.h"
 
 NppStatus nppiPSNR_8u_C1R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pPSNR, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runPSNR<Npp8u>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, 1, 0 != 0, pPSNR, nppStreamCtx.hStream);
+  return nppi::statistics::runPSNR<Npp8u>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, 1, 0 != 0, pPSNR, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiPSNR_8u_C3R_Ctx(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pPSNR, Npp8u * pDeviceBuffer, NppStreamContext nppStreamCtx) {
-  return nppi::statistics::runPSNR<Npp8u>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, 3, 0 != 0, pPSNR, nppStreamCtx.hStream);
+  return nppi::statistics::runPSNR<Npp8u>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, 3, 0 != 0, pPSNR, pDeviceBuffer, nppStreamCtx.hStream);
 }
 
 NppStatus nppiPSNR_8u_C1R(const Npp8u * pSrc1, int nSrc1Step, const Npp8u * pSrc2, int nSrc2Step, NppiSize oSizeROI, Npp32f * pPSNR, Npp8u * pDeviceBuffer) {

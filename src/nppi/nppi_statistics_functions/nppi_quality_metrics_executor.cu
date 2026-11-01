@@ -285,8 +285,7 @@ NppStatus psnrBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBuf
 template <typename D>
 NppStatus runQualityIndex(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI,
                           int channels, bool alpha, Npp32f *pDst, Npp8u *pDeviceBuffer, cudaStream_t stream) {
-  (void)pDeviceBuffer;
-  if (!pSrc1 || !pSrc2 || !pDst) return NPP_NULL_POINTER_ERROR;
+  if (!pSrc1 || !pSrc2 || !pDst || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   const int esize = (int)sizeof(D);
@@ -342,8 +341,8 @@ NppStatus runQualityIndex(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
 // ---------------------------------------------------------------------------
 template <typename D>
 NppStatus runCountInRange1(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *pCounts, D nLowerBound,
-                           D nUpperBound, cudaStream_t stream) {
-  if (!pSrc || !pCounts) return NPP_NULL_POINTER_ERROR;
+                           D nUpperBound, Npp8u *pDeviceBuffer, cudaStream_t stream) {
+  if (!pSrc || !pCounts || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (!step_ok(nSrcStep, oSizeROI.width, 1, (int)sizeof(D))) return NPP_STEP_ERROR;
@@ -355,8 +354,9 @@ NppStatus runCountInRange1(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *
 
 template <typename D>
 NppStatus runCountInRangeN(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *aCounts, const D *aLowerBound,
-                           const D *aUpperBound, int channels, bool alpha, cudaStream_t stream) {
-  if (!pSrc || !aCounts || !aLowerBound || !aUpperBound) return NPP_NULL_POINTER_ERROR;
+                           const D *aUpperBound, int channels, bool alpha, Npp8u *pDeviceBuffer,
+                           cudaStream_t stream) {
+  if (!pSrc || !aCounts || !aLowerBound || !aUpperBound || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (!step_ok(nSrcStep, oSizeROI.width, channels, (int)sizeof(D))) return NPP_STEP_ERROR;
@@ -374,8 +374,8 @@ NppStatus runCountInRangeN(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *
 // ---------------------------------------------------------------------------
 template <typename D>
 NppStatus runMSE(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI, int channels,
-                 bool alpha, Npp32f *pMSE, cudaStream_t stream) {
-  if (!pSrc1 || !pSrc2 || !pMSE) return NPP_NULL_POINTER_ERROR;
+                 bool alpha, Npp32f *pMSE, Npp8u *pDeviceBuffer, cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2 || !pMSE || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (!step_ok(nSrc1Step, oSizeROI.width, channels, (int)sizeof(D)) ||
@@ -390,8 +390,8 @@ NppStatus runMSE(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, N
 
 template <typename D>
 NppStatus runPSNR(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI, int channels,
-                  bool alpha, Npp32f *pPSNR, cudaStream_t stream) {
-  if (!pSrc1 || !pSrc2 || !pPSNR) return NPP_NULL_POINTER_ERROR;
+                  bool alpha, Npp32f *pPSNR, Npp8u *pDeviceBuffer, cudaStream_t stream) {
+  if (!pSrc1 || !pSrc2 || !pPSNR || !pDeviceBuffer) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   if (!step_ok(nSrc1Step, oSizeROI.width, channels, (int)sizeof(D)) ||
@@ -410,9 +410,10 @@ NppStatus runPSNR(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, 
 namespace {
 template <bool DO_PSNR>
 NppStatus runMetricBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescriptor *pSrc2, int nBatchSize,
-                         NppiSize oSizeROI, int channels, Npp32f *pOut, bool advanced, cudaStream_t stream) {
+                         NppiSize oSizeROI, int channels, Npp32f *pOut,
+                         const NppiBufferDescriptor *pDeviceBufferList, bool advanced, cudaStream_t stream) {
   (void)oSizeROI;
-  if (!pSrc1 || !pSrc2 || !pOut) return NPP_NULL_POINTER_ERROR;
+  if (!pSrc1 || !pSrc2 || !pOut || !pDeviceBufferList) return NPP_NULL_POINTER_ERROR;
   if (nBatchSize <= 0) return NPP_BAD_ARGUMENT_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   std::vector<NppiImageDescriptor> h1(nBatchSize), h2(nBatchSize);
@@ -437,13 +438,17 @@ NppStatus runMetricBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescri
 }  // namespace
 
 NppStatus runMSEBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescriptor *pSrc2, int nBatchSize,
-                      NppiSize oSizeROI, int channels, Npp32f *pMSE, bool advanced, cudaStream_t stream) {
-  return runMetricBatch<false>(pSrc1, pSrc2, nBatchSize, oSizeROI, channels, pMSE, advanced, stream);
+                      NppiSize oSizeROI, int channels, Npp32f *pMSE,
+                      const NppiBufferDescriptor *pDeviceBufferList, bool advanced, cudaStream_t stream) {
+  return runMetricBatch<false>(pSrc1, pSrc2, nBatchSize, oSizeROI, channels, pMSE, pDeviceBufferList, advanced,
+                               stream);
 }
 
 NppStatus runPSNRBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescriptor *pSrc2, int nBatchSize,
-                       NppiSize oSizeROI, int channels, Npp32f *pPSNR, bool advanced, cudaStream_t stream) {
-  return runMetricBatch<true>(pSrc1, pSrc2, nBatchSize, oSizeROI, channels, pPSNR, advanced, stream);
+                       NppiSize oSizeROI, int channels, Npp32f *pPSNR,
+                       const NppiBufferDescriptor *pDeviceBufferList, bool advanced, cudaStream_t stream) {
+  return runMetricBatch<true>(pSrc1, pSrc2, nBatchSize, oSizeROI, channels, pPSNR, pDeviceBufferList, advanced,
+                              stream);
 }
 
 // ---------------------------------------------------------------------------
@@ -600,15 +605,19 @@ template NppStatus runQualityIndex<Npp16u>(const Npp16u *, int, const Npp16u *, 
 template NppStatus runQualityIndex<Npp32f>(const Npp32f *, int, const Npp32f *, int, NppiSize, int, bool, Npp32f *,
                                            Npp8u *, cudaStream_t);
 
-template NppStatus runCountInRange1<Npp8u>(const Npp8u *, int, NppiSize, int *, Npp8u, Npp8u, cudaStream_t);
-template NppStatus runCountInRange1<Npp32f>(const Npp32f *, int, NppiSize, int *, Npp32f, Npp32f, cudaStream_t);
+template NppStatus runCountInRange1<Npp8u>(const Npp8u *, int, NppiSize, int *, Npp8u, Npp8u, Npp8u *,
+                                          cudaStream_t);
+template NppStatus runCountInRange1<Npp32f>(const Npp32f *, int, NppiSize, int *, Npp32f, Npp32f, Npp8u *,
+                                           cudaStream_t);
 template NppStatus runCountInRangeN<Npp8u>(const Npp8u *, int, NppiSize, int *, const Npp8u *, const Npp8u *, int,
-                                           bool, cudaStream_t);
+                                           bool, Npp8u *, cudaStream_t);
 template NppStatus runCountInRangeN<Npp32f>(const Npp32f *, int, NppiSize, int *, const Npp32f *, const Npp32f *, int,
-                                            bool, cudaStream_t);
+                                            bool, Npp8u *, cudaStream_t);
 
-template NppStatus runMSE<Npp8u>(const Npp8u *, int, const Npp8u *, int, NppiSize, int, bool, Npp32f *, cudaStream_t);
-template NppStatus runPSNR<Npp8u>(const Npp8u *, int, const Npp8u *, int, NppiSize, int, bool, Npp32f *, cudaStream_t);
+template NppStatus runMSE<Npp8u>(const Npp8u *, int, const Npp8u *, int, NppiSize, int, bool, Npp32f *, Npp8u *,
+                                 cudaStream_t);
+template NppStatus runPSNR<Npp8u>(const Npp8u *, int, const Npp8u *, int, NppiSize, int, bool, Npp32f *, Npp8u *,
+                                  cudaStream_t);
 
 
 }  // namespace statistics

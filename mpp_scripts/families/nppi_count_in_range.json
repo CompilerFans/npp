@@ -12,12 +12,12 @@
   "call_variants": [
     {
       "contains": "aLowerBound",
-      "call": "nppi::statistics::runCountInRangeN<{dtype}>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, {chan}, {is_ac4} != 0, nppStreamCtx.hStream)"
+      "call": "nppi::statistics::runCountInRangeN<{dtype}>(pSrc, nSrcStep, oSizeROI, aCounts, aLowerBound, aUpperBound, {chan}, {is_ac4} != 0, pDeviceBuffer, nppStreamCtx.hStream)"
     },
     {
       "contains": "nLowerBound",
-      "call": "nppi::statistics::runCountInRange1<{dtype}>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, nppStreamCtx.hStream)"
+      "call": "nppi::statistics::runCountInRange1<{dtype}>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, pDeviceBuffer, nppStreamCtx.hStream)"
     }
   ],
-  "call": "nppi::statistics::runCountInRange1<{dtype}>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, nppStreamCtx.hStream)"
+  "call": "nppi::statistics::runCountInRange1<{dtype}>(pSrc, nSrcStep, oSizeROI, pCounts, nLowerBound, nUpperBound, pDeviceBuffer, nppStreamCtx.hStream)"
 }

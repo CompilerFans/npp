@@ -61,30 +61,33 @@ NppStatus runQualityIndex(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
 // ---------------------------------------------------------------------------
 template <typename D>
 NppStatus runCountInRange1(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *pCounts, D nLowerBound,
-                           D nUpperBound, cudaStream_t stream);
+                           D nUpperBound, Npp8u *pDeviceBuffer, cudaStream_t stream);
 
 template <typename D>
 NppStatus runCountInRangeN(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *aCounts, const D *aLowerBound,
-                           const D *aUpperBound, int channels, bool alpha, cudaStream_t stream);
+                           const D *aUpperBound, int channels, bool alpha, Npp8u *pDeviceBuffer,
+                           cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
 // MSE / PSNR
 // ---------------------------------------------------------------------------
 template <typename D>
 NppStatus runMSE(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI, int channels,
-                 bool alpha, Npp32f *pMSE, cudaStream_t stream);
+                 bool alpha, Npp32f *pMSE, Npp8u *pDeviceBuffer, cudaStream_t stream);
 
 template <typename D>
 NppStatus runPSNR(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSrc2Step, NppiSize oSizeROI, int channels,
-                  bool alpha, Npp32f *pPSNR, cudaStream_t stream);
+                  bool alpha, Npp32f *pPSNR, Npp8u *pDeviceBuffer, cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
 // Batch metrics (8u).  The descriptor lists are device arrays.
 // ---------------------------------------------------------------------------
 NppStatus runMSEBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescriptor *pSrc2, int nBatchSize,
-                      NppiSize oSizeROI, int channels, Npp32f *pMSE, bool advanced, cudaStream_t stream);
+                      NppiSize oSizeROI, int channels, Npp32f *pMSE,
+                      const NppiBufferDescriptor *pDeviceBufferList, bool advanced, cudaStream_t stream);
 NppStatus runPSNRBatch(const NppiImageDescriptor *pSrc1, const NppiImageDescriptor *pSrc2, int nBatchSize,
-                       NppiSize oSizeROI, int channels, Npp32f *pPSNR, bool advanced, cudaStream_t stream);
+                       NppiSize oSizeROI, int channels, Npp32f *pPSNR,
+                       const NppiBufferDescriptor *pDeviceBufferList, bool advanced, cudaStream_t stream);
 
 // ---------------------------------------------------------------------------
 // Histogram C3R / AC4R.  hist is a host array of device pointers, one per

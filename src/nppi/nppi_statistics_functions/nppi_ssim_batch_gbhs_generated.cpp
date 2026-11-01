@@ -5,6 +5,34 @@
 #include "npp.h"
 #include "nppi_ssim_executor.h"
 
+NppStatus nppiSSIMBatchGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppi::statistics::ssimBatchGetBufferHostSize(oSizeROI, 1, hpBufferSize);
+}
+
+NppStatus nppiSSIMBatchGetBufferHostSize_8u_C3R_Ctx(NppiSize oSizeROI, int * hpBufferSize, NppStreamContext nppStreamCtx) {
+  (void)nppStreamCtx;
+  return nppi::statistics::ssimBatchGetBufferHostSize(oSizeROI, 3, hpBufferSize);
+}
+
+NppStatus nppiSSIMBatchGetBufferHostSize_8u_C1R(NppiSize oSizeROI, int * hpBufferSize) {
+  NppStreamContext nppStreamCtx;
+  NppStatus status = nppGetStreamContext(&nppStreamCtx);
+  if (status != NPP_NO_ERROR) {
+    return status;
+  }
+  return nppiSSIMBatchGetBufferHostSize_8u_C1R_Ctx(oSizeROI, hpBufferSize, nppStreamCtx);
+}
+
+NppStatus nppiSSIMBatchGetBufferHostSize_8u_C3R(NppiSize oSizeROI, int * hpBufferSize) {
+  NppStreamContext nppStreamCtx;
+  NppStatus status = nppGetStreamContext(&nppStreamCtx);
+  if (status != NPP_NO_ERROR) {
+    return status;
+  }
+  return nppiSSIMBatchGetBufferHostSize_8u_C3R_Ctx(oSizeROI, hpBufferSize, nppStreamCtx);
+}
+
 NppStatus nppiSSIMBatchGetBufferHostSize_8u_C1R_Ctx(NppiSize oSizeROI, size_t * hpBufferSize, NppStreamContext nppStreamCtx) {
   int hpBufferSizeInt = 0;
   NppStatus status = nppiSSIMBatchGetBufferHostSize_8u_C1R_Ctx(oSizeROI, &hpBufferSizeInt, nppStreamCtx);

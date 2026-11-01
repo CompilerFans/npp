@@ -332,6 +332,8 @@ TEST_F(NppiRectSsimDiff, SSIM_Errors) {
               nppiSSIM_8u_C1R_Ctx(a.get(), 16, b.get(), 16, NppiSize{-1, 16}, out.get(), buf.get(), ctx));
   status_case("s2/SSIM/err/step", "nppiSSIM_8u_C1R_Ctx",
               nppiSSIM_8u_C1R_Ctx(a.get(), 4, b.get(), 16, NppiSize{16, 16}, out.get(), buf.get(), ctx));
+  status_case("s2/SSIM/err/nullbuf", "nppiSSIM_8u_C1R_Ctx",
+              nppiSSIM_8u_C1R_Ctx(a.get(), 16, b.get(), 16, NppiSize{16, 16}, out.get(), nullptr, ctx));
 }
 
 TEST_F(NppiRectSsimDiff, WMSSSIM_C1) {
