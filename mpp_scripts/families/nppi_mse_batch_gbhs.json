@@ -1,0 +1,13 @@
+{
+  "family": "nppiMSEBatchGetBufferHostSize",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_mse_batch_gbhs_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "families": [
+    "nppiMSEBatchGetBufferHostSize"
+  ],
+  "call": "nppi::statistics::mseBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
+}

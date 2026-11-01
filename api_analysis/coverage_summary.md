@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10880 (86.8%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 112
-- Missing: 1545
-- Tested: 8264 (65.9%)
-- Real and tested: 7394
+- Real implementations: 11052 (88.2%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
+- Missing: 1401
+- Tested: 8268 (65.9%)
+- Real and tested: 7485
 
 ## By module
 
@@ -18,7 +18,7 @@
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
-| nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
+| nppi_statistics_functions.h | 3246 | 3243 | 0 | 3 | 1730 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
@@ -41,7 +41,6 @@
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
-| nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
 | nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
@@ -52,7 +51,6 @@
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
 | nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
-| nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
@@ -60,7 +58,6 @@
 | nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
-| nppi_statistics_functions.h | nppiHistogramRange | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorPrewittBorder | 14 | 7 |
 | nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
 | nppi_filtering_functions.h | nppiFilterBoxBorderAdvanced | 13 | 13 |
@@ -72,3 +69,6 @@
 | nppi_filtering_functions.h | nppiFloodFillBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillGradientBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillGradient | 12 | 6 |
+| nppi_filtering_functions.h | nppiFloodFillRangeBoundary | 12 | 6 |
+| nppi_filtering_functions.h | nppiFloodFillRange | 12 | 6 |
+| nppi_filtering_functions.h | nppiLabelMarkersUFBatch | 10 | 5 |

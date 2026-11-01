@@ -1,0 +1,12 @@
+{
+  "family": "nppiWMSSSIM",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_wmsssim_generated.cpp",
+  "includes": [
+    "nppi_ssim_executor.h"
+  ],
+  "families": [
+    "nppiWMSSSIM"
+  ],
+  "call": "nppi::statistics::runWMSSSIM(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, pMSSSIM, pDeviceBuffer, nppStreamCtx.hStream)"
+}
