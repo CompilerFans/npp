@@ -113,11 +113,16 @@ __global__ void wiener_kernel(const T *__restrict__ pSrc, int nSrcStep, T *__res
   const int loY = -offY, hiY = srcH - 1 - offY;
   const float invN = 1.0f / static_cast<float>(mw * mh);
   const char *const srcBase = reinterpret_cast<const char *>(pSrc);
-  const T *srow = reinterpret_cast<const T *>(srcBase + static_cast<std::ptrdiff_t>(y) * nSrcStep);
-  const float srcv[4] = {nch > 0 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(x) * Channels + 0]) : 0.f,
-                         nch > 1 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(x) * Channels + 1]) : 0.f,
-                         nch > 2 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(x) * Channels + 2]) : 0.f,
-                         nch > 3 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(x) * Channels + 3]) : 0.f};
+  // The centre pixel is a raw source read too: with an ROI that overhangs the
+  // image (border entry points allow that), NPP replicates it like every other
+  // border read instead of reading past the source buffer.
+  const int cx = x < loX ? loX : (x > hiX ? hiX : x);
+  const int cy = y < loY ? loY : (y > hiY ? hiY : y);
+  const T *srow = reinterpret_cast<const T *>(srcBase + static_cast<std::ptrdiff_t>(cy) * nSrcStep);
+  const float srcv[4] = {nch > 0 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 0]) : 0.f,
+                         nch > 1 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 1]) : 0.f,
+                         nch > 2 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 2]) : 0.f,
+                         nch > 3 ? static_cast<float>(srow[static_cast<std::ptrdiff_t>(cx) * Channels + 3]) : 0.f};
   T out[4] = {T(0), T(0), T(0), T(0)};
   for (int c = 0; c < nch; ++c) {
     const float sum = wiener_stats<T, Channels>(pSrc, nSrcStep, x, y, mw, mh, ax, ay, loX, hiX, loY, hiY, c,
@@ -190,7 +195,8 @@ NppStatus filterWienerBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, Npp
   wiener_kernel<T, Channels, AlphaPreserve><<<grid, block, 0, stream>>>(
       pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, oMaskSize.width, oMaskSize.height,
       oAnchor.x, oAnchor.y, noise, noiseScale, oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y);
-  cudaStreamSynchronize(stream);
+  // Asynchronous, like NPP: no inner stream synchronisation (the entry points
+  // must stay usable inside CUDA graph capture).
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
