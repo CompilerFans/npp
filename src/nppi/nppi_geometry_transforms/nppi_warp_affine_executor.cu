@@ -757,8 +757,6 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   // the write still lands at the absolute pixel.  The map is evaluated with
   // the (float-rounded) transformed coefficients in double and rounded to
   // float: DMUL a00*x, DFMA a01*y + that, DADD + a02, F2F.F32.F64.
-  const int ax = oDstRectROI.x + x;
-  const int ay = oDstRectROI.y + y;
   float fx, fy;
   batchMap(item.aTransformedCoeffs, x, y, fx, fy);
   // 5090 batch gate: the mapped point must be inside the *clipped source ROI*
