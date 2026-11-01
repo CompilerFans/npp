@@ -1,6 +1,6 @@
 # NPP API 全量实现进度账本
 
-> 最后更新：2026-10-31
+> 最后更新：2026-11-01
 > 集成分支：`feat/npp-api-expansion`（基于 `dev` @ `3a81f00`）
 > 公共契约：`API/`（API-unified）
 > 参考实现：NVIDIA NPP 13.4 / RTX 5090 / CUDA 13.4
@@ -71,6 +71,7 @@
 | F4 | NPPI 导数滤波（Sobel/Scharr/Prewitt/Roberts 及 mask/second/border 变体） | 348 | ✅ 已合并 | `pkg/f4` → `4ecdea2` |
 | F12 | NPPI 滤波长尾（nppiFilter*/Row/Column + SumWindow 全变体） | 240 | ✅ 已验证 | `pkg/f12` + `f12-verify` → `c866fe3` |
 | F11 | NPPI 固定核滤波（HighPass/LowPass/Sharpen/Laplace/Unsharp + border + GBHS） | 296 | ✅ 已合并 | `pkg/f11` + `f11-verify` → `c29cbad` |
+| F10 | NPPI 高斯/Wiener 滤波（Gauss/GaussBorder/GaussAdvanced/GaussAdvancedBorder/WienerBorder） | 146 | ✅ 已合并 | `pkg/f10` + `f10-verify` → `0fe2dcf` |
 | G5 | NPPI 透视/旋转/几何辅助（Perspective/Back/Quad/Batch + Rotate + get*） | 116 | ✅ 已合并 | `pkg/g5` + `g5-verify` → `d6d9f79` |
 | opt_fix | 600U：形态学 word-per-pixel 向量化 + 8u C3 回退定位 | 0 | ✅ 已合并 | `pkg/opt_fix` → `409d5ef` |
 | opt_planar | 600U：平面↔打包拷贝 128-bit 逐平面向量化 | 0 | ✅ 已合并 | `pkg/opt_planar` → `409d5ef` |
@@ -85,6 +86,7 @@
 
 ## 5. 决策记录
 
+- **F10 完成**：Gauss/GaussBorder/GaussAdvanced/GaussAdvancedBorder（128）+ WienerBorder（24）共 146 个函数全部 real（`pkg/f10` + `f10-verify` → `0fe2dcf`）；catalog real 10,466→10,612、missing 1,959→1,813、remaining 2,071→1,925（tested 8,255 不变）。验证：`NppiFilterGaussDiff.*` 4/4（连续 5 次一致）、`NppiFilterWienerDiff.*` 1/1、整树 unit 4,823、diff 2,121/0。5090 语义：固定核是归一化高斯的 1D 外积，σ=0.6+0.4·(taps/2)，相关几何、原点 (taps-1)/2；Advanced 用用户核且不归一化；border 仅支持 REPLICATE，所有读取（含中心像素）钳到源图范围；整数输出先截断再按目标类型全范围饱和；Advanced(Border) 校验顺序为 taps<3 在 dst-step 前、偶数 taps≥3 在 dst-step 后。lead 验证时修复的 agent 实现缺陷：(1) 共享内存核归一化只判断 `threadIdx.x == 0`，16×16 block 中有 16 个线程并发读改写，会二次归一化（偏差恰为未归一化核和：3×3 为 4.8976、5×5 为 10.697）且结果随机；(2) `gauss_emit` 只钳上界，16s 负累加器按 2^16 回绕（-187108→9500）而不饱和到 -32768；(3) 两个 executor 在 Ctx 入口内部 `cudaStreamSynchronize`，违反异步/图捕获契约（`NppStreamSyncTest`）；(4) WienerBorder 的 overhang ROI 中心像素未按 border 复制读取。测试侧：`GaussAdvanced` 的 taps 循环与 GX_ADV 共用 t3/t5 golden id 但几何不同（176 vs 108 元素），已加 `_w13h11` 后缀；golden 用当前测试文件在 5090 重录（608 Gauss + 203 Wiener），并逐 case 比对输入哈希（808/808 一致）以发现 `__LINE__` seed 漂移。语义细节见 `nppi_filter_gauss_executor.h` 与 `nppi_filter_wiener_executor.h`。
 - **F11 完成**：UnsharpBorder（32）+ UnsharpGetBufferSize（16）合入（`pkg/f11` + `f11-verify` → `c29cbad`），加上此前的 248 个固定核函数，本包 296 个全部 real；catalog real 10,418→10,466、missing 2,007→1,959、remaining 2,119→2,071。验证：`NppiFilterUnsharpDiff.*` **21/21**、整树 unit 4,823、diff 2,116/0。lead 修复：16u 奇数 src step（NPP 接受，golden 为 NO_ERROR）在 MACA 上触发非对齐加载 fault，unsharp 内核改为逐字节 memcpy 读取；另 agent 给共享 harness 增量添加 U8Tol/U16Tol 容差 kind（整型输出 ±1 LSB）。语义细节见 `docs/agent_packages/f11_notes.md`（auto 半径拟合、GBS 公式、NPP 在 radius==0 && sigma==0 时挂死等）。
 - **G5 完成**：`nppiWarpPerspective`/`Back`/`Quad`/`Batch`/`Rotate` 与 8 个 host get* 辅助共 116 个函数全部 real（`pkg/g5` + `g5-verify` → `d6d9f79`），catalog real 10,310→10,418、stub 118→112、missing 2,109→2,007、remaining 2,227→2,119。验证：`NppiWarpPerspective*`/`NppiRotateDiff.*` **66/66**、整树 unit 4,823、diff 2,095/0。lead 额外修复：两个旧 warp-perspective 单测读取未初始化的 nppiMalloc 目标缓冲（NPP 对映射到源图外的目标像素不写入），零初始化后 41/41 通过；实现本身与 5090 golden 一致。钉死的语义见 `docs/agent_packages/g5_notes.md` 与 `nppi_warp_perspective_executor.h`：forward 系数为 src→dst 且内核取逆、按行左边缘 v 裁剪 x 范围再逐像素判定、quad 用 float32 半平面测试、rotate 的写入条件与 step 规则等。
 - **G5 结果（部分）**：8 个 host 几何辅助（GetAffineTransform/Quad/Bound、GetPerspectiveTransform/Quad/Bound、GetRotateQuad/Bound）合入（`pkg/g5` + `g5-verify` → `fabfb09`），catalog real 10,302→10,310、tested 8,236→8,244。验证：`NppiGetTransformDiff.*` 12/12、整树 unit 4,823、diff 2,029 用例 0 failed。`pkg/g5` 上保留了 perspective/rotate 的 4 个差分 suite（64 个 case，当前全部打在 legacy 实现上失败）作为后续 108 个函数的规格，其 453 个 golden 已放入共享 `artifacts/5090/npp_records`；`docs/agent_packages/g5_notes.md` 记录了实测的透视区域/采样模型（区域裁剪、采样点判定、边界不写入）。这些 WIP 测试不并入集成分支，避免 64 个失败用例。
