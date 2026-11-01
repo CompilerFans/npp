@@ -208,8 +208,8 @@ __global__ void resizeKernel(const T *__restrict__ src, int sStep, int srcW, int
     sx = afx * (VT)dx - asx;
     sy = afy * (VT)dy - asy;
   } else {
-    sx = __fmaf_rn(afx, (VT)dx, -asx);
-    sy = __fmaf_rn(afy, (VT)dy, -asy);
+    sx = fmaf(afx, (VT)dx, -asx);
+    sy = fmaf(afy, (VT)dy, -asy);
   }
   if (!(sx > clipLoX && sx < (VT)clipHiX && sy > clipLoY && sy < (VT)clipHiY)) return;
   sx = sx < coordLoX ? coordLoX : (sx > coordHiX ? coordHiX : sx);
@@ -236,8 +236,8 @@ __global__ void resizePlanarKernel(const T *__restrict__ src, int sStep, int src
     sx = afx * (VT)dx - asx;
     sy = afy * (VT)dy - asy;
   } else {
-    sx = __fmaf_rn(afx, (VT)dx, -asx);
-    sy = __fmaf_rn(afy, (VT)dy, -asy);
+    sx = fmaf(afx, (VT)dx, -asx);
+    sy = fmaf(afy, (VT)dy, -asy);
   }
   if (!(sx > clipLoX && sx < (VT)clipHiX && sy > clipLoY && sy < (VT)clipHiY)) return;
   sx = sx < coordLoX ? coordLoX : (sx > coordHiX ? coordHiX : sx);
