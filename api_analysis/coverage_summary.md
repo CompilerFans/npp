@@ -1,18 +1,18 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 11550 (92.1%)
+- Real implementations: 11682 (93.2%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 903
-- Tested: 8276 (66.0%)
-- Real and tested: 7763
+- Missing: 771
+- Tested: 8279 (66.0%)
+- Real and tested: 7832
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
-| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
+| nppi_color_conversion.h | 1074 | 527 | 0 | 547 | 707 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 1747 | 0 | 149 | 1002 |
 | nppi_geometry_transforms.h | 705 | 549 | 84 | 72 | 456 |
@@ -37,14 +37,10 @@
 | nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
-| nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
-| nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
-| nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
-| nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
 | nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
 | nppi_filtering_functions.h | nppiFloodFill | 13 | 6 |
 | nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
@@ -54,8 +50,6 @@
 | nppi_filtering_functions.h | nppiFloodFillGradient | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRangeBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRange | 12 | 6 |
-| nppi_color_conversion.h | nppiColorTwist32fC | 8 | 4 |
-| nppi_color_conversion.h | nppiColorTwistBatch32fC | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCr411ToYCbCr422 | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCr422ToYCbCr411 | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCr422ToYCbCr420 | 8 | 4 |
@@ -72,3 +66,9 @@
 | nppi_color_conversion.h | nppiCFAToRGBA | 5 | 3 |
 | nppi_color_conversion.h | nppiBGRToCbYCr422_709HDTV | 4 | 2 |
 | nppi_color_conversion.h | nppiBGRToYCbCr420_709CSC | 4 | 2 |
+| nppi_color_conversion.h | nppiBGRToYCbCr420_JPEG | 4 | 2 |
+| nppi_color_conversion.h | nppiBGRToYCbCr422_JPEG | 4 | 2 |
+| nppi_color_conversion.h | nppiBGRToYCbCr444_JPEG | 4 | 2 |
+| nppi_color_conversion.h | nppiBGRToYCrCb420_709CSC | 4 | 2 |
+| nppi_color_conversion.h | nppiBGRToYCrCb420 | 4 | 2 |
+| nppi_color_conversion.h | nppiCMYKOrYCCKToBGR_JPEG | 4 | 2 |
