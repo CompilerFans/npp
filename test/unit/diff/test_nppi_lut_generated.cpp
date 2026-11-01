@@ -825,3 +825,34 @@ TEST_F(NppiLutCubicDiff, Cubic_EmptyRoi) {
   c2.status(st);
   c2.finish();
 }
+
+// C3 mixed 256-level / 2-level channels for the interpolating families: does
+// the direct-index shortcut (if any) apply per channel or only when all
+// channels have 256 levels?
+TEST_F(NppiLutLinearDiff, Linear_8u_C3_MixedFastPath) {
+  std::vector<Npp32s> lv256(256), vv256(256);
+  for (int i = 0; i < 256; ++i) {
+    lv256[i] = i < 200 ? i : 200;
+    vv256[i] = (i * 3 + 1) & 0xFF;
+  }
+  lut_multi<Npp8u, Npp32s, 3>("nppiLUT_Linear_8u_C3R", "linear/8u/C3/mixedfast", 256, 1, 1, 3, ramp8u(256),
+                              {vv256, {9, 8}, vv256}, {lv256, {10, 200}, lv256}, ValueKind::U8,
+                              [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v[],
+                                 const Npp32s *l[], int n[], NppStreamContext c) {
+                                return nppiLUT_Linear_8u_C3R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                              });
+}
+
+TEST_F(NppiLutCubicDiff, Cubic_8u_C3_MixedFastPath) {
+  std::vector<Npp32s> lv256(256), vv256(256);
+  for (int i = 0; i < 256; ++i) {
+    lv256[i] = i < 200 ? i : 200;
+    vv256[i] = (i * 3 + 1) & 0xFF;
+  }
+  lut_multi<Npp8u, Npp32s, 3>("nppiLUT_Cubic_8u_C3R", "cubic/8u/C3/mixedfast", 256, 1, 1, 3, ramp8u(256),
+                              {vv256, {9, 8}, vv256}, {lv256, {10, 200}, lv256}, ValueKind::U8,
+                              [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v[],
+                                 const Npp32s *l[], int n[], NppStreamContext c) {
+                                return nppiLUT_Cubic_8u_C3R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                              });
+}
