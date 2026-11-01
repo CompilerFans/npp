@@ -5,14 +5,6 @@
 #include "npp.h"
 #include "nppi_c3_twist_executor.h"
 
-NppStatus nppiRGBToYUV422_8u_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppi::c3twist::fwd422P3(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist);
-}
-
-NppStatus nppiRGBToYUV422_8u_C3P3R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppi::c3twist::fwd422P3(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist);
-}
-
 NppStatus nppiRGBToYUV422_8u_ColorTwist32f_C3C2R_Ctx(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   return nppi::c3twist::fwd422C2(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, aTwist);
 }
@@ -23,35 +15,4 @@ NppStatus nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx(const Npp8u * pSrc, int nSr
 
 NppStatus nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx(const Npp8u * const pSrc[3], int aSrcStep[3], Npp8u * pDst[3], int aDstStep[3], NppiSize oSizeROI, const Npp32f aTwist[3][4], NppStreamContext nppStreamCtx) {
   return nppi::c3twist::fwd422P3(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist);
-}
-
-NppStatus nppiRGBToYUV422_8u_P3R_Ctx(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  return nppi::c3twist::fwd422P3(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist);
-}
-
-NppStatus nppiRGBToYUV422_8u_C3C2R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst, int nDstStep, NppiSize oSizeROI) {
-  NppStreamContext nppStreamCtx;
-  NppStatus status = nppGetStreamContext(&nppStreamCtx);
-  if (status != NPP_NO_ERROR) {
-    return status;
-  }
-  return nppiRGBToYUV422_8u_C3C2R_Ctx(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx);
-}
-
-NppStatus nppiRGBToYUV422_8u_C3P3R(const Npp8u * pSrc, int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  NppStreamContext nppStreamCtx;
-  NppStatus status = nppGetStreamContext(&nppStreamCtx);
-  if (status != NPP_NO_ERROR) {
-    return status;
-  }
-  return nppiRGBToYUV422_8u_C3P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, nppStreamCtx);
-}
-
-NppStatus nppiRGBToYUV422_8u_P3R(const Npp8u * const pSrc[3], int nSrcStep, Npp8u * pDst[3], int rDstStep[3], NppiSize oSizeROI) {
-  NppStreamContext nppStreamCtx;
-  NppStatus status = nppGetStreamContext(&nppStreamCtx);
-  if (status != NPP_NO_ERROR) {
-    return status;
-  }
-  return nppiRGBToYUV422_8u_P3R_Ctx(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, nppStreamCtx);
 }

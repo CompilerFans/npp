@@ -11,12 +11,16 @@
   ],
   "call_variants": [
     {
-      "name_contains": "C3P3R",
-      "call": "nppi::c3twist::fwd420(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
+      "contains": "pSrc[3]",
+      "call": "nppi::c3twist::fwd420P3(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
     }
   ],
   "exclude": [
     "nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx",
-    "nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx"
+    "nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx",
+    "nppiRGBToYUV420_8u_C3P3R",
+    "nppiRGBToYUV420_8u_C3P3R_Ctx",
+    "nppiRGBToYUV420_8u_P3R",
+    "nppiRGBToYUV420_8u_P3R_Ctx"
   ]
 }

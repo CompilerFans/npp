@@ -45,18 +45,6 @@ __device__ __forceinline__ float twistRow(const Twist &t, int row, float a, floa
   return t.m[row][0] * a + t.m[row][1] * b + t.m[row][2] * c + t.m[row][3];
 }
 
-// 16-bit variants accumulate in double precision (the reference's rounding of
-// the larger range matches a double evaluation).
-__device__ __forceinline__ double twistRowD(const Twist &t, int row, double a, double b, double c) {
-  return static_cast<double>(t.m[row][0]) * a + static_cast<double>(t.m[row][1]) * b +
-         static_cast<double>(t.m[row][2]) * c + static_cast<double>(t.m[row][3]);
-}
-
-__device__ __forceinline__ int round_clamp_d(double v, int maxv) {
-  int t = static_cast<int>(v + 0.5);
-  return t < 0 ? 0 : (t > maxv ? maxv : t);
-}
-
 // Packed C3 source helper.
 template <typename T>
 __device__ __forceinline__ void read3(const T *s, float &a, float &b, float &c) {

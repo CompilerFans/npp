@@ -31,6 +31,14 @@
     "nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
     "nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx",
     "nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx",
-    "nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx"
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx",
+    "nppiYUV420ToRGB_8u_P3AC4R",
+    "nppiYUV420ToRGB_8u_P3AC4R_Ctx",
+    "nppiYUV420ToRGB_8u_P3C3R",
+    "nppiYUV420ToRGB_8u_P3C3R_Ctx",
+    "nppiYUV420ToRGB_8u_P3C4R",
+    "nppiYUV420ToRGB_8u_P3C4R_Ctx",
+    "nppiYUV420ToRGB_8u_P3R",
+    "nppiYUV420ToRGB_8u_P3R_Ctx"
   ]
 }

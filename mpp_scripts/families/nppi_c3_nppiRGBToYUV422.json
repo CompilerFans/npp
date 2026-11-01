@@ -22,6 +22,12 @@
   "exclude": [
     "nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx",
     "nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx",
-    "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx"
+    "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx",
+    "nppiRGBToYUV422_8u_C3C2R",
+    "nppiRGBToYUV422_8u_C3C2R_Ctx",
+    "nppiRGBToYUV422_8u_C3P3R",
+    "nppiRGBToYUV422_8u_C3P3R_Ctx",
+    "nppiRGBToYUV422_8u_P3R",
+    "nppiRGBToYUV422_8u_P3R_Ctx"
   ]
 }
