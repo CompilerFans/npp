@@ -524,9 +524,13 @@ TEST_F(NppiFilterGaussDiff, GaussAdvanced) {
   (void)advk;
   for (int taps : {3, 5, 7, 9, 11}) {
     const std::vector<float> k = gauss_taps(taps);
+    // Distinct key suffix: the GX_ADV cases below also use t3/t5 with a
+    // different geometry, and a shared key would make the two overwrite each
+    // other's golden.
     adv_ok<Npp8u>(
-        "nppiFilterGaussAdvanced_8u_C1R_Ctx", "nppiFilterGaussAdvanced/8u/C1/t" + std::to_string(taps), 1,
-        13, 11, k, __LINE__, nppiFilterGaussAdvanced_8u_C1R_Ctx);
+        "nppiFilterGaussAdvanced_8u_C1R_Ctx",
+        "nppiFilterGaussAdvanced/8u/C1/t" + std::to_string(taps) + "_w13h11", 1, 13, 11, k, __LINE__,
+        nppiFilterGaussAdvanced_8u_C1R_Ctx);
   }
   const std::vector<float> k3 = gauss_taps(3);
   const std::vector<float> k5 = gauss_taps(5);
