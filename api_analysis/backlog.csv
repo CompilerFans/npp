@@ -46,7 +46,6 @@ nppi_morphological_operations.h,nppiMorphTopHatBorder,16,0,0,16,8,8,8,16
 nppi_statistics_functions.h,nppiHistogramRange,64,48,16,0,8,8,48,16
 nppi_filtering_functions.h,nppiGradientVectorPrewittBorder,16,2,0,14,7,7,9,14
 nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,1,0,13,13,0,11,13
-nppi_filtering_functions.h,nppiFilterBoxBorderAdvanced,13,0,0,13,13,0,13,13
 nppi_filtering_functions.h,nppiFloodFill,13,0,0,13,6,7,6,13
 nppi_filtering_functions.h,nppiDistanceTransformPBA,15,3,0,12,12,0,14,12
 nppi_filtering_functions.h,nppiFilterBilateralGaussBorder,12,0,0,12,6,6,6,12
@@ -309,6 +308,7 @@ nppi_filtering_functions.h,nppiFilterBorder,34,34,0,0,0,0,17,0
 nppi_filtering_functions.h,nppiFilterBorder32f,66,66,0,0,0,0,33,0
 nppi_filtering_functions.h,nppiFilterBox,34,34,0,0,0,0,20,0
 nppi_filtering_functions.h,nppiFilterBoxBorder,32,32,0,0,0,0,20,0
+nppi_filtering_functions.h,nppiFilterBoxBorderAdvanced,13,13,0,0,0,0,13,0
 nppi_filtering_functions.h,nppiFilterCannyBorder,3,3,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterColumn,34,34,0,0,0,0,17,0
 nppi_filtering_functions.h,nppiFilterColumn32f,24,24,0,0,0,0,12,0

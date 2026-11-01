@@ -50,6 +50,14 @@ NppStatus filterBoxBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPo
                           T *pDst, int nDstStep, NppiSize oSizeROI, NppiSize oMaskSize,
                           NppiPoint oAnchor, NppiBorderType eBorderType, cudaStream_t stream);
 
+// nppiFilterBoxBorderAdvanced_<dt>_<lay>R_Ctx (REPLICATE only, pBuffer is
+// validated but unused).  See the definition for the measured contract.
+template <typename T, int Channels>
+NppStatus filterBoxBorderAdvanced(const T *pSrc, int nSrcStep, NppiSize oSrcSize,
+                                  NppiPoint oSrcOffset, T *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
+                                  Npp8u *pBuffer, cudaStream_t stream);
+
 // nppiFilterMin_<dt>_<lay>R / nppiFilterMax_<dt>_<lay>R.
 template <typename T, int Channels, bool AlphaPreserve, bool IsMax>
 NppStatus filterMinMax(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize oSizeROI,

@@ -1,5 +1,8 @@
 # f9 measured semantics (RTX 5090, NVIDIA NPP 13.4, sm_120)
 
+Status: package f9 is complete - all 11 families / 303 functions are
+implemented (`api_analysis/packages/f9.csv`: 303 real, 0 missing).
+
 Probes: scratch/probe_f9.cu, probe_f9b.cu, probe_f9c.cu, probe_f9d.cu
 Outputs: scratch/remote_out/*.out (all pulled and read)
 Baseline for ALL 11 f9 families. Semantics below were measured, not taken from docs.
@@ -132,8 +135,64 @@ Corrections / additions to the earlier notes:
 - GetBufferSize is ROI-independent (verified for ROI 7x7, 32x32 and
   ROI == mask); the plain dispatch table is transcribed for masks up to 40x40.
 
-## 9. Deliberately not implemented
+## 9. nppiFilterBoxBorderAdvanced — decoded (fourth continuation)
 
-- `nppiFilterBoxBorderAdvanced` (13 Ctx functions): the 5090 output follows a
-  pointer-aliasing quirk (ROI width vs source stride) that is not decoded; the
-  family is left missing and excluded from the package wrappers.
+The 13 `_Ctx` functions are implemented (`nppi::filter::filterBoxBorderAdvanced`,
+wrappers generated from `mpp_scripts/families/nppi_filter_box_border_advanced.json`).
+Probes: `scratch/probe_f9m..ab.cu`, direct executor-vs-NVIDIA harness
+`scratch/verify_f9adv.cu` (741 cases, 0 failures).
+
+### 9.1 Device buffer and border type
+- `nppiFilterBoxBorderAdvancedGetDeviceBufferSize(roi, ch, &n)` returns
+  `(roi.width * roi.height * ch + 2) * 4` bytes; the `_64` variant returns the
+  same count at 8 bytes per element (i.e. `... * 8`).
+- Only `NPP_BORDER_REPLICATE` is accepted; every other value (UNDEFINED,
+  CONSTANT, WRAP, MIRROR, 5, 7) returns `NPP_NOT_SUPPORTED_MODE_ERROR`.
+- `pBuffer` must be non-null (`NPP_NULL_POINTER_ERROR`) but its contents and
+  size are never consulted: the output is independent of the prefill.
+
+### 9.2 Where NVIDIA implements the documented contract
+Full impulse-response decode (`scratch/probe_f9r.cu`) shows that the reference
+kernel indexes the *source* with the **ROI width as the row step** instead of
+`nSrcStep`: for destination pixel `(x,y)` the tap `(i,j)` lands at the source
+flat offset `(y - ay + j) * roi.width + (x - ax + i)` (stepping a full source
+row only when the mask row no longer fits inside the image row).  Consequences:
+
+- The output matches the documented replicate-box result **iff
+  `oSizeROI.width == oSrcSize.width` and `oSrcOffset.x == 0`** — then the ROI
+  width is the real row stride.  Verified with 0 mismatches for
+  src/ROI 32x32, 48x64, 64x32, 64x64, 80x40, 128x128, ROI 128x128 with masks
+  1x1..31x31, anchors centred and out of range, `oSrcOffset.y` 0..30.
+- Every other geometry drifts: e.g. a 64-wide ROI in a 128-wide source differs
+  in 4060/4096 pixels, a 63-wide ROI differs in one column only, and an
+  `oSrcOffset.x` of 1 differs everywhere.  `oSrcOffset.y` alone is harmless.
+- The drift never reads outside the source image (out-of-row taps advance a
+  whole row, negative rows collapse onto the first row), so the reference is
+  deterministic — it is simply a different, undocumented filter.
+
+mcMPP therefore implements the **documented** replicate-box semantics for the
+whole parameter space and restricts the f9 differential records to the geometry
+where the reference agrees (`test/unit/diff/test_nppi_filter_box_border_advanced_generated.cpp`).
+
+### 9.3 Validation contract (measured, all 13 instantiations identical)
+Order: `pSrc`/`pDst` null -> `NULL_POINTER`; negative ROI dim -> `SIZE`;
+`oSrcSize` <= 0 -> `SIZE`; `oSrcOffset` outside `[0, size)` -> `OUT_OFF_RANGE`;
+border != REPLICATE -> `NOT_SUPPORTED_MODE`; `pBuffer` null -> `NULL_POINTER`;
+ROI width 0 with height > 0 -> `STEP`; otherwise any empty ROI -> OK (no step
+check); destination step; mask; anchor; source step.
+
+- mask and anchor are **not** validated (negative masks/anchors return OK and
+  write nothing); the source step is not validated either.
+- destination step: `NPP_STEP_ERROR` when `(Npp32u)nDstStep < rowBytes / v`,
+  where `rowBytes = roi.width * sizeof(T) * channels` and `v` is 4 when the ROI
+  width is a multiple of 4, 2 when even, 1 when odd (a per-thread byte count
+  from the vectorized dispatch, not a row size).  Zero and any smaller value
+  therefore fails; negative steps pass through the unsigned comparison.
+- alignment: `NPP_NOT_EVEN_STEP_ERROR` when `nDstStep % (sizeof(T) * (ch == 4 ? 4 : 1))`
+  is non-zero (same rule as the other window families), checked after the size
+  test.
+- a zero/negative mask or anchor outside the mask is a no-op returning OK.
+
+### 9.4 Not implemented on purpose
+- `nppiFilterBoxBorderAdvancedGetDeviceBufferSize` and `..._64` live in their
+  own one-function families and are not part of package f9.

@@ -322,6 +322,55 @@ NppStatus filterBoxBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPo
                                                             bt, stream);
 }
 
+// nppiFilterBoxBorderAdvanced: REPLICATE only, and the only family without
+// mask / anchor / source-step validation (all measured on the 5090).
+//
+// NOTE ON SEMANTICS: NVIDIA 13.4's "advanced" kernel only reproduces the
+// documented replicate-box result when oSizeROI.width == oSrcSize.width and
+// oSrcOffset.x == 0; every other geometry reads a window that is displaced by
+// oSizeROI.width per row index (full impulse-response decode in
+// scratch/f9_semantics.md, section 9).  This entry point implements the
+// documented semantics everywhere and mirrors the measured validation
+// contract; the differential suite only asserts source data for the geometry
+// where the reference agrees (test_nppi_filter_box_border_advanced_generated).
+template <typename T, int Ch>
+NppStatus filterBoxBorderAdvanced(const T *pSrc, int nSrcStep, NppiSize oSrcSize,
+                                  NppiPoint oSrcOffset, T *pDst, int nDstStep, NppiSize oSizeROI,
+                                  NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType,
+                                  Npp8u *pBuffer, cudaStream_t stream) {
+  if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
+  if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
+  if (oSrcOffset.x < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y < 0 ||
+      oSrcOffset.y >= oSrcSize.height)
+    return NPP_OUT_OFF_RANGE_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
+  if (!pBuffer) return NPP_NULL_POINTER_ERROR;
+  // measured quirk: a zero-width ROI with a positive height reports STEP and a
+  // fully empty ROI reports OK; neither consults the destination step.
+  if (oSizeROI.width == 0) {
+    return oSizeROI.height > 0 ? NPP_STEP_ERROR : NPP_NO_ERROR;
+  }
+  if (oSizeROI.height == 0) return NPP_NO_ERROR;
+  // measured: the minimum destination step is the row size divided by the
+  // vector width the dispatch selects from the ROI width (4 pixels when the
+  // width is a multiple of 4, else 2 when even, else 1) - i.e. a per-thread
+  // byte count rather than a row size.  The alignment test uses the element
+  // size (whole pixels for 4-channel layouts), as in the other families.
+  {
+    const int vec = (oSizeROI.width % 4 == 0) ? 4 : ((oSizeROI.width % 2 == 0) ? 2 : 1);
+    const long long minStep = (long long)oSizeROI.width * (int)(sizeof(T) * Ch) / vec;
+    if ((Npp32u)nDstStep < (Npp32u)minStep) return NPP_STEP_ERROR;
+    if (nDstStep % step_alignment<T, Ch>() != 0) return NPP_NOT_EVEN_STEP_ERROR;
+  }
+  // measured: the mask is not validated; a non-positive mask is a no-op.
+  if (oMaskSize.width <= 0 || oMaskSize.height <= 0) return NPP_NO_ERROR;
+  return launch_window<T, Ch, false, WOp::Box, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
+                                                     oMaskSize, oAnchor, oSrcOffset.x,
+                                                     oSrcOffset.y, oSrcSize, NPP_BORDER_REPLICATE,
+                                                     stream);
+}
+
 // nppiFilterMin/Max: zero or negative ROI and mask are SIZE, no mask > ROI
 // test, anchor is not checked.
 template <typename T, int Ch, bool AlphaPreserve, bool IsMax>
@@ -473,6 +522,15 @@ NppStatus medianBorderGetBufferSize(NppiSize oSizeROI, NppiSize oMaskSize, Npp32
   template NppStatus filterBoxBorder<T, 4, true>(const T *, int, NppiSize, NppiPoint, T *,     \
                                                  int, NppiSize, NppiSize, NppiPoint,           \
                                                  NppiBorderType, cudaStream_t);                \
+  template NppStatus filterBoxBorderAdvanced<T, 1>(const T *, int, NppiSize, NppiPoint, T *,   \
+                                                   int, NppiSize, NppiSize, NppiPoint,         \
+                                                   NppiBorderType, Npp8u *, cudaStream_t);     \
+  template NppStatus filterBoxBorderAdvanced<T, 3>(const T *, int, NppiSize, NppiPoint, T *,   \
+                                                   int, NppiSize, NppiSize, NppiPoint,         \
+                                                   NppiBorderType, Npp8u *, cudaStream_t);     \
+  template NppStatus filterBoxBorderAdvanced<T, 4>(const T *, int, NppiSize, NppiPoint, T *,   \
+                                                   int, NppiSize, NppiSize, NppiPoint,         \
+                                                   NppiBorderType, Npp8u *, cudaStream_t);     \
   template NppStatus filterMinMax<T, 1, false, false>(const T *, int, T *, int, NppiSize,      \
                                                       NppiSize, NppiPoint, cudaStream_t);      \
   template NppStatus filterMinMax<T, 3, false, false>(const T *, int, T *, int, NppiSize,      \
@@ -559,6 +617,12 @@ NPPI_WINDOW_INSTANTIATE(Npp32f)
 // nppiFilterBox_64f_C1R only (no border / min / max / median 64f variants).
 template NppStatus filterBox<Npp64f, 1, false>(const Npp64f *, int, Npp64f *, int, NppiSize,
                                                NppiSize, NppiPoint, cudaStream_t);
+
+// nppiFilterBoxBorderAdvanced_64f_C1R_Ctx.
+template NppStatus filterBoxBorderAdvanced<Npp64f, 1>(const Npp64f *, int, NppiSize, NppiPoint,
+                                                      Npp64f *, int, NppiSize, NppiSize,
+                                                      NppiPoint, NppiBorderType, Npp8u *,
+                                                      cudaStream_t);
 
 }  // namespace filter
 }  // namespace nppi
