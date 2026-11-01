@@ -119,3 +119,45 @@ and `nppiSegmentWatershed_16u_C1IR(+Ctx)`.  The existing 8u watershed
 implementation does not reproduce NPP 13.4 at all (a probe with two markers
 gives a completely different marker image), so the 16u variant was left out
 rather than adding a second divergent implementation.
+
+## 8. State at the end of this run
+
+Implemented and 5090-verified in this run (72 new functions, 125 of 264 in
+the package now `real`):
+
+| family | functions | verification |
+|---|---|---|
+| nppiFilterGaussPyramidLayerDownBorder | 12 | NppiGaussPyramidDiff (record 0 failed) + 154-case NPP replay |
+| nppiFilterBilateralGaussBorder | 12 | NppiBilateralGaussDiff + 23-case NPP replay |
+| nppiFilterThresholdAdaptiveBoxBorder | 2 | NppiThresholdAdaptiveBoxDiff + replay |
+| nppiFilterHarrisCornersBorder | 2 | NppiHarrisCornersDiff + replay |
+| nppiLabelMarkersUF (16u32u/32u) | 4 | NppiLabelMarkersDiff + 8-case NPP replay |
+| nppiLabelMarkersUFBatch (all forms) | 10 | NppiLabelMarkersDiff + replay |
+
+Previously integrated on this branch: Scharr Horiz/Vert (+Border) 24 and
+GradientVector Sobel/Prewitt/Scharr Border 48, both re-recorded here with 0
+failed.
+
+Still open in f13 (139 functions):
+
+* `nppiFilterGaussPyramidLayerUpBorder` (12): semantics not pinned down (see
+  section 3/6).  Probes 17-21 are in the tree; the SASS symbol names and the
+  measured tap tables are the starting point for the next attempt.
+* `nppiHistogramOfGradientsBorder` (16): probes 29-31 established the
+  descriptor size, the step quirk (nSrcStep must be a multiple of 4 and at
+  least 32 bytes) and that the block normalisation is by the block maximum
+  (not L2).  The block/cell ordering and the exact gradient/binning model
+  are still open; the window geometry also needs the helper
+  GetBufferSize/GetDescriptorsSize, which are not implemented in mcMPP at
+  all (tests can size buffers themselves).
+* `nppiCompressMarkerLabelsUFBatch_32u_C1IR(+Ctx)` (2): only the
+  forwarding wrapper is missing; the Advanced form exists but was not yet
+  differentially verified.
+* `nppiSegmentWatershed_16u_C1IR(+Ctx)` (2): the existing 8u watershed
+  implementation does not reproduce NPP at all (probe
+  f13_check_watershed.cu), so the 16u variant was intentionally not added.
+* `nppiDistanceTransform*PBA` (26), `nppiFloodFill*` (72),
+  `nppiFilterHoughLine*` (4), `nppiContours*` (3): untouched.  A first
+  attempt at validating the existing 8u PBA implementation did not reach a
+  successful NPP call (the probe kept returning NPP_SIZE_ERROR, see
+  f13_check_dt.cu), so no variants were added on top of an unverified base.
