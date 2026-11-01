@@ -198,8 +198,8 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
 // ---------------------------------------------------------------------------
 template <typename T, int NC, int PROC, typename VT>
 __global__ void resizeKernel(const T *__restrict__ src, int sStep, int srcW, int srcH, int clipHiX, int clipHiY, T *__restrict__ dst, int dStep, NppiRect dROI, VT afx,
-                             VT asx, VT afy, VT asy, VT clipLoX, VT clipLoY, int tapLoX, int tapHiX, int tapLoY,
-                             int tapHiY, int mode) {
+                             VT asx, VT afy, VT asy, VT clipLoX, VT clipLoY, VT coordLoX, VT coordHiX, VT coordLoY,
+                             VT coordHiY, int tapLoX, int tapHiX, int tapLoY, int tapHiY, int mode) {
   int dx = dROI.x + blockIdx.x * blockDim.x + threadIdx.x;
   int dy = dROI.y + blockIdx.y * blockDim.y + threadIdx.y;
   if (dx >= dROI.x + dROI.width || dy >= dROI.y + dROI.height) return;
@@ -212,6 +212,8 @@ __global__ void resizeKernel(const T *__restrict__ src, int sStep, int srcW, int
     sy = __fmaf_rn(afy, (VT)dy, -asy);
   }
   if (!(sx > clipLoX && sx < (VT)clipHiX && sy > clipLoY && sy < (VT)clipHiY)) return;
+  sx = sx < coordLoX ? coordLoX : (sx > coordHiX ? coordHiX : sx);
+  sy = sy < coordLoY ? coordLoY : (sy > coordHiY ? coordHiY : sy);
   VT v[NC];
   if (!samplePixel<T, NC, VT>(src, sStep, srcW, srcH, sx, sy, mode, afx, afy, tapLoX, tapHiX, tapLoY, tapHiY, v))
     return;
@@ -224,8 +226,8 @@ __global__ void resizeKernel(const T *__restrict__ src, int sStep, int srcW, int
 // Planar: one lane handles one plane independently.
 template <typename T, int NC, typename VT>
 __global__ void resizePlanarKernel(const T *__restrict__ src, int sStep, int srcW, int srcH, int clipHiX, int clipHiY, T *__restrict__ dst, int dStep, NppiRect dROI, VT afx,
-                                   VT asx, VT afy, VT asy, VT clipLoX, VT clipLoY, int tapLoX, int tapHiX, int tapLoY,
-                             int tapHiY, int mode) {
+                                   VT asx, VT afy, VT asy, VT clipLoX, VT clipLoY, VT coordLoX, VT coordHiX, VT coordLoY,
+                             VT coordHiY, int tapLoX, int tapHiX, int tapLoY, int tapHiY, int mode) {
   int dx = dROI.x + blockIdx.x * blockDim.x + threadIdx.x;
   int dy = dROI.y + blockIdx.y * blockDim.y + threadIdx.y;
   if (dx >= dROI.x + dROI.width || dy >= dROI.y + dROI.height) return;
@@ -238,6 +240,8 @@ __global__ void resizePlanarKernel(const T *__restrict__ src, int sStep, int src
     sy = __fmaf_rn(afy, (VT)dy, -asy);
   }
   if (!(sx > clipLoX && sx < (VT)clipHiX && sy > clipLoY && sy < (VT)clipHiY)) return;
+  sx = sx < coordLoX ? coordLoX : (sx > coordHiX ? coordHiX : sx);
+  sy = sy < coordLoY ? coordLoY : (sy > coordHiY ? coordHiY : sy);
   VT v[1];
   if (!samplePixel<T, 1, VT>(src, sStep, srcW, srcH, sx, sy, mode, afx, afy, tapLoX, tapHiX, tapLoY, tapHiY, v))
     return;
@@ -295,7 +299,17 @@ inline ClipRect intersectROI(NppiRect roi, NppiSize size) {
 template <typename T, typename VT>
 static void launchKernel(const T *src, int sStep, NppiSize srcSize, ClipRect clip, T *dst, int dStep, NppiRect dROI,
                          VT afx, VT asx, VT afy, VT asy, VT clipLoX, VT clipLoY, int tapLoX, int tapHiX, int tapLoY,
-                         int tapHiY, int mode, int nc, bool planar, int proc, cudaStream_t stream) {
+                         int tapHiY, int mode, int nc, bool planar, bool clampCoord, int proc,
+                         cudaStream_t stream) {
+  // nppiResize clamps the sample coordinate into the ROI intersection before
+  // sampling (measured); SqrPixel does not clamp the coordinate at all.
+  const VT big = (VT)1e30;
+  // nppiResize clamps the interpolation taps to [ROI start, ROI end] where the
+  // end is inclusive of the pixel just past the ROI rectangle (measured).
+  const VT coordLo = clampCoord ? (VT)tapLoX : -big;
+  const VT coordHi = clampCoord ? (VT)tapHiX : big;
+  const VT coordLoY = clampCoord ? (VT)tapLoY : -big;
+  const VT coordHiY = clampCoord ? (VT)tapHiY : big;
   if (dROI.width <= 0 || dROI.height <= 0) return;
   dim3 block(16, 16);
   dim3 grid((dROI.width + block.x - 1) / block.x, (dROI.height + block.y - 1) / block.y);
@@ -303,11 +317,11 @@ static void launchKernel(const T *src, int sStep, NppiSize srcSize, ClipRect cli
     if (nc == 3) {
       resizePlanarKernel<T, 3, VT><<<grid, block, 0, stream>>>(src, sStep, srcSize.width, srcSize.height, clip.x + clip.w,
                                                               clip.y + clip.h, dst, dStep, dROI, afx, asx, afy,
-                                                              asy, clipLoX, clipLoY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
+                                                              asy, clipLoX, clipLoY, coordLo, coordHi, coordLoY, coordHiY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
     } else {
       resizePlanarKernel<T, 4, VT><<<grid, block, 0, stream>>>(src, sStep, srcSize.width, srcSize.height, clip.x + clip.w,
                                                               clip.y + clip.h, dst, dStep, dROI, afx, asx, afy,
-                                                              asy, clipLoX, clipLoY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
+                                                              asy, clipLoX, clipLoY, coordLo, coordHi, coordLoY, coordHiY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
     }
     return;
   }
@@ -315,22 +329,22 @@ static void launchKernel(const T *src, int sStep, NppiSize srcSize, ClipRect cli
     case 1:
       resizeKernel<T, 1, 1, VT><<<grid, block, 0, stream>>>(src, sStep, srcSize.width, srcSize.height,
                                                          clip.x + clip.w, clip.y + clip.h, dst, dStep, dROI, afx,
-                                                         asx, afy, asy, clipLoX, clipLoY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
+                                                         asx, afy, asy, clipLoX, clipLoY, coordLo, coordHi, coordLoY, coordHiY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
       break;
     case 3:
       resizeKernel<T, 3, 3, VT><<<grid, block, 0, stream>>>(src, sStep, srcSize.width, srcSize.height,
                                                          clip.x + clip.w, clip.y + clip.h, dst, dStep, dROI, afx,
-                                                         asx, afy, asy, clipLoX, clipLoY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
+                                                         asx, afy, asy, clipLoX, clipLoY, coordLo, coordHi, coordLoY, coordHiY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
       break;
     default:
       if (proc == 3) {
         resizeKernel<T, 4, 3, VT><<<grid, block, 0, stream>>>(src, sStep, srcSize.width, srcSize.height,
                                                               clip.x + clip.w, clip.y + clip.h, dst, dStep, dROI,
-                                                              afx, asx, afy, asy, clipLoX, clipLoY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
+                                                              afx, asx, afy, asy, clipLoX, clipLoY, coordLo, coordHi, coordLoY, coordHiY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
       } else {
         resizeKernel<T, 4, 4, VT><<<grid, block, 0, stream>>>(src, sStep, srcSize.width, srcSize.height,
                                                               clip.x + clip.w, clip.y + clip.h, dst, dStep, dROI,
-                                                              afx, asx, afy, asy, clipLoX, clipLoY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
+                                                              afx, asx, afy, asy, clipLoX, clipLoY, coordLo, coordHi, coordLoY, coordHiY, tapLoX, tapHiX, tapLoY, tapHiY, mode);
       }
       break;
   }
@@ -360,7 +374,7 @@ static NppStatus runSqrPixel(const T *pSrc, NppiSize oSrcSize, int nSrcStep, Npp
   const VT asy = (VT)(nYShift * (1.0 / nYFactor) + (1.0 - 1.0 / nYFactor) * 0.5);
   launchKernel<T, VT>(pSrc, nSrcStep, oSrcSize, clip, pDst, nDstStep, oDstROI, afx, asx, afy, asy,
                       (VT)(oSrcROI.x - 0.5 * nXFactor), (VT)(oSrcROI.y - 0.5 * nYFactor), 0, oSrcSize.width - 1, 0,
-                      oSrcSize.height - 1, toMode(eInterpolation), nc, false, proc, stream);
+                      oSrcSize.height - 1, toMode(eInterpolation), nc, false, false, proc, stream);
   return NPP_NO_ERROR;
 }
 
@@ -387,8 +401,10 @@ static NppStatus runResize(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiR
   const VT afy = (VT)((double)oSrcROI.height / (double)oDstROI.height);
   const VT asy = (VT)(-(double)oSrcROI.y + 0.5 + ((double)oDstROI.y - 0.5) * (double)afy);
   launchKernel<T, VT>(pSrc, nSrcStep, oSrcSize, clip, pDst, nDstStep, oDstROI, afx, asx, afy, asy,
-                      (VT)(clip.x - 0.5), (VT)(clip.y - 0.5), clip.x, clip.x + clip.w - 1, clip.y,
-                      clip.y + clip.h - 1, toMode(eInterpolation), nc, false, proc, stream);
+                      (VT)(clip.x - 0.5), (VT)(clip.y - 0.5), clip.x,
+                      (clip.x + clip.w < oSrcSize.width - 1 ? clip.x + clip.w : oSrcSize.width - 1), clip.y,
+                      (clip.y + clip.h < oSrcSize.height - 1 ? clip.y + clip.h : oSrcSize.height - 1),
+                      toMode(eInterpolation), nc, false, false, proc, stream);
   return NPP_NO_ERROR;
 }
 
@@ -420,7 +436,7 @@ static NppStatus runSqrPixelPlanar(const T *const pSrc[], int nSrcStep, NppiSize
   for (int p = 0; p < nc; ++p) {
     launchKernel<T, VT>(pSrc[p], nSrcStep, oSrcSize, clip, pDst[p], nDstStep, oDstROI, afx, asx, afy, asy,
                         (VT)(oSrcROI.x - 0.5 * nXFactor), (VT)(oSrcROI.y - 0.5 * nYFactor), 0, oSrcSize.width - 1, 0,
-                        oSrcSize.height - 1, toMode(eInterpolation), 1, true, 1, stream);
+                        oSrcSize.height - 1, toMode(eInterpolation), 1, true, false, 1, stream);
   }
   return NPP_NO_ERROR;
 }
@@ -451,8 +467,10 @@ static NppStatus runResizePlanar(const T *const pSrc[], int nSrcStep, NppiSize o
   const VT asy = (VT)(-(double)oSrcROI.y + 0.5 + ((double)oDstROI.y - 0.5) * (double)afy);
   for (int p = 0; p < nc; ++p) {
     launchKernel<T, VT>(pSrc[p], nSrcStep, oSrcSize, clip, pDst[p], nDstStep, oDstROI, afx, asx, afy, asy,
-                        (VT)(clip.x - 0.5), (VT)(clip.y - 0.5), clip.x, clip.x + clip.w - 1, clip.y,
-                        clip.y + clip.h - 1, toMode(eInterpolation), 1, true, 1, stream);
+                        (VT)(clip.x - 0.5), (VT)(clip.y - 0.5), clip.x,
+                        (clip.x + clip.w < oSrcSize.width - 1 ? clip.x + clip.w : oSrcSize.width - 1), clip.y,
+                        (clip.y + clip.h < oSrcSize.height - 1 ? clip.y + clip.h : oSrcSize.height - 1),
+                        toMode(eInterpolation), 1, true, false, 1, stream);
   }
   return NPP_NO_ERROR;
 }

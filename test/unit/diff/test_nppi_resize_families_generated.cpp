@@ -425,3 +425,106 @@ TEST_F(NppiResizeBatchDiff, Advanced) {
   batch_advanced_case<Npp16f>("nppiResizeBatch_16f_C4R_Advanced_Ctx", "16f_C4/advanced_linear", 2, 4, 9, 7, 18, 14,
                               kLin, 3605);
 }
+
+#if NPP_DIFF_HAS_NONCTX
+// Non-Ctx adapters: the reference build only exposes the _Ctx symbols, so
+// these cases reuse the SAME case ids as their Ctx counterparts and verify
+// that the plain entry points forward with the ambient stream context.  They
+// are compiled only for the mcMPP build.
+TEST_F(NppiResizeDiff, NonCtx_Repr) {
+  {
+    const int es = 1;
+    const int sStep = align_step(9 * es, es), dStep = align_step(18 * es, es);
+    const size_t se = 7 * sStep / es, de = 14 * dStep / es;
+    std::vector<Npp8u> hs = fill_src<Npp8u>(se, 3000);
+    std::vector<Npp8u> hd(de, poison_value<Npp8u>());
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(se);
+    DeviceMemory<Npp8u> &d = arena<Npp8u>(de);
+    s.copyFromHost(hs);
+    d.copyFromHost(hd);
+    clear_cuda_error();
+    NppStatus st = nppiResize_8u_C1R(s.get(), sStep, NppiSize{9, 7}, NppiRect{0, 0, 9, 7}, d.get(), dStep,
+                                     NppiSize{18, 14}, NppiRect{0, 0, 18, 14}, kNN);
+    Case c("nppiResize/8u_C1/nn_up2", "nppiResize_8u_C1R");
+    c.input(hs.data(), hs.size());
+    c.status(st);
+    c.device_output<Npp8u>(d.get(), de, ValueKind::U8, 1e-5, 1e-6);
+    c.finish();
+  }
+  {
+    const int es = 4;
+    const int sStep = align_step(9 * 4 * es, es), dStep = align_step(18 * 4 * es, es);
+    const size_t se = 7 * sStep / es, de = 14 * dStep / es;
+    std::vector<Npp32f> hs = fill_src<Npp32f>(se, 3104);
+    std::vector<Npp32f> hd(de, poison_value<Npp32f>());
+    DeviceMemory<Npp32f> &s = arena<Npp32f>(se);
+    DeviceMemory<Npp32f> &d = arena<Npp32f>(de);
+    s.copyFromHost(hs);
+    d.copyFromHost(hd);
+    clear_cuda_error();
+    NppStatus st = nppiResize_32f_C4R(s.get(), sStep, NppiSize{9, 7}, NppiRect{0, 0, 9, 7}, d.get(), dStep,
+                                      NppiSize{18, 14}, NppiRect{0, 0, 18, 14}, kLan);
+    Case c("nppiResize/32f_C4/lanczos_up2", "nppiResize_32f_C4R");
+    c.input(hs.data(), hs.size() * sizeof(Npp32f));
+    c.status(st);
+    c.device_output<Npp32f>(d.get(), de, ValueKind::F32, 1e-5, 1e-6);
+    c.finish();
+  }
+  {
+    const int es = 4;
+    const int sStep = align_step(9 * es, es), dStep = align_step(18 * es, es);
+    const size_t se = 7 * sStep / es, de = 14 * dStep / es;
+    const Npp32f *srcs[3] = {nullptr, nullptr, nullptr};
+    Npp32f *dsts[3] = {nullptr, nullptr, nullptr};
+    std::vector<std::vector<Npp32f>> host;
+    Case c("nppiResize/32f_P3/linear_up2", "nppiResize_32f_P3R");
+    for (int p = 0; p < 3; ++p) {
+      host.push_back(fill_src<Npp32f>(se, 3202 + 7 * p));
+      DeviceMemory<Npp32f> &s = arena<Npp32f>(se);
+      DeviceMemory<Npp32f> &d = arena<Npp32f>(de);
+      s.copyFromHost(host.back());
+      d.copyFromHost(std::vector<Npp32f>(de, poison_value<Npp32f>()));
+      srcs[p] = s.get();
+      dsts[p] = d.get();
+      c.input(host.back().data(), host.back().size() * sizeof(Npp32f));
+    }
+    clear_cuda_error();
+    NppStatus st = nppiResize_32f_P3R(srcs, sStep, NppiSize{9, 7}, NppiRect{0, 0, 9, 7}, dsts, dStep,
+                                      NppiSize{18, 14}, NppiRect{0, 0, 18, 14}, kLin);
+    c.status(st);
+    for (int p = 0; p < 3; ++p) c.device_output<Npp32f>(dsts[p], de, ValueKind::F32, 1e-5, 1e-6);
+    c.finish();
+  }
+}
+
+TEST_F(NppiResizeBatchDiff, NonCtx_Repr) {
+  const int n = 3, srcW = 10, srcH = 9, chans = 1;
+  const int sStep = align_step(srcW * chans, 1), dStep = align_step(20 * chans, 1);
+  const size_t se = (size_t)srcH * sStep, de = (size_t)18 * dStep;
+  std::vector<NppiResizeBatchCXR> list(n);
+  std::vector<std::vector<Npp8u>> host;
+  std::vector<DeviceMemory<Npp8u> *> dsts;
+  for (int i = 0; i < n; ++i) {
+    host.push_back(fill_src<Npp8u>(se, 3500 + 11 * i));
+    DeviceMemory<Npp8u> &s = arena<Npp8u>(se);
+    DeviceMemory<Npp8u> &d = arena<Npp8u>(de);
+    s.copyFromHost(host.back());
+    d.copyFromHost(std::vector<Npp8u>(de, poison_value<Npp8u>()));
+    list[i].pSrc = s.get();
+    list[i].nSrcStep = sStep;
+    list[i].pDst = d.get();
+    list[i].nDstStep = dStep;
+    dsts.push_back(&d);
+  }
+  DeviceMemory<NppiResizeBatchCXR> &dl = arena<NppiResizeBatchCXR>(n);
+  dl.copyFromHost(list);
+  clear_cuda_error();
+  NppStatus st = nppiResizeBatch_8u_C1R(NppiSize{srcW, srcH}, NppiRect{0, 0, srcW, srcH}, NppiSize{20, 18},
+                                        NppiRect{0, 0, 20, 18}, kLin, dl.get(), n);
+  Case c("nppiResizeBatch/8u_C1/linear_up2", "nppiResizeBatch_8u_C1R");
+  for (int i = 0; i < n; ++i) c.input(host[i].data(), host[i].size());
+  c.status(st);
+  for (int i = 0; i < n; ++i) c.device_output<Npp8u>(dsts[i]->get(), de, ValueKind::U8, 1e-5, 1e-6);
+  c.finish();
+}
+#endif

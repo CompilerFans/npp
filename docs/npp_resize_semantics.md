@@ -117,8 +117,11 @@ the golden).  mcMPP replicates that: the AC4 templates process 3 channels of a
   oDstROI.width) - 0.5` (same for y); NN rounds half up.  Verified with
   coordinate-coded 32f goldens (`NppiResizeFamilyProbeDiff.Mapping_32f_C1`).
 * clip: the source coordinate must satisfy `ix0 - 0.5 < srcX < ix1` where
-  `[ix0, ix1)` is the intersection of `oSrcROI` with the image; taps clamp to
-  the image edge.
+  `[ix0, ix1)` is the intersection of `oSrcROI` with the image.
+* interpolation taps are clamped to `[ix0, min(ix1, imageEnd-1)]`, i.e. the
+  left edge is the ROI start and the right edge is inclusive of the pixel just
+  past the ROI rectangle (measured: `linear_roi_full` blends with that pixel,
+  `linear_roi_roi` clamps the left tap).
 * error paths are much more lenient than SqrPixel: negative/zero source or
   destination sizes, degenerate ROIs and an empty ROI intersection all return
   `NPP_RESIZE_NO_OPERATION_ERROR`; null pointers and bad steps are checked
