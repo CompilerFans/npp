@@ -185,7 +185,7 @@ NppStatus filterGaussAdvanced(const Src *pSrc, int nSrcStep, Dst *pDst, int nDst
     if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
     return NPP_NO_ERROR;
   }
-  if (nFilterTaps < 0) return NPP_BAD_ARGUMENT_ERROR;
+  if (nFilterTaps < 0) return NPP_OUT_OFF_RANGE_ERROR;
   if (nFilterTaps == 0 || nFilterTaps < 3 || (nFilterTaps & 1) == 0) return NPP_MASK_SIZE_ERROR;
   return launch<Src, Dst, Channels, AlphaPreserve, false, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel,
                                                                 nFilterTaps, NppiSize{0, 0}, NppiPoint{0, 0},
@@ -202,8 +202,13 @@ NppStatus filterGaussAdvancedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrc
   if (oSrcOffset.x < 0 || oSrcOffset.y < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y >= oSrcSize.height)
     return NPP_OUT_OFF_RANGE_ERROR;
   if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    // 5090 quirk: the empty-ROI path rejects only taps < 3 (MASK_SIZE_ERROR)
+    // and accepts any odd or even count >= 3.
+    if (nFilterTaps < 3) return NPP_MASK_SIZE_ERROR;
+    return NPP_NO_ERROR;
+  }
   if (nFilterTaps < 0 || nFilterTaps < 3 || (nFilterTaps & 1) == 0) return NPP_MASK_SIZE_ERROR;
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return launch<Src, Dst, Channels, AlphaPreserve, true, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pKernel,
                                                                nFilterTaps, oSrcSize, oSrcOffset, stream);
 }

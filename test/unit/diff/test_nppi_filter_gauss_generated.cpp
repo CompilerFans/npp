@@ -26,9 +26,10 @@
 //    zero-size ROI -> dst step.  Border adds oSrcSize, oSrcOffset and border
 //    type checks before the mask size.  Advanced plain: null -> negative ROI ->
 //    zero-ROI tap quirks (taps <= 0 -> SIZE, 1/2 -> MASK, >=3 passes) ->
-//    negative taps (BAD_ARGUMENT) -> taps < 3 or even (MASK).  AdvancedBorder:
-//    null -> negative ROI -> srcSize -> offset -> border type -> taps (all
-//    MASK_SIZE_ERROR) -> zero-ROI -> dst step;
+//    negative taps (OUT_OFF_RANGE) -> taps < 3 or even (MASK).  AdvancedBorder:
+//    null -> negative ROI -> srcSize -> offset -> border type -> zero-ROI tap
+//    quirks (taps < 3 -> MASK_SIZE_ERROR, >=3 passes regardless of parity) ->
+//    taps (MASK_SIZE_ERROR) -> dst step;
 //  - dst step is checked unsigned (negative passes) and must be a multiple of
 //    the alignment (element size for C1/C3, pixel size for C4/AC4); the source
 //    step is never validated.

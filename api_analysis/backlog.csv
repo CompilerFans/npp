@@ -20,7 +20,6 @@ nppi_filtering_functions.h,nppiFilterBox,34,6,0,28,14,14,20,28
 nppi_color_conversion.h,nppiLUTPalette,26,0,0,26,13,13,13,26
 nppi_color_conversion.h,nppiColorTwist,24,0,0,24,12,12,12,24
 nppi_filtering_functions.h,nppiFilterBoxBorder,32,8,0,24,12,12,20,24
-nppi_filtering_functions.h,nppiFilterWienerBorder,24,0,0,24,12,12,12,24
 nppi_geometry_transforms.h,nppiWarpAffineBack,48,24,24,0,12,12,36,24
 nppi_morphological_operations.h,nppiDilate3x3Border,24,0,0,24,12,12,12,24
 nppi_morphological_operations.h,nppiDilateBorder,24,0,0,24,12,12,12,24
@@ -354,6 +353,7 @@ nppi_filtering_functions.h,nppiFilterSobelVertMask,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterSobelVertMaskBorder,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterSobelVertSecond,6,6,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterSobelVertSecondBorder,6,6,0,0,0,0,3,0
+nppi_filtering_functions.h,nppiFilterWienerBorder,24,24,0,0,0,0,12,0
 nppi_filtering_functions.h,nppiSignedDistanceTransformPBAGet64fBufferSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiSumWindowColumn,18,18,0,0,0,0,10,0
 nppi_filtering_functions.h,nppiSumWindowColumnBorder,18,18,0,0,0,0,9,0

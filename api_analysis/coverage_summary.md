@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10432 (83.2%)
+- Real implementations: 10456 (83.4%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 1987
+- Missing: 1963
 - Tested: 8244 (65.8%)
-- Real and tested: 7158
+- Real and tested: 7170
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1304 | 0 | 592 | 997 |
+| nppi_filtering_functions.h | 1896 | 1328 | 0 | 568 | 997 |
 | nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -53,7 +53,6 @@
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
 | nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
-| nppi_filtering_functions.h | nppiFilterWienerBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
 | nppi_morphological_operations.h | nppiDilate3x3Border | 24 | 12 |
 | nppi_morphological_operations.h | nppiDilateBorder | 24 | 12 |
@@ -72,3 +71,4 @@
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
 | nppi_geometry_transforms.h | nppiWarpPerspectiveBack | 16 | 8 |
+| nppi_geometry_transforms.h | nppiWarpPerspective | 16 | 8 |

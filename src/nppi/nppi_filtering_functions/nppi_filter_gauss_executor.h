@@ -34,7 +34,7 @@
 //   * Validation order, GaussAdvanced (plain): null (src/dst/kernel) ->
 //     negative ROI -> zero-size ROI quirks (nFilterTaps <= 0 -> SIZE_ERROR,
 //     nFilterTaps < 3 -> MASK_SIZE_ERROR, otherwise NO_ERROR regardless of
-//     parity) -> negative taps (BAD_ARGUMENT_ERROR) -> taps < 3 or even
+//     parity) -> negative taps (OUT_OFF_RANGE_ERROR) -> taps < 3 or even
 //     (MASK_SIZE_ERROR) -> dst step.
 //   * Validation order, GaussAdvancedBorder: null -> negative ROI ->
 //     oSrcSize <= 0 -> oSrcOffset out of range -> border type -> taps
