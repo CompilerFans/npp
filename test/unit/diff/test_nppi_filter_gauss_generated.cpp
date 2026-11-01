@@ -376,6 +376,8 @@ void adv_border_errors(const std::string &fam, const std::string &suffix, int ch
   only_status(fn, fam + "/err/roizero" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, 3, k, rep, ctx); });
   only_status(fn, fam + "/err/roizero_taps0" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, 0, k, rep, ctx); });
   only_status(fn, fam + "/err/roizero_taps2" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, 2, k, rep, ctx); });
+  only_status(fn, fam + "/err/roizero_taps4" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, 4, k, rep, ctx); });
+  only_status(fn, fam + "/err/roizero_taps6" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, 6, k, rep, ctx); });
   only_status(fn, fam + "/err/roizero_tapsneg" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, -1, k, rep, ctx); });
   only_status(fn, fam + "/err/roizero_badborder" + suffix, [&] { return f(s, 16, sz, off, d, 16, zroi, 3, k, badB, ctx); });
   only_status(fn, fam + "/err/roizero_offneg" + suffix, [&] { return f(s, 16, sz, NppiPoint{0, -1}, d, 16, zroi, 3, k, rep, ctx); });
