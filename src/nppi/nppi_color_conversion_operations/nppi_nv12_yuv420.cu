@@ -21,8 +21,8 @@ __global__ void nv12_to_yuv420_uv_kernel(const Npp8u *__restrict__ srcUV, int sr
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-  int uvWidth = width >> 1;
-  int uvHeight = height >> 1;
+  int uvWidth = (width + 1) >> 1;
+  int uvHeight = (height + 1) >> 1;
   if (x >= uvWidth || y >= uvHeight) {
     return;
   }
@@ -48,8 +48,8 @@ extern "C" cudaError_t nppiNV12ToYUV420_8u_P2P3R_kernel(const Npp8u *pSrcY, int 
   nv12_to_yuv420_y_kernel<<<gridSize, blockSize, 0, stream>>>(pSrcY, nSrcYStep, pDstY, nDstYStep, oSizeROI.width,
                                                               oSizeROI.height);
 
-  dim3 uvGridSize(((oSizeROI.width / 2) + blockSize.x - 1) / blockSize.x,
-                  ((oSizeROI.height / 2) + blockSize.y - 1) / blockSize.y);
+  dim3 uvGridSize((((oSizeROI.width + 1) / 2) + blockSize.x - 1) / blockSize.x,
+                  (((oSizeROI.height + 1) / 2) + blockSize.y - 1) / blockSize.y);
   nv12_to_yuv420_uv_kernel<<<uvGridSize, blockSize, 0, stream>>>(pSrcUV, nSrcUVStep, pDstU, nDstUStep, pDstV, nDstVStep,
                                                                  oSizeROI.width, oSizeROI.height);
 

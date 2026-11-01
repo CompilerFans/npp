@@ -1,0 +1,7 @@
+{
+  "family": "nppiRotate",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_rotate_generated.cpp",
+  "includes": ["nppi_rotate_executor.h"],
+  "call": "nppi::rotate::rotate<{dtype}, {chan}, {is_ac4}>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, nAngle, nShiftX, nShiftY, eInterpolation, nppStreamCtx.hStream)"
+}

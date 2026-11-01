@@ -1,0 +1,44 @@
+== part7 validation matrix (8u C1 unless noted)
+VAL need=100
+VAL ok                         0
+VAL nullsrc                    -8
+VAL nulldst                    -8
+VAL nullbuf                    -8
+VAL negroi_w                   -6
+VAL negroi_h                   -6
+VAL zeroroi                    -6
+VAL zeroroi_w                  -6
+VAL zeroroi_h                  -6
+VAL zeroroi_nullbuf            -8
+VAL zeroroi_negroi             -6
+VAL negroi_nullbuf             -8
+VAL negroi_radneg              -6
+VAL radneg                     -6
+VAL radfrac                    0
+VAL signeg                     -6
+VAL sigzero                    -6
+VAL border_none                -14
+VAL border_five                -14
+VAL border_con                 -14
+VAL border_wra                 -14
+VAL border_mir                 -14
+VAL zeroroi_badborder          -14
+VAL negroi_badborder           -6
+VAL offneg                     0
+VAL offbig                     0
+VAL stepsmall                  -16
+VAL stepodd8u_c1               0
+VAL srcstepodd                 0
+VAL kernelGTroi                -6
+VAL kernelEQroi                0
+VAL w100                       0
+VAL thrneg                     0
+VAL bufexact                   0
+VAL bufminus4                  -1000
+VAL buf4                       -1000
+VAL 32f_stepodd                -108
+VAL 32f_stepsmall              -16
+VAL 16u_stepodd                -108
+VAL 8u_ac4_stepodd             -108
+VAL 8u_ac4_stepsmall           -16
+VAL inplace status=-1000 out0=0 out1=0 outW=77

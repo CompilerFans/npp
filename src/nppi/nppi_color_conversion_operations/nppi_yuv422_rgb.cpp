@@ -16,20 +16,25 @@ cudaError_t nppiYUV422ToRGB_8u_C2C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp
 }
 
 static inline NppStatus validateYUV422ToRGBInputs(const Npp8u *const pSrc[3], const int rSrcStep[3], void *pDst,
-                                                  int nDstStep, NppiSize oSizeROI) {
+                                                  int nDstStep, NppiSize oSizeROI, int dstChannels) {
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
   if (!rSrcStep) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  if (oSizeROI.width % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
-  }
   if (rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstStep <= 0) {
+    return NPP_STEP_ERROR;
+  }
+  const int minDstStep = dstChannels == 0 ? oSizeROI.width : oSizeROI.width * dstChannels;
+  if (nDstStep < minDstStep) {
     return NPP_STEP_ERROR;
   }
   return NPP_SUCCESS;
@@ -40,13 +45,17 @@ static inline NppStatus validatePackedYUV422ToRGB(const Npp8u *pSrc, int nSrcSte
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) {
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  if (oSizeROI.width % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
-  }
   if (nSrcStep <= 0 || nDstStep <= 0) {
+    return NPP_STEP_ERROR;
+  }
+  if (nDstStep < oSizeROI.width * 3) {
     return NPP_STEP_ERROR;
   }
   return NPP_SUCCESS;
@@ -54,9 +63,13 @@ static inline NppStatus validatePackedYUV422ToRGB(const Npp8u *pSrc, int nSrcSte
 
 NppStatus nppiYUV422ToRGB_8u_P3C3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
                                        NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateYUV422ToRGBInputs(pSrc, rSrcStep, pDst, nDstStep, oSizeROI);
+  NppStatus status = validateYUV422ToRGBInputs(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, 3);
   if (status != NPP_SUCCESS) {
     return status;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
 
   cudaError_t cudaStatus = nppiYUV422ToRGB_8u_P3C3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
@@ -76,9 +89,13 @@ NppStatus nppiYUV422ToRGB_8u_P3R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3]
   if (!pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  NppStatus status = validateYUV422ToRGBInputs(pSrc, rSrcStep, pDst[0], nDstStep, oSizeROI);
+  NppStatus status = validateYUV422ToRGBInputs(pSrc, rSrcStep, pDst[0], nDstStep, oSizeROI, 0);
   if (status != NPP_SUCCESS) {
     return status;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
 
   cudaError_t cudaStatus = nppiYUV422ToRGB_8u_P3R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
@@ -96,9 +113,13 @@ NppStatus nppiYUV422ToRGB_8u_P3R(const Npp8u *const pSrc[3], int rSrcStep[3], Np
 
 NppStatus nppiYUV422ToRGB_8u_P3AC4R_Ctx(const Npp8u *const pSrc[3], int rSrcStep[3], Npp8u *pDst, int nDstStep,
                                         NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
-  NppStatus status = validateYUV422ToRGBInputs(pSrc, rSrcStep, pDst, nDstStep, oSizeROI);
+  NppStatus status = validateYUV422ToRGBInputs(pSrc, rSrcStep, pDst, nDstStep, oSizeROI, 4);
   if (status != NPP_SUCCESS) {
     return status;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
 
   cudaError_t cudaStatus = nppiYUV422ToRGB_8u_P3AC4R_kernel(pSrc[0], rSrcStep[0], pSrc[1], rSrcStep[1], pSrc[2],
@@ -119,6 +140,10 @@ NppStatus nppiYUV422ToRGB_8u_C2C3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
   NppStatus status = validatePackedYUV422ToRGB(pSrc, nSrcStep, pDst, nDstStep, oSizeROI);
   if (status != NPP_SUCCESS) {
     return status;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
 
   cudaError_t cudaStatus = nppiYUV422ToRGB_8u_C2C3R_kernel(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,

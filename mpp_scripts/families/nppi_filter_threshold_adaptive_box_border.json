@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterThresholdAdaptiveBoxBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_threshold_adaptive_box_border_generated.cpp",
+  "includes": [
+    "nppi_filter_tail_executor.h"
+  ],
+  "call": "nppi::filter::thresholdAdaptiveBoxBorder(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, oMaskSize, nDelta, nValGT, nValLE, eBorderType, nppStreamCtx.hStream)"
+}

@@ -19,14 +19,25 @@ static NppStatus validateYUV422Planar(const Npp8u *pSrc, int nSrcStep, Npp8u *pD
   if (!pSrc || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcStep <= 0 || rDstStep[0] <= 0 || rDstStep[1] <= 0 || rDstStep[2] <= 0) {
-    return NPP_STEP_ERROR;
+  if (!rDstStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
   }
   if ((oSizeROI.width % 2) != 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  }
+  if (nSrcStep <= 0 || rDstStep[0] <= 0 || rDstStep[1] <= 0 || rDstStep[2] <= 0) {
+    return NPP_STEP_ERROR;
+  }
+  if (rDstStep[0] < oSizeROI.width || rDstStep[1] < oSizeROI.width / 2 ||
+      rDstStep[2] < oSizeROI.width / 2) {
+    return NPP_STEP_ERROR;
   }
   return NPP_NO_ERROR;
 }
@@ -44,6 +55,10 @@ NppStatus nppiRGBToYUV422_8u_C3P3R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
   NppStatus status = validateYUV422Planar(pSrc, nSrcStep, pDst, rDstStep, oSizeROI);
   if (status != NPP_NO_ERROR) {
     return status;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
 
   cudaError_t cudaStatus =
@@ -66,6 +81,10 @@ NppStatus nppiRGBToYUV422_8u_P3R_Ctx(const Npp8u *const pSrc[3], int nSrcStep, N
   if (status != NPP_NO_ERROR) {
     return status;
   }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
 
   cudaError_t cudaStatus =
       nppiRGBToYUV422_8u_P3R_kernel(pSrc[0], pSrc[1], pSrc[2], nSrcStep, pDst[0], rDstStep[0], pDst[1], rDstStep[1],
@@ -86,14 +105,21 @@ NppStatus nppiRGBToYUV422_8u_C3C2R_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *p
   if (!pSrc || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcStep <= 0 || nDstStep <= 0) {
-    return NPP_STEP_ERROR;
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
   }
   if ((oSizeROI.width % 2) != 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  }
+  if (nSrcStep <= 0 || nDstStep <= 0) {
+    return NPP_STEP_ERROR;
+  }
+  if (nDstStep < oSizeROI.width * 2) {
+    return NPP_STEP_ERROR;
   }
 
   cudaError_t cudaStatus =

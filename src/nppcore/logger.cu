@@ -42,9 +42,10 @@ void Logger::log(LogLevel level, const char *level_str, const char *format, va_l
 
   // Print timestamp
   time_t now = time(nullptr);
-  struct tm *timeinfo = localtime(&now);
+  struct tm timeinfo;
+  localtime_r(&now, &timeinfo);
   char time_buffer[32];
-  strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+  strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
 
   // Print level and timestamp
   fprintf(stderr, "[%s] [%s] ", level_str, time_buffer);

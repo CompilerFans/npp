@@ -1,0 +1,9 @@
+{
+  "family": "nppiErode3x3Border",
+  "module": "nppi_morphological_operations.h",
+  "source": "src/nppi/nppi_morphological_operations/nppi_morph_erode3x3_border_generated.cpp",
+  "includes": [
+    "nppi_morph_executor.h"
+  ],
+  "call": "nppi::morph::run3x3Border<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eBorderType, nppi::morph::kErode, nppStreamCtx.hStream)"
+}

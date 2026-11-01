@@ -90,7 +90,8 @@ __device__ void union2D(Npp32u *pLabels, int nLabelsStep, int width, Npp32u labe
 // Only BACKGROUND pixels (value == 0) will be merged via Union-Find
 // FOREGROUND pixels keep their initial linear index unchanged
 // This matches NVIDIA NPP behavior
-__global__ void initLabels_kernel(const Npp8u *pSrc, int nSrcStep,
+template <typename Src>
+__global__ void initLabels_kernel(const Src *pSrc, int nSrcStep,
                                    Npp32u *pLabels, int nLabelsStep,
                                    int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -108,7 +109,8 @@ __global__ void initLabels_kernel(const Npp8u *pSrc, int nSrcStep,
 // Local merge: merge neighboring pixels with SAME VALUE (4-way connectivity)
 // Pixels are merged only if they have the exact same source value
 // This matches NVIDIA NPP behavior
-__global__ void localMerge4Way_kernel(const Npp8u *pSrc, int nSrcStep,
+template <typename Src>
+__global__ void localMerge4Way_kernel(const Src *pSrc, int nSrcStep,
                                        Npp32u *pLabels, int nLabelsStep,
                                        int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -116,8 +118,8 @@ __global__ void localMerge4Way_kernel(const Npp8u *pSrc, int nSrcStep,
 
   if (x >= width || y >= height) return;
 
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp8u myValue = src_row[x];
+  const Src *src_row = (const Src *)((const char *)pSrc + y * nSrcStep);
+  Src myValue = src_row[x];
 
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
@@ -130,7 +132,7 @@ __global__ void localMerge4Way_kernel(const Npp8u *pSrc, int nSrcStep,
 
   // Check bottom neighbor (merge only if same value)
   if (y + 1 < height) {
-    const Npp8u *next_src_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
+    const Src *next_src_row = (const Src *)((const char *)pSrc + (y + 1) * nSrcStep);
     if (next_src_row[x] == myValue) {
       Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
       Npp32u bottomLabel = next_row[x];
@@ -142,7 +144,8 @@ __global__ void localMerge4Way_kernel(const Npp8u *pSrc, int nSrcStep,
 // Local merge: merge neighboring pixels with SAME VALUE (8-way connectivity)
 // Pixels are merged only if they have the exact same source value
 // Only check forward directions (right, bottom-left, bottom, bottom-right) to avoid redundant work
-__global__ void localMerge8Way_kernel(const Npp8u *pSrc, int nSrcStep,
+template <typename Src>
+__global__ void localMerge8Way_kernel(const Src *pSrc, int nSrcStep,
                                        Npp32u *pLabels, int nLabelsStep,
                                        int width, int height) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -150,8 +153,8 @@ __global__ void localMerge8Way_kernel(const Npp8u *pSrc, int nSrcStep,
 
   if (x >= width || y >= height) return;
 
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp8u myValue = src_row[x];
+  const Src *src_row = (const Src *)((const char *)pSrc + y * nSrcStep);
+  Src myValue = src_row[x];
 
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
@@ -163,7 +166,7 @@ __global__ void localMerge8Way_kernel(const Npp8u *pSrc, int nSrcStep,
   }
 
   if (y + 1 < height) {
-    const Npp8u *next_src_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
+    const Src *next_src_row = (const Src *)((const char *)pSrc + (y + 1) * nSrcStep);
     Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
 
     // Bottom-left neighbor (merge only if same value)
@@ -216,6 +219,7 @@ __global__ void convertTo0Based_kernel(Npp32u *pLabels, int nLabelsStep,
 
 // Batch processing kernel: initialize labels for multiple images
 // ALL pixels get their 1-based linear index; only background pixels will be merged later
+template <typename Src>
 __global__ void batchInitLabels_kernel(const NppiImageDescriptor *pSrcBatchList,
                                         NppiImageDescriptor *pDstBatchList,
                                         int batchSize, int maxWidth, int maxHeight) {
@@ -239,6 +243,7 @@ __global__ void batchInitLabels_kernel(const NppiImageDescriptor *pSrcBatchList,
 
 // Batch processing kernel: local merge for multiple images (8-way)
 // Only check forward directions (right, bottom-left, bottom, bottom-right) to avoid redundant work
+template <typename Src>
 __global__ void batchLocalMerge8Way_kernel(const NppiImageDescriptor *pSrcBatchList,
                                             NppiImageDescriptor *pDstBatchList,
                                             int batchSize, int maxWidth, int maxHeight) {
@@ -251,15 +256,15 @@ __global__ void batchLocalMerge8Way_kernel(const NppiImageDescriptor *pSrcBatchL
   NppiSize imgSize = pDstBatchList[imgIdx].oSize;
   if (x >= imgSize.width || y >= imgSize.height) return;
 
-  const Npp8u *pSrc = (const Npp8u *)pSrcBatchList[imgIdx].pData;
+  const Src *pSrc = (const Src *)pSrcBatchList[imgIdx].pData;
   int nSrcStep = pSrcBatchList[imgIdx].nStep;
   Npp32u *pLabels = (Npp32u *)pDstBatchList[imgIdx].pData;
   int nLabelsStep = pDstBatchList[imgIdx].nStep;
   int width = imgSize.width;
   int height = imgSize.height;
 
-  const Npp8u *src_row = (const Npp8u *)((const char *)pSrc + y * nSrcStep);
-  Npp8u myValue = src_row[x];
+  const Src *src_row = (const Src *)((const char *)pSrc + y * nSrcStep);
+  Src myValue = src_row[x];
 
   Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
   Npp32u label = labels_row[x];
@@ -271,7 +276,7 @@ __global__ void batchLocalMerge8Way_kernel(const NppiImageDescriptor *pSrcBatchL
   }
 
   if (y + 1 < height) {
-    const Npp8u *next_src_row = (const Npp8u *)((const char *)pSrc + (y + 1) * nSrcStep);
+    const Src *next_src_row = (const Src *)((const char *)pSrc + (y + 1) * nSrcStep);
     Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
 
     // Bottom-left neighbor (merge only if same value)
@@ -290,6 +295,45 @@ __global__ void batchLocalMerge8Way_kernel(const NppiImageDescriptor *pSrcBatchL
     if (x + 1 < width && next_src_row[x + 1] == myValue) {
       Npp32u brLabel = next_row[x + 1];
       union2D(pLabels, nLabelsStep, width, label, brLabel);
+    }
+  }
+}
+
+// Batch processing kernel: local merge for multiple images (4-way)
+template <typename Src>
+__global__ void batchLocalMerge4Way_kernel(const NppiImageDescriptor *pSrcBatchList,
+                                            NppiImageDescriptor *pDstBatchList,
+                                            int batchSize, int maxWidth, int maxHeight) {
+  int imgIdx = blockIdx.z;
+  if (imgIdx >= batchSize) return;
+
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  NppiSize imgSize = pDstBatchList[imgIdx].oSize;
+  if (x >= imgSize.width || y >= imgSize.height) return;
+
+  const Src *pSrc = (const Src *)pSrcBatchList[imgIdx].pData;
+  int nSrcStep = pSrcBatchList[imgIdx].nStep;
+  Npp32u *pLabels = (Npp32u *)pDstBatchList[imgIdx].pData;
+  int nLabelsStep = pDstBatchList[imgIdx].nStep;
+  int width = imgSize.width;
+  int height = imgSize.height;
+
+  const Src *src_row = (const Src *)((const char *)pSrc + y * nSrcStep);
+  Src myValue = src_row[x];
+
+  Npp32u *labels_row = (Npp32u *)((char *)pLabels + y * nLabelsStep);
+  Npp32u label = labels_row[x];
+
+  if (x + 1 < width && src_row[x + 1] == myValue) {
+    union2D(pLabels, nLabelsStep, width, label, labels_row[x + 1]);
+  }
+  if (y + 1 < height) {
+    const Src *next_src_row = (const Src *)((const char *)pSrc + (y + 1) * nSrcStep);
+    Npp32u *next_row = (Npp32u *)((char *)pLabels + (y + 1) * nLabelsStep);
+    if (next_src_row[x] == myValue) {
+      union2D(pLabels, nLabelsStep, width, label, next_row[x]);
     }
   }
 }
@@ -337,27 +381,15 @@ __global__ void batchConvertTo0Based_kernel(NppiImageDescriptor *pDstBatchList,
   labels_row[x] = labels_row[x] - 1;
 }
 
-extern "C" {
+namespace {
 
-// Get required buffer size for label markers
-NppStatus nppiLabelMarkersUFGetBufferSize_32u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize) {
-  // Buffer size is proportional to image size for compatibility with NVIDIA NPP
-  // Even though our implementation uses the label image itself as Union-Find structure,
-  // we report a size proportional to the image for API compatibility
-  size_t imagePixels = (size_t)oSizeROI.width * oSizeROI.height;
-  size_t bufferSize = imagePixels * sizeof(Npp32u) + 1024; // Extra space for alignment
-  size_t alignedSize = (bufferSize + 511) & ~511;
-
-  *hpBufferSize = (int)alignedSize;
-  return NPP_SUCCESS;
-}
-
-// Single image label markers using Union-Find
-NppStatus nppiLabelMarkersUF_8u32u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
-                                                 Npp32u *pDst, int nDstStep,
-                                                 NppiSize oSizeROI, NppiNorm eNorm,
-                                                 Npp8u *pBuffer,
-                                                 NppStreamContext nppStreamCtx) {
+// Shared implementation for the single-image label-markers variants.  Src is
+// the source pixel type (8u / 16u / 32u); the destination label image is
+// always 32u and the Union-Find lives inside it.
+template <typename Src>
+NppStatus labelMarkersSingleImpl(const Src *pSrc, int nSrcStep, Npp32u *pDst, int nDstStep,
+                                 NppiSize oSizeROI, NppiNorm eNorm, Npp8u * /*pBuffer*/,
+                                 NppStreamContext nppStreamCtx) {
   int width = oSizeROI.width;
   int height = oSizeROI.height;
 
@@ -365,96 +397,159 @@ NppStatus nppiLabelMarkersUF_8u32u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep,
   dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
                 (height + blockSize.y - 1) / blockSize.y);
 
-  // Step 1: Initialize labels
-  initLabels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  // Step 1: initialize every pixel with its 1-based linear index.
+  initLabels_kernel<Src><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrc, nSrcStep, pDst, nDstStep, width, height);
 
-  // Step 2: Local merge based on connectivity
-  // Use more iterations for larger images to ensure convergence
-  int numIterations = 20; // Increased iterations for better convergence
+  // Step 2: local merge; L1 is 4-way, Inf is 8-way.
+  const int numIterations = 20;
   for (int i = 0; i < numIterations; i++) {
     if (eNorm == nppiNormInf) {
-      // 8-way connectivity
-      localMerge8Way_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      localMerge8Way_kernel<Src><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
           pSrc, nSrcStep, pDst, nDstStep, width, height);
     } else {
-      // 4-way connectivity (nppiNormL1)
-      localMerge4Way_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+      localMerge4Way_kernel<Src><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
           pSrc, nSrcStep, pDst, nDstStep, width, height);
     }
-    // Interleave path compression for faster convergence
     if (i % 4 == 3) {
       pathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
           pDst, nDstStep, width, height);
     }
   }
 
-  // Step 3: Final path compression (for all pixels)
   for (int i = 0; i < 10; i++) {
     pathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pDst, nDstStep, width, height);
   }
-
-  // Step 4: Convert from 1-based to 0-based labels
   convertTo0Based_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pDst, nDstStep, width, height);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
+  if (cudaStatus != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_SUCCESS;
 }
 
-// Batch image label markers using Union-Find
-NppStatus nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx_impl(
-    const NppiImageDescriptor *pSrcBatchList,
-    NppiImageDescriptor *pDstBatchList,
-    int nBatchSize, NppiSize oMaxSizeROI,
-    NppiNorm eNorm, NppStreamContext nppStreamCtx) {
-
+template <typename Src>
+NppStatus labelMarkersBatchImpl(const NppiImageDescriptor *pSrcBatchList,
+                                NppiImageDescriptor *pDstBatchList, int nBatchSize,
+                                NppiSize oMaxSizeROI, NppiNorm eNorm,
+                                NppStreamContext nppStreamCtx) {
   int maxWidth = oMaxSizeROI.width;
   int maxHeight = oMaxSizeROI.height;
 
+  // NPP documents the batch lists as device memory, but the differential
+  // harness (and plenty of caller code) passes host arrays.  Stage them so the
+  // kernels always see device memory.
+  NppiImageDescriptor *dSrc = nullptr;
+  NppiImageDescriptor *dDst = nullptr;
+  const size_t listBytes = (size_t)nBatchSize * sizeof(NppiImageDescriptor);
+  if (cudaMallocAsync(reinterpret_cast<void **>(&dSrc), listBytes, nppStreamCtx.hStream) !=
+          cudaSuccess ||
+      cudaMallocAsync(reinterpret_cast<void **>(&dDst), listBytes, nppStreamCtx.hStream) !=
+          cudaSuccess) {
+    if (dSrc != nullptr) cudaFreeAsync(dSrc, nppStreamCtx.hStream);
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+  if (cudaMemcpyAsync(dSrc, pSrcBatchList, listBytes, cudaMemcpyDefault, nppStreamCtx.hStream) !=
+          cudaSuccess ||
+      cudaMemcpyAsync(dDst, pDstBatchList, listBytes, cudaMemcpyDefault, nppStreamCtx.hStream) !=
+          cudaSuccess) {
+    cudaFreeAsync(dSrc, nppStreamCtx.hStream);
+    cudaFreeAsync(dDst, nppStreamCtx.hStream);
+    return NPP_MEMCPY_ERROR;
+  }
+  pSrcBatchList = dSrc;
+  pDstBatchList = dDst;
+
   dim3 blockSize(16, 16);
   dim3 gridSize((maxWidth + blockSize.x - 1) / blockSize.x,
-                (maxHeight + blockSize.y - 1) / blockSize.y,
-                nBatchSize);
+                (maxHeight + blockSize.y - 1) / blockSize.y, nBatchSize);
 
-  // Step 1: Initialize labels for all images
-  batchInitLabels_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+  batchInitLabels_kernel<Src><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pSrcBatchList, pDstBatchList, nBatchSize, maxWidth, maxHeight);
 
-  // Step 2: Local merge (currently only 8-way supported for batch)
-  // Use more iterations for better convergence
-  int numIterations = 20;
+  const int numIterations = 20;
   for (int i = 0; i < numIterations; i++) {
-    batchLocalMerge8Way_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
-        pSrcBatchList, pDstBatchList, nBatchSize, maxWidth, maxHeight);
-    // Interleave path compression for faster convergence
+    if (eNorm == nppiNormInf) {
+      batchLocalMerge8Way_kernel<Src><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+          pSrcBatchList, pDstBatchList, nBatchSize, maxWidth, maxHeight);
+    } else {
+      batchLocalMerge4Way_kernel<Src><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+          pSrcBatchList, pDstBatchList, nBatchSize, maxWidth, maxHeight);
+    }
     if (i % 4 == 3) {
       batchPathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
           pDstBatchList, nBatchSize, maxWidth, maxHeight);
     }
   }
 
-  // Step 3: Final path compression (for all pixels)
   for (int i = 0; i < 10; i++) {
     batchPathCompression_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pDstBatchList, nBatchSize, maxWidth, maxHeight);
   }
-
-  // Step 4: Convert from 1-based to 0-based labels
   batchConvertTo0Based_kernel<<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
       pDstBatchList, nBatchSize, maxWidth, maxHeight);
 
   cudaError_t cudaStatus = cudaGetLastError();
-  if (cudaStatus != cudaSuccess) {
-    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
-  }
-
+  cudaFreeAsync(dSrc, nppStreamCtx.hStream);
+  cudaFreeAsync(dDst, nppStreamCtx.hStream);
+  if (cudaStatus != cudaSuccess) return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   return NPP_SUCCESS;
 }
 
-} // extern "C"
+}  // namespace
+
+extern "C" {
+
+// Get required buffer size for label markers
+NppStatus nppiLabelMarkersUFGetBufferSize_32u_C1R_Ctx_impl(NppiSize oSizeROI, int *hpBufferSize) {
+  size_t imagePixels = (size_t)oSizeROI.width * oSizeROI.height;
+  size_t bufferSize = imagePixels * sizeof(Npp32u) + 1024;
+  size_t alignedSize = (bufferSize + 511) & ~511;
+  *hpBufferSize = (int)alignedSize;
+  return NPP_SUCCESS;
+}
+
+NppStatus nppiLabelMarkersUF_8u32u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp32u *pDst,
+                                                 int nDstStep, NppiSize oSizeROI, NppiNorm eNorm,
+                                                 Npp8u *pBuffer, NppStreamContext nppStreamCtx) {
+  return labelMarkersSingleImpl<Npp8u>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm, pBuffer,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiLabelMarkersUF_16u32u_C1R_Ctx_impl(const Npp16u *pSrc, int nSrcStep, Npp32u *pDst,
+                                                  int nDstStep, NppiSize oSizeROI, NppiNorm eNorm,
+                                                  Npp8u *pBuffer, NppStreamContext nppStreamCtx) {
+  return labelMarkersSingleImpl<Npp16u>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm, pBuffer,
+                                        nppStreamCtx);
+}
+
+NppStatus nppiLabelMarkersUF_32u_C1R_Ctx_impl(const Npp32u *pSrc, int nSrcStep, Npp32u *pDst,
+                                               int nDstStep, NppiSize oSizeROI, NppiNorm eNorm,
+                                               Npp8u *pBuffer, NppStreamContext nppStreamCtx) {
+  return labelMarkersSingleImpl<Npp32u>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eNorm, pBuffer,
+                                        nppStreamCtx);
+}
+
+NppStatus nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx_impl(
+    const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList, int nBatchSize,
+    NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
+  return labelMarkersBatchImpl<Npp8u>(pSrcBatchList, pDstBatchList, nBatchSize, oMaxSizeROI, eNorm,
+                                      nppStreamCtx);
+}
+
+NppStatus nppiLabelMarkersUFBatch_16u32u_C1R_Advanced_Ctx_impl(
+    const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList, int nBatchSize,
+    NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
+  return labelMarkersBatchImpl<Npp16u>(pSrcBatchList, pDstBatchList, nBatchSize, oMaxSizeROI, eNorm,
+                                       nppStreamCtx);
+}
+
+NppStatus nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx_impl(
+    const NppiImageDescriptor *pSrcBatchList, NppiImageDescriptor *pDstBatchList, int nBatchSize,
+    NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx) {
+  return labelMarkersBatchImpl<Npp32u>(pSrcBatchList, pDstBatchList, nBatchSize, oMaxSizeROI, eNorm,
+                                       nppStreamCtx);
+}
+
+}  // extern "C"

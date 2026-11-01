@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterGauss",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_gauss_generated.cpp",
+  "includes": [
+    "nppi_filter_gauss_executor.h"
+  ],
+  "call": "nppi::filter::filterGauss<{dtype}, {dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx.hStream)"
+}

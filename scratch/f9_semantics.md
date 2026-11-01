@@ -1,0 +1,198 @@
+# f9 measured semantics (RTX 5090, NVIDIA NPP 13.4, sm_120)
+
+Status: package f9 is complete - all 11 families / 303 functions are
+implemented (`api_analysis/packages/f9.csv`: 303 real, 0 missing).
+
+Probes: scratch/probe_f9.cu, probe_f9b.cu, probe_f9c.cu, probe_f9d.cu
+Outputs: scratch/remote_out/*.out (all pulled and read)
+Baseline for ALL 11 f9 families. Semantics below were measured, not taken from docs.
+
+## 1. Validation order / status codes (filter kernels)
+
+Standard families (Box, BoxBorder, Max, Min, MaxBorder, MinBorder, Median, MedianBorder):
+- null pSrc/pDst -> NPP_NULL_POINTER_ERROR (see f9b_valid.out for exact precedence)
+- negative ROI dims -> NPP_SIZE_ERROR; zero-dim ROI -> see per-family notes below
+- step: unsigned-too-small -> NPP_STEP_ERROR first, then alignment check
+  dstep % (es * (ch==4 ? 4 : 1)) != 0 -> NPP_NOT_EVEN_STEP_ERROR  (standard families)
+- negative mask dims -> NPP_MASK_SIZE_ERROR
+- anchor outside mask -> NPP_ANCHOR_ERROR
+
+Median (plain): NO dstep alignment check (only too-small).
+Advanced: NO too-small check (except W==0 && H>0 -> always STEP); alignment is
+  dstep % min(es,4) (i.e. mod element size but capped at 4 bytes).
+
+## 2. Border types
+
+- NppiBorderType values: UNDEFINED/NONE=0, CONSTANT=1, REPLICATE=2, WRAP=3, MIRROR=4.
+- BoxBorder additionally ACCEPTS value 5 with OK (measured); others reject it
+  (NPP_BORDER_REPLICATION_ERROR? -> see f9b_mirror.out for exact code).
+- MaxBorder/MinBorder: REPLICATE accepted; CONST/WRAP acceptance NOT measured yet
+  (S2-S6 outputs lost) -> re-probe needed (f9e).
+- MedianBorder: REPLICATE + MIRROR accepted only.
+- Border GetBufferSize accepts border types 0/1/3/7 with OK (7 also OK!).
+
+## 3. AC4 alpha semantics (measured, box/max/min/median, plain and border, 8u and 16s)
+
+- C4 variants filter the alpha channel like any other channel.
+- AC4 variants leave dst alpha UNTOUCHED (dst alpha keeps its pre-call value,
+  probe init 171 = 0xAB).
+
+## 4. Border/offset model (confirmed for standard border families)
+
+Image of oSrcSize with origin at pSrc - oSrcOffset (i.e. image pixel (i,j) lives at
+pSrc[(j-offy)*sw + (i-offx)]). dst(x,y) filters the window around image pixel
+(x+offx, y+offy) with mask oMaskSize and anchor oAnchor; reads outside the image
+follow eBorderType (replicate/mirror/wrap measured; constant unmeasured for these
+families).
+
+## 5. Median / MedianBorder GetBufferSize (host function, pBuffer size in bytes)
+
+value = 49152 * esize * maskW * maskH   when the "buffered" kernel path is selected,
+      = 0                               otherwise.
+Independent of ROI size. esize = element size (1/2/2/4 for 8u/16u/16s/32f).
+
+Validation (measured):
+- negative ROI -> NPP_SIZE_ERROR, no write to pBufferSize
+- negative mask dim -> NPP_SIZE_ERROR (NOT mask error)
+- zero-dim ROI -> NPP_OK, buffer NOT written (plain); Border zero-dim ROI unmeasured
+- zero-dim mask -> NPP_OK; plain leaves buffer untouched, Border writes 0
+- null pBufferSize -> SEGFAULT (do not test)
+
+Exact dispatch (buffered vs not), 8u C1 (EXACT on all 1600 grid cells + specials):
+- plain Median 8u C1:      buffered iff (w%2==1 && h%2==1) ? (w*h > 256) : ((w+1)*h > 190)
+- MedianBorder 8u C1 (REPLICATE): buffered iff w*h > 192
+Remaining 22 configs (dtype x ch x plain/border): need f9e grid probe.
+
+## 6. nppiFilterBoxBorderAdvanced (13 _Ctx functions) — QUIRKY, decode incomplete
+
+Signature (measured usage):
+  nppiFilterBoxBorderAdvanced_<t>_CnR_Ctx(pSrc, nSrcStep, oSrcSize, oSrcOffset,
+      pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, pBuffer, ctx)
+GetBufferSize: nppiFilterBoxBorderAdvancedGetDeviceBufferSize(oROI, nChannels, &sz)
+  -> 204 bytes for 7x7 C1, 264 for 8x8 C1 (function exists; _64 variant for 64f).
+  Kernel does not write past bsz (canary intact).
+
+Measured behavior:
+- Output = (sum of exactly 9 taps)/9 for a 3x3 mask (denominator = mw*mh), linear
+  in source values, deterministic, independent of pBuffer prefill.
+- Interior cells read a pure 3x3 window, but at a SHIFTED position relative to the
+  standard border model (see rmap analysis: R1 off=(2,3) sw=sh=16 ROI 7x7 mask 3x3
+  a=(1,1): interior window cols [x+offx+W-ax, +mw-1] x rows [y+offy-ay-1, +mh-1]).
+- Edge cells: taps form 3 groups of 3 consecutive FLAT indices; group start offsets
+  step by +W (ROI width) or +sw (source stride) or +0 depending on cell; negative
+  flat indices wrap mod sw; positions >= sw replicate-clamp to the edge column.
+- I4 (64x64 img, ROI 48, off (8,8), imp (31,31)): clean standard 3x3 landing at
+  dst(22..24,22..24). I5 (96x96, ROI 64, off (8,8), imp (39,39)): lands ONLY column
+  dst x=32, rows 30..32. I6 (mask 5x5, imp (39,39)=250): 2-col x 5-row block
+  (cols 32-33, rows 29-33), tap weight 10 = 250/25 each.
+-=> The tap POSITION formula is an NVIDIA implementation quirk (pointer arithmetic
+  aliasing ROI width vs source stride). NOT yet decoded. Needs probe f9e with
+  1x1 / 3x1 / 1x3 masks, sw==W cases, other geometries, other border types, 16u/32f,
+  C3/C4 before implementing.
+
+## 7. Open items (to measure in probe f9e)
+
+- Median/MedianBorder GetBufferSize '#'/'.' grids for remaining 22 configs +
+  value vs border type for Border variant.
+- Median filter semantics: even-count convention (lower/average), buffered vs
+  non-buffered path equality, AC4 handling (already known: alpha untouched).
+- MaxBorder/MinBorder CONST/WRAP acceptance (lost S2-S6).
+- null pSrc/pDst exact statuses for every family (partial data in f9b_valid.out).
+- negative ROI for border families; mask > ROI for Max/Min; BoxBorder src-step
+  validation; Advanced C4 alignment; constant border value for BoxBorder
+  (aAval? no aCoeff — CONSTANT border uses 0? unmeasured).
+
+## 8. Third continuation: direct executor-vs-NVIDIA verification (2026-11-01)
+
+`scratch/verify_f9.cu` links `nppi_filter_window_executor.cu` next to NVIDIA
+NPP on the 5090 (the kernels are plain CUDA) and compares every family:
+51,622 cases, 0 failures after the fixes below.  `scratch/probe_f9f..k.cu`
+are the targeted follow-ups.
+
+Corrections / additions to the earlier notes:
+
+- nppiFilterBox validation: a **positive** ROI accepts masks larger than the
+  ROI (no mask>ROI check at all).  With an empty ROI the 8u_C1R and 64f_C1R
+  instantiations always succeed; every other dtype/layout returns MASK_SIZE
+  only for the specialized square odd mask kernels (3x3, 5x5, ...) and succeeds
+  for even / non-square / 1x1 masks.  Negative masks stay OUT_OFF_RANGE (SIZE
+  when the ROI is empty).
+- nppiFilterBoxBorder: the same empty-ROI rule with the 8u_C1R exception;
+  additionally MIRROR (4) and the undocumented value 5 are only accepted for
+  3x3 and 5x5 masks (other masks -> MASK_SIZE), never accept an empty ROI, and
+  the 32f_AC4R layout rejects them with NOT_SUPPORTED_MODE.
+- median GetBufferSize (plain): empty ROI **and** empty mask leave the output
+  size untouched (they do not write 0); negative ROI/mask -> SIZE, no write.
+  Border variant writes 0 first and then reports SIZE for negative inputs.
+- median even-count convention: the small-mask unbuffered kernels differ by
+  mask shape for signed 16s (some shapes truncate toward zero, some floor);
+  the 16x16 buffered path matches trunc((a+b)/2).  Differential tests therefore
+  use odd mask dimensions for value comparisons (even 2D masks are not a
+  reproducible contract).
+- destination steps used by the differential tests are padded to 16 bytes;
+  NVIDIA's small-mask median kernels misbehave on narrower steps without
+  reporting an error.
+- GetBufferSize is ROI-independent (verified for ROI 7x7, 32x32 and
+  ROI == mask); the plain dispatch table is transcribed for masks up to 40x40.
+
+## 9. nppiFilterBoxBorderAdvanced — decoded (fourth continuation)
+
+The 13 `_Ctx` functions are implemented (`nppi::filter::filterBoxBorderAdvanced`,
+wrappers generated from `mpp_scripts/families/nppi_filter_box_border_advanced.json`).
+Probes: `scratch/probe_f9m..ab.cu`, direct executor-vs-NVIDIA harness
+`scratch/verify_f9adv.cu` (741 cases, 0 failures).
+
+### 9.1 Device buffer and border type
+- `nppiFilterBoxBorderAdvancedGetDeviceBufferSize(roi, ch, &n)` returns
+  `(roi.width * roi.height * ch + 2) * 4` bytes; the `_64` variant returns the
+  same count at 8 bytes per element (i.e. `... * 8`).
+- Only `NPP_BORDER_REPLICATE` is accepted; every other value (UNDEFINED,
+  CONSTANT, WRAP, MIRROR, 5, 7) returns `NPP_NOT_SUPPORTED_MODE_ERROR`.
+- `pBuffer` must be non-null (`NPP_NULL_POINTER_ERROR`) but its contents and
+  size are never consulted: the output is independent of the prefill.
+
+### 9.2 Where NVIDIA implements the documented contract
+Full impulse-response decode (`scratch/probe_f9r.cu`) shows that the reference
+kernel indexes the *source* with the **ROI width as the row step** instead of
+`nSrcStep`: for destination pixel `(x,y)` the tap `(i,j)` lands at the source
+flat offset `(y - ay + j) * roi.width + (x - ax + i)` (stepping a full source
+row only when the mask row no longer fits inside the image row).  Consequences:
+
+- The output matches the documented replicate-box result **iff
+  `oSizeROI.width == oSrcSize.width` and `oSrcOffset.x == 0`** — then the ROI
+  width is the real row stride.  Verified with 0 mismatches for
+  src/ROI 32x32, 48x64, 64x32, 64x64, 80x40, 128x128, ROI 128x128 with masks
+  1x1..31x31, anchors centred and out of range, `oSrcOffset.y` 0..30.
+- Every other geometry drifts: e.g. a 64-wide ROI in a 128-wide source differs
+  in 4060/4096 pixels, a 63-wide ROI differs in one column only, and an
+  `oSrcOffset.x` of 1 differs everywhere.  `oSrcOffset.y` alone is harmless.
+- The drift never reads outside the source image (out-of-row taps advance a
+  whole row, negative rows collapse onto the first row), so the reference is
+  deterministic — it is simply a different, undocumented filter.
+
+mcMPP therefore implements the **documented** replicate-box semantics for the
+whole parameter space and restricts the f9 differential records to the geometry
+where the reference agrees (`test/unit/diff/test_nppi_filter_box_border_advanced_generated.cpp`).
+
+### 9.3 Validation contract (measured, all 13 instantiations identical)
+Order: `pSrc`/`pDst` null -> `NULL_POINTER`; negative ROI dim -> `SIZE`;
+`oSrcSize` <= 0 -> `SIZE`; `oSrcOffset` outside `[0, size)` -> `OUT_OFF_RANGE`;
+border != REPLICATE -> `NOT_SUPPORTED_MODE`; `pBuffer` null -> `NULL_POINTER`;
+ROI width 0 with height > 0 -> `STEP`; otherwise any empty ROI -> OK (no step
+check); destination step; mask; anchor; source step.
+
+- mask and anchor are **not** validated (negative masks/anchors return OK and
+  write nothing); the source step is not validated either.
+- destination step: `NPP_STEP_ERROR` when `(Npp32u)nDstStep < rowBytes / v`,
+  where `rowBytes = roi.width * sizeof(T) * channels` and `v` is 4 when the ROI
+  width is a multiple of 4, 2 when even, 1 when odd (a per-thread byte count
+  from the vectorized dispatch, not a row size).  Zero and any smaller value
+  therefore fails; negative steps pass through the unsigned comparison.
+- alignment: `NPP_NOT_EVEN_STEP_ERROR` when `nDstStep % (sizeof(T) * (ch == 4 ? 4 : 1))`
+  is non-zero (same rule as the other window families), checked after the size
+  test.
+- a zero/negative mask or anchor outside the mask is a no-op returning OK.
+
+### 9.4 Not implemented on purpose
+- `nppiFilterBoxBorderAdvancedGetDeviceBufferSize` and `..._64` live in their
+  own one-function families and are not part of package f9.

@@ -1,0 +1,26 @@
+{
+  "family": "nppiSqrDistanceValid_Norm",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_sqrdistance_valid_norm_generated.cpp",
+  "includes": [
+    "nppi_crosscorr_executor.h"
+  ],
+  "families": [
+    "nppiSqrDistanceValid_Norm"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp8u * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp8u,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::SqrDistance>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, nScaleFactor, nullptr, nullptr, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp32f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::SqrDistance>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, nullptr, nullptr, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp64f * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp64f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::SqrDistance>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, nullptr, nullptr, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::runCrossCorr<{dtype},Npp32f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::SqrDistance>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, nullptr, nullptr, nppStreamCtx.hStream)"
+}

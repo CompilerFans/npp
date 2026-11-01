@@ -1,0 +1,29 @@
+{
+  "family": "nppsMean",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_mean_stddev_generated.cpp",
+  "includes": ["npps_statistics_executor.h"],
+  "families": ["nppsMean", "nppsMeanGetBufferSize", "nppsStdDev", "nppsStdDevGetBufferSize", "nppsMeanStdDev", "nppsMeanStdDevGetBufferSize"],
+  "call_by_family": {
+    "nppsMeanGetBufferSize": "npps::statistics::mean_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsStdDevGetBufferSize": "npps::statistics::stddev_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMeanStdDevGetBufferSize": "npps::statistics::stddev_buffer_size<{dtype}>(nLength, hpBufferSize)"
+  },
+  "call_variants": [
+    {"contains": "Npp32s * pMean, Npp32s * pStdDev", "call": "npps::statistics::mean_stddev<{dtype}, Npp32s, Npp32s>(pSrc, nLength, pMean, pStdDev, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp16s * pMean, Npp16s * pStdDev", "call": "npps::statistics::mean_stddev<{dtype}, Npp16s, Npp16s>(pSrc, nLength, pMean, pStdDev, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32f * pMean, Npp32f * pStdDev", "call": "npps::statistics::mean_stddev<{dtype}, Npp32f, Npp32f>(pSrc, nLength, pMean, pStdDev, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64f * pMean, Npp64f * pStdDev", "call": "npps::statistics::mean_stddev<{dtype}, Npp64f, Npp64f>(pSrc, nLength, pMean, pStdDev, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp16sc * pMean", "call": "npps::statistics::mean<{dtype}, Npp16sc>(pSrc, nLength, pMean, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp16s * pMean", "call": "npps::statistics::mean<{dtype}, Npp16s>(pSrc, nLength, pMean, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32s * pMean", "call": "npps::statistics::mean<{dtype}, Npp32s>(pSrc, nLength, pMean, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32fc * pMean", "call": "npps::statistics::mean<{dtype}, Npp32fc>(pSrc, nLength, pMean, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32f * pMean", "call": "npps::statistics::mean<{dtype}, Npp32f>(pSrc, nLength, pMean, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64fc * pMean", "call": "npps::statistics::mean<{dtype}, Npp64fc>(pSrc, nLength, pMean, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64f * pMean", "call": "npps::statistics::mean<{dtype}, Npp64f>(pSrc, nLength, pMean, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32s * pStdDev", "call": "npps::statistics::stddev<{dtype}, Npp32s>(pSrc, nLength, pStdDev, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp16s * pStdDev", "call": "npps::statistics::stddev<{dtype}, Npp16s>(pSrc, nLength, pStdDev, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32f * pStdDev", "call": "npps::statistics::stddev<{dtype}, Npp32f>(pSrc, nLength, pStdDev, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64f * pStdDev", "call": "npps::statistics::stddev<{dtype}, Npp64f>(pSrc, nLength, pStdDev, 0, pDeviceBuffer, nppStreamCtx.hStream)"}
+  ]
+}

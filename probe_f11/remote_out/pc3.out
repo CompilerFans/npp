@@ -1,0 +1,1620 @@
+== GBS grid
+GBS 8u_C1R r=0.1 s=0.1 status=0 size=36
+GBS 8u_C1R r=0.1 s=0.5 status=0 size=36
+GBS 8u_C1R r=0.1 s=0.9 status=0 size=36
+GBS 8u_C1R r=0.1 s=1 status=0 size=36
+GBS 8u_C1R r=0.1 s=2 status=0 size=36
+GBS 8u_C1R r=0.1 s=5 status=0 size=36
+GBS 8u_C1R r=0.5 s=0.1 status=0 size=36
+GBS 8u_C1R r=0.5 s=0.5 status=0 size=36
+GBS 8u_C1R r=0.5 s=0.9 status=0 size=36
+GBS 8u_C1R r=0.5 s=1 status=0 size=36
+GBS 8u_C1R r=0.5 s=2 status=0 size=36
+GBS 8u_C1R r=0.5 s=5 status=0 size=36
+GBS 8u_C1R r=0.9 s=0.1 status=0 size=36
+GBS 8u_C1R r=0.9 s=0.5 status=0 size=36
+GBS 8u_C1R r=0.9 s=0.9 status=0 size=36
+GBS 8u_C1R r=0.9 s=1 status=0 size=36
+GBS 8u_C1R r=0.9 s=2 status=0 size=36
+GBS 8u_C1R r=0.9 s=5 status=0 size=36
+GBS 8u_C1R r=1 s=0.1 status=0 size=36
+GBS 8u_C1R r=1 s=0.5 status=0 size=36
+GBS 8u_C1R r=1 s=0.9 status=0 size=36
+GBS 8u_C1R r=1 s=1 status=0 size=36
+GBS 8u_C1R r=1 s=2 status=0 size=36
+GBS 8u_C1R r=1 s=5 status=0 size=36
+GBS 8u_C1R r=1.5 s=0.1 status=0 size=100
+GBS 8u_C1R r=1.5 s=0.5 status=0 size=100
+GBS 8u_C1R r=1.5 s=0.9 status=0 size=100
+GBS 8u_C1R r=1.5 s=1 status=0 size=100
+GBS 8u_C1R r=1.5 s=2 status=0 size=100
+GBS 8u_C1R r=1.5 s=5 status=0 size=100
+GBS 8u_C1R r=2 s=0.1 status=0 size=100
+GBS 8u_C1R r=2 s=0.5 status=0 size=100
+GBS 8u_C1R r=2 s=0.9 status=0 size=100
+GBS 8u_C1R r=2 s=1 status=0 size=100
+GBS 8u_C1R r=2 s=2 status=0 size=100
+GBS 8u_C1R r=2 s=5 status=0 size=100
+GBS 8u_C1R r=2.5 s=0.1 status=0 size=196
+GBS 8u_C1R r=2.5 s=0.5 status=0 size=196
+GBS 8u_C1R r=2.5 s=0.9 status=0 size=196
+GBS 8u_C1R r=2.5 s=1 status=0 size=196
+GBS 8u_C1R r=2.5 s=2 status=0 size=196
+GBS 8u_C1R r=2.5 s=5 status=0 size=196
+GBS 8u_C1R r=3 s=0.1 status=0 size=196
+GBS 8u_C1R r=3 s=0.5 status=0 size=196
+GBS 8u_C1R r=3 s=0.9 status=0 size=196
+GBS 8u_C1R r=3 s=1 status=0 size=196
+GBS 8u_C1R r=3 s=2 status=0 size=196
+GBS 8u_C1R r=3 s=5 status=0 size=196
+GBS 8u_C1R r=4 s=0.1 status=0 size=324
+GBS 8u_C1R r=4 s=0.5 status=0 size=324
+GBS 8u_C1R r=4 s=0.9 status=0 size=324
+GBS 8u_C1R r=4 s=1 status=0 size=324
+GBS 8u_C1R r=4 s=2 status=0 size=324
+GBS 8u_C1R r=4 s=5 status=0 size=324
+GBS 8u_C1R r=5 s=0.1 status=0 size=484
+GBS 8u_C1R r=5 s=0.5 status=0 size=484
+GBS 8u_C1R r=5 s=0.9 status=0 size=484
+GBS 8u_C1R r=5 s=1 status=0 size=484
+GBS 8u_C1R r=5 s=2 status=0 size=484
+GBS 8u_C1R r=5 s=5 status=0 size=484
+GBS 8u_C1R r=7.5 s=0.1 status=0 size=1156
+GBS 8u_C1R r=7.5 s=0.5 status=0 size=1156
+GBS 8u_C1R r=7.5 s=0.9 status=0 size=1156
+GBS 8u_C1R r=7.5 s=1 status=0 size=1156
+GBS 8u_C1R r=7.5 s=2 status=0 size=1156
+GBS 8u_C1R r=7.5 s=5 status=0 size=1156
+GBS 8u_C1R r=10 s=0.1 status=0 size=1764
+GBS 8u_C1R r=10 s=0.5 status=0 size=1764
+GBS 8u_C1R r=10 s=0.9 status=0 size=1764
+GBS 8u_C1R r=10 s=1 status=0 size=1764
+GBS 8u_C1R r=10 s=2 status=0 size=1764
+GBS 8u_C1R r=10 s=5 status=0 size=1764
+GBS 8u_C3R r=0.1 s=0.1 status=0 size=36
+GBS 8u_C3R r=0.1 s=0.5 status=0 size=36
+GBS 8u_C3R r=0.1 s=0.9 status=0 size=36
+GBS 8u_C3R r=0.1 s=1 status=0 size=36
+GBS 8u_C3R r=0.1 s=2 status=0 size=36
+GBS 8u_C3R r=0.1 s=5 status=0 size=36
+GBS 8u_C3R r=0.5 s=0.1 status=0 size=36
+GBS 8u_C3R r=0.5 s=0.5 status=0 size=36
+GBS 8u_C3R r=0.5 s=0.9 status=0 size=36
+GBS 8u_C3R r=0.5 s=1 status=0 size=36
+GBS 8u_C3R r=0.5 s=2 status=0 size=36
+GBS 8u_C3R r=0.5 s=5 status=0 size=36
+GBS 8u_C3R r=0.9 s=0.1 status=0 size=36
+GBS 8u_C3R r=0.9 s=0.5 status=0 size=36
+GBS 8u_C3R r=0.9 s=0.9 status=0 size=36
+GBS 8u_C3R r=0.9 s=1 status=0 size=36
+GBS 8u_C3R r=0.9 s=2 status=0 size=36
+GBS 8u_C3R r=0.9 s=5 status=0 size=36
+GBS 8u_C3R r=1 s=0.1 status=0 size=36
+GBS 8u_C3R r=1 s=0.5 status=0 size=36
+GBS 8u_C3R r=1 s=0.9 status=0 size=36
+GBS 8u_C3R r=1 s=1 status=0 size=36
+GBS 8u_C3R r=1 s=2 status=0 size=36
+GBS 8u_C3R r=1 s=5 status=0 size=36
+GBS 8u_C3R r=1.5 s=0.1 status=0 size=100
+GBS 8u_C3R r=1.5 s=0.5 status=0 size=100
+GBS 8u_C3R r=1.5 s=0.9 status=0 size=100
+GBS 8u_C3R r=1.5 s=1 status=0 size=100
+GBS 8u_C3R r=1.5 s=2 status=0 size=100
+GBS 8u_C3R r=1.5 s=5 status=0 size=100
+GBS 8u_C3R r=2 s=0.1 status=0 size=100
+GBS 8u_C3R r=2 s=0.5 status=0 size=100
+GBS 8u_C3R r=2 s=0.9 status=0 size=100
+GBS 8u_C3R r=2 s=1 status=0 size=100
+GBS 8u_C3R r=2 s=2 status=0 size=100
+GBS 8u_C3R r=2 s=5 status=0 size=100
+GBS 8u_C3R r=2.5 s=0.1 status=0 size=196
+GBS 8u_C3R r=2.5 s=0.5 status=0 size=196
+GBS 8u_C3R r=2.5 s=0.9 status=0 size=196
+GBS 8u_C3R r=2.5 s=1 status=0 size=196
+GBS 8u_C3R r=2.5 s=2 status=0 size=196
+GBS 8u_C3R r=2.5 s=5 status=0 size=196
+GBS 8u_C3R r=3 s=0.1 status=0 size=196
+GBS 8u_C3R r=3 s=0.5 status=0 size=196
+GBS 8u_C3R r=3 s=0.9 status=0 size=196
+GBS 8u_C3R r=3 s=1 status=0 size=196
+GBS 8u_C3R r=3 s=2 status=0 size=196
+GBS 8u_C3R r=3 s=5 status=0 size=196
+GBS 8u_C3R r=4 s=0.1 status=0 size=324
+GBS 8u_C3R r=4 s=0.5 status=0 size=324
+GBS 8u_C3R r=4 s=0.9 status=0 size=324
+GBS 8u_C3R r=4 s=1 status=0 size=324
+GBS 8u_C3R r=4 s=2 status=0 size=324
+GBS 8u_C3R r=4 s=5 status=0 size=324
+GBS 8u_C3R r=5 s=0.1 status=0 size=484
+GBS 8u_C3R r=5 s=0.5 status=0 size=484
+GBS 8u_C3R r=5 s=0.9 status=0 size=484
+GBS 8u_C3R r=5 s=1 status=0 size=484
+GBS 8u_C3R r=5 s=2 status=0 size=484
+GBS 8u_C3R r=5 s=5 status=0 size=484
+GBS 8u_C3R r=7.5 s=0.1 status=0 size=1156
+GBS 8u_C3R r=7.5 s=0.5 status=0 size=1156
+GBS 8u_C3R r=7.5 s=0.9 status=0 size=1156
+GBS 8u_C3R r=7.5 s=1 status=0 size=1156
+GBS 8u_C3R r=7.5 s=2 status=0 size=1156
+GBS 8u_C3R r=7.5 s=5 status=0 size=1156
+GBS 8u_C3R r=10 s=0.1 status=0 size=1764
+GBS 8u_C3R r=10 s=0.5 status=0 size=1764
+GBS 8u_C3R r=10 s=0.9 status=0 size=1764
+GBS 8u_C3R r=10 s=1 status=0 size=1764
+GBS 8u_C3R r=10 s=2 status=0 size=1764
+GBS 8u_C3R r=10 s=5 status=0 size=1764
+GBS 8u_C4R r=0.1 s=0.1 status=0 size=36
+GBS 8u_C4R r=0.1 s=0.5 status=0 size=36
+GBS 8u_C4R r=0.1 s=0.9 status=0 size=36
+GBS 8u_C4R r=0.1 s=1 status=0 size=36
+GBS 8u_C4R r=0.1 s=2 status=0 size=36
+GBS 8u_C4R r=0.1 s=5 status=0 size=36
+GBS 8u_C4R r=0.5 s=0.1 status=0 size=36
+GBS 8u_C4R r=0.5 s=0.5 status=0 size=36
+GBS 8u_C4R r=0.5 s=0.9 status=0 size=36
+GBS 8u_C4R r=0.5 s=1 status=0 size=36
+GBS 8u_C4R r=0.5 s=2 status=0 size=36
+GBS 8u_C4R r=0.5 s=5 status=0 size=36
+GBS 8u_C4R r=0.9 s=0.1 status=0 size=36
+GBS 8u_C4R r=0.9 s=0.5 status=0 size=36
+GBS 8u_C4R r=0.9 s=0.9 status=0 size=36
+GBS 8u_C4R r=0.9 s=1 status=0 size=36
+GBS 8u_C4R r=0.9 s=2 status=0 size=36
+GBS 8u_C4R r=0.9 s=5 status=0 size=36
+GBS 8u_C4R r=1 s=0.1 status=0 size=36
+GBS 8u_C4R r=1 s=0.5 status=0 size=36
+GBS 8u_C4R r=1 s=0.9 status=0 size=36
+GBS 8u_C4R r=1 s=1 status=0 size=36
+GBS 8u_C4R r=1 s=2 status=0 size=36
+GBS 8u_C4R r=1 s=5 status=0 size=36
+GBS 8u_C4R r=1.5 s=0.1 status=0 size=100
+GBS 8u_C4R r=1.5 s=0.5 status=0 size=100
+GBS 8u_C4R r=1.5 s=0.9 status=0 size=100
+GBS 8u_C4R r=1.5 s=1 status=0 size=100
+GBS 8u_C4R r=1.5 s=2 status=0 size=100
+GBS 8u_C4R r=1.5 s=5 status=0 size=100
+GBS 8u_C4R r=2 s=0.1 status=0 size=100
+GBS 8u_C4R r=2 s=0.5 status=0 size=100
+GBS 8u_C4R r=2 s=0.9 status=0 size=100
+GBS 8u_C4R r=2 s=1 status=0 size=100
+GBS 8u_C4R r=2 s=2 status=0 size=100
+GBS 8u_C4R r=2 s=5 status=0 size=100
+GBS 8u_C4R r=2.5 s=0.1 status=0 size=196
+GBS 8u_C4R r=2.5 s=0.5 status=0 size=196
+GBS 8u_C4R r=2.5 s=0.9 status=0 size=196
+GBS 8u_C4R r=2.5 s=1 status=0 size=196
+GBS 8u_C4R r=2.5 s=2 status=0 size=196
+GBS 8u_C4R r=2.5 s=5 status=0 size=196
+GBS 8u_C4R r=3 s=0.1 status=0 size=196
+GBS 8u_C4R r=3 s=0.5 status=0 size=196
+GBS 8u_C4R r=3 s=0.9 status=0 size=196
+GBS 8u_C4R r=3 s=1 status=0 size=196
+GBS 8u_C4R r=3 s=2 status=0 size=196
+GBS 8u_C4R r=3 s=5 status=0 size=196
+GBS 8u_C4R r=4 s=0.1 status=0 size=324
+GBS 8u_C4R r=4 s=0.5 status=0 size=324
+GBS 8u_C4R r=4 s=0.9 status=0 size=324
+GBS 8u_C4R r=4 s=1 status=0 size=324
+GBS 8u_C4R r=4 s=2 status=0 size=324
+GBS 8u_C4R r=4 s=5 status=0 size=324
+GBS 8u_C4R r=5 s=0.1 status=0 size=484
+GBS 8u_C4R r=5 s=0.5 status=0 size=484
+GBS 8u_C4R r=5 s=0.9 status=0 size=484
+GBS 8u_C4R r=5 s=1 status=0 size=484
+GBS 8u_C4R r=5 s=2 status=0 size=484
+GBS 8u_C4R r=5 s=5 status=0 size=484
+GBS 8u_C4R r=7.5 s=0.1 status=0 size=1156
+GBS 8u_C4R r=7.5 s=0.5 status=0 size=1156
+GBS 8u_C4R r=7.5 s=0.9 status=0 size=1156
+GBS 8u_C4R r=7.5 s=1 status=0 size=1156
+GBS 8u_C4R r=7.5 s=2 status=0 size=1156
+GBS 8u_C4R r=7.5 s=5 status=0 size=1156
+GBS 8u_C4R r=10 s=0.1 status=0 size=1764
+GBS 8u_C4R r=10 s=0.5 status=0 size=1764
+GBS 8u_C4R r=10 s=0.9 status=0 size=1764
+GBS 8u_C4R r=10 s=1 status=0 size=1764
+GBS 8u_C4R r=10 s=2 status=0 size=1764
+GBS 8u_C4R r=10 s=5 status=0 size=1764
+GBS 8u_AC4R r=0.1 s=0.1 status=0 size=36
+GBS 8u_AC4R r=0.1 s=0.5 status=0 size=36
+GBS 8u_AC4R r=0.1 s=0.9 status=0 size=36
+GBS 8u_AC4R r=0.1 s=1 status=0 size=36
+GBS 8u_AC4R r=0.1 s=2 status=0 size=36
+GBS 8u_AC4R r=0.1 s=5 status=0 size=36
+GBS 8u_AC4R r=0.5 s=0.1 status=0 size=36
+GBS 8u_AC4R r=0.5 s=0.5 status=0 size=36
+GBS 8u_AC4R r=0.5 s=0.9 status=0 size=36
+GBS 8u_AC4R r=0.5 s=1 status=0 size=36
+GBS 8u_AC4R r=0.5 s=2 status=0 size=36
+GBS 8u_AC4R r=0.5 s=5 status=0 size=36
+GBS 8u_AC4R r=0.9 s=0.1 status=0 size=36
+GBS 8u_AC4R r=0.9 s=0.5 status=0 size=36
+GBS 8u_AC4R r=0.9 s=0.9 status=0 size=36
+GBS 8u_AC4R r=0.9 s=1 status=0 size=36
+GBS 8u_AC4R r=0.9 s=2 status=0 size=36
+GBS 8u_AC4R r=0.9 s=5 status=0 size=36
+GBS 8u_AC4R r=1 s=0.1 status=0 size=36
+GBS 8u_AC4R r=1 s=0.5 status=0 size=36
+GBS 8u_AC4R r=1 s=0.9 status=0 size=36
+GBS 8u_AC4R r=1 s=1 status=0 size=36
+GBS 8u_AC4R r=1 s=2 status=0 size=36
+GBS 8u_AC4R r=1 s=5 status=0 size=36
+GBS 8u_AC4R r=1.5 s=0.1 status=0 size=100
+GBS 8u_AC4R r=1.5 s=0.5 status=0 size=100
+GBS 8u_AC4R r=1.5 s=0.9 status=0 size=100
+GBS 8u_AC4R r=1.5 s=1 status=0 size=100
+GBS 8u_AC4R r=1.5 s=2 status=0 size=100
+GBS 8u_AC4R r=1.5 s=5 status=0 size=100
+GBS 8u_AC4R r=2 s=0.1 status=0 size=100
+GBS 8u_AC4R r=2 s=0.5 status=0 size=100
+GBS 8u_AC4R r=2 s=0.9 status=0 size=100
+GBS 8u_AC4R r=2 s=1 status=0 size=100
+GBS 8u_AC4R r=2 s=2 status=0 size=100
+GBS 8u_AC4R r=2 s=5 status=0 size=100
+GBS 8u_AC4R r=2.5 s=0.1 status=0 size=196
+GBS 8u_AC4R r=2.5 s=0.5 status=0 size=196
+GBS 8u_AC4R r=2.5 s=0.9 status=0 size=196
+GBS 8u_AC4R r=2.5 s=1 status=0 size=196
+GBS 8u_AC4R r=2.5 s=2 status=0 size=196
+GBS 8u_AC4R r=2.5 s=5 status=0 size=196
+GBS 8u_AC4R r=3 s=0.1 status=0 size=196
+GBS 8u_AC4R r=3 s=0.5 status=0 size=196
+GBS 8u_AC4R r=3 s=0.9 status=0 size=196
+GBS 8u_AC4R r=3 s=1 status=0 size=196
+GBS 8u_AC4R r=3 s=2 status=0 size=196
+GBS 8u_AC4R r=3 s=5 status=0 size=196
+GBS 8u_AC4R r=4 s=0.1 status=0 size=324
+GBS 8u_AC4R r=4 s=0.5 status=0 size=324
+GBS 8u_AC4R r=4 s=0.9 status=0 size=324
+GBS 8u_AC4R r=4 s=1 status=0 size=324
+GBS 8u_AC4R r=4 s=2 status=0 size=324
+GBS 8u_AC4R r=4 s=5 status=0 size=324
+GBS 8u_AC4R r=5 s=0.1 status=0 size=484
+GBS 8u_AC4R r=5 s=0.5 status=0 size=484
+GBS 8u_AC4R r=5 s=0.9 status=0 size=484
+GBS 8u_AC4R r=5 s=1 status=0 size=484
+GBS 8u_AC4R r=5 s=2 status=0 size=484
+GBS 8u_AC4R r=5 s=5 status=0 size=484
+GBS 8u_AC4R r=7.5 s=0.1 status=0 size=1156
+GBS 8u_AC4R r=7.5 s=0.5 status=0 size=1156
+GBS 8u_AC4R r=7.5 s=0.9 status=0 size=1156
+GBS 8u_AC4R r=7.5 s=1 status=0 size=1156
+GBS 8u_AC4R r=7.5 s=2 status=0 size=1156
+GBS 8u_AC4R r=7.5 s=5 status=0 size=1156
+GBS 8u_AC4R r=10 s=0.1 status=0 size=1764
+GBS 8u_AC4R r=10 s=0.5 status=0 size=1764
+GBS 8u_AC4R r=10 s=0.9 status=0 size=1764
+GBS 8u_AC4R r=10 s=1 status=0 size=1764
+GBS 8u_AC4R r=10 s=2 status=0 size=1764
+GBS 8u_AC4R r=10 s=5 status=0 size=1764
+GBS 16u_C1R r=0.1 s=0.1 status=0 size=36
+GBS 16u_C1R r=0.1 s=0.5 status=0 size=36
+GBS 16u_C1R r=0.1 s=0.9 status=0 size=36
+GBS 16u_C1R r=0.1 s=1 status=0 size=36
+GBS 16u_C1R r=0.1 s=2 status=0 size=36
+GBS 16u_C1R r=0.1 s=5 status=0 size=36
+GBS 16u_C1R r=0.5 s=0.1 status=0 size=36
+GBS 16u_C1R r=0.5 s=0.5 status=0 size=36
+GBS 16u_C1R r=0.5 s=0.9 status=0 size=36
+GBS 16u_C1R r=0.5 s=1 status=0 size=36
+GBS 16u_C1R r=0.5 s=2 status=0 size=36
+GBS 16u_C1R r=0.5 s=5 status=0 size=36
+GBS 16u_C1R r=0.9 s=0.1 status=0 size=36
+GBS 16u_C1R r=0.9 s=0.5 status=0 size=36
+GBS 16u_C1R r=0.9 s=0.9 status=0 size=36
+GBS 16u_C1R r=0.9 s=1 status=0 size=36
+GBS 16u_C1R r=0.9 s=2 status=0 size=36
+GBS 16u_C1R r=0.9 s=5 status=0 size=36
+GBS 16u_C1R r=1 s=0.1 status=0 size=36
+GBS 16u_C1R r=1 s=0.5 status=0 size=36
+GBS 16u_C1R r=1 s=0.9 status=0 size=36
+GBS 16u_C1R r=1 s=1 status=0 size=36
+GBS 16u_C1R r=1 s=2 status=0 size=36
+GBS 16u_C1R r=1 s=5 status=0 size=36
+GBS 16u_C1R r=1.5 s=0.1 status=0 size=100
+GBS 16u_C1R r=1.5 s=0.5 status=0 size=100
+GBS 16u_C1R r=1.5 s=0.9 status=0 size=100
+GBS 16u_C1R r=1.5 s=1 status=0 size=100
+GBS 16u_C1R r=1.5 s=2 status=0 size=100
+GBS 16u_C1R r=1.5 s=5 status=0 size=100
+GBS 16u_C1R r=2 s=0.1 status=0 size=100
+GBS 16u_C1R r=2 s=0.5 status=0 size=100
+GBS 16u_C1R r=2 s=0.9 status=0 size=100
+GBS 16u_C1R r=2 s=1 status=0 size=100
+GBS 16u_C1R r=2 s=2 status=0 size=100
+GBS 16u_C1R r=2 s=5 status=0 size=100
+GBS 16u_C1R r=2.5 s=0.1 status=0 size=196
+GBS 16u_C1R r=2.5 s=0.5 status=0 size=196
+GBS 16u_C1R r=2.5 s=0.9 status=0 size=196
+GBS 16u_C1R r=2.5 s=1 status=0 size=196
+GBS 16u_C1R r=2.5 s=2 status=0 size=196
+GBS 16u_C1R r=2.5 s=5 status=0 size=196
+GBS 16u_C1R r=3 s=0.1 status=0 size=196
+GBS 16u_C1R r=3 s=0.5 status=0 size=196
+GBS 16u_C1R r=3 s=0.9 status=0 size=196
+GBS 16u_C1R r=3 s=1 status=0 size=196
+GBS 16u_C1R r=3 s=2 status=0 size=196
+GBS 16u_C1R r=3 s=5 status=0 size=196
+GBS 16u_C1R r=4 s=0.1 status=0 size=324
+GBS 16u_C1R r=4 s=0.5 status=0 size=324
+GBS 16u_C1R r=4 s=0.9 status=0 size=324
+GBS 16u_C1R r=4 s=1 status=0 size=324
+GBS 16u_C1R r=4 s=2 status=0 size=324
+GBS 16u_C1R r=4 s=5 status=0 size=324
+GBS 16u_C1R r=5 s=0.1 status=0 size=484
+GBS 16u_C1R r=5 s=0.5 status=0 size=484
+GBS 16u_C1R r=5 s=0.9 status=0 size=484
+GBS 16u_C1R r=5 s=1 status=0 size=484
+GBS 16u_C1R r=5 s=2 status=0 size=484
+GBS 16u_C1R r=5 s=5 status=0 size=484
+GBS 16u_C1R r=7.5 s=0.1 status=0 size=1156
+GBS 16u_C1R r=7.5 s=0.5 status=0 size=1156
+GBS 16u_C1R r=7.5 s=0.9 status=0 size=1156
+GBS 16u_C1R r=7.5 s=1 status=0 size=1156
+GBS 16u_C1R r=7.5 s=2 status=0 size=1156
+GBS 16u_C1R r=7.5 s=5 status=0 size=1156
+GBS 16u_C1R r=10 s=0.1 status=0 size=1764
+GBS 16u_C1R r=10 s=0.5 status=0 size=1764
+GBS 16u_C1R r=10 s=0.9 status=0 size=1764
+GBS 16u_C1R r=10 s=1 status=0 size=1764
+GBS 16u_C1R r=10 s=2 status=0 size=1764
+GBS 16u_C1R r=10 s=5 status=0 size=1764
+GBS 16u_C3R r=0.1 s=0.1 status=0 size=36
+GBS 16u_C3R r=0.1 s=0.5 status=0 size=36
+GBS 16u_C3R r=0.1 s=0.9 status=0 size=36
+GBS 16u_C3R r=0.1 s=1 status=0 size=36
+GBS 16u_C3R r=0.1 s=2 status=0 size=36
+GBS 16u_C3R r=0.1 s=5 status=0 size=36
+GBS 16u_C3R r=0.5 s=0.1 status=0 size=36
+GBS 16u_C3R r=0.5 s=0.5 status=0 size=36
+GBS 16u_C3R r=0.5 s=0.9 status=0 size=36
+GBS 16u_C3R r=0.5 s=1 status=0 size=36
+GBS 16u_C3R r=0.5 s=2 status=0 size=36
+GBS 16u_C3R r=0.5 s=5 status=0 size=36
+GBS 16u_C3R r=0.9 s=0.1 status=0 size=36
+GBS 16u_C3R r=0.9 s=0.5 status=0 size=36
+GBS 16u_C3R r=0.9 s=0.9 status=0 size=36
+GBS 16u_C3R r=0.9 s=1 status=0 size=36
+GBS 16u_C3R r=0.9 s=2 status=0 size=36
+GBS 16u_C3R r=0.9 s=5 status=0 size=36
+GBS 16u_C3R r=1 s=0.1 status=0 size=36
+GBS 16u_C3R r=1 s=0.5 status=0 size=36
+GBS 16u_C3R r=1 s=0.9 status=0 size=36
+GBS 16u_C3R r=1 s=1 status=0 size=36
+GBS 16u_C3R r=1 s=2 status=0 size=36
+GBS 16u_C3R r=1 s=5 status=0 size=36
+GBS 16u_C3R r=1.5 s=0.1 status=0 size=100
+GBS 16u_C3R r=1.5 s=0.5 status=0 size=100
+GBS 16u_C3R r=1.5 s=0.9 status=0 size=100
+GBS 16u_C3R r=1.5 s=1 status=0 size=100
+GBS 16u_C3R r=1.5 s=2 status=0 size=100
+GBS 16u_C3R r=1.5 s=5 status=0 size=100
+GBS 16u_C3R r=2 s=0.1 status=0 size=100
+GBS 16u_C3R r=2 s=0.5 status=0 size=100
+GBS 16u_C3R r=2 s=0.9 status=0 size=100
+GBS 16u_C3R r=2 s=1 status=0 size=100
+GBS 16u_C3R r=2 s=2 status=0 size=100
+GBS 16u_C3R r=2 s=5 status=0 size=100
+GBS 16u_C3R r=2.5 s=0.1 status=0 size=196
+GBS 16u_C3R r=2.5 s=0.5 status=0 size=196
+GBS 16u_C3R r=2.5 s=0.9 status=0 size=196
+GBS 16u_C3R r=2.5 s=1 status=0 size=196
+GBS 16u_C3R r=2.5 s=2 status=0 size=196
+GBS 16u_C3R r=2.5 s=5 status=0 size=196
+GBS 16u_C3R r=3 s=0.1 status=0 size=196
+GBS 16u_C3R r=3 s=0.5 status=0 size=196
+GBS 16u_C3R r=3 s=0.9 status=0 size=196
+GBS 16u_C3R r=3 s=1 status=0 size=196
+GBS 16u_C3R r=3 s=2 status=0 size=196
+GBS 16u_C3R r=3 s=5 status=0 size=196
+GBS 16u_C3R r=4 s=0.1 status=0 size=324
+GBS 16u_C3R r=4 s=0.5 status=0 size=324
+GBS 16u_C3R r=4 s=0.9 status=0 size=324
+GBS 16u_C3R r=4 s=1 status=0 size=324
+GBS 16u_C3R r=4 s=2 status=0 size=324
+GBS 16u_C3R r=4 s=5 status=0 size=324
+GBS 16u_C3R r=5 s=0.1 status=0 size=484
+GBS 16u_C3R r=5 s=0.5 status=0 size=484
+GBS 16u_C3R r=5 s=0.9 status=0 size=484
+GBS 16u_C3R r=5 s=1 status=0 size=484
+GBS 16u_C3R r=5 s=2 status=0 size=484
+GBS 16u_C3R r=5 s=5 status=0 size=484
+GBS 16u_C3R r=7.5 s=0.1 status=0 size=1156
+GBS 16u_C3R r=7.5 s=0.5 status=0 size=1156
+GBS 16u_C3R r=7.5 s=0.9 status=0 size=1156
+GBS 16u_C3R r=7.5 s=1 status=0 size=1156
+GBS 16u_C3R r=7.5 s=2 status=0 size=1156
+GBS 16u_C3R r=7.5 s=5 status=0 size=1156
+GBS 16u_C3R r=10 s=0.1 status=0 size=1764
+GBS 16u_C3R r=10 s=0.5 status=0 size=1764
+GBS 16u_C3R r=10 s=0.9 status=0 size=1764
+GBS 16u_C3R r=10 s=1 status=0 size=1764
+GBS 16u_C3R r=10 s=2 status=0 size=1764
+GBS 16u_C3R r=10 s=5 status=0 size=1764
+GBS 16u_C4R r=0.1 s=0.1 status=0 size=36
+GBS 16u_C4R r=0.1 s=0.5 status=0 size=36
+GBS 16u_C4R r=0.1 s=0.9 status=0 size=36
+GBS 16u_C4R r=0.1 s=1 status=0 size=36
+GBS 16u_C4R r=0.1 s=2 status=0 size=36
+GBS 16u_C4R r=0.1 s=5 status=0 size=36
+GBS 16u_C4R r=0.5 s=0.1 status=0 size=36
+GBS 16u_C4R r=0.5 s=0.5 status=0 size=36
+GBS 16u_C4R r=0.5 s=0.9 status=0 size=36
+GBS 16u_C4R r=0.5 s=1 status=0 size=36
+GBS 16u_C4R r=0.5 s=2 status=0 size=36
+GBS 16u_C4R r=0.5 s=5 status=0 size=36
+GBS 16u_C4R r=0.9 s=0.1 status=0 size=36
+GBS 16u_C4R r=0.9 s=0.5 status=0 size=36
+GBS 16u_C4R r=0.9 s=0.9 status=0 size=36
+GBS 16u_C4R r=0.9 s=1 status=0 size=36
+GBS 16u_C4R r=0.9 s=2 status=0 size=36
+GBS 16u_C4R r=0.9 s=5 status=0 size=36
+GBS 16u_C4R r=1 s=0.1 status=0 size=36
+GBS 16u_C4R r=1 s=0.5 status=0 size=36
+GBS 16u_C4R r=1 s=0.9 status=0 size=36
+GBS 16u_C4R r=1 s=1 status=0 size=36
+GBS 16u_C4R r=1 s=2 status=0 size=36
+GBS 16u_C4R r=1 s=5 status=0 size=36
+GBS 16u_C4R r=1.5 s=0.1 status=0 size=100
+GBS 16u_C4R r=1.5 s=0.5 status=0 size=100
+GBS 16u_C4R r=1.5 s=0.9 status=0 size=100
+GBS 16u_C4R r=1.5 s=1 status=0 size=100
+GBS 16u_C4R r=1.5 s=2 status=0 size=100
+GBS 16u_C4R r=1.5 s=5 status=0 size=100
+GBS 16u_C4R r=2 s=0.1 status=0 size=100
+GBS 16u_C4R r=2 s=0.5 status=0 size=100
+GBS 16u_C4R r=2 s=0.9 status=0 size=100
+GBS 16u_C4R r=2 s=1 status=0 size=100
+GBS 16u_C4R r=2 s=2 status=0 size=100
+GBS 16u_C4R r=2 s=5 status=0 size=100
+GBS 16u_C4R r=2.5 s=0.1 status=0 size=196
+GBS 16u_C4R r=2.5 s=0.5 status=0 size=196
+GBS 16u_C4R r=2.5 s=0.9 status=0 size=196
+GBS 16u_C4R r=2.5 s=1 status=0 size=196
+GBS 16u_C4R r=2.5 s=2 status=0 size=196
+GBS 16u_C4R r=2.5 s=5 status=0 size=196
+GBS 16u_C4R r=3 s=0.1 status=0 size=196
+GBS 16u_C4R r=3 s=0.5 status=0 size=196
+GBS 16u_C4R r=3 s=0.9 status=0 size=196
+GBS 16u_C4R r=3 s=1 status=0 size=196
+GBS 16u_C4R r=3 s=2 status=0 size=196
+GBS 16u_C4R r=3 s=5 status=0 size=196
+GBS 16u_C4R r=4 s=0.1 status=0 size=324
+GBS 16u_C4R r=4 s=0.5 status=0 size=324
+GBS 16u_C4R r=4 s=0.9 status=0 size=324
+GBS 16u_C4R r=4 s=1 status=0 size=324
+GBS 16u_C4R r=4 s=2 status=0 size=324
+GBS 16u_C4R r=4 s=5 status=0 size=324
+GBS 16u_C4R r=5 s=0.1 status=0 size=484
+GBS 16u_C4R r=5 s=0.5 status=0 size=484
+GBS 16u_C4R r=5 s=0.9 status=0 size=484
+GBS 16u_C4R r=5 s=1 status=0 size=484
+GBS 16u_C4R r=5 s=2 status=0 size=484
+GBS 16u_C4R r=5 s=5 status=0 size=484
+GBS 16u_C4R r=7.5 s=0.1 status=0 size=1156
+GBS 16u_C4R r=7.5 s=0.5 status=0 size=1156
+GBS 16u_C4R r=7.5 s=0.9 status=0 size=1156
+GBS 16u_C4R r=7.5 s=1 status=0 size=1156
+GBS 16u_C4R r=7.5 s=2 status=0 size=1156
+GBS 16u_C4R r=7.5 s=5 status=0 size=1156
+GBS 16u_C4R r=10 s=0.1 status=0 size=1764
+GBS 16u_C4R r=10 s=0.5 status=0 size=1764
+GBS 16u_C4R r=10 s=0.9 status=0 size=1764
+GBS 16u_C4R r=10 s=1 status=0 size=1764
+GBS 16u_C4R r=10 s=2 status=0 size=1764
+GBS 16u_C4R r=10 s=5 status=0 size=1764
+GBS 16u_AC4R r=0.1 s=0.1 status=0 size=36
+GBS 16u_AC4R r=0.1 s=0.5 status=0 size=36
+GBS 16u_AC4R r=0.1 s=0.9 status=0 size=36
+GBS 16u_AC4R r=0.1 s=1 status=0 size=36
+GBS 16u_AC4R r=0.1 s=2 status=0 size=36
+GBS 16u_AC4R r=0.1 s=5 status=0 size=36
+GBS 16u_AC4R r=0.5 s=0.1 status=0 size=36
+GBS 16u_AC4R r=0.5 s=0.5 status=0 size=36
+GBS 16u_AC4R r=0.5 s=0.9 status=0 size=36
+GBS 16u_AC4R r=0.5 s=1 status=0 size=36
+GBS 16u_AC4R r=0.5 s=2 status=0 size=36
+GBS 16u_AC4R r=0.5 s=5 status=0 size=36
+GBS 16u_AC4R r=0.9 s=0.1 status=0 size=36
+GBS 16u_AC4R r=0.9 s=0.5 status=0 size=36
+GBS 16u_AC4R r=0.9 s=0.9 status=0 size=36
+GBS 16u_AC4R r=0.9 s=1 status=0 size=36
+GBS 16u_AC4R r=0.9 s=2 status=0 size=36
+GBS 16u_AC4R r=0.9 s=5 status=0 size=36
+GBS 16u_AC4R r=1 s=0.1 status=0 size=36
+GBS 16u_AC4R r=1 s=0.5 status=0 size=36
+GBS 16u_AC4R r=1 s=0.9 status=0 size=36
+GBS 16u_AC4R r=1 s=1 status=0 size=36
+GBS 16u_AC4R r=1 s=2 status=0 size=36
+GBS 16u_AC4R r=1 s=5 status=0 size=36
+GBS 16u_AC4R r=1.5 s=0.1 status=0 size=100
+GBS 16u_AC4R r=1.5 s=0.5 status=0 size=100
+GBS 16u_AC4R r=1.5 s=0.9 status=0 size=100
+GBS 16u_AC4R r=1.5 s=1 status=0 size=100
+GBS 16u_AC4R r=1.5 s=2 status=0 size=100
+GBS 16u_AC4R r=1.5 s=5 status=0 size=100
+GBS 16u_AC4R r=2 s=0.1 status=0 size=100
+GBS 16u_AC4R r=2 s=0.5 status=0 size=100
+GBS 16u_AC4R r=2 s=0.9 status=0 size=100
+GBS 16u_AC4R r=2 s=1 status=0 size=100
+GBS 16u_AC4R r=2 s=2 status=0 size=100
+GBS 16u_AC4R r=2 s=5 status=0 size=100
+GBS 16u_AC4R r=2.5 s=0.1 status=0 size=196
+GBS 16u_AC4R r=2.5 s=0.5 status=0 size=196
+GBS 16u_AC4R r=2.5 s=0.9 status=0 size=196
+GBS 16u_AC4R r=2.5 s=1 status=0 size=196
+GBS 16u_AC4R r=2.5 s=2 status=0 size=196
+GBS 16u_AC4R r=2.5 s=5 status=0 size=196
+GBS 16u_AC4R r=3 s=0.1 status=0 size=196
+GBS 16u_AC4R r=3 s=0.5 status=0 size=196
+GBS 16u_AC4R r=3 s=0.9 status=0 size=196
+GBS 16u_AC4R r=3 s=1 status=0 size=196
+GBS 16u_AC4R r=3 s=2 status=0 size=196
+GBS 16u_AC4R r=3 s=5 status=0 size=196
+GBS 16u_AC4R r=4 s=0.1 status=0 size=324
+GBS 16u_AC4R r=4 s=0.5 status=0 size=324
+GBS 16u_AC4R r=4 s=0.9 status=0 size=324
+GBS 16u_AC4R r=4 s=1 status=0 size=324
+GBS 16u_AC4R r=4 s=2 status=0 size=324
+GBS 16u_AC4R r=4 s=5 status=0 size=324
+GBS 16u_AC4R r=5 s=0.1 status=0 size=484
+GBS 16u_AC4R r=5 s=0.5 status=0 size=484
+GBS 16u_AC4R r=5 s=0.9 status=0 size=484
+GBS 16u_AC4R r=5 s=1 status=0 size=484
+GBS 16u_AC4R r=5 s=2 status=0 size=484
+GBS 16u_AC4R r=5 s=5 status=0 size=484
+GBS 16u_AC4R r=7.5 s=0.1 status=0 size=1156
+GBS 16u_AC4R r=7.5 s=0.5 status=0 size=1156
+GBS 16u_AC4R r=7.5 s=0.9 status=0 size=1156
+GBS 16u_AC4R r=7.5 s=1 status=0 size=1156
+GBS 16u_AC4R r=7.5 s=2 status=0 size=1156
+GBS 16u_AC4R r=7.5 s=5 status=0 size=1156
+GBS 16u_AC4R r=10 s=0.1 status=0 size=1764
+GBS 16u_AC4R r=10 s=0.5 status=0 size=1764
+GBS 16u_AC4R r=10 s=0.9 status=0 size=1764
+GBS 16u_AC4R r=10 s=1 status=0 size=1764
+GBS 16u_AC4R r=10 s=2 status=0 size=1764
+GBS 16u_AC4R r=10 s=5 status=0 size=1764
+GBS 16s_C1R r=0.1 s=0.1 status=0 size=36
+GBS 16s_C1R r=0.1 s=0.5 status=0 size=36
+GBS 16s_C1R r=0.1 s=0.9 status=0 size=36
+GBS 16s_C1R r=0.1 s=1 status=0 size=36
+GBS 16s_C1R r=0.1 s=2 status=0 size=36
+GBS 16s_C1R r=0.1 s=5 status=0 size=36
+GBS 16s_C1R r=0.5 s=0.1 status=0 size=36
+GBS 16s_C1R r=0.5 s=0.5 status=0 size=36
+GBS 16s_C1R r=0.5 s=0.9 status=0 size=36
+GBS 16s_C1R r=0.5 s=1 status=0 size=36
+GBS 16s_C1R r=0.5 s=2 status=0 size=36
+GBS 16s_C1R r=0.5 s=5 status=0 size=36
+GBS 16s_C1R r=0.9 s=0.1 status=0 size=36
+GBS 16s_C1R r=0.9 s=0.5 status=0 size=36
+GBS 16s_C1R r=0.9 s=0.9 status=0 size=36
+GBS 16s_C1R r=0.9 s=1 status=0 size=36
+GBS 16s_C1R r=0.9 s=2 status=0 size=36
+GBS 16s_C1R r=0.9 s=5 status=0 size=36
+GBS 16s_C1R r=1 s=0.1 status=0 size=36
+GBS 16s_C1R r=1 s=0.5 status=0 size=36
+GBS 16s_C1R r=1 s=0.9 status=0 size=36
+GBS 16s_C1R r=1 s=1 status=0 size=36
+GBS 16s_C1R r=1 s=2 status=0 size=36
+GBS 16s_C1R r=1 s=5 status=0 size=36
+GBS 16s_C1R r=1.5 s=0.1 status=0 size=100
+GBS 16s_C1R r=1.5 s=0.5 status=0 size=100
+GBS 16s_C1R r=1.5 s=0.9 status=0 size=100
+GBS 16s_C1R r=1.5 s=1 status=0 size=100
+GBS 16s_C1R r=1.5 s=2 status=0 size=100
+GBS 16s_C1R r=1.5 s=5 status=0 size=100
+GBS 16s_C1R r=2 s=0.1 status=0 size=100
+GBS 16s_C1R r=2 s=0.5 status=0 size=100
+GBS 16s_C1R r=2 s=0.9 status=0 size=100
+GBS 16s_C1R r=2 s=1 status=0 size=100
+GBS 16s_C1R r=2 s=2 status=0 size=100
+GBS 16s_C1R r=2 s=5 status=0 size=100
+GBS 16s_C1R r=2.5 s=0.1 status=0 size=196
+GBS 16s_C1R r=2.5 s=0.5 status=0 size=196
+GBS 16s_C1R r=2.5 s=0.9 status=0 size=196
+GBS 16s_C1R r=2.5 s=1 status=0 size=196
+GBS 16s_C1R r=2.5 s=2 status=0 size=196
+GBS 16s_C1R r=2.5 s=5 status=0 size=196
+GBS 16s_C1R r=3 s=0.1 status=0 size=196
+GBS 16s_C1R r=3 s=0.5 status=0 size=196
+GBS 16s_C1R r=3 s=0.9 status=0 size=196
+GBS 16s_C1R r=3 s=1 status=0 size=196
+GBS 16s_C1R r=3 s=2 status=0 size=196
+GBS 16s_C1R r=3 s=5 status=0 size=196
+GBS 16s_C1R r=4 s=0.1 status=0 size=324
+GBS 16s_C1R r=4 s=0.5 status=0 size=324
+GBS 16s_C1R r=4 s=0.9 status=0 size=324
+GBS 16s_C1R r=4 s=1 status=0 size=324
+GBS 16s_C1R r=4 s=2 status=0 size=324
+GBS 16s_C1R r=4 s=5 status=0 size=324
+GBS 16s_C1R r=5 s=0.1 status=0 size=484
+GBS 16s_C1R r=5 s=0.5 status=0 size=484
+GBS 16s_C1R r=5 s=0.9 status=0 size=484
+GBS 16s_C1R r=5 s=1 status=0 size=484
+GBS 16s_C1R r=5 s=2 status=0 size=484
+GBS 16s_C1R r=5 s=5 status=0 size=484
+GBS 16s_C1R r=7.5 s=0.1 status=0 size=1156
+GBS 16s_C1R r=7.5 s=0.5 status=0 size=1156
+GBS 16s_C1R r=7.5 s=0.9 status=0 size=1156
+GBS 16s_C1R r=7.5 s=1 status=0 size=1156
+GBS 16s_C1R r=7.5 s=2 status=0 size=1156
+GBS 16s_C1R r=7.5 s=5 status=0 size=1156
+GBS 16s_C1R r=10 s=0.1 status=0 size=1764
+GBS 16s_C1R r=10 s=0.5 status=0 size=1764
+GBS 16s_C1R r=10 s=0.9 status=0 size=1764
+GBS 16s_C1R r=10 s=1 status=0 size=1764
+GBS 16s_C1R r=10 s=2 status=0 size=1764
+GBS 16s_C1R r=10 s=5 status=0 size=1764
+GBS 16s_C3R r=0.1 s=0.1 status=0 size=36
+GBS 16s_C3R r=0.1 s=0.5 status=0 size=36
+GBS 16s_C3R r=0.1 s=0.9 status=0 size=36
+GBS 16s_C3R r=0.1 s=1 status=0 size=36
+GBS 16s_C3R r=0.1 s=2 status=0 size=36
+GBS 16s_C3R r=0.1 s=5 status=0 size=36
+GBS 16s_C3R r=0.5 s=0.1 status=0 size=36
+GBS 16s_C3R r=0.5 s=0.5 status=0 size=36
+GBS 16s_C3R r=0.5 s=0.9 status=0 size=36
+GBS 16s_C3R r=0.5 s=1 status=0 size=36
+GBS 16s_C3R r=0.5 s=2 status=0 size=36
+GBS 16s_C3R r=0.5 s=5 status=0 size=36
+GBS 16s_C3R r=0.9 s=0.1 status=0 size=36
+GBS 16s_C3R r=0.9 s=0.5 status=0 size=36
+GBS 16s_C3R r=0.9 s=0.9 status=0 size=36
+GBS 16s_C3R r=0.9 s=1 status=0 size=36
+GBS 16s_C3R r=0.9 s=2 status=0 size=36
+GBS 16s_C3R r=0.9 s=5 status=0 size=36
+GBS 16s_C3R r=1 s=0.1 status=0 size=36
+GBS 16s_C3R r=1 s=0.5 status=0 size=36
+GBS 16s_C3R r=1 s=0.9 status=0 size=36
+GBS 16s_C3R r=1 s=1 status=0 size=36
+GBS 16s_C3R r=1 s=2 status=0 size=36
+GBS 16s_C3R r=1 s=5 status=0 size=36
+GBS 16s_C3R r=1.5 s=0.1 status=0 size=100
+GBS 16s_C3R r=1.5 s=0.5 status=0 size=100
+GBS 16s_C3R r=1.5 s=0.9 status=0 size=100
+GBS 16s_C3R r=1.5 s=1 status=0 size=100
+GBS 16s_C3R r=1.5 s=2 status=0 size=100
+GBS 16s_C3R r=1.5 s=5 status=0 size=100
+GBS 16s_C3R r=2 s=0.1 status=0 size=100
+GBS 16s_C3R r=2 s=0.5 status=0 size=100
+GBS 16s_C3R r=2 s=0.9 status=0 size=100
+GBS 16s_C3R r=2 s=1 status=0 size=100
+GBS 16s_C3R r=2 s=2 status=0 size=100
+GBS 16s_C3R r=2 s=5 status=0 size=100
+GBS 16s_C3R r=2.5 s=0.1 status=0 size=196
+GBS 16s_C3R r=2.5 s=0.5 status=0 size=196
+GBS 16s_C3R r=2.5 s=0.9 status=0 size=196
+GBS 16s_C3R r=2.5 s=1 status=0 size=196
+GBS 16s_C3R r=2.5 s=2 status=0 size=196
+GBS 16s_C3R r=2.5 s=5 status=0 size=196
+GBS 16s_C3R r=3 s=0.1 status=0 size=196
+GBS 16s_C3R r=3 s=0.5 status=0 size=196
+GBS 16s_C3R r=3 s=0.9 status=0 size=196
+GBS 16s_C3R r=3 s=1 status=0 size=196
+GBS 16s_C3R r=3 s=2 status=0 size=196
+GBS 16s_C3R r=3 s=5 status=0 size=196
+GBS 16s_C3R r=4 s=0.1 status=0 size=324
+GBS 16s_C3R r=4 s=0.5 status=0 size=324
+GBS 16s_C3R r=4 s=0.9 status=0 size=324
+GBS 16s_C3R r=4 s=1 status=0 size=324
+GBS 16s_C3R r=4 s=2 status=0 size=324
+GBS 16s_C3R r=4 s=5 status=0 size=324
+GBS 16s_C3R r=5 s=0.1 status=0 size=484
+GBS 16s_C3R r=5 s=0.5 status=0 size=484
+GBS 16s_C3R r=5 s=0.9 status=0 size=484
+GBS 16s_C3R r=5 s=1 status=0 size=484
+GBS 16s_C3R r=5 s=2 status=0 size=484
+GBS 16s_C3R r=5 s=5 status=0 size=484
+GBS 16s_C3R r=7.5 s=0.1 status=0 size=1156
+GBS 16s_C3R r=7.5 s=0.5 status=0 size=1156
+GBS 16s_C3R r=7.5 s=0.9 status=0 size=1156
+GBS 16s_C3R r=7.5 s=1 status=0 size=1156
+GBS 16s_C3R r=7.5 s=2 status=0 size=1156
+GBS 16s_C3R r=7.5 s=5 status=0 size=1156
+GBS 16s_C3R r=10 s=0.1 status=0 size=1764
+GBS 16s_C3R r=10 s=0.5 status=0 size=1764
+GBS 16s_C3R r=10 s=0.9 status=0 size=1764
+GBS 16s_C3R r=10 s=1 status=0 size=1764
+GBS 16s_C3R r=10 s=2 status=0 size=1764
+GBS 16s_C3R r=10 s=5 status=0 size=1764
+GBS 16s_C4R r=0.1 s=0.1 status=0 size=36
+GBS 16s_C4R r=0.1 s=0.5 status=0 size=36
+GBS 16s_C4R r=0.1 s=0.9 status=0 size=36
+GBS 16s_C4R r=0.1 s=1 status=0 size=36
+GBS 16s_C4R r=0.1 s=2 status=0 size=36
+GBS 16s_C4R r=0.1 s=5 status=0 size=36
+GBS 16s_C4R r=0.5 s=0.1 status=0 size=36
+GBS 16s_C4R r=0.5 s=0.5 status=0 size=36
+GBS 16s_C4R r=0.5 s=0.9 status=0 size=36
+GBS 16s_C4R r=0.5 s=1 status=0 size=36
+GBS 16s_C4R r=0.5 s=2 status=0 size=36
+GBS 16s_C4R r=0.5 s=5 status=0 size=36
+GBS 16s_C4R r=0.9 s=0.1 status=0 size=36
+GBS 16s_C4R r=0.9 s=0.5 status=0 size=36
+GBS 16s_C4R r=0.9 s=0.9 status=0 size=36
+GBS 16s_C4R r=0.9 s=1 status=0 size=36
+GBS 16s_C4R r=0.9 s=2 status=0 size=36
+GBS 16s_C4R r=0.9 s=5 status=0 size=36
+GBS 16s_C4R r=1 s=0.1 status=0 size=36
+GBS 16s_C4R r=1 s=0.5 status=0 size=36
+GBS 16s_C4R r=1 s=0.9 status=0 size=36
+GBS 16s_C4R r=1 s=1 status=0 size=36
+GBS 16s_C4R r=1 s=2 status=0 size=36
+GBS 16s_C4R r=1 s=5 status=0 size=36
+GBS 16s_C4R r=1.5 s=0.1 status=0 size=100
+GBS 16s_C4R r=1.5 s=0.5 status=0 size=100
+GBS 16s_C4R r=1.5 s=0.9 status=0 size=100
+GBS 16s_C4R r=1.5 s=1 status=0 size=100
+GBS 16s_C4R r=1.5 s=2 status=0 size=100
+GBS 16s_C4R r=1.5 s=5 status=0 size=100
+GBS 16s_C4R r=2 s=0.1 status=0 size=100
+GBS 16s_C4R r=2 s=0.5 status=0 size=100
+GBS 16s_C4R r=2 s=0.9 status=0 size=100
+GBS 16s_C4R r=2 s=1 status=0 size=100
+GBS 16s_C4R r=2 s=2 status=0 size=100
+GBS 16s_C4R r=2 s=5 status=0 size=100
+GBS 16s_C4R r=2.5 s=0.1 status=0 size=196
+GBS 16s_C4R r=2.5 s=0.5 status=0 size=196
+GBS 16s_C4R r=2.5 s=0.9 status=0 size=196
+GBS 16s_C4R r=2.5 s=1 status=0 size=196
+GBS 16s_C4R r=2.5 s=2 status=0 size=196
+GBS 16s_C4R r=2.5 s=5 status=0 size=196
+GBS 16s_C4R r=3 s=0.1 status=0 size=196
+GBS 16s_C4R r=3 s=0.5 status=0 size=196
+GBS 16s_C4R r=3 s=0.9 status=0 size=196
+GBS 16s_C4R r=3 s=1 status=0 size=196
+GBS 16s_C4R r=3 s=2 status=0 size=196
+GBS 16s_C4R r=3 s=5 status=0 size=196
+GBS 16s_C4R r=4 s=0.1 status=0 size=324
+GBS 16s_C4R r=4 s=0.5 status=0 size=324
+GBS 16s_C4R r=4 s=0.9 status=0 size=324
+GBS 16s_C4R r=4 s=1 status=0 size=324
+GBS 16s_C4R r=4 s=2 status=0 size=324
+GBS 16s_C4R r=4 s=5 status=0 size=324
+GBS 16s_C4R r=5 s=0.1 status=0 size=484
+GBS 16s_C4R r=5 s=0.5 status=0 size=484
+GBS 16s_C4R r=5 s=0.9 status=0 size=484
+GBS 16s_C4R r=5 s=1 status=0 size=484
+GBS 16s_C4R r=5 s=2 status=0 size=484
+GBS 16s_C4R r=5 s=5 status=0 size=484
+GBS 16s_C4R r=7.5 s=0.1 status=0 size=1156
+GBS 16s_C4R r=7.5 s=0.5 status=0 size=1156
+GBS 16s_C4R r=7.5 s=0.9 status=0 size=1156
+GBS 16s_C4R r=7.5 s=1 status=0 size=1156
+GBS 16s_C4R r=7.5 s=2 status=0 size=1156
+GBS 16s_C4R r=7.5 s=5 status=0 size=1156
+GBS 16s_C4R r=10 s=0.1 status=0 size=1764
+GBS 16s_C4R r=10 s=0.5 status=0 size=1764
+GBS 16s_C4R r=10 s=0.9 status=0 size=1764
+GBS 16s_C4R r=10 s=1 status=0 size=1764
+GBS 16s_C4R r=10 s=2 status=0 size=1764
+GBS 16s_C4R r=10 s=5 status=0 size=1764
+GBS 16s_AC4R r=0.1 s=0.1 status=0 size=36
+GBS 16s_AC4R r=0.1 s=0.5 status=0 size=36
+GBS 16s_AC4R r=0.1 s=0.9 status=0 size=36
+GBS 16s_AC4R r=0.1 s=1 status=0 size=36
+GBS 16s_AC4R r=0.1 s=2 status=0 size=36
+GBS 16s_AC4R r=0.1 s=5 status=0 size=36
+GBS 16s_AC4R r=0.5 s=0.1 status=0 size=36
+GBS 16s_AC4R r=0.5 s=0.5 status=0 size=36
+GBS 16s_AC4R r=0.5 s=0.9 status=0 size=36
+GBS 16s_AC4R r=0.5 s=1 status=0 size=36
+GBS 16s_AC4R r=0.5 s=2 status=0 size=36
+GBS 16s_AC4R r=0.5 s=5 status=0 size=36
+GBS 16s_AC4R r=0.9 s=0.1 status=0 size=36
+GBS 16s_AC4R r=0.9 s=0.5 status=0 size=36
+GBS 16s_AC4R r=0.9 s=0.9 status=0 size=36
+GBS 16s_AC4R r=0.9 s=1 status=0 size=36
+GBS 16s_AC4R r=0.9 s=2 status=0 size=36
+GBS 16s_AC4R r=0.9 s=5 status=0 size=36
+GBS 16s_AC4R r=1 s=0.1 status=0 size=36
+GBS 16s_AC4R r=1 s=0.5 status=0 size=36
+GBS 16s_AC4R r=1 s=0.9 status=0 size=36
+GBS 16s_AC4R r=1 s=1 status=0 size=36
+GBS 16s_AC4R r=1 s=2 status=0 size=36
+GBS 16s_AC4R r=1 s=5 status=0 size=36
+GBS 16s_AC4R r=1.5 s=0.1 status=0 size=100
+GBS 16s_AC4R r=1.5 s=0.5 status=0 size=100
+GBS 16s_AC4R r=1.5 s=0.9 status=0 size=100
+GBS 16s_AC4R r=1.5 s=1 status=0 size=100
+GBS 16s_AC4R r=1.5 s=2 status=0 size=100
+GBS 16s_AC4R r=1.5 s=5 status=0 size=100
+GBS 16s_AC4R r=2 s=0.1 status=0 size=100
+GBS 16s_AC4R r=2 s=0.5 status=0 size=100
+GBS 16s_AC4R r=2 s=0.9 status=0 size=100
+GBS 16s_AC4R r=2 s=1 status=0 size=100
+GBS 16s_AC4R r=2 s=2 status=0 size=100
+GBS 16s_AC4R r=2 s=5 status=0 size=100
+GBS 16s_AC4R r=2.5 s=0.1 status=0 size=196
+GBS 16s_AC4R r=2.5 s=0.5 status=0 size=196
+GBS 16s_AC4R r=2.5 s=0.9 status=0 size=196
+GBS 16s_AC4R r=2.5 s=1 status=0 size=196
+GBS 16s_AC4R r=2.5 s=2 status=0 size=196
+GBS 16s_AC4R r=2.5 s=5 status=0 size=196
+GBS 16s_AC4R r=3 s=0.1 status=0 size=196
+GBS 16s_AC4R r=3 s=0.5 status=0 size=196
+GBS 16s_AC4R r=3 s=0.9 status=0 size=196
+GBS 16s_AC4R r=3 s=1 status=0 size=196
+GBS 16s_AC4R r=3 s=2 status=0 size=196
+GBS 16s_AC4R r=3 s=5 status=0 size=196
+GBS 16s_AC4R r=4 s=0.1 status=0 size=324
+GBS 16s_AC4R r=4 s=0.5 status=0 size=324
+GBS 16s_AC4R r=4 s=0.9 status=0 size=324
+GBS 16s_AC4R r=4 s=1 status=0 size=324
+GBS 16s_AC4R r=4 s=2 status=0 size=324
+GBS 16s_AC4R r=4 s=5 status=0 size=324
+GBS 16s_AC4R r=5 s=0.1 status=0 size=484
+GBS 16s_AC4R r=5 s=0.5 status=0 size=484
+GBS 16s_AC4R r=5 s=0.9 status=0 size=484
+GBS 16s_AC4R r=5 s=1 status=0 size=484
+GBS 16s_AC4R r=5 s=2 status=0 size=484
+GBS 16s_AC4R r=5 s=5 status=0 size=484
+GBS 16s_AC4R r=7.5 s=0.1 status=0 size=1156
+GBS 16s_AC4R r=7.5 s=0.5 status=0 size=1156
+GBS 16s_AC4R r=7.5 s=0.9 status=0 size=1156
+GBS 16s_AC4R r=7.5 s=1 status=0 size=1156
+GBS 16s_AC4R r=7.5 s=2 status=0 size=1156
+GBS 16s_AC4R r=7.5 s=5 status=0 size=1156
+GBS 16s_AC4R r=10 s=0.1 status=0 size=1764
+GBS 16s_AC4R r=10 s=0.5 status=0 size=1764
+GBS 16s_AC4R r=10 s=0.9 status=0 size=1764
+GBS 16s_AC4R r=10 s=1 status=0 size=1764
+GBS 16s_AC4R r=10 s=2 status=0 size=1764
+GBS 16s_AC4R r=10 s=5 status=0 size=1764
+GBS 32f_C1R r=0.1 s=0.1 status=0 size=36
+GBS 32f_C1R r=0.1 s=0.5 status=0 size=36
+GBS 32f_C1R r=0.1 s=0.9 status=0 size=36
+GBS 32f_C1R r=0.1 s=1 status=0 size=36
+GBS 32f_C1R r=0.1 s=2 status=0 size=36
+GBS 32f_C1R r=0.1 s=5 status=0 size=36
+GBS 32f_C1R r=0.5 s=0.1 status=0 size=36
+GBS 32f_C1R r=0.5 s=0.5 status=0 size=36
+GBS 32f_C1R r=0.5 s=0.9 status=0 size=36
+GBS 32f_C1R r=0.5 s=1 status=0 size=36
+GBS 32f_C1R r=0.5 s=2 status=0 size=36
+GBS 32f_C1R r=0.5 s=5 status=0 size=36
+GBS 32f_C1R r=0.9 s=0.1 status=0 size=36
+GBS 32f_C1R r=0.9 s=0.5 status=0 size=36
+GBS 32f_C1R r=0.9 s=0.9 status=0 size=36
+GBS 32f_C1R r=0.9 s=1 status=0 size=36
+GBS 32f_C1R r=0.9 s=2 status=0 size=36
+GBS 32f_C1R r=0.9 s=5 status=0 size=36
+GBS 32f_C1R r=1 s=0.1 status=0 size=36
+GBS 32f_C1R r=1 s=0.5 status=0 size=36
+GBS 32f_C1R r=1 s=0.9 status=0 size=36
+GBS 32f_C1R r=1 s=1 status=0 size=36
+GBS 32f_C1R r=1 s=2 status=0 size=36
+GBS 32f_C1R r=1 s=5 status=0 size=36
+GBS 32f_C1R r=1.5 s=0.1 status=0 size=100
+GBS 32f_C1R r=1.5 s=0.5 status=0 size=100
+GBS 32f_C1R r=1.5 s=0.9 status=0 size=100
+GBS 32f_C1R r=1.5 s=1 status=0 size=100
+GBS 32f_C1R r=1.5 s=2 status=0 size=100
+GBS 32f_C1R r=1.5 s=5 status=0 size=100
+GBS 32f_C1R r=2 s=0.1 status=0 size=100
+GBS 32f_C1R r=2 s=0.5 status=0 size=100
+GBS 32f_C1R r=2 s=0.9 status=0 size=100
+GBS 32f_C1R r=2 s=1 status=0 size=100
+GBS 32f_C1R r=2 s=2 status=0 size=100
+GBS 32f_C1R r=2 s=5 status=0 size=100
+GBS 32f_C1R r=2.5 s=0.1 status=0 size=196
+GBS 32f_C1R r=2.5 s=0.5 status=0 size=196
+GBS 32f_C1R r=2.5 s=0.9 status=0 size=196
+GBS 32f_C1R r=2.5 s=1 status=0 size=196
+GBS 32f_C1R r=2.5 s=2 status=0 size=196
+GBS 32f_C1R r=2.5 s=5 status=0 size=196
+GBS 32f_C1R r=3 s=0.1 status=0 size=196
+GBS 32f_C1R r=3 s=0.5 status=0 size=196
+GBS 32f_C1R r=3 s=0.9 status=0 size=196
+GBS 32f_C1R r=3 s=1 status=0 size=196
+GBS 32f_C1R r=3 s=2 status=0 size=196
+GBS 32f_C1R r=3 s=5 status=0 size=196
+GBS 32f_C1R r=4 s=0.1 status=0 size=324
+GBS 32f_C1R r=4 s=0.5 status=0 size=324
+GBS 32f_C1R r=4 s=0.9 status=0 size=324
+GBS 32f_C1R r=4 s=1 status=0 size=324
+GBS 32f_C1R r=4 s=2 status=0 size=324
+GBS 32f_C1R r=4 s=5 status=0 size=324
+GBS 32f_C1R r=5 s=0.1 status=0 size=484
+GBS 32f_C1R r=5 s=0.5 status=0 size=484
+GBS 32f_C1R r=5 s=0.9 status=0 size=484
+GBS 32f_C1R r=5 s=1 status=0 size=484
+GBS 32f_C1R r=5 s=2 status=0 size=484
+GBS 32f_C1R r=5 s=5 status=0 size=484
+GBS 32f_C1R r=7.5 s=0.1 status=0 size=1156
+GBS 32f_C1R r=7.5 s=0.5 status=0 size=1156
+GBS 32f_C1R r=7.5 s=0.9 status=0 size=1156
+GBS 32f_C1R r=7.5 s=1 status=0 size=1156
+GBS 32f_C1R r=7.5 s=2 status=0 size=1156
+GBS 32f_C1R r=7.5 s=5 status=0 size=1156
+GBS 32f_C1R r=10 s=0.1 status=0 size=1764
+GBS 32f_C1R r=10 s=0.5 status=0 size=1764
+GBS 32f_C1R r=10 s=0.9 status=0 size=1764
+GBS 32f_C1R r=10 s=1 status=0 size=1764
+GBS 32f_C1R r=10 s=2 status=0 size=1764
+GBS 32f_C1R r=10 s=5 status=0 size=1764
+GBS 32f_C3R r=0.1 s=0.1 status=0 size=36
+GBS 32f_C3R r=0.1 s=0.5 status=0 size=36
+GBS 32f_C3R r=0.1 s=0.9 status=0 size=36
+GBS 32f_C3R r=0.1 s=1 status=0 size=36
+GBS 32f_C3R r=0.1 s=2 status=0 size=36
+GBS 32f_C3R r=0.1 s=5 status=0 size=36
+GBS 32f_C3R r=0.5 s=0.1 status=0 size=36
+GBS 32f_C3R r=0.5 s=0.5 status=0 size=36
+GBS 32f_C3R r=0.5 s=0.9 status=0 size=36
+GBS 32f_C3R r=0.5 s=1 status=0 size=36
+GBS 32f_C3R r=0.5 s=2 status=0 size=36
+GBS 32f_C3R r=0.5 s=5 status=0 size=36
+GBS 32f_C3R r=0.9 s=0.1 status=0 size=36
+GBS 32f_C3R r=0.9 s=0.5 status=0 size=36
+GBS 32f_C3R r=0.9 s=0.9 status=0 size=36
+GBS 32f_C3R r=0.9 s=1 status=0 size=36
+GBS 32f_C3R r=0.9 s=2 status=0 size=36
+GBS 32f_C3R r=0.9 s=5 status=0 size=36
+GBS 32f_C3R r=1 s=0.1 status=0 size=36
+GBS 32f_C3R r=1 s=0.5 status=0 size=36
+GBS 32f_C3R r=1 s=0.9 status=0 size=36
+GBS 32f_C3R r=1 s=1 status=0 size=36
+GBS 32f_C3R r=1 s=2 status=0 size=36
+GBS 32f_C3R r=1 s=5 status=0 size=36
+GBS 32f_C3R r=1.5 s=0.1 status=0 size=100
+GBS 32f_C3R r=1.5 s=0.5 status=0 size=100
+GBS 32f_C3R r=1.5 s=0.9 status=0 size=100
+GBS 32f_C3R r=1.5 s=1 status=0 size=100
+GBS 32f_C3R r=1.5 s=2 status=0 size=100
+GBS 32f_C3R r=1.5 s=5 status=0 size=100
+GBS 32f_C3R r=2 s=0.1 status=0 size=100
+GBS 32f_C3R r=2 s=0.5 status=0 size=100
+GBS 32f_C3R r=2 s=0.9 status=0 size=100
+GBS 32f_C3R r=2 s=1 status=0 size=100
+GBS 32f_C3R r=2 s=2 status=0 size=100
+GBS 32f_C3R r=2 s=5 status=0 size=100
+GBS 32f_C3R r=2.5 s=0.1 status=0 size=196
+GBS 32f_C3R r=2.5 s=0.5 status=0 size=196
+GBS 32f_C3R r=2.5 s=0.9 status=0 size=196
+GBS 32f_C3R r=2.5 s=1 status=0 size=196
+GBS 32f_C3R r=2.5 s=2 status=0 size=196
+GBS 32f_C3R r=2.5 s=5 status=0 size=196
+GBS 32f_C3R r=3 s=0.1 status=0 size=196
+GBS 32f_C3R r=3 s=0.5 status=0 size=196
+GBS 32f_C3R r=3 s=0.9 status=0 size=196
+GBS 32f_C3R r=3 s=1 status=0 size=196
+GBS 32f_C3R r=3 s=2 status=0 size=196
+GBS 32f_C3R r=3 s=5 status=0 size=196
+GBS 32f_C3R r=4 s=0.1 status=0 size=324
+GBS 32f_C3R r=4 s=0.5 status=0 size=324
+GBS 32f_C3R r=4 s=0.9 status=0 size=324
+GBS 32f_C3R r=4 s=1 status=0 size=324
+GBS 32f_C3R r=4 s=2 status=0 size=324
+GBS 32f_C3R r=4 s=5 status=0 size=324
+GBS 32f_C3R r=5 s=0.1 status=0 size=484
+GBS 32f_C3R r=5 s=0.5 status=0 size=484
+GBS 32f_C3R r=5 s=0.9 status=0 size=484
+GBS 32f_C3R r=5 s=1 status=0 size=484
+GBS 32f_C3R r=5 s=2 status=0 size=484
+GBS 32f_C3R r=5 s=5 status=0 size=484
+GBS 32f_C3R r=7.5 s=0.1 status=0 size=1156
+GBS 32f_C3R r=7.5 s=0.5 status=0 size=1156
+GBS 32f_C3R r=7.5 s=0.9 status=0 size=1156
+GBS 32f_C3R r=7.5 s=1 status=0 size=1156
+GBS 32f_C3R r=7.5 s=2 status=0 size=1156
+GBS 32f_C3R r=7.5 s=5 status=0 size=1156
+GBS 32f_C3R r=10 s=0.1 status=0 size=1764
+GBS 32f_C3R r=10 s=0.5 status=0 size=1764
+GBS 32f_C3R r=10 s=0.9 status=0 size=1764
+GBS 32f_C3R r=10 s=1 status=0 size=1764
+GBS 32f_C3R r=10 s=2 status=0 size=1764
+GBS 32f_C3R r=10 s=5 status=0 size=1764
+GBS 32f_C4R r=0.1 s=0.1 status=0 size=36
+GBS 32f_C4R r=0.1 s=0.5 status=0 size=36
+GBS 32f_C4R r=0.1 s=0.9 status=0 size=36
+GBS 32f_C4R r=0.1 s=1 status=0 size=36
+GBS 32f_C4R r=0.1 s=2 status=0 size=36
+GBS 32f_C4R r=0.1 s=5 status=0 size=36
+GBS 32f_C4R r=0.5 s=0.1 status=0 size=36
+GBS 32f_C4R r=0.5 s=0.5 status=0 size=36
+GBS 32f_C4R r=0.5 s=0.9 status=0 size=36
+GBS 32f_C4R r=0.5 s=1 status=0 size=36
+GBS 32f_C4R r=0.5 s=2 status=0 size=36
+GBS 32f_C4R r=0.5 s=5 status=0 size=36
+GBS 32f_C4R r=0.9 s=0.1 status=0 size=36
+GBS 32f_C4R r=0.9 s=0.5 status=0 size=36
+GBS 32f_C4R r=0.9 s=0.9 status=0 size=36
+GBS 32f_C4R r=0.9 s=1 status=0 size=36
+GBS 32f_C4R r=0.9 s=2 status=0 size=36
+GBS 32f_C4R r=0.9 s=5 status=0 size=36
+GBS 32f_C4R r=1 s=0.1 status=0 size=36
+GBS 32f_C4R r=1 s=0.5 status=0 size=36
+GBS 32f_C4R r=1 s=0.9 status=0 size=36
+GBS 32f_C4R r=1 s=1 status=0 size=36
+GBS 32f_C4R r=1 s=2 status=0 size=36
+GBS 32f_C4R r=1 s=5 status=0 size=36
+GBS 32f_C4R r=1.5 s=0.1 status=0 size=100
+GBS 32f_C4R r=1.5 s=0.5 status=0 size=100
+GBS 32f_C4R r=1.5 s=0.9 status=0 size=100
+GBS 32f_C4R r=1.5 s=1 status=0 size=100
+GBS 32f_C4R r=1.5 s=2 status=0 size=100
+GBS 32f_C4R r=1.5 s=5 status=0 size=100
+GBS 32f_C4R r=2 s=0.1 status=0 size=100
+GBS 32f_C4R r=2 s=0.5 status=0 size=100
+GBS 32f_C4R r=2 s=0.9 status=0 size=100
+GBS 32f_C4R r=2 s=1 status=0 size=100
+GBS 32f_C4R r=2 s=2 status=0 size=100
+GBS 32f_C4R r=2 s=5 status=0 size=100
+GBS 32f_C4R r=2.5 s=0.1 status=0 size=196
+GBS 32f_C4R r=2.5 s=0.5 status=0 size=196
+GBS 32f_C4R r=2.5 s=0.9 status=0 size=196
+GBS 32f_C4R r=2.5 s=1 status=0 size=196
+GBS 32f_C4R r=2.5 s=2 status=0 size=196
+GBS 32f_C4R r=2.5 s=5 status=0 size=196
+GBS 32f_C4R r=3 s=0.1 status=0 size=196
+GBS 32f_C4R r=3 s=0.5 status=0 size=196
+GBS 32f_C4R r=3 s=0.9 status=0 size=196
+GBS 32f_C4R r=3 s=1 status=0 size=196
+GBS 32f_C4R r=3 s=2 status=0 size=196
+GBS 32f_C4R r=3 s=5 status=0 size=196
+GBS 32f_C4R r=4 s=0.1 status=0 size=324
+GBS 32f_C4R r=4 s=0.5 status=0 size=324
+GBS 32f_C4R r=4 s=0.9 status=0 size=324
+GBS 32f_C4R r=4 s=1 status=0 size=324
+GBS 32f_C4R r=4 s=2 status=0 size=324
+GBS 32f_C4R r=4 s=5 status=0 size=324
+GBS 32f_C4R r=5 s=0.1 status=0 size=484
+GBS 32f_C4R r=5 s=0.5 status=0 size=484
+GBS 32f_C4R r=5 s=0.9 status=0 size=484
+GBS 32f_C4R r=5 s=1 status=0 size=484
+GBS 32f_C4R r=5 s=2 status=0 size=484
+GBS 32f_C4R r=5 s=5 status=0 size=484
+GBS 32f_C4R r=7.5 s=0.1 status=0 size=1156
+GBS 32f_C4R r=7.5 s=0.5 status=0 size=1156
+GBS 32f_C4R r=7.5 s=0.9 status=0 size=1156
+GBS 32f_C4R r=7.5 s=1 status=0 size=1156
+GBS 32f_C4R r=7.5 s=2 status=0 size=1156
+GBS 32f_C4R r=7.5 s=5 status=0 size=1156
+GBS 32f_C4R r=10 s=0.1 status=0 size=1764
+GBS 32f_C4R r=10 s=0.5 status=0 size=1764
+GBS 32f_C4R r=10 s=0.9 status=0 size=1764
+GBS 32f_C4R r=10 s=1 status=0 size=1764
+GBS 32f_C4R r=10 s=2 status=0 size=1764
+GBS 32f_C4R r=10 s=5 status=0 size=1764
+GBS 32f_AC4R r=0.1 s=0.1 status=0 size=36
+GBS 32f_AC4R r=0.1 s=0.5 status=0 size=36
+GBS 32f_AC4R r=0.1 s=0.9 status=0 size=36
+GBS 32f_AC4R r=0.1 s=1 status=0 size=36
+GBS 32f_AC4R r=0.1 s=2 status=0 size=36
+GBS 32f_AC4R r=0.1 s=5 status=0 size=36
+GBS 32f_AC4R r=0.5 s=0.1 status=0 size=36
+GBS 32f_AC4R r=0.5 s=0.5 status=0 size=36
+GBS 32f_AC4R r=0.5 s=0.9 status=0 size=36
+GBS 32f_AC4R r=0.5 s=1 status=0 size=36
+GBS 32f_AC4R r=0.5 s=2 status=0 size=36
+GBS 32f_AC4R r=0.5 s=5 status=0 size=36
+GBS 32f_AC4R r=0.9 s=0.1 status=0 size=36
+GBS 32f_AC4R r=0.9 s=0.5 status=0 size=36
+GBS 32f_AC4R r=0.9 s=0.9 status=0 size=36
+GBS 32f_AC4R r=0.9 s=1 status=0 size=36
+GBS 32f_AC4R r=0.9 s=2 status=0 size=36
+GBS 32f_AC4R r=0.9 s=5 status=0 size=36
+GBS 32f_AC4R r=1 s=0.1 status=0 size=36
+GBS 32f_AC4R r=1 s=0.5 status=0 size=36
+GBS 32f_AC4R r=1 s=0.9 status=0 size=36
+GBS 32f_AC4R r=1 s=1 status=0 size=36
+GBS 32f_AC4R r=1 s=2 status=0 size=36
+GBS 32f_AC4R r=1 s=5 status=0 size=36
+GBS 32f_AC4R r=1.5 s=0.1 status=0 size=100
+GBS 32f_AC4R r=1.5 s=0.5 status=0 size=100
+GBS 32f_AC4R r=1.5 s=0.9 status=0 size=100
+GBS 32f_AC4R r=1.5 s=1 status=0 size=100
+GBS 32f_AC4R r=1.5 s=2 status=0 size=100
+GBS 32f_AC4R r=1.5 s=5 status=0 size=100
+GBS 32f_AC4R r=2 s=0.1 status=0 size=100
+GBS 32f_AC4R r=2 s=0.5 status=0 size=100
+GBS 32f_AC4R r=2 s=0.9 status=0 size=100
+GBS 32f_AC4R r=2 s=1 status=0 size=100
+GBS 32f_AC4R r=2 s=2 status=0 size=100
+GBS 32f_AC4R r=2 s=5 status=0 size=100
+GBS 32f_AC4R r=2.5 s=0.1 status=0 size=196
+GBS 32f_AC4R r=2.5 s=0.5 status=0 size=196
+GBS 32f_AC4R r=2.5 s=0.9 status=0 size=196
+GBS 32f_AC4R r=2.5 s=1 status=0 size=196
+GBS 32f_AC4R r=2.5 s=2 status=0 size=196
+GBS 32f_AC4R r=2.5 s=5 status=0 size=196
+GBS 32f_AC4R r=3 s=0.1 status=0 size=196
+GBS 32f_AC4R r=3 s=0.5 status=0 size=196
+GBS 32f_AC4R r=3 s=0.9 status=0 size=196
+GBS 32f_AC4R r=3 s=1 status=0 size=196
+GBS 32f_AC4R r=3 s=2 status=0 size=196
+GBS 32f_AC4R r=3 s=5 status=0 size=196
+GBS 32f_AC4R r=4 s=0.1 status=0 size=324
+GBS 32f_AC4R r=4 s=0.5 status=0 size=324
+GBS 32f_AC4R r=4 s=0.9 status=0 size=324
+GBS 32f_AC4R r=4 s=1 status=0 size=324
+GBS 32f_AC4R r=4 s=2 status=0 size=324
+GBS 32f_AC4R r=4 s=5 status=0 size=324
+GBS 32f_AC4R r=5 s=0.1 status=0 size=484
+GBS 32f_AC4R r=5 s=0.5 status=0 size=484
+GBS 32f_AC4R r=5 s=0.9 status=0 size=484
+GBS 32f_AC4R r=5 s=1 status=0 size=484
+GBS 32f_AC4R r=5 s=2 status=0 size=484
+GBS 32f_AC4R r=5 s=5 status=0 size=484
+GBS 32f_AC4R r=7.5 s=0.1 status=0 size=1156
+GBS 32f_AC4R r=7.5 s=0.5 status=0 size=1156
+GBS 32f_AC4R r=7.5 s=0.9 status=0 size=1156
+GBS 32f_AC4R r=7.5 s=1 status=0 size=1156
+GBS 32f_AC4R r=7.5 s=2 status=0 size=1156
+GBS 32f_AC4R r=7.5 s=5 status=0 size=1156
+GBS 32f_AC4R r=10 s=0.1 status=0 size=1764
+GBS 32f_AC4R r=10 s=0.5 status=0 size=1764
+GBS 32f_AC4R r=10 s=0.9 status=0 size=1764
+GBS 32f_AC4R r=10 s=1 status=0 size=1764
+GBS 32f_AC4R r=10 s=2 status=0 size=1764
+GBS 32f_AC4R r=10 s=5 status=0 size=1764
+== unsharp 32f C1 delta
+USH delta_r2s1 off=(0,0) r=2 s=1 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH delta_r1s1 off=(0,0) r=1 s=1 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH delta_r4s1 off=(0,0) r=4 s=1 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH delta_r2s2 off=(0,0) r=2 s=2 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH edge_rep off=(0,0) r=2 s=1 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH edge_con off=(0,0) r=2 s=1 w=1 thr=0 bord=CON status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH edge_wra off=(0,0) r=2 s=1 w=1 thr=0 bord=WRA status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH edge_mir off=(0,0) r=2 s=1 w=1 thr=0 bord=MIR status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH edge_none off=(0,0) r=2 s=1 w=1 thr=0 bord=? status=-8
+USH off_zero off=(0,0) r=2 s=1 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH off_two off=(2,2) r=2 s=1 w=1 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH off_neg off=(-2,-2) r=2 s=1 w=1 thr=0 bord=REP status=-8
+USH off_big off=(50,50) r=2 s=1 w=1 thr=0 bord=REP status=-8
+USH w0 off=(0,0) r=2 s=1 w=0 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH w2 off=(0,0) r=2 s=1 w=2 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+USH wneg off=(0,0) r=2 s=1 w=-1.5 thr=0 bord=REP status=-8
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+  R -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777 -777
+== unsharp threshold 32f C1
+THR hpval=0 thr=0 thrP=1.40129846e-45
+THR applied_at_eq=1 applied_at_gt=1
+THR w2_pre=0 (would be 0 if |HP|<thr pre-weight) w2_post=1
+== unsharp random
+USH8U_C1R status=-8
+8u_C1R SRC
+  D 22 88 253 134 4 164 42 221 254 32 18 129 80 4 100 142 62 112 57 169 135 84 189 182
+  D 170 115 56 0 84 233 147 123 137 13 233 4 155 15 97 235 106 96 222 223 75 99 39 66
+  D 115 35 195 0 253 186 21 52 252 128 219 106 191 39 246 191 97 17 117 189 156 189 233 165
+  D 218 202 40 157 138 178 231 108 104 99 187 116 172 214 84 243 214 78 208 113 85 48 191 118
+  D 25 6 14 101 226 125 78 38 212 217 68 99 178 116 242 120 135 28 218 106 236 15 245 206
+  D 153 229 84 126 67 49 133 88 209 38 254 73 167 51 200 79 156 12 125 102 19 130 215 242
+  D 181 163 21 205 95 18 193 9 219 193 122 173 193 141 68 203 50 220 88 28 54 42 103 255
+  D 135 58 121 17 88 222 45 130 182 97 59 187 97 117 88 16 206 190 179 54 224 88 55 66
+  D 9 9 39 133 62 51 121 72 147 156 78 154 170 128 26 126 6 193 122 7 55 136 58 227
+  D 225 249 3 163 112 241 148 64 178 210 58 20 157 229 230 135 87 165 108 122 235 3 128 110
+  D 58 149 163 137 126 143 28 218 137 132 165 47 172 34 200 6 128 130 101 199 27 34 35 127
+  D 214 121 15 192 78 127 247 86 58 167 125 106 192 55 106 2 196 242 160 150 181 126 94 19
+8u_C1R DST
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+USH8U_C3R status=-8
+8u_C3R SRC
+  D 147 156 78 154 170 128 26 126 6 193 122 7 55 136 58 227 225 249 3 163 112 241 148 64 178 210 58 20 157 229 230 135 87 165 108 122 235 3 128 110 58 149 163 137 126 143 28 218 137 132 165 47 172 34 200 6 128 130 101 199 27 34 35 127 214 121 15 192 78 127 247 86
+  D 58 167 125 106 192 55 106 2 196 242 160 150 181 126 94 19 23 159 37 37 141 163 202 222 171 233 140 37 121 72 101 96 65 89 222 183 18 188 53 235 234 99 135 32 167 82 220 107 59 143 165 106 174 86 176 109 244 126 80 249 104 83 54 223 235 101 253 3 102 149 80 27
+  D 49 121 67 126 245 115 134 82 43 120 204 29 204 209 222 1 50 43 173 47 74 23 197 250 108 45 97 198 72 115 63 197 198 82 247 15 62 127 115 26 201 168 121 38 219 251 130 83 254 131 112 29 240 28 27 102 47 135 107 53 68 154 241 224 200 101 197 205 123 116 255 192
+  D 4 52 228 218 56 102 205 124 228 30 183 196 142 118 218 87 41 234 186 0 92 142 4 216 110 27 180 164 99 181 125 110 22 134 24 131 135 184 146 66 208 234 141 71 148 101 82 85 54 93 61 70 134 50 18 231 192 56 149 81 151 79 1 30 210 228 218 11 95 37 170 240
+  D 155 66 61 120 89 87 144 183 193 255 126 53 22 227 9 118 170 221 185 233 173 139 191 55 215 105 64 227 148 145 183 202 223 33 69 224 36 85 255 168 66 248 164 239 4 115 104 21 218 253 106 19 112 50 47 176 117 1 20 207 170 10 226 33 2 7 245 201 219 38 33 150
+  D 169 103 131 223 201 11 201 249 160 76 46 224 40 172 253 174 7 27 100 87 34 8 54 156 3 254 11 119 79 236 84 197 88 84 139 128 40 58 98 110 144 52 234 27 124 198 214 142 162 22 9 117 77 44 35 239 100 32 28 115 195 124 178 35 76 172 246 101 107 58 31 247
+  D 10 150 248 104 201 214 209 181 168 16 235 81 156 59 228 248 226 223 53 248 138 102 183 126 65 166 206 175 102 182 239 15 89 209 28 5 65 230 175 56 221 33 252 195 166 171 40 254 25 39 74 183 27 76 87 147 82 239 70 184 99 163 236 96 136 167 66 179 62 9 99 68
+  D 61 129 31 217 102 96 177 86 237 238 238 146 39 60 130 123 192 53 233 11 28 40 180 234 103 95 69 188 237 44 154 63 45 45 223 178 16 69 255 206 111 143 70 98 143 170 104 14 184 110 92 238 139 176 198 244 254 89 70 155 2 161 15 196 8 95 80 25 89 19 176 104
+  D 139 61 145 202 135 255 158 8 226 153 122 162 138 213 75 35 187 189 72 239 192 148 173 95 215 115 27 110 124 4 55 72 186 99 250 207 92 207 209 13 155 135 65 194 6 124 39 236 7 30 235 100 79 164 197 220 96 231 54 184 100 66 128 209 193 219 103 106 14 162 90 116
+  D 30 210 122 56 68 99 67 210 185 162 118 193 227 171 210 187 238 236 145 86 221 38 19 232 94 90 250 220 207 4 45 237 141 173 25 158 84 102 69 66 196 60 144 108 11 125 17 239 139 192 242 42 58 88 91 54 208 87 116 40 17 20 8 225 218 153 87 111 72 203 218 16
+  D 70 206 225 178 182 187 133 4 95 184 46 185 91 174 200 96 193 157 223 110 211 250 65 56 39 201 186 176 247 190 69 57 113 150 192 23 235 96 77 18 125 51 65 186 2 148 98 173 12 237 63 123 191 235 84 132 207 62 18 239 66 213 222 88 8 36 183 191 40 9 237 48
+  D 200 21 234 65 192 223 150 221 243 224 206 198 214 109 254 109 23 87 15 68 89 147 63 124 160 58 23 101 25 7 17 37 54 142 10 46 73 23 240 160 197 239 43 34 130 194 254 197 87 81 163 76 108 214 79 216 50 24 102 160 0 0 0 0 0 0 0 0 0 97 243 59
+8u_C3R DST
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+USH8U_AC4R status=-8
+8u_AC4R SRC
+  D 121 72 101 80 65 89 222 93 18 188 53 106 234 99 135 119 167 82 220 132 59 143 165 145 174 86 176 158 244 126 80 171 104 83 54 184 235 101 253 197 102 149 80 210 49 121 67 223 245 115 134 236 43 120 204 249 204 209 222 6 50 43 173 19 74 23 197 32 108 45 97 45 72 115 63 58 198 82 247 71 62 127 115 35 201 168 121 48 219 251 130 61 254 131 112 74
+  D 240 28 27 87 47 135 107 100 68 154 241 113 200 101 197 126 123 116 255 139 4 52 228 152 56 102 205 165 228 30 183 178 142 118 218 191 41 234 186 204 92 142 4 217 110 27 180 230 99 181 125 243 22 134 24 0 135 184 146 13 208 234 141 26 148 101 82 39 54 93 61 52 134 50 18 65 192 56 149 78 151 79 1 42 210 228 218 55 95 37 170 68 155 66 61 81
+  D 89 87 144 94 193 255 126 107 22 227 9 120 170 221 185 133 173 139 191 146 215 105 64 159 148 145 183 172 223 33 69 185 36 85 255 198 66 248 164 211 4 115 104 224 218 253 106 237 112 50 47 250 117 1 20 7 170 10 226 20 2 7 245 33 219 38 33 46 169 103 131 59 201 11 201 72 160 76 46 85 40 172 253 49 7 27 100 62 34 8 54 75 3 254 11 88
+  D 79 236 84 101 88 84 139 114 40 58 98 127 144 52 234 140 124 198 214 153 162 22 9 166 77 44 35 179 100 32 28 192 195 124 178 205 76 172 246 218 107 58 31 231 10 150 248 244 201 214 209 1 168 16 235 14 156 59 228 27 226 223 53 40 138 102 183 53 65 166 206 66 102 182 239 79 89 209 28 92 65 230 175 56 221 33 252 69 166 171 40 82 25 39 74 95
+  D 27 76 87 108 82 239 70 121 99 163 236 134 136 167 66 147 62 9 99 160 61 129 31 173 102 96 177 186 237 238 238 199 39 60 130 212 192 53 233 225 28 40 180 238 103 95 69 251 237 44 154 8 45 45 223 21 16 69 255 34 111 143 70 47 143 170 104 60 184 110 92 73 139 176 198 86 254 89 70 99 2 161 15 63 8 95 80 76 89 19 176 89 139 61 145 102
+  D 135 255 158 115 226 153 122 128 138 213 75 141 187 189 72 154 192 148 173 167 215 115 27 180 124 4 55 193 186 99 250 206 92 207 209 219 155 135 65 232 6 124 39 245 7 30 235 2 79 164 197 15 96 231 54 28 100 66 128 41 193 219 103 54 14 162 90 67 30 210 122 80 68 99 67 93 185 162 118 106 227 171 210 70 238 236 145 83 221 38 19 96 94 90 250 109
+  D 207 4 45 122 141 173 25 135 84 102 69 148 196 60 144 161 11 125 17 174 139 192 242 187 58 88 91 200 208 87 116 213 17 20 8 226 218 153 87 239 72 203 218 252 70 206 225 9 182 187 133 22 95 184 46 35 91 174 200 48 193 157 223 61 211 250 65 74 39 201 186 87 247 190 69 100 113 150 192 113 235 96 77 77 125 51 65 90 2 148 98 103 12 237 63 116
+  D 191 235 84 129 207 62 18 142 66 213 222 155 8 36 183 168 40 9 237 181 200 21 234 194 192 223 150 207 243 224 206 220 214 109 254 233 23 87 15 246 89 147 63 3 160 58 23 16 25 7 17 29 54 142 10 42 73 23 240 55 197 239 43 68 130 194 254 81 87 81 163 94 108 214 79 107 50 24 102 120 0 0 0 0 0 0 0 0 0 97 243 59 224 182 135 250
+  D 120 42 120 15 252 127 0 0 40 43 120 15 252 127 0 0 160 42 120 15 252 127 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 176 37 171 67 87 0 0 0 208 164 161 159 124 0 0 202 161 34 154 159 124 0 0 80 42 120 15 252 127 0 0 40 43 120 15 252 127 0 0 96 42 120 15 1 0 0 0 191 116 26 171 67 87 0 0
+  D 40 43 120 15 252 127 0 0 193 236 94 192 41 149 106 12 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 32 176 37 171 67 87 0 0 0 208 164 161 159 124 0 0 193 236 62 193 41 149 106 12 193 236 28 214 156 191 173 10 0 0 0 0 252 127 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 24 176 37 171 67 87 0 0
+  D 0 43 120 15 252 127 0 0 0 97 243 59 224 182 135 250 0 43 120 15 252 127 0 0 139 162 34 154 159 124 0 0 56 43 120 15 252 127 0 0 32 176 37 171 67 87 0 0 56 43 120 15 252 127 0 0 191 116 26 171 67 87 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 108 26 171 67 87 0 0 32 43 120 15 252 127 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 117 108 26 171 67 87 0 0 24 43 120 15 252 127 0 0 56 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 113 45 120 15 252 127 0 0 0 0 0 0 0 0 0 0 121 45 120 15 252 127 0 0 137 45 120 15 252 127 0 0 173 45 120 15 252 127 0 0
+8u_AC4R DST
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+USH16U_C1R status=-8
+16u_C1R SRC
+  D 53988 34477 63136 23095 5291 2245 62786 34853 11078 9597 14356 635 57462 18156 1245 49924 40087 32569 32040 23176 52565 59190 42343 43829
+  D 62207 5123 18710 55812 37053 59544 36021 12854 13191 48740 39507 39907 36257 29918 53746 19580 855 63924 39463 43939 11664 15416 62304 27817
+  D 29688 43858 19075 47612 46396 2693 11314 5795 14002 46928 59817 34586 26696 52281 13014 15348 8674 30102 53176 22382 52885 15554 64363 4777
+  D 56052 40443 47634 42743 9383 58600 19236 22205 65044 16537 48534 19209 27152 3810 55865 54683 63228 3385 2556 30854 42675 40182 29224 40974
+  D 2882 55185 20474 49165 28363 49061 37532 49320 28695 13607 13516 1187 41172 22598 46355 42003 46589 56978 28069 58396 25970 11051 50033 5491
+  D 7841 39140 64404 37518 4302 65388 62146 20559 45249 59670 30940 63677 38448 9518 29414 64189 64422 10099 49673 15287 56529 4824 58161 57809
+  D 16384 26231 6618 7400 26415 4367 8599 5185 55765 41796 13492 50619 33485 3397 26998 55351 9543 15112 65174 46151 63922 30766 1826 33233
+  D 16096 34032 3368 64754 28731 51638 47497 49367 61451 51742 14539 62453 3877 31848 32030 53375 51911 13167 30506 32550 56615 10573 46233 18886
+  D 8065 11297 32094 56737 21660 56728 12087 24668 56175 46235 47070 5977 39432 17754 23225 6310 6995 50458 20080 37418 5217 27973 26730 13032
+  D 17173 34975 3791 29619 49891 23388 16753 45109 58156 13893 23125 20854 4630 3910 56914 1548 49770 3711 7766 33293 21768 58948 13779 41522
+  D 38260 53343 57865 15411 42376 50863 25419 14687 56575 26940 13392 40868 60608 21099 54061 7265 2221 53906 26707 48763 51202 22310 62524 64150
+  D 10881 28448 3820 63716 21007 1889 39771 5938 950 48422 19087 52045 52060 59978 55484 55499 15717 7767 29422 39622 10297 41116 56371 44609
+16u_C1R DST
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+USH16S_C1R status=-8
+16s_C1R SRC
+  D 23251 21046 30506 46262 58661 42145 4442 3339 17758 31387 43246 60862 11617 56820 53366 46660 9178 30607 45447 1027 23155 20503 18962 25530
+  D 17278 1062 15108 7125 22499 36270 2048 30134 761 18127 21380 24363 18282 5977 49225 60627 12700 47582 8081 52852 6519 49225 4621 12145
+  D 22105 58372 46145 39027 18899 54839 42603 28956 60668 34898 12864 568 38573 55558 48243 61643 12787 45603 1632 50412 30253 47530 64231 29587
+  D 35455 9910 202 24964 52515 53335 18853 65305 55694 3819 1865 60964 28084 33082 46817 20142 37520 18892 8733 55475 50319 27569 14392 25886
+  D 3927 50146 62151 55975 17023 52358 37343 30041 2808 35416 28018 12506 10842 52216 60817 17414 3112 6457 58160 7376 52999 6335 10158 38425
+  D 10183 48546 35229 49721 53246 29903 2625 63014 55760 55085 788 47696 39097 8668 35344 35265 54329 56954 60644 6753 42382 11071 50595 20163
+  D 21127 26722 12995 60780 54981 55756 44427 45870 47895 40495 16996 2384 14496 36642 43758 8823 53563 10188 16226 38441 62877 35877 5684 21507
+  D 54365 7899 60532 13750 26457 43044 38265 56889 47484 28144 25008 60906 25706 28428 62488 42727 53605 23812 35315 17439 31252 37800 10362 19275
+  D 28696 50271 7985 56799 39096 52984 54664 19640 1511 5827 47515 48204 45438 33562 41221 24822 38075 29449 47629 2603 16624 13653 56216 30301
+  D 35382 10757 41414 26732 62355 16498 33018 8835 11967 62342 56874 39532 28207 4709 2959 21550 39702 37108 8844 30660 41331 50349 20228 14909
+  D 33253 40435 30058 22499 38473 45952 55245 65015 35517 23307 9937 44338 29076 56352 37447 43824 4330 48172 19430 59381 17109 28754 62561 54579
+  D 30273 18925 57023 43474 31952 20091 3728 1717 26654 60235 24316 20734 65081 32766 4052 43116 30993 2817 8740 46896 29904 28373 13420 29802
+16s_C1R DST
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+USH32F_C1R status=-8
+32f_C1R SRC
+  D 19.715776 231.71083 162.01817 241.16418 12.155746 232.86806 226.02937 209.0813 33.486389 189.97171 157.86333 116.2617 110.49184 76.826233 97.323776 95.268005 55.412598 87.492943 222.00577 165.68753 6.3419971 200.04239 122.6646 247.82297
+  D 203.05199 45.56266 253.00941 231.7502 111.67602 86.720978 129.896 244.9054 86.32045 221.32654 15.658186 209.21246 228.88509 242.83833 61.161873 60.837963 201.8147 213.5153 178.92712 25.004316 191.21246 111.23373 230.32912 8.1331606
+  D 66.448807 18.96179 98.51059 45.962837 86.526794 168.10028 87.95507 0.05299956 174.70993 92.761528 225.42886 34.627197 168.16153 244.46405 84.386909 46.405396 245.91112 113.09606 181.39177 141.99422 50.408268 209.86778 236.52579 44.102989
+  D 220.81244 132.73001 226.77426 75.622185 16.65431 126.37978 46.495541 231.57733 79.570076 121.76305 73.265472 75.099693 134.54959 35.188427 72.153351 37.072823 62.440777 202.72285 133.8773 114.19545 49.391563 186.97887 205.28453 221.60493
+  D 51.841244 193.34634 86.92366 66.358292 168.68315 6.5163012 126.67469 223.74591 178.39101 207.27815 94.873711 228.05388 14.068473 168.37885 190.73523 184.25092 128.30409 218.21721 51.344154 64.394501 104.18197 35.857433 100.77357 81.015991
+  D 34.85696 56.884823 101.07825 132.27934 75.550987 102.86414 2.8039305 3.7902815 249.11462 184.43979 37.641514 36.144455 158.99577 235.69771 205.11661 168.13461 85.456932 121.74439 198.92133 230.97327 172.63013 76.861282 98.529449 251.79744
+  D 189.95898 145.29312 160.41469 130.46597 59.07045 18.843739 52.237244 200.88518 190.42949 164.32988 26.191465 65.294411 65.837341 138.60429 81.705658 123.31301 223.94711 8.7005157 59.252625 58.065887 237.77274 142.86983 241.9205 12.880048
+  D 16.816334 149.22107 66.197945 72.287178 30.724514 182.62479 214.15852 167.40973 140.75548 42.751648 227.32129 173.37241 23.621191 124.304 242.38353 28.475826 26.358747 173.54689 66.810242 124.9733 31.651833 40.792641 118.28888 90.841354
+  D 37.823524 168.3098 201.52022 15.291535 13.792121 178.04683 136.67554 233.3152 73.54863 208.02609 223.597 66.522934 29.373991 252.31303 135.08531 172.98415 124.31575 234.30023 85.77124 93.583031 84.140472 187.03896 44.428238 33.217533
+  D 182.28911 179.51094 250.20134 247.4583 213.16833 65.319077 44.10302 37.263706 243.37697 186.76546 121.39229 158.08786 132.00424 229.09059 242.70044 178.39368 150.11719 175.75888 107.78168 82.363731 236.68422 229.75327 190.12518 69.402222
+  D 140.21371 161.85995 216.78952 13.181433 192.70047 15.052422 93.085571 75.01078 2.7905097 32.554363 51.98991 138.67241 126.01025 7.5538888 171.54242 191.14586 198.72665 217.82932 140.61432 158.73988 243.50528 59.739426 233.93222 190.57635
+  D 74.423592 214.62898 86.938873 92.096672 232.22501 241.1505 200.09377 180.97292 226.29083 202.81425 106.66395 218.9789 12.18958 180.36067 211.11819 141.73195 79.830109 184.89894 13.10071 68.225319 56.33215 198.1674 235.22672 108.20936
+32f_C1R DST
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+USH8U_C1R_thr8 status=-8
+8u_C1R_thr8 DST
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+  D 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238 238
+== unsharp validation
+VAL need=100 gbs_status=0
+VAL ok                       0
+VAL nullbuf                  -8
+VAL nullsrc                  -8
+VAL nulldst                  -8
+VAL negroi                   -6
+VAL zeroroi                  -6
+VAL zeroroi_nullbuf          -8
+VAL zeroroi_badborder        -14
+VAL badborder                -14
+VAL border_none              -14
+VAL bordervalid_wrap         -14
+VAL offneg                   0
+VAL offbig                   0
+VAL stepsmall                -16
+VAL negroi_nullbuf           -8
+VAL negroi_badborder         -6
+VAL badborder_nullbuf        -8
+VAL badborder_stepsmall      -14
+VAL bufexact                 0
+VAL bufminus8                -1000
+VAL c4_stepodd               -108
+VAL ac4_alpha                -1000

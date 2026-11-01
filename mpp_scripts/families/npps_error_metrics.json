@@ -1,0 +1,28 @@
+{
+  "family": "nppsMaximumError",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_error_metrics_generated.cpp",
+  "includes": [
+    "npps_statistics_executor.h"
+  ],
+  "families": [
+    "nppsAverageError",
+    "nppsMaximumError",
+    "nppsAverageRelativeError",
+    "nppsMaximumRelativeError",
+    "nppsAverageErrorGetBufferSize",
+    "nppsMaximumErrorGetBufferSize",
+    "nppsAverageRelativeErrorGetBufferSize",
+    "nppsMaximumRelativeErrorGetBufferSize"
+  ],
+  "call_by_family": {
+    "nppsAverageError": "npps::statistics::error_metric<{dtype}, npps::statistics::ErrKind::AvgAbs>(pSrc1, pSrc2, nLength, pDst, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMaximumError": "npps::statistics::error_metric<{dtype}, npps::statistics::ErrKind::MaxAbs>(pSrc1, pSrc2, nLength, pDst, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsAverageRelativeError": "npps::statistics::error_metric<{dtype}, npps::statistics::ErrKind::AvgRel>(pSrc1, pSrc2, nLength, pDst, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMaximumRelativeError": "npps::statistics::error_metric<{dtype}, npps::statistics::ErrKind::MaxRel>(pSrc1, pSrc2, nLength, pDst, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsAverageErrorGetBufferSize": "npps::statistics::err_buffer_size(nLength, hpBufferSize)",
+    "nppsMaximumErrorGetBufferSize": "npps::statistics::err_buffer_size(nLength, hpBufferSize)",
+    "nppsAverageRelativeErrorGetBufferSize": "npps::statistics::err_buffer_size(nLength, hpBufferSize)",
+    "nppsMaximumRelativeErrorGetBufferSize": "npps::statistics::err_buffer_size(nLength, hpBufferSize)"
+  }
+}

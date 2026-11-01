@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 #include <iostream>
@@ -455,4 +456,165 @@ TEST_F(NV12ToBGRTest, ColorAccuracy_StrictWhiteBlack) {
   nppsFree(d_srcY);
   nppsFree(d_srcUV);
   nppiFree(d_bgr);
+}
+
+// Parameter contract for the plain NV12/NV21 Ctx entry points, aligned with
+// NVIDIA NPP 13: an empty ROI is a no-op, odd widths are rejected with
+// NPP_SIZE_ERROR, odd heights are valid, and the destination step must be at
+// least width * channels.
+TEST_F(NV12ToBGRTest, NV12ToBGR_CtxParameterContract) {
+  const int W = width;
+  const int H = height;
+  Npp8u *dY = nullptr;
+  Npp8u *dUV = nullptr;
+  Npp8u *dDst = nullptr;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dY), static_cast<size_t>(W) * H), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dUV), static_cast<size_t>(W) * H / 2), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dDst), static_cast<size_t>(W) * H * 3), cudaSuccess);
+  ASSERT_EQ(cudaMemset(dY, 128, static_cast<size_t>(W) * H), cudaSuccess);
+  ASSERT_EQ(cudaMemset(dUV, 128, static_cast<size_t>(W) * H / 2), cudaSuccess);
+
+  const Npp8u *pSrc[2] = {dY, dUV};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  auto call = [&](int srcStep, int dstStep, int w, int h) {
+    cudaGetLastError();
+    NppiSize roi = {w, h};
+    return nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, srcStep, dDst, dstStep, roi, ctx);
+  };
+
+  EXPECT_EQ(call(W, W * 3, 0, 0), NPP_NO_ERROR) << "empty ROI must be a no-op";
+  EXPECT_EQ(call(W, W * 3, -1, H), NPP_SIZE_ERROR) << "negative width";
+  EXPECT_EQ(call(W, W * 3, W, -1), NPP_SIZE_ERROR) << "negative height";
+  EXPECT_EQ(call(W, W * 3, W - 1, H), NPP_SIZE_ERROR) << "odd width";
+  EXPECT_EQ(call(W, W * 3, W, H - 1), NPP_NO_ERROR) << "odd height is valid";
+  EXPECT_EQ(call(W, W, W, H), NPP_STEP_ERROR) << "dst step below width * 3";
+  EXPECT_EQ(call(W, W * 3 - 1, W, H), NPP_STEP_ERROR) << "dst step below width * 3";
+  EXPECT_EQ(call(W, W * 3, W, H), NPP_NO_ERROR) << "valid conversion";
+
+  cudaFree(dY);
+  cudaFree(dUV);
+  cudaFree(dDst);
+}
+
+TEST_F(NV12ToBGRTest, NV21ToBGR_CtxParameterContract) {
+  const int W = width;
+  const int H = height;
+  Npp8u *dY = nullptr;
+  Npp8u *dUV = nullptr;
+  Npp8u *dDst = nullptr;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dY), static_cast<size_t>(W) * H), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dUV), static_cast<size_t>(W) * H / 2), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dDst), static_cast<size_t>(W) * H * 4), cudaSuccess);
+  ASSERT_EQ(cudaMemset(dY, 128, static_cast<size_t>(W) * H), cudaSuccess);
+  ASSERT_EQ(cudaMemset(dUV, 128, static_cast<size_t>(W) * H / 2), cudaSuccess);
+
+  const Npp8u *pSrc[2] = {dY, dUV};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  auto call = [&](int srcStep, int dstStep, int w, int h) {
+    cudaGetLastError();
+    NppiSize roi = {w, h};
+    return nppiNV21ToBGR_8u_P2C4R_Ctx(pSrc, srcStep, dDst, dstStep, roi, ctx);
+  };
+
+  EXPECT_EQ(call(W, W * 4, 0, 0), NPP_NO_ERROR) << "empty ROI must be a no-op";
+  EXPECT_EQ(call(W, W * 4, W - 1, H), NPP_SIZE_ERROR) << "odd width";
+  EXPECT_EQ(call(W, W * 4, W, H - 1), NPP_NO_ERROR) << "odd height is valid";
+  EXPECT_EQ(call(W, W * 3, W, H), NPP_STEP_ERROR) << "dst step below width * 4";
+  EXPECT_EQ(call(W, W * 4, W, H), NPP_NO_ERROR) << "valid conversion";
+
+  cudaFree(dY);
+  cudaFree(dUV);
+  cudaFree(dDst);
+}
+
+#ifndef USE_NVIDIA_NPP_TESTS
+// The plain NV12 path implements BT.601 limited range (Y 16..235,
+// Cb/Cr 16..240).  Keep that model stable: NVIDIA NPP 13's plain entry point
+// uses full-range luma instead, so this test is intentionally MPP-only.
+TEST_F(NV12ToBGRTest, NV12ToBGR_UsesBt601LimitedRange) {
+  const int W = 8;
+  const int H = 8;
+  Npp8u *dY = nullptr;
+  Npp8u *dUV = nullptr;
+  Npp8u *dDst = nullptr;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dY), static_cast<size_t>(W) * H), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dUV), static_cast<size_t>(W) * H / 2), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dDst), static_cast<size_t>(W) * H * 3), cudaSuccess);
+
+  const Npp8u *pSrc[2] = {dY, dUV};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  const NppiSize roi = {W, H};
+  auto convert = [&](int y, int u, int v, Npp8u out[3]) {
+    ASSERT_EQ(cudaMemset(dY, y, static_cast<size_t>(W) * H), cudaSuccess);
+    std::vector<Npp8u> uv(static_cast<size_t>(W) * H / 2);
+    for (size_t i = 0; i < uv.size(); i += 2) {
+      uv[i] = static_cast<Npp8u>(u);
+      uv[i + 1] = static_cast<Npp8u>(v);
+    }
+    ASSERT_EQ(cudaMemcpy(dUV, uv.data(), uv.size(), cudaMemcpyHostToDevice), cudaSuccess);
+    EXPECT_EQ(nppiNV12ToBGR_8u_P2C3R_Ctx(pSrc, W, dDst, W * 3, roi, ctx), NPP_NO_ERROR);
+    EXPECT_EQ(cudaStreamSynchronize(0), cudaSuccess);
+    EXPECT_EQ(cudaMemcpy(out, dDst, 3, cudaMemcpyDeviceToHost), cudaSuccess);
+  };
+
+  struct Case {
+    int y, u, v, b, g, r;
+  } cases[] = {
+      {16, 128, 128, 0, 0, 0},
+      {128, 128, 128, 130, 130, 130},
+      {235, 128, 128, 255, 255, 255},
+      {128, 0, 128, 0, 181, 130},
+      {128, 128, 192, 130, 78, 233},
+  };
+  for (const auto &c : cases) {
+    Npp8u out[3] = {0, 0, 0};
+    convert(c.y, c.u, c.v, out);
+    EXPECT_NEAR(out[0], c.b, 1) << "Y=" << c.y << " U=" << c.u << " V=" << c.v;
+    EXPECT_NEAR(out[1], c.g, 1) << "Y=" << c.y << " U=" << c.u << " V=" << c.v;
+    EXPECT_NEAR(out[2], c.r, 1) << "Y=" << c.y << " U=" << c.u << " V=" << c.v;
+  }
+
+  cudaFree(dY);
+  cudaFree(dUV);
+  cudaFree(dDst);
+}
+#endif // !USE_NVIDIA_NPP_TESTS
+
+// Our 709HDTV entry point intentionally uses the same standard BT.709 limited
+// curve as 709CSC.  NVIDIA NPP 13 gives 709HDTV full-range luma, so the two
+// libraries differ here by design.
+TEST_F(NV12ToBGRTest, NV12ToBGR_709HDTVMatchesCSC) {
+  std::vector<Npp8u> hostY, hostUV;
+  createTestNV12Data(hostY, hostUV);
+  Npp8u *dY = nullptr;
+  Npp8u *dUV = nullptr;
+  Npp8u *hdtv = nullptr;
+  Npp8u *csc = nullptr;
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dY), hostY.size()), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&dUV), hostUV.size()), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&hdtv), static_cast<size_t>(width) * height * 3), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&csc), static_cast<size_t>(width) * height * 3), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(dY, hostY.data(), hostY.size(), cudaMemcpyHostToDevice), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(dUV, hostUV.data(), hostUV.size(), cudaMemcpyHostToDevice), cudaSuccess);
+
+  const Npp8u *pSrc[2] = {dY, dUV};
+  NppStreamContext ctx{};
+  ctx.hStream = 0;
+  const NppiSize roi = {width, height};
+  ASSERT_EQ(nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(pSrc, width, hdtv, width * 3, roi, ctx), NPP_NO_ERROR);
+  ASSERT_EQ(nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(pSrc, width, csc, width * 3, roi, ctx), NPP_NO_ERROR);
+
+  std::vector<Npp8u> hdtvHost(static_cast<size_t>(width) * height * 3);
+  std::vector<Npp8u> cscHost(hdtvHost.size());
+  ASSERT_EQ(cudaMemcpy(hdtvHost.data(), hdtv, hdtvHost.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  ASSERT_EQ(cudaMemcpy(cscHost.data(), csc, cscHost.size(), cudaMemcpyDeviceToHost), cudaSuccess);
+  EXPECT_EQ(std::memcmp(hdtvHost.data(), cscHost.data(), hdtvHost.size()), 0);
+
+  cudaFree(dY);
+  cudaFree(dUV);
+  cudaFree(hdtv);
+  cudaFree(csc);
 }

@@ -68,9 +68,9 @@ int nppGetGpuDeviceProperties(int *pMaxThreadsPerSM, int *pMaxThreadsPerBlock, i
 }
 
 const char *nppGetGpuName(void) {
-  static char deviceName[256] = {0};
-  static bool initialized = false;
-  static int lastDevice = -1;
+  static thread_local char deviceName[256] = {0};
+  static thread_local bool initialized = false;
+  static thread_local int lastDevice = -1;
 
   int currentDevice;
   if (cudaGetDevice(&currentDevice) != cudaSuccess) {

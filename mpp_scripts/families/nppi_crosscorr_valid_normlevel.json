@@ -1,0 +1,26 @@
+{
+  "family": "nppiCrossCorrValid_NormLevel",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_crosscorr_valid_normlevel_generated.cpp",
+  "includes": [
+    "nppi_crosscorr_executor.h"
+  ],
+  "families": [
+    "nppiCrossCorrValid_NormLevel"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp8u * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp8u,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::NormLevel>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, nScaleFactor, pDeviceBuffer, nullptr, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp32f * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp32f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::NormLevel>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, pDeviceBuffer, nullptr, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "Npp64f * pDst",
+      "call": "nppi::statistics::runCrossCorr<{dtype},Npp64f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::NormLevel>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, pDeviceBuffer, nullptr, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::runCrossCorr<{dtype},Npp32f,{chan},{is_ac4},nppi::statistics::CrossCorrMode::Valid,nppi::statistics::CrossCorrOp::NormLevel>(pSrc, nSrcStep, oSrcRoiSize, pTpl, nTplStep, oTplRoiSize, pDst, nDstStep, 0, pDeviceBuffer, nullptr, nppStreamCtx.hStream)"
+}
