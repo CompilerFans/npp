@@ -1,0 +1,9 @@
+{
+  "family": "nppiDilate3x3",
+  "module": "nppi_morphological_operations.h",
+  "source": "src/nppi/nppi_morphological_operations/nppi_morph_dilate3x3_generated.cpp",
+  "includes": [
+    "nppi_morph_executor.h"
+  ],
+  "call": "nppi::morph::run3x3Plain<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppi::morph::kDilate, nppStreamCtx.hStream)"
+}

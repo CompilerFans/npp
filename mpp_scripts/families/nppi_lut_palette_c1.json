@@ -1,0 +1,21 @@
+{
+  "family": "nppiLUTPalette",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_lut_palette_c1_generated.cpp",
+  "includes": [
+    "nppi_lut_executor.h"
+  ],
+  "functions": [
+    "nppiLUTPalette_8u_C1R",
+    "nppiLUTPalette_8u_C1R_Ctx",
+    "nppiLUTPalette_8u32u_C1R",
+    "nppiLUTPalette_8u32u_C1R_Ctx",
+    "nppiLUTPalette_16u8u_C1R",
+    "nppiLUTPalette_16u8u_C1R_Ctx",
+    "nppiLUTPalette_16u_C1R",
+    "nppiLUTPalette_16u_C1R_Ctx",
+    "nppiLUTPalette_16u32u_C1R",
+    "nppiLUTPalette_16u32u_C1R_Ctx"
+  ],
+  "call": "nppi::lut::paletteC1<{dtype}, {dst_dtype}, {dst_dtype}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pTable, nBitSize, nppStreamCtx.hStream)"
+}

@@ -1,0 +1,4 @@
+== edge ==
+pass=0 status=0 dst: 9 9 9 | corner 9 center 9
+pass=1 status=0 dst: 120 121 122 | corner 120 center 140
+done

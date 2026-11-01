@@ -1,0 +1,19 @@
+{
+  "family": "nppiMorphGetBufferSize",
+  "module": "nppi_morphological_operations.h",
+  "source": "src/nppi/nppi_morphological_operations/nppi_morph_get_buffer_size_generated.cpp",
+  "includes": [
+    "nppi_morph_executor.h"
+  ],
+  "call": "nppi::morph::getBufferSize(oSizeROI, 1, hpBufferSize)",
+  "call_by_name": {
+    "nppiMorphGetBufferSize_8u_C1R": "nppi::morph::getBufferSize(oSizeROI, 1, hpBufferSize)",
+    "nppiMorphGetBufferSize_8u_C3R": "nppi::morph::getBufferSize(oSizeROI, 3, hpBufferSize)",
+    "nppiMorphGetBufferSize_8u_C4R": "nppi::morph::getBufferSize(oSizeROI, 4, hpBufferSize)",
+    "nppiMorphGetBufferSize_16s_C1R": "nppi::morph::getBufferSize(oSizeROI, 2, hpBufferSize)",
+    "nppiMorphGetBufferSize_16u_C1R": "nppi::morph::getBufferSize(oSizeROI, 2, hpBufferSize)",
+    "nppiMorphGetBufferSize_32f_C1R": "nppi::morph::getBufferSize(oSizeROI, 4, hpBufferSize)",
+    "nppiMorphGetBufferSize_32f_C3R": "nppi::morph::getBufferSize(oSizeROI, 12, hpBufferSize)",
+    "nppiMorphGetBufferSize_32f_C4R": "nppi::morph::getBufferSize(oSizeROI, 16, hpBufferSize)"
+  }
+}

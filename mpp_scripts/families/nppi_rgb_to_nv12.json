@@ -1,0 +1,14 @@
+{
+  "family": "nppiRGBToNV12",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_rgb_to_nv12_generated.cpp",
+  "includes": ["nppi_nv12_color_twist_executor.h"],
+  "families": ["nppiRGBToNV12"],
+  "call_variants": [
+    {
+      "contains": "pSrc[3]",
+      "call": "nppi::nv12::rgbToNv12ColorTwistPlanar<{dtype}>(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, aTwist, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::nv12::rgbToNv12ColorTwist<{dtype}>(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, aTwist, nppStreamCtx.hStream)"
+}

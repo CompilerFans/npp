@@ -1,0 +1,16 @@
+{
+  "family": "nppiResizeHost",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_resize_host_generated.cpp",
+  "includes": ["nppi_resize_executor.h"],
+  "call": "nppi::resize::getResizeRect(oSrcROI, pDstRect, nXFactor, nYFactor, nXShift, nYShift, eInterpolation)",
+  "call_by_name": {
+    "nppiGetResizeTiledSourceOffset": "nppi::resize::getResizeTiledSourceOffset(oSrcRectROI, oDstRectROI, pNewSrcRectOffset)",
+    "nppiResizeAdvancedGetBufferHostSize_8u_C1R": "nppi::resize::resizeAdvancedGetBufferHostSize(oSrcROI, oDstROI, hpBufferSize, eInterpolationMode)"
+  },
+  "functions": [
+    "nppiGetResizeRect",
+    "nppiGetResizeTiledSourceOffset",
+    "nppiResizeAdvancedGetBufferHostSize_8u_C1R"
+  ]
+}

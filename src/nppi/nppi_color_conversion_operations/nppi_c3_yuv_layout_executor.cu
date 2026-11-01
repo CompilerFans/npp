@@ -98,8 +98,10 @@ __global__ void k_copy_y(const Npp8u *__restrict__ pSrc, int nSrcStep, Npp8u *__
 // srcMode 0: chroma column == pair index; 1: pair / 2 (4:1:1); 2: row / 2 (4:2:0).
 template <int SRCSWAP, int SWAPDST>
 __global__ void k_p3_to_c2(const Npp8u *__restrict__ pSrc0, const Npp8u *__restrict__ pSrc1,
-                           const Npp8u *__restrict__ pSrc2, const int aSrcStep[3], Npp8u *__restrict__ pDst,
+                           const Npp8u *__restrict__ pSrc2, int s0, int s1, int s2, Npp8u *__restrict__ pDst,
                            int nDstStep, int width, int height, int srcMode) {
+  // The three plane steps are passed by value: a host int[3] cannot be
+  // dereferenced from device code (ATU fault on MACA).
   const int p = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (p >= (width >> 1) || y >= height) {
@@ -109,11 +111,11 @@ __global__ void k_p3_to_c2(const Npp8u *__restrict__ pSrc0, const Npp8u *__restr
   const int row = (srcMode == 2) ? (y >> 1) : y;
   const Npp8u *planeCb = SRCSWAP ? pSrc2 : pSrc1;
   const Npp8u *planeCr = SRCSWAP ? pSrc1 : pSrc2;
-  const int cbStep = SRCSWAP ? aSrcStep[2] : aSrcStep[1];
-  const int crStep = SRCSWAP ? aSrcStep[1] : aSrcStep[2];
+  const int cbStep = SRCSWAP ? s2 : s1;
+  const int crStep = SRCSWAP ? s1 : s2;
   const Npp8u cb = planeCb[(size_t)row * cbStep + col];
   const Npp8u cr = planeCr[(size_t)row * crStep + col];
-  const Npp8u *sy = pSrc0 + (size_t)y * aSrcStep[0];
+  const Npp8u *sy = pSrc0 + (size_t)y * s0;
   Npp8u *d = pDst + (size_t)y * nDstStep + (size_t)p * 4;
   d[c2_y_offset(2 * p, SWAPDST)] = sy[2 * p];
   d[c2_y_offset(2 * p + 1, SWAPDST)] = sy[2 * p + 1];
@@ -368,8 +370,8 @@ NppStatus p3ToC2(const Npp8u *const pSrc[3], const int aSrcStep[3], Npp8u *pDst,
   }
   dim3 g = gridFor(pairs, h);
 #define LAUNCH_P3C2(SS, SD)                                                                                            \
-  k_p3_to_c2<SS, SD><<<g, dim3(kBlockX, kBlockY), 0, stream>>>(pSrc[0], pSrc[1], pSrc[2], aSrcStep, pDst, nDstStep, w, \
-                                                               h, srcMode)
+  k_p3_to_c2<SS, SD><<<g, dim3(kBlockX, kBlockY), 0, stream>>>(pSrc[0], pSrc[1], pSrc[2], aSrcStep[0], aSrcStep[1],  \
+                                                               aSrcStep[2], pDst, nDstStep, w, h, srcMode)
   if (swapSrc) {
     if (swapDst) {
       LAUNCH_P3C2(1, 1);
@@ -395,7 +397,8 @@ NppStatus p2ToC2_411(const Npp8u *pSrcY, int nSrcYStep, const Npp8u *pSrcCbCr, i
   if (!roi_valid(oSizeROI)) {
     return NPP_SIZE_ERROR;
   }
-  if (!step_ok(nDstStep, 2 * oSizeROI.width)) {
+  // The 5090 validates the luma source step here (p2c2_small_src_y_step).
+  if (!step_ok(nSrcYStep, oSizeROI.width) || !step_ok(nDstStep, 2 * oSizeROI.width)) {
     return NPP_STEP_ERROR;
   }
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {

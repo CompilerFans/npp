@@ -1,0 +1,21 @@
+{
+  "family": "nppsNorm_Inf",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_norm_inf_generated.cpp",
+  "includes": ["npps_statistics_executor.h"],
+  "families": ["nppsNorm_Inf", "nppsNormDiff_Inf", "nppsNormInfGetBufferSize", "nppsNormDiffInfGetBufferSize"],
+  "call_by_family": {
+    "nppsNormInfGetBufferSize": "npps::statistics::norm_buffer_size<{dtype}, npps::statistics::NormKind::Inf>(nLength, hpBufferSize)",
+    "nppsNormDiffInfGetBufferSize": "npps::statistics::norm_buffer_size<{dtype}, npps::statistics::NormKind::Inf>(nLength, hpBufferSize)"
+  },
+  "call_variants": [
+    {"contains": "pSrc2, int nLength, Npp32s * pNorm", "call": "npps::statistics::normdiff<{dtype}, npps::statistics::NormKind::Inf, Npp32s>(pSrc1, pSrc2, nLength, pNorm, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "pSrc2, int nLength, Npp64s * pNorm", "call": "npps::statistics::normdiff<{dtype}, npps::statistics::NormKind::Inf, Npp64s>(pSrc1, pSrc2, nLength, pNorm, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "pSrc2, int nLength, Npp32f * pNorm", "call": "npps::statistics::normdiff<{dtype}, npps::statistics::NormKind::Inf, Npp32f>(pSrc1, pSrc2, nLength, pNorm, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "pSrc2, int nLength, Npp64f * pNorm", "call": "npps::statistics::normdiff<{dtype}, npps::statistics::NormKind::Inf, Npp64f>(pSrc1, pSrc2, nLength, pNorm, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32s * pNorm", "call": "npps::statistics::norm<{dtype}, npps::statistics::NormKind::Inf, Npp32s>(pSrc, nLength, pNorm, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64s * pNorm", "call": "npps::statistics::norm<{dtype}, npps::statistics::NormKind::Inf, Npp64s>(pSrc, nLength, pNorm, nScaleFactor, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp32f * pNorm", "call": "npps::statistics::norm<{dtype}, npps::statistics::NormKind::Inf, Npp32f>(pSrc, nLength, pNorm, 0, pDeviceBuffer, nppStreamCtx.hStream)"},
+    {"contains": "Npp64f * pNorm", "call": "npps::statistics::norm<{dtype}, npps::statistics::NormKind::Inf, Npp64f>(pSrc, nLength, pNorm, 0, pDeviceBuffer, nppStreamCtx.hStream)"}
+  ]
+}

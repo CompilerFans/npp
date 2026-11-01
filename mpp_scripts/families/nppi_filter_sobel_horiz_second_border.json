@@ -1,0 +1,15 @@
+{
+  "family": "nppiFilterSobelHorizSecondBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_sobel_horiz_second_border_generated.cpp",
+  "includes": [
+    "nppi_filter_derivatives_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp16s * pDst",
+      "call": "nppi::filter::filterDerivMaskBorder<{dtype}, {dst_dtype}, nppi::filter::kSobelHorizSecond>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::filter::filterDerivMaskBorder<{dtype}, {dtype}, nppi::filter::kSobelHorizSecond>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, eMaskSize, eBorderType, nppStreamCtx.hStream)"
+}

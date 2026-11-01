@@ -27,3 +27,6 @@ __pycache__/
 
 # 5090 differential test artifacts
 artifacts/
+
+# subagent scratch
+.probe/

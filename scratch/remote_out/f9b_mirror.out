@@ -1,0 +1,121 @@
+nppGetStreamContext -> 0
+== mirror: MIRROR(4) vs MIRROR_REFL(5) ==
+boxborder MIRROR off00 off=(0,0): 0 OK
+boxborder MIRROR off00 off=(0,0):
+  11 11 12 13 14 15 16 
+  16 17 18 19 20 21 22 
+  32 33 34 35 36 37 38 
+  48 49 50 51 52 53 54 
+  64 65 66 67 68 69 70 
+  80 81 82 83 84 85 86 
+  96 97 98 99 100 101 102 
+boxborder MIRROR_REFL off00 off=(0,0): 0 OK
+boxborder MIRROR_REFL off00 off=(0,0):
+  5 6 7 8 9 10 11 
+  16 17 18 19 20 21 22 
+  32 33 34 35 36 37 38 
+  48 49 50 51 52 53 54 
+  64 65 66 67 68 69 70 
+  80 81 82 83 84 85 86 
+  96 97 98 99 100 101 102 
+boxborder MIRROR off99 off=(9,9): 0 OK
+boxborder MIRROR off99 off=(9,9):
+  153 154 155 156 157 158 158 
+  169 170 171 172 173 174 174 
+  185 186 187 188 189 190 190 
+  201 202 203 204 205 206 206 
+  217 218 219 220 221 222 222 
+  233 234 235 236 237 238 238 
+  238 239 240 241 242 243 243 
+boxborder MIRROR_REFL off99 off=(9,9): 0 OK
+boxborder MIRROR_REFL off99 off=(9,9):
+  153 154 155 156 157 158 158 
+  169 170 171 172 173 174 174 
+  185 186 187 188 189 190 190 
+  201 202 203 204 205 206 206 
+  217 218 219 220 221 222 222 
+  233 234 235 236 237 238 238 
+  243 244 245 246 247 248 249 
+boxborder MIRROR off1010 off=(10,10): 0 OK
+boxborder MIRROR off1010 off=(10,10):
+  170 171 172 173 174 174 174 
+  186 187 188 189 190 190 190 
+  202 203 204 205 206 206 206 
+  218 219 220 221 222 222 222 
+  234 235 236 237 238 238 238 
+  239 240 241 242 243 243 243 
+  234 235 236 237 238 238 238 
+boxborder MIRROR_REFL off1010 off=(10,10): 0 OK
+boxborder MIRROR_REFL off1010 off=(10,10):
+  170 171 172 173 174 174 174 
+  186 187 188 189 190 190 190 
+  202 203 204 205 206 206 206 
+  218 219 220 221 222 222 222 
+  234 235 236 237 238 238 238 
+  244 245 246 247 248 249 249 
+  244 245 246 247 248 249 249 
+medborder MIRROR off150 h: 0 OK
+medborder MIRROR off150 h:
+  14 14 13 12 11 10 9 
+medborder MIRROR_REFL off150 h: -14 NOT_SUPPORTED_MODE
+medborder MIRROR off015 v: 0 OK
+medborder MIRROR off015 v:
+  14 14 14 14 14 14 14 
+medborder MIRROR_REFL off015 v: -14 NOT_SUPPORTED_MODE
+== mirror 8u boxborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5      0 OK
+border=7    -14 NOT_SUPPORTED_MODE
+== mirror 16u boxborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5      0 OK
+border=7    -14 NOT_SUPPORTED_MODE
+== mirror 32f boxborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5      0 OK
+border=7    -14 NOT_SUPPORTED_MODE
+== mirror 8u medianborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5    -14 NOT_SUPPORTED_MODE
+border=7    -14 NOT_SUPPORTED_MODE
+== mirror 16u medianborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5    -14 NOT_SUPPORTED_MODE
+border=7    -14 NOT_SUPPORTED_MODE
+== mirror 16s medianborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5    -14 NOT_SUPPORTED_MODE
+border=7    -14 NOT_SUPPORTED_MODE
+== mirror 32f medianborder border acceptance ==
+border=0    -14 NOT_SUPPORTED_MODE
+border=1    -14 NOT_SUPPORTED_MODE
+border=2      0 OK
+border=3    -14 NOT_SUPPORTED_MODE
+border=4      0 OK
+border=5    -14 NOT_SUPPORTED_MODE
+border=7    -14 NOT_SUPPORTED_MODE
+== probe_f9b done ==

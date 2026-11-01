@@ -1,0 +1,9 @@
+{
+  "family": "nppiMorphGradientBorder",
+  "module": "nppi_morphological_operations.h",
+  "source": "src/nppi/nppi_morphological_operations/nppi_morph_gradient_border_generated.cpp",
+  "includes": [
+    "nppi_morph_executor.h"
+  ],
+  "call": "nppi::morph::runComposite<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, pBuffer, eBorderType, 2, nppStreamCtx.hStream)"
+}

@@ -1,0 +1,26 @@
+BPK 8u target=171 lo_s=0x1.dp+5 k_lo=159 hi_s=0x1.9p+8 k_hi=489
+BP2 8u ktarget=171 sigma=0x1.02839p+6 k=171
+BPK 8u target=201 lo_s=0x1.ep+5 k_lo=161 hi_s=0x1.5ep+9 k_hi=655
+BP2 8u ktarget=201 sigma=0x1.4e095p+6 k=201
+BPK 8u target=241 lo_s=0x1.18p+6 k_lo=179 hi_s=0x1.45p+10 k_hi=901
+BP2 8u ktarget=241 sigma=0x1.c2502ep+6 k=241
+BPK 8u target=301 lo_s=0x1.9p+6 k_lo=223 hi_s=0x1.388p+11 k_hi=1249
+BP2 8u ktarget=301 sigma=0x1.49bc2p+7 k=301
+BPK 8u target=401 lo_s=0x1.2cp+7 k_lo=285 hi_s=0x1.388p+12 k_hi=1793
+BP2 8u ktarget=401 sigma=0x1.1402c2p+8 k=401
+BPK 8u target=801 lo_s=0x1.2cp+8 k_lo=419 hi_s=0x1.388p+14 k_hi=3449
+BP2 8u ktarget=801 sigma=0x1.018272p+10 k=801
+BPK 16u target=321 lo_s=0x1.ep+4 k_lo=221 hi_s=0x1.9p+6 k_hi=667
+BP2 16u ktarget=321 sigma=0x1.66a22p+5 k=321
+BPK 16u target=641 lo_s=0x1.18p+6 k_lo=481 hi_s=0x1.b8p+7 k_hi=1361
+BP2 16u ktarget=641 sigma=0x1.7dfe8ap+6 k=641
+BPK 16u target=1281 lo_s=0x1.2cp+7 k_lo=965 hi_s=0x1.5ep+9 k_hi=3789
+BP2 16u ktarget=1281 sigma=0x1.9af49ap+7 k=1281
+BPK 16s target=321 lo_s=0x1.18p+5 k_lo=241 hi_s=0x1.ep+6 k_hi=735
+BP2 16s ktarget=321 sigma=0x1.7e006ap+5 k=321
+BPK 16s target=641 lo_s=0x1.2cp+6 k_lo=483 hi_s=0x1.18p+8 k_hi=1555
+BP2 16s ktarget=641 sigma=0x1.9aff06p+6 k=641
+BPK 32f target=321 lo_s=0x1.2p+4 k_lo=249 hi_s=0x1.4p+6 k_hi=1069
+BP2 32f ktarget=321 sigma=0x1.74e974p+4 k=321
+BPK 32f target=641 lo_s=0x1.18p+5 k_lo=477 hi_s=0x1.4p+7 k_hi=2105
+BP2 32f ktarget=641 sigma=0x1.7aa57p+5 k=641
