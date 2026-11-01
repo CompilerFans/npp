@@ -127,10 +127,17 @@ void morph_plain_ok(const std::string &fname, const std::string &key, int channe
   // within [-mw, W+mw) x [-mh, H+mh) relative to the ROI stay inside the buffer
   // even for anchors outside the mask box (the kernel's actual read model for
   // those anchors is what the probe measures).
-  const int ml = fullMargin ? maskSize.width : anchor.x;
-  const int mr = fullMargin ? maskSize.width : maskSize.width - 1 - anchor.x;
-  const int mt = fullMargin ? maskSize.height : anchor.y;
-  const int mb = fullMargin ? maskSize.height : maskSize.height - 1 - anchor.y;
+  // The 8u C1 square-odd >= 5 centred-anchor path reads with an effective
+  // anchor of (-1,-1) and does not clamp, so its reads can reach one mask
+  // extent further than the caller's anchor implies; give it a full margin.
+  const bool shiftedQuirk = std::is_same_v<T, Npp8u> && channels == 1 && maskSize.width == maskSize.height &&
+                            (maskSize.width & 1) && maskSize.width >= 5 &&
+                            anchor.x == maskSize.width / 2 && anchor.y == maskSize.height / 2;
+  const bool wideMargin = fullMargin || shiftedQuirk;
+  const int ml = wideMargin ? maskSize.width : anchor.x;
+  const int mr = wideMargin ? maskSize.width : maskSize.width - 1 - anchor.x;
+  const int mt = wideMargin ? maskSize.height : anchor.y;
+  const int mb = wideMargin ? maskSize.height : maskSize.height - 1 - anchor.y;
   const int spx = channels * (int)sizeof(T);
   const int bw = W + ml + mr, bh = H + mt + mb;
   const int sStep = align_step(bw * spx, spx);
