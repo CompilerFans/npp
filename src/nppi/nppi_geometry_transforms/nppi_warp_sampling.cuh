@@ -66,6 +66,16 @@ template <> __device__ __forceinline__ Npp16f floatToElem<Npp16f>(double v) {
 
 __device__ __forceinline__ int clampIndex(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
 
+// Correctly rounded single-precision arithmetic without FMA contraction.  The
+// measured quad/rotate semantics depend on the intermediate products being
+// rounded to float (a fused multiply-add shifts some boundary pixels), and the
+// double intermediates below make the rounding explicit and toolchain
+// independent (a float add/product is exact in double, so the single rounding
+// back to float is the IEEE round-to-nearest result).
+__device__ __forceinline__ float fmul_rn(float a, float b) { return static_cast<float>(static_cast<double>(a) * static_cast<double>(b)); }
+__device__ __forceinline__ float fadd_rn(float a, float b) { return static_cast<float>(static_cast<double>(a) + static_cast<double>(b)); }
+__device__ __forceinline__ float fsub_rn(float a, float b) { return static_cast<float>(static_cast<double>(a) - static_cast<double>(b)); }
+
 // 1-D cubic Lagrange weights for taps floor-1 .. floor+2.
 __device__ __forceinline__ void cubicWeights(double d, double w[4]) {
   w[0] = -d * (d - 1.0) * (d - 2.0) / 6.0;

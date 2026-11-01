@@ -26,10 +26,10 @@ __global__ void rotateKernel(const T *__restrict__ pSrc, int nSrcStepEl, NppiSiz
   if (rx >= oDstROI.width || ry >= oDstROI.height) return;
   const int x = rx + oDstROI.x;
   const int y = ry + oDstROI.y;
-  const float dx = __fsub_rn((float)x, shiftX);
-  const float dy = __fsub_rn((float)y, shiftY);
-  const float fx = __fsub_rn(__fmul_rn(ca, dx), __fmul_rn(sa, dy));
-  const float fy = __fadd_rn(__fmul_rn(sa, dx), __fmul_rn(ca, dy));
+  const float dx = warp::fsub_rn((float)x, shiftX);
+  const float dy = warp::fsub_rn((float)y, shiftY);
+  const float fx = warp::fsub_rn(warp::fmul_rn(ca, dx), warp::fmul_rn(sa, dy));
+  const float fy = warp::fadd_rn(warp::fmul_rn(sa, dx), warp::fmul_rn(ca, dy));
   const float loX = (float)oSrcROI.x - 0.5f;
   const float hiX = (float)(oSrcROI.x + oSrcROI.width - 1);
   const float loY = (float)oSrcROI.y - 0.5f;

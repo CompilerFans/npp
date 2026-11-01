@@ -74,9 +74,9 @@ __device__ __forceinline__ bool insideQuadF32(const QuadF &quad_, float u, float
     const int j = (i + 1) & 3;
     const float ax = q[2 * i], ay = q[2 * i + 1];
     const float bx = q[2 * j], by = q[2 * j + 1];
-    const float t1 = __fmul_rn(__fsub_rn(bx, ax), __fsub_rn(v, ay));
-    const float t2 = __fmul_rn(__fsub_rn(by, ay), __fsub_rn(u, ax));
-    const float cross = __fsub_rn(t1, t2);
+    const float t1 = fmul_rn(fsub_rn(bx, ax), fsub_rn(v, ay));
+    const float t2 = fmul_rn(fsub_rn(by, ay), fsub_rn(u, ax));
+    const float cross = fsub_rn(t1, t2);
     allPos = allPos && (cross >= 0.0f);
     allNeg = allNeg && (cross <= 0.0f);
   }
