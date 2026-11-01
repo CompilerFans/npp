@@ -728,10 +728,10 @@ __device__ __forceinline__ void batchMap(const double c[2][3], int x, int y, flo
   fy = static_cast<float>(__dadd_rn(__fma_rn(c[1][1], dy, __dmul_rn(c[1][0], dx)), c[1][2]));
 }
 
-// The batch kernel mirrors the single-image one: same absolute destination
-// addressing, same source-ROI gate and same interpolators.  The 5090 SASS
-// (warpAffineNaiveBatchBy2Rows<float, ...>) evaluates the map in double and
-// rounds the result to float for the gates and the sampling -- DMUL + DFMA +
+// The batch kernel reuses the single-image interpolators and gate, but maps the
+// destination ROI-relative index and writes at absolute coordinates.  The 5090
+// SASS (warpAffineNaiveBatchBy2Rows<float, ...>) evaluates the map in double
+// and rounds the result to float for the gate and the sampling -- DMUL + DFMA +
 // DADD for a00*x + a01*y + a02, then F2F.F32.F64.
 template <typename T, int Channels, bool AlphaPreserve>
 __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, unsigned int nBatchSize,
@@ -759,10 +759,9 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   // float: DMUL a00*x, DFMA a01*y + that, DADD + a02, F2F.F32.F64.
   float fx, fy;
   batchMap(item.aTransformedCoeffs, x, y, fx, fy);
-  // 5090 batch gate: the mapped point must be inside the *clipped source ROI*
-  // with an inclusive upper bound of the last pixel (x1-1, y1-1).  Unlike the
-  // single-image kernel this rejects coordinates such as 6.4 on a 7-wide ROI
-  // even when they would round to pixel 6.
+  // Same gate as the single-image kernel: the mapped point must be inside the
+  // clipped source ROI with an inclusive upper bound of the last pixel
+  // coordinate (see inSourceRoi).
   if (!inSourceRoi(fx, fy, oSrcRectROI)) {
     return;
   }
