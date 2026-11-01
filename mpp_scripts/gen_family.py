@@ -13,6 +13,8 @@ Spec (JSON):
   "includes": ["npps_sum_executor.h"],
   "call": "nppi::statistics::nppsSum::run<{dtype}>(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream)",
   "ctx_only": false,
+  "plain_self": false,      # families without _Ctx twins: emit the plain
+                            # function from its own signature + call template
   "call_by_name": {"nppsSum_8u_Sfs_Ctx": "..."},  # optional per-Ctx-function call
   "exclude": ["nppsSum_32f"],              # optional exact names
   "functions": ["nppsSum_8u_Sfs"]           # optional exact-name mode
@@ -153,7 +155,7 @@ def choose_call(spec: dict, func: Func) -> str:
 
 
 NPPI_LAYOUT_RE = re.compile(r"_AC4")
-NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?:_Ctx)?$")
+NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?=_|$)")
 
 
 def nppi_channel_count(name: str) -> int:
@@ -190,14 +192,22 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
         "channels": func.channels or "1",
         "layout": func.layout,
     }
-    if func.ctx:
+    if func.ctx or ctx_twin is None:
+        # A non-Ctx function without a _Ctx twin (host-only helpers such as
+        # nppiMorphGetBufferSize_* or the unsharp GetBufferSize family, which
+        # sets plain_self) is implemented directly, exactly like a Ctx
+        # function but without any stream parameter.
         call_template = choose_call(spec, func)
         if "{dtype}" in call_template and not dtype:
             raise ValueError(f"{func.name}: spec uses {{dtype}} but the function has no dtype token")
         if "nppStreamCtx" in call_template and "nppStreamCtx" not in param_names(func.params):
             raise ValueError(f"{func.name}: spec references nppStreamCtx but the signature does not use that name")
         call = call_template.format(**values)
-        unused = "  (void)nppStreamCtx;\n" if "nppStreamCtx" not in call else ""
+        unused = (
+            "  (void)nppStreamCtx;\n"
+            if "nppStreamCtx" not in call and "nppStreamCtx" in param_names(func.params)
+            else ""
+        )
         return (
             f"NppStatus {func.name}({func.params}) {{\n"
             f"{unused}"
@@ -205,8 +215,6 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
             f"}}\n"
         )
 
-    if ctx_twin is None:
-        raise ValueError(f"{func.name}: non-Ctx function has no _Ctx twin")
     names = param_names(func.params)
     ctx_name = param_names(ctx_twin.params)[-1]
     ctx_type = split_params(ctx_twin.params)[-1]
@@ -252,6 +260,51 @@ def ctx_twin_of(func: Func, funcs: Dict[str, Func]) -> Optional[Func]:
     return funcs.get(func.name + "_Ctx")
 
 
+
+def render_size_t_overload(func: Func, ctx_twin: Optional[Func]) -> Optional[str]:
+    """C++ overload taking `size_t *hpBufferSize` (the NPP 13 buffer-size ABI).
+
+    mcMPP headers keep the legacy int* entry point (C linkage) and add a C++
+    size_t* overload, matching NVIDIA NPP >= 12.8.  The overload delegates to
+    the int* implementation and widens the value.
+    """
+    names = param_names(func.params)
+    if "hpBufferSize" not in names:
+        return None
+    params = split_params(func.params)
+    out_params = []
+    for p in params:
+        if param_name(p) == "hpBufferSize":
+            out_params.append("size_t * hpBufferSize")
+        else:
+            out_params.append(p)
+    signature = ", ".join(out_params)
+    args = []
+    for n in names:
+        args.append("hpBufferSize" if n == "hpBufferSize" else n)
+    if func.ctx:
+        call = f"{func.name}({', '.join(args)})"
+        return (
+            f"NppStatus {func.name}({signature}) {{\n"
+            f"  int hpBufferSizeInt = 0;\n"
+            f"  NppStatus status = {func.name}({', '.join(['&hpBufferSizeInt' if n == 'hpBufferSize' else n for n in names])});\n"
+            f"  if (status == NPP_NO_ERROR && hpBufferSize) *hpBufferSize = (size_t)hpBufferSizeInt;\n"
+            f"  return status;\n"
+            f"}}\n"
+        )
+    if ctx_twin is None:
+        return None
+    ctx_name = param_names(ctx_twin.params)[-1]
+    return (
+        f"NppStatus {func.name}({signature}) {{\n"
+        f"  NppStreamContext {ctx_name};\n"
+        f"  NppStatus status = nppGetStreamContext(&{ctx_name});\n"
+        f"  if (status != NPP_NO_ERROR) return status;\n"
+        f"  return {ctx_twin.name}({', '.join(args + [ctx_name])});\n"
+        f"}}\n"
+    )
+
+
 def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List[str], List[str], List[str]]:
     selected = select(spec, funcs)
     if not selected:
@@ -267,8 +320,10 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
             skipped.append(f.name)
             continue
         twin = ctx_twin_of(f, funcs)
-        if twin is None:
-            raise SystemExit(f"{f.name}: no _Ctx twin found")
+        if twin is None and not f.ctx:
+            # Host-only helper without a _Ctx twin (e.g. the nppiMorphGetBufferSize_*
+            # family): the spec's call is emitted directly, render() validates it.
+            pass
         chunks.append(render(spec, f, twin))
         emitted.append(f.name)
         if f.status == "stub":
@@ -282,8 +337,14 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
         '#include "npp.h"',
     ]
     for inc in spec.get("includes", []):
-        header.append(f'#include "{inc}"')
+        header.append(f"#include {inc}" if inc.startswith("<") else f'#include "{inc}"')
     header.append("")
+    if spec.get("size_t_overloads"):
+        for f in selected:
+            twin = ctx_twin_of(f, funcs)
+            extra = render_size_t_overload(f, twin)
+            if extra is not None:
+                chunks.append(extra)
     body = "\n".join(chunks)
     return "\n".join(header) + "\n" + body, emitted, skipped, stubs
 

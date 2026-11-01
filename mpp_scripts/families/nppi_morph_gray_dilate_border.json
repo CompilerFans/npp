@@ -1,0 +1,15 @@
+{
+  "family": "nppiGrayDilateBorder",
+  "module": "nppi_morphological_operations.h",
+  "source": "src/nppi/nppi_morphological_operations/nppi_morph_gray_dilate_border_generated.cpp",
+  "includes": [
+    "nppi_morph_executor.h"
+  ],
+  "call": "nppi::morph::runGray<Npp8u, Npp32s>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, eBorderType, nppi::morph::kDilate, nppStreamCtx.hStream)",
+  "call_variants": [
+    {
+      "contains": "const Npp32f * pMask",
+      "call": "nppi::morph::runGray<Npp32f, Npp32f>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, eBorderType, nppi::morph::kDilate, nppStreamCtx.hStream)"
+    }
+  ]
+}

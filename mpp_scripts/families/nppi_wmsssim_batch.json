@@ -1,0 +1,18 @@
+{
+  "family": "nppiWMSSSIMBatch",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_wmsssim_batch_generated.cpp",
+  "includes": [
+    "nppi_ssim_executor.h"
+  ],
+  "families": [
+    "nppiWMSSSIMBatch"
+  ],
+  "call_variants": [
+    {
+      "contains": "oMaxSizeROI",
+      "call": "nppi::statistics::runWMSSSIMBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oMaxSizeROI, {chan}, pWMSSSIM, true, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::statistics::runWMSSSIMBatch(pSrc1BatchList, pSrc2BatchList, nBatchSize, oSizeROI, {chan}, pWMSSSIM, false, nppStreamCtx.hStream)"
+}

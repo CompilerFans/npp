@@ -1,0 +1,24 @@
+== wiener ==
+wiener border=0 status=-14 row0: 170 170 170 170 170
+wiener border=1 status=-14 row0: 170 170 170 170 170
+wiener border=2 status=0 row0: 1 2 2 3 3
+wiener border=3 status=-14 row0: 170 170 170 170 170
+wiener border=4 status=-14 row0: 170 170 170 170 170
+wiener noise0 status=0 out: 7 9 13 17 20
+wiener noise1 status=0 out: 1 2 2 3 3
+wiener noise1e3 status=-11 out: 170 170 170 170 170
+wiener noise-1 status=-11 out: 170 170 170 170 170
+wiener anchor00 status=0 out: 0 0 0 1 1
+wiener anchor22 status=0 out: 5 5 6 6 6
+wiener anchor33 status=-11 out: 170 170 170 170 170
+wiener anchor-1 status=0 out: 0 0 0 0 1
+wiener mask2x2 status=0 out: 0 0 0 1 1
+wiener mask4x4 status=0 out: 1 1 2 3 3
+wiener mask1x1 status=0 out: 0 1 2 3 4
+wiener mask5x5 status=0 out: 3 3 4 4 5
+wiener mask7x7 status=0 out: 4 5 5 6 6
+wiener mask0 status=-6 out: 170 170 170 170 170
+wiener32 n=1 status=0 row0: 0.24580504 1.13670886 2.06651616 3.02505016 3.98928428
+wiener32 n=0 status=0 row0: 7.68449926 9.75308704 13.3635111 17.7421131 20.7379971
+wiener32 n=25 status=-11 row0: 7.68449926 9.75308704 13.3635111 17.7421131 20.7379971
+done
