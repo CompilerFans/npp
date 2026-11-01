@@ -87,3 +87,23 @@ if(USE_NVIDIA_NPP AND REF_TEST_SOURCES)
     )
     npp_register_test(ref ref_tests)
 endif()
+
+# Numerical conformance tests: expected values are computed on the CPU in
+# process (no golden records, no status/error-code assertions).  The same
+# sources build against the in-tree MPP library (normal/MACA build) and against
+# the NVIDIA NPP 13 reference on the 5090 (USE_NVIDIA_NPP).  Additive: existing
+# test sources and targets are untouched.
+file(GLOB_RECURSE NUM_TEST_SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/num/test_*.cpp
+)
+if(NUM_TEST_SOURCES)
+    npp_create_test_target(num_tests "${NUM_TEST_SOURCES}" npp)
+    target_include_directories(num_tests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/framework
+        ${CMAKE_CURRENT_SOURCE_DIR}/num
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/nppi/nppi_arithmetic_operations
+    )
+    npp_register_test(num num_tests)
+endif()
