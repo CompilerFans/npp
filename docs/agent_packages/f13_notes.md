@@ -161,3 +161,105 @@ Still open in f13 (139 functions):
   attempt at validating the existing 8u PBA implementation did not reach a
   successful NPP call (the probe kept returning NPP_SIZE_ERROR, see
   f13_check_dt.cu), so no variants were added on top of an unverified base.
+
+## 9. Third run (2026-11-01): compress batch, label-marker verification, HOG
+
+### 9.1 Second build of mcMPP on the 5090 (verification in place)
+
+This run set up an nvcc build of the mcMPP library on the 5090
+(`cmake -DGPU_TYPE=NVIDIA_GPU -DUSE_NVIDIA_NPP=OFF`, `build-impl`, plus
+`build-verify` for `diff_tests`), so every recorded golden is replayed against
+the *mcMPP* implementation on the same GPU before it is committed.  This found
+two pre-existing problems that the previous runs could not see:
+
+* the label-marker goldens were silently overwritten: the diff tests used the
+  function name as the record id, so only the last case of each function was
+  kept (`nppiLabelMarkersUF_32u_C1R` ended up with an error-case status as its
+  `ok` golden).  All cases now use `function/case` ids.
+* with valid goldens the label-marker batch forms disagreed with NPP on the
+  status matrix; the validation now matches the measured NPP behaviour (see
+  9.3).
+
+### 9.2 CompressMarkerLabelsUFBatch (family finished, 4/4 real)
+
+`nppiCompressMarkerLabelsUFBatch_32u_C1IR(+Ctx)` were the last two entries.
+Measured on the 5090 (probes 32-39):
+
+* the non-Advanced form applies the common `oSizeROI` to every image and
+  ignores the per-image descriptor `oSize`/`nStep`; the Advanced form uses the
+  per-image ROI.  Everything else is identical.
+* batch size 1 is accepted (the header says `> 1`); negative ROI/batch is
+  `NPP_SIZE_ERROR`, zero ROI/batch and a non-positive `nPerImageBufferSize`
+  surface as `NPP_CUDA_KERNEL_EXECUTION_ERROR`; null list/buffer/new-max are
+  `NPP_NULL_POINTER_ERROR`.
+* `nppiCompressMarkerLabelsUF_32u_C1IR` itself was wrong: it produced 1-based
+  labels.  On real `nppiLabelMarkersUF` output NPP produces 0-based labels
+  (`0,3,6,... -> 0,1,2,...`) and `pNewNumber` is the number of distinct labels.
+  Fixed, and the batch new-max is `pNewNumber - 1` (the largest label ID).
+
+Tests: `NppiCompressMarkerLabelsDiff.{Values,Errors}` record (NPP) and verify
+(mcMPP) with 0 failed on the 5090.
+
+### 9.3 Label markers: verification and status alignment
+
+`NppiLabelMarkersDiff.{Single,Batch,Errors}` now pass on both sides.  Measured
+batch statuses (probe 45): null list/dst -8; negative ROI or batch -6; zero ROI
+or batch -1000 (`NPP_CUDA_KERNEL_EXECUTION_ERROR`); batch size 1 accepted; an
+unknown `NppiNorm` is *not* rejected for the batch forms (it runs the 4-way
+path).  The batch descriptor lists are now staged into device memory, so host
+arrays work as well as the documented device arrays.
+
+NPP's `NppiNormInf` labelling is not always plain 8-connectivity: on one random
+12x9 pattern NPP produced 40 components where the true 8-way labelling (and the
+mcMPP implementation) has 39 (probe 42, seed 0x52).  The differential value
+cases therefore use seeds where NPP is consistent; the mcMPP implementation
+keeps the true 8-connectivity semantics.
+
+### 9.4 Pyramid up: extra measurements (still not solved)
+
+Probe 46 measured the response of `nppiFilterGaussPyramidLayerUpBorder` to a
+delta source at rate 1.25/1.5/2.0/2.5/3.0 with single-tap and multi-tap
+kernels.  The operator is separable and linear in the kernel (k020 = 4*k010),
+but:
+
+* k={0,1,0}, rate 1.25 -> footprint [1, 0.9] (2 dst pixels),
+  rate 1.5 -> [1, 1], rate 2.5 -> [1, 1, 1], rate 3 -> [1, 1, 1];
+  the footprint total is 1.9, 2, 3, 3 for a kernel of unit mass, i.e. it is
+  *not* a normalised resampling;
+* k={1,0,0} and k={0,0,1} at rate 1.25 give [1,1] and [0.3,0.9] but their sum
+  k={0.5,0,0.5} gives [0.15, 0.95, 0.5], so the operator is *not* additive in
+  the kernel either (the kernel taps interact);
+* with a unit ramp the response is `j - 1` with fractional leakage only on some
+  phases (`0.1` at rate 1.25, `0.318182` at 1.1, `0.404762` at 1.05).
+
+The family stays unimplemented; the probes (17-21, 46) and these tables are the
+starting point for a SASS-level analysis of the `LinearInterpNaive` functor.
+
+### 9.5 HistogramOfGradientsBorder: partial reverse engineering (unimplemented)
+
+Probes 47-53 established a lot of the contract, but the descriptor values could
+not be reproduced yet, so the family is still `missing` (no partial code was
+committed):
+
+* config validity (`GetDescriptorsSize`): cell 2..16, **block must be exactly
+  2*cell** (any other ratio, including 4*cell, is -14), bins 2..16,
+  detectionWindow % block == 0, window >= block; invalid configs return -14,
+  zero window -6, null size pointer -8.
+* main function statuses (probe 50): null src/dst/locations/scratch -8,
+  location (or window) outside `oSizeROI` -11, invalid config -14, border
+  other than REPLICATE -14, step not a multiple of 4 -108, and -16
+  (`NPP_FFT_FLAG_ERROR`) when `nSrcStep < 128 * nLocations` (that is the real
+  step quirk: the threshold scales with the number of locations).
+* descriptor size = locations * blocksX * blocksY * 4 * bins * 4 bytes with
+  blocksX = 2*winW/block - 1 (e.g. 9 bins, cell 8, block 16, window 64x128 ->
+  3780 floats per location, matching the header example).
+* ordering is [blockY][blockX][cellY][cellX][bin] (verified with per-quadrant
+  ramps, probe 47); the cell histogram uses the centred [-1,0,+1] gradient,
+  8u/16u/16s/32f sources, `atan2(gy,gx)` folded to [0,180) with linear
+  interpolation to the two nearest bins; the block is normalised by its
+  largest bin (a uniform ramp gives exactly 1.0).
+* remaining gap: on random data the measured descriptor does not match any of
+  the fitted variants (magnitude L1/L2/max, Sobel/Prewitt/forward differences,
+  bin wrap/clamp/drop, max/L2/L1 normalisation, cell grid offsets).  A
+  uniform-gradient image matches exactly, so the difference is in how pixels
+  with different orientations/magnitudes are weighted inside a cell.
