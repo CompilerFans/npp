@@ -391,23 +391,23 @@ void adv_border_errors(const std::string &fam, const std::string &suffix, int ch
 // ------------------------------------------------------------ call macros
 
 #define GX_PLAIN(FAM, S, TYP, MS, MGN)                                                                     \
-  mask_ok<S>(#FAM "_" #TYP "_C1R_Ctx", #FAM "/" #TYP "/C1", 1, 11, 7,     \
+  mask_ok<S>(#FAM "_" #TYP "_C1R_Ctx", #FAM "/" #TYP "/C1/" #MS, 1, 11, 7,  \
                                                __LINE__, MS, FAM##_##TYP##_C1R_Ctx);                        \
-  mask_ok<S>(#FAM "_" #TYP "_C3R_Ctx", #FAM "/" #TYP "/C3", 3, 11, 7,     \
+  mask_ok<S>(#FAM "_" #TYP "_C3R_Ctx", #FAM "/" #TYP "/C3/" #MS, 3, 11, 7,  \
                                                __LINE__, MS, FAM##_##TYP##_C3R_Ctx);                        \
-  mask_ok<S>(#FAM "_" #TYP "_C4R_Ctx", #FAM "/" #TYP "/C4", 4, 11, 7,     \
+  mask_ok<S>(#FAM "_" #TYP "_C4R_Ctx", #FAM "/" #TYP "/C4/" #MS, 4, 11, 7,  \
                                                __LINE__, MS, FAM##_##TYP##_C4R_Ctx);                        \
-  mask_ok<S>(#FAM "_" #TYP "_AC4R_Ctx", #FAM "/" #TYP "/AC4", 4, 11, 7,   \
+  mask_ok<S>(#FAM "_" #TYP "_AC4R_Ctx", #FAM "/" #TYP "/AC4/" #MS, 4, 11, 7, \
                                                 __LINE__, MS, FAM##_##TYP##_AC4R_Ctx)
 
 #define GX_BORDER(FAM, S, TYP, MS)                                                                          \
-  mask_border_ok<S>(#FAM "_" #TYP "_C1R_Ctx", #FAM "/" #TYP "/C1", 1, 13,   \
+  mask_border_ok<S>(#FAM "_" #TYP "_C1R_Ctx", #FAM "/" #TYP "/C1/" #MS, 1, 13, \
                                                      13, 2, 3, 9, 9, __LINE__, MS, FAM##_##TYP##_C1R_Ctx);   \
-  mask_border_ok<S>(#FAM "_" #TYP "_C3R_Ctx", #FAM "/" #TYP "/C3", 3, 13,   \
+  mask_border_ok<S>(#FAM "_" #TYP "_C3R_Ctx", #FAM "/" #TYP "/C3/" #MS, 3, 13, \
                                                      13, 2, 3, 9, 9, __LINE__, MS, FAM##_##TYP##_C3R_Ctx);   \
-  mask_border_ok<S>(#FAM "_" #TYP "_C4R_Ctx", #FAM "/" #TYP "/C4", 4, 13,   \
+  mask_border_ok<S>(#FAM "_" #TYP "_C4R_Ctx", #FAM "/" #TYP "/C4/" #MS, 4, 13, \
                                                      13, 2, 3, 9, 9, __LINE__, MS, FAM##_##TYP##_C4R_Ctx);   \
-  mask_border_ok<S>(#FAM "_" #TYP "_AC4R_Ctx", #FAM "/" #TYP "/AC4", 4,    \
+  mask_border_ok<S>(#FAM "_" #TYP "_AC4R_Ctx", #FAM "/" #TYP "/AC4/" #MS, 4,   \
                                                       13, 13, 2, 3, 9, 9, __LINE__, MS,                     \
                                                       FAM##_##TYP##_AC4R_Ctx)
 
