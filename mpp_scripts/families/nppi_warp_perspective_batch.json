@@ -1,0 +1,9 @@
+{
+  "family": "nppiWarpPerspectiveBatch",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_warp_perspective_batch_generated.cpp",
+  "includes": [
+    "nppi_warp_perspective_executor.h"
+  ],
+  "call": "nppi::warp::warpBatch<{dtype}, {chan}, {is_ac4}>(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList, nBatchSize, nppStreamCtx.hStream)"
+}

@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10358 (82.6%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 2061
-- Tested: 8250 (65.8%)
-- Real and tested: 7119
+- Real implementations: 10466 (83.5%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 112
+- Missing: 1959
+- Tested: 8255 (65.8%)
+- Real and tested: 7182
 
 ## By module
 
@@ -15,7 +15,7 @@
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 1230 | 0 | 666 | 1003 |
-| nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
+| nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
 | nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
@@ -39,7 +39,6 @@
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
 | nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
@@ -64,7 +63,6 @@
 | nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
 | nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveBatch | 22 | 11 |
 | nppi_morphological_operations.h | nppiDilate3x3 | 22 | 11 |
 | nppi_morphological_operations.h | nppiErode3x3 | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
@@ -72,3 +70,5 @@
 | nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
+| nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiDilate | 16 | 8 |
