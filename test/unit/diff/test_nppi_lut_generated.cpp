@@ -738,3 +738,90 @@ TEST_F(NppiLutDiff, Lut_EmptyRoi_H0) {
   c3.status(st);
   c3.finish();
 }
+
+// ===== probes: 256-level fast path for Linear / Cubic ====================
+// The 8u point LUT switches to "dst = values[src]" when nLevels == 256
+// (see 8u/C1/maxlevelsdup).  These probes ask whether the interpolating
+// families share that shortcut.
+TEST_F(NppiLutLinearDiff, Linear_8u_MaxLevelsDup) {
+  std::vector<Npp32s> lv(256), vv(256);
+  for (int i = 0; i < 256; ++i) {
+    lv[i] = i < 200 ? i : 200;
+    vv[i] = (i * 3 + 1) & 0xFF;
+  }
+  lut_c1<Npp8u, Npp32s>("nppiLUT_Linear_8u_C1R", "linear/8u/C1/maxlevelsdup", 256, 1, 7, ramp8u(256), vv, lv,
+                        ValueKind::U8,
+                        [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v,
+                           const Npp32s *l, int n, NppStreamContext c) {
+                          return nppiLUT_Linear_8u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                        });
+}
+
+TEST_F(NppiLutCubicDiff, Cubic_8u_MaxLevelsDup) {
+  std::vector<Npp32s> lv(256), vv(256);
+  for (int i = 0; i < 256; ++i) {
+    lv[i] = i < 200 ? i : 200;
+    vv[i] = (i * 3 + 1) & 0xFF;
+  }
+  lut_c1<Npp8u, Npp32s>("nppiLUT_Cubic_8u_C1R", "cubic/8u/C1/maxlevelsdup", 256, 1, 7, ramp8u(256), vv, lv,
+                        ValueKind::U8,
+                        [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v,
+                           const Npp32s *l, int n, NppStreamContext c) {
+                          return nppiLUT_Cubic_8u_C1R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                        });
+}
+
+// C3 with two 256-level channels and one 2-level channel: is the point-LUT
+// direct-index shortcut chosen per call (all channels 256) or per channel?
+TEST_F(NppiLutDiff, Lut_8u_C3_MixedFastPath) {
+  std::vector<Npp32s> lv256(256), vv256(256);
+  for (int i = 0; i < 256; ++i) {
+    lv256[i] = i < 200 ? i : 200;
+    vv256[i] = (i * 3 + 1) & 0xFF;
+  }
+  lut_multi<Npp8u, Npp32s, 3>("nppiLUT_8u_C3R", "8u/C3/mixedfast", 256, 1, 1, 3, ramp8u(256),
+                              {vv256, {9, 8}, vv256}, {lv256, {10, 200}, lv256}, ValueKind::U8,
+                              [](const Npp8u *s, int ss, Npp8u *d, int ds, NppiSize o, const Npp32s *v[],
+                                 const Npp32s *l[], int n[], NppStreamContext c) {
+                                return nppiLUT_8u_C3R_Ctx(s, ss, d, ds, o, v, l, n, c);
+                              });
+}
+
+// 32f level-count contract (docs: 2..1024).
+TEST_F(NppiLutDiff, Lut_32f_Contract) {
+  const std::vector<Npp32f> okv = {1.f, 2.f, 3.f}, okl = {10.f, 100.f, 200.f};
+  std::vector<Npp32f> hs = make_uniform<Npp32f>(4096, 740);
+  std::vector<Npp32f> hd = make_uniform<Npp32f>(4096, 741);
+  DeviceMemory<Npp32f> &s = dev_buf(hs);
+  DeviceMemory<Npp32f> &d = dev_buf(hd);
+  DeviceMemory<Npp32f> &v = dev_buf(okv);
+  DeviceMemory<Npp32f> &l = dev_buf(okl);
+  clear_cuda_error();
+  NppStatus st = nppiLUT_32f_C1R_Ctx(s.get(), 64, d.get(), 64, NppiSize{16, 4}, v.get(), l.get(), 1025,
+                                     current_ctx());
+  Case c("nppiLUT/contract/32fLevels1025", "nppiLUT_32f_C1R");
+  c.status(st);
+  c.finish();
+}
+
+// width-0 ROI for Cubic / Linear (LUT returns NPP_NO_ERROR, palette does not).
+TEST_F(NppiLutCubicDiff, Cubic_EmptyRoi) {
+  const std::vector<Npp32s> okv = {1, 2, 3}, okl = {10, 100, 200};
+  std::vector<Npp8u> hs = make_uniform<Npp8u>(4096, 750);
+  std::vector<Npp8u> hd = make_uniform<Npp8u>(4096, 751);
+  DeviceMemory<Npp8u> &s = dev_buf(hs);
+  DeviceMemory<Npp8u> &d = dev_buf(hd);
+  DeviceMemory<Npp32s> &v = dev_buf(okv);
+  DeviceMemory<Npp32s> &l = dev_buf(okl);
+  NppStreamContext ctx = current_ctx();
+  clear_cuda_error();
+  NppStatus st = nppiLUT_Cubic_8u_C1R_Ctx(s.get(), 16, d.get(), 16, NppiSize{0, 4}, v.get(), l.get(), 3, ctx);
+  Case c("nppiLUT/cubic/contract/emptyRoi", "nppiLUT_Cubic_8u_C1R");
+  c.status(st);
+  c.finish();
+  clear_cuda_error();
+  st = nppiLUT_Linear_8u_C1R_Ctx(s.get(), 16, d.get(), 16, NppiSize{0, 4}, v.get(), l.get(), 3, ctx);
+  Case c2("nppiLUT/linear/contract/emptyRoi2", "nppiLUT_Linear_8u_C1R");
+  c2.status(st);
+  c2.finish();
+}

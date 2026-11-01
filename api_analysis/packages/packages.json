@@ -407,5 +407,17 @@
       "nppsZeroCrossing",
       "nppsZeroCrossingGetBufferSize"
     ]
+  },
+  "c1": {
+    "title": "NPPI LUT families",
+    "module": "nppi_color_conversion.h",
+    "families": [
+      "nppiLUT",
+      "nppiLUTPalette",
+      "nppiLUTPaletteSwap",
+      "nppiLUT_Cubic",
+      "nppiLUT_Linear",
+      "nppiLUT_Trilinear"
+    ]
   }
 }

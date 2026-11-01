@@ -413,3 +413,30 @@ TEST_F(NppiLutPaletteDiff, Palette_Contract) {
     c2.finish();
   }
 }
+
+// Short row steps: the point-LUT families do not validate steps; does the
+// palette family?  Probe before deciding the executor's validation order.
+TEST_F(NppiLutPaletteDiff, Palette_ShortSteps) {
+  std::vector<Npp8u> hs = make_uniform<Npp8u>(4096, 840);
+  std::vector<Npp8u> hd = make_uniform<Npp8u>(4096, 841);
+  DeviceMemory<Npp8u> &s = dev_buf(hs);
+  DeviceMemory<Npp8u> &d = dev_buf(hd);
+  std::vector<Npp8u> t(256);
+  for (int i = 0; i < 256; ++i) t[i] = static_cast<Npp8u>(i);
+  DeviceMemory<Npp8u> &td = dev_buf(t);
+  clear_cuda_error();
+  NppStatus st = nppiLUTPalette_8u_C1R_Ctx(s.get(), 8, d.get(), 16, NppiSize{16, 4}, td.get(), 4, current_ctx());
+  Case c("nppiLUTPalette/contract/shortSrcStep", "nppiLUTPalette_8u_C1R");
+  c.status(st);
+  c.finish();
+  clear_cuda_error();
+  st = nppiLUTPalette_8u_C1R_Ctx(s.get(), 16, d.get(), 8, NppiSize{16, 4}, td.get(), 4, current_ctx());
+  Case c2("nppiLUTPalette/contract/shortDstStep", "nppiLUTPalette_8u_C1R");
+  c2.status(st);
+  c2.finish();
+  clear_cuda_error();
+  st = nppiLUTPalette_8u_C1R_Ctx(s.get(), -16, d.get(), 16, NppiSize{16, 4}, td.get(), 4, current_ctx());
+  Case c3("nppiLUTPalette/contract/negSrcStep", "nppiLUTPalette_8u_C1R");
+  c3.status(st);
+  c3.finish();
+}
