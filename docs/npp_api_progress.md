@@ -70,7 +70,7 @@
 | F1 | NPPI 基础滤波（Filter/FilterBorder/32f 行/列 + border） | 262 | ✅ 已合并 | `pkg/f1` → `6390cd6` |
 | F4 | NPPI 导数滤波（Sobel/Scharr/Prewitt/Roberts 及 mask/second/border 变体） | 348 | ✅ 已合并 | `pkg/f4` → `4ecdea2` |
 | F12 | NPPI 滤波长尾（nppiFilter*/Row/Column + SumWindow 全变体） | 240 | ✅ 已验证 | `pkg/f12` + `f12-verify` → `c866fe3` |
-| F11 | NPPI 固定核滤波（HighPass/LowPass/Sharpen/Laplace + border） | 296 | ⏳ 部分合并（248/296，Unsharp 待做） | `pkg/f11` → `691a899` |
+| F11 | NPPI 固定核滤波（HighPass/LowPass/Sharpen/Laplace/Unsharp + border + GBHS） | 296 | ✅ 已合并 | `pkg/f11` + `f11-verify` → `c29cbad` |
 | G5 | NPPI 透视/旋转/几何辅助（Perspective/Back/Quad/Batch + Rotate + get*） | 116 | ✅ 已合并 | `pkg/g5` + `g5-verify` → `d6d9f79` |
 | opt_fix | 600U：形态学 word-per-pixel 向量化 + 8u C3 回退定位 | 0 | ✅ 已合并 | `pkg/opt_fix` → `409d5ef` |
 | opt_planar | 600U：平面↔打包拷贝 128-bit 逐平面向量化 | 0 | ✅ 已合并 | `pkg/opt_planar` → `409d5ef` |
@@ -85,6 +85,7 @@
 
 ## 5. 决策记录
 
+- **F11 完成**：UnsharpBorder（32）+ UnsharpGetBufferSize（16）合入（`pkg/f11` + `f11-verify` → `c29cbad`），加上此前的 248 个固定核函数，本包 296 个全部 real；catalog real 10,418→10,466、missing 2,007→1,959、remaining 2,119→2,071。验证：`NppiFilterUnsharpDiff.*` **21/21**、整树 unit 4,823、diff 2,116/0。lead 修复：16u 奇数 src step（NPP 接受，golden 为 NO_ERROR）在 MACA 上触发非对齐加载 fault，unsharp 内核改为逐字节 memcpy 读取；另 agent 给共享 harness 增量添加 U8Tol/U16Tol 容差 kind（整型输出 ±1 LSB）。语义细节见 `docs/agent_packages/f11_notes.md`（auto 半径拟合、GBS 公式、NPP 在 radius==0 && sigma==0 时挂死等）。
 - **G5 完成**：`nppiWarpPerspective`/`Back`/`Quad`/`Batch`/`Rotate` 与 8 个 host get* 辅助共 116 个函数全部 real（`pkg/g5` + `g5-verify` → `d6d9f79`），catalog real 10,310→10,418、stub 118→112、missing 2,109→2,007、remaining 2,227→2,119。验证：`NppiWarpPerspective*`/`NppiRotateDiff.*` **66/66**、整树 unit 4,823、diff 2,095/0。lead 额外修复：两个旧 warp-perspective 单测读取未初始化的 nppiMalloc 目标缓冲（NPP 对映射到源图外的目标像素不写入），零初始化后 41/41 通过；实现本身与 5090 golden 一致。钉死的语义见 `docs/agent_packages/g5_notes.md` 与 `nppi_warp_perspective_executor.h`：forward 系数为 src→dst 且内核取逆、按行左边缘 v 裁剪 x 范围再逐像素判定、quad 用 float32 半平面测试、rotate 的写入条件与 step 规则等。
 - **G5 结果（部分）**：8 个 host 几何辅助（GetAffineTransform/Quad/Bound、GetPerspectiveTransform/Quad/Bound、GetRotateQuad/Bound）合入（`pkg/g5` + `g5-verify` → `fabfb09`），catalog real 10,302→10,310、tested 8,236→8,244。验证：`NppiGetTransformDiff.*` 12/12、整树 unit 4,823、diff 2,029 用例 0 failed。`pkg/g5` 上保留了 perspective/rotate 的 4 个差分 suite（64 个 case，当前全部打在 legacy 实现上失败）作为后续 108 个函数的规格，其 453 个 golden 已放入共享 `artifacts/5090/npp_records`；`docs/agent_packages/g5_notes.md` 记录了实测的透视区域/采样模型（区域裁剪、采样点判定、边界不写入）。这些 WIP 测试不并入集成分支，避免 64 个失败用例。
 - **F11 结果（部分）**：HighPass/LowPass/Sharpen/Laplace 及其 Border 变体共 248 个函数合入（`pkg/f11` + `f11-verify` → `691a899`），catalog real 10,054→10,302、missing 2,365→2,117、remaining 2,483→2,235；剩余 48 个为 `nppiFilterUnsharpBorder`（32）与 `nppiFilterUnsharpGetBufferSize`（16），agent 的 probe_j 已钉住部分 unsharp 语义。验证：`NppiFilterFixedDiff.*` 8/8（f11 agent 在 5090 重录 796 个 golden 后由 lead 在 C500 本地验证）、整树 unit 4,823、diff 2,017 用例 0 failed。关键语义/修复：NPP 13.4 的 `nppiFilterSharpenBorder_16u_C1R` 是唯一不校验 srcSize/offset/border 的固定核 border 变体（这些情况全部返回 NO_ERROR；null、负 ROI、dst step 仍正常校验），已按 golden 在 `filterFixedBorder` 中做实例级例外；其余变体的校验顺序为 null → 负 ROI → srcSize → offset → border → 零 ROI（no-op，先于 step）→ dst step（含 NOT_EVEN）。f11 的 796 个 golden（`nppiFilterFixed/`）已并入共享 `artifacts/5090/npp_records`。
