@@ -1,10 +1,6 @@
 module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
-nppi_color_conversion.h,nppiLUT_Cubic,64,0,0,64,32,32,32,64
 nppi_geometry_transforms.h,nppiWarpAffine,66,6,60,0,30,30,36,60
-nppi_color_conversion.h,nppiLUT_Linear,64,6,0,58,29,29,35,58
-nppi_color_conversion.h,nppiLUT,64,8,0,56,28,28,36,56
 nppi_geometry_transforms.h,nppiWarpAffineQuad,48,0,0,48,24,24,24,48
-nppi_color_conversion.h,nppiLUTPalette,26,0,0,26,13,13,13,26
 nppi_geometry_transforms.h,nppiWarpAffineBack,48,24,24,0,12,12,36,24
 nppi_geometry_transforms.h,nppiWarpAffineBatch,22,0,0,22,11,11,11,22
 nppi_filtering_functions.h,nppiHistogramOfGradientsBorder,17,0,0,17,8,9,8,17
@@ -27,7 +23,6 @@ nppi_color_conversion.h,nppiYUV422ToRGB,16,8,0,8,8,0,16,8
 nppi_color_conversion.h,nppiYUVToBGRBatch,8,0,0,8,4,4,4,8
 nppi_color_conversion.h,nppiYUVToRGBBatch,8,0,0,8,4,4,4,8
 nppi_color_conversion.h,nppiCompColorKey,6,0,0,6,3,3,3,6
-nppi_color_conversion.h,nppiLUT_Trilinear,6,0,0,6,3,3,3,6
 nppi_color_conversion.h,nppiRGBToYUV422,12,6,0,6,6,0,12,6
 nppi_color_conversion.h,nppiYCbCr411ToYCbCr420,6,0,0,6,3,3,3,6
 nppi_color_conversion.h,nppiCFAToRGBA,5,0,0,5,3,2,3,5
@@ -45,7 +40,6 @@ nppi_color_conversion.h,nppiCbYCr422ToYCbCr420,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiCbYCr422ToYCbCr422,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiGammaFwd,12,8,0,4,2,2,10,4
 nppi_color_conversion.h,nppiGammaInv,12,8,0,4,2,2,10,4
-nppi_color_conversion.h,nppiLUTPaletteSwap,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiLUVToRGB,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiRGBToLUV,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiRGBToNV12,4,0,0,4,4,0,4,4
@@ -185,6 +179,12 @@ nppi_color_conversion.h,nppiGradientColorToGray,8,8,0,0,0,0,8,0
 nppi_color_conversion.h,nppiHLSToBGR,12,12,0,0,0,0,11,0
 nppi_color_conversion.h,nppiHLSToRGB,4,4,0,0,0,0,4,0
 nppi_color_conversion.h,nppiHSVToRGB,4,4,0,0,0,0,4,0
+nppi_color_conversion.h,nppiLUT,64,64,0,0,0,0,36,0
+nppi_color_conversion.h,nppiLUTPalette,26,26,0,0,0,0,13,0
+nppi_color_conversion.h,nppiLUTPaletteSwap,4,4,0,0,0,0,2,0
+nppi_color_conversion.h,nppiLUT_Cubic,64,64,0,0,0,0,32,0
+nppi_color_conversion.h,nppiLUT_Linear,64,64,0,0,0,0,35,0
+nppi_color_conversion.h,nppiLUT_Trilinear,6,6,0,0,0,0,3,0
 nppi_color_conversion.h,nppiLabToBGR,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV12ToBGR,2,2,0,0,0,0,2,0
 nppi_color_conversion.h,nppiNV12ToBGR_709CSC,2,2,0,0,0,0,2,0

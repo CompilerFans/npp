@@ -148,8 +148,11 @@ def choose_call(spec: dict, func: Func) -> str:
     if func.family in by_family:
         return by_family[func.family]
     for variant in spec.get("call_variants", []):
-        needle = variant.get("contains", "")
-        if needle and needle in func.params:
+        needles = variant.get("contains_all")
+        if needles is None:
+            needle = variant.get("contains", "")
+            needles = [needle] if needle else []
+        if needles and all(needle in func.params for needle in needles):
             return variant["call"]
     return spec["call"]
 
@@ -184,7 +187,10 @@ def split_dtype_pair(code: str) -> Tuple[str, str]:
 def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
     dtype = DTYPE_TO_CTYPE.get(func.dtype, "")
     src_token, dst_token = split_dtype_pair(func.name.split("_")[1] if "_" in func.name else func.name)
-    dst_dtype = DTYPE_TO_CTYPE.get(dst_token, "")
+    # Families whose name carries a single dtype token (e.g. nppiLUT_8u_C1R)
+    # reuse the source type as destination; paired names (nppiConvert_8u32f)
+    # still resolve the second token.
+    dst_dtype = DTYPE_TO_CTYPE.get(dst_token, dtype)
     values = {
         "name": func.name,
         "family": spec["family"],
