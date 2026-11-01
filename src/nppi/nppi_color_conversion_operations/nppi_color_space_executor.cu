@@ -54,18 +54,14 @@ __device__ __forceinline__ void xyzToRgbPixel(Npp8u x, Npp8u y, Npp8u z, Npp8u &
   const float nY = (float)y * 0.003921569F;
   const float nZ = (float)z * 0.003921569F;
 
+  // NPP clamps to [0, 1]: the lower bound matters because negative linear RGB
+  // is common, and a float->u8 cast of a negative value wraps on MACA.
   float nR = 3.240479F * nX - 1.53715F * nY - 0.498535F * nZ;
-  if (nR > 1.0F) {
-    nR = 1.0F;
-  }
+  nR = nR < 0.0F ? 0.0F : (nR > 1.0F ? 1.0F : nR);
   float nG = -0.969256F * nX + 1.875991F * nY + 0.041556F * nZ;
-  if (nG > 1.0F) {
-    nG = 1.0F;
-  }
+  nG = nG < 0.0F ? 0.0F : (nG > 1.0F ? 1.0F : nG);
   float nB = 0.055648F * nX - 0.204043F * nY + 1.057311F * nZ;
-  if (nB > 1.0F) {
-    nB = 1.0F;
-  }
+  nB = nB < 0.0F ? 0.0F : (nB > 1.0F ? 1.0F : nB);
 
   r = truncate8(nR * 255.0F);
   g = truncate8(nG * 255.0F);
