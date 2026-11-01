@@ -4,8 +4,8 @@
 - Real implementations: 10880 (86.8%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 112
 - Missing: 1545
-- Tested: 8262 (65.9%)
-- Real and tested: 7392
+- Tested: 8264 (65.9%)
+- Real and tested: 7394
 
 ## By module
 
@@ -17,7 +17,7 @@
 | nppi_filtering_functions.h | 1896 | 1376 | 0 | 520 | 1003 |
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
-| nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 161 |
+| nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
 | nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
