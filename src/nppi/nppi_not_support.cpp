@@ -550,62 +550,11 @@ NppStatus nppiWarpAffine_64f_P4R(const Npp64f *aSrc[4], NppiSize oSrcSize, int n
   return NPP_NOT_IMPLEMENTED_ERROR;
 }
 
-/**
- * 4 channel 8-bit unsigned image rotate ignoring alpha channel.
- *
- * For common parameter descriptions, see <a href="#CommonRotateParameters">Common parameters for nppiRotate
- * functions</a>.
- *
- */
-NppStatus nppiRotate_8u_AC4R_Ctx(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                                 int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
-                                 int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiRotate_8u_AC4R(const Npp8u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp8u *pDst,
-                             int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
-                             int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 16-bit unsigned image rotate ignoring alpha channel.
- *
- * For common parameter descriptions, see <a href="#CommonRotateParameters">Common parameters for nppiRotate
- * functions</a>.
- *
- */
-NppStatus nppiRotate_16u_AC4R_Ctx(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp16u *pDst,
-                                  int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
-                                  int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiRotate_16u_AC4R(const Npp16u *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp16u *pDst,
-                              int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
-                              int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-/**
- * 4 channel 32-bit float image rotate ignoring alpha channel.
- *
- * For common parameter descriptions, see <a href="#CommonRotateParameters">Common parameters for nppiRotate
- * functions</a>.
- *
- */
-NppStatus nppiRotate_32f_AC4R_Ctx(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
-                                  int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
-                                  int eInterpolation, NppStreamContext nppStreamCtx) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
-NppStatus nppiRotate_32f_AC4R(const Npp32f *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRect oSrcROI, Npp32f *pDst,
-                              int nDstStep, NppiRect oDstROI, double nAngle, double nShiftX, double nShiftY,
-                              int eInterpolation) {
-  return NPP_NOT_IMPLEMENTED_ERROR;
-}
 
 
 

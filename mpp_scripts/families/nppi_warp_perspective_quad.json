@@ -1,0 +1,17 @@
+{
+  "family": "nppiWarpPerspectiveQuad",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_warp_perspective_quad_generated.cpp",
+  "includes": ["nppi_warp_perspective_executor.h"],
+  "call": "nppi::warp::warpQuad<{dtype}, {chan}, {is_ac4}>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream)",
+  "call_variants": [
+    {
+      "contains": "pSrc[3]",
+      "call": "nppi::warp::warpQuadPlanar<{dtype}, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "pSrc[4]",
+      "call": "nppi::warp::warpQuadPlanar<{dtype}, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, aSrcQuad, pDst, nDstStep, oDstROI, aDstQuad, eInterpolation, nppStreamCtx.hStream)"
+    }
+  ]
+}
