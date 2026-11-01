@@ -32,24 +32,31 @@ __device__ __forceinline__ Npp16f floatAsHalf(float v) {
   return out;
 }
 
-// Device -> pixel conversion. Integer destinations round half away from zero
-// and saturate to the type range; float destinations cast directly.
+// Device -> pixel conversion. Integer destinations saturate to the type
+// range first and then round half away from zero; float destinations cast
+// directly.  The 5090 SASS implements the rounding as FADD.RZ of a
+// sign-copied 0.5 followed by F2I.RZ (__float2int_rz(__fadd_rz(v, +/-0.5))).
+// That differs from floorf(v + 0.5f) twice: the RZ addition never crosses an
+// integer boundary upwards (RN can, on values just below x.0 - 0.5), and
+// negative halves round away from zero (floor(0.5 + -0.5) = 0 but
+// trunc(-0.5 - 0.5) = -1, which the 32s goldens require).
 template <typename T> __device__ __forceinline__ T castSample(work_t<T> v);
 
+__device__ __forceinline__ int roundHalfAwayFromZero(float v) {
+  return __float2int_rz(__fadd_rz(v, copysignf(0.5f, v)));
+}
+
 template <> __device__ __forceinline__ Npp8u castSample<Npp8u>(float v) {
-  v = floorf(v + 0.5f);
   v = fminf(fmaxf(v, 0.0f), 255.0f);
-  return static_cast<Npp8u>(v);
+  return static_cast<Npp8u>(roundHalfAwayFromZero(v));
 }
 template <> __device__ __forceinline__ Npp16u castSample<Npp16u>(float v) {
-  v = floorf(v + 0.5f);
   v = fminf(fmaxf(v, 0.0f), 65535.0f);
-  return static_cast<Npp16u>(v);
+  return static_cast<Npp16u>(roundHalfAwayFromZero(v));
 }
 template <> __device__ __forceinline__ Npp32s castSample<Npp32s>(float v) {
-  v = floorf(v + 0.5f);
   v = fminf(fmaxf(v, -2147483648.0f), 2147483520.0f);
-  return static_cast<Npp32s>(v);
+  return static_cast<Npp32s>(roundHalfAwayFromZero(v));
 }
 template <> __device__ __forceinline__ Npp16f castSample<Npp16f>(float v) { return floatAsHalf(v); }
 template <> __device__ __forceinline__ Npp32f castSample<Npp32f>(float v) { return v; }
@@ -62,7 +69,8 @@ __device__ __forceinline__ float pixelAsFloat(Npp32f v) { return v; }
 __device__ __forceinline__ float pixelAsFloat(Npp16f v) { return halfAsFloat(v); }
 __device__ __forceinline__ double pixelAsFloat(Npp64f v) { return v; }
 
-// Catmull-Rom cubic interpolation weight (a = -0.5).
+// Catmull-Rom cubic interpolation weight (a = -0.5); used for the double
+// working type (no 64f cubic goldens exist, the polynomial form is kept).
 template <typename F> __device__ __forceinline__ F cubicWeight(F x) {
   x = fabs(x);
   if (x <= F(1)) {
@@ -72,6 +80,32 @@ template <typename F> __device__ __forceinline__ F cubicWeight(F x) {
     return (((-F(0.5) * x + F(2.5)) * x) - F(4)) * x + F(2);
   }
   return F(0);
+}
+
+// ---- Exact single-precision cubic weights (5090 NPP replay) ----
+// The float path evaluates the four Catmull-Rom/Lagrange weights as products
+// of first-degree factors rounded at every step, with x/3 computed by a
+// corrective division.  This reproduces the 8u/32f cubic goldens bit for
+// bit; the plain polynomial form is off by 1 ulp on many taps.
+
+// x/3 in f32: two-rounding corrective division as emitted by the compiler
+// for the reciprocal-multiply sequence in the SASS.
+__device__ __forceinline__ float div3(float x) {
+  const float kThird = 0x1.555556p-2f;  // RN(1/3)
+  const float a = __fmaf_rn(x, kThird, 0.0f);
+  const float r = __fmaf_rn(a, -3.0f, x);
+  return __fmaf_rn(r, kThird, a);
+}
+
+// Weights for taps (tx-1, tx, tx+1, tx+2) given t = fx - (tx-1) in [1, 2).
+__device__ __forceinline__ void cubicWeights(float t, float w[4]) {
+  const float t1 = __fsub_rn(t, 1.0f);
+  const float t2 = __fsub_rn(t, 2.0f);
+  const float t3 = __fsub_rn(t, 3.0f);
+  w[0] = __fmul_rn(__fmul_rn(t1, __fmul_rn(t2, -0.5f)), div3(t3));
+  w[1] = __fmul_rn(__fmul_rn(t, t2), __fmul_rn(t3, 0.5f));
+  w[2] = __fmul_rn(t3, __fmul_rn(t1, __fmul_rn(t, -0.5f)));
+  w[3] = __fmul_rn(t2, __fmul_rn(__fmul_rn(t1, 0.5f), div3(t)));
 }
 
 // ============================================================================
@@ -85,15 +119,25 @@ template <typename T> struct WarpPlanes {
   T *dst[4];
 };
 
-// Source sampling: reads outside the source image contribute 0.
+// Source sampling: coordinates outside the source image are edge-replicated
+// (clamped to the image bounds).  The 5090 SASS implements the linear and
+// cubic tap clamps as FMNMX min(tap, N-1) / max(tap, 0), which is exactly
+// this rule, so the accessor performs it once for all interpolators.
 template <typename T, int Channels, bool Planar> class SrcAccessor {
 public:
   __device__ __forceinline__ SrcAccessor(const WarpPlanes<T> &planes, int nSrcStep, NppiSize oSrcSize)
       : planes_(planes), nSrcStep_(nSrcStep), oSrcSize_(oSrcSize) {}
 
   __device__ __forceinline__ work_t<T> at(int c, int x, int y) const {
-    if (x < 0 || x >= oSrcSize_.width || y < 0 || y >= oSrcSize_.height) {
-      return work_t<T>(0);
+    if (x < 0) {
+      x = 0;
+    } else if (x >= oSrcSize_.width) {
+      x = oSrcSize_.width - 1;
+    }
+    if (y < 0) {
+      y = 0;
+    } else if (y >= oSrcSize_.height) {
+      y = oSrcSize_.height - 1;
     }
     const T *base = Planar ? planes_.src[c] : planes_.src[0];
     const size_t idx = Planar ? static_cast<size_t>(x) : (static_cast<size_t>(x) * Channels + c);
@@ -108,7 +152,7 @@ private:
   NppiSize oSrcSize_;
 };
 
-// Destination write, addressed in ROI-relative coordinates.
+// Destination write, addressed in absolute image coordinates.
 template <typename T, int Channels, bool Planar> class DstAccessor {
 public:
   __device__ __forceinline__ DstAccessor(const WarpPlanes<T> &planes, int nDstStep)
@@ -149,6 +193,10 @@ __device__ __forceinline__ double sub_rn(double a, double b) { return a - b; }
 
 template <typename Acc>
 __device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, float fy) -> decltype(acc.at(c, 0, 0)) {
+  // 5090 SASS: negative coordinates are clamped to 0 (FSEL) before the
+  // floor.  Dead under the in-ROI guard but kept for faithfulness.
+  fx = fx < 0.0f ? 0.0f : fx;
+  fy = fy < 0.0f ? 0.0f : fy;
   const int x0 = static_cast<int>(floorf(fx));
   const int y0 = static_cast<int>(floorf(fy));
   const float dx = sub_rn(fx, static_cast<float>(x0));
@@ -174,23 +222,51 @@ template <typename Acc>
 __device__ __forceinline__ auto sampleCubic(const Acc &acc, int c, float fx, float fy) -> decltype(acc.at(c, 0, 0)) {
   const int tx = static_cast<int>(floorf(fx));
   const int ty = static_cast<int>(floorf(fy));
-  const float ax = fx - static_cast<float>(tx);
-  const float ay = fy - static_cast<float>(ty);
-  float wx[4], wy[4];
+  using VT = decltype(acc.at(c, 0, 0));
+  if constexpr (std::is_same_v<VT, float>) {
+    // Exact 5090 sequence: t = fx - (tx-1) in [1,2), Lagrange-product
+    // weights, row sums accumulated in tap order 1,0,2,3 starting from a
+    // plain multiply, then the column pass in tap order 0,1,2,3.  Taps are
+    // edge-replicated by the accessor.
+    const float t = __fsub_rn(fx, static_cast<float>(tx - 1));
+    const float u = __fsub_rn(fy, static_cast<float>(ty - 1));
+    float wx[4], wy[4];
+    cubicWeights(t, wx);
+    cubicWeights(u, wy);
+    float rows[4];
 #pragma unroll
-  for (int i = 0; i < 4; ++i) {
-    wx[i] = cubicWeight(ax - static_cast<float>(i - 1));
-    wy[i] = cubicWeight(ay - static_cast<float>(i - 1));
-  }
-  auto sum = acc.at(c, tx, ty) * 0;  // zero of the working type
-#pragma unroll
-  for (int j = 0; j < 4; ++j) {
+    for (int j = 0; j < 4; ++j) {
+      const int y = ty - 1 + j;
+      float r = __fmul_rn(wx[1], acc.at(c, tx, y));
+      r = __fmaf_rn(wx[0], acc.at(c, tx - 1, y), r);
+      r = __fmaf_rn(wx[2], acc.at(c, tx + 1, y), r);
+      r = __fmaf_rn(wx[3], acc.at(c, tx + 2, y), r);
+      rows[j] = r;
+    }
+    float out = __fmul_rn(wy[0], rows[0]);
+    out = __fmaf_rn(wy[1], rows[1], out);
+    out = __fmaf_rn(wy[2], rows[2], out);
+    out = __fmaf_rn(wy[3], rows[3], out);
+    return out;
+  } else {
+    const float ax = fx - static_cast<float>(tx);
+    const float ay = fy - static_cast<float>(ty);
+    float wx[4], wy[4];
 #pragma unroll
     for (int i = 0; i < 4; ++i) {
-      sum += acc.at(c, tx + i - 1, ty + j - 1) * (wx[i] * wy[j]);
+      wx[i] = cubicWeight(ax - static_cast<float>(i - 1));
+      wy[i] = cubicWeight(ay - static_cast<float>(i - 1));
     }
+    auto sum = acc.at(c, tx, ty) * 0;  // zero of the working type
+#pragma unroll
+    for (int j = 0; j < 4; ++j) {
+#pragma unroll
+      for (int i = 0; i < 4; ++i) {
+        sum += acc.at(c, tx + i - 1, ty + j - 1) * (wx[i] * wy[j]);
+      }
+    }
+    return sum;
   }
-  return sum;
 }
 
 // ============================================================================
@@ -301,26 +377,21 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
     return;
   }
   // NPP applies the affine map in single precision: the double coefficients
-  // are rounded to float and the multiply/add chain is evaluated in float.
-  // The last-bit differences decide exact .5 rounding ties (5090 replay:
-  // f64 coordinates leave 1/429 pixels off, f32 coordinates reproduce the
-  // golden exactly).
+  // are rounded to float and the linear part is fused into one FMA
+  // (fx = fma(dx, c00, dy * c01) + c02, 5090 SASS FFMA + FADD).  The
+  // non-fused form differs in the last bit whenever c01 != 0 (shear/rotate)
+  // and those bits flip exact .5 rounding ties downstream.
   const float dx = static_cast<float>(oDstROI.x + x);
   const float dy = static_cast<float>(oDstROI.y + y);
-  // Explicit round-to-nearest intrinsics keep nvcc from contracting the
-  // multiply/add chain into FMAs: the 5090 goldens match a non-fused float
-  // evaluation of the map bit for bit.
-  const float fx = __fadd_rn(__fadd_rn(__fmul_rn(static_cast<float>(c00), dx),
-                                        __fmul_rn(static_cast<float>(c01), dy)),
+  const float fx = __fadd_rn(__fmaf_rn(dx, static_cast<float>(c00), __fmul_rn(static_cast<float>(c01), dy)),
                              static_cast<float>(c02));
-  const float fy = __fadd_rn(__fadd_rn(__fmul_rn(static_cast<float>(c10), dx),
-                                        __fmul_rn(static_cast<float>(c11), dy)),
+  const float fy = __fadd_rn(__fmaf_rn(dx, static_cast<float>(c10), __fmul_rn(static_cast<float>(c11), dy)),
                              static_cast<float>(c12));
   // NPP leaves the destination pixel untouched when the mapped source point
   // falls outside the (clipped) source ROI (5090: the dst buffer keeps its
   // previous value for those pixels, it is not zero-filled).  Samples inside
-  // the ROI whose bilinear/cubic neighbourhood crosses the image edge still
-  // read zero for the missing neighbours.
+  // the ROI whose bilinear/cubic neighbourhood crosses the image edge
+  // edge-replicate the missing neighbours (see SrcAccessor).
   if (fx < static_cast<float>(oSrcROI.x) || fy < static_cast<float>(oSrcROI.y) ||
       fx >= static_cast<float>(oSrcROI.x + oSrcROI.width) ||
       fy >= static_cast<float>(oSrcROI.y + oSrcROI.height)) {
@@ -347,7 +418,10 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
       v = work_t<T>(0);
       break;
     }
-    dst.write(x, y, c, castSample<T>(v));
+    // 5090: writes land at absolute image coordinates (dstROI.x + x,
+    // dstROI.y + y), not ROI-relative ones -- a non-zero dstROI offset
+    // reproduces the golden only with absolute addressing.
+    dst.write(oDstROI.x + x, oDstROI.y + y, c, castSample<T>(v));
   }
 }
 
