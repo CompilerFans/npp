@@ -416,6 +416,47 @@ int main(int argc, char **argv) {
     cudaFree(d16);
     cudaFree(o16);
   }
+
+  if (part == 11) {
+    // UP delta footprints: which dst pixels get which weight, per kernel
+    const int W = 8, H = 8;
+    std::vector<Npp32f> h((size_t)W * H, 0.0f);
+    h[2 * W + 2] = 1.0f;
+    Npp32f *d, *o;
+    cudaMalloc(&d, 4096);
+    cudaMalloc(&o, 1 << 20);
+    cudaMemcpy(d, h.data(), (size_t)W * H * 4, cudaMemcpyHostToDevice);
+    NppStreamContext c{};
+    c.hStream = 0;
+    struct K { const char *n; int t; float k[5]; };
+    K ks[] = {{"id3", 3, {0, 1, 0}}, {"k125", 3, {0.25f, 0.5f, 0.25f}},
+              {"k3", 3, {1.f / 3, 1.f / 3, 1.f / 3}},
+              {"k5", 5, {1.f / 16, 4.f / 16, 6.f / 16, 4.f / 16, 1.f / 16}},
+              {"k111", 3, {1, 1, 1}}, {"asym", 3, {0.1f, 0.3f, 0.6f}}};
+    for (float r : {2.0f, 1.5f, 1.25f, 3.0f}) {
+      for (K &kk : ks) {
+        NppiSize mn{}, mx{};
+        nppiGetFilterGaussPyramidLayerUpBorderDstROI(W, H, &mn, &mx, r);
+        cudaMemset(o, 0, 1 << 20);
+        NppStatus st = nppiFilterGaussPyramidLayerUpBorder_32f_C1R_Ctx(
+            d, W * 4, {W, H}, {0, 0}, o, mx.width * 4, mx, r, kk.t, kk.k,
+            NPP_BORDER_REPLICATE, c);
+        printf("r=%g %-5s st=%s dst=%dx%d:", r, kk.n, es(st), mx.width, mx.height);
+        if (st == 0) {
+          std::vector<Npp32f> v((size_t)mx.width * mx.height);
+          cudaMemcpy(v.data(), o, v.size() * 4, cudaMemcpyDeviceToHost);
+          for (int y = 0; y < 10; ++y)
+            for (int x = 0; x < 10; ++x) {
+              float val = v[y * mx.width + x];
+              if (val != 0.0f) printf(" (%d,%d)=%.6g", x, y, val);
+            }
+        }
+        printf("\n");
+      }
+    }
+    cudaFree(d);
+    cudaFree(o);
+  }
   return 0;
 }
 // appended parts 4-6 (see main dispatcher below)
