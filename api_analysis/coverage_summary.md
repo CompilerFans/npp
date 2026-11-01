@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10310 (82.2%)
+- Real implementations: 10578 (84.4%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 2109
-- Tested: 8244 (65.8%)
-- Real and tested: 7097
+- Missing: 1841
+- Tested: 8251 (65.8%)
+- Real and tested: 7234
 
 ## By module
 
@@ -17,7 +17,7 @@
 | nppi_filtering_functions.h | 1896 | 1182 | 0 | 714 | 997 |
 | nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
-| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
+| nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 161 |
 | nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
@@ -59,16 +59,16 @@
 | nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
 | nppi_filtering_functions.h | nppiFilterWienerBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
-| nppi_morphological_operations.h | nppiDilate3x3Border | 24 | 12 |
-| nppi_morphological_operations.h | nppiDilateBorder | 24 | 12 |
-| nppi_morphological_operations.h | nppiErode3x3Border | 24 | 12 |
-| nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
 | nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_geometry_transforms.h | nppiWarpPerspectiveBatch | 22 | 11 |
-| nppi_morphological_operations.h | nppiDilate3x3 | 22 | 11 |
-| nppi_morphological_operations.h | nppiErode3x3 | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
+| nppi_filtering_functions.h | nppiFilterUnsharp | 16 | 0 |
+| nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
+| nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
+| nppi_geometry_transforms.h | nppiWarpPerspectiveBack | 16 | 8 |
+| nppi_geometry_transforms.h | nppiWarpPerspective | 16 | 8 |
+| nppi_statistics_functions.h | nppiHistogramRange | 16 | 8 |
