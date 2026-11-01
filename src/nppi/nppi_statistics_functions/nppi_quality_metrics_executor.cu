@@ -190,7 +190,7 @@ __global__ void rectStdDevF32Kernel(const S *pSrc, int nSrcStep, const Npp64f *p
   double var = (count * sumSq - sum * sum) / (count * count);
   if (var < 0.0) var = 0.0;
   Npp32f *dstRow = (Npp32f *)((char *)pDst + (size_t)y * nDstStep);
-  dstRow[x] = (Npp32f)std::sqrt(var);
+  dstRow[x] = (Npp32f)sqrt(var);
 }
 
 __global__ void rectStdDevS32Kernel(const Npp32s *pSrc, int nSrcStep, const Npp32s *pSqr, int nSqrStep, Npp32s *pDst,
@@ -209,7 +209,7 @@ __global__ void rectStdDevS32Kernel(const Npp32s *pSrc, int nSrcStep, const Npp3
   const double count = (double)rect.width * rect.height;
   double var = (count * sumSq - sum * sum) / (count * count);
   if (var < 0.0) var = 0.0;
-  Npp32s v = (Npp32s)std::sqrt(var);
+  Npp32s v = (Npp32s)sqrt(var);
   if (scale > 0) {
     v = (Npp32s)((unsigned)v >> (unsigned)scale);
   } else if (scale < 0) {
