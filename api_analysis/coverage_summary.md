@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10466 (83.5%)
+- Real implementations: 10612 (84.6%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 112
-- Missing: 1959
+- Missing: 1813
 - Tested: 8255 (65.8%)
-- Real and tested: 7182
+- Real and tested: 7255
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1230 | 0 | 666 | 1003 |
+| nppi_filtering_functions.h | 1896 | 1376 | 0 | 520 | 1003 |
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -42,9 +42,6 @@
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
-| nppi_filtering_functions.h | nppiFilterGaussAdvancedBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterGaussAdvanced | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterGaussBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
 | nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
@@ -52,10 +49,8 @@
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
-| nppi_filtering_functions.h | nppiFilterGauss | 26 | 13 |
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
 | nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
-| nppi_filtering_functions.h | nppiFilterWienerBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
 | nppi_morphological_operations.h | nppiDilate3x3Border | 24 | 12 |
 | nppi_morphological_operations.h | nppiDilateBorder | 24 | 12 |
@@ -72,3 +67,8 @@
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
 | nppi_morphological_operations.h | nppiDilate | 16 | 8 |
+| nppi_morphological_operations.h | nppiErode | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphBlackHatBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphCloseBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphGradientBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphOpenBorder | 16 | 8 |

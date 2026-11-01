@@ -349,6 +349,21 @@ inline bool close_double(double a, double b, double rtol, double atol) {
   return std::fabs(a - b) <= atol + rtol * std::fabs(b);
 }
 
+inline std::string dbg_val(ValueKind kind, const uint8_t *p) {
+  char b[96];
+  switch (kind) {
+    case ValueKind::F32: { float v; memcpy(&v,p,4); snprintf(b,sizeof(b),"%.9g",v); return b; }
+    case ValueKind::F64: { double v; memcpy(&v,p,8); snprintf(b,sizeof(b),"%.17g",v); return b; }
+    case ValueKind::I32: case ValueKind::I32Tol: { int32_t v; memcpy(&v,p,4); snprintf(b,sizeof(b),"%d",v); return b; }
+    case ValueKind::U32: { uint32_t v; memcpy(&v,p,4); snprintf(b,sizeof(b),"%u",v); return b; }
+    case ValueKind::I16: case ValueKind::I16Tol: { int16_t v; memcpy(&v,p,2); snprintf(b,sizeof(b),"%d",(int)v); return b; }
+    case ValueKind::U16: case ValueKind::U16Tol: { uint16_t v; memcpy(&v,p,2); snprintf(b,sizeof(b),"%u",(unsigned)v); return b; }
+    case ValueKind::I8: { int8_t v; memcpy(&v,p,1); snprintf(b,sizeof(b),"%d",(int)v); return b; }
+    case ValueKind::U8: case ValueKind::U8Tol: case ValueKind::Bytes: { snprintf(b,sizeof(b),"%u",(unsigned)*p); return b; }
+    default: return "?";
+  }
+}
+
 inline bool compare_values(ValueKind kind, const uint8_t *a, const uint8_t *b, size_t count, double rtol,
                            double atol, size_t *mismatch) {
   const size_t esize = element_size(kind);
@@ -626,6 +641,17 @@ private:
         std::ostringstream msg;
         msg << "value mismatch for case " << id_ << " output " << i << " at element " << mismatch;
         EXPECT_TRUE(ok) << msg.str();
+        if (std::getenv("NPP_DIFF_DEBUG") != nullptr) {
+          const size_t es = element_size(outputs_[i].kind);
+          const size_t lo = mismatch > 3 ? mismatch - 3 : 0;
+          const size_t hi = std::min(mismatch + 4, outputs_[i].count);
+          std::fprintf(stderr, "DBG %s out %zu:", id_.c_str(), i);
+          for (size_t k = lo; k < hi; ++k)
+            std::fprintf(stderr, " [%zu] a=%s g=%s", k,
+                         dbg_val(outputs_[i].kind, outputs_[i].bytes.data() + k * es).c_str(),
+                         dbg_val(outputs_[i].kind, golden.data() + offset + k * es).c_str());
+          std::fprintf(stderr, "\n");
+        }
       }
       offset += sizes[i];
     }
