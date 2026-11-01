@@ -17,7 +17,9 @@
 //
 // Common design:
 //  * one thread produces a vector-wide run of adjacent pixels
-//    (4 pixels for 8u C1, 4 pixels for 32f C1) fed by 128-bit row loads,
+//    (4 pixels for 8u C1, 4 pixels for 8u C4 / 32f C1, which pack exactly
+//    one pixel per 32-bit word - see nppiMorphWordPix_kernel) fed by
+//    128-bit row loads,
 //  * structuring element rows are streamed (one mask row at a time), so the
 //    register footprint is independent of the mask height and arbitrary mask
 //    shapes are supported,
@@ -319,6 +321,297 @@ static bool morphVecLaunch8uC1(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int
   return cudaGetLastError() == cudaSuccess;
 }
 
+//-----------------------------------------------------------------------------
+// Word-per-pixel vectorized kernels: 8u C4R and 32f C1R.
+//
+// Both families pack exactly one pixel into one 32-bit word (an uchar4 for
+// 8u C4, a float for 32f C1), so they share one kernel template over the
+// word type W: one thread produces 4 adjacent pixels (one 16-byte store),
+// and the horizontal neighbourhood of the output span is simply the next
+// MW-1 window words - no byte funnel is needed, a launch-constant word pick
+// (morphVecPickWindow) rebuilds the window from the aligned uint4 loads.
+//
+// Load stage (shared by both reduction paths): every mask row is fetched
+// with (W_WORDS/4) uint4 loads covering the word span [lo, lo+W_WORDS) with
+// lo = (x0 - ax) - loadShift; loadShift = ((pSrc - outAlign - 4*ax) & 15)/4
+// words realigns the window to the loads, which stay 16-byte aligned
+// whenever nSrcStep % 16 == 0 and the base offsets are 4-byte aligned (both
+// checked on the host).
+//
+// Reduction: fully populated structuring element -> separable (vertical fold
+// of every row into the SW_WORDS window words, then a horizontal fold of the
+// MW-1 neighbours into the four output words); arbitrary mask -> per-tap.
+// 8u words reduce with the SWAR morphSwMin8 / morphSwMax8 (all four channels
+// at once, plain-ALU speed), 32f words with plain compare-selects that keep
+// the reference NaN / signed-zero semantics of erodeGeneral / dilateGeneral.
+//
+// Threads whose window would leave the row (borders, unaligned tails, tiny
+// ROIs) fall back to morphVecRefWordPix (identical per-pixel reference).
+//-----------------------------------------------------------------------------
+
+// 128-bit packet union over the word type (uchar4 words for 8u C4, float
+// words for 32f C1).
+template <typename W> union MorphVecPkt {
+  uint4 raw;
+  W w[4];
+};
+
+// Fetch NWORDS words (NWORDS is a multiple of 4) from a 16-byte aligned span.
+template <int NWORDS, typename W>
+__device__ __forceinline__ void morphVecLoadWords(W *__restrict__ w, const W *__restrict__ row) {
+  MorphVecPkt<W> p;
+#pragma unroll
+  for (int k = 0; k < NWORDS / 4; ++k) {
+    p.raw = ((const uint4 *)row)[k];
+#pragma unroll
+    for (int j = 0; j < 4; ++j)
+      w[4 * k + j] = p.w[j];
+  }
+}
+
+template <int K, int NW, typename W>
+__device__ __forceinline__ void morphVecPickWords(W *__restrict__ sw, const W *__restrict__ w) {
+#pragma unroll
+  for (int j = 0; j < NW; ++j)
+    sw[j] = w[K + j];
+}
+
+// sw := the SW window words, extracted from the aligned load span w starting
+// at word q (q is a launch constant, so the switch stays warp-uniform).
+template <int NW, typename W>
+__device__ __forceinline__ void morphVecPickWindow(W *__restrict__ sw, const W *__restrict__ w, int q) {
+  switch (q) {
+  case 0:
+    morphVecPickWords<0, NW>(sw, w);
+    break;
+  case 1:
+    morphVecPickWords<1, NW>(sw, w);
+    break;
+  case 2:
+    morphVecPickWords<2, NW>(sw, w);
+    break;
+  default:
+    morphVecPickWords<3, NW>(sw, w);
+    break;
+  }
+}
+
+// Word-wise min / max used by the word-per-pixel kernels: SWAR byte-parallel
+// for 8u C4 (all four channels at once), plain compare-select for 32f C1
+// (bit-identical to the reference "if (v < minVal) minVal = v"
+// accumulation, NaN and signed-zero behaviour included).
+template <bool DILATE> __device__ __forceinline__ unsigned int morphWordReduce(unsigned int a, unsigned int b) {
+  return DILATE ? morphSwMax8(a, b) : morphSwMin8(a, b);
+}
+template <bool DILATE> __device__ __forceinline__ float morphWordReduce(float a, float b) {
+  return DILATE ? (a > b ? a : b) : (a < b ? a : b);
+}
+
+// Identity element of the reduction (255 / 0 per 8u channel, 1e10 / -1e10
+// for 32f, matching erodeGeneral / dilateGeneral).  The dummy argument only
+// selects the overload.
+template <bool DILATE> __device__ __forceinline__ unsigned int morphWordInit(unsigned int) {
+  return DILATE ? 0u : 0xFFFFFFFFu;
+}
+template <bool DILATE> __device__ __forceinline__ float morphWordInit(float) {
+  return DILATE ? -1e10f : 1e10f;
+}
+
+// Reference per-pixel morphology for the word-per-pixel kernels (borders
+// clamped, mask taps honoured).  pMask == nullptr means "all taps active"
+// (used by the dedicated 3x3 APIs).
+template <bool DILATE>
+__device__ __forceinline__ unsigned int morphVecRefWordPix(const unsigned int *__restrict__ pSrc, int nSrcStep, int x,
+                                                           int y, int width, int height,
+                                                           const Npp8u *__restrict__ pMask, int maskW, int maskH,
+                                                           int ax, int ay) {
+  const Npp8u *__restrict__ src = (const Npp8u *)pSrc;
+  unsigned int val = morphWordInit<DILATE>(0u);
+  for (int my = 0; my < maskH; ++my) {
+    const Npp8u *__restrict__ row =
+        (const Npp8u *)((const char *)src + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep);
+    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW : nullptr;
+    for (int mx = 0; mx < maskW; ++mx) {
+      if (mrow && !mrow[mx])
+        continue;
+      const unsigned int v = *(const unsigned int *)(row + (size_t)morphVecClamp(x + mx - ax, width - 1) * 4);
+      val = morphWordReduce<DILATE>(val, v);
+    }
+  }
+  return val;
+}
+
+template <bool DILATE>
+__device__ __forceinline__ float morphVecRefWordPix(const float *__restrict__ pSrc, int nSrcStep, int x, int y,
+                                                    int width, int height, const Npp8u *__restrict__ pMask, int maskW,
+                                                    int maskH, int ax, int ay) {
+  float val = morphWordInit<DILATE>(0.0f);
+  for (int my = 0; my < maskH; ++my) {
+    const float *__restrict__ row =
+        (const float *)((const char *)pSrc + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep);
+    const Npp8u *__restrict__ mrow = pMask ? pMask + (size_t)my * maskW : nullptr;
+    for (int mx = 0; mx < maskW; ++mx) {
+      if (mrow && !mrow[mx])
+        continue;
+      const float v = row[morphVecClamp(x + mx - ax, width - 1)];
+      val = morphWordReduce<DILATE>(val, v);
+    }
+  }
+  return val;
+}
+
+template <typename W, bool DILATE, int MW>
+__global__ void nppiMorphWordPix_kernel(const W *__restrict__ pSrc, int nSrcStep, W *__restrict__ pDst, int nDstStep,
+                                        int width, int height, const Npp8u *__restrict__ pMask, int maskH, int ax,
+                                        int ay, int outAlign, int loadShift) {
+  enum { SW_WORDS = 4 + MW - 1 };              // window words: 4 outputs + MW-1 right neighbours
+  enum { W_WORDS = 4 * ((SW_WORDS + 7) / 4) }; // words covered by the aligned uint4 loads
+
+  // Cooperative mask scan (identical to nppiMorph8u_C1R_kernel): blocks
+  // whose structuring element is fully populated take the separable
+  // reduction below.  Writing 0 is idempotent, so no atomics are needed;
+  // both barriers are reached by every thread of the block (the pMask
+  // condition is launch-uniform).
+  __shared__ int s_allOnes;
+  if (pMask != nullptr) {
+    const int tid = (int)(threadIdx.y * blockDim.x + threadIdx.x);
+    const int nthreads = (int)(blockDim.x * blockDim.y);
+    const int maskBytes = MW * maskH;
+    if (tid == 0)
+      s_allOnes = 1;
+    __syncthreads();
+    for (int i = tid; i < maskBytes; i += nthreads)
+      if (pMask[i] == 0)
+        s_allOnes = 0;
+    __syncthreads();
+  }
+  const bool allOnes = (pMask == nullptr) || (s_allOnes != 0);
+
+  const int chunk = blockIdx.x * blockDim.x + threadIdx.x;
+  const int x0 = chunk * 4 - outAlign; // output span [x0, x0+4), one word per pixel
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (y >= height || x0 >= width)
+    return;
+
+  W *__restrict__ dstRow = (W *)((char *)pDst + (size_t)y * nDstStep);
+  const int lo = (x0 - ax) - loadShift; // word offset of the aligned load span
+
+  if (x0 < 0 || x0 + 4 > width || lo < 0 || lo + W_WORDS > width) {
+    // Border / tail thread: per-pixel reference path (clamped borders).
+    const int xs = x0 > 0 ? x0 : 0;
+    const int xe = x0 + 4 < width ? x0 + 4 : width;
+    for (int x = xs; x < xe; ++x)
+      dstRow[x] = morphVecRefWordPix<DILATE>(pSrc, nSrcStep, x, y, width, height, pMask, MW, maskH, ax, ay);
+    return;
+  }
+
+  if (allOnes) {
+    // ---- separable reduction: vertical fold of every row ----
+    W v[SW_WORDS];
+    {
+      const W *__restrict__ row =
+          (const W *)((const char *)pSrc + (size_t)morphVecClamp(y - ay, height - 1) * nSrcStep) + lo;
+      W w[W_WORDS];
+      morphVecLoadWords<W_WORDS>(w, row);
+      morphVecPickWindow<SW_WORDS>(v, w, loadShift);
+    }
+    for (int my = 1; my < maskH; ++my) {
+      const W *__restrict__ row =
+          (const W *)((const char *)pSrc + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep) + lo;
+      W w[W_WORDS];
+      morphVecLoadWords<W_WORDS>(w, row);
+      W sw[SW_WORDS];
+      morphVecPickWindow<SW_WORDS>(sw, w, loadShift);
+#pragma unroll
+      for (int j = 0; j < SW_WORDS; ++j)
+        v[j] = morphWordReduce<DILATE>(v[j], sw[j]);
+    }
+    // ---- horizontal fold of the MW-1 neighbour words ----
+    MorphVecPkt<W> st;
+#pragma unroll
+    for (int k = 0; k < 4; ++k) {
+      W o = v[k];
+#pragma unroll
+      for (int mx = 1; mx < MW; ++mx)
+        o = morphWordReduce<DILATE>(o, v[k + mx]);
+      st.w[k] = o;
+    }
+    *(uint4 *)(dstRow + x0) = st.raw;
+  } else {
+    // ---- per-tap reduction, each tap gated by its mask byte ----
+    MorphVecPkt<W> st;
+    st.w[0] = st.w[1] = st.w[2] = st.w[3] = morphWordInit<DILATE>((W)0);
+    for (int my = 0; my < maskH; ++my) {
+      const W *__restrict__ row =
+          (const W *)((const char *)pSrc + (size_t)morphVecClamp(y + my - ay, height - 1) * nSrcStep) + lo;
+      W w[W_WORDS];
+      morphVecLoadWords<W_WORDS>(w, row);
+      W sw[SW_WORDS];
+      morphVecPickWindow<SW_WORDS>(sw, w, loadShift);
+      const Npp8u *__restrict__ mrow = pMask + (size_t)my * MW;
+#pragma unroll
+      for (int mx = 0; mx < MW; ++mx) {
+        if (!mrow[mx])
+          continue;
+#pragma unroll
+        for (int k = 0; k < 4; ++k)
+          st.w[k] = morphWordReduce<DILATE>(st.w[k], sw[k + mx]);
+      }
+    }
+    *(uint4 *)(dstRow + x0) = st.raw;
+  }
+}
+
+// Host-side launch helper for the word-per-pixel vectorized kernels
+// (8u C4R: W = unsigned int, 32f C1R: W = float).  Returns true when the
+// kernel was launched; the caller falls back to the original path otherwise.
+template <typename W, bool DILATE>
+static bool morphVecLaunchWordPix(const W *pSrc, int nSrcStep, W *pDst, int nDstStep, int width, int height,
+                                  const Npp8u *pMask, int maskW, int maskH, int ax, int ay, cudaStream_t stream) {
+  if (width <= 0 || height <= 0 || nSrcStep <= 0 || nDstStep <= 0)
+    return false;
+  // 16-byte row strides and 4-byte base offsets keep the uint4 loads and the
+  // 16-byte stores aligned for every chunk (loadShift construction above).
+  if ((nSrcStep & 15) != 0 || (nDstStep & 15) != 0)
+    return false;
+  const size_t srcAddr = (size_t)pSrc, dstAddr = (size_t)pDst;
+  if ((srcAddr & 3) != 0 || (dstAddr & 3) != 0)
+    return false;
+  if (maskW != 3 && maskW != 5 && maskW != 7 && maskW != 9)
+    return false;
+  if (pMask != nullptr && (size_t)maskW * (size_t)maskH > 1024)
+    return false; // keep the cooperative mask scan trivial
+  const int outAlign = (int)((dstAddr & 15) >> 2); // pixels (words)
+  const int loadShift = (int)(((srcAddr - (dstAddr & 15) - (size_t)(4 * ax)) & 15) >> 2); // words
+  dim3 blockSize(32, 16);
+  dim3 gridSize((unsigned)((width + outAlign + 127) / 128), (unsigned)((height + 15) / 16));
+  switch (maskW) {
+  case 3:
+    nppiMorphWordPix_kernel<W, DILATE, 3>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height, pMask, maskH, ax, ay,
+                                             outAlign, loadShift);
+    break;
+  case 5:
+    nppiMorphWordPix_kernel<W, DILATE, 5>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height, pMask, maskH, ax, ay,
+                                             outAlign, loadShift);
+    break;
+  case 7:
+    nppiMorphWordPix_kernel<W, DILATE, 7>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height, pMask, maskH, ax, ay,
+                                             outAlign, loadShift);
+    break;
+  case 9:
+    nppiMorphWordPix_kernel<W, DILATE, 9>
+        <<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, width, height, pMask, maskH, ax, ay,
+                                             outAlign, loadShift);
+    break;
+  default:
+    return false;
+  }
+  return cudaGetLastError() == cudaSuccess;
+}
+
 // Device function for 3x3 erosion (minimum value in neighborhood)
 
 template <typename T> __device__ inline T erode3x3(const T *pSrc, int nSrcStep, int x, int y, int width, int height) {
@@ -517,6 +810,12 @@ NppStatus nppiErode3x3_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *p
 // 32-bit float single channel 3x3 erosion implementation
 NppStatus nppiErode3x3_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                         NppStreamContext nppStreamCtx) {
+  // Vectorized path (128-bit loads, all 9 taps, clamped borders); the
+  // original kernel below stays as the fallback for unaligned steps.
+  if (morphVecLaunchWordPix<float, false>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nullptr, 3,
+                                          3, 1, 1, nppStreamCtx.hStream))
+    return NPP_SUCCESS;
+
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -557,6 +856,12 @@ NppStatus nppiDilate3x3_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *
 // 32-bit float single channel 3x3 dilation implementation
 NppStatus nppiDilate3x3_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep,
                                          NppiSize oSizeROI, NppStreamContext nppStreamCtx) {
+  // Vectorized path (128-bit loads, all 9 taps, clamped borders); the
+  // original kernel below stays as the fallback for unaligned steps.
+  if (morphVecLaunchWordPix<float, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nullptr, 3, 3,
+                                         1, 1, nppStreamCtx.hStream))
+    return NPP_SUCCESS;
+
   dim3 blockSize(16, 16);
   dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
 
@@ -1914,6 +2219,14 @@ NppStatus nppiErode_8u_C1R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
 NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
                                     const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                     NppStreamContext nppStreamCtx) {
+  // Vectorized path (128-bit loads, one word per pixel: SWAR byte-parallel
+  // min/max over all four channels at once); the original kernels below stay
+  // as the fallback for unaligned steps / other mask widths.
+  if (morphVecLaunchWordPix<unsigned int, false>((const unsigned int *)pSrc, nSrcStep, (unsigned int *)pDst, nDstStep,
+                                                 oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width,
+                                                 oMaskSize.height, oAnchor.x, oAnchor.y, nppStreamCtx.hStream))
+    return NPP_SUCCESS;
+
   if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
     dim3 blockSize(32, 8);
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
@@ -1942,6 +2255,15 @@ NppStatus nppiErode_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst
 NppStatus nppiErode_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                      NppStreamContext nppStreamCtx) {
+  // Vectorized path (128-bit loads, one word per pixel: compare-select
+  // min/max with the reference NaN / signed-zero semantics); the original
+  // kernel below stays as the fallback for unaligned steps / other mask
+  // widths.
+  if (morphVecLaunchWordPix<float, false>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask,
+                                          oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y,
+                                          nppStreamCtx.hStream))
+    return NPP_SUCCESS;
+
   dim3 blockSize(32, 4);
   dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
@@ -2028,6 +2350,14 @@ NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
                                      const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                      NppStreamContext nppStreamCtx) {
 
+  // Vectorized path (128-bit loads, one word per pixel: SWAR byte-parallel
+  // min/max over all four channels at once); the original kernels below stay
+  // as the fallback for unaligned steps / other mask widths.
+  if (morphVecLaunchWordPix<unsigned int, true>((const unsigned int *)pSrc, nSrcStep, (unsigned int *)pDst, nDstStep,
+                                                oSizeROI.width, oSizeROI.height, pMask, oMaskSize.width,
+                                                oMaskSize.height, oAnchor.x, oAnchor.y, nppStreamCtx.hStream))
+    return NPP_SUCCESS;
+
   if (oMaskSize.width == 3 && oMaskSize.height == 3 && oAnchor.x == 1 && oAnchor.y == 1) {
     dim3 blockSize(32, 8);
     dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x,
@@ -2056,6 +2386,15 @@ NppStatus nppiDilate_8u_C4R_Ctx_impl(const Npp8u *pSrc, int nSrcStep, Npp8u *pDs
 NppStatus nppiDilate_32f_C1R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp32f *pDst, int nDstStep, NppiSize oSizeROI,
                                       const Npp8u *pMask, NppiSize oMaskSize, NppiPoint oAnchor,
                                       NppStreamContext nppStreamCtx) {
+  // Vectorized path (128-bit loads, one word per pixel: compare-select
+  // min/max with the reference NaN / signed-zero semantics); the original
+  // kernel below stays as the fallback for unaligned steps / other mask
+  // widths.
+  if (morphVecLaunchWordPix<float, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask,
+                                         oMaskSize.width, oMaskSize.height, oAnchor.x, oAnchor.y,
+                                         nppStreamCtx.hStream))
+    return NPP_SUCCESS;
+
   dim3 blockSize(32, 4);
   dim3 gridSize((oSizeROI.width + blockSize.x * 4 - 1) / (blockSize.x * 4),
                 (oSizeROI.height + blockSize.y - 1) / blockSize.y);
