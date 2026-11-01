@@ -1,0 +1,37 @@
+base                           -> OK
+offset 63,0                    -> OK
+offset 64,0                    -> OUT_OFF
+offset 65,0                    -> OUT_OFF
+offset 0,63                    -> OK
+offset 0,64                    -> OUT_OFF
+offset 0,65                    -> OUT_OFF
+offset -1,0                    -> OUT_OFF
+offset 0,-1                    -> OUT_OFF
+offset -1000,0                 -> OUT_OFF
+offset 0,-1000                 -> OUT_OFF
+src8 offset 7,7                -> OK
+src8 offset 8,8                -> OUT_OFF
+src8 offset 0,0                -> OK
+srcsize 0x8                    -> SIZE
+srcsize 8x0                    -> SIZE
+srcsize -1x8                   -> SIZE
+null src + mirror              -> NULLPTR
+neg roi + mirror               -> SIZE
+neg roi + dstep0               -> SIZE
+dstep0 + null buf              -> NULLPTR
+empty roi + dstep0             -> OK
+empty roi + mirror             -> NOTSUP
+empty roi + null buf           -> NULLPTR
+roi 0x8                        -> STEP
+roi 8x0                        -> OK
+roi 8x0 dstep8                 -> OK
+roi 0x8 dstep0                 -> STEP
+empty+dstep0+mirror+nullbuf    -> NOTSUP
+neg mask + bad anchor          -> OK
+mask 100 anchor 99             -> OK
+dstep -1                       -> OK
+dstep -64                      -> OK
+dstep 63                       -> OK
+dstep 64                       -> OK
+roi56 off8 dstep56             -> OK
+roi56 off0,8 dstep56           -> OK

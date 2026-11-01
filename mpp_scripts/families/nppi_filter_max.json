@@ -1,0 +1,7 @@
+{
+  "family": "nppiFilterMax",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_max_generated.cpp",
+  "includes": ["nppi_filter_window_executor.h"],
+  "call": "nppi::filter::filterMinMax<{dtype}, {chan}, {is_ac4}, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, nppStreamCtx.hStream)"
+}

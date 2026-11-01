@@ -1,0 +1,368 @@
+nppGetStreamContext -> 0
+== valid: per-dtype validation ==
+== valid box 16u ==
+baseline                                          0 OK
+roi_zero_w                                      -33 MASK_SIZE
+roi_zero_h                                      -33 MASK_SIZE
+roi_zero_both                                   -33 MASK_SIZE
+roi_neg                                          -6 SIZE
+mask_zero                                         0 OK
+mask_neg                                        -11 OUT_OFF_RANGE
+mask_w0                                           0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+sstep_zero                                        0 OK
+sstep_neg                                         0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                            -33 MASK_SIZE
+prec_maskzero_vs_step                           -16 STEP
+prec_maskneg_vs_zeroroi                          -6 SIZE
+== valid box 16s ==
+baseline                                          0 OK
+roi_zero_w                                      -33 MASK_SIZE
+roi_zero_h                                      -33 MASK_SIZE
+roi_zero_both                                   -33 MASK_SIZE
+roi_neg                                          -6 SIZE
+mask_zero                                         0 OK
+mask_neg                                        -11 OUT_OFF_RANGE
+mask_w0                                           0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+sstep_zero                                        0 OK
+sstep_neg                                         0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                            -33 MASK_SIZE
+prec_maskzero_vs_step                           -16 STEP
+prec_maskneg_vs_zeroroi                          -6 SIZE
+== valid box 32f ==
+baseline                                          0 OK
+roi_zero_w                                      -33 MASK_SIZE
+roi_zero_h                                      -33 MASK_SIZE
+roi_zero_both                                   -33 MASK_SIZE
+roi_neg                                          -6 SIZE
+mask_zero                                         0 OK
+mask_neg                                        -11 OUT_OFF_RANGE
+mask_w0                                           0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+sstep_zero                                        0 OK
+sstep_neg                                         0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                            -33 MASK_SIZE
+prec_maskzero_vs_step                           -16 STEP
+prec_maskneg_vs_zeroroi                          -6 SIZE
+== valid boxborder 16u ==
+baseline                                          0 OK
+roi_zero_w                                      -33 MASK_SIZE
+roi_zero_h                                      -33 MASK_SIZE
+roi_zero_both                                   -33 MASK_SIZE
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_const                                    -14 NOT_SUPPORTED_MODE
+border_wrap                                     -14 NOT_SUPPORTED_MODE
+border_mirror                                     0 OK
+border_5                                          0 OK
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                         0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                          -14 NOT_SUPPORTED_MODE
+prec_border_vs_step                             -14 NOT_SUPPORTED_MODE
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_offset_vs_step                             -11 OUT_OFF_RANGE
+prec_mask_vs_step                               -16 STEP
+== valid boxborder 32f ==
+baseline                                          0 OK
+roi_zero_w                                      -33 MASK_SIZE
+roi_zero_h                                      -33 MASK_SIZE
+roi_zero_both                                   -33 MASK_SIZE
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_const                                    -14 NOT_SUPPORTED_MODE
+border_wrap                                     -14 NOT_SUPPORTED_MODE
+border_mirror                                     0 OK
+border_5                                          0 OK
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                         0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                          -14 NOT_SUPPORTED_MODE
+prec_border_vs_step                             -14 NOT_SUPPORTED_MODE
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_offset_vs_step                             -11 OUT_OFF_RANGE
+prec_mask_vs_step                               -16 STEP
+== valid max 16u ==
+baseline                                          0 OK
+roi_zero_w                                       -6 SIZE
+roi_zero_h                                       -6 SIZE
+roi_zero_both                                    -6 SIZE
+mask_zero                                        -6 SIZE
+mask_w0                                          -6 SIZE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                             -6 SIZE
+prec_maskzero_vs_step                            -6 SIZE
+== valid max 16s ==
+baseline                                          0 OK
+roi_zero_w                                       -6 SIZE
+roi_zero_h                                       -6 SIZE
+roi_zero_both                                    -6 SIZE
+mask_zero                                        -6 SIZE
+mask_w0                                          -6 SIZE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                             -6 SIZE
+prec_maskzero_vs_step                            -6 SIZE
+== valid max 32f ==
+baseline                                          0 OK
+roi_zero_w                                       -6 SIZE
+roi_zero_h                                       -6 SIZE
+roi_zero_both                                    -6 SIZE
+mask_zero                                        -6 SIZE
+mask_w0                                          -6 SIZE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                             -6 SIZE
+prec_maskzero_vs_step                            -6 SIZE
+== valid min 16u ==
+baseline                                          0 OK
+roi_zero_w                                       -6 SIZE
+roi_zero_h                                       -6 SIZE
+roi_zero_both                                    -6 SIZE
+mask_zero                                        -6 SIZE
+mask_w0                                          -6 SIZE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                             -6 SIZE
+prec_maskzero_vs_step                            -6 SIZE
+== valid maxborder 16u ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                       -6 SIZE
+roi_zero + badborder                             -6 SIZE
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                        -6 SIZE
+mask_zero + badborder                           -14 NOT_SUPPORTED_MODE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                           -6 SIZE
+prec_border_vs_step                             -14 NOT_SUPPORTED_MODE
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                -6 SIZE
+prec_offset_vs_step                             -11 OUT_OFF_RANGE
+== valid maxborder 16s ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                       -6 SIZE
+roi_zero + badborder                             -6 SIZE
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                        -6 SIZE
+mask_zero + badborder                           -14 NOT_SUPPORTED_MODE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                           -6 SIZE
+prec_border_vs_step                             -14 NOT_SUPPORTED_MODE
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                -6 SIZE
+prec_offset_vs_step                             -11 OUT_OFF_RANGE
+== valid maxborder 32f ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                       -6 SIZE
+roi_zero + badborder                             -6 SIZE
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                        -6 SIZE
+mask_zero + badborder                           -14 NOT_SUPPORTED_MODE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                           -6 SIZE
+prec_border_vs_step                             -14 NOT_SUPPORTED_MODE
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                -6 SIZE
+prec_offset_vs_step                             -11 OUT_OFF_RANGE
+== valid minborder 16u ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                       -6 SIZE
+roi_zero + badborder                             -6 SIZE
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                        -6 SIZE
+mask_zero + badborder                           -14 NOT_SUPPORTED_MODE
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                           -6 SIZE
+prec_border_vs_step                             -14 NOT_SUPPORTED_MODE
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                -6 SIZE
+prec_offset_vs_step                             -11 OUT_OFF_RANGE
+== valid median 16u ==
+baseline                                          0 OK
+roi_zero_w                                        0 OK
+roi_zero_h                                        0 OK
+roi_zero_both                                     0 OK
+roi_neg                                          -6 SIZE
+mask_zero                                         0 OK
+mask_w0                                           0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                                  0 OK
+null_buf                                          0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                              0 OK
+prec_maskzero_vs_step                             0 OK
+== valid median 16s ==
+baseline                                          0 OK
+roi_zero_w                                        0 OK
+roi_zero_h                                        0 OK
+roi_zero_both                                     0 OK
+roi_neg                                          -6 SIZE
+mask_zero                                         0 OK
+mask_w0                                           0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                                  0 OK
+null_buf                                          0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                              0 OK
+prec_maskzero_vs_step                             0 OK
+== valid median 32f ==
+baseline                                          0 OK
+roi_zero_w                                        0 OK
+roi_zero_h                                        0 OK
+roi_zero_both                                     0 OK
+roi_neg                                          -6 SIZE
+mask_zero                                         0 OK
+mask_w0                                           0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                                  0 OK
+null_buf                                          0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_step                              0 OK
+prec_maskzero_vs_step                             0 OK
+== valid medianborder 16u ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                     0 OK
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                        0 OK
+roi_zero + badborder                              0 OK
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                         0 OK
+mask_zero + badborder                             0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+null_buf                                          0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                            0 OK
+prec_border_vs_step                             -16 STEP
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                 0 OK
+prec_mask_vs_badborder                            0 OK
+== valid medianborder 16s ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                     0 OK
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                        0 OK
+roi_zero + badborder                              0 OK
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                         0 OK
+mask_zero + badborder                             0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+null_buf                                          0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                            0 OK
+prec_border_vs_step                             -16 STEP
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                 0 OK
+prec_mask_vs_badborder                            0 OK
+== valid medianborder 32f ==
+baseline                                          0 OK
+border_undef                                    -14 NOT_SUPPORTED_MODE
+border_mirror                                     0 OK
+border_5                                        -14 NOT_SUPPORTED_MODE
+roi_zero_w                                        0 OK
+roi_zero + badborder                              0 OK
+srcsize_zero                                     -6 SIZE
+srcsize_neg                                      -6 SIZE
+offset_oob                                      -11 OUT_OFF_RANGE
+offset_neg                                      -11 OUT_OFF_RANGE
+offset_gt_src                                     0 OK
+mask_zero                                         0 OK
+mask_zero + badborder                             0 OK
+dstep_small                                     -16 STEP
+dstep_zero                                      -16 STEP
+dstep_neg roi1x1                               -108 NOT_EVEN_STEP
+null_buf                                          0 OK
+anchor_gt                                         0 OK
+prec_zeroroi_vs_border                            0 OK
+prec_border_vs_step                             -16 STEP
+prec_border_vs_offset                           -11 OUT_OFF_RANGE
+prec_mask_vs_step                                 0 OK
+prec_mask_vs_badborder                            0 OK
+== probe_f9b done ==

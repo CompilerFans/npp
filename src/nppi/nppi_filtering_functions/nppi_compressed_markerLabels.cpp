@@ -38,6 +38,10 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
 NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
     NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
     int nBatchSize, NppiSize oMaxSizeROI, int nLargestPerImageBufferSize, NppStreamContext nppStreamCtx);
+
+NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_CommonRoi_Ctx_impl(
+    NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
+    int nBatchSize, NppiSize oSizeROI, int nPerImageBufferSize, NppStreamContext nppStreamCtx);
 }
 
 // Input validation helpers
@@ -197,6 +201,33 @@ NppStatus nppiCompressedMarkerLabelsUFGetInfoListSize_32u_C1R(unsigned int nMaxM
 }
 
 // Get compressed marker labels info
+// Batch compress marker labels (non-Advanced).  Measured on the 5090: this form
+// applies the common oSizeROI to every image in the batch (the per-image
+// descriptor oSize and nStep are ignored) and otherwise behaves exactly like
+// the Advanced form with oMaxSizeROI = oSizeROI and
+// nLargestPerImageBufferSize = nPerImageBufferSize.
+NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx(NppiImageDescriptor *pSrcDstBatchList,
+                                                       NppiBufferDescriptor *pBufferList,
+                                                       unsigned int *pNewMaxLabelIDList, int nBatchSize,
+                                                       NppiSize oSizeROI, int nPerImageBufferSize,
+                                                       NppStreamContext nppStreamCtx) {
+  return nppiCompressMarkerLabelsUFBatch_32u_C1IR_CommonRoi_Ctx_impl(
+      pSrcDstBatchList, pBufferList, pNewMaxLabelIDList, nBatchSize, oSizeROI, nPerImageBufferSize, nppStreamCtx);
+}
+
+NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR(NppiImageDescriptor *pSrcDstBatchList,
+                                                   NppiBufferDescriptor *pBufferList,
+                                                   unsigned int *pNewMaxLabelIDList, int nBatchSize,
+                                                   NppiSize oSizeROI, int nPerImageBufferSize) {
+  NppStreamContext nppStreamCtx;
+  NppStatus status = nppGetStreamContext(&nppStreamCtx);
+  if (status != NPP_NO_ERROR) {
+    return status;
+  }
+  return nppiCompressMarkerLabelsUFBatch_32u_C1IR_Ctx(pSrcDstBatchList, pBufferList, pNewMaxLabelIDList, nBatchSize,
+                                                      oSizeROI, nPerImageBufferSize, nppStreamCtx);
+}
+
 NppStatus nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx(
     Npp32u *pCompressedMarkerLabels, Npp32s nCompressedMarkerLabelsStep, NppiSize oSizeROI,
     unsigned int nMaxMarkerLabelID, NppiCompressedMarkerLabelsInfo *pMarkerLabelsInfoList, Npp8u *pContoursImage,
@@ -280,20 +311,6 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx(NppiImageDescrip
                                                                 unsigned int *pNewMaxLabelIDList, int nBatchSize,
                                                                 NppiSize oMaxSizeROI, int nLargestPerImageBufferSize,
                                                                 NppStreamContext nppStreamCtx) {
-
-  if (pSrcDstBatchList == nullptr || pBufferList == nullptr || pNewMaxLabelIDList == nullptr) {
-    return NPP_NULL_POINTER_ERROR;
-  }
-  if (nBatchSize <= 1) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-  if (oMaxSizeROI.width <= 0 || oMaxSizeROI.height <= 0) {
-    return NPP_SIZE_ERROR;
-  }
-  if (nLargestPerImageBufferSize <= 0) {
-    return NPP_BAD_ARGUMENT_ERROR;
-  }
-
   return nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(pSrcDstBatchList, pBufferList, pNewMaxLabelIDList,
                                                                     nBatchSize, oMaxSizeROI, nLargestPerImageBufferSize,
                                                                     nppStreamCtx);

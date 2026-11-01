@@ -1,0 +1,23 @@
+{
+  "family": "nppiGradientVectorScharrBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_gradient_vector_scharr_border_generated.cpp",
+  "includes": [
+    "nppi_gradient_vector_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "const Npp8u * pSrc",
+      "call": "nppi::gv::gradientVectorBorder<Npp8u, Npp16s, {chan}, nppi::gv::kScharr>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag, nDstMagStep, pDstAngle, nDstAngleStep, oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "const Npp16s * pSrc",
+      "call": "nppi::gv::gradientVectorBorder<Npp16s, Npp32f, {chan}, nppi::gv::kScharr>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag, nDstMagStep, pDstAngle, nDstAngleStep, oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "const Npp16u * pSrc",
+      "call": "nppi::gv::gradientVectorBorder<Npp16u, Npp32f, {chan}, nppi::gv::kScharr>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag, nDstMagStep, pDstAngle, nDstAngleStep, oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::gv::gradientVectorBorder<Npp32f, Npp32f, {chan}, nppi::gv::kScharr>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDstX, nDstXStep, pDstY, nDstYStep, pDstMag, nDstMagStep, pDstAngle, nDstAngleStep, oSizeROI, eMaskSize, eNorm, eBorderType, nppStreamCtx.hStream)"
+}

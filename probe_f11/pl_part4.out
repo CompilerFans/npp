@@ -1,0 +1,23 @@
+== part4 Border auto(r=0) equivalence
+AUTOEQ 8u s=0x1.4cccccp+0 k=7 stA=0 stB=0 eq=1
+AUTOEQ 8u s=0x1.4p+2 k=25 stA=-6 stB=-6 eq=1
+AUTOEQ 8u s=0x1.99999ap-5 k=3 stA=0 stB=0 eq=1
+AUTOEQ 16u s=0x1.4cccccp+0 k=11 stA=0 stB=0 eq=1
+AUTOEQ 16u s=0x1.4p+2 k=41 stA=-6 stB=-6 eq=1
+AUTOEQ 16u s=0x1.99999ap-5 k=3 stA=0 stB=0 eq=1
+AUTOEQ 16s s=0x1.4cccccp+0 k=11 stA=0 stB=0 eq=1
+AUTOEQ 16s s=0x1.4p+2 k=39 stA=-6 stB=-6 eq=1
+AUTOEQ 16s s=0x1.99999ap-5 k=3 stA=0 stB=0 eq=1
+AUTOEQ 32f s=0x1.4cccccp+0 k=19 stA=0 stB=0 eq=1
+AUTOEQ 32f s=0x1.4p+2 k=71 stA=-6 stB=-6 eq=1
+AUTOEQ 32f s=0x1.99999ap-5 k=3 stA=0 stB=0 eq=1
+TINY s=0x1.ad7f2ap-24 gbs_status=0 size=36 border_status=0 out_eq_src=1
+TINY exact_buf=36 status=0
+TINY s=0x1.0c6f7ap-20 gbs_status=0 size=36 border_status=0 out_eq_src=1
+TINY exact_buf=36 status=0
+TINY s=0x1.0c6f7cp-20 gbs_status=0 size=36 border_status=0 out_eq_src=1
+TINY exact_buf=36 status=0
+TINY s=0x1.0c6f7ep-20 gbs_status=0 size=36 border_status=0 out_eq_src=1
+TINY exact_buf=36 status=0
+TINY s=0x1.0f1eacp-20 gbs_status=0 size=36 border_status=0 out_eq_src=1
+TINY exact_buf=36 status=0
