@@ -1,0 +1,18 @@
+{
+  "call": "nppi::c3color::yccToRgb(pSrc, nSrcStep, 3, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream)",
+  "family": "nppiYCCToRGB",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYCCToRGB_generated.cpp",
+  "includes": [
+    "nppi_c3_color_executor.h"
+  ],
+  "families": [
+    "nppiYCCToRGB"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_AC4R",
+      "call": "nppi::c3color::yccToRgb(pSrc, nSrcStep, 4, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream)"
+    }
+  ]
+}

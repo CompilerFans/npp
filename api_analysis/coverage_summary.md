@@ -1,18 +1,18 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 8070 (64.4%)
+- Real implementations: 8128 (64.8%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 166
-- Missing: 4301
+- Missing: 4243
 - Tested: 8210 (65.5%)
-- Real and tested: 5926
+- Real and tested: 5955
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
-| nppi_color_conversion.h | 1074 | 533 | 0 | 541 | 704 |
+| nppi_color_conversion.h | 1074 | 591 | 0 | 483 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 94 | 0 | 1802 | 997 |
 | nppi_geometry_transforms.h | 705 | 258 | 138 | 309 | 431 |
