@@ -109,13 +109,15 @@ are the targeted follow-ups.
 Corrections / additions to the earlier notes:
 
 - nppiFilterBox validation: a **positive** ROI accepts masks larger than the
-  ROI (no mask>ROI check at all).  An empty ROI is OK only for the 8u_C1R and
-  64f_C1R instantiations; every other dtype/layout returns MASK_SIZE.  Negative
-  masks stay OUT_OFF_RANGE (SIZE when the ROI is empty).
-- nppiFilterBoxBorder: empty ROI is OK only for 8u_C1R (MASK_SIZE otherwise).
-  MIRROR (4) and the undocumented value 5 are only accepted for 3x3 and 5x5
-  masks (other masks -> MASK_SIZE) and the 32f_AC4R layout rejects them with
-  NOT_SUPPORTED_MODE.
+  ROI (no mask>ROI check at all).  With an empty ROI the 8u_C1R and 64f_C1R
+  instantiations always succeed; every other dtype/layout returns MASK_SIZE
+  only for the specialized square odd mask kernels (3x3, 5x5, ...) and succeeds
+  for even / non-square / 1x1 masks.  Negative masks stay OUT_OFF_RANGE (SIZE
+  when the ROI is empty).
+- nppiFilterBoxBorder: the same empty-ROI rule with the 8u_C1R exception;
+  additionally MIRROR (4) and the undocumented value 5 are only accepted for
+  3x3 and 5x5 masks (other masks -> MASK_SIZE), never accept an empty ROI, and
+  the 32f_AC4R layout rejects them with NOT_SUPPORTED_MODE.
 - median GetBufferSize (plain): empty ROI **and** empty mask leave the output
   size untouched (they do not write 0); negative ROI/mask -> SIZE, no write.
   Border variant writes 0 first and then reports SIZE for negative inputs.

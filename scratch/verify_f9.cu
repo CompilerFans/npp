@@ -111,13 +111,23 @@ static void run_plain(const char *tag, NppStatus (*ref_fn)(const T *, int, T *, 
     printf("FAIL %-42s status ref=%d ours=%d\n", tag, (int)r1, (int)r2);
     return;
   }
-  if (r1 != NPP_NO_ERROR) return;
   std::vector<T> h1(dn), h2(dn);
   cudaMemcpy(h1.data(), d1.p, dn * sizeof(T), cudaMemcpyDeviceToHost);
   cudaMemcpy(h2.data(), d2.p, dn * sizeof(T), cudaMemcpyDeviceToHost);
   char extra[64];
   snprintf(extra, sizeof(extra), "mask%dx%d a%d,%d", mask.width, mask.height, anchor.x, anchor.y);
-  cmp_dst(tag, h1.data(), h2.data(), dn, extra);
+  if (r1 == NPP_NO_ERROR) cmp_dst(tag, h1.data(), h2.data(), dn, extra);
+  // extra status checks: empty ROI and mask larger than the ROI
+  {
+    ++g_cases;
+    const NppStatus a = ref_fn(ps, stride, d1.p, dstride, NppiSize{0, H}, mask, anchor, g_ctx);
+    const NppStatus b = our_fn(ps, stride, d2.p, dstride, NppiSize{0, H}, mask, anchor, g_ctx.hStream);
+    if (!same_status(a, b)) { ++g_fail; printf("FAIL %-42s empty-roi status ref=%d ours=%d\n", tag, (int)a, (int)b); }
+    ++g_cases;
+    const NppStatus c1 = ref_fn(ps, stride, d1.p, dstride, NppiSize{4, 4}, NppiSize{9, 5}, NppiPoint{4, 2}, g_ctx);
+    const NppStatus c2 = our_fn(ps, stride, d2.p, dstride, NppiSize{4, 4}, NppiSize{9, 5}, NppiPoint{4, 2}, g_ctx.hStream);
+    if (!same_status(c1, c2)) { ++g_fail; printf("FAIL %-42s mask>roi status ref=%d ours=%d\n", tag, (int)c1, (int)c2); }
+  }
 }
 
 template <class T, int CH>
@@ -142,13 +152,22 @@ static void run_border(const char *tag, NppStatus (*ref_fn)(const T *, int, Nppi
     printf("FAIL %-42s status ref=%d ours=%d (border %d mask%dx%d)\n", tag, (int)r1, (int)r2, (int)bt, mask.width, mask.height);
     return;
   }
-  if (r1 != NPP_NO_ERROR) return;
   std::vector<T> h1(dn), h2(dn);
   cudaMemcpy(h1.data(), d1.p, dn * sizeof(T), cudaMemcpyDeviceToHost);
   cudaMemcpy(h2.data(), d2.p, dn * sizeof(T), cudaMemcpyDeviceToHost);
   char extra[80];
   snprintf(extra, sizeof(extra), "border%d mask%dx%d a%d,%d off%d,%d", (int)bt, mask.width, mask.height, anchor.x, anchor.y, off.x, off.y);
-  cmp_dst(tag, h1.data(), h2.data(), dn, extra);
+  if (r1 == NPP_NO_ERROR) cmp_dst(tag, h1.data(), h2.data(), dn, extra);
+  {
+    ++g_cases;
+    const NppStatus a = ref_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d1.p, dstride, NppiSize{0, H}, mask, anchor, bt, g_ctx);
+    const NppStatus b = our_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d2.p, dstride, NppiSize{0, H}, mask, anchor, bt, g_ctx.hStream);
+    if (!same_status(a, b)) { ++g_fail; printf("FAIL %-42s empty-roi status ref=%d ours=%d\n", tag, (int)a, (int)b); }
+    ++g_cases;
+    const NppStatus c1 = ref_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d1.p, dstride, NppiSize{4, 4}, NppiSize{9, 5}, NppiPoint{4, 2}, bt, g_ctx);
+    const NppStatus c2 = our_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d2.p, dstride, NppiSize{4, 4}, NppiSize{9, 5}, NppiPoint{4, 2}, bt, g_ctx.hStream);
+    if (!same_status(c1, c2)) { ++g_fail; printf("FAIL %-42s mask>roi status ref=%d ours=%d\n", tag, (int)c1, (int)c2); }
+  }
 }
 
 
@@ -218,13 +237,22 @@ static void run_border_med(const char *tag, NppStatus (*ref_fn)(const T *, int, 
   NppStatus r2 = our_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d2.p, dstride, NppiSize{W, H}, mask, anchor, nullptr, bt, g_ctx.hStream);
   ++g_cases;
   if (!same_status(r1, r2)) { ++g_fail; printf("FAIL %s status ref=%d ours=%d (border%d mask%dx%d)\n", tag, (int)r1, (int)r2, (int)bt, mask.width, mask.height); return; }
-  if (r1 != NPP_NO_ERROR) return;
   std::vector<T> h1(dn), h2(dn);
   cudaMemcpy(h1.data(), d1.p, dn * sizeof(T), cudaMemcpyDeviceToHost);
   cudaMemcpy(h2.data(), d2.p, dn * sizeof(T), cudaMemcpyDeviceToHost);
   char extra[80];
   snprintf(extra, sizeof(extra), "border%d mask%dx%d a%d,%d off%d,%d", (int)bt, mask.width, mask.height, anchor.x, anchor.y, off.x, off.y);
-  cmp_dst(tag, h1.data(), h2.data(), dn, extra);
+  if (r1 == NPP_NO_ERROR) cmp_dst(tag, h1.data(), h2.data(), dn, extra);
+  {
+    ++g_cases;
+    const NppStatus a = ref_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d1.p, dstride, NppiSize{0, H}, mask, anchor, nullptr, bt, g_ctx);
+    const NppStatus b = our_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d2.p, dstride, NppiSize{0, H}, mask, anchor, nullptr, bt, g_ctx.hStream);
+    if (!same_status(a, b)) { ++g_fail; printf("FAIL %-42s empty-roi status ref=%d ours=%d\n", tag, (int)a, (int)b); }
+    ++g_cases;
+    const NppStatus c1 = ref_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d1.p, dstride, NppiSize{4, 4}, NppiSize{9, 5}, NppiPoint{4, 2}, nullptr, bt, g_ctx);
+    const NppStatus c2 = our_fn(ps, stride, NppiSize{SRCW, SRCH}, off, d2.p, dstride, NppiSize{4, 4}, NppiSize{9, 5}, NppiPoint{4, 2}, nullptr, bt, g_ctx.hStream);
+    if (!same_status(c1, c2)) { ++g_fail; printf("FAIL %-42s mask>roi status ref=%d ours=%d\n", tag, (int)c1, (int)c2); }
+  }
 }
 
 #define DECL_WRAP(T, FN, SIG)                                                                  \
@@ -331,6 +359,8 @@ OUR_BOX(Npp64f, 64f_C1R, 1, false)
                        NppiSize{4, 2}, NppiPoint{3, 0}, NPP_BORDER_MIRROR, NppiPoint{0, 0}, 0x55 + CH); \
     run_border<CT, CH>(("boxborder/" #TAG), nppiFilterBoxBorder_##TAG##_Ctx, our_boxb_##TAG,   \
                        NppiSize{3, 3}, NppiPoint{1, 1}, (NppiBorderType)5, NppiPoint{SRCW - 1, SRCH - 1}, 0x66 + CH); \
+    run_border<CT, CH>(("boxborder/" #TAG), nppiFilterBoxBorder_##TAG##_Ctx, our_boxb_##TAG,   \
+                       NppiSize{5, 5}, NppiPoint{2, 2}, NPP_BORDER_MIRROR, NppiPoint{1, 2}, 0x77 + CH); \
   }
 #define RUN_MIN(T, TAG, CT, CH, AC4)                                                           \
   {                                                                                            \

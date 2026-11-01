@@ -254,13 +254,18 @@ NppStatus filterBox(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize
   if (oMaskSize.width < 0 || oMaskSize.height < 0)
     return (oSizeROI.width == 0 || oSizeROI.height == 0) ? NPP_SIZE_ERROR : NPP_OUT_OFF_RANGE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    // measured: the 8u and 64f single-channel box paths accept an empty ROI,
-    // every other instantiation reports MASK_SIZE.  A mask larger than a
-    // positive ROI is accepted by all of them.
-    if constexpr ((std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp64f>) && Ch == 1)
+    // measured: the 8u/64f single-channel box paths accept every empty-ROI
+    // call; the other instantiations reject the specialized square odd mask
+    // kernels (3x3, 5x5, ...) because the mask does not fit the empty ROI,
+    // while even / non-square / 1x1 masks succeed.  A mask larger than a
+    // positive ROI is accepted by every instantiation.
+    if constexpr ((std::is_same_v<T, Npp8u> || std::is_same_v<T, Npp64f>) && Ch == 1) {
       return NPP_NO_ERROR;
-    else
-      return NPP_MASK_SIZE_ERROR;
+    } else {
+      const bool specialized = oMaskSize.width == oMaskSize.height &&
+                               (oMaskSize.width % 2) == 1 && oMaskSize.width >= 3;
+      return specialized ? NPP_MASK_SIZE_ERROR : NPP_NO_ERROR;
+    }
   }
   NppStatus st = check_dst_step<T, Ch>(nDstStep, oSizeROI.width);
   if (st != NPP_NO_ERROR) return st;
@@ -286,22 +291,27 @@ NppStatus filterBoxBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPo
       oSrcOffset.y >= oSrcSize.height)
     return NPP_OUT_OFF_RANGE_ERROR;
   if (oMaskSize.width < 0 || oMaskSize.height < 0) return NPP_OUT_OFF_RANGE_ERROR;
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
-    // measured: only the 8u single-channel border path accepts an empty ROI.
-    if constexpr (std::is_same_v<T, Npp8u> && Ch == 1)
-      return NPP_NO_ERROR;
-    else
-      return NPP_MASK_SIZE_ERROR;
-  }
   if (bt == NPP_BORDER_MIRROR || bt == 5) {
-    // measured: the mirrored box kernels are only instantiated for 3x3 and 5x5
-    // masks, and the 32f AC4 variant has no mirrored kernel at all.
+    // measured: there is no mirrored 32f AC4 kernel, the mirrored kernels only
+    // exist for 3x3 and 5x5 masks, and they never accept an empty ROI.
     if constexpr (std::is_same_v<T, Npp32f>) {
       if (AlphaPreserve) return NPP_NOT_SUPPORTED_MODE_ERROR;
     }
     const bool square3 = oMaskSize.width == 3 && oMaskSize.height == 3;
     const bool square5 = oMaskSize.width == 5 && oMaskSize.height == 5;
     if (!square3 && !square5) return NPP_MASK_SIZE_ERROR;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_MASK_SIZE_ERROR;
+  }
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    // measured: the 8u single-channel border path accepts every empty ROI; the
+    // others reject only the specialized square odd mask kernels.
+    if constexpr (std::is_same_v<T, Npp8u> && Ch == 1) {
+      return NPP_NO_ERROR;
+    } else {
+      const bool specialized = oMaskSize.width == oMaskSize.height &&
+                               (oMaskSize.width % 2) == 1 && oMaskSize.width >= 3;
+      return specialized ? NPP_MASK_SIZE_ERROR : NPP_NO_ERROR;
+    }
   }
   NppStatus st = check_dst_step<T, Ch>(nDstStep, oSizeROI.width);
   if (st != NPP_NO_ERROR) return st;
