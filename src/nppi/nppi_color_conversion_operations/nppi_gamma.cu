@@ -221,3 +221,134 @@ NppStatus nppiGammaInv_8u_AC4IR_Ctx(Npp8u *pSrcDst, int nSrcDstStep, NppiSize oS
 }
 
 } // extern "C"
+
+// ============================================================================
+// Planar (P3R / IP3R) executors - package c4, NVIDIA NPP 13.4 semantics
+// ============================================================================
+
+#include "nppi_gamma_executor.h"
+
+namespace nppi {
+namespace gamma {
+
+namespace {
+
+struct PlanarSrcDst {
+  const Npp8u *s[3];
+  Npp8u *d[3];
+};
+
+struct PlanarInplace {
+  Npp8u *p[3];
+};
+
+__global__ void gamma_planar_kernel(PlanarSrcDst buf, int nSrcStep, int nDstStep, int width, int height,
+                                    int direction) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  const int plane = blockIdx.z;
+  if (x >= width || y >= height) {
+    return;
+  }
+  const Npp8u *src = (const Npp8u *)((const char *)buf.s[plane] + (size_t)y * nSrcStep);
+  Npp8u *dst = (Npp8u *)((char *)buf.d[plane] + (size_t)y * nDstStep);
+  dst[x] = direction ? d_gamma_inv_lut[src[x]] : d_gamma_fwd_lut[src[x]];
+}
+
+__global__ void gamma_planar_inplace_kernel(PlanarInplace buf, int nSrcDstStep, int width, int height,
+                                            int direction) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  const int plane = blockIdx.z;
+  if (x >= width || y >= height) {
+    return;
+  }
+  Npp8u *row = (Npp8u *)((char *)buf.p[plane] + (size_t)y * nSrcDstStep);
+  row[x] = direction ? d_gamma_inv_lut[row[x]] : d_gamma_fwd_lut[row[x]];
+}
+
+// Shared step validation (see nppi_gamma_executor.h for the measured rules).
+// Returns the status to hand back; *launch is false when no kernel should run.
+NppStatus planarStep(int step, int width, bool *launch) {
+  *launch = false;
+  if (step == 0)
+    return NPP_STEP_ERROR;
+  if ((unsigned)step < (unsigned)width)
+    return NPP_STEP_ERROR;
+  if (step < 0)
+    return NPP_NO_ERROR; // NVIDIA walks OOB rows; mcMPP does not launch.
+  *launch = true;
+  return NPP_NO_ERROR;
+}
+
+}  // namespace
+
+NppStatus gammaPlanar(const Npp8u *const pSrc[3], int nSrcStep, Npp8u *pDst[3], int nDstStep, NppiSize oSizeROI,
+                      int direction, cudaStream_t stream) {
+  for (int i = 0; i < 3; ++i) {
+    if (!pSrc[i] || !pDst[i])
+      return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0)
+    return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0)
+    return NPP_NO_ERROR;
+  bool launchSrc = false, launchDst = false;
+  NppStatus st = planarStep(nSrcStep, oSizeROI.width, &launchSrc);
+  if (st != NPP_NO_ERROR)
+    return st;
+  st = planarStep(nDstStep, oSizeROI.width, &launchDst);
+  if (st != NPP_NO_ERROR)
+    return st;
+  if (!launchSrc || !launchDst)
+    return NPP_NO_ERROR;
+
+  PlanarSrcDst buf;
+  for (int i = 0; i < 3; ++i) {
+    buf.s[i] = pSrc[i];
+    buf.d[i] = pDst[i];
+  }
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y,
+                3);
+  gamma_planar_kernel<<<gridSize, blockSize, 0, stream>>>(buf, nSrcStep, nDstStep, oSizeROI.width, oSizeROI.height,
+                                                          direction);
+  cudaError_t err = cudaGetLastError();
+  if (err != cudaSuccess)
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_SUCCESS;
+}
+
+NppStatus gammaPlanarInplace(Npp8u *const pSrcDst[3], int nSrcDstStep, NppiSize oSizeROI, int direction,
+                             cudaStream_t stream) {
+  for (int i = 0; i < 3; ++i) {
+    if (!pSrcDst[i])
+      return NPP_NULL_POINTER_ERROR;
+  }
+  if (oSizeROI.width < 0 || oSizeROI.height < 0)
+    return NPP_SIZE_ERROR;
+  if (oSizeROI.width == 0 || oSizeROI.height == 0)
+    return NPP_NO_ERROR;
+  bool launch = false;
+  NppStatus st = planarStep(nSrcDstStep, oSizeROI.width, &launch);
+  if (st != NPP_NO_ERROR)
+    return st;
+  if (!launch)
+    return NPP_NO_ERROR;
+
+  PlanarInplace buf;
+  for (int i = 0; i < 3; ++i)
+    buf.p[i] = pSrcDst[i];
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y,
+                3);
+  gamma_planar_inplace_kernel<<<gridSize, blockSize, 0, stream>>>(buf, nSrcDstStep, oSizeROI.width, oSizeROI.height,
+                                                                  direction);
+  cudaError_t err = cudaGetLastError();
+  if (err != cudaSuccess)
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  return NPP_SUCCESS;
+}
+
+}  // namespace gamma
+}  // namespace nppi
