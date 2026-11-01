@@ -72,6 +72,17 @@ inline bool step_too_small(int nDstStep, int rowBytes, int H) {
 
 // ---------------------------------------------------------------- bilateral
 
+template <typename Src, int CH>
+__device__ __forceinline__ float bilateralFetch(const Src *pSrc, int nSrcStep, int fx, int fy,
+                                                int ch, int loX, int hiX, int loY, int hiY,
+                                                bool mirror) {
+  const int ix = border_index(fx, loX, hiX, mirror);
+  const int iy = border_index(fy, loY, hiY, mirror);
+  const Src *row =
+      reinterpret_cast<const Src *>(reinterpret_cast<const char *>(pSrc) + (long long)iy * nSrcStep);
+  return to_float(row[(long long)ix * CH + ch]);
+}
+
 template <typename Src, typename Dst, int CH>
 __global__ void bilateralKernel(const Src *pSrc, int nSrcStep, int srcW, int srcH, int offX,
                                 int offY, Dst *pDst, int nDstStep, int dstW, int dstH,
@@ -99,7 +110,8 @@ __global__ void bilateralKernel(const Src *pSrc, int nSrcStep, int srcW, int src
     float num = 0.0f, den = 0.0f;
     for (int h = -radius; h <= radius; ++h) {
       for (int w = -radius; w <= radius; ++w) {
-        const float s = fetch(cx + w * step, y + h * step);
+        const float s = bilateralFetch<Src, CH>(pSrc, nSrcStep, cx + w * step, y + h * step, ch,
+                                                loX, hiX, loY, hiY, mirror);
         const float d = s - s00;
         const float w1 = expf(-(d * d) / (2.0f * valSigma2));
         const float dist2 = (float)(h * h + w * w);
