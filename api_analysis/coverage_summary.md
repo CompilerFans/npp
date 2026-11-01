@@ -1,18 +1,18 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 11939 (95.2%)
+- Real implementations: 12152 (96.9%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 514
+- Missing: 301
 - Tested: 8289 (66.1%)
-- Real and tested: 7974
+- Real and tested: 8087
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
-| nppi_color_conversion.h | 1074 | 784 | 0 | 290 | 717 |
+| nppi_color_conversion.h | 1074 | 997 | 0 | 77 | 717 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 1747 | 0 | 149 | 1002 |
 | nppi_geometry_transforms.h | 705 | 549 | 84 | 72 | 456 |
@@ -46,29 +46,29 @@
 | nppi_filtering_functions.h | nppiFloodFillGradient | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRangeBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRange | 12 | 6 |
-| nppi_color_conversion.h | nppiYCbCr411ToYCbCr422 | 8 | 4 |
-| nppi_color_conversion.h | nppiYCbCr422ToYCbCr411 | 8 | 4 |
-| nppi_color_conversion.h | nppiYCbCr422ToYCbCr420 | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCrToBGRBatch | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCrToRGBBatch | 8 | 4 |
-| nppi_color_conversion.h | nppiYUV420ToRGB | 8 | 8 |
-| nppi_color_conversion.h | nppiYUV422ToRGB | 8 | 8 |
 | nppi_color_conversion.h | nppiYUVToBGRBatch | 8 | 4 |
 | nppi_color_conversion.h | nppiYUVToRGBBatch | 8 | 4 |
-| nppi_color_conversion.h | nppiRGBToYUV422 | 6 | 6 |
-| nppi_color_conversion.h | nppiYCbCr411ToYCbCr420 | 6 | 3 |
-| nppi_color_conversion.h | nppiBGRToCbYCr422_709HDTV | 4 | 2 |
-| nppi_color_conversion.h | nppiBGRToYCbCr420_709CSC | 4 | 2 |
-| nppi_color_conversion.h | nppiBGRToYCbCr420_JPEG | 4 | 2 |
-| nppi_color_conversion.h | nppiBGRToYCbCr422_JPEG | 4 | 2 |
-| nppi_color_conversion.h | nppiBGRToYCbCr444_JPEG | 4 | 2 |
-| nppi_color_conversion.h | nppiBGRToYCrCb420_709CSC | 4 | 2 |
-| nppi_color_conversion.h | nppiBGRToYCrCb420 | 4 | 2 |
-| nppi_color_conversion.h | nppiCMYKOrYCCKToBGR_JPEG | 4 | 2 |
-| nppi_color_conversion.h | nppiCMYKOrYCCKToRGB_JPEG | 4 | 2 |
-| nppi_color_conversion.h | nppiCbYCr422ToBGR_709HDTV | 4 | 2 |
-| nppi_color_conversion.h | nppiCbYCr422ToYCbCr420 | 4 | 2 |
-| nppi_color_conversion.h | nppiCbYCr422ToYCbCr422 | 4 | 2 |
-| nppi_color_conversion.h | nppiRGBToYCC | 4 | 2 |
-| nppi_color_conversion.h | nppiRGBToYCbCr420_JPEG | 4 | 2 |
-| nppi_color_conversion.h | nppiRGBToYCbCr422_JPEG | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr420ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr420ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr422ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr422ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV420ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV420ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV420ToRGB | 4 | 4 |
+| nppi_color_conversion.h | nppiYUV422ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV422ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV422ToRGB | 4 | 4 |
+| nppi_color_conversion.h | nppiRGBToYUV422 | 3 | 3 |
+| nppi_filtering_functions.h | nppiFilterHoughLine | 3 | 1 |
+| nppi_filtering_functions.h | nppiSegmentWatershed | 3 | 1 |
+| nppi_filtering_functions.h | nppiSignedDistanceTransformAbsPBA | 3 | 3 |
+| nppi_color_conversion.h | nppiRGBToYUV420 | 2 | 2 |
+| nppi_filtering_functions.h | nppiContoursImageMarchingSquaresInterpolation | 2 | 2 |
+| nppi_filtering_functions.h | nppiFilterHoughLineRegion | 2 | 1 |
+| nppi_geometry_transforms.h | nppiWarpAffineBatchInit | 2 | 1 |
+| nppi_statistics_functions.h | nppiMSSSIM | 2 | 1 |
+| nppi_filtering_functions.h | nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R | 1 | 0 |
+| nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize | 1 | 0 |
+| nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize_64 | 1 | 0 |

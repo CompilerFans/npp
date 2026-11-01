@@ -1,0 +1,18 @@
+{
+  "family": "nppiYCbCr422ToBGR_JPEG",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYCbCr422ToBGR_JPEG_generated.cpp",
+  "includes": [
+    "nppi_c3_conversion_executor.h"
+  ],
+  "families": [
+    "nppiYCbCr422ToBGR_JPEG"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp8u * pDst, int nDstStep",
+      "call": "nppi::c3conv::yCbCr422ToRgbJpegP3C3(pSrc, aSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 1)"
+    }
+  ],
+  "call": "nppi::c3conv::yCbCr422ToRgbJpegP3(pSrc, aSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 1)"
+}

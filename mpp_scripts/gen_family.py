@@ -148,6 +148,15 @@ def choose_call(spec: dict, func: Func) -> str:
     if func.family in by_family:
         return by_family[func.family]
     for variant in spec.get("call_variants", []):
+        # "name_contains" matches the function name (layout suffixes such as
+        # _C3C2R / _AC4C2R are not visible in the parameter list).
+        name_needle = variant.get("name_contains", "")
+        if name_needle:
+            if name_needle in func.name:
+                return variant["call"]
+            continue
+        # "contains_all" requires every needle in the parameter list; the
+        # single "contains" form is kept for compatibility.
         needles = variant.get("contains_all")
         if needles is None:
             needle = variant.get("contains", "")

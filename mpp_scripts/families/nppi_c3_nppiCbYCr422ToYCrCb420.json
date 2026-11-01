@@ -1,0 +1,12 @@
+{
+  "call": "nppi::c3yuv::c2ToP3(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, nppStreamCtx.hStream, 2, 1, 2, 1)",
+  "family": "nppiCbYCr422ToYCrCb420",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiCbYCr422ToYCrCb420_generated.cpp",
+  "includes": [
+    "nppi_c3_yuv_layout_executor.h"
+  ],
+  "families": [
+    "nppiCbYCr422ToYCrCb420"
+  ]
+}
