@@ -292,18 +292,19 @@ TEST_F(NppStreamSyncTest, ManagedStream_NonCtxOperationIsOrderedWithUserStream) 
 // kernels without a stream argument and therefore ignored the context stream.
 TEST_F(NppStreamSyncTest, Morphology3x3_CtxOperationsAreOrderedWithUserStream) {
   constexpr int kSize = 32;
+  constexpr int kStep = kSize + 2;  // 1-pixel halo: plain morphology reads around the ROI
   constexpr int kCenter = (kSize / 2) * kSize + kSize / 2;
   constexpr Npp8u kSrcValue = 7;
 
   ManagedStreamGuard restoreStream;
   U8Buffers buffers;
-  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.src), kSize * kSize), cudaSuccess);
+  ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.src), kStep * kStep), cudaSuccess);
   ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.mask), 9), cudaSuccess);
   ASSERT_EQ(cudaMalloc(reinterpret_cast<void **>(&buffers.dst), kSize * kSize), cudaSuccess);
   ASSERT_EQ(cudaMallocHost(reinterpret_cast<void **>(&buffers.h), 1), cudaSuccess);
   ASSERT_EQ(cudaStreamCreateWithFlags(&buffers.stream, cudaStreamNonBlocking), cudaSuccess);
 
-  std::vector<Npp8u> src(kSize * kSize, kSrcValue);
+  std::vector<Npp8u> src(kStep * kStep, kSrcValue);
   std::vector<Npp8u> mask(9, 1);
   ASSERT_EQ(cudaMemcpy(buffers.src, src.data(), src.size(), cudaMemcpyHostToDevice), cudaSuccess);
   ASSERT_EQ(cudaMemcpy(buffers.mask, mask.data(), mask.size(), cudaMemcpyHostToDevice), cudaSuccess);
@@ -318,7 +319,7 @@ TEST_F(NppStreamSyncTest, Morphology3x3_CtxOperationsAreOrderedWithUserStream) {
   NppiSize maskSize = {3, 3};
   NppiPoint anchor = {1, 1};
 
-  ASSERT_EQ(nppiErode_8u_C1R_Ctx(buffers.src, kSize, buffers.dst, kSize, roi, buffers.mask, maskSize, anchor, ctx),
+  ASSERT_EQ(nppiErode_8u_C1R_Ctx(buffers.src + kStep + 1, kStep, buffers.dst, kSize, roi, buffers.mask, maskSize, anchor, ctx),
             NPP_SUCCESS);
   ASSERT_EQ(cudaMemcpyAsync(buffers.h, buffers.dst + kCenter, 1, cudaMemcpyDeviceToHost, buffers.stream), cudaSuccess);
   ASSERT_EQ(cudaStreamSynchronize(buffers.stream), cudaSuccess);
@@ -326,7 +327,7 @@ TEST_F(NppStreamSyncTest, Morphology3x3_CtxOperationsAreOrderedWithUserStream) {
 
   // Reset on the same stream, then exercise the dilate 3x3 fast path.
   ASSERT_EQ(cudaMemsetAsync(buffers.dst, 0, kSize * kSize, buffers.stream), cudaSuccess);
-  ASSERT_EQ(nppiDilate_8u_C1R_Ctx(buffers.src, kSize, buffers.dst, kSize, roi, buffers.mask, maskSize, anchor, ctx),
+  ASSERT_EQ(nppiDilate_8u_C1R_Ctx(buffers.src + kStep + 1, kStep, buffers.dst, kSize, roi, buffers.mask, maskSize, anchor, ctx),
             NPP_SUCCESS);
   ASSERT_EQ(cudaMemcpyAsync(buffers.h, buffers.dst + kCenter, 1, cudaMemcpyDeviceToHost, buffers.stream), cudaSuccess);
   ASSERT_EQ(cudaStreamSynchronize(buffers.stream), cudaSuccess);

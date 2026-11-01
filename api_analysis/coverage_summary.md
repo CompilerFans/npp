@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10612 (84.6%)
+- Real implementations: 10880 (86.8%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 112
-- Missing: 1813
-- Tested: 8255 (65.8%)
-- Real and tested: 7255
+- Missing: 1545
+- Tested: 8262 (65.9%)
+- Real and tested: 7392
 
 ## By module
 
@@ -17,7 +17,7 @@
 | nppi_filtering_functions.h | 1896 | 1376 | 0 | 520 | 1003 |
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
-| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
+| nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 161 |
 | nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
@@ -52,23 +52,23 @@
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
 | nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
-| nppi_morphological_operations.h | nppiDilate3x3Border | 24 | 12 |
-| nppi_morphological_operations.h | nppiDilateBorder | 24 | 12 |
-| nppi_morphological_operations.h | nppiErode3x3Border | 24 | 12 |
-| nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
 | nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
-| nppi_morphological_operations.h | nppiDilate3x3 | 22 | 11 |
-| nppi_morphological_operations.h | nppiErode3x3 | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
-| nppi_morphological_operations.h | nppiDilate | 16 | 8 |
-| nppi_morphological_operations.h | nppiErode | 16 | 8 |
-| nppi_morphological_operations.h | nppiMorphBlackHatBorder | 16 | 8 |
-| nppi_morphological_operations.h | nppiMorphCloseBorder | 16 | 8 |
-| nppi_morphological_operations.h | nppiMorphGradientBorder | 16 | 8 |
-| nppi_morphological_operations.h | nppiMorphOpenBorder | 16 | 8 |
+| nppi_statistics_functions.h | nppiHistogramRange | 16 | 8 |
+| nppi_filtering_functions.h | nppiGradientVectorPrewittBorder | 14 | 7 |
+| nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
+| nppi_filtering_functions.h | nppiFilterBoxBorderAdvanced | 13 | 13 |
+| nppi_filtering_functions.h | nppiFloodFill | 13 | 6 |
+| nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
+| nppi_filtering_functions.h | nppiFilterBilateralGaussBorder | 12 | 6 |
+| nppi_filtering_functions.h | nppiFilterGaussPyramidLayerDownBorder | 12 | 6 |
+| nppi_filtering_functions.h | nppiFilterGaussPyramidLayerUpBorder | 12 | 6 |
+| nppi_filtering_functions.h | nppiFloodFillBoundary | 12 | 6 |
+| nppi_filtering_functions.h | nppiFloodFillGradientBoundary | 12 | 6 |
+| nppi_filtering_functions.h | nppiFloodFillGradient | 12 | 6 |

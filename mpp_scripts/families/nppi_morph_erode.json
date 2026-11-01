@@ -1,0 +1,9 @@
+{
+  "family": "nppiErode",
+  "module": "nppi_morphological_operations.h",
+  "source": "src/nppi/nppi_morphological_operations/nppi_morph_erode_generated.cpp",
+  "includes": [
+    "nppi_morph_executor.h"
+  ],
+  "call": "nppi::morph::runPlain<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pMask, oMaskSize, oAnchor, nppi::morph::kErode, nppStreamCtx.hStream)"
+}
