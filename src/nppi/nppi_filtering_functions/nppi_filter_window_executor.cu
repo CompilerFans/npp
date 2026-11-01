@@ -223,6 +223,10 @@ __global__ void window_kernel(const T *pSrc, int nSrcStep, T *pDst, int nDstStep
         const T v2 = kth_sample<T, Ch, Border>(pSrc, nSrcStep, x, y, mask.width, mask.height,
                                                anchor.x, anchor.y, offx, offy, srcSize,
                                                borderMode, c, k2);
+        // Mean of the two middle samples, truncated toward zero.  NPP's own
+        // 16s even-median tie rounding is not self-consistent across windows
+        // (the same -327 sum rounds both ways), so the differential test for
+        // 16s allows a 1-LSB tolerance instead of pinning it.
         out = clamp_int<T>(((long long)v1 + (long long)v2) / 2);
       }
     }

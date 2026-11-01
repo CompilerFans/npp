@@ -441,13 +441,21 @@ void median_buffered(const std::string &family, const char *fname, const std::st
   Case c(family + "/" + key, fname);
   c.input(hs.data(), hs.size() * sizeof(S));
   c.status(st);
-  c.device_output<S>(d.get(), dElems, dst_kind<S>(), 1e-5, 1e-5);
+  // NPP's 16s even-median tie rounding is not self-consistent (the same
+  // middle-sum -327 rounds both ways across windows), so allow 1 LSB there.
+  ValueKind out_kind = dst_kind<S>();
+  double atol = 1e-5;
+  if constexpr (std::is_same_v<S, Npp16s>) {
+    out_kind = ValueKind::I16Tol;
+    atol = 1.0;
+  }
+  c.device_output<S>(d.get(), dElems, out_kind, 1e-5, atol);
   c.finish();
 }
 
 #define MEDIAN_BUF(TAG, S)                                                                     \
   median_buffered<S>(                                                                          \
-      "nppiFilterMedian", "nppiFilterMedian_" #TAG, "buffered/16x16", 1, NppiSize{16, 16},     \
+      "nppiFilterMedian", "nppiFilterMedian_" #TAG, "buffered/" #TAG "/16x16", 1, NppiSize{16, 16},     \
       NppiPoint{8, 8}, 0x9100u,                                                                \
       [](NppiSize m, Npp32u *b) {                                                              \
         return nppiFilterMedianGetBufferSize_##TAG##_Ctx(NppiSize{kW, kH}, m, b, current_ctx());\
@@ -708,7 +716,7 @@ protected:
   {                                                                                            \
     const char *fn = "nppiFilterMedianGetBufferSize_" #TAG;                                    \
     for (const auto &m : kBufMasks) {                                                          \
-      std::string key = std::string("mask/") + std::to_string(m.width) + "x" +                 \
+      std::string key = std::string(#TAG) + "/mask/" + std::to_string(m.width) + "x" +        \
                         std::to_string(m.height);                                              \
       bufsize_case("nppiFilterMedianGetBufferSize", fn, key, [&](Npp32u *p) {                  \
         return nppiFilterMedianGetBufferSize_##TAG##_Ctx(NppiSize{7, 7}, m, p, current_ctx()); \
@@ -771,7 +779,7 @@ protected:
   {                                                                                            \
     const char *fn = "nppiFilterMedianBorderGetBufferSize_" #TAG;                              \
     for (const auto &m : kBufMasks) {                                                          \
-      std::string key = std::string("mask/") + std::to_string(m.width) + "x" +                 \
+      std::string key = std::string(#TAG) + "/mask/" + std::to_string(m.width) + "x" +        \
                         std::to_string(m.height);                                              \
       bufsize_case("nppiFilterMedianBorderGetBufferSize", fn, key, [&](Npp32u *p) {            \
         return nppiFilterMedianBorderGetBufferSize_##TAG##_Ctx(NppiSize{7, 7}, m, p,           \
