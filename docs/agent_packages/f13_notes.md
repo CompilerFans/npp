@@ -315,6 +315,12 @@ harness previously compared integer outputs bit-exactly).  Measured on the
 value cases still fail for 16u/32f C3 because of those last LSBs; they are kept
 as they are so the gap is visible.
 
+`nppiFilterHarrisCornersBorder_8u32f_C1R` still differs from NPP on the value
+cases (`sobel3/5`, `scharr3/5`, offsets) at the last corner entries; the window
+clamping model in section 5 is therefore only approximately right for corners
+that sit on the last row/column.  The status cases additionally show the 9.6
+name mismatches.
+
 New harness `ValueKind`s added for this: `U8Tol`, `I8Tol`, `U16Tol` (byte-wide
 and 16-bit tolerant comparisons).
 
