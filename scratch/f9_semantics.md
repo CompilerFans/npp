@@ -98,3 +98,40 @@ Measured behavior:
 - negative ROI for border families; mask > ROI for Max/Min; BoxBorder src-step
   validation; Advanced C4 alignment; constant border value for BoxBorder
   (aAval? no aCoeff — CONSTANT border uses 0? unmeasured).
+
+## 8. Third continuation: direct executor-vs-NVIDIA verification (2026-11-01)
+
+`scratch/verify_f9.cu` links `nppi_filter_window_executor.cu` next to NVIDIA
+NPP on the 5090 (the kernels are plain CUDA) and compares every family:
+51,622 cases, 0 failures after the fixes below.  `scratch/probe_f9f..k.cu`
+are the targeted follow-ups.
+
+Corrections / additions to the earlier notes:
+
+- nppiFilterBox validation: a **positive** ROI accepts masks larger than the
+  ROI (no mask>ROI check at all).  An empty ROI is OK only for the 8u_C1R and
+  64f_C1R instantiations; every other dtype/layout returns MASK_SIZE.  Negative
+  masks stay OUT_OFF_RANGE (SIZE when the ROI is empty).
+- nppiFilterBoxBorder: empty ROI is OK only for 8u_C1R (MASK_SIZE otherwise).
+  MIRROR (4) and the undocumented value 5 are only accepted for 3x3 and 5x5
+  masks (other masks -> MASK_SIZE) and the 32f_AC4R layout rejects them with
+  NOT_SUPPORTED_MODE.
+- median GetBufferSize (plain): empty ROI **and** empty mask leave the output
+  size untouched (they do not write 0); negative ROI/mask -> SIZE, no write.
+  Border variant writes 0 first and then reports SIZE for negative inputs.
+- median even-count convention: the small-mask unbuffered kernels differ by
+  mask shape for signed 16s (some shapes truncate toward zero, some floor);
+  the 16x16 buffered path matches trunc((a+b)/2).  Differential tests therefore
+  use odd mask dimensions for value comparisons (even 2D masks are not a
+  reproducible contract).
+- destination steps used by the differential tests are padded to 16 bytes;
+  NVIDIA's small-mask median kernels misbehave on narrower steps without
+  reporting an error.
+- GetBufferSize is ROI-independent (verified for ROI 7x7, 32x32 and
+  ROI == mask); the plain dispatch table is transcribed for masks up to 40x40.
+
+## 9. Deliberately not implemented
+
+- `nppiFilterBoxBorderAdvanced` (13 Ctx functions): the 5090 output follows a
+  pointer-aliasing quirk (ROI width vs source stride) that is not decoded; the
+  family is left missing and excluded from the package wrappers.
