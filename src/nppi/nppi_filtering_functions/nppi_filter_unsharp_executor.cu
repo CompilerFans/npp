@@ -103,6 +103,13 @@ __host__ __device__ __forceinline__ Dst unsharp_emit(double v) {
   }
 }
 
+// Unaligned-safe element load (source steps may be odd for 16/32-bit data).
+template <typename T> __device__ __forceinline__ T load_unaligned(const char *p) {
+  T v;
+  memcpy(&v, p, sizeof(T));
+  return v;
+}
+
 // Unsharp kernel.
 //   taps      : k x k normalised Gaussian in device memory (pDeviceBuffer)
 //   clamp box : [loX, hiX] x [loY, hiY] in pSrc-relative coordinates, with
@@ -119,20 +126,27 @@ __global__ void unsharp_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *
   const char *const srcBase = reinterpret_cast<const char *>(pSrc);
   const int cx = x < loX ? loX : (x > hiX ? hiX : x);
   const int cy = y < loY ? loY : (y > hiY ? hiY : y);
-  const Src *centre = reinterpret_cast<const Src *>(srcBase + static_cast<std::ptrdiff_t>(cy) * nSrcStep) +
-                      static_cast<std::ptrdiff_t>(cx) * Channels;
+  // Source steps are not required to be element-aligned (NPP accepts an odd
+  // source step), so every sample is read byte-wise through memcpy; the MACA
+  // device faults on unaligned 16/32-bit loads.
+  const char *centre =
+      srcBase + static_cast<std::ptrdiff_t>(cy) * nSrcStep +
+      static_cast<std::ptrdiff_t>(cx) * Channels * static_cast<std::ptrdiff_t>(sizeof(Src));
   double acc[4] = {0.0, 0.0, 0.0, 0.0};
   for (int a = 0; a < k; ++a) {
     int ry = y + a - r;
     ry = ry < loY ? loY : (ry > hiY ? hiY : ry);
-    const Src *row = reinterpret_cast<const Src *>(srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep);
+    const char *row = srcBase + static_cast<std::ptrdiff_t>(ry) * nSrcStep;
     for (int b = 0; b < k; ++b) {
       int rx = x + b - r;
       rx = rx < loX ? loX : (rx > hiX ? hiX : rx);
       const float t = taps[a * k + b];
       if (t == 0.0f) continue;
-      const Src *pix = row + static_cast<std::ptrdiff_t>(rx) * Channels;
-      for (int c = 0; c < nch; ++c) acc[c] += static_cast<double>(t) * static_cast<double>(pix[c]);
+      const char *pix = row + (static_cast<std::ptrdiff_t>(rx) * Channels) * sizeof(Src);
+      for (int c = 0; c < nch; ++c) {
+        const Src v = load_unaligned<Src>(pix + static_cast<std::ptrdiff_t>(c) * sizeof(Src));
+        acc[c] += static_cast<double>(t) * static_cast<double>(v);
+      }
     }
   }
   Dst *drow = reinterpret_cast<Dst *>(reinterpret_cast<char *>(pDst) + static_cast<std::ptrdiff_t>(y) * nDstStep) +
@@ -140,7 +154,7 @@ __global__ void unsharp_kernel(const Src *__restrict__ pSrc, int nSrcStep, Dst *
   const bool useThreshold = threshold > 0.0f && !(threshold != threshold);
   const double thr = static_cast<double>(threshold) * static_cast<double>(thresholdScale);
   for (int c = 0; c < nch; ++c) {
-    const double s = static_cast<double>(centre[c]);
+    const double s = static_cast<double>(load_unaligned<Src>(centre + static_cast<std::ptrdiff_t>(c) * sizeof(Src)));
     const double hp = s - acc[c];
     double out;
     if (useThreshold && fabs(hp) <= thr) {
