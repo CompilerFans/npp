@@ -439,6 +439,13 @@ __global__ void k_ycck_to_cmyk(const Npp8u *__restrict__ p0, const Npp8u *__rest
 
 } // namespace
 
+// 5090: a packed 4-channel source step must be a multiple of the pixel size
+// (4 bytes for 8u); a misaligned step is NOT_EVEN_STEP_ERROR, checked after
+// the too-short-step test.
+inline bool ac4_src_step_bad(int nSrcStep, int srcPp) {
+  return srcPp == 4 && (static_cast<unsigned>(nSrcStep) & 3u) != 0u;
+}
+
 NppStatus fwd420(const Npp8u *pSrc, int nSrcStep, int srcPp, int bgr, Npp8u *pDst[3], const int aDstStep[3],
                  NppiSize oSizeROI, cudaStream_t stream, int matrixId, int swapPlanes) {
   if (!pSrc || !pDst) {
@@ -449,6 +456,9 @@ NppStatus fwd420(const Npp8u *pSrc, int nSrcStep, int srcPp, int bgr, Npp8u *pDs
   }
   if (!step_ok(nSrcStep, srcPp * oSizeROI.width)) {
     return NPP_STEP_ERROR;
+  }
+  if (ac4_src_step_bad(nSrcStep, srcPp)) {
+    return NPP_NOT_EVEN_STEP_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
   if (w == 0 || h == 0) {
@@ -485,6 +495,9 @@ NppStatus fwdC2(const Npp8u *pSrc, int nSrcStep, int srcPp, int bgr, Npp8u *pDst
   }
   if (!step_ok(nSrcStep, srcPp * oSizeROI.width) || !step_ok(nDstStep, 2 * oSizeROI.width)) {
     return NPP_STEP_ERROR;
+  }
+  if (ac4_src_step_bad(nSrcStep, srcPp)) {
+    return NPP_NOT_EVEN_STEP_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
   if (w == 0 || h == 0) {
@@ -650,6 +663,9 @@ NppStatus rgbToYcc(const Npp8u *pSrc, int nSrcStep, int pp, Npp8u *pDst, int nDs
   if (!step_ok(nSrcStep, pp * oSizeROI.width) || !step_ok(nDstStep, pp * oSizeROI.width)) {
     return NPP_STEP_ERROR;
   }
+  if (ac4_src_step_bad(nSrcStep, pp)) {
+    return NPP_NOT_EVEN_STEP_ERROR;
+  }
   const int w = oSizeROI.width, h = oSizeROI.height;
   if (w == 0 || h == 0) {
     return NPP_NO_ERROR;
@@ -680,6 +696,9 @@ NppStatus yccToRgb(const Npp8u *pSrc, int nSrcStep, int pp, Npp8u *pDst, int nDs
   }
   if (!step_ok(nSrcStep, pp * oSizeROI.width) || !step_ok(nDstStep, pp * oSizeROI.width)) {
     return NPP_STEP_ERROR;
+  }
+  if (ac4_src_step_bad(nSrcStep, pp)) {
+    return NPP_NOT_EVEN_STEP_ERROR;
   }
   const int w = oSizeROI.width, h = oSizeROI.height;
   if (w == 0 || h == 0) {
