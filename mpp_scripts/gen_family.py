@@ -281,8 +281,10 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
             skipped.append(f.name)
             continue
         twin = ctx_twin_of(f, funcs)
-        if twin is None:
-            raise SystemExit(f"{f.name}: no _Ctx twin found")
+        if twin is None and not f.ctx:
+            # Host-only helper without a _Ctx twin (e.g. the nppiMorphGetBufferSize_*
+            # family): the spec's call is emitted directly, render() validates it.
+            pass
         chunks.append(render(spec, f, twin))
         emitted.append(f.name)
         if f.status == "stub":
