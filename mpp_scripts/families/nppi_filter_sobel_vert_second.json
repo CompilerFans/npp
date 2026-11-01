@@ -1,0 +1,15 @@
+{
+  "family": "nppiFilterSobelVertSecond",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_sobel_vert_second_generated.cpp",
+  "includes": [
+    "nppi_filter_derivatives_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp16s * pDst",
+      "call": "nppi::filter::filterDerivMask<{dtype}, {dst_dtype}, nppi::filter::kSobelVertSecond>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::filter::filterDerivMask<{dtype}, {dtype}, nppi::filter::kSobelVertSecond>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, eMaskSize, nppStreamCtx.hStream)"
+}

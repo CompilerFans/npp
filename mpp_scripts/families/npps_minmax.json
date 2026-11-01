@@ -1,0 +1,36 @@
+{
+  "family": "nppsMinMax",
+  "module": "npps_statistics_functions.h",
+  "source": "src/npps/npps_statistics_functions/npps_minmax_generated.cpp",
+  "includes": ["npps_statistics_executor.h"],
+  "families": [
+    "nppsMin", "nppsMax", "nppsMinIndx", "nppsMaxIndx",
+    "nppsMinAbs", "nppsMaxAbs", "nppsMinAbsIndx", "nppsMaxAbsIndx",
+    "nppsMinMax", "nppsMinMaxIndx",
+    "nppsMinGetBufferSize", "nppsMaxGetBufferSize", "nppsMinIndxGetBufferSize", "nppsMaxIndxGetBufferSize",
+    "nppsMinAbsGetBufferSize", "nppsMaxAbsGetBufferSize", "nppsMinAbsIndxGetBufferSize", "nppsMaxAbsIndxGetBufferSize",
+    "nppsMinMaxGetBufferSize", "nppsMinMaxIndxGetBufferSize"
+  ],
+  "call_by_family": {
+    "nppsMin": "npps::statistics::extrema<{dtype}, false>(pSrc, nLength, pMin, nullptr, nullptr, nullptr, true, false, false, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMax": "npps::statistics::extrema<{dtype}, false>(pSrc, nLength, nullptr, nullptr, pMax, nullptr, false, true, false, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMinIndx": "npps::statistics::extrema<{dtype}, false>(pSrc, nLength, pMin, pIndx, nullptr, nullptr, true, false, true, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMaxIndx": "npps::statistics::extrema<{dtype}, false>(pSrc, nLength, nullptr, nullptr, pMax, pIndx, false, true, true, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMinAbs": "npps::statistics::extrema<{dtype}, true>(pSrc, nLength, pMinAbs, nullptr, nullptr, nullptr, true, false, false, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMaxAbs": "npps::statistics::extrema<{dtype}, true>(pSrc, nLength, nullptr, nullptr, pMaxAbs, nullptr, false, true, false, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMinAbsIndx": "npps::statistics::extrema<{dtype}, true>(pSrc, nLength, pMinAbs, pIndx, nullptr, nullptr, true, false, true, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMaxAbsIndx": "npps::statistics::extrema<{dtype}, true>(pSrc, nLength, nullptr, nullptr, pMaxAbs, pIndx, false, true, true, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMinMax": "npps::statistics::extrema<{dtype}, false>(pSrc, nLength, pMin, nullptr, pMax, nullptr, true, true, false, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMinMaxIndx": "npps::statistics::extrema<{dtype}, false>(pSrc, nLength, pMin, pMinIndx, pMax, pMaxIndx, true, true, true, pDeviceBuffer, nppStreamCtx.hStream)",
+    "nppsMinGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMaxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMinIndxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMaxIndxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMinAbsGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMaxAbsGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMinAbsIndxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMaxAbsIndxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMinMaxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)",
+    "nppsMinMaxIndxGetBufferSize": "npps::statistics::extrema_buffer_size<{dtype}>(nLength, hpBufferSize)"
+  }
+}

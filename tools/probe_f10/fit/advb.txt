@@ -1,0 +1,16 @@
+== advb ==
+advb border=0 status=-14 row0: 170 170 170 170 170
+advb border=1 status=-14 row0: 170 170 170 170 170
+advb border=2 status=0 row0: 1 2 3 4 5
+advb border=3 status=-14 row0: 170 170 170 170 170
+advb border=4 status=0 row0: 3 3 4 5 6
+advb taps=1 status=-33
+advb taps=2 status=-33
+advb taps=3 status=0
+advb taps=5 status=0
+advb taps=17 status=0
+advb taps=33 status=0
+advb taps=0 status=-33
+advb taps=-1 status=-33
+advb null-kernel status=-8
+done

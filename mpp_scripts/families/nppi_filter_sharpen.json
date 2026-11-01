@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterSharpen",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_sharpen_generated.cpp",
+  "includes": [
+    "nppi_filter_fixed_executor.h"
+  ],
+  "call": "nppi::filter::filterFixed<{dtype}, {dtype}, {chan}, {is_ac4}, nppi::filter::kSharpen>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream)"
+}
