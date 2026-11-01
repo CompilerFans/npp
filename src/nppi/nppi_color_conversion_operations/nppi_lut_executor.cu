@@ -337,7 +337,10 @@ __global__ void paletteMultiKernel(const SrcT *pSrc, int nSrcStep, SrcT *pDst, i
   const int tables_used = AlphaOnly ? Channels - 1 : Channels;
   for (int c = 0; c < tables_used; ++c) {
     const int index = x * Channels + c;
-    dstRow[index] = pTables[c][static_cast<unsigned int>(srcRow[index]) & mask];
+    // 5090 quirk: the 16u C4 kernel maps the fourth channel through the
+    // third table (the 8u C4 kernel uses pTables[3]).
+    const int table = (sizeof(SrcT) == 2 && Channels == 4 && c == 3) ? 2 : c;
+    dstRow[index] = pTables[table][static_cast<unsigned int>(srcRow[index]) & mask];
   }
 }
 
@@ -353,11 +356,23 @@ __global__ void paletteSwapKernel(const T *pSrc, int nSrcStep, int nAlphaValue, 
   T *dstRow = getDstRow(pDst, y, nDstStep);
   const int src_index = x * 3;
   const int dst_index = x * 4;
-  dstRow[dst_index + 0] = pTables[2][static_cast<unsigned int>(srcRow[src_index + 2]) & mask];
-  dstRow[dst_index + 1] = pTables[1][static_cast<unsigned int>(srcRow[src_index + 1]) & mask];
-  dstRow[dst_index + 2] = pTables[0][static_cast<unsigned int>(srcRow[src_index + 0]) & mask];
+  if constexpr (sizeof(T) == 1) {
+    // 8u: destination slots 0 and 2 come from the last and first tables.
+    dstRow[dst_index + 0] = pTables[2][static_cast<unsigned int>(srcRow[src_index + 2]) & mask];
+    dstRow[dst_index + 1] = pTables[1][static_cast<unsigned int>(srcRow[src_index + 1]) & mask];
+    dstRow[dst_index + 2] = pTables[0][static_cast<unsigned int>(srcRow[src_index + 0]) & mask];
+  } else {
+    // 16u: the *source channels* are reversed while the tables stay in order
+    // (dst0 = table0[src2], dst2 = table2[src0]; measured on the 5090).
+    dstRow[dst_index + 0] = pTables[0][static_cast<unsigned int>(srcRow[src_index + 2]) & mask];
+    dstRow[dst_index + 1] = pTables[1][static_cast<unsigned int>(srcRow[src_index + 1]) & mask];
+    dstRow[dst_index + 2] = pTables[2][static_cast<unsigned int>(srcRow[src_index + 0]) & mask];
+  }
+  // Alpha: 8u accepts only 0..255 (larger values leave the destination
+  // untouched); 16u accepts any non-negative value and truncates it (65536 -> 0).
+  const long long alpha = static_cast<long long>(nAlphaValue);
   const long long max_alpha = static_cast<long long>((1ULL << (8 * sizeof(T))) - 1ULL);
-  if (static_cast<long long>(nAlphaValue) >= 0 && static_cast<long long>(nAlphaValue) <= max_alpha) {
+  if (alpha >= 0 && (sizeof(T) != 1 || alpha <= max_alpha)) {
     dstRow[dst_index + 3] = static_cast<T>(nAlphaValue);
   }
 }
@@ -516,8 +531,23 @@ NppStatus paletteMulti(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep,
   }
   dim3 block = BlockConfig<>::blockSize();
   dim3 grid = BlockConfig<>::gridSize(oSizeROI.width, oSizeROI.height);
+  // pTables is a host array of per-channel device pointers (NPP contract);
+  // stage the pointer array so the device never dereferences host memory.
+  const SrcT **d_tables = nullptr;
+  cudaError_t err = cudaMallocAsync(reinterpret_cast<void **>(&d_tables),
+                                    (size_t)kTablesUsed * sizeof(const SrcT *), stream);
+  if (err != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+  err = cudaMemcpyAsync(d_tables, pTables, (size_t)kTablesUsed * sizeof(const SrcT *),
+                        cudaMemcpyHostToDevice, stream);
+  if (err != cudaSuccess) {
+    cudaFreeAsync(d_tables, stream);
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
   paletteMultiKernel<SrcT, Channels, AlphaOnly><<<grid, block, 0, stream>>>(
-      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pTables, nBitSize);
+      pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, d_tables, nBitSize);
+  cudaFreeAsync(d_tables, stream);
   return checkCudaKernelError();
 }
 
@@ -535,8 +565,20 @@ NppStatus paletteSwap(const T *pSrc, int nSrcStep, int nAlphaValue, T *pDst, int
   }
   dim3 block = BlockConfig<>::blockSize();
   dim3 grid = BlockConfig<>::gridSize(oSizeROI.width, oSizeROI.height);
+  // pTables is a host array of three device pointers (NPP contract).
+  const T **d_tables = nullptr;
+  cudaError_t err = cudaMallocAsync(reinterpret_cast<void **>(&d_tables), 3 * sizeof(const T *), stream);
+  if (err != cudaSuccess) {
+    return NPP_MEMORY_ALLOCATION_ERR;
+  }
+  err = cudaMemcpyAsync(d_tables, pTables, 3 * sizeof(const T *), cudaMemcpyHostToDevice, stream);
+  if (err != cudaSuccess) {
+    cudaFreeAsync(d_tables, stream);
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
+  }
   paletteSwapKernel<T><<<grid, block, 0, stream>>>(pSrc, nSrcStep, nAlphaValue, pDst, nDstStep, oSizeROI.width,
-                                                   oSizeROI.height, pTables, nBitSize);
+                                                   oSizeROI.height, d_tables, nBitSize);
+  cudaFreeAsync(d_tables, stream);
   return checkCudaKernelError();
 }
 
