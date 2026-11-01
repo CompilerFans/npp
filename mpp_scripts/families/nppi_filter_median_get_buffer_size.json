@@ -1,0 +1,7 @@
+{
+  "family": "nppiFilterMedianGetBufferSize",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_median_get_buffer_size_generated.cpp",
+  "includes": ["nppi_filter_window_executor.h"],
+  "call": "nppi::filter::medianGetBufferSize<{dtype}, {chan}>(oSizeROI, oMaskSize, nBufferSize)"
+}
