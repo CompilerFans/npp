@@ -230,10 +230,25 @@ NppStatus filterFixedBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, Np
                             int nDstStep, NppiSize oSizeROI, NppiBorderType eBorderType, cudaStream_t stream) {
   if (!pSrc || !pDst) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
-  if (oSrcOffset.x < 0 || oSrcOffset.y < 0 || oSrcOffset.x >= oSrcSize.width || oSrcOffset.y >= oSrcSize.height)
-    return NPP_OUT_OFF_RANGE_ERROR;
-  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
+  // 5090 quirk: nppiFilterSharpenBorder_16u_C1R does not validate the source
+  // size, the source offset or the border type (all of those return NO_ERROR);
+  // the null, negative-ROI and dst-step checks still apply.  Every other fixed
+  // border variant validates them normally (goldens in NppiFilterFixedDiff).
+  constexpr bool kIgnoreSrcChecks = std::is_same_v<Src, Npp16u> && std::is_same_v<Dst, Npp16u> &&
+                                    Channels == 1 && !AlphaPreserve && Op == kSharpen;
+  if constexpr (kIgnoreSrcChecks) {
+    if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_NO_ERROR;
+    if (oSrcOffset.x < 0 || oSrcOffset.y < 0 || oSrcOffset.x >= oSrcSize.width ||
+        oSrcOffset.y >= oSrcSize.height)
+      return NPP_NO_ERROR;
+    if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NO_ERROR;
+  } else {
+    if (oSrcSize.width <= 0 || oSrcSize.height <= 0) return NPP_SIZE_ERROR;
+    if (oSrcOffset.x < 0 || oSrcOffset.y < 0 || oSrcOffset.x >= oSrcSize.width ||
+        oSrcOffset.y >= oSrcSize.height)
+      return NPP_OUT_OFF_RANGE_ERROR;
+    if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
+  }
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   return launch<Src, Dst, Channels, AlphaPreserve, true>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI,
                                                          fixed_coef(Op, 3), oSrcSize, oSrcOffset, stream);
