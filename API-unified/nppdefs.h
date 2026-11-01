@@ -174,7 +174,7 @@ typedef enum
 typedef enum
 {
     /* negative return-codes indicate errors */
-    NPP_NOT_SUPPORTED_MODE_ERROR            = -9999,
+    NPP_NOT_SUPPORTED_MODE_ERROR            = -14,
 
     NPP_INVALID_HOST_POINTER_ERROR          = -1032,
     NPP_INVALID_DEVICE_POINTER_ERROR        = -1031,
@@ -203,7 +203,7 @@ typedef enum
 
     NPP_CORRUPTED_DATA_ERROR                = -61,      /**< Processed data is corrupted */
     NPP_CHANNEL_ORDER_ERROR                 = -60,      /**< Wrong order of the destination channels */
-    NPP_ZERO_MASK_VALUE_ERROR               = -59,      /**< All values of the mask are zero */
+    NPP_ZERO_MASK_VALUE_ERROR               = -62,      /**< All values of the mask are zero */
     NPP_QUADRANGLE_ERROR                    = -58,      /**< The quadrangle is nonconvex or degenerates into triangle, line or point */
     NPP_RECTANGLE_ERROR                     = -57,      /**< Size of the rectangle region is less than or equal to 1 */
     NPP_COEFFICIENT_ERROR                   = -56,      /**< Unallowable values of the transformation coefficients   */
@@ -218,18 +218,18 @@ typedef enum
     NPP_ANCHOR_ERROR                        = -34,      /**< Anchor point is outside mask */
     NPP_MASK_SIZE_ERROR                     = -33,      /**< Lower bound is larger than upper bound */
 
-    NPP_RESIZE_FACTOR_ERROR                 = -23,
-    NPP_INTERPOLATION_ERROR                 = -22,
-    NPP_MIRROR_FLIP_ERROR                   = -21,
-    NPP_MOMENT_00_ZERO_ERROR                = -20,
-    NPP_THRESHOLD_NEGATIVE_LEVEL_ERROR      = -19,
-    NPP_THRESHOLD_ERROR                     = -18,
-    NPP_CONTEXT_MATCH_ERROR                 = -17,
-    NPP_FFT_FLAG_ERROR                      = -16,
-    NPP_FFT_ORDER_ERROR                     = -15,
-    NPP_STEP_ERROR                          = -14,       /**<  Step is less or equal zero */
-    NPP_SCALE_RANGE_ERROR                   = -13,
-    NPP_DATA_TYPE_ERROR                     = -12,
+    NPP_RESIZE_FACTOR_ERROR                 = -24,
+    NPP_INTERPOLATION_ERROR                 = -23,
+    NPP_MIRROR_FLIP_ERROR                   = -22,
+    NPP_MOMENT_00_ZERO_ERROR                = -21,
+    NPP_THRESHOLD_NEGATIVE_LEVEL_ERROR      = -20,
+    NPP_THRESHOLD_ERROR                     = -19,
+    NPP_CONTEXT_MATCH_ERROR                 = -13,
+    NPP_FFT_FLAG_ERROR                      = -18,
+    NPP_FFT_ORDER_ERROR                     = -17,
+    NPP_STEP_ERROR                          = -16,       /**<  Step is less or equal zero */
+    NPP_SCALE_RANGE_ERROR                   = -12,
+    NPP_DATA_TYPE_ERROR                     = -59,
     NPP_OUT_OFF_RANGE_ERROR                 = -11,
     NPP_DIVIDE_BY_ZERO_ERROR                = -10,
     NPP_MEMORY_ALLOCATION_ERR               = -9,
