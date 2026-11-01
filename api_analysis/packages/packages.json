@@ -407,5 +407,23 @@
       "nppsZeroCrossing",
       "nppsZeroCrossingGetBufferSize"
     ]
+  },
+  "c4": {
+    "title": "NPPI remaining color conversions (color key, gamma planar, CFA, XYZ/LUV, NV12)",
+    "module": "nppi_color_conversion.h",
+    "families": [
+      "nppiAlphaCompColorKey",
+      "nppiCFAToRGB",
+      "nppiCFAToRGBA",
+      "nppiCompColorKey",
+      "nppiGammaFwd",
+      "nppiGammaInv",
+      "nppiLUVToRGB",
+      "nppiNV12ToRGB",
+      "nppiRGBToLUV",
+      "nppiRGBToNV12",
+      "nppiRGBToXYZ",
+      "nppiXYZToRGB"
+    ]
   }
 }
