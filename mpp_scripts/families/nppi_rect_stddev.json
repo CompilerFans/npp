@@ -1,0 +1,19 @@
+{
+  "family": "nppiRectStdDev",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_rect_stddev_missing_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "functions": [
+    "nppiRectStdDev_32f_C1R",
+    "nppiRectStdDev_32f_C1R_Ctx",
+    "nppiRectStdDev_32s_C1RSfs",
+    "nppiRectStdDev_32s_C1RSfs_Ctx"
+  ],
+  "call_by_name": {
+    "nppiRectStdDev_32f_C1R_Ctx": "nppi::statistics::runRectStdDevF32(pSrc, nSrcStep, pSqr, nSqrStep, pDst, nDstStep, oSizeROI, oRect, nppStreamCtx.hStream)",
+    "nppiRectStdDev_32s_C1RSfs_Ctx": "nppi::statistics::runRectStdDevS32(pSrc, nSrcStep, pSqr, nSqrStep, pDst, nDstStep, oSizeROI, oRect, nScaleFactor, nppStreamCtx.hStream)"
+  },
+  "call": "unused"
+}

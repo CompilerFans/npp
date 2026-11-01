@@ -1,0 +1,20 @@
+== gborder ==
+border=0 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+border=1 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+border=2 mask=3x3 status=0 dst[0..4]: 1 2 3 4 5
+border=3 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+border=4 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+border=5 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+border=100 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+border=-1 mask=3x3 status=-14 dst[0..4]: 170 170 170 170 170
+replicate mask=200 status=0 dst0=1
+replicate mask=201 status=0 dst0=2
+replicate mask=400 status=0 dst0=3
+replicate mask=500 status=0 dst0=4
+replicate mask=600 status=0 dst0=5
+replicate mask=700 status=0 dst0=6
+replicate mask=800 status=0 dst0=6
+replicate mask=0 status=-33 dst0=170
+replicate mask=0 status=-33 dst0=170
+replicate mask=900 status=-33 dst0=170
+done

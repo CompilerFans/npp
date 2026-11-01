@@ -1,0 +1,18 @@
+probe_f9c.cu(138): warning #224-D: the format string requires additional arguments
+    printf("status %d %s (bufsz=%d)\n", (int)st, sn(st));
+                                                       ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+probe_f9c.cu(179): warning #224-D: the format string requires additional arguments
+    printf("status %d %s (bufsz=%d)\n", (int)st, sn(st));
+                                                       ^
+
+probe_f9c.cu: In function ‘void big_case(const char*, int, int, int, int, int, int, int, int, int, int)’:
+probe_f9c.cu:138:8: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+  138 |   printf("status %d %s (bufsz=%d)\n", (int)st, sn(st));
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+probe_f9c.cu: In function ‘void imp_case(const char*, int, int, int, int, int, int, int, int, int, int, int, int, int, int)’:
+probe_f9c.cu:179:8: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+  179 |   printf("status %d %s (bufsz=%d)\n", (int)st, sn(st));
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
