@@ -645,6 +645,9 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_32f_C1R_Scaling) {
   Npp32f *d_dst = nppiMalloc_32f_C1(dstWidth, dstHeight, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
+  // NPP leaves destination pixels whose mapping falls outside the source
+  // untouched; initialise the destination so the untouched pixels are defined.
+  cudaMemset(d_dst, 0, (size_t)dstStep * dstHeight);
 
   // 复制数据到GPU
   for (int y = 0; y < srcHeight; y++) {
@@ -951,6 +954,9 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C3R_Ctx) {
   Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
+  // NPP leaves destination pixels whose mapping falls outside the source
+  // untouched; initialise the destination so the untouched pixels are defined.
+  cudaMemset(d_dst, 0, (size_t)dstStep * dstHeight);
 
   for (int y = 0; y < srcHeight; y++) {
     cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
@@ -1550,6 +1556,9 @@ TEST_F(WarpPerspectiveFunctionalTest, WarpPerspective_8u_C3R_ForwardMatrixTransl
   Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
+  // NPP leaves destination pixels whose mapping falls outside the source
+  // untouched; initialise the destination so the untouched pixels are defined.
+  cudaMemset(d_dst, 0, (size_t)dstStep * dstHeight);
 
   for (int y = 0; y < srcHeight; y++) {
     cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
