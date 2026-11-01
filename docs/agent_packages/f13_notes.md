@@ -96,3 +96,26 @@ All three were fitted against NPP 13.4 with probes 26/27/28 and replayed with
   `nppiFloodFill*`, `nppiDistanceTransform*PBA`, `nppiSegmentWatershed*`,
   `nppiFilterHoughLine*`, `nppiContours*`: still missing at the time of this
   note.
+
+## 7. Label markers (family 4 part)
+
+The existing 8u32u Union-Find implementation reproduces NPP 13.4 exactly
+(0-based linear labels of the component's first scan-order pixel, L1 = 4-way,
+Inf = 8-way).  It was generalised:
+
+* single image: `nppiLabelMarkersUF_{16u32u,32u}_C1R` (+Ctx) - templated
+  source type over the same kernels; new `tools/probes/f13_verify_labels.cu`
+  (8 cases) matches NPP bit-for-bit for 8u/16u/32u, L1 and Inf.
+* batch: the Advanced kernels are templated as well and now honour eNorm
+  (the old batch path always merged 8-way, which disagreed with NPP for L1);
+  the non-Advanced `nppiLabelMarkersUFBatch_*_C1R` entry points forward with
+  oSizeROI as the largest ROI.
+* statuses confirmed on the 5090: null pointers -8, non-positive ROI -6,
+  non-positive step -14, unsupported norm -5, batch size <= 0 -5, and the
+  Advanced batch form rejects `nBatchSize <= 1`.
+
+Not done in this batch: `nppiCompressMarkerLabelsUFBatch_32u_C1IR(+Ctx)`
+and `nppiSegmentWatershed_16u_C1IR(+Ctx)`.  The existing 8u watershed
+implementation does not reproduce NPP 13.4 at all (a probe with two markers
+gives a completely different marker image), so the 16u variant was left out
+rather than adding a second divergent implementation.

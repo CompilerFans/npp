@@ -64,7 +64,6 @@ nppi_statistics_functions.h,nppiHistogramEven,48,36,12,0,6,6,36,12
 nppi_statistics_functions.h,nppiMSEBatch,12,0,0,12,6,6,6,12
 nppi_statistics_functions.h,nppiPSNRBatch,12,0,0,12,6,6,6,12
 nppi_statistics_functions.h,nppiWMSSSIMBatch,12,0,0,12,6,6,6,12
-nppi_filtering_functions.h,nppiLabelMarkersUFBatch,12,2,0,10,5,5,6,10
 nppi_color_conversion.h,nppiColorTwist32fC,8,0,0,8,4,4,4,8
 nppi_color_conversion.h,nppiColorTwistBatch32fC,8,0,0,8,4,4,4,8
 nppi_color_conversion.h,nppiYCbCr411ToYCbCr422,8,0,0,8,4,4,4,8
@@ -136,7 +135,6 @@ nppi_color_conversion.h,nppiYUV420ToBGRBatch,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiYUV420ToRGBBatch,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiYUV422ToBGRBatch,4,0,0,4,2,2,2,4
 nppi_color_conversion.h,nppiYUV422ToRGBBatch,4,0,0,4,2,2,2,4
-nppi_filtering_functions.h,nppiLabelMarkersUF,7,3,0,4,2,2,4,4
 nppi_morphological_operations.h,nppiGrayDilateBorder,4,0,0,4,2,2,2,4
 nppi_morphological_operations.h,nppiGrayErodeBorder,4,0,0,4,2,2,2,4
 nppi_statistics_functions.h,nppiMSSSIM,4,0,0,4,2,2,2,4
@@ -354,6 +352,8 @@ nppi_filtering_functions.h,nppiFilterThresholdAdaptiveBoxBorder,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiGradientVectorPrewittBorder,16,16,0,0,0,0,8,0
 nppi_filtering_functions.h,nppiGradientVectorScharrBorder,16,16,0,0,0,0,8,0
 nppi_filtering_functions.h,nppiGradientVectorSobelBorder,16,16,0,0,0,0,8,0
+nppi_filtering_functions.h,nppiLabelMarkersUF,7,7,0,0,0,0,4,0
+nppi_filtering_functions.h,nppiLabelMarkersUFBatch,12,12,0,0,0,0,6,0
 nppi_filtering_functions.h,nppiSignedDistanceTransformPBAGet64fBufferSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiSumWindowColumn,18,18,0,0,0,0,10,0
 nppi_filtering_functions.h,nppiSumWindowColumnBorder,18,18,0,0,0,0,9,0
