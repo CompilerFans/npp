@@ -1,0 +1,95 @@
+== HighPass plain 8u C1
+nullsrc                      -8
+nulldst                      -8
+negroi_w                     -6
+negroi_h                     -6
+zeroroi                      0
+badmask                      -33
+mask1x3                      -33
+mask7x7                      -33
+badmask_stepsmall            -33
+zeroroi_badmask              -33
+zeroroi_badstep              0
+stepsmall                    -16
+step0                        -16
+stepneg                      0
+srcstepneg                   0
+== LowPass plain 8u C1
+badmask                      -33
+negroi                       -6
+stepsmall                    -16
+== Sharpen plain 8u C1
+negroi                       -6
+zeroroi                      0
+stepsmall                    -16
+== Laplace plain 8u C1
+badmask                      -33
+mask1x3                      -33
+negroi                       -6
+stepsmall                    -16
+== Laplace plain 8u16s C1
+badmask                      -33
+stepsmall                    -16
+stepodd                      -108
+== step alignment (plain)
+hp16u_c1_stepodd             -108
+hp16u_c1_stepok              0
+hp8u_c3_stepodd              0
+hp8u_c4_stepodd              -108
+hp8u_ac4_stepodd             -108
+hp8u_ac4_stepok              0
+hp16s_c4_stepodd             -108
+hp32f_c4_stepodd             -108
+lp16s_c3_stepodd             -108
+== HighPassBorder 8u C1
+nullsrc                      -8
+nulldst                      -8
+negroi                       -6
+zeroroi                      -6
+srcsize_w0                   -6
+srcsize_neg                  -6
+offneg                       -11
+offbig                       0
+offbig2                      -11
+badborder_const              -14
+badborder_wrap               -14
+badborder_none               -14
+badmask                      -33
+badborder_badmask            -14
+zeroroi_badborder            -14
+zeroroi_badmask              -6
+zeroroi_offneg               -11
+zeroroi_badstep              0
+negroi_badborder             -6
+srcsize_badborder            -6
+offneg_badborder             -11
+stepsmall                    -16
+badmask_stepsmall            -33
+offbig_5x5                   0
+== LowPassBorder 8u C1
+badmask                      -33
+srcsize_w0                   -6
+offneg                       -11
+badborder                    -14
+== SharpenBorder 8u C1
+srcsize_w0                   -6
+offneg                       -11
+badborder                    -14
+zeroroi                      -6
+== LaplaceBorder 8u C1
+badmask                      -33
+badborder                    -14
+offneg                       -11
+== LaplaceBorder 8u16s C1
+badmask                      -33
+badborder                    -14
+== in-place
+hp8u_inplace                 0
+lp8u_inplace                 0
+sh8u_inplace                 0
+== AC4 alpha check
+status=0
+  (0 0 0 170) (0 0 0 170) (0 0 0 170) (0 0 0 170) 
+  (223 230 237 170) (255 255 255 170) (255 255 255 170) (255 255 255 170) 
+  (255 255 255 170) (0 0 0 170) (0 0 0 170) (0 0 0 170) 
+  (0 0 0 170) (255 255 255 170) (255 255 255 170) (255 255 255 170) 
