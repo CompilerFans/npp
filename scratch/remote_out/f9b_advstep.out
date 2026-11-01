@@ -1,0 +1,213 @@
+nppGetStreamContext -> 0
+== advstep: channels/neg validation of GetDeviceBufferSize ==
+ch  -1: -1 (-5)   _64: -1 (-5)
+ch   0: -1 (-5)   _64: -1 (-5)
+ch   1: 148 (0)   _64: 288 (0)
+ch   2: -1 (-5)   _64: -1 (-5)
+ch   3: 428 (0)   _64: 848 (0)
+ch   4: 568 (0)   _64: 1128 (0)
+ch   5: -1 (-5)   _64: -1 (-5)
+ch   6: -1 (-5)   _64: -1 (-5)
+ch   8: -1 (-5)   _64: -1 (-5)
+ch  16: -1 (-5)   _64: -1 (-5)
+== advstep 8u validation ==
+roi_zero_w dstep_ok                             -16 STEP
+roi0x7 dstep=0                                  -16 STEP
+roi0x7 dstep=1                                  -16 STEP
+roi0x7 dstep=2                                  -16 STEP
+roi0x7 dstep=3                                  -16 STEP
+roi0x7 dstep=5                                  -16 STEP
+roi0x7 dstep=7                                  -16 STEP
+roi0x7 dstep=11                                 -16 STEP
+roi0x7 dstep=16                                 -16 STEP
+roi0x7 dstep=28                                 -16 STEP
+roi0x7 dstep=32                                 -16 STEP
+roi7x0 dstep=11                                   0 OK
+roi1x7 dstep=11                                   0 OK
+roi0x1 dstep=11                                 -16 STEP
+roi0x0 dstep=11                                   0 OK
+roi0x7 mask1x1                                  -16 STEP
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+null_buf                                         -8 NULL_POINTER
+mask_zero                                         0 OK
+mask_neg                                          0 OK
+anchor_gt                                         0 OK
+align roi4x3 dstep=4                              0 OK
+align roi4x3 dstep=5                              0 OK
+align roi4x3 dstep=6                              0 OK
+align roi4x3 dstep=7                              0 OK
+align roi4x3 dstep=8                              0 OK
+-- adv bufsize non-square 8u --
+roi 7x3 ch1: 92 (0) ch3: 260 ch4: 344
+roi 3x7 ch1: 92 (0) ch3: 260 ch4: 344
+roi 16x5 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 5x16 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 100x7 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 7x100 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 1x1 ch1: 12 (0) ch3: 20 ch4: 24
+roi 0x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x0 ch1: -1 (-6) ch3: -1 ch4: -1
+roi -1x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x-1 ch1: -1 (-6) ch3: -1 ch4: -1
+== advstep 16u validation ==
+roi_zero_w dstep_ok                             -16 STEP
+roi0x7 dstep=0                                  -16 STEP
+roi0x7 dstep=1                                  -16 STEP
+roi0x7 dstep=2                                  -16 STEP
+roi0x7 dstep=3                                  -16 STEP
+roi0x7 dstep=5                                  -16 STEP
+roi0x7 dstep=7                                  -16 STEP
+roi0x7 dstep=11                                 -16 STEP
+roi0x7 dstep=16                                 -16 STEP
+roi0x7 dstep=28                                 -16 STEP
+roi0x7 dstep=32                                 -16 STEP
+roi7x0 dstep=11                                   0 OK
+roi1x7 dstep=11                                -108 NOT_EVEN_STEP
+roi0x1 dstep=11                                 -16 STEP
+roi0x0 dstep=11                                   0 OK
+roi0x7 mask1x1                                  -16 STEP
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+null_buf                                         -8 NULL_POINTER
+mask_zero                                         0 OK
+mask_neg                                          0 OK
+anchor_gt                                         0 OK
+align roi4x3 dstep=8                              0 OK
+align roi4x3 dstep=9                           -108 NOT_EVEN_STEP
+align roi4x3 dstep=10                             0 OK
+align roi4x3 dstep=11                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=12                             0 OK
+-- adv bufsize non-square 16u --
+roi 7x3 ch1: 92 (0) ch3: 260 ch4: 344
+roi 3x7 ch1: 92 (0) ch3: 260 ch4: 344
+roi 16x5 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 5x16 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 100x7 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 7x100 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 1x1 ch1: 12 (0) ch3: 20 ch4: 24
+roi 0x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x0 ch1: -1 (-6) ch3: -1 ch4: -1
+roi -1x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x-1 ch1: -1 (-6) ch3: -1 ch4: -1
+== advstep 16s validation ==
+roi_zero_w dstep_ok                             -16 STEP
+roi0x7 dstep=0                                  -16 STEP
+roi0x7 dstep=1                                  -16 STEP
+roi0x7 dstep=2                                  -16 STEP
+roi0x7 dstep=3                                  -16 STEP
+roi0x7 dstep=5                                  -16 STEP
+roi0x7 dstep=7                                  -16 STEP
+roi0x7 dstep=11                                 -16 STEP
+roi0x7 dstep=16                                 -16 STEP
+roi0x7 dstep=28                                 -16 STEP
+roi0x7 dstep=32                                 -16 STEP
+roi7x0 dstep=11                                   0 OK
+roi1x7 dstep=11                                -108 NOT_EVEN_STEP
+roi0x1 dstep=11                                 -16 STEP
+roi0x0 dstep=11                                   0 OK
+roi0x7 mask1x1                                  -16 STEP
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+null_buf                                         -8 NULL_POINTER
+mask_zero                                         0 OK
+mask_neg                                          0 OK
+anchor_gt                                         0 OK
+align roi4x3 dstep=8                              0 OK
+align roi4x3 dstep=9                           -108 NOT_EVEN_STEP
+align roi4x3 dstep=10                             0 OK
+align roi4x3 dstep=11                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=12                             0 OK
+-- adv bufsize non-square 16s --
+roi 7x3 ch1: 92 (0) ch3: 260 ch4: 344
+roi 3x7 ch1: 92 (0) ch3: 260 ch4: 344
+roi 16x5 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 5x16 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 100x7 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 7x100 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 1x1 ch1: 12 (0) ch3: 20 ch4: 24
+roi 0x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x0 ch1: -1 (-6) ch3: -1 ch4: -1
+roi -1x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x-1 ch1: -1 (-6) ch3: -1 ch4: -1
+== advstep 32f validation ==
+roi_zero_w dstep_ok                             -16 STEP
+roi0x7 dstep=0                                  -16 STEP
+roi0x7 dstep=1                                  -16 STEP
+roi0x7 dstep=2                                  -16 STEP
+roi0x7 dstep=3                                  -16 STEP
+roi0x7 dstep=5                                  -16 STEP
+roi0x7 dstep=7                                  -16 STEP
+roi0x7 dstep=11                                 -16 STEP
+roi0x7 dstep=16                                 -16 STEP
+roi0x7 dstep=28                                 -16 STEP
+roi0x7 dstep=32                                 -16 STEP
+roi7x0 dstep=11                                   0 OK
+roi1x7 dstep=11                                -108 NOT_EVEN_STEP
+roi0x1 dstep=11                                 -16 STEP
+roi0x0 dstep=11                                   0 OK
+roi0x7 mask1x1                                  -16 STEP
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+null_buf                                         -8 NULL_POINTER
+mask_zero                                         0 OK
+mask_neg                                          0 OK
+anchor_gt                                         0 OK
+align roi4x3 dstep=16                             0 OK
+align roi4x3 dstep=17                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=18                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=19                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=20                             0 OK
+-- adv bufsize non-square 32f --
+roi 7x3 ch1: 92 (0) ch3: 260 ch4: 344
+roi 3x7 ch1: 92 (0) ch3: 260 ch4: 344
+roi 16x5 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 5x16 ch1: 328 (0) ch3: 968 ch4: 1288
+roi 100x7 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 7x100 ch1: 2808 (0) ch3: 8408 ch4: 11208
+roi 1x1 ch1: 12 (0) ch3: 20 ch4: 24
+roi 0x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x0 ch1: -1 (-6) ch3: -1 ch4: -1
+roi -1x7 ch1: -1 (-6) ch3: -1 ch4: -1
+roi 7x-1 ch1: -1 (-6) ch3: -1 ch4: -1
+== advstep 64f validation ==
+roi_zero_w dstep_ok                             -16 STEP
+roi0x7 dstep=0                                  -16 STEP
+roi0x7 dstep=1                                  -16 STEP
+roi0x7 dstep=2                                  -16 STEP
+roi0x7 dstep=3                                  -16 STEP
+roi0x7 dstep=5                                  -16 STEP
+roi0x7 dstep=7                                  -16 STEP
+roi0x7 dstep=11                                 -16 STEP
+roi0x7 dstep=16                                 -16 STEP
+roi0x7 dstep=28                                 -16 STEP
+roi0x7 dstep=32                                 -16 STEP
+roi7x0 dstep=11                                   0 OK
+roi1x7 dstep=11                                -108 NOT_EVEN_STEP
+roi0x1 dstep=11                                 -16 STEP
+roi0x0 dstep=11                                   0 OK
+roi0x7 mask1x1                                  -16 STEP
+border_mirror                                   -14 NOT_SUPPORTED_MODE
+border_5                                        -14 NOT_SUPPORTED_MODE
+null_buf                                         -8 NULL_POINTER
+mask_zero                                         0 OK
+mask_neg                                          0 OK
+anchor_gt                                         0 OK
+align roi4x3 dstep=32                             0 OK
+align roi4x3 dstep=33                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=34                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=35                          -108 NOT_EVEN_STEP
+align roi4x3 dstep=36                          -108 NOT_EVEN_STEP
+-- adv bufsize non-square 64f --
+roi 7x3 ch1: 92 (0) 64ch3: 512 64ch4: 680
+roi 3x7 ch1: 92 (0) 64ch3: 512 64ch4: 680
+roi 16x5 ch1: 328 (0) 64ch3: 1928 64ch4: 2568
+roi 5x16 ch1: 328 (0) 64ch3: 1928 64ch4: 2568
+roi 100x7 ch1: 2808 (0) 64ch3: 16808 64ch4: 22408
+roi 7x100 ch1: 2808 (0) 64ch3: 16808 64ch4: 22408
+roi 1x1 ch1: 12 (0) 64ch3: 32 64ch4: 40
+roi 0x7 ch1: -1 (-6) 64ch3: -1 64ch4: -1
+roi 7x0 ch1: -1 (-6) 64ch3: -1 64ch4: -1
+roi -1x7 ch1: -1 (-6) 64ch3: -1 64ch4: -1
+roi 7x-1 ch1: -1 (-6) 64ch3: -1 64ch4: -1
+== probe_f9b done ==

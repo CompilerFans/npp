@@ -1,0 +1,5 @@
+nppGetStreamContext -> 0
+== gradchk: repeat determinism ==
+  determinism mismatches across 4 reps: 0
+  noprefill vs pf00 / self-mismatches: 0
+== probe_f9c done ==

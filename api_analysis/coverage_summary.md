@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 11052 (88.2%)
+- Real implementations: 11309 (90.2%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 1401
+- Missing: 1144
 - Tested: 8268 (65.9%)
-- Real and tested: 7485
+- Real and tested: 7636
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1376 | 0 | 520 | 1003 |
+| nppi_filtering_functions.h | 1896 | 1633 | 0 | 263 | 1003 |
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
@@ -33,7 +33,6 @@
 | module | group | remaining | ctx |
 |---|---|---:|---:|
 | nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
-| nppi_filtering_functions.h | nppiFilterMedian | 64 | 32 |
 | nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
 | nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
@@ -41,26 +40,18 @@
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
-| nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
-| nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
 | nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
-| nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
-| nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
-| nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorPrewittBorder | 14 | 7 |
 | nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
-| nppi_filtering_functions.h | nppiFilterBoxBorderAdvanced | 13 | 13 |
 | nppi_filtering_functions.h | nppiFloodFill | 13 | 6 |
 | nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
 | nppi_filtering_functions.h | nppiFilterBilateralGaussBorder | 12 | 6 |
@@ -72,3 +63,12 @@
 | nppi_filtering_functions.h | nppiFloodFillRangeBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRange | 12 | 6 |
 | nppi_filtering_functions.h | nppiLabelMarkersUFBatch | 10 | 5 |
+| nppi_color_conversion.h | nppiColorTwist32fC | 8 | 4 |
+| nppi_color_conversion.h | nppiColorTwistBatch32fC | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCr411ToYCbCr422 | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCr422ToYCbCr411 | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCr422ToYCbCr420 | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCrToBGRBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCrToRGBBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYUV420ToRGB | 8 | 8 |
+| nppi_color_conversion.h | nppiYUV422ToRGB | 8 | 8 |

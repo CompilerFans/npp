@@ -1,0 +1,115 @@
+nppGetStreamContext -> 0
+== advimp: advanced impulse response ==
+-- G10 interior: off=(3,3) src=20x20 roi=8x8 mask=3x3 a=(1,1) impulse=(6,6)=200 --
+status 0 OK (bufsz=264)
+dst:
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 0 
+-- G1 roi-past-right: off=(2,3) src=16x16 roi=7x7 mask=3x3 a=(1,1) impulse=(5,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G2 impulse-left-col: off=(2,3) src=16x16 roi=7x7 mask=3x3 a=(1,1) impulse=(2,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G3 impulse-off-left: off=(2,3) src=16x16 roi=7x7 mask=3x3 a=(1,1) impulse=(1,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G4 off0: off=(0,0) src=16x16 roi=7x7 mask=3x3 a=(1,1) impulse=(0,0)=200 --
+status 0 OK (bufsz=204)
+dst:
+  88 44 0 0 0 0 0 
+  44 22 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G5 src-smaller: off=(2,3) src=6x6 roi=7x7 mask=3x3 a=(1,1) impulse=(3,3)=200 --
+status 0 OK (bufsz=204)
+dst:
+  22 22 22 0 0 0 0 
+  22 22 22 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G6 mask5x3: off=(2,3) src=16x16 roi=7x7 mask=5x3 a=(2,1) impulse=(5,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G7 mask1x1: off=(2,3) src=16x16 roi=7x7 mask=1x1 a=(0,0) impulse=(5,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G8 anchor00: off=(2,3) src=16x16 roi=7x7 mask=3x3 a=(0,0) impulse=(5,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+-- G9 bufx4+canary: off=(2,3) src=16x16 roi=7x7 mask=3x3 a=(1,1) impulse=(5,5)=200 --
+status 0 OK (bufsz=204)
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+buffer tail canary: intact
+-- G11 two-impulse --
+status 0 OK
+dst:
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+  0 0 10 10 10 0 0 
+  0 0 10 10 10 0 0 
+  0 0 10 10 10 0 0 
+  0 0 0 0 0 0 0 
+  0 0 0 0 0 0 0 
+== probe_f9b done ==
