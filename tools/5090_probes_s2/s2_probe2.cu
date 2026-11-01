@@ -35,6 +35,7 @@ static const char *sname(NppStatus s) {
   return buf[i];
 }
 #define PS(tag, s) printf("  %-16s status=%d (%s)\n", tag, (int)(s), sname(s))
+#define CHK(tag) do { cudaError_t e = cudaDeviceSynchronize(); printf("  %-16s cuda=%s\n", tag, cudaGetErrorString(e)); (void)cudaGetLastError(); } while (0)
 
 static Npp8u *gBuf64 = nullptr;
 static NppStreamContext ctx() {
@@ -386,6 +387,149 @@ static void probe_radial_scan(int samples) {
     }
 }
 
+
+static void probe_hist_err() {
+  const int W = 8, H = 4;
+  std::vector<Npp8u> t((size_t)W * H * 3, 5);
+  Dev<Npp8u> src(t.size());
+  src.put(t);
+  Dev<Npp32s> hh(256);
+  hh.fill(0);
+  Npp32s *hist[3] = {hh.p, hh.p, hh.p};
+  int levels[3] = {4, 4, 4};
+  Npp32s lo[3] = {0, 0, 0}, hi[3] = {256, 256, 256};
+  Dev<Npp32s> lv(4);
+  lv.fill(0);
+  const Npp32s *lev[3] = {lv.p, lv.p, lv.p};
+  PS("null_src", nppiHistogramEven_8u_C3R_Ctx(nullptr, W * 3, NppiSize{W, H}, hist, levels, lo, hi, gBuf64, ctx()));
+  PS("null_hist", nppiHistogramEven_8u_C3R_Ctx(src.p, W * 3, NppiSize{W, H}, nullptr, levels, lo, hi, gBuf64, ctx()));
+  PS("null_levels", nppiHistogramEven_8u_C3R_Ctx(src.p, W * 3, NppiSize{W, H}, hist, nullptr, lo, hi, gBuf64, ctx()));
+  PS("zro_roi", nppiHistogramEven_8u_C3R_Ctx(src.p, W * 3, NppiSize{0, H}, hist, levels, lo, hi, gBuf64, ctx()));
+  PS("neg_roi", nppiHistogramEven_8u_C3R_Ctx(src.p, W * 3, NppiSize{-1, H}, hist, levels, lo, hi, gBuf64, ctx()));
+  PS("short_step", nppiHistogramEven_8u_C3R_Ctx(src.p, 3, NppiSize{W, H}, hist, levels, lo, hi, gBuf64, ctx()));
+  int one[3] = {1, 4, 4};
+  PS("one_level", nppiHistogramEven_8u_C3R_Ctx(src.p, W * 3, NppiSize{W, H}, hist, one, lo, hi, gBuf64, ctx()));
+  Npp32s revlo[3] = {256, 0, 0}, revhi[3] = {0, 256, 256};
+  PS("rev_range", nppiHistogramEven_8u_C3R_Ctx(src.p, W * 3, NppiSize{W, H}, hist, levels, revlo, revhi, gBuf64, ctx()));
+  int nl[3] = {4, 4, 4};
+  PS("rng_null_src", nppiHistogramRange_8u_C3R_Ctx(nullptr, W * 3, NppiSize{W, H}, hist, lev, nl, gBuf64, ctx()));
+  PS("rng_null_lev", nppiHistogramRange_8u_C3R_Ctx(src.p, W * 3, NppiSize{W, H}, hist, nullptr, nl, gBuf64, ctx()));
+  int n1[3] = {1, 4, 4};
+  PS("rng_one_level", nppiHistogramRange_8u_C3R_Ctx(src.p, W * 3, NppiSize{W, H}, hist, lev, n1, gBuf64, ctx()));
+  PS("rng_zro_roi", nppiHistogramRange_8u_C3R_Ctx(src.p, W * 3, NppiSize{0, H}, hist, lev, nl, gBuf64, ctx()));
+  // AC4 one level / rev
+  Dev<Npp8u> src4((size_t)W * H * 4);
+  src4.fill(7);
+  PS("ac4_null_src", nppiHistogramEven_8u_AC4R_Ctx(nullptr, W * 4, NppiSize{W, H}, hist, levels, lo, hi, gBuf64, ctx()));
+  PS("ac4_rev", nppiHistogramEven_8u_AC4R_Ctx(src4.p, W * 4, NppiSize{W, H}, hist, levels, revlo, revhi, gBuf64, ctx()));
+  CHK("hist_err");
+}
+
+static void probe_wmss_small() {
+  NppStreamContext c = ctx();
+  Dev<Npp32f> out(4);
+  for (int sz : {2, 3, 4, 8, 10, 11, 12, 15, 16, 17}) {
+    Dev<Npp8u> s1((size_t)sz * sz), s2((size_t)sz * sz);
+    std::vector<Npp8u> a((size_t)sz * sz), b((size_t)sz * sz);
+    for (int i = 0; i < sz * sz; ++i) { a[i] = (Npp8u)((i * 7 + 5) & 0xff); b[i] = (Npp8u)((i * 7 + 6) & 0xff); }
+    s1.put(a); s2.put(b);
+    out.fill(-1e30f);
+    NppStatus s = nppiWMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+    printf("  WMSSSIM %d st=%d val=%.9g\n", sz, (int)s, out.get()[0]);
+    out.fill(-1e30f);
+    s = nppiMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+    printf("  MSSSIM  %d st=%d val=%.9g\n", sz, (int)s, out.get()[0]);
+  }
+  for (int sz : {176, 180, 184, 190, 199, 200}) {
+    Dev<Npp8u> s1((size_t)sz * sz), s2((size_t)sz * sz);
+    std::vector<Npp8u> a((size_t)sz * sz), b((size_t)sz * sz);
+    for (int i = 0; i < sz * sz; ++i) { a[i] = (Npp8u)((i * 7 + 5) & 0xff); b[i] = (Npp8u)((i * 7 + 6) & 0xff); }
+    s1.put(a); s2.put(b);
+    out.fill(-1e30f);
+    NppStatus s = nppiMSSSIM_8u_C1R_Ctx(s1.p, sz, s2.p, sz, NppiSize{sz, sz}, out.p, gBuf64, c);
+    printf("  MSSSIM  %d st=%d val=%.9g\n", sz, (int)s, out.get()[0]);
+  }
+}
+
+
+static void probe_hist16() {
+  const int W=25,H=11;
+  std::vector<Npp16u> t((size_t)W*H*3);
+  unsigned s=12345;
+  for (auto &v: t) { s=s*1103515245u+12345u; v=(Npp16u)(s&0xffff); }
+  Dev<Npp16u> src(t.size()); src.put(t);
+  int levels[3]={257,129,65};
+  Npp32s lo[3]={0,0,1024}, hi[3]={65536,65536,64512};
+  Dev<Npp32s> h0(257),h1(129),h2(65);
+  h0.fill(-1);h1.fill(-1);h2.fill(-1);
+  Npp32s *hist[3]={h0.p,h1.p,h2.p};
+  NppStatus st=nppiHistogramEven_16u_C3R_Ctx(src.p,W*3*2,NppiSize{W,H},hist,levels,lo,hi,gBuf64,ctx());
+  PS("even16_c3",st);
+  CHK("after");
+  printf("  totals=%d %d %d\n",[&]{int c=0;for(auto v:h0.get())if(v>0)c+=v;return c;}(),
+         [&]{int c=0;for(auto v:h1.get())if(v>0)c+=v;return c;}(),
+         [&]{int c=0;for(auto v:h2.get())if(v>0)c+=v;return c;}());
+  // try per-channel with separate buffers aligned
+  Dev<Npp32s> k0(257),k1(256),k2(256);
+  k0.fill(0);k1.fill(0);k2.fill(0);
+  Npp32s *h2p[3]={k0.p,k1.p,k2.p};
+  int lv2[3]={257,129,65};
+  st=nppiHistogramEven_16u_C3R_Ctx(src.p,W*3*2,NppiSize{W,H},h2p,lv2,lo,hi,gBuf64,ctx());
+  PS("even16_c3_v2",st); CHK("after2");
+}
+
+
+static void probe_even16s() {
+  const int W=32,H=16; // 512 pixels: values 2*i-512 -> -512..510
+  for (int mode=0; mode<2; ++mode) {
+    std::vector<Npp16s> t((size_t)W*H*4);
+    for (int i=0;i<W*H;++i) { Npp16s v=(Npp16s)((i*211)%60001-30000); for(int c=0;c<4;++c) t[(size_t)i*4+c]=v; }
+    Dev<Npp16s> src(t.size()); src.put(t);
+    Dev<Npp32s> h0(16),h1(16),h2(16); h0.fill(-1);h1.fill(-1);h2.fill(-1);
+    Npp32s *hist[3]={h0.p,h1.p,h2.p};
+    int levels[3]={17,17,17};
+    Npp32s lo[3]={mode? 0:-1000, mode?0:-1000, mode?0:-1000};
+    Npp32s hi[3]={mode?2000:1000, mode?2000:1000, mode?2000:1000};
+    NppStatus st=nppiHistogramEven_16s_AC4R_Ctx(src.p,W*4*2,NppiSize{W,H},hist,levels,lo,hi,gBuf64,ctx());
+    PS(mode?"even16s_pos":"even16s_neg",st); CHK("e16s");
+    auto a=h0.get();
+    long tot=0; for(auto v:a) if(v>0) tot+=v;
+    printf("  ch0 total=%ld bins=[",tot); for(int k=0;k<16;++k) printf("%d ",a[k]); printf("]\n");
+    // truth for documented mapping
+    long b[16]={0};
+    for (int i=0;i<W*H;++i){ int v=(i*211)%60001-30000; if(v>=lo[0]&&v<hi[0]) b[(v-lo[0])*16/(hi[0]-lo[0])]++; }
+    printf("  truth=["); for(int k=0;k<16;++k) printf("%ld ",b[k]); printf("]\n");
+  }
+}
+
+
+static void probe_hist16b() {
+  const int W=25,H=11;
+  std::vector<Npp16u> t((size_t)W*H*3);
+  unsigned s=987654321u;
+  for (auto &v: t) { s=s*1103515245u+12345u; v=(Npp16u)(s&0xffff); }
+  Dev<Npp16u> src(t.size()); src.put(t);
+  int levels[3]={257,257,257};
+  Npp32s lo[3]={0,1024,0}, hi[3]={65536,64512,65536};
+  Dev<Npp32s> h0(320),h1(320),h2(320);
+  h0.fill(-1);h1.fill(-1);h2.fill(-1);
+  Npp32s *hist[3]={h0.p,h1.p,h2.p};
+  NppStatus st=nppiHistogramEven_16u_C3R_Ctx(src.p,W*3*2,NppiSize{W,H},hist,levels,lo,hi,gBuf64,ctx());
+  PS("even16u_c3",st); CHK("e16u");
+  auto a=h0.get(), b=h1.get(), c=h2.get();
+  auto sum=[&](std::vector<Npp32s>&v){long s=0;for(int i=0;i<256;++i) if(v[i]>0) s+=v[i]; return s;};
+  printf("  sums=%ld %ld %ld\n",sum(a),sum(b),sum(c));
+  // truth
+  long ta=0,tb=0,tc=0;
+  for (int i=0;i<W*H;++i) {
+    int v0=t[(size_t)i*3+0], v1=t[(size_t)i*3+1], v2=t[(size_t)i*3+2];
+    if (v0>=0&&v0<65536) ta++; if (v1>=1024&&v1<64512) tb++; if (v2>=0&&v2<65536) tc++;
+  }
+  printf("  truth=%ld %ld %ld\n",ta,tb,tc);
+  bool same=true; for(int i=0;i<256;++i) if(a[i]!=c[i]) same=false;
+  printf("  ch0==ch2? %d\n",(int)same);
+}
+
 static void probe_ssim2() {
   NppStreamContext c = ctx();
   Dev<Npp32f> out(4);
@@ -451,6 +595,11 @@ int main(int argc, char **argv) {
   else if (!strcmp(p, "levels")) probe_levels2();
   else if (!strcmp(p, "radial")) probe_radial_imp();
   else if (!strcmp(p, "ssim2")) probe_ssim2();
+  else if (!strcmp(p, "hist_err")) probe_hist_err();
+  else if (!strcmp(p, "hist16")) probe_hist16();
+  else if (!strcmp(p, "even16s")) probe_even16s();
+  else if (!strcmp(p, "hist16b")) probe_hist16b();
+  else if (!strcmp(p, "wmss_small")) probe_wmss_small();
   else if (!strcmp(p, "radial_scan")) probe_radial_scan(24);
   else { fprintf(stderr, "unknown probe %s\n", p); return 2; }
   fflush(stdout);

@@ -8,5 +8,6 @@
   "families": [
     "nppiMSSSIMGetBufferHostSize"
   ],
-  "call": "nppi::statistics::msssimGetBufferHostSize(oSizeROI, hpBufferSize)"
+  "call": "nppi::statistics::msssimGetBufferHostSize(oSizeROI, hpBufferSize)",
+  "size_t_overloads": true
 }

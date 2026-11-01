@@ -8,5 +8,6 @@
   "families": [
     "nppiPSNRBatchGetBufferHostSize"
   ],
-  "call": "nppi::statistics::psnrBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)"
+  "call": "nppi::statistics::psnrBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
 }

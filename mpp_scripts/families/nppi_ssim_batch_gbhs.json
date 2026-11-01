@@ -8,5 +8,6 @@
   "families": [
     "nppiSSIMBatchGetBufferHostSize"
   ],
-  "call": "nppi::statistics::ssimBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)"
+  "call": "nppi::statistics::ssimBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
 }

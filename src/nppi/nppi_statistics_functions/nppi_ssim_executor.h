@@ -6,7 +6,8 @@
 //     separably in float32 to a, b, a^2, b^2 and a*b;
 //   * mu = E[x], var = E[x^2] - mu^2, cov = E[ab] - mu_a*mu_b (biased);
 //   * l = (2 mu_a mu_b + C1)/(mu_a^2 + mu_b^2 + C1), C1 = 6.5025;
-//     cs = (2 cov + C2)/(var_a + var_b + C2), C2 = 58.5225;
+//     cs = (2 |cov| + C2)/(var_a + var_b + C2), C2 = 58.5225  (NPP takes the
+//     absolute covariance; verified against the recorded random-noise goldens);
 //   * SSIM = mean over all pixels of l*cs;
 //   * WMSSSIM = product over 5 levels of the per-level mean of cs^w (levels
 //     0..3) and (l*cs)^w (level 4), w = {0.0448, 0.2856, 0.3001, 0.2363,

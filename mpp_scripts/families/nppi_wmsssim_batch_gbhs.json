@@ -8,5 +8,6 @@
   "families": [
     "nppiWMSSSIMBatchGetBufferHostSize"
   ],
-  "call": "nppi::statistics::wmsssimBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)"
+  "call": "nppi::statistics::wmsssimBatchGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
 }

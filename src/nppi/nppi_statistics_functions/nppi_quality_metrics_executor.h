@@ -10,8 +10,9 @@
 //
 //  * QualityIndex: Q = 4*cov*ma*mb / ((ma^2+mb^2)*(va+vb)) with sample
 //    (n-1) variances/covariance.  C3/AC4 outputs store one float per colour
-//    channel; NPP uses the channel-0 means AND (va+vb) for every channel while
-//    the covariance (and the zero-variance check) is per channel.  A channel
+//    channel; NPP computes each channel's covariance from its own means but
+//    uses the channel-0 means (numerator) and channel-0 (va+vb) denominator
+//    for every channel.  The zero-variance check is per channel.  A channel
 //    with zero variance in either source raises NPP_QUALITY_INDEX_ERROR and no
 //    output is written (a 1x1 ROI yields NaN and succeeds).
 //  * CountInRange: inclusive [lower, upper] bounds read from host arrays

@@ -8,5 +8,6 @@
   "families": [
     "nppiCountInRangeGetBufferHostSize"
   ],
-  "call": "nppi::statistics::countInRangeGetBufferHostSize(oSizeROI, {chan}, {is_ac4} != 0, sizeof({dtype}), hpBufferSize)"
+  "call": "nppi::statistics::countInRangeGetBufferHostSize(oSizeROI, {chan}, {is_ac4} != 0, sizeof({dtype}), hpBufferSize)",
+  "size_t_overloads": true
 }

@@ -184,7 +184,10 @@ __global__ void rectStdDevF32Kernel(const S *pSrc, int nSrcStep, const Npp64f *p
   const double sum = (double)srcRow1[x2] - (double)srcRow0[x2] - (double)srcRow1[x1] + (double)srcRow0[x1];
   const double sumSq = sqrRow1[x2] - sqrRow0[x2] - sqrRow1[x1] + sqrRow0[x1];
   const double count = (double)rect.width * rect.height;
-  double var = sumSq / count - (sum / count) * (sum / count);
+  // (n*sumSq - sum^2)/n^2 keeps exact integer statistics exact, matching the
+  // reference (the naive mean-of-squares form loses a ULP and shifts the
+  // truncated 32s output by one).
+  double var = (count * sumSq - sum * sum) / (count * count);
   if (var < 0.0) var = 0.0;
   Npp32f *dstRow = (Npp32f *)((char *)pDst + (size_t)y * nDstStep);
   dstRow[x] = (Npp32f)std::sqrt(var);
@@ -204,7 +207,7 @@ __global__ void rectStdDevS32Kernel(const Npp32s *pSrc, int nSrcStep, const Npp3
   const double sum = (double)srcRow1[x2] - (double)srcRow0[x2] - (double)srcRow1[x1] + (double)srcRow0[x1];
   const double sumSq = (double)sqrRow1[x2] - (double)sqrRow0[x2] - (double)sqrRow1[x1] + (double)sqrRow0[x1];
   const double count = (double)rect.width * rect.height;
-  double var = sumSq / count - (sum / count) * (sum / count);
+  double var = (count * sumSq - sum * sum) / (count * count);
   if (var < 0.0) var = 0.0;
   Npp32s v = (Npp32s)std::sqrt(var);
   if (scale > 0) {
@@ -322,7 +325,11 @@ NppStatus runQualityIndex(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
   Npp32f hq[4] = {0, 0, 0, 0};
   const double denom = (ma * ma + mb * mb) * (va + vb);
   for (int c = 0; c < nch; ++c) {
-    const double cov = (hSums[c * 5 + 4] - n * ma * mb) / (n - 1.0);
+    // Each channel's covariance uses its own channel means; the numerator
+    // means and the (va+vb) denominator are taken from channel 0 (NPP quirk).
+    const double ca = hSums[c * 5 + 0] / n;
+    const double cb = hSums[c * 5 + 1] / n;
+    const double cov = (hSums[c * 5 + 4] - n * ca * cb) / (n - 1.0);
     hq[c] = (Npp32f)(4.0 * cov * ma * mb / denom);
   }
   err = cudaMemcpyAsync(pDst, hq, sizeof(Npp32f) * nch, cudaMemcpyHostToDevice, stream);
@@ -539,7 +546,7 @@ NppStatus runHistogramRangeF(const Npp32f *pSrc, int nSrcStep, NppiSize oSizeROI
 namespace {
 NppStatus validateRect(int nSrcStep, int nSqrStep, int nDstStep, int esize, int sqrEsize, NppiSize roi, NppiRect rect) {
   if (roi.width < 0 || roi.height < 0) return NPP_SIZE_ERROR;
-  if (rect.width <= 0 || rect.height <= 0 || rect.x < 0 || rect.y < 0) return NPP_RECTANGLE_ERROR;
+  if (rect.width <= 0 || rect.height <= 0 || rect.x < 0 || rect.y < 0) return NPP_SIZE_ERROR;
   if (roi.width == 0 || roi.height == 0) return NPP_NO_ERROR;
   const int need = roi.width + rect.x + rect.width;
   if (nSrcStep < need * esize || nSqrStep < need * sqrEsize || nDstStep < roi.width * (int)sizeof(Npp32f)) {

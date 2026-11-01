@@ -8,5 +8,6 @@
   "families": [
     "nppiQualityIndexGetBufferHostSize"
   ],
-  "call": "nppi::statistics::qualityIndexGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)"
+  "call": "nppi::statistics::qualityIndexGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
 }

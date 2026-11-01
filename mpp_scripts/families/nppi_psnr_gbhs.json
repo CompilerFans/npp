@@ -8,5 +8,6 @@
   "families": [
     "nppiPSNRGetBufferHostSize"
   ],
-  "call": "nppi::statistics::psnrGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)"
+  "call": "nppi::statistics::psnrGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
 }

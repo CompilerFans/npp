@@ -112,7 +112,7 @@ __global__ void ssimAccum(const float *mu_a, const float *mu_b, const float *ea2
     const float va = ea2[i] - mua * mua;
     const float vb = eb2[i] - mub * mub;
     const float cov = eab[i] - mua * mub;
-    const float cs = (2.0f * cov + kC2) / (va + vb + kC2);
+    const float cs = (2.0f * fabsf(cov) + kC2) / (va + vb + kC2);
     const float l = (2.0f * mua * mub + kC1) / (mua * mua + mub * mub + kC1);
     float v;
     if (mode == 0) {
@@ -323,7 +323,7 @@ NppStatus runWMSSSIM(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int 
   if (!pSrc1 || !pSrc2 || !pWMSSSIM) return NPP_NULL_POINTER_ERROR;
   if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-  if (oSizeROI.width < 2 || oSizeROI.height < 2) return NPP_SIZE_ERROR;
+  if (oSizeROI.width < 16 || oSizeROI.height < 16) return NPP_SIZE_ERROR;
   if (nSrc1Step < oSizeROI.width * channels || nSrc2Step < oSizeROI.width * channels) return NPP_STEP_ERROR;
   for (int c = 0; c < channels; ++c) {
     NppStatus st = wmsssimChannel(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, channels, c, pWMSSSIM, stream);
