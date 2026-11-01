@@ -38,6 +38,20 @@ template <typename DstT, typename ValT> __device__ __forceinline__ DstT lutCast(
   }
 }
 
+// NPP's public contract takes device pointers, but the mcMPP legacy wrappers
+// (and test/unit/nppi/test_npp_stream_sync.cpp) additionally pass pageable
+// host arrays and expect them to be staged before the call returns.  Detect
+// the pointer kind and stage host tables so both call styles work.
+inline bool isDevicePointer(const void *ptr) {
+  cudaPointerAttributes attributes{};
+  cudaError_t err = cudaPointerGetAttributes(&attributes, ptr);
+  if (err != cudaSuccess) {
+    (void)cudaGetLastError();
+    return false;
+  }
+  return attributes.type == cudaMemoryTypeDevice || attributes.type == cudaMemoryTypeManaged;
+}
+
 // Forward interval scan.  Returns -1 when the sample is outside the mapping
 // range (the caller copies the source pixel through) and otherwise the index
 // of the last level <= sample, clamped to nLevels-2.
@@ -208,11 +222,46 @@ NppStatus launchLut(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep, Np
     return NPP_SUCCESS;
   }
 
+  bool stage = false;
+  for (int c = 0; c < kTablesUsed; ++c) {
+    if (!isDevicePointer(pValues[c]) || !isDevicePointer(pLevels[c])) {
+      stage = true;
+    }
+  }
+
   LutTables<ValT> tables{};
+  ValT *stagedValues[kMaxTables] = {nullptr, nullptr, nullptr, nullptr};
+  ValT *stagedLevels[kMaxTables] = {nullptr, nullptr, nullptr, nullptr};
   for (int c = 0; c < kTablesUsed; ++c) {
     tables.values[c] = pValues[c];
     tables.levels[c] = pLevels[c];
     tables.nLevels[c] = nLevels[c];
+  }
+  if (stage) {
+    for (int c = 0; c < kTablesUsed; ++c) {
+      const size_t tableBytes = static_cast<size_t>(nLevels[c]) * sizeof(ValT);
+      if (cudaMallocAsync(reinterpret_cast<void **>(&stagedValues[c]), tableBytes, stream) != cudaSuccess ||
+          cudaMallocAsync(reinterpret_cast<void **>(&stagedLevels[c]), tableBytes, stream) != cudaSuccess) {
+        (void)cudaGetLastError();
+        for (int j = 0; j <= c; ++j) {
+          if (stagedValues[j]) (void)cudaFreeAsync(stagedValues[j], stream);
+          if (stagedLevels[j]) (void)cudaFreeAsync(stagedLevels[j], stream);
+        }
+        return NPP_MEMORY_ALLOCATION_ERR;
+      }
+      cudaError_t copyValues = cudaMemcpyAsync(stagedValues[c], pValues[c], tableBytes, cudaMemcpyHostToDevice, stream);
+      cudaError_t copyLevels = cudaMemcpyAsync(stagedLevels[c], pLevels[c], tableBytes, cudaMemcpyHostToDevice, stream);
+      if (copyValues != cudaSuccess || copyLevels != cudaSuccess) {
+        (void)cudaGetLastError();
+        for (int j = 0; j <= c; ++j) {
+          if (stagedValues[j]) (void)cudaFreeAsync(stagedValues[j], stream);
+          if (stagedLevels[j]) (void)cudaFreeAsync(stagedLevels[j], stream);
+        }
+        return NPP_MEMCPY_ERROR;
+      }
+      tables.values[c] = stagedValues[c];
+      tables.levels[c] = stagedLevels[c];
+    }
   }
 
   dim3 block = BlockConfig<>::blockSize();
@@ -220,7 +269,12 @@ NppStatus launchLut(const SrcT *pSrc, int nSrcStep, SrcT *pDst, int nDstStep, Np
   lutKernel<SrcT, Channels, AlphaOnly, Mode><<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep,
                                                                          oSizeROI.width, oSizeROI.height, tables,
                                                                          fastPath);
-  return checkCudaKernelError();
+  NppStatus status = checkCudaKernelError();
+  for (int c = 0; c < kTablesUsed; ++c) {
+    if (stagedValues[c]) (void)cudaFreeAsync(stagedValues[c], stream);
+    if (stagedLevels[c]) (void)cudaFreeAsync(stagedLevels[c], stream);
+  }
+  return status;
 }
 
 template <typename SrcT, LutMode Mode>
