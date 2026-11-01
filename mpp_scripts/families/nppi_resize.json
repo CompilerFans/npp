@@ -1,0 +1,13 @@
+{
+  "family": "nppiResize",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_resize_generated.cpp",
+  "includes": ["nppi_resize_executor.h"],
+  "call": "nppi::resize::resize<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI, eInterpolation, nppStreamCtx.hStream)",
+  "call_variants": [
+    {
+      "contains": "pSrc[",
+      "call": "nppi::resize::resizePlanar<{dtype}, {chan}>(pSrc, nSrcStep, oSrcSize, oSrcRectROI, pDst, nDstStep, oDstSize, oDstRectROI, eInterpolation, nppStreamCtx.hStream)"
+    }
+  ]
+}

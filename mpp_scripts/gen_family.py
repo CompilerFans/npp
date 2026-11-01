@@ -153,7 +153,7 @@ def choose_call(spec: dict, func: Func) -> str:
 
 
 NPPI_LAYOUT_RE = re.compile(r"_AC4R")
-NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?:_Ctx)?$")
+NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?:_Advanced)?(?:_Ctx)?$")
 NPPI_PLANAR_RE = re.compile(r"_P([1234])R")
 
 
