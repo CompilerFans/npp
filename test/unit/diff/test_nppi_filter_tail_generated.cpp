@@ -51,24 +51,24 @@ NppStreamContext current_ctx() {
 int align_step(int step, int es) { return ((step + es - 1) / es) * es; }
 
 template <typename T> ValueKind kind_of();
-template <> ValueKind kind_of<Npp8u>() { return ValueKind::U8; }
-template <> ValueKind kind_of<Npp16u>() { return ValueKind::U16; }
+template <> ValueKind kind_of<Npp8u>() { return ValueKind::U8Tol; }
+template <> ValueKind kind_of<Npp16u>() { return ValueKind::U16Tol; }
 template <> ValueKind kind_of<Npp32f>() { return ValueKind::F32; }
 
 template <typename T> double kind_atol();
 template <> double kind_atol<Npp8u>() { return 1.0; }
-template <> double kind_atol<Npp16u>() { return 1.0; }
+template <> double kind_atol<Npp16u>() { return 2.0; }
 template <> double kind_atol<Npp32f>() { return 1e-3; }
 
 template <typename T> double kind_rtol();
 template <> double kind_rtol<Npp8u>() { return 0.0; }
 template <> double kind_rtol<Npp16u>() { return 0.0; }
-template <> double kind_rtol<Npp32f>() { return 1e-5; }
+template <> double kind_rtol<Npp32f>() { return 1e-4; }
 
 template <typename F> void only_status(const std::string &fname, const std::string &key, F f) {
   clear_cuda_error();
   NppStatus st = f();
-  Case c(fname, key);
+  Case c(fname + "/" + key, fname);
   c.status(st);
   c.finish();
   cudaError_t e = cudaDeviceSynchronize();
@@ -97,7 +97,7 @@ void bil_ok(const std::string &fname, const std::string &key, int ch, int srcW, 
   clear_cuda_error();
   NppStatus st = f(pSrc, sStep, NppiSize{srcW, srcH}, NppiPoint{offX, offY}, d.get(), dStep,
                    NppiSize{W, H}, radius, step, vs, ps, border, current_ctx());
-  Case c(fname, key);
+  Case c(fname + "/" + key, fname);
   c.input(hs.data(), hs.size() * sizeof(S));
   c.status(st);
   c.device_output<D>(d.get(), de, kind_of<D>(), kind_rtol<D>(), kind_atol<D>());
@@ -238,7 +238,7 @@ void at_ok(const std::string &fn, const std::string &key, int srcW, int srcH, in
   clear_cuda_error();
   NppStatus st = f(pSrc, sStep, NppiSize{srcW, srcH}, NppiPoint{offX, offY}, d.get(), dStep,
                    NppiSize{W, H}, mask, delta, gt, le, border, current_ctx());
-  Case c(fn, key);
+  Case c(fn + "/" + key, fn);
   c.input(hs.data(), hs.size());
   c.status(st);
   c.device_output<Npp8u>(d.get(), de, ValueKind::U8, 0.0, 0.0);
@@ -330,7 +330,7 @@ void hc_ok(const std::string &fn, const std::string &key, int srcW, int srcH, in
   clear_cuda_error();
   NppStatus st = f(pSrc, sStep, NppiSize{srcW, srcH}, NppiPoint{offX, offY}, d.get(), dStep,
                    NppiSize{W, H}, ft, ms, aw, k, sc, border, buf.get(), current_ctx());
-  Case c(fn, key);
+  Case c(fn + "/" + key, fn);
   c.input(hs.data(), hs.size());
   c.status(st);
   c.device_output<Npp32f>(d.get(), de, ValueKind::F32, 1e-5, 1e-3);

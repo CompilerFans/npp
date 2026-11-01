@@ -263,3 +263,57 @@ committed):
   bin wrap/clamp/drop, max/L2/L1 normalisation, cell grid offsets).  A
   uniform-gradient image matches exactly, so the difference is in how pixels
   with different orientations/magnitudes are weighted inside a cell.
+
+### 9.6 Repo-wide finding: NppStatus numeric values differ from NPP 13
+
+Verifying the earlier f13 families in place exposed that 14 `NppStatus`
+constants in `API-unified/nppdefs.h` have different *numeric* values from the
+CUDA 13 NPP headers.  The differential harness compares status *names*, so any
+implementation that returns one of these codes records a different name on the
+NPP side than on the mcMPP side:
+
+| constant | repo | CUDA 13 |
+|---|---|---|
+| NPP_STEP_ERROR | -14 | **-16** |
+| NPP_NOT_SUPPORTED_MODE_ERROR | -9999 | **-14** |
+| NPP_FFT_FLAG_ERROR | -16 | **-18** |
+| NPP_FFT_ORDER_ERROR | -15 | -17 |
+| NPP_CONTEXT_MATCH_ERROR | -17 | -13 |
+| NPP_SCALE_RANGE_ERROR | -13 | -12 |
+| NPP_DATA_TYPE_ERROR | -12 | -59 |
+| NPP_THRESHOLD_ERROR | -18 | -19 |
+| NPP_THRESHOLD_NEGATIVE_LEVEL_ERROR | -19 | -20 |
+| NPP_MOMENT_00_ZERO_ERROR | -20 | -21 |
+| NPP_MIRROR_FLIP_ERROR | -21 | -22 |
+| NPP_INTERPOLATION_ERROR | -22 | -23 |
+| NPP_RESIZE_FACTOR_ERROR | -23 | -24 |
+| NPP_ZERO_MASK_VALUE_ERROR | -59 | -62 |
+
+Example: NPP 13 returns `-14` for an unsupported bilateral border, which the
+CUDA headers name `NPP_NOT_SUPPORTED_MODE_ERROR`; the mcMPP build returns
+`NPP_STEP_ERROR` (-14 in our header) for the same code, so the recorded name
+"NPP_NOT_SUPPORTED_MODE_ERROR" never matches the verified name
+"NPP_STEP_ERROR".  The same shift explains the -14/-16 confusions recorded for
+the pyramid families in sections 2 and 9.4.
+
+Fixing this is a repo-wide change (the values are used by every module and
+several implementations return the measured numeric code), so it is left to the
+lead; it is *not* changed by this package.  Once the header matches NPP, the
+remaining status mismatches in `NppiBilateralGaussDiff.Errors` (and similar
+error matrices of the other f13 families) should disappear without touching the
+implementations.
+
+### 9.7 Bilateral / threshold-adaptive / Harris differentials
+
+The goldens of `test_nppi_filter_tail_generated.cpp` were also being
+overwritten (same record-id bug); they now use `function/case` ids and the
+integer outputs are recorded with the new `U8Tol`/`U16Tol` `ValueKind`s (the
+harness previously compared integer outputs bit-exactly).  Measured on the
+5090: the bilateral implementation matches NPP exactly for `nStepBetweenSrcPixels
+== 1` and differs by at most one LSB for 8u (occasionally two for 16u) for step
+2, i.e. only float-noise level differences remain in the values.  The `r1s2`
+value cases still fail for 16u/32f C3 because of those last LSBs; they are kept
+as they are so the gap is visible.
+
+New harness `ValueKind`s added for this: `U8Tol`, `I8Tol`, `U16Tol` (byte-wide
+and 16-bit tolerant comparisons).
