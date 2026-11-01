@@ -334,3 +334,97 @@ records and verifies properly:
 * `NppiGaussPyramidDiff.Down` matches NPP for every 8u/16u/32f C1/C3 value case
   except rate 3.7 with MIRROR (a handful of LSBs on 8u, element 3/12);
 * `DownErrors` still shows the status-name mismatches explained in 9.6.
+
+## 10. Fourth run (2026-11-02): the FloodFill families (72 functions)
+
+All six FloodFill families are now `real` and verified on the 5090
+(`NppiFloodFillDiff.*`: 8 tests record against NVIDIA NPP 13.4 and replay
+against mcMPP, 0 failed).  Reverse engineered with `tools/probes/f13_probe58..65`.
+
+### 10.1 Semantics (measured, not documented)
+
+* **Region** = the connected component of the seed pixel:
+  * `nppiFloodFill` / `nppiFloodFillBoundary`: pixels whose value equals the
+    seed pixel value (every channel for C3),
+  * `nppiFloodFillRange`: pixels inside `[nMin, nMax]` per channel,
+  * `nppiFloodFillGradient`: pixels inside `[seed-nMin, seed+nMax]` per
+    channel; the lower bound is clamped at 0 for the unsigned source types
+    (seed 1, nMin 3 -> range `[0, 3]`),
+  * `nppiNormL1` is 4-way connectivity, `nppiNormInf` is 8-way,
+  * **the seed pixel is always part of the region**, even when it fails the
+    range/gradient predicate (only the seed is painted then).
+* **The *Boundary forms do not stop at `nBoundaryValue`.**  They fill exactly
+  the same region as the matching non-Boundary form and then write
+  `nBoundaryValue` into the region pixels that have at least one of their
+  eight neighbours outside the region, and `nNewValue` into the remaining
+  region pixels.  Neighbours outside the ROI do not count as "outside"
+  (a region touching the ROI edge keeps its edge pixels as interior).  This
+  was measured on 1-pixel lines (all boundary), 3x3 blocks (8-pixel ring),
+  ring-shaped regions (outer and inner ring) and regions touching the ROI
+  corner.
+* **Seed pixel read quirk.**  The seed value is read at the byte offset
+  `oSeed.y * nSrcDstStep + oSeed.x * C * C * sizeof(T)` - the column term is
+  scaled by the channel count *twice*.  For C1 that is the seed pixel, for C3
+  it is the column `3*x` of the same row (probe 65 maps it exactly for 8u/16u,
+  W=8/12); near the right edge it reads past the end of the image, where NPP
+  just compares against whatever is there.  The mcMPP executor reproduces the
+  quirk, and the diff tests cover both the "safe" and the "different column"
+  seed positions.
+* `nppiFloodFillGetBufferSize` = `4*width*height + 4*width + 64` bytes,
+  independent of the type and the channel count (probe 59/63); the executor
+  returns the same value and keeps its mask + statistics inside it.
+* Status contract (probe 58/63): null `pSrcDst` -> `NPP_NULL_POINTER_ERROR`,
+  null `pBuffer` -> `NPP_NULL_POINTER_ERROR` (checked before the ROI),
+  non-positive ROI -> `NPP_SIZE_ERROR`, seed outside the ROI ->
+  `NPP_OUT_OFF_RANGE_ERROR` (-11), unsupported `NppiNorm` (L2 or garbage) ->
+  `NPP_BAD_ARGUMENT_ERROR`, `nMin > nMax` for the Range forms ->
+  `NPP_RANGE_ERROR` (the Gradient forms do not check it).  **`nSrcDstStep` is
+  not validated at all** (0 and negative steps return `NPP_NO_ERROR`).
+* `NppiConnectedRegion`: `nConnectedPixelCount` is exact and
+  `aSeedPixelValue` holds the (quirky) seed value; the bounding box NPP
+  returns is unreliable (measured `y` values off by up to 2 and a box that
+  does not cover the region), so the executor writes the true
+  `(left, top, right, bottom)` box but the differential tests pass a NULL
+  region and do not compare it.
+
+### 10.2 Implementation
+
+`src/nppi/nppi_filtering_functions/nppi_flood_fill_executor.{h,cu}`: the mask
+is grown by horizontal run extension plus 4/8-neighbour propagation until no
+new pixel is marked (bounded by the number of ROI pixels), then a second pass
+writes the new/boundary values.  Value parameters travel as kernel arguments
+(a `ValuePack` struct) because the API passes them by value/host pointer -
+dereferencing a host pointer inside a kernel silently produced zeros on the
+5090.  The six family specs are `mpp_scripts/families/nppi_flood_fill*.json`;
+the 8u/16u C3 non-Ctx Boundary entry points are hand-written in
+`nppi_floodfill_boundary_c3.cpp` because the public header declares them twice
+(once with the C1 scalar signature, which is a header mistake).
+
+### 10.3 Remaining in f13 after this run (65 functions)
+
+| family | functions | status |
+|---|---|---|
+| `nppiFilterGaussPyramidLayerUpBorder` | 12 | not done, semantics still open (sections 3/9.4) |
+| `nppiHistogramOfGradientsBorder` | 16 | not done, descriptor model still open (9.5) |
+| `nppiDistanceTransform*PBA` | 25 | not done, see 10.4 |
+| `nppiSignedDistanceTransformAbsPBA` | 3 | not done, see 10.4 |
+| `nppiSegmentWatershed_16u_C1IR(+Ctx)` | 2 | not done: the existing 8u implementation does not reproduce NPP (section 7) |
+| `nppiFilterHoughLine(+Region)` | 4 | not done |
+| `nppiContours*` | 4 | not done |
+
+### 10.4 DistanceTransform PBA: where the next run should start
+
+The previous note ("the probe kept returning NPP_SIZE_ERROR") is now explained:
+`nppiDistanceTransformPBAGetBufferSize` **rejects ROIs smaller than 64x64**
+(signed: same threshold; 33x17, 32x32, 16x16 all return -6, 64x64 works), and
+the main entry points return the same -6 for those ROIs.  The returned size is
+block-padded, not a plain formula: 64x64 -> 98840, 100x100 -> 337944,
+101x99 -> 339992, 256x256 -> 1581080, 1000x1000 -> 24903704 bytes (signed
+1.6x larger).  Any differential test for this family must therefore use at
+least 64x64 images, and the mcMPP `GetBufferSize` must not return a smaller
+value than its own workspace needs because the tests size the buffer with the
+library under test.  The existing `nppi_distance_transform.cu` (8u variants)
+does not implement the Voronoi index output at all and its flood/row
+propagation is not the PBA algorithm, so the family needs a real
+Felzenszwalb-style implementation (or a per-site brute force, which is exact
+but O(pixels*sites)) plus a probe of the tie-breaking among equidistant sites.
