@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 12152 (96.9%)
+- Real implementations: 12225 (97.5%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 301
-- Tested: 8289 (66.1%)
-- Real and tested: 8087
+- Missing: 228
+- Tested: 8291 (66.1%)
+- Real and tested: 8124
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 997 | 0 | 77 | 717 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1747 | 0 | 149 | 1002 |
+| nppi_filtering_functions.h | 1896 | 1820 | 0 | 76 | 1004 |
 | nppi_geometry_transforms.h | 705 | 549 | 84 | 72 | 456 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
@@ -38,14 +38,8 @@
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
-| nppi_filtering_functions.h | nppiFloodFill | 13 | 6 |
 | nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
 | nppi_filtering_functions.h | nppiFilterGaussPyramidLayerUpBorder | 12 | 6 |
-| nppi_filtering_functions.h | nppiFloodFillBoundary | 12 | 6 |
-| nppi_filtering_functions.h | nppiFloodFillGradientBoundary | 12 | 6 |
-| nppi_filtering_functions.h | nppiFloodFillGradient | 12 | 6 |
-| nppi_filtering_functions.h | nppiFloodFillRangeBoundary | 12 | 6 |
-| nppi_filtering_functions.h | nppiFloodFillRange | 12 | 6 |
 | nppi_color_conversion.h | nppiYCbCrToBGRBatch | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCrToRGBBatch | 8 | 4 |
 | nppi_color_conversion.h | nppiYUVToBGRBatch | 8 | 4 |
@@ -72,3 +66,9 @@
 | nppi_filtering_functions.h | nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R | 1 | 0 |
 | nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize | 1 | 0 |
 | nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize_64 | 1 | 0 |
+| nppi_filtering_functions.h | nppiFilterHarrisCornersBorder | 1 | 0 |
+| nppi_filtering_functions.h | nppiGetFilterGaussPyramidLayerDownBorderDstROI | 1 | 0 |
+| nppi_filtering_functions.h | nppiGetFilterGaussPyramidLayerUpBorderDstROI | 1 | 0 |
+| nppi_filtering_functions.h | nppiHistogramOfGradientsBorderGetDescriptorsSize | 1 | 0 |
+| nppi_filtering_functions.h | nppiSignedDistanceTransformPBAGetAntialiasingBufferSize | 1 | 0 |
+| nppi_filtering_functions.h | nppiSignedDistanceTransformPBA | 1 | 1 |

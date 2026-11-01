@@ -5,14 +5,8 @@ nppi_geometry_transforms.h,nppiWarpAffineBack,48,24,24,0,12,12,36,24
 nppi_geometry_transforms.h,nppiWarpAffineBatch,22,0,0,22,11,11,11,22
 nppi_filtering_functions.h,nppiHistogramOfGradientsBorder,17,0,0,17,8,9,8,17
 nppi_filtering_functions.h,nppiDistanceTransformAbsPBA,14,1,0,13,13,0,11,13
-nppi_filtering_functions.h,nppiFloodFill,13,0,0,13,6,7,6,13
 nppi_filtering_functions.h,nppiDistanceTransformPBA,15,3,0,12,12,0,14,12
 nppi_filtering_functions.h,nppiFilterGaussPyramidLayerUpBorder,12,0,0,12,6,6,6,12
-nppi_filtering_functions.h,nppiFloodFillBoundary,12,0,0,12,6,6,6,12
-nppi_filtering_functions.h,nppiFloodFillGradient,12,0,0,12,6,6,5,12
-nppi_filtering_functions.h,nppiFloodFillGradientBoundary,12,0,0,12,6,6,6,12
-nppi_filtering_functions.h,nppiFloodFillRange,12,0,0,12,6,6,6,12
-nppi_filtering_functions.h,nppiFloodFillRangeBoundary,12,0,0,12,6,6,6,12
 nppi_color_conversion.h,nppiYCbCrToBGRBatch,8,0,0,8,4,4,4,8
 nppi_color_conversion.h,nppiYCbCrToRGBBatch,8,0,0,8,4,4,4,8
 nppi_color_conversion.h,nppiYUVToBGRBatch,8,0,0,8,4,4,4,8
@@ -307,6 +301,12 @@ nppi_filtering_functions.h,nppiFilterThresholdAdaptiveBoxBorder,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterUnsharp,16,16,0,0,0,0,6,0
 nppi_filtering_functions.h,nppiFilterUnsharpBorder,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiFilterWienerBorder,24,24,0,0,0,0,12,0
+nppi_filtering_functions.h,nppiFloodFill,13,13,0,0,0,0,7,0
+nppi_filtering_functions.h,nppiFloodFillBoundary,12,12,0,0,0,0,6,0
+nppi_filtering_functions.h,nppiFloodFillGradient,12,12,0,0,0,0,6,0
+nppi_filtering_functions.h,nppiFloodFillGradientBoundary,12,12,0,0,0,0,6,0
+nppi_filtering_functions.h,nppiFloodFillRange,12,12,0,0,0,0,6,0
+nppi_filtering_functions.h,nppiFloodFillRangeBoundary,12,12,0,0,0,0,6,0
 nppi_filtering_functions.h,nppiGradientVectorPrewittBorder,16,16,0,0,0,0,8,0
 nppi_filtering_functions.h,nppiGradientVectorScharrBorder,16,16,0,0,0,0,8,0
 nppi_filtering_functions.h,nppiGradientVectorSobelBorder,16,16,0,0,0,0,8,0
