@@ -428,3 +428,30 @@ does not implement the Voronoi index output at all and its flood/row
 propagation is not the PBA algorithm, so the family needs a real
 Felzenszwalb-style implementation (or a per-site brute force, which is exact
 but O(pixels*sites)) plus a probe of the tie-breaking among equidistant sites.
+
+Additional facts measured with `tools/probes/f13_probe70` (8u32f, 64x64,
+three sites at (5,5)=10, (40,20)=11, (30,55)=12, `nMinSiteValue=10`,
+`nMaxSiteValue=12`):
+
+* the Voronoi, the Voronoi-indices and the Manhattan outputs are **two
+  `Npp16s` per pixel** (the header's step minimum is
+  `width * 2 * sizeof(Npp16s)`); passing one short per pixel makes every entry
+  point return `NPP_STEP_ERROR` (-16), which is what kept the earlier probe
+  from ever reaching a successful call;
+* `pDstTransform` holds the **Euclidean distance** (not squared):
+  `sqrt(2) = 1.414`, `sqrt(18) = 4.243`, `sqrt(250) = 15.811`;
+* `pDstVoronoi` and `pDstVoronoiIndices` both hold the **coordinates of the
+  nearest site** `(x, y)`; `pDstVoronoiRelativeManhattanDistances` holds the
+  signed offset `(x - site.x, y - site.y)`;
+* the `*AbsPBA` forms use unsigned absolute Manhattan distances
+  `(|dx|, |dy|)` and the same transform/voronoi outputs; the 16u transform
+  variants and the `nppiSignedDistanceTransformAbsPBA` cut-off/sub-pixel
+  conventions still need probing.
+
+The five `nppiDistanceTransform*`/`nppiSignedDistanceTransform*` entries that
+the catalog currently marks `real` (`..._AbsPBA_8u16u`, `..._PBA_8u32f`,
+`..._PBA_8u64f`, `..._SignedDistanceTransformAbsPBA_32f64f/64f`) come from the
+old `nppi_distance_transform.cu`: they do not implement the Voronoi indices
+output and do not reproduce NPP (small ROIs are accepted instead of `-6`,
+the propagation is a flood/row heuristic instead of PBA).  They should be
+re-verified or demoted before the family is claimed.
