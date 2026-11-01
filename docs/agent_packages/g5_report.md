@@ -107,3 +107,22 @@ See `docs/agent_packages/g5_notes.md` for the full table; the essentials:
   than by a recorded suite.
 * The 32f AC4 rotate cases record `NPP_NOT_EVEN_STEP_ERROR` (the test's
   392-byte step is not 16-byte aligned), so they only pin the status.
+
+## 7. Reproducing the 5090 verification
+
+Recording (NVIDIA reference; `mcpp-5090` MCP, `remote_dir=~/mcMPP-g5`):
+
+```bash
+mcp__mcpp-5090__sync   repo_path=<worktree> remote_dir=/home/metax/mcMPP-g5
+mcp__mcpp-5090__build  remote_dir=/home/metax/mcMPP-g5 jobs=4
+mcp__mcpp-5090__record remote_dir=/home/metax/mcMPP-g5 target=diff_tests \
+                       filter='NppiWarpPerspective*:NppiRotateDiff*' out_dir=npp_records_g5
+```
+
+mcMPP-side verification (no local build): the executor, the six generated
+wrappers, a four-line `nppGetStreamContext` stub and the four diff suites are
+compiled with `nvcc -arch=sm_89 -I API-unified -I src/include` and linked
+against `libgtest`; the resulting binary is run with
+`NPP_VERIFY_DIR=<record dir>` and passes 66/66 tests.  The stub, the harness
+script and the packed cross-check driver live outside the repository
+(`/home/metax/g5dev`, `/home/metax/g5probe`) and are only developer tooling.
