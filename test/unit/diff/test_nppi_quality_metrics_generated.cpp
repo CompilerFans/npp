@@ -65,6 +65,21 @@ void capture_size(const std::string &id, const char *fname, SizeFn fn, NppiSize 
   c.finish();
 }
 
+// Non-Ctx form of a buffer-size helper (no stream context parameter).
+using SizeFnPlain = NppStatus (*)(NppiSize, SIZE_TYPE *);
+
+void capture_size(const std::string &id, const char *fname, SizeFnPlain fn, NppiSize roi) {
+  SIZE_TYPE bytes = (SIZE_TYPE)-1;
+  NppStatus st = fn(roi, &bytes);
+  Case c(id, fname);
+  c.status(st);
+  if (st == NPP_NO_ERROR && roi.width > 0 && roi.height > 0) {
+    uint64_t v = (uint64_t)bytes;
+    c.host_output(&v, 1, ValueKind::U64);
+  }
+  c.finish();
+}
+
 // Builds a padded image of h rows; returns the host buffer and the byte step.
 template <typename T> int make_step(int w, int ch, int pad) {
   const int se = (int)sizeof(T);
@@ -473,16 +488,19 @@ TEST_F(NppiQualityMetricsDiff, CIR_Errors) {
 }
 #if NPP_DIFF_HAS_NONCTX
 TEST_F(NppiQualityMetricsDiff, CIR_8u_C1_Plain) {
-  // The plain entry point fills counts through the same device buffer.
-  const int w = 8, h = 4;
-  std::vector<Npp8u> img = make_image<Npp8u>(w, h, 1, w, 0x208);
+  // Replay the Ctx case so the non-Ctx adapter is checked against the same
+  // golden (NPP 13 no longer ships non-Ctx entry points to record from).
+  const int w = 23, h = 9, step = w;
+  std::vector<Npp8u> img = make_image<Npp8u>(w, h, 1, step, 0x201);
+  img[0] = 32;
+  img[1] = 200;
   DeviceMemory<Npp8u> d(img.size());
   DeviceMemory<int> cnt(1);
   DeviceMemory<Npp8u> buf(1 << 16);
   d.copyFromHost(img);
-  cnt.copyFromHost(std::vector<int>{-1});
-  NppStatus st = nppiCountInRange_8u_C1R(d.get(), w, NppiSize{w, h}, cnt.get(), 0, 255, buf.get());
-  Case c("s2/CIR/8u_C1_plain", "nppiCountInRange_8u_C1R");
+  cnt.copyFromHost(std::vector<int>{-12345});
+  NppStatus st = nppiCountInRange_8u_C1R(d.get(), step, NppiSize{w, h}, cnt.get(), 32, 200, buf.get());
+  Case c("s2/CIR/8u_C1", "nppiCountInRange_8u_C1R");
   c.input(img.data(), img.size());
   c.status(st);
   c.device_output(cnt.get(), 1, ValueKind::I32);

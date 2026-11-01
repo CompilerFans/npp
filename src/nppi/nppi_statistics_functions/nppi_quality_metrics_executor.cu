@@ -82,12 +82,19 @@ __global__ void countInRange1Kernel(const D *pSrc, int nSrcStep, int width, int 
   if (threadIdx.x == 0) *pCounts = (int)shared[0];
 }
 
+// The per-channel bounds are host arrays (NPP contract); pass them to the
+// kernel by value instead of dereferencing host memory from the device.
+template <typename D> struct CountBounds {
+  D lo[4];
+  D hi[4];
+};
+
 template <typename D>
 __global__ void countInRangeNKernel(const D *pSrc, int nSrcStep, int width, int height, int channels,
-                                    const D *aLower, const D *aUpper, int *aCounts) {
+                                    CountBounds<D> bounds, int *aCounts) {
   const int c = blockIdx.x;
-  const D lo = aLower[c];
-  const D hi = aUpper[c];
+  const D lo = bounds.lo[c];
+  const D hi = bounds.hi[c];
   const long total = (long)width * height;
   long count = 0;
   for (long i = (long)threadIdx.x; i < total; i += blockDim.x) {
@@ -293,6 +300,11 @@ NppStatus runQualityIndex(const D *pSrc1, int nSrc1Step, const D *pSrc2, int nSr
       !step_ok(nSrc2Step, oSizeROI.width, channels, esize)) {
     return NPP_STEP_ERROR;
   }
+  // A 4-channel step must be a multiple of the pixel size (the 5090 returns
+  // NOT_EVEN_STEP_ERROR for a 32f AC4 step of 36; STEP_ERROR takes precedence
+  // when the step is also too short).
+  const int align = channels == 4 ? channels * esize : esize;
+  if (nSrc1Step % align != 0 || nSrc2Step % align != 0) return NPP_NOT_EVEN_STEP_ERROR;
   const int nch = alpha ? channels - 1 : channels;
   if (nch < 1 || nch > 4) return NPP_NUMBER_OF_CHANNELS_ERROR;
 
@@ -364,8 +376,13 @@ NppStatus runCountInRangeN(const D *pSrc, int nSrcStep, NppiSize oSizeROI, int *
   for (int c = 0; c < nch; ++c) {
     if (!(aLowerBound[c] <= aUpperBound[c])) return NPP_RANGE_ERROR;
   }
+  CountBounds<D> bounds{};
+  for (int c = 0; c < nch; ++c) {
+    bounds.lo[c] = aLowerBound[c];
+    bounds.hi[c] = aUpperBound[c];
+  }
   countInRangeNKernel<D><<<nch, kBlock, 0, stream>>>(pSrc, nSrcStep, oSizeROI.width, oSizeROI.height, channels,
-                                                     aLowerBound, aUpperBound, aCounts);
+                                                     bounds, aCounts);
   return cudaGetLastError() == cudaSuccess ? NPP_NO_ERROR : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 

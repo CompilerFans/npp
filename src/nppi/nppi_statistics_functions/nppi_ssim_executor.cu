@@ -190,8 +190,10 @@ NppStatus ssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int
   NppStatus st = ssimLevel(a, b, w, h, buf + 2 * plane, 0, 1.0f, &hsum, stream);
   cudaFree(buf);
   if (st != NPP_NO_ERROR) return st;
-  out[ch] = (Npp32f)(hsum / (double)(w * h));
-  return NPP_NO_ERROR;
+  const Npp32f value = (Npp32f)(hsum / (double)(w * h));
+  return cudaMemcpyAsync(out + ch, &value, sizeof(value), cudaMemcpyHostToDevice, stream) == cudaSuccess
+             ? NPP_NO_ERROR
+             : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus wmsssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step, NppiSize roi,
@@ -235,8 +237,10 @@ NppStatus wmsssimChannel(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, 
     }
   }
   cudaFree(buf);
-  out[ch] = (Npp32f)result;
-  return NPP_NO_ERROR;
+  const Npp32f value = (Npp32f)result;
+  return cudaMemcpyAsync(out + ch, &value, sizeof(value), cudaMemcpyHostToDevice, stream) == cudaSuccess
+             ? NPP_NO_ERROR
+             : NPP_CUDA_KERNEL_EXECUTION_ERROR;
 }
 
 NppStatus copyBatchDesc(const NppiImageDescriptor *p, int n, std::vector<NppiImageDescriptor> &out,
@@ -255,8 +259,8 @@ NppStatus copyBatchDesc(const NppiImageDescriptor *p, int n, std::vector<NppiIma
 // the differential tests pin the status contract and sufficiency.
 NppStatus ssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  // Measured: a negative ROI is accepted (NO_ERROR, no size written).
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_NO_ERROR;
   const long planes = (long)oSizeROI.width * oSizeROI.height;
   *hpBufferSize = (int)(channels * kPlanes * (planes + 2L * oSizeROI.width) * 4 + 256);
   return NPP_NO_ERROR;
@@ -268,8 +272,8 @@ NppStatus ssimBatchGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBuf
 
 NppStatus wmsssimGetBufferHostSize(NppiSize oSizeROI, int channels, int *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
-  if (oSizeROI.width < 0 || oSizeROI.height < 0) return NPP_SIZE_ERROR;
-  if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
+  // Measured: a negative ROI is accepted (NO_ERROR, no size written).
+  if (oSizeROI.width <= 0 || oSizeROI.height <= 0) return NPP_NO_ERROR;
   const long planes = (long)oSizeROI.width * oSizeROI.height;
   *hpBufferSize = (int)(channels * (kPlanes + 2) * (planes + 2L * oSizeROI.width) * 4 + 256);
   return NPP_NO_ERROR;
