@@ -93,11 +93,13 @@ inline bool resizeRectInterpolationSupported(int eInterpolation) {
 
 inline NppStatus getResizeRect(NppiRect oSrcROI, NppiRect *pDstRect, double nXFactor, double nYFactor,
                                double nXShift, double nYShift, int eInterpolation) {
-  if (pDstRect == nullptr) {
-    return NPP_NULL_POINTER_ERROR;
-  }
+  // Measured order: the source-size check precedes the null-pointer check
+  // (golden resize-host/getrect/error/null-over-size -> NPP_SIZE_ERROR).
   if (oSrcROI.width < 1 || oSrcROI.height < 1) {
     return NPP_SIZE_ERROR;
+  }
+  if (pDstRect == nullptr) {
+    return NPP_NULL_POINTER_ERROR;
   }
   if (nXFactor <= 0.0 || nYFactor <= 0.0) {
     return NPP_RESIZE_FACTOR_ERROR;

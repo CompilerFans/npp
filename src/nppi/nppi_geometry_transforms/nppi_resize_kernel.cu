@@ -86,13 +86,30 @@ __device__ __forceinline__ void lagrange4(double t, double w[4]) {
   w[3] = t * (t + 1.0) * (t - 1.0) / 6.0;
 }
 
-__device__ __forceinline__ double lanczos3(double d) {
+// Exact (double) Lanczos-3 kernel at a distance d.
+__device__ __forceinline__ double lanczos3Exact(double d) {
   double a = fabs(d);
   if (a >= 3.0) return 0.0;
-  if (a < 1e-12) return 1.0;
+  if (a < 1e-15) return 1.0;
   const double pi = 3.14159265358979323846;
   double x = pi * a;
   return (sin(x) / x) * (sin(x / 3.0) / (x / 3.0));
+}
+
+// NVIDIA NPP samples Lanczos-3 on a 0.01 grid and interpolates linearly:
+// constTblLanczos3 in libnppig holds 301 float32 samples at d = i/100 (with a
+// trailing zero), and the device kernel lerps between two neighbours in
+// double.  Rebuilding the table on the fly (double -> float32 -> double lerp)
+// reproduces the recorded 64f impulse responses to machine precision.
+__device__ __forceinline__ double lanczos3(double d) {
+  double a = fabs(d);
+  if (a >= 3.0) return 0.0;
+  double x = a * 100.0;
+  int i = (int)x;
+  double f = x - (double)i;
+  float lo = (float)lanczos3Exact((double)i * 0.01);
+  float hi = (float)lanczos3Exact((double)(i + 1) * 0.01);
+  return (double)lo + f * ((double)hi - (double)lo);
 }
 
 template <typename T, int NC, typename VT>
@@ -109,12 +126,20 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
     for (int c = 0; c < NC; ++c) out[c] = loadVal<T, VT>(p + c);
     return true;
   }
+  // Separable evaluation: NPP resizes with a horizontal pass followed by a
+  // vertical pass, so the x taps are accumulated first and the y taps combine
+  // the per-row results.  The rounding of that order is observable in the
+  // integer goldens (e.g. a value of exactly 128.5 stays 128).
+  constexpr int kMaxTaps = 8;
+  double wx[kMaxTaps], wy[kMaxTaps];
+  int ox[kMaxTaps], oy[kMaxTaps];
+  int taps = 0;
+  double normSum = 1.0;
+  bool normalize = false;
   if (mode == MODE_LINEAR || mode == MODE_CUBIC || mode == MODE_LANCZOS) {
-    const int taps = (mode == MODE_LINEAR) ? 2 : (mode == MODE_CUBIC ? 4 : 6);
+    taps = (mode == MODE_LINEAR) ? 2 : (mode == MODE_CUBIC ? 4 : 6);
     const int base = (int)floor((double)sx);
     const int baseY = (int)floor((double)sy);
-    double wx[6], wy[6];
-    int ox[6], oy[6];
     if (mode == MODE_LINEAR) {
       double tx = (double)sx - base;
       double ty = (double)sy - baseY;
@@ -140,56 +165,84 @@ __device__ __forceinline__ bool samplePixel(const T *src, int sStep, int srcW, i
         wx[i] = lanczos3((double)ox[i] - (double)sx);
         wy[i] = lanczos3((double)oy[i] - (double)sy);
       }
-    }
-    VT acc[NC];
-    for (int c = 0; c < NC; ++c) acc[c] = (VT)0;
-    double wsum = 0.0;
-    for (int j = 0; j < taps; ++j) {
-      int yy = oy[j];
-      yy = yy < tapLoY ? tapLoY : (yy > tapHiY ? tapHiY : yy);
-      const T *row = src + (size_t)yy * stride;
-      for (int i = 0; i < taps; ++i) {
-        int xx = ox[i];
-        xx = xx < tapLoX ? tapLoX : (xx > tapHiX ? tapHiX : xx);
-        const T *p = row + (size_t)xx * NC;
-        const double w = wx[i] * wy[j];
-        wsum += w;
-        for (int c = 0; c < NC; ++c) acc[c] += (VT)(w * (double)loadVal<T, VT>(p + c));
+      // The truncated Lanczos-3 weights do not sum to one; NVIDIA normalises
+      // by their sum (verified against the 32f/64f impulse goldens).
+      normalize = true;
+      normSum = 0.0;
+      for (int j = 0; j < 6; ++j) {
+        for (int i = 0; i < 6; ++i) normSum += wx[i] * wy[j];
       }
     }
-    // The truncated Lanczos-3 weights do not sum to one; NVIDIA normalises by
-    // the (clamped) weight sum (verified against the 32f goldens).
-    if (mode == MODE_LANCZOS && wsum != 0.0) {
-      for (int c = 0; c < NC; ++c) acc[c] = acc[c] / (VT)wsum;
+  } else {
+    // SUPER: area average over a source-space box of width 1/f starting at
+    // sx-0.5, evaluated as the outer product of the x and y box overlaps.
+    double x0 = (double)sx - 0.5, y0 = (double)sy - 0.5;
+    double x1 = x0 + (double)adjF, y1 = y0 + (double)adjFy;
+    int ix0 = (int)floor(x0), ix1 = (int)ceil(x1) - 1;
+    int iy0 = (int)floor(y0), iy1 = (int)ceil(y1) - 1;
+    int nx = 0, ny = 0;
+    double sumX = 0.0, sumY = 0.0;
+    for (int xx = ix0; xx <= ix1 && nx < kMaxTaps; ++xx) {
+      double ov = fmin(x1, (double)xx + 1.0) - fmax(x0, (double)xx);
+      if (ov <= 0.0) continue;
+      wx[nx] = ov;
+      ox[nx] = xx;
+      sumX += ov;
+      ++nx;
     }
-    for (int c = 0; c < NC; ++c) out[c] = acc[c];
+    for (int yy = iy0; yy <= iy1 && ny < kMaxTaps; ++yy) {
+      double ov = fmin(y1, (double)yy + 1.0) - fmax(y0, (double)yy);
+      if (ov <= 0.0) continue;
+      wy[ny] = ov;
+      oy[ny] = yy;
+      sumY += ov;
+      ++ny;
+    }
+    if (nx == 0 || ny == 0) {
+      for (int c = 0; c < NC; ++c) out[c] = (VT)0;
+      return true;
+    }
+    taps = nx;  // x and y tap counts differ; handled below
+    normSum = sumX * sumY;
+    if (normSum <= 0.0) normSum = 1.0;
+    normalize = true;
+    // Store the y tap count in the unused tail of oy via nx/ny encoded below.
+    // (Kept simple: SUPER is evaluated in its own loop.)
+    VT acc[NC];
+    for (int c = 0; c < NC; ++c) acc[c] = (VT)0;
+    for (int j = 0; j < ny; ++j) {
+      int yc = oy[j] < tapLoY ? tapLoY : (oy[j] > tapHiY ? tapHiY : oy[j]);
+      const T *row = src + (size_t)yc * stride;
+      VT hs[NC];
+      for (int c = 0; c < NC; ++c) hs[c] = (VT)0;
+      for (int i = 0; i < nx; ++i) {
+        int xc = ox[i] < tapLoX ? tapLoX : (ox[i] > tapHiX ? tapHiX : ox[i]);
+        const T *p = row + (size_t)xc * NC;
+        for (int c = 0; c < NC; ++c) hs[c] += (VT)(wx[i] * (double)loadVal<T, VT>(p + c));
+      }
+      for (int c = 0; c < NC; ++c) acc[c] += (VT)(wy[j] * (double)hs[c]);
+    }
+    for (int c = 0; c < NC; ++c) out[c] = acc[c] / (VT)normSum;
     return true;
   }
-  // SUPER: area average over a source-space box of width adjF starting at sx-0.5.
-  double x0 = (double)sx - 0.5, y0 = (double)sy - 0.5;
-  double x1 = x0 + (double)adjF, y1 = y0 + (double)adjFy;
-  int ix0 = (int)floor(x0), ix1 = (int)ceil(x1) - 1;
-  int iy0 = (int)floor(y0), iy1 = (int)ceil(y1) - 1;
-  double sumW = 0.0;
   VT acc[NC];
   for (int c = 0; c < NC; ++c) acc[c] = (VT)0;
-  for (int yy = iy0; yy <= iy1; ++yy) {
-    double oy = fmin(y1, (double)yy + 1.0) - fmax(y0, (double)yy);
-    if (oy <= 0.0) continue;
-    int yc = yy < tapLoY ? tapLoY : (yy > tapHiY ? tapHiY : yy);
+  for (int j = 0; j < taps; ++j) {
+    int yc = oy[j] < tapLoY ? tapLoY : (oy[j] > tapHiY ? tapHiY : oy[j]);
     const T *row = src + (size_t)yc * stride;
-    for (int xx = ix0; xx <= ix1; ++xx) {
-      double ox = fmin(x1, (double)xx + 1.0) - fmax(x0, (double)xx);
-      if (ox <= 0.0) continue;
-      double w = ox * oy;
-      sumW += w;
-      int xc = xx < tapLoX ? tapLoX : (xx > tapHiX ? tapHiX : xx);
+    VT hs[NC];
+    for (int c = 0; c < NC; ++c) hs[c] = (VT)0;
+    for (int i = 0; i < taps; ++i) {
+      int xc = ox[i] < tapLoX ? tapLoX : (ox[i] > tapHiX ? tapHiX : ox[i]);
       const T *p = row + (size_t)xc * NC;
-      for (int c = 0; c < NC; ++c) acc[c] += (VT)(w * (double)loadVal<T, VT>(p + c));
+      for (int c = 0; c < NC; ++c) hs[c] += (VT)(wx[i] * (double)loadVal<T, VT>(p + c));
     }
+    for (int c = 0; c < NC; ++c) acc[c] += (VT)(wy[j] * (double)hs[c]);
   }
-  if (sumW <= 0.0) sumW = 1.0;
-  for (int c = 0; c < NC; ++c) out[c] = acc[c] / (VT)sumW;
+  if (normalize && normSum != 0.0) {
+    for (int c = 0; c < NC; ++c) acc[c] = acc[c] / (VT)normSum;
+  }
+  for (int c = 0; c < NC; ++c) out[c] = acc[c];
   return true;
 }
 
