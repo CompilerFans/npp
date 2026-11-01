@@ -1,0 +1,18 @@
+{
+  "call": "nppi::c3color::invC2(pSrc, nSrcStep, pDst, nDstStep, 3, 0, oSizeROI, nppStreamCtx.hStream)",
+  "family": "nppiCbYCr422ToBGR_709HDTV",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiCbYCr422ToBGR_709HDTV_generated.cpp",
+  "includes": [
+    "nppi_c3_color_executor.h"
+  ],
+  "families": [
+    "nppiCbYCr422ToBGR_709HDTV"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_C2C4R",
+      "call": "nppi::c3color::invC2(pSrc, nSrcStep, pDst, nDstStep, 4, nAval, oSizeROI, nppStreamCtx.hStream)"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "family": "nppiAlphaCompColorKey",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_alpha_comp_color_key_generated.cpp",
+  "includes": [
+    "nppi_color_key_executor.h"
+  ],
+  "families": [
+    "nppiAlphaCompColorKey"
+  ],
+  "call": "nppi::color_key::alphaCompColorKey<{dtype}, {chan}>(pSrc1, nSrc1Step, nAlpha1, pSrc2, nSrc2Step, nAlpha2, pDst, nDstStep, oSizeROI, nColorKeyConst, nppAlphaOp, nppStreamCtx.hStream)"
+}

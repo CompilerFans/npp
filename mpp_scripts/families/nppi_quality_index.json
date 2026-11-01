@@ -1,0 +1,12 @@
+{
+  "family": "nppiQualityIndex",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_quality_index_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "families": [
+    "nppiQualityIndex"
+  ],
+  "call": "nppi::statistics::runQualityIndex<{dtype}>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oRoiSize, {chan}, {is_ac4} != 0, pDst, pDeviceBuffer, nppStreamCtx.hStream)"
+}

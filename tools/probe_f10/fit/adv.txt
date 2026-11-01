@@ -1,0 +1,18 @@
+== adv ==
+adv taps=3 k=0.25/0.5/0.25 status=0 total=1
+  centerrow row10: 0 0 0 0 0 0 0 0 0 0.125 0.25 0.125 0 0 0 0 0 0 0 0 0
+adv taps=5 k=binom5 status=0 total=1
+  centerrow row10: 0 0 0 0 0 0 0 0 0.0234375 0.09375 0.140625 0.09375 0.0234375 0 0 0 0 0 0 0 0
+adv taps=1 k1 status=-33 total=-nan
+adv taps=2 even2 status=-33 total=-nan
+adv taps=3 unnorm3 status=0 total=9
+  centerrow row10: 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0
+adv taps=3 neg status=0 total=1
+  centerrow row10: 0 0 0 0 0 0 0 0 0 -0.5 0.25 -0.25 0 0 0 0 0 0 0 0 0
+adv taps=7 taps7_k7 status=0 total=7.84000019
+  centerrow row10: 0 0 0 0 0 0 0 0.280000001 0.24000001 0.200000003 0.160000011 0.120000005 0.0800000057 0.0400000028 0 0 0 0 0 0 0
+adv taps=0 taps0 status=-33 total=-nan
+adv taps=-1 taps-1 status=-11 total=-nan
+adv taps=33 taps33_k3 status=0 total=nan
+  centerrow row10: nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+done

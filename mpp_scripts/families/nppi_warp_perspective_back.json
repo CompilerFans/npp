@@ -1,0 +1,17 @@
+{
+  "family": "nppiWarpPerspectiveBack",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_warp_perspective_back_generated.cpp",
+  "includes": ["nppi_warp_perspective_executor.h"],
+  "call": "nppi::warp::warpBackward<{dtype}, {chan}, {is_ac4}>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream)",
+  "call_variants": [
+    {
+      "contains": "pSrc[3]",
+      "call": "nppi::warp::warpBackwardPlanar<{dtype}, 3>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "pSrc[4]",
+      "call": "nppi::warp::warpBackwardPlanar<{dtype}, 4>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream)"
+    }
+  ]
+}

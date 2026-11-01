@@ -1,0 +1,14 @@
+== gap2 ==
+gap2 gauss8u-AC4 st=0 p22=[100 101 102 119] p00=[100 101 102 119] lasterr=0
+gap2 gauss8u-C4 st=0 p22=[100 101 102 200] p00=[100 101 102 200] lasterr=0
+gap2 wiener8u-AC4 st=0 p22=[100 101 102 119] p00=[100 101 102 119] lasterr=0
+gap2 wiener8u-C4 st=0 p22=[55 56 56 111] p00=[55 56 56 111] lasterr=0
+gap2 gauss32f-AC4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 gauss32f-C4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 gb32f-AC4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 adv32f-AC4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 advb32f-AC4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 wiener32f-AC4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 wiener32f-C4 st=-16 p22=[0 0 0 0] p00=[0 0 0 0] lasterr=1
+gap2 gauss16s-AC4 st=0 p22=[-100 -101 -102 -12345] lasterr=0
+done

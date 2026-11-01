@@ -1,0 +1,18 @@
+{
+  "call": "nppi::c3color::cmykToRgb(pSrc, nSrcStep, pDst, nDstStep, 3, 1, oSizeROI, nppStreamCtx.hStream)",
+  "family": "nppiCMYKOrYCCKToBGR_JPEG",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiCMYKOrYCCKToBGR_JPEG_generated.cpp",
+  "includes": [
+    "nppi_c3_color_executor.h"
+  ],
+  "families": [
+    "nppiCMYKOrYCCKToBGR_JPEG"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_P4P3R",
+      "call": "nppi::c3color::cmykToRgbPlanar(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 1)"
+    }
+  ]
+}

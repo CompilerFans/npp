@@ -1,0 +1,12 @@
+{
+  "call": "nppi::c3conv::rgbToYCbCr422C3C2(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, 3, 0, 1)",
+  "family": "nppiRGBToCbYCr422",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiRGBToCbYCr422_generated.cpp",
+  "includes": [
+    "nppi_c3_conversion_executor.h"
+  ],
+  "families": [
+    "nppiRGBToCbYCr422"
+  ]
+}

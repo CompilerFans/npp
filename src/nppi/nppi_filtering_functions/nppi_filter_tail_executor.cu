@@ -260,14 +260,14 @@ NppStatus bilateralGaussBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize,
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  if (nStepBetweenSrcPixels <= 0) return NPP_FFT_FLAG_ERROR;
+  if (nStepBetweenSrcPixels <= 0) return NPP_STEP_ERROR;
   if (eBorderType != NPP_BORDER_REPLICATE && eBorderType != NPP_BORDER_MIRROR) {
-    return NPP_STEP_ERROR;
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
   }
   if (nRadius < 1 || nRadius > 32) return NPP_MASK_SIZE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   const int rowBytes = oSizeROI.width * CH * (int)sizeof(Dst);
-  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_FFT_FLAG_ERROR;
+  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if ((nDstStep % (int)sizeof(Dst)) != 0) return NPP_NOT_EVEN_STEP_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
@@ -295,10 +295,10 @@ NppStatus thresholdAdaptiveBoxBorder(const Npp8u *pSrc, int nSrcStep, NppiSize o
       (oMaskSize.height & 1) == 0 || oMaskSize.width != oMaskSize.height) {
     return NPP_MASK_SIZE_ERROR;
   }
-  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_STEP_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
   const int rowBytes = oSizeROI.width * (int)sizeof(Npp8u);
-  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_FFT_FLAG_ERROR;
+  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,
             (oSizeROI.height + kBlockY - 1) / kBlockY);
@@ -315,7 +315,7 @@ NppStatus harrisCornersBorder(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize
                               NppiMaskSize eAvgWindowSize, Npp32f nK, Npp32f nScale,
                               NppiBorderType eBorderType, Npp8u *pDeviceBuffer,
                               cudaStream_t stream) {
-  if (pSrc == nullptr || pDeviceBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
+  if (pSrc == nullptr || pDst == nullptr || pDeviceBuffer == nullptr) return NPP_NULL_POINTER_ERROR;
   if (eFilterType != NPP_FILTER_SOBEL && eFilterType != NPP_FILTER_SCHARR) {
     return NPP_BAD_ARGUMENT_ERROR;
   }
@@ -333,11 +333,10 @@ NppStatus harrisCornersBorder(const Npp8u *pSrc, int nSrcStep, NppiSize oSrcSize
       oSrcOffset.y >= oSrcSize.height) {
     return NPP_OUT_OFF_RANGE_ERROR;
   }
-  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_STEP_ERROR;
+  if (eBorderType != NPP_BORDER_REPLICATE) return NPP_NOT_SUPPORTED_MODE_ERROR;
   if (oSizeROI.width == 0 || oSizeROI.height == 0) return NPP_NO_ERROR;
-  if (pDst == nullptr) return NPP_NO_ERROR;  // NPP 13.4 quirk: accepted, no output
   const int rowBytes = oSizeROI.width * (int)sizeof(Npp32f);
-  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_FFT_FLAG_ERROR;
+  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if ((nDstStep % (int)sizeof(Npp32f)) != 0) return NPP_NOT_EVEN_STEP_ERROR;
   dim3 block(kBlockX, kBlockY);
   dim3 grid((oSizeROI.width + kBlockX - 1) / kBlockX,

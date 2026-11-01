@@ -1,24 +1,24 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10497 (83.7%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 1922
-- Tested: 8246 (65.8%)
-- Real and tested: 7191
+- Real implementations: 12225 (97.5%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
+- Missing: 228
+- Tested: 8291 (66.1%)
+- Real and tested: 8124
 
 ## By module
 
 | module | total | real | stub | missing | tested |
 |---|---:|---:|---:|---:|---:|
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
-| nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
+| nppi_color_conversion.h | 1074 | 997 | 0 | 77 | 717 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1369 | 0 | 527 | 999 |
-| nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
+| nppi_filtering_functions.h | 1896 | 1820 | 0 | 76 | 1004 |
+| nppi_geometry_transforms.h | 705 | 549 | 84 | 72 | 456 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
-| nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
-| nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
+| nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
+| nppi_statistics_functions.h | 3246 | 3243 | 0 | 3 | 1730 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
@@ -32,43 +32,43 @@
 
 | module | group | remaining | ctx |
 |---|---|---:|---:|
-| nppi_color_conversion.h | nppiLUT_Cubic | 64 | 32 |
-| nppi_filtering_functions.h | nppiFilterMedian | 64 | 32 |
 | nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
-| nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
-| nppi_color_conversion.h | nppiLUT | 56 | 28 |
-| nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
-| nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
-| nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
-| nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
-| nppi_filtering_functions.h | nppiFilterGaussAdvancedBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterGaussAdvanced | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterGaussBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
-| nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
-| nppi_geometry_transforms.h | nppiResize | 30 | 15 |
-| nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
-| nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
-| nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
-| nppi_filtering_functions.h | nppiFilterGauss | 26 | 13 |
-| nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
-| nppi_filtering_functions.h | nppiFilterBoxBorder | 24 | 12 |
-| nppi_filtering_functions.h | nppiFilterWienerBorder | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBack | 24 | 12 |
-| nppi_morphological_operations.h | nppiDilate3x3Border | 24 | 12 |
-| nppi_morphological_operations.h | nppiDilateBorder | 24 | 12 |
-| nppi_morphological_operations.h | nppiErode3x3Border | 24 | 12 |
-| nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
-| nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveBatch | 22 | 11 |
-| nppi_morphological_operations.h | nppiDilate3x3 | 22 | 11 |
-| nppi_morphological_operations.h | nppiErode3x3 | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
-| nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
-| nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
-| nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
+| nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
+| nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
+| nppi_filtering_functions.h | nppiFilterGaussPyramidLayerUpBorder | 12 | 6 |
+| nppi_color_conversion.h | nppiYCbCrToBGRBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCrToRGBBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYUVToBGRBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYUVToRGBBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYCbCr420ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr420ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr422ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYCbCr422ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV420ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV420ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV420ToRGB | 4 | 4 |
+| nppi_color_conversion.h | nppiYUV422ToBGRBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV422ToRGBBatch | 4 | 2 |
+| nppi_color_conversion.h | nppiYUV422ToRGB | 4 | 4 |
+| nppi_color_conversion.h | nppiRGBToYUV422 | 3 | 3 |
+| nppi_filtering_functions.h | nppiFilterHoughLine | 3 | 1 |
+| nppi_filtering_functions.h | nppiSegmentWatershed | 3 | 1 |
+| nppi_filtering_functions.h | nppiSignedDistanceTransformAbsPBA | 3 | 3 |
+| nppi_color_conversion.h | nppiRGBToYUV420 | 2 | 2 |
+| nppi_filtering_functions.h | nppiContoursImageMarchingSquaresInterpolation | 2 | 2 |
+| nppi_filtering_functions.h | nppiFilterHoughLineRegion | 2 | 1 |
+| nppi_geometry_transforms.h | nppiWarpAffineBatchInit | 2 | 1 |
+| nppi_statistics_functions.h | nppiMSSSIM | 2 | 1 |
+| nppi_filtering_functions.h | nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R | 1 | 0 |
+| nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize | 1 | 0 |
+| nppi_filtering_functions.h | nppiFilterBoxBorderAdvancedGetDeviceBufferSize_64 | 1 | 0 |
+| nppi_filtering_functions.h | nppiFilterHarrisCornersBorder | 1 | 0 |
+| nppi_filtering_functions.h | nppiGetFilterGaussPyramidLayerDownBorderDstROI | 1 | 0 |
+| nppi_filtering_functions.h | nppiGetFilterGaussPyramidLayerUpBorderDstROI | 1 | 0 |
+| nppi_filtering_functions.h | nppiHistogramOfGradientsBorderGetDescriptorsSize | 1 | 0 |
+| nppi_filtering_functions.h | nppiSignedDistanceTransformPBAGetAntialiasingBufferSize | 1 | 0 |
+| nppi_filtering_functions.h | nppiSignedDistanceTransformPBA | 1 | 1 |

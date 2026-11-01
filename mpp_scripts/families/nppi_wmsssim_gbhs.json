@@ -1,0 +1,13 @@
+{
+  "family": "nppiWMSSSIMGetBufferHostSize",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_wmsssim_gbhs_generated.cpp",
+  "includes": [
+    "nppi_ssim_executor.h"
+  ],
+  "families": [
+    "nppiWMSSSIMGetBufferHostSize"
+  ],
+  "call": "nppi::statistics::wmsssimGetBufferHostSize(oSizeROI, {chan}, hpBufferSize)",
+  "size_t_overloads": true
+}

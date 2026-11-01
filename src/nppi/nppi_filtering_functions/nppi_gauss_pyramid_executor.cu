@@ -170,7 +170,7 @@ NppStatus gaussPyramidBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   // this family as -14 (the value of NPP_STEP_ERROR), not as
   // NPP_NOT_SUPPORTED_MODE_ERROR like the other filtering families.
   if (eBorderType != NPP_BORDER_REPLICATE && eBorderType != NPP_BORDER_MIRROR) {
-    return NPP_STEP_ERROR;
+    return NPP_NOT_SUPPORTED_MODE_ERROR;
   }
   if (nFilterTaps < 3 || nFilterTaps >= 100) return NPP_MASK_SIZE_ERROR;
   if (!(nRate > 1.0f && nRate <= 10.0f)) return NPP_BAD_ARGUMENT_ERROR;
@@ -179,7 +179,7 @@ NppStatus gaussPyramidBorder(const Src *pSrc, int nSrcStep, NppiSize oSrcSize, N
   // Measured on the 5090: a destination step shorter than one ROI row comes
   // back as -16 (NPP_FFT_FLAG_ERROR, the code NPP 13.4 actually uses here),
   // while an unaligned step is the regular NPP_NOT_EVEN_STEP_ERROR (-108).
-  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_FFT_FLAG_ERROR;
+  if (step_too_small(nDstStep, rowBytes, oSizeROI.height)) return NPP_STEP_ERROR;
   if ((nDstStep % (int)sizeof(Dst)) != 0) return NPP_NOT_EVEN_STEP_ERROR;
 
   static_assert(Dir == kPyramidDown, "only the down model is implemented for now");

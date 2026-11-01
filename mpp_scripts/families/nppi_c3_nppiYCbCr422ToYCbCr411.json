@@ -1,0 +1,26 @@
+{
+  "call": "nppi::c3yuv::p3Resample(pSrc, rSrcStep, pDst, rDstStep, oSizeROI, nppStreamCtx.hStream, 0, 0, 1)",
+  "family": "nppiYCbCr422ToYCbCr411",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYCbCr422ToYCbCr411_generated.cpp",
+  "includes": [
+    "nppi_c3_yuv_layout_executor.h"
+  ],
+  "families": [
+    "nppiYCbCr422ToYCbCr411"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_C2P2R",
+      "call": "nppi::c3yuv::c2ToP2(pSrc, nSrcStep, pDstY, nDstYStep, pDstCbCr, nDstCbCrStep, oSizeROI, nppStreamCtx.hStream, 0, 2, 1)"
+    },
+    {
+      "name_contains": "_C2P3R",
+      "call": "nppi::c3yuv::c2ToP3(pSrc, nSrcStep, pDst, rDstStep, oSizeROI, nppStreamCtx.hStream, 0, 2, 1, 0)"
+    },
+    {
+      "name_contains": "_P3P2R",
+      "call": "nppi::c3yuv::p3ToP2(pSrc, rSrcStep, pDstY, nDstYStep, pDstCbCr, nDstCbCrStep, oSizeROI, nppStreamCtx.hStream, 0, 0)"
+    }
+  ]
+}

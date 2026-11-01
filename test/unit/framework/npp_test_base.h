@@ -80,7 +80,11 @@ template <typename T> class DeviceMemory {
 public:
   DeviceMemory() : ptr_(nullptr), size_(0) {}
 
-  explicit DeviceMemory(size_t size) : size_(size) { allocate(size); }
+  // ptr_ must be initialised before allocate() runs: allocate() calls free(),
+  // which cudaFree()s a non-null pointer.  An uninitialised ptr_ made the
+  // harness occasionally free a live device buffer, which showed up as a
+  // sticky "illegal memory access" in asynchronous runs.
+  explicit DeviceMemory(size_t size) : ptr_(nullptr), size_(size) { allocate(size); }
 
   ~DeviceMemory() { free(); }
 
@@ -107,7 +111,10 @@ public:
 
   void allocate(size_t size) {
     free();
-    cudaError_t err = cudaMalloc(&ptr_, size * sizeof(T));
+    // A small guard for non-empty buffers masks latent one-pixel OOB reads in
+    // long differential runs (page-boundary dependent ATU traps); zero-size
+    // allocations must stay exactly zero so empty-ROI cases see a null pointer.
+    cudaError_t err = cudaMalloc(&ptr_, (size ? size + 64 : 0) * sizeof(T));
     if (err != cudaSuccess) {
       throw std::runtime_error("Failed to allocate device memory: " + std::string(cudaGetErrorString(err)));
     }

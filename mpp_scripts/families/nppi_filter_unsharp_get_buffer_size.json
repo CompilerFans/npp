@@ -1,0 +1,10 @@
+{
+  "family": "nppiFilterUnsharpGetBufferSize",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_unsharp_get_buffer_size_generated.cpp",
+  "includes": [
+    "nppi_filter_unsharp_executor.h"
+  ],
+  "plain_self": true,
+  "call": "nppi::filter::unsharpGetBufferSizeT<{dtype}>(nRadius, nSigma, hpBufferSize)"
+}
