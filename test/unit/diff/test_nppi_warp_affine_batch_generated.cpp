@@ -105,7 +105,10 @@ TEST_F(NppiWarpAffineBatchDiff, Errors) {
 }
 
 TEST_F(NppiWarpAffineBatchDiff, Probes_Roi) {
-  const std::vector<std::array<double, 6>> kId = {{1.0, 0.0, 0.0, 0.0, 1.0, 0.0}};
+  // nBatchSize must be > 1 (NPP_BAD_ARGUMENT_ERROR otherwise), so the identity
+  // probes carry two entries.
+  const std::vector<std::array<double, 6>> kId = {{1.0, 0.0, 0.0, 0.0, 1.0, 0.0},
+                                                  {1.0, 0.0, 0.0, 0.0, 1.0, 0.0}};
   // Partial src-ROI overlap: intersection with the 7x5 image is 2x2.
   warp_batch<Npp8u>("nppiWarpAffineBatch_8u_C1R", "nppiWarpAffineBatch/roi/srcroi_partial", 7, 5, 1, 8, kTwo,
                     NPPI_INTER_NN, NppiRect{5, 3, 4, 4}, kFull, &nppiWarpAffineBatch_8u_C1R_Ctx, 540);
@@ -116,6 +119,13 @@ TEST_F(NppiWarpAffineBatchDiff, Probes_Roi) {
   warp_batch<Npp8u>("nppiWarpAffineBatch_8u_C1R", "nppiWarpAffineBatch/roi/srcroi_mapping_eq", 7, 5, 1, 8, kId,
                     NPPI_INTER_NN, NppiRect{2, 1, 5, 4}, NppiRect{0, 0, 5, 4}, &nppiWarpAffineBatch_8u_C1R_Ctx,
                     542);
+  // Non-zero destination ROI offset: dst writes land at absolute coordinates
+  // and only pixels mapped inside the source ROI are written.
+  warp_batch<Npp8u>("nppiWarpAffineBatch_8u_C1R", "nppiWarpAffineBatch/roi/dstroi_offset", 7, 5, 1, 8, kId,
+                    NPPI_INTER_NN, NppiRect{2, 1, 5, 4}, NppiRect{1, 1, 4, 3}, &nppiWarpAffineBatch_8u_C1R_Ctx, 545);
+  // Linear taps that cross the source ROI still read the full image.
+  warp_batch<Npp8u>("nppiWarpAffineBatch_8u_C1R", "nppiWarpAffineBatch/roi/srcroi_partial_linear", 7, 5, 1, 8, kTwo,
+                    NPPI_INTER_LINEAR, NppiRect{5, 3, 4, 4}, kFull, &nppiWarpAffineBatch_8u_C1R_Ctx, 546);
   warp_batch<Npp8u>("nppiWarpAffineBatch_8u_C1R", "nppiWarpAffineBatch/roi/dstroi_zero", 7, 5, 1, 8, kTwo,
                     NPPI_INTER_NN, kFull, NppiRect{0, 0, 7, 0}, &nppiWarpAffineBatch_8u_C1R_Ctx, 543);
   warp_batch<Npp8u>("nppiWarpAffineBatch_8u_C1R", "nppiWarpAffineBatch/roi/dstroi_neg", 7, 5, 1, 8, kTwo,

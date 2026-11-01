@@ -191,15 +191,19 @@ __device__ __forceinline__ double mul_rn(double a, double b) { return a * b; }
 __device__ __forceinline__ double add_rn(double a, double b) { return a + b; }
 __device__ __forceinline__ double sub_rn(double a, double b) { return a - b; }
 
+// fxX selects the x tap base and fraction; it differs from fx only for the
+// batch kernel's row-pair tap-block reuse (see warpAffineBatchKernel).
 template <typename Acc>
-__device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, float fy) -> decltype(acc.at(c, 0, 0)) {
+__device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, float fy,
+                                             float fxX) -> decltype(acc.at(c, 0, 0)) {
   // 5090 SASS: negative coordinates are clamped to 0 (FSEL) before the
   // floor.  Dead under the in-ROI guard but kept for faithfulness.
   fx = fx < 0.0f ? 0.0f : fx;
   fy = fy < 0.0f ? 0.0f : fy;
-  const int x0 = static_cast<int>(floorf(fx));
+  fxX = fxX < 0.0f ? 0.0f : fxX;
+  const int x0 = static_cast<int>(floorf(fxX));
   const int y0 = static_cast<int>(floorf(fy));
-  const float dx = sub_rn(fx, static_cast<float>(x0));
+  const float dx = sub_rn(fxX, static_cast<float>(x0));
   const float dy = sub_rn(fy, static_cast<float>(y0));
   const auto v00 = acc.at(c, x0, y0);
   const auto v10 = acc.at(c, x0 + 1, y0);
@@ -219,16 +223,18 @@ __device__ __forceinline__ auto sampleLinear(const Acc &acc, int c, float fx, fl
 }
 
 template <typename Acc>
-__device__ __forceinline__ auto sampleCubic(const Acc &acc, int c, float fx, float fy) -> decltype(acc.at(c, 0, 0)) {
-  const int tx = static_cast<int>(floorf(fx));
+__device__ __forceinline__ auto sampleCubic(const Acc &acc, int c, float fx, float fy,
+                                            float fxX) -> decltype(acc.at(c, 0, 0)) {
+  const int tx = static_cast<int>(floorf(fxX));
   const int ty = static_cast<int>(floorf(fy));
+  const float fxC = fxX;
   using VT = decltype(acc.at(c, 0, 0));
   if constexpr (std::is_same_v<VT, float>) {
     // Exact 5090 sequence: t = fx - (tx-1) in [1,2), Lagrange-product
     // weights, row sums accumulated in tap order 1,0,2,3 starting from a
     // plain multiply, then the column pass in tap order 0,1,2,3.  Taps are
     // edge-replicated by the accessor.
-    const float t = __fsub_rn(fx, static_cast<float>(tx - 1));
+    const float t = __fsub_rn(fxC, static_cast<float>(tx - 1));
     const float u = __fsub_rn(fy, static_cast<float>(ty - 1));
     float wx[4], wy[4];
     cubicWeights(t, wx);
@@ -249,7 +255,7 @@ __device__ __forceinline__ auto sampleCubic(const Acc &acc, int c, float fx, flo
     out = __fmaf_rn(wy[3], rows[3], out);
     return out;
   } else {
-    const float ax = fx - static_cast<float>(tx);
+    const float ax = fxC - static_cast<float>(tx);
     const float ay = fy - static_cast<float>(ty);
     float wx[4], wy[4];
 #pragma unroll
@@ -409,10 +415,10 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
       v = sampleNN(src, c, fx, fy);
       break;
     case NPPI_INTER_LINEAR:
-      v = sampleLinear(src, c, fx, fy);
+      v = sampleLinear(src, c, fx, fy, fx);
       break;
     case NPPI_INTER_CUBIC:
-      v = sampleCubic(src, c, fx, fy);
+      v = sampleCubic(src, c, fx, fy, fx);
       break;
     default:
       v = work_t<T>(0);
@@ -650,19 +656,31 @@ NppStatus warpAffineQuadPlanar(const T *const *pSrc, NppiSize oSrcSize, int nSrc
 
 namespace {
 
-__device__ __forceinline__ bool invertAffineDevice(const double in[6], double out[6]) {
-  const double det = in[0] * in[4] - in[1] * in[3];
-  if (fabs(det) < 1e-12) {
-    return false;
-  }
-  const double invDet = 1.0 / det;
-  out[0] = in[4] * invDet;
-  out[1] = -in[1] * invDet;
-  out[3] = -in[3] * invDet;
-  out[4] = in[0] * invDet;
-  out[2] = -(out[0] * in[2] + out[1] * in[5]);
-  out[5] = -(out[3] * in[2] + out[4] * in[5]);
-  return true;
+// nppiWarpAffineBatchInit, replayed from the 5090 kernel SASS
+// (warpAffineBatchInit):
+//   det = fma(a00, a11, -(a01*a10))
+//   d   = (det != 0) ? det : a00          <- singular maps use a00 as the
+//                                            divisor and 1.0 for the [0][0]
+//                                            cofactor (recorded singular
+//                                            goldens: {1,2,0,2,4,0} maps to
+//                                            {1,-2,0, 0,1,0})
+//   the four cofactors are divided in double and rounded to float, then the
+//   translation is recomputed from the *float* cofactors and also rounded to
+//   float (the stored doubles are float values).
+__device__ __forceinline__ void invertAffineBatch(const double in[6], double out[6]) {
+  const double det = __fma_rn(in[0], in[4], -__dmul_rn(in[1], in[3]));
+  const bool invertible = det != 0.0;
+  const double inv = 1.0 / (invertible ? det : in[0]);
+  const float m00 = static_cast<float>((invertible ? in[4] : 1.0) * inv);
+  const float m01 = static_cast<float>((-in[1]) * inv);
+  const float m10 = static_cast<float>((invertible ? -in[3] : 0.0) * inv);
+  const float m11 = static_cast<float>(in[0] * inv);
+  out[0] = m00;
+  out[1] = m01;
+  out[3] = m10;
+  out[4] = m11;
+  out[2] = -static_cast<float>(__fma_rn(in[2], static_cast<double>(m00), __dmul_rn(in[5], static_cast<double>(m01))));
+  out[5] = -static_cast<float>(__fma_rn(in[2], static_cast<double>(m10), __dmul_rn(in[5], static_cast<double>(m11))));
 }
 
 __global__ void warpAffineBatchInitKernel(NppiWarpAffineBatchCXR *pBatchList, unsigned int nBatchSize) {
@@ -679,19 +697,30 @@ __global__ void warpAffineBatchInitKernel(NppiWarpAffineBatchCXR *pBatchList, un
   for (int k = 0; k < 6; ++k) {
     in[k] = static_cast<double>(item.pCoeffs[k]);
   }
-  if (invertAffineDevice(in, out)) {
+  invertAffineBatch(in, out);
 #pragma unroll
-    for (int k = 0; k < 6; ++k) {
-      item.aTransformedCoeffs[k / 3][k % 3] = out[k];
-    }
-  } else {
-#pragma unroll
-    for (int k = 0; k < 6; ++k) {
-      item.aTransformedCoeffs[k / 3][k % 3] = 0.0;
-    }
+  for (int k = 0; k < 6; ++k) {
+    item.aTransformedCoeffs[k / 3][k % 3] = out[k];
   }
 }
 
+__device__ __forceinline__ void batchMap(const double c[2][3], int x, int y, float &fx, float &fy) {
+  const double dx = static_cast<double>(static_cast<float>(x));
+  const double dy = static_cast<double>(static_cast<float>(y));
+  fx = static_cast<float>(__dadd_rn(__fma_rn(c[0][1], dy, __dmul_rn(c[0][0], dx)), c[0][2]));
+  fy = static_cast<float>(__dadd_rn(__fma_rn(c[1][1], dy, __dmul_rn(c[1][0], dx)), c[1][2]));
+}
+
+__device__ __forceinline__ bool batchGate(float fx, float fy, NppiRect roi) {
+  return fx >= static_cast<float>(roi.x) && fx <= static_cast<float>(roi.x + roi.width - 1) &&
+         fy >= static_cast<float>(roi.y) && fy <= static_cast<float>(roi.y + roi.height - 1);
+}
+
+// The batch kernel mirrors the single-image one: same absolute destination
+// addressing, same source-ROI gate and same interpolators.  The 5090 SASS
+// (warpAffineNaiveBatchBy2Rows<float, ...>) evaluates the map in double and
+// rounds the result to float for the gates and the sampling -- DMUL + DFMA +
+// DADD for a00*x + a01*y + a02, then F2F.F32.F64.
 template <typename T, int Channels, bool AlphaPreserve>
 __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, unsigned int nBatchSize,
                                       NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI,
@@ -707,21 +736,56 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
   }
   const NppiWarpAffineBatchCXR &item = pBatchList[img];
   if (item.pSrc == nullptr || item.pDst == nullptr) {
+    // NVIDIA NPP 13.4 faults here; leaving the image untouched is strictly
+    // safer and matches the documented "no work for an empty entry".
     return;
   }
-  const double dx = static_cast<double>(oDstRectROI.x + x);
-  const double dy = static_cast<double>(oDstRectROI.y + y);
-  const double sx = item.aTransformedCoeffs[0][0] * dx + item.aTransformedCoeffs[0][1] * dy +
-                    item.aTransformedCoeffs[0][2];
-  const double sy = item.aTransformedCoeffs[1][0] * dx + item.aTransformedCoeffs[1][1] * dy +
-                    item.aTransformedCoeffs[1][2];
-  const float fx = static_cast<float>(sx);
-  const float fy = static_cast<float>(sy);
+  // 5090: the batch kernel maps the *ROI-relative* destination index (not the
+  // absolute image position; probed with non-zero oDstRectROI offsets) while
+  // the write still lands at the absolute pixel.  The map is evaluated with
+  // the (float-rounded) transformed coefficients in double and rounded to
+  // float: DMUL a00*x, DFMA a01*y + that, DADD + a02, F2F.F32.F64.
+  const int ax = oDstRectROI.x + x;
+  const int ay = oDstRectROI.y + y;
+  float fx, fy;
+  batchMap(item.aTransformedCoeffs, x, y, fx, fy);
+  // 5090 batch gate: the mapped point must be inside the *clipped source ROI*
+  // with an inclusive upper bound of the last pixel (x1-1, y1-1).  Unlike the
+  // single-image kernel this rejects coordinates such as 6.4 on a 7-wide ROI
+  // even when they would round to pixel 6.
+  if (!batchGate(fx, fy, oSrcRectROI)) {
+    return;
+  }
+  // The NPP batch kernel resamples two rows per iteration and only advances
+  // the row coordinate when the even row's mapped point is inside the gate;
+  // an odd destination row is therefore dropped whenever the even row of the
+  // same pair is outside the source ROI (observed on the 5090 with a
+  // half-pixel vertical translation: rows 0 and 1 stay untouched).
+  float fxX = fx;
+  if ((y & 1) != 0) {
+    float ex, ey;
+    batchMap(item.aTransformedCoeffs, x, y - 1, ex, ey);
+    if (!batchGate(ex, ey, oSrcRectROI)) {
+      return;
+    }
+    // The float kernel loads one row-pair tap block per iteration and only
+    // reloads it when the y tap base changes.  When the even and odd rows share
+    // the same base row the odd row therefore reuses the even row's x tap base
+    // and x fraction (its own y weights are still used).  The 16f instantiation
+    // (SampleLinearImageBatchBy2Rows_16f) does not show this reuse in the
+    // recorded goldens.
+    if constexpr (!std::is_same_v<T, Npp16f>) {
+      if (static_cast<int>(floorf(ey)) == static_cast<int>(floorf(fy))) {
+        fxX = ex;
+      }
+    }
+  }
 
   WarpPlanes<T> planes;
   planes.src[0] = static_cast<const T *>(item.pSrc);
   planes.dst[0] = static_cast<T *>(item.pDst);
   const SrcAccessor<T, Channels, false> src(planes, item.nSrcStep, oSmallestSrcSize);
+  const DstAccessor<T, Channels, false> dst(planes, item.nDstStep);
   constexpr int kActive = AlphaPreserve ? Channels - 1 : Channels;
   for (int c = 0; c < kActive; ++c) {
     work_t<T> v(0);
@@ -730,19 +794,17 @@ __global__ void warpAffineBatchKernel(const NppiWarpAffineBatchCXR *pBatchList, 
       v = sampleNN(src, c, fx, fy);
       break;
     case NPPI_INTER_LINEAR:
-      v = sampleLinear(src, c, fx, fy);
+      v = sampleLinear(src, c, fx, fy, fxX);
       break;
     case NPPI_INTER_CUBIC:
-      v = sampleCubic(src, c, fx, fy);
+      v = sampleCubic(src, c, fx, fy, fxX);
       break;
     default:
       v = work_t<T>(0);
       break;
     }
-    const size_t idx = static_cast<size_t>(x) * Channels + c;
-    T *row = reinterpret_cast<T *>(reinterpret_cast<char *>(item.pDst) +
-                                   static_cast<size_t>(y) * item.nDstStep);
-    row[idx] = castSample<T>(v);
+    // Absolute image coordinates, like the single-image kernel.
+    dst.write(oDstRectROI.x + x, oDstRectROI.y + y, c, castSample<T>(v));
   }
 }
 
@@ -753,7 +815,11 @@ NppStatus warpAffineBatchInit(NppiWarpAffineBatchCXR *pBatchList, unsigned int n
     return NPP_NULL_POINTER_ERROR;
   }
   if (nBatchSize == 0) {
-    return NPP_NO_ERROR;
+    // 5090: the reference implementation launches a zero-block kernel and
+    // reports NPP_CUDA_KERNEL_EXECUTION_ERROR (recorded
+    // nppiWarpAffineBatchInit/err/batchsize0).  Reproduced for status
+    // compatibility; the list is left untouched.
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
   const int threads = 128;
   const int blocks = static_cast<int>((nBatchSize + threads - 1) / threads);
@@ -767,29 +833,42 @@ NppStatus warpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiR
   if (pBatchList == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nBatchSize == 0) {
-    return NPP_NO_ERROR;
+  // 5090: the documented "must be > 1" is enforced -- 0 and 1 both return
+  // NPP_BAD_ARGUMENT_ERROR (recorded nppiWarpAffineBatch/err/batchsize0).
+  if (nBatchSize < 2) {
+    return NPP_BAD_ARGUMENT_ERROR;
   }
-  if (oSmallestSrcSize.width < 2 || oSmallestSrcSize.height < 2) {
+  // 5090 batch validation differs from the single-image one.  A negative ROI
+  // origin is still NPP_SIZE_ERROR, but every degenerate ROI -- including a
+  // source ROI that does not intersect the image at all, a 1-pixel wide clipped
+  // ROI and a destination ROI with a zero extent -- is NPP_RECTANGLE_ERROR
+  // (recorded srcsize_1 / srcroi_outside / dstroi_zero / dstroi_neg).  The
+  // per-image steps are not validated: NVIDIA 13.4 accepts short/misaligned
+  // steps here (probed), and reading the device-side list on the host is not
+  // possible.
+  if (oSrcRectROI.x < 0 || oSrcRectROI.y < 0 || oSrcRectROI.width < 0 || oSrcRectROI.height < 0) {
     return NPP_SIZE_ERROR;
   }
-  const NppStatus roiStatus = validateSrcRoi(oSmallestSrcSize, oSrcRectROI);
-  if (roiStatus != NPP_NO_ERROR) {
-    return roiStatus;
+  const int rx = clipMax(oSrcRectROI.x, 0);
+  const int ry = clipMax(oSrcRectROI.y, 0);
+  const int rx1 = clipMin(oSrcRectROI.x + oSrcRectROI.width, oSmallestSrcSize.width);
+  const int ry1 = clipMin(oSrcRectROI.y + oSrcRectROI.height, oSmallestSrcSize.height);
+  if (rx1 - rx <= 1 || ry1 - ry <= 1) {
+    return NPP_RECTANGLE_ERROR;
   }
-  const NppStatus dstStatus = validateDstRoi(oDstRectROI);
-  if (dstStatus != NPP_NO_ERROR) {
-    return dstStatus;
+  if (oDstRectROI.width < 1 || oDstRectROI.height < 1) {
+    return NPP_RECTANGLE_ERROR;
   }
   const NppStatus interpStatus = validateInterpolation(eInterpolation);
   if (interpStatus != NPP_NO_ERROR) {
     return interpStatus;
   }
+  const NppiRect roi{rx, ry, rx1 - rx, ry1 - ry};
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstRectROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstRectROI.height + blockSize.y - 1) / blockSize.y, nBatchSize);
   warpAffineBatchKernel<T, Channels, AlphaPreserve>
-      <<<gridSize, blockSize, 0, stream>>>(pBatchList, nBatchSize, oSmallestSrcSize, oSrcRectROI, oDstRectROI,
+      <<<gridSize, blockSize, 0, stream>>>(pBatchList, nBatchSize, oSmallestSrcSize, roi, oDstRectROI,
                                            eInterpolation);
   return npp_kernel::checkCudaKernelError();
 }
