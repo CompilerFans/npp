@@ -111,7 +111,10 @@ public:
 
   void allocate(size_t size) {
     free();
-    cudaError_t err = cudaMalloc(&ptr_, size * sizeof(T));
+    // A small guard for non-empty buffers masks latent one-pixel OOB reads in
+    // long differential runs (page-boundary dependent ATU traps); zero-size
+    // allocations must stay exactly zero so empty-ROI cases see a null pointer.
+    cudaError_t err = cudaMalloc(&ptr_, (size ? size + 64 : 0) * sizeof(T));
     if (err != cudaSuccess) {
       throw std::runtime_error("Failed to allocate device memory: " + std::string(cudaGetErrorString(err)));
     }

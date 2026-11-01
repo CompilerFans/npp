@@ -47,6 +47,7 @@ int align_step(int step, int es) { return ((step + es - 1) / es) * es; }
 
 template <typename T> ValueKind kind_of();
 template <> ValueKind kind_of<Npp8u>() { return ValueKind::U8; }
+template <> ValueKind kind_of<Npp8s>() { return ValueKind::I8; }
 template <> ValueKind kind_of<Npp16s>() { return ValueKind::I16; }
 template <> ValueKind kind_of<Npp32f>() { return ValueKind::F32; }
 
@@ -359,6 +360,37 @@ void mask_border_errors(const std::string &fam, const std::string &suffix, int c
                   FAM##_8u_AC4R_Ctx);                                                              \
   } while (0)
 
+// C1-only conversion matrix (8u16s / 8s16s / 32f) used by the Scharr families.
+#define SCHARR_PLAIN_MATRIX(FAM)                                                                   \
+  do {                                                                                            \
+    DPL(FAM##_8u16s_C1R, Npp8u, Npp16s, "8u16s", 1);                                              \
+    DPL(FAM##_8s16s_C1R, Npp8s, Npp16s, "8s16s", 1);                                              \
+    DPL(FAM##_32f_C1R, Npp32f, Npp32f, "32f", 1);                                                 \
+    plain_ok<Npp8u, Npp16s>(#FAM "_8u16s_C1R_Ctx", #FAM "/8u16s/C1/1x1", 1, 1, 1, 2, 3, __LINE__,  \
+                            FAM##_8u16s_C1R_Ctx);                                                 \
+    plain_ok<Npp8s, Npp16s>(#FAM "_8s16s_C1R_Ctx", #FAM "/8s16s/C1/1x1", 1, 1, 1, 2, 3, __LINE__,  \
+                            FAM##_8s16s_C1R_Ctx);                                                 \
+    plain_errors(#FAM, "_8u16s_C1R_Ctx", 1, arena<Npp8u>(64).get(), arena<Npp16s>(64).get(),      \
+                 FAM##_8u16s_C1R_Ctx);                                                            \
+    plain_errors(#FAM, "_32f_C1R_Ctx", 1, arena<Npp32f>(64).get(), arena<Npp32f>(64).get(),       \
+                 FAM##_32f_C1R_Ctx);                                                              \
+  } while (0)
+
+#define SCHARR_BORDER_MATRIX(FAM)                                                                  \
+  do {                                                                                            \
+    DBR(FAM##_8u16s_C1R, Npp8u, Npp16s, "8u16s", 1);                                              \
+    DBR(FAM##_8s16s_C1R, Npp8s, Npp16s, "8s16s", 1);                                              \
+    DBR(FAM##_32f_C1R, Npp32f, Npp32f, "32f", 1);                                                 \
+    border_ok<Npp8u, Npp16s>(#FAM "_8u16s_C1R_Ctx", #FAM "/8u16s/C1/corner", 1, 13, 13, 0, 0, 9,  \
+                             9, 3, __LINE__, FAM##_8u16s_C1R_Ctx);                                \
+    border_ok<Npp8s, Npp16s>(#FAM "_8s16s_C1R_Ctx", #FAM "/8s16s/C1/overhang", 1, 13, 13, 10, 10, \
+                             5, 5, 3, __LINE__, FAM##_8s16s_C1R_Ctx);                             \
+    border_errors(#FAM, "_8u16s_C1R_Ctx", 1, arena<Npp8u>(64).get(), arena<Npp16s>(64).get(),     \
+                  FAM##_8u16s_C1R_Ctx);                                                           \
+    border_errors(#FAM, "_32f_C1R_Ctx", 1, arena<Npp32f>(64).get(), arena<Npp32f>(64).get(),      \
+                  FAM##_32f_C1R_Ctx);                                                             \
+  } while (0)
+
 }  // namespace
 
 class NppiFilterDerivDiff : public ::testing::Test {
@@ -539,3 +571,14 @@ TEST_F(NppiFilterDerivDiff, SobelVertMaskBorder) {
   mask_border_errors("nppiFilterSobelVertMaskBorder", "_32f_C1R_Ctx", 1, arena<Npp32f>(64).get(),
                      arena<Npp32f>(64).get(), nppiFilterSobelVertMaskBorder_32f_C1R_Ctx);
 }
+
+// ==================== Scharr (f13: C1 conversion families) ====================
+// Measured on the 5090 (NPP 13.4): kernels
+//   Horiz = { -3,-10,-3 | 0 0 0 | 3,10,3 }, Vert = { -3,0,3 | -10,0,10 | -3,0,3 }
+// (bottom-right tap +3, i.e. the same orientation convention as Sobel);
+// legacy validation order like Prewitt Border (zero-size ROI is accepted after
+// the offset/border checks and skips the step check); only REPLICATE borders.
+TEST_F(NppiFilterDerivDiff, ScharrHoriz) { SCHARR_PLAIN_MATRIX(nppiFilterScharrHoriz); }
+TEST_F(NppiFilterDerivDiff, ScharrHorizBorder) { SCHARR_BORDER_MATRIX(nppiFilterScharrHorizBorder); }
+TEST_F(NppiFilterDerivDiff, ScharrVert) { SCHARR_PLAIN_MATRIX(nppiFilterScharrVert); }
+TEST_F(NppiFilterDerivDiff, ScharrVertBorder) { SCHARR_BORDER_MATRIX(nppiFilterScharrVertBorder); }

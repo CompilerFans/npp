@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 11309 (90.2%)
+- Real implementations: 11423 (91.1%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 1144
+- Missing: 1030
 - Tested: 8267 (65.9%)
-- Real and tested: 7635
+- Real and tested: 7692
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1633 | 0 | 263 | 1002 |
+| nppi_filtering_functions.h | 1896 | 1747 | 0 | 149 | 1002 |
 | nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
@@ -48,21 +48,15 @@
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
-| nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
-| nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
-| nppi_filtering_functions.h | nppiGradientVectorPrewittBorder | 14 | 7 |
 | nppi_filtering_functions.h | nppiDistanceTransformAbsPBA | 13 | 13 |
 | nppi_filtering_functions.h | nppiFloodFill | 13 | 6 |
 | nppi_filtering_functions.h | nppiDistanceTransformPBA | 12 | 12 |
-| nppi_filtering_functions.h | nppiFilterBilateralGaussBorder | 12 | 6 |
-| nppi_filtering_functions.h | nppiFilterGaussPyramidLayerDownBorder | 12 | 6 |
 | nppi_filtering_functions.h | nppiFilterGaussPyramidLayerUpBorder | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillGradientBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillGradient | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRangeBoundary | 12 | 6 |
 | nppi_filtering_functions.h | nppiFloodFillRange | 12 | 6 |
-| nppi_filtering_functions.h | nppiLabelMarkersUFBatch | 10 | 5 |
 | nppi_color_conversion.h | nppiColorTwist32fC | 8 | 4 |
 | nppi_color_conversion.h | nppiColorTwistBatch32fC | 8 | 4 |
 | nppi_color_conversion.h | nppiYCbCr411ToYCbCr422 | 8 | 4 |
@@ -72,3 +66,9 @@
 | nppi_color_conversion.h | nppiYCbCrToRGBBatch | 8 | 4 |
 | nppi_color_conversion.h | nppiYUV420ToRGB | 8 | 8 |
 | nppi_color_conversion.h | nppiYUV422ToRGB | 8 | 8 |
+| nppi_color_conversion.h | nppiYUVToBGRBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiYUVToRGBBatch | 8 | 4 |
+| nppi_color_conversion.h | nppiCompColorKey | 6 | 3 |
+| nppi_color_conversion.h | nppiLUT_Trilinear | 6 | 3 |
+| nppi_color_conversion.h | nppiRGBToYUV422 | 6 | 6 |
+| nppi_color_conversion.h | nppiYCbCr411ToYCbCr420 | 6 | 3 |

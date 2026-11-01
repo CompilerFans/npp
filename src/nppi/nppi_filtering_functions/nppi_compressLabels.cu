@@ -220,12 +220,15 @@ NppStatus nppiCompressMarkerLabelsUF_32u_C1IR_Ctx_impl(Npp32u *pMarkerLabels, in
                   cudaMemcpyDeviceToHost, stream);
   cudaStreamSynchronize(stream);
 
-  // Compute exclusive prefix sum on CPU
+  // Compute exclusive prefix sum on CPU.  The compressed labels are 0-based
+  // (measured on the 5090 against NPP 13.4 with real nppiLabelMarkersUF output:
+  // labels 0,3,6,... become 0,1,2,... and pNewNumber == the number of distinct
+  // labels).
   Npp32u count = 0;
   for (int i = 0; i < maxLabels; i++) {
     if (h_flags[i] == 1) {
+      h_prefixSum[i] = count;
       count++;
-      h_prefixSum[i] = count; // 1-based label
     } else {
       h_prefixSum[i] = 0;
     }

@@ -1111,10 +1111,12 @@ NppStatus nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx_impl
   return NPP_SUCCESS;
 }
 
-// Batch compress marker labels (advanced)
-NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
+// Shared batch compress implementation.  bCommonRoi selects the non-Advanced
+// entry-point contract: the per-image descriptor ROI and step are ignored and
+// replaced by the common oSizeROI (measured on the 5090, NPP 13.4).
+static NppStatus compressMarkerLabelsBatchImpl(
     NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
-    int nBatchSize, NppiSize oMaxSizeROI, int nLargestPerImageBufferSize, NppStreamContext nppStreamCtx) {
+    int nBatchSize, NppiSize oRoi, int nPerImageBufferSize, bool bCommonRoi, NppStreamContext nppStreamCtx) {
 
   cudaStream_t stream = nppStreamCtx.hStream;
   constexpr int kCompressBufferFixedOverhead = 65556;
@@ -1123,25 +1125,34 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
   if (pSrcDstBatchList == nullptr || pBufferList == nullptr || pNewMaxLabelIDList == nullptr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nBatchSize <= 1) {
-    return NPP_BAD_ARGUMENT_ERROR;
+  // Measured on the 5090 (probes f13_probe32..36): a negative ROI or a negative
+  // batch count is NPP_SIZE_ERROR, while a zero ROI, a zero batch count and a
+  // non-positive per-image buffer size surface as NPP_CUDA_KERNEL_EXECUTION_ERROR
+  // (NPP lets those values reach the kernels).
+  if (oRoi.width < 0 || oRoi.height < 0) {
+    return NPP_SIZE_ERROR;
   }
-  if (oMaxSizeROI.width <= 0 || oMaxSizeROI.height <= 0 || nLargestPerImageBufferSize <= 0) {
-    return NPP_BAD_ARGUMENT_ERROR;
+  if (nBatchSize < 0) {
+    return NPP_SIZE_ERROR;
+  }
+  if (oRoi.width == 0 || oRoi.height == 0 || nBatchSize == 0 || nPerImageBufferSize <= 0) {
+    return NPP_CUDA_KERNEL_EXECUTION_ERROR;
   }
 
   std::vector<NppiImageDescriptor> h_batchImages(static_cast<size_t>(nBatchSize));
   std::vector<NppiBufferDescriptor> h_batchBuffers(static_cast<size_t>(nBatchSize));
   std::vector<unsigned int> h_newMaxLabelIDList(static_cast<size_t>(nBatchSize), 0);
 
+  // The batch lists are documented as device memory, but the differential
+  // harness also passes host arrays; cudaMemcpyDefault resolves both.
   cudaError_t cudaStatus =
       cudaMemcpyAsync(h_batchImages.data(), pSrcDstBatchList, h_batchImages.size() * sizeof(NppiImageDescriptor),
-                      cudaMemcpyDeviceToHost, stream);
+                      cudaMemcpyDefault, stream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMCPY_ERROR;
   }
   cudaStatus = cudaMemcpyAsync(h_batchBuffers.data(), pBufferList, h_batchBuffers.size() * sizeof(NppiBufferDescriptor),
-                               cudaMemcpyDeviceToHost, stream);
+                               cudaMemcpyDefault, stream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMCPY_ERROR;
   }
@@ -1151,27 +1162,33 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
   }
 
   for (int batch = 0; batch < nBatchSize; ++batch) {
-    const NppiImageDescriptor &img = h_batchImages[batch];
+    NppiImageDescriptor img = h_batchImages[batch];
     const NppiBufferDescriptor &buf = h_batchBuffers[batch];
 
+    if (bCommonRoi) {
+      img.oSize = oRoi;
+      img.nStep = oRoi.width * static_cast<int>(sizeof(Npp32u));
+    }
     if (img.pData == nullptr || buf.pData == nullptr) {
       return NPP_NULL_POINTER_ERROR;
     }
-    if (img.oSize.width <= 0 || img.oSize.height <= 0) {
-      return NPP_SIZE_ERROR;
+    // NPP leaves the per-image new-max entry untouched for a zero-sized image
+    // ROI and reports no error; mirror that instead of failing the batch.
+    if (img.oSize.width == 0 || img.oSize.height == 0) {
+      continue;
     }
-    if (img.oSize.width > oMaxSizeROI.width || img.oSize.height > oMaxSizeROI.height) {
+    if (img.oSize.width < 0 || img.oSize.height < 0) {
       return NPP_SIZE_ERROR;
     }
     if (img.nStep <= 0) {
       return NPP_STEP_ERROR;
     }
-    if (buf.nBufferSize < kCompressBufferFixedOverhead) {
-      return NPP_BAD_ARGUMENT_ERROR;
-    }
 
-    // Batch API encodes the effective starting label range in per-image buffer size.
-    const int nStartingNumber = (buf.nBufferSize - kCompressBufferFixedOverhead) / kCompressBufferBytesPerLabel;
+    // The per-image buffer encodes the effective starting label range: NPP's
+    // GetBufferSize is 65556 + 8 * (number of labels).
+    const int nStartingNumber = buf.nBufferSize > kCompressBufferFixedOverhead
+                                    ? (buf.nBufferSize - kCompressBufferFixedOverhead) / kCompressBufferBytesPerLabel
+                                    : img.oSize.width * img.oSize.height;
     if (nStartingNumber <= 0) {
       return NPP_BAD_ARGUMENT_ERROR;
     }
@@ -1184,11 +1201,14 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
       return status;
     }
 
+    // pNewNumber is the number of distinct labels; the compressed labels are
+    // 0-based, so the largest label ID is one less (measured on the 5090:
+    // labels 0..4 -> newMaxLabelID 4).
     h_newMaxLabelIDList[batch] = static_cast<unsigned int>(std::max(newMarkerLabelsNumber - 1, 0));
   }
 
   cudaStatus = cudaMemcpyAsync(pNewMaxLabelIDList, h_newMaxLabelIDList.data(),
-                               h_newMaxLabelIDList.size() * sizeof(unsigned int), cudaMemcpyHostToDevice, stream);
+                               h_newMaxLabelIDList.size() * sizeof(unsigned int), cudaMemcpyDefault, stream);
   if (cudaStatus != cudaSuccess) {
     return NPP_MEMCPY_ERROR;
   }
@@ -1200,6 +1220,22 @@ NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
   }
 
   return NPP_SUCCESS;
+}
+
+// Batch compress marker labels (advanced): per-image descriptor ROI is used.
+NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_Advanced_Ctx_impl(
+    NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
+    int nBatchSize, NppiSize oMaxSizeROI, int nLargestPerImageBufferSize, NppStreamContext nppStreamCtx) {
+  return compressMarkerLabelsBatchImpl(pSrcDstBatchList, pBufferList, pNewMaxLabelIDList, nBatchSize, oMaxSizeROI,
+                                       nLargestPerImageBufferSize, false, nppStreamCtx);
+}
+
+// Batch compress marker labels (non-Advanced): one common ROI for every image.
+NppStatus nppiCompressMarkerLabelsUFBatch_32u_C1IR_CommonRoi_Ctx_impl(
+    NppiImageDescriptor *pSrcDstBatchList, NppiBufferDescriptor *pBufferList, unsigned int *pNewMaxLabelIDList,
+    int nBatchSize, NppiSize oSizeROI, int nPerImageBufferSize, NppStreamContext nppStreamCtx) {
+  return compressMarkerLabelsBatchImpl(pSrcDstBatchList, pBufferList, pNewMaxLabelIDList, nBatchSize, oSizeROI,
+                                       nPerImageBufferSize, true, nppStreamCtx);
 }
 
 } // extern "C"

@@ -1,0 +1,15 @@
+{
+  "family": "nppiFilterScharrVert",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_scharr_vert_generated.cpp",
+  "includes": [
+    "nppi_filter_derivatives_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains": "Npp16s * pDst",
+      "call": "nppi::filter::filterDeriv<{dtype}, Npp16s, 1, false, nppi::filter::kScharrVert>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::filter::filterDeriv<{dtype}, {dtype}, 1, false, nppi::filter::kScharrVert>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream)"
+}
