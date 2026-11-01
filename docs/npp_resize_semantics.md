@@ -132,8 +132,8 @@ the golden).  mcMPP replicates that: the AC4 templates process 3 channels of a
 The differential suite (`NppiResize*`, 41 tests) passes 32 tests.  The open
 cases are:
 
-* `nppiResize/16u_C1/lanczos_roi` and a few SqrPixel 16u/16s Lanczos values are
-  off by one LSB at exact `.5` rounding boundaries.
+* `nppiResize/16u_C1/lanczos_roi` is off by one LSB at an exact `.5`
+  rounding boundary (the 8u/16s/32f Lanczos cases pass).
 * `nppiResizeSqrPixel_8u_C1R_Advanced` (LANCZOS3_ADVANCED): the recorded
   impulse response is not separable (a 6x6 pattern with a 2x2 core) and cannot
   be produced by a single-pass normalised Lanczos-3.  The internal two-pass
