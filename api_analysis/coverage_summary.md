@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10456 (83.4%)
-- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 1963
-- Tested: 8244 (65.8%)
-- Real and tested: 7170
+- Real implementations: 10612 (84.6%)
+- Stubs (NPP_NOT_IMPLEMENTED_ERROR): 112
+- Missing: 1813
+- Tested: 8255 (65.8%)
+- Real and tested: 7255
 
 ## By module
 
@@ -14,8 +14,8 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1328 | 0 | 568 | 997 |
-| nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
+| nppi_filtering_functions.h | 1896 | 1376 | 0 | 520 | 1003 |
+| nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
 | nppi_statistics_functions.h | 3246 | 3071 | 28 | 147 | 1726 |
@@ -39,14 +39,12 @@
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
 | nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveQuad | 48 | 24 |
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
 | nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
 | nppi_statistics_functions.h | nppiQualityIndex | 36 | 18 |
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
 | nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
 | nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
@@ -60,15 +58,17 @@
 | nppi_morphological_operations.h | nppiErodeBorder | 24 | 12 |
 | nppi_statistics_functions.h | nppiCountInRange | 24 | 12 |
 | nppi_geometry_transforms.h | nppiWarpAffineBatch | 22 | 11 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveBatch | 22 | 11 |
 | nppi_morphological_operations.h | nppiDilate3x3 | 22 | 11 |
 | nppi_morphological_operations.h | nppiErode3x3 | 22 | 11 |
 | nppi_filtering_functions.h | nppiHistogramOfGradientsBorder | 17 | 8 |
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
-| nppi_filtering_functions.h | nppiFilterUnsharp | 16 | 0 |
 | nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
 | nppi_filtering_functions.h | nppiGradientVectorSobelBorder | 16 | 8 |
-| nppi_geometry_transforms.h | nppiWarpPerspectiveBack | 16 | 8 |
-| nppi_geometry_transforms.h | nppiWarpPerspective | 16 | 8 |
+| nppi_morphological_operations.h | nppiDilate | 16 | 8 |
+| nppi_morphological_operations.h | nppiErode | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphBlackHatBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphCloseBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphGradientBorder | 16 | 8 |
+| nppi_morphological_operations.h | nppiMorphOpenBorder | 16 | 8 |

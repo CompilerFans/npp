@@ -57,6 +57,8 @@ enum class ValueKind {
   U64,
   I64,
   I16Tol,
+  U8Tol,
+  U16Tol,
   I32Tol,
   I64Tol,
   U8Tol,
@@ -74,11 +76,13 @@ inline size_t element_size(ValueKind kind) {
   case ValueKind::U8:
   case ValueKind::U8Tol:
   case ValueKind::I8:
+  case ValueKind::U8Tol:
     return 1;
   case ValueKind::U16:
   case ValueKind::U16Tol:
   case ValueKind::I16:
   case ValueKind::I16Tol:
+  case ValueKind::U16Tol:
   case ValueKind::F16:
     return 2;
   case ValueKind::U32:
@@ -110,6 +114,8 @@ inline const char *kind_name(ValueKind kind) {
   case ValueKind::U64: return "u64";
   case ValueKind::I64: return "i64";
   case ValueKind::I16Tol: return "i16tol";
+  case ValueKind::U8Tol: return "u8tol";
+  case ValueKind::U16Tol: return "u16tol";
   case ValueKind::I32Tol: return "i32tol";
   case ValueKind::I64Tol: return "i64tol";
   case ValueKind::U8Tol: return "u8tol";
@@ -133,6 +139,8 @@ inline ValueKind kind_from_name(const std::string &name) {
   if (name == "u64") return ValueKind::U64;
   if (name == "i64") return ValueKind::I64;
   if (name == "i16tol") return ValueKind::I16Tol;
+  if (name == "u8tol") return ValueKind::U8Tol;
+  if (name == "u16tol") return ValueKind::U16Tol;
   if (name == "i32tol") return ValueKind::I32Tol;
   if (name == "i64tol") return ValueKind::I64Tol;
   if (name == "u8tol") return ValueKind::U8Tol;
@@ -389,6 +397,20 @@ inline bool compare_values(ValueKind kind, const uint8_t *a, const uint8_t *b, s
     }
     case ValueKind::I16Tol: {
       int16_t va, vb;
+      std::memcpy(&va, pa, 2);
+      std::memcpy(&vb, pb, 2);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::U8Tol: {
+      uint8_t va, vb;
+      std::memcpy(&va, pa, 1);
+      std::memcpy(&vb, pb, 1);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::U16Tol: {
+      uint16_t va, vb;
       std::memcpy(&va, pa, 2);
       std::memcpy(&vb, pb, 2);
       ok = close_double(va, vb, rtol, atol);
