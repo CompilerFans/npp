@@ -13,6 +13,8 @@ Spec (JSON):
   "includes": ["npps_sum_executor.h"],
   "call": "nppi::statistics::nppsSum::run<{dtype}>(pSrc, nLength, pSum, pDeviceBuffer, nppStreamCtx.hStream)",
   "ctx_only": false,
+  "plain_self": false,      # families without _Ctx twins: emit the plain
+                            # function from its own signature + call template
   "call_by_name": {"nppsSum_8u_Sfs_Ctx": "..."},  # optional per-Ctx-function call
   "exclude": ["nppsSum_32f"],              # optional exact names
   "functions": ["nppsSum_8u_Sfs"]           # optional exact-name mode
@@ -190,14 +192,22 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
         "channels": func.channels or "1",
         "layout": func.layout,
     }
-    if func.ctx:
+    if func.ctx or ctx_twin is None:
+        # A non-Ctx function without a _Ctx twin (host-only helpers such as
+        # nppiMorphGetBufferSize_* or the unsharp GetBufferSize family, which
+        # sets plain_self) is implemented directly, exactly like a Ctx
+        # function but without any stream parameter.
         call_template = choose_call(spec, func)
         if "{dtype}" in call_template and not dtype:
             raise ValueError(f"{func.name}: spec uses {{dtype}} but the function has no dtype token")
         if "nppStreamCtx" in call_template and "nppStreamCtx" not in param_names(func.params):
             raise ValueError(f"{func.name}: spec references nppStreamCtx but the signature does not use that name")
         call = call_template.format(**values)
-        unused = "  (void)nppStreamCtx;\n" if "nppStreamCtx" not in call else ""
+        unused = (
+            "  (void)nppStreamCtx;\n"
+            if "nppStreamCtx" not in call and "nppStreamCtx" in param_names(func.params)
+            else ""
+        )
         return (
             f"NppStatus {func.name}({func.params}) {{\n"
             f"{unused}"
@@ -205,8 +215,6 @@ def render(spec: dict, func: Func, ctx_twin: Optional[Func]) -> str:
             f"}}\n"
         )
 
-    if ctx_twin is None:
-        raise ValueError(f"{func.name}: non-Ctx function has no _Ctx twin")
     names = param_names(func.params)
     ctx_name = param_names(ctx_twin.params)[-1]
     ctx_type = split_params(ctx_twin.params)[-1]
@@ -312,8 +320,10 @@ def generate(spec: dict, funcs: Dict[str, Func], force: bool) -> Tuple[str, List
             skipped.append(f.name)
             continue
         twin = ctx_twin_of(f, funcs)
-        if twin is None:
-            raise SystemExit(f"{f.name}: no _Ctx twin found")
+        if twin is None and not f.ctx:
+            # Host-only helper without a _Ctx twin (e.g. the nppiMorphGetBufferSize_*
+            # family): the spec's call is emitted directly, render() validates it.
+            pass
         chunks.append(render(spec, f, twin))
         emitted.append(f.name)
         if f.status == "stub":

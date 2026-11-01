@@ -1,0 +1,16 @@
+== part8 extra validation combos (8u C1, W=16 H=8)
+VAL radneg_badborder         -14
+VAL signeg_badborder         -14
+VAL signeg_stepsmall         -6
+VAL radneg_stepsmall         -6
+VAL kgtroi_badborder         -14
+VAL kgtroi_stepsmall         -6
+VAL kgtroi_signeg            -6
+VAL zeroroi_radneg           -6
+VAL signeg_stepodd_ac4       -6
+VAL thr_nan                  0
+VAL w_nan                    0
+VAL r_nan                    0
+VAL gbs_rnan_s1              0
+VAL gbs_r1_snan_size=36
+VAL gbs_r1_snan              0
