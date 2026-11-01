@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterGaussPyramidLayerDownBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_gauss_pyramid_layer_down_border_generated.cpp",
+  "includes": [
+    "nppi_gauss_pyramid_executor.h"
+  ],
+  "call": "nppi::filter::gaussPyramidBorder<{dtype}, {dtype}, {chan}, nppi::filter::kPyramidDown>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, nRate, nFilterTaps, pKernel, eBorderType, nppStreamCtx.hStream)"
+}
