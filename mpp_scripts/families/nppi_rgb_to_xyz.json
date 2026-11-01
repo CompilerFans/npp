@@ -1,0 +1,8 @@
+{
+  "family": "nppiRGBToXYZ",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_rgb_to_xyz_generated.cpp",
+  "includes": ["nppi_color_space_executor.h"],
+  "families": ["nppiRGBToXYZ"],
+  "call": "nppi::color_space::rgbToXyz(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, {chan}, nppStreamCtx.hStream)"
+}
