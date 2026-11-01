@@ -36,8 +36,11 @@
 //     (NPP_SIZE_ERROR) -> kernel larger than the ROI, which also covers a zero
 //     ROI (NPP_SIZE_ERROR) -> dst step (NPP_STEP_ERROR / NPP_NOT_EVEN_STEP_ERROR).
 //     The source step and oSrcOffset are never validated.
-//   * GetBufferSize validates radius/sigma only (same codes) and reports
-//     k*k*sizeof(Npp32f) bytes for every dtype and channel count.
+//   * GetBufferSize reports k*k*sizeof(Npp32f) bytes for every dtype and
+//     channel count and validates radius/sigma: a negative radius or a negative
+//     sigma is NPP_SIZE_ERROR, sigma == 0 is accepted when the radius is
+//     explicit (the filter itself needs sigma > 0), and an auto radius with
+//     sigma <= 0 is NPP_SIZE_ERROR (NPP 13.4 hangs on sigma == 0 there).
 #ifndef NPPI_FILTER_UNSHARP_EXECUTOR_H
 #define NPPI_FILTER_UNSHARP_EXECUTOR_H
 

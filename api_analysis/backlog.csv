@@ -16,7 +16,6 @@ nppi_filtering_functions.h,nppiFilterGaussBorder,32,0,0,32,16,16,16,32
 nppi_filtering_functions.h,nppiFilterMaxBorder,32,0,0,32,16,16,16,32
 nppi_filtering_functions.h,nppiFilterMedianBorder,32,0,0,32,32,0,32,32
 nppi_filtering_functions.h,nppiFilterMinBorder,32,0,0,32,16,16,16,32
-nppi_filtering_functions.h,nppiFilterUnsharpBorder,32,0,0,32,16,16,16,32
 nppi_geometry_transforms.h,nppiResize,54,24,0,30,15,15,32,30
 nppi_color_conversion.h,nppiColorTwistBatch32f,28,0,0,28,14,14,14,28
 nppi_filtering_functions.h,nppiFilterBox,34,6,0,28,14,14,20,28
@@ -39,7 +38,6 @@ nppi_filtering_functions.h,nppiHistogramOfGradientsBorder,17,0,0,17,8,9,8,17
 nppi_color_conversion.h,nppiColorTwistBatch,16,0,0,16,8,8,8,16
 nppi_filtering_functions.h,nppiFilterMax,32,16,0,16,8,8,21,16
 nppi_filtering_functions.h,nppiFilterMin,32,16,0,16,8,8,21,16
-nppi_filtering_functions.h,nppiFilterUnsharp,16,0,0,16,0,16,0,16
 nppi_filtering_functions.h,nppiGradientVectorScharrBorder,16,0,0,16,8,8,8,16
 nppi_filtering_functions.h,nppiGradientVectorSobelBorder,16,0,0,16,8,8,8,16
 nppi_geometry_transforms.h,nppiWarpPerspective,54,38,0,16,8,8,43,16
@@ -354,6 +352,8 @@ nppi_filtering_functions.h,nppiFilterSobelVertMask,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterSobelVertMaskBorder,2,2,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiFilterSobelVertSecond,6,6,0,0,0,0,3,0
 nppi_filtering_functions.h,nppiFilterSobelVertSecondBorder,6,6,0,0,0,0,3,0
+nppi_filtering_functions.h,nppiFilterUnsharp,16,16,0,0,0,0,6,0
+nppi_filtering_functions.h,nppiFilterUnsharpBorder,32,32,0,0,0,0,16,0
 nppi_filtering_functions.h,nppiSignedDistanceTransformPBAGet64fBufferSize,1,1,0,0,0,0,1,0
 nppi_filtering_functions.h,nppiSumWindowColumn,18,18,0,0,0,0,10,0
 nppi_filtering_functions.h,nppiSumWindowColumnBorder,18,18,0,0,0,0,9,0

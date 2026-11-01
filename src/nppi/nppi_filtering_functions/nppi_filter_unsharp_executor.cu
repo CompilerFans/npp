@@ -189,7 +189,15 @@ int unsharpBufferSize(float radius, float sigma, UnsharpDtype dtype) {
 NppStatus unsharpGetBufferSize(float radius, float sigma, UnsharpDtype dtype, int *hpBufferSize) {
   if (!hpBufferSize) return NPP_NULL_POINTER_ERROR;
   if (radius < 0.0f) return NPP_SIZE_ERROR;
-  if (sigma <= 0.0f) return NPP_SIZE_ERROR;
+  // Measured (5090, NPP 13.4): an explicit positive radius pins the window, so
+  // sigma == 0 is accepted here even though the filter itself rejects it.  A
+  // sigma <= 0 with an auto radius is an error; NPP 13.4 never returns from
+  // sigma == 0 (it hangs), so that case is reported as NPP_SIZE_ERROR.
+  if (radius == 0.0f) {
+    if (!(sigma > 0.0f)) return NPP_SIZE_ERROR;
+  } else if (sigma < 0.0f) {
+    return NPP_SIZE_ERROR;
+  }
   *hpBufferSize = unsharpBufferSize(radius, sigma, dtype);
   return NPP_NO_ERROR;
 }

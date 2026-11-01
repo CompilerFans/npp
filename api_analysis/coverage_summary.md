@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10310 (82.2%)
+- Real implementations: 10358 (82.6%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 118
-- Missing: 2109
-- Tested: 8244 (65.8%)
-- Real and tested: 7097
+- Missing: 2061
+- Tested: 8250 (65.8%)
+- Real and tested: 7119
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1182 | 0 | 714 | 997 |
+| nppi_filtering_functions.h | 1896 | 1230 | 0 | 666 | 1003 |
 | nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
@@ -49,7 +49,6 @@
 | nppi_filtering_functions.h | nppiFilterMaxBorder | 32 | 16 |
 | nppi_filtering_functions.h | nppiFilterMedianBorder | 32 | 32 |
 | nppi_filtering_functions.h | nppiFilterMinBorder | 32 | 16 |
-| nppi_filtering_functions.h | nppiFilterUnsharpBorder | 32 | 16 |
 | nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_filtering_functions.h | nppiFilterBox | 28 | 14 |
@@ -72,3 +71,4 @@
 | nppi_color_conversion.h | nppiColorTwistBatch | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMax | 16 | 8 |
 | nppi_filtering_functions.h | nppiFilterMin | 16 | 8 |
+| nppi_filtering_functions.h | nppiGradientVectorScharrBorder | 16 | 8 |
