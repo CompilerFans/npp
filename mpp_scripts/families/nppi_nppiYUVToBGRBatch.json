@@ -1,0 +1,21 @@
+{
+  "family": "nppiYUVToBGRBatch",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYUVToBGRBatch_generated.cpp",
+  "includes": [
+    "nppi_c3_batch_executor.h"
+  ],
+  "functions": [
+    "nppiYUVToBGRBatch_8u_P3C3R",
+    "nppiYUVToBGRBatch_8u_P3C3R_Advanced",
+    "nppiYUVToBGRBatch_8u_P3C3R_Advanced_Ctx",
+    "nppiYUVToBGRBatch_8u_P3C3R_Ctx"
+  ],
+  "call": "nppi::c3batch::runPlanar(pSrcBatchList, pDstBatchList, nBatchSize, oSizeROI, nppStreamCtx.hStream, nppi::c3batch::kYUVToBGRP3, 0)",
+  "call_variants": [
+    {
+      "name_contains": "_Advanced",
+      "call": "nppi::c3batch::runPlanar(pSrcBatchList, pDstBatchList, nBatchSize, oMaxSizeROI, nppStreamCtx.hStream, nppi::c3batch::kYUVToBGRP3, 1)"
+    }
+  ]
+}
