@@ -128,7 +128,7 @@ std::vector<Npp8u> runFilterMax8uC1R(const std::vector<Npp8u> &input, int width,
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  nppiFilterMax_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  nppiFilterMaxBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
   cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight,
@@ -179,7 +179,7 @@ std::vector<Npp8u> runFilterMin8uC1R(const std::vector<Npp8u> &input, int width,
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  nppiFilterMin_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  nppiFilterMinBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
   cudaMemcpy2D(expandedOutput.data(), expandedWidth, d_dst, dstStep, expandedWidth, expandedHeight,
@@ -261,7 +261,7 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C1R_Ctx) {
   NppStreamContext ctx;
   ctx.hStream = 0;
 
-  NppStatus status = nppiFilterMax_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, ctx);
+  NppStatus status = nppiFilterMaxBorder_8u_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, ctx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
@@ -364,7 +364,7 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C1R_Ctx) {
   NppStreamContext ctx;
   ctx.hStream = 0;
 
-  NppStatus status = nppiFilterMin_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, ctx);
+  NppStatus status = nppiFilterMinBorder_8u_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, ctx);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight);
@@ -429,7 +429,7 @@ TEST_F(FilterMinMaxTest, FilterMax_16u_C1R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMax_16u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMaxBorder_16u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp16u> expandedOutput(expandedWidth * expandedHeight);
@@ -494,7 +494,7 @@ TEST_F(FilterMinMaxTest, FilterMin_16u_C1R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMin_16u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMinBorder_16u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp16u> expandedOutput(expandedWidth * expandedHeight);
@@ -559,7 +559,7 @@ TEST_F(FilterMinMaxTest, FilterMax_32f_C1R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMax_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMaxBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> expandedOutput(expandedWidth * expandedHeight);
@@ -624,7 +624,7 @@ TEST_F(FilterMinMaxTest, FilterMin_32f_C1R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMin_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMinBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp32f> expandedOutput(expandedWidth * expandedHeight);
@@ -695,7 +695,7 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C3R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMax_8u_C3R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMaxBorder_8u_C3R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
@@ -765,7 +765,7 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C3R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMin_8u_C3R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMinBorder_8u_C3R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
@@ -836,7 +836,7 @@ TEST_F(FilterMinMaxTest, FilterMax_8u_C4R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMax_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMaxBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);
@@ -907,7 +907,7 @@ TEST_F(FilterMinMaxTest, FilterMin_8u_C4R_Basic) {
   NppiSize oMaskSize = {maskW, maskH};
   NppiPoint oAnchor = {anchorX, anchorY};
 
-  NppStatus status = nppiFilterMin_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor);
+  NppStatus status = nppiFilterMinBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> expandedOutput(expandedWidth * expandedHeight * channels);

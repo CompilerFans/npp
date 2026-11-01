@@ -1,0 +1,12 @@
+{
+  "family": "nppiSSIM",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_ssim_generated.cpp",
+  "includes": [
+    "nppi_ssim_executor.h"
+  ],
+  "families": [
+    "nppiSSIM"
+  ],
+  "call": "nppi::statistics::runSSIM(pSrc1, nSrc1Step, pSrc2, nSrc2Step, oSizeROI, {chan}, pSSIM, pDeviceBuffer, nppStreamCtx.hStream)"
+}

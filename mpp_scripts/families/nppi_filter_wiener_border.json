@@ -1,0 +1,9 @@
+{
+  "family": "nppiFilterWienerBorder",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_wiener_border_generated.cpp",
+  "includes": [
+    "nppi_filter_wiener_executor.h"
+  ],
+  "call": "nppi::filter::filterWienerBorder<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, oMaskSize, oAnchor, aNoise, eBorderType, nppStreamCtx.hStream)"
+}

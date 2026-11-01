@@ -160,7 +160,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_8u_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height);
@@ -204,7 +204,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_8u_C1R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiErode_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiErodeBorder_8u_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -253,7 +253,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_8u_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiDilate_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height);
@@ -297,7 +297,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_8u_C1R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiDilate_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiDilateBorder_8u_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -358,7 +358,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_8u_C4R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height * 4);
@@ -410,7 +410,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_8u_C4R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiErode_8u_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiErodeBorder_8u_C4R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -467,7 +467,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_8u_C4R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiDilate_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height * 4);
@@ -519,7 +519,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_8u_C4R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiDilate_8u_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiDilateBorder_8u_C4R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -572,7 +572,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height);
@@ -619,7 +619,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C1R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiErode_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiErodeBorder_32f_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -668,7 +668,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiDilate_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height);
@@ -715,7 +715,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C1R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiDilate_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiDilateBorder_32f_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -776,7 +776,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C4R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_32f_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_32f_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height * 4);
@@ -831,7 +831,7 @@ TEST_P(NppiMorphologyParameterizedTest, Erode_32f_C4R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiErode_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiErodeBorder_32f_C4R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -888,7 +888,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C4R_ComprehensiveTest) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiDilate_32f_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_32f_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height * 4);
@@ -943,7 +943,7 @@ TEST_P(NppiMorphologyParameterizedTest, Dilate_32f_C4R_ComprehensiveTest) {
     NppiPoint oAnchor = {1, 1};
 
     NppStatus status =
-        nppiDilate_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+        nppiDilateBorder_32f_C4R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
     ASSERT_EQ(status, NPP_SUCCESS);
 
     cudaStreamSynchronize(stream);
@@ -997,9 +997,9 @@ TEST_P(NppiMorphologyParameterizedTest, MorphologicalProperties_8u_C1R) {
   NppiPoint oAnchor = {1, 1};
 
   // Perform both erosion and dilation
-  NppStatus statusErode = nppiErode_8u_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus statusErode = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   NppStatus statusDilate =
-      nppiDilate_8u_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+      nppiDilateBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(statusErode, NPP_SUCCESS);
   ASSERT_EQ(statusDilate, NPP_SUCCESS);
 
@@ -1050,9 +1050,9 @@ TEST_P(NppiMorphologyParameterizedTest, MorphologicalProperties_32f_C1R) {
   NppiPoint oAnchor = {1, 1};
 
   // Perform both erosion and dilation
-  NppStatus statusErode = nppiErode_32f_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus statusErode = nppiErodeBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   NppStatus statusDilate =
-      nppiDilate_32f_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+      nppiDilateBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(statusErode, NPP_SUCCESS);
   ASSERT_EQ(statusDilate, NPP_SUCCESS);
 
@@ -1078,6 +1078,24 @@ INSTANTIATE_TEST_SUITE_P(ComprehensiveMorphology, NppiMorphologyParameterizedTes
                          [](const testing::TestParamInfo<MorphologyTestParams> &info) { return info.param.testName; });
 
 using namespace npp_functional_test;
+
+// The plain (non-border) morphology entry points read one pixel around the
+// ROI; NVIDIA documents that providing that margin is the caller's job.  These
+// functional tests validate coarse behaviour, so give every source buffer a
+// 1-pixel halo (filled with zero) and pass the inset pointer/step.
+template <typename T> inline T *haloInset(NppImageMemory<T> &mem) {
+  return reinterpret_cast<T *>(reinterpret_cast<char *>(mem.get()) + mem.step() + sizeof(T));
+}
+
+template <typename T>
+inline void copyWithHalo(NppImageMemory<T> &mem, const std::vector<T> &data, int width, int height) {
+  ASSERT_EQ(static_cast<int>(data.size()), width * height);
+  ASSERT_EQ(static_cast<int>(mem.width()), width + 2);
+  mem.fill(T(0));
+  ASSERT_EQ(cudaMemcpy2D(haloInset(mem), mem.step(), data.data(), width * sizeof(T), width * sizeof(T),
+                         height, cudaMemcpyHostToDevice),
+            cudaSuccess);
+}
 
 class MorphologyFunctionalTest : public NppTestBase {
 protected:
@@ -1117,13 +1135,12 @@ TEST_F(MorphologyFunctionalTest, Erode3x3_8u_C1R_Basic) {
   std::vector<Npp8u> srcData;
   createMorphologyTestImage(srcData, width, height);
 
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width + 2, height + 2);
   NppImageMemory<Npp8u> dst(width, height);
-
-  src.copyFromHost(srcData);
+  copyWithHalo(src, srcData, width, height);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiErode3x3_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
+  NppStatus status = nppiErode3x3_8u_C1R(haloInset(src), src.step(), dst.get(), dst.step(), roi);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiErode3x3_8u_C1R failed";
 
@@ -1165,13 +1182,12 @@ TEST_F(MorphologyFunctionalTest, Dilate3x3_8u_C1R_Basic) {
   srcData[(height / 2 + 2) * width + (width / 2 + 2)] = 255;
   srcData[(height / 2 - 2) * width + (width / 2 - 2)] = 255;
 
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width + 2, height + 2);
   NppImageMemory<Npp8u> dst(width, height);
-
-  src.copyFromHost(srcData);
+  copyWithHalo(src, srcData, width, height);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiDilate3x3_8u_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
+  NppStatus status = nppiDilate3x3_8u_C1R(haloInset(src), src.step(), dst.get(), dst.step(), roi);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiDilate3x3_8u_C1R failed";
 
@@ -1210,13 +1226,12 @@ TEST_F(MorphologyFunctionalTest, Erode3x3_32f_C1R_Float) {
     }
   }
 
-  NppImageMemory<Npp32f> src(width, height);
+  NppImageMemory<Npp32f> src(width + 2, height + 2);
   NppImageMemory<Npp32f> dst(width, height);
-
-  src.copyFromHost(srcData);
+  copyWithHalo(src, srcData, width, height);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiErode3x3_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
+  NppStatus status = nppiErode3x3_32f_C1R(haloInset(src), src.step(), dst.get(), dst.step(), roi);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiErode3x3_32f_C1R failed";
 
@@ -1244,13 +1259,12 @@ TEST_F(MorphologyFunctionalTest, Dilate3x3_32f_C1R_Float) {
   srcData[height / 2 * width + width / 2] = 0.9f;
   srcData[(height / 2 + 1) * width + (width / 2 + 1)] = 0.8f;
 
-  NppImageMemory<Npp32f> src(width, height);
+  NppImageMemory<Npp32f> src(width + 2, height + 2);
   NppImageMemory<Npp32f> dst(width, height);
-
-  src.copyFromHost(srcData);
+  copyWithHalo(src, srcData, width, height);
 
   NppiSize roi = {width, height};
-  NppStatus status = nppiDilate3x3_32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi);
+  NppStatus status = nppiDilate3x3_32f_C1R(haloInset(src), src.step(), dst.get(), dst.step(), roi);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiDilate3x3_32f_C1R failed";
 
@@ -1275,25 +1289,24 @@ TEST_F(MorphologyFunctionalTest, Morphology_OpenClose_Operations) {
   std::vector<Npp8u> srcData;
   createMorphologyTestImage(srcData, width, height);
 
-  NppImageMemory<Npp8u> src(width, height);
-  NppImageMemory<Npp8u> temp(width, height);
+  NppImageMemory<Npp8u> src(width + 2, height + 2);
+  NppImageMemory<Npp8u> temp(width + 2, height + 2);
   NppImageMemory<Npp8u> opening(width, height);
   NppImageMemory<Npp8u> closing(width, height);
-
-  src.copyFromHost(srcData);
+  copyWithHalo(src, srcData, width, height);
 
   NppiSize roi = {width, height};
 
   // 开运算：先腐蚀后膨胀
-  NppStatus status1 = nppiErode3x3_8u_C1R(src.get(), src.step(), temp.get(), temp.step(), roi);
-  NppStatus status2 = nppiDilate3x3_8u_C1R(temp.get(), temp.step(), opening.get(), opening.step(), roi);
+  NppStatus status1 = nppiErode3x3_8u_C1R(haloInset(src), src.step(), haloInset(temp), temp.step(), roi);
+  NppStatus status2 = nppiDilate3x3_8u_C1R(haloInset(temp), temp.step(), opening.get(), opening.step(), roi);
 
   ASSERT_EQ(status1, NPP_SUCCESS) << "Erosion for opening failed";
   ASSERT_EQ(status2, NPP_SUCCESS) << "Dilation for opening failed";
 
   // 闭运算：先膨胀后腐蚀
-  status1 = nppiDilate3x3_8u_C1R(src.get(), src.step(), temp.get(), temp.step(), roi);
-  status2 = nppiErode3x3_8u_C1R(temp.get(), temp.step(), closing.get(), closing.step(), roi);
+  status1 = nppiDilate3x3_8u_C1R(haloInset(src), src.step(), haloInset(temp), temp.step(), roi);
+  status2 = nppiErode3x3_8u_C1R(haloInset(temp), temp.step(), closing.get(), closing.step(), roi);
 
   ASSERT_EQ(status1, NPP_SUCCESS) << "Dilation for closing failed";
   ASSERT_EQ(status2, NPP_SUCCESS) << "Erosion for closing failed";
@@ -1389,7 +1402,7 @@ TEST_F(NppiMorphologyExtendedTest, Erode_8u_C1R_CrossKernel) {
   NppiPoint oAnchor = {1, 1};
 
   // Perform erosion
-  NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Copy result back to host
@@ -1457,7 +1470,7 @@ TEST_F(NppiMorphologyExtendedTest, Dilate_8u_C4R_BoxKernel) {
   NppiPoint oAnchor = {1, 1};
 
   // Perform dilation
-  NppStatus status = nppiDilate_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiDilateBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Copy result back to host
@@ -1520,8 +1533,8 @@ TEST_F(NppiMorphologyExtendedTest, Erode_Dilate_32f_C1R_Comparison) {
   NppiPoint oAnchor = {1, 1};
 
   // Perform erosion and dilation
-  NppStatus status1 = nppiErode_32f_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
-  NppStatus status2 = nppiDilate_32f_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status1 = nppiErodeBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
+  NppStatus status2 = nppiDilateBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status1, NPP_SUCCESS);
   ASSERT_EQ(status2, NPP_SUCCESS);
 
@@ -1597,7 +1610,7 @@ TEST_F(NppiMorphologyExtendedTest, Erode_32f_C4R_StreamContext) {
 
   // Perform erosion with stream context
   NppStatus status =
-      nppiErode_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+      nppiErodeBorder_32f_C4R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Synchronize stream
@@ -1660,7 +1673,7 @@ TEST_F(NppiMorphologyExtendedTest, Morphology_LargeKernel) {
   NppiPoint oAnchor = {3, 3};
 
   // Perform dilation with large kernel
-  NppStatus status = nppiDilate_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiDilateBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Copy result back to host
@@ -2166,7 +2179,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C1R_Comprehensive) {
     NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
     // Test regular version
-    NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS) << "Erosion failed for config: " << config.description;
 
     // Download and verify results
@@ -2229,7 +2242,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_8u_C1R_Comprehensive) {
     NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
     // Test regular version
-    NppStatus status = nppiDilate_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS) << "Dilation failed for config: " << config.description;
 
     // Download and verify results
@@ -2292,7 +2305,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C1R_Ctx_Comprehensive) {
 
   // Test context version
   NppStatus status =
-      nppiErode_8u_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+      nppiErodeBorder_8u_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion Ctx failed for config: " << config.description;
 
   // Synchronize and download results
@@ -2352,7 +2365,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_8u_C4R_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test regular version
-  NppStatus status = nppiErode_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion C4R failed for config: " << config.description;
 
   // Download and verify results
@@ -2417,7 +2430,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_8u_C4R_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test regular version
-  NppStatus status = nppiDilate_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiDilateBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS) << "Dilation C4R failed for config: " << config.description;
 
   // Download and verify results
@@ -2478,7 +2491,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Comprehensive) {
     NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
     // Test regular version
-    NppStatus status = nppiErode_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS) << "Erosion 32f failed for config: " << config.description;
 
     // Download and verify results
@@ -2543,7 +2556,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C1R_Comprehensive) {
     NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
     // Test regular version
-    NppStatus status = nppiDilate_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     ASSERT_EQ(status, NPP_SUCCESS) << "Dilation 32f failed for config: " << config.description;
 
     // Download and verify results
@@ -2607,7 +2620,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C1R_Ctx_Comprehensive) {
 
   // Test context version
   NppStatus status =
-      nppiErode_32f_C1R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+      nppiErodeBorder_32f_C1R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion 32f Ctx failed for config: " << config.description;
 
   // Synchronize and download results
@@ -2671,7 +2684,7 @@ TEST_P(MorphologyComprehensiveTest, Erode_32f_C4R_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test regular version
-  NppStatus status = nppiErode_32f_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_32f_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS) << "Erosion 32f C4R failed for config: " << config.description;
 
   // Download and verify results
@@ -2744,7 +2757,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Comprehensive) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Test regular version
-  NppStatus status = nppiDilate_32f_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiDilateBorder_32f_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS) << "Dilation 32f C4R failed for config: " << config.description;
 
   // Download and verify results
@@ -2823,7 +2836,7 @@ TEST_P(MorphologyComprehensiveTest, Dilate_32f_C4R_Ctx_Comprehensive) {
 
   // Test context version
   NppStatus status =
-      nppiDilate_32f_C4R_Ctx(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, nppStreamCtx);
+      nppiDilateBorder_32f_C4R_Ctx(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
   ASSERT_EQ(status, NPP_SUCCESS) << "Dilation 32f C4R Ctx failed for config: " << config.description;
 
   // Synchronize and download results
@@ -2877,9 +2890,9 @@ TEST_P(MorphologyComprehensiveTest, MorphologyDuality_8u_C1R) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Perform both erosion and dilation
-  NppStatus statusErode = nppiErode_8u_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus statusErode = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   NppStatus statusDilate =
-      nppiDilate_8u_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+      nppiDilateBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(statusErode, NPP_SUCCESS);
   ASSERT_EQ(statusDilate, NPP_SUCCESS);
 
@@ -2934,9 +2947,9 @@ TEST_P(MorphologyComprehensiveTest, MorphologyDuality_32f_C1R) {
   NppiPoint oAnchor = {config.anchorX, config.anchorY};
 
   // Perform both erosion and dilation
-  NppStatus statusErode = nppiErode_32f_C1R(d_src, srcStep, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus statusErode = nppiErodeBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_eroded, erodedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   NppStatus statusDilate =
-      nppiDilate_32f_C1R(d_src, srcStep, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+      nppiDilateBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dilated, dilatedStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(statusErode, NPP_SUCCESS);
   ASSERT_EQ(statusDilate, NPP_SUCCESS);
 
@@ -3001,7 +3014,7 @@ TEST_F(MorphologyEdgeCaseTest, MinimumSize_1x1_Image) {
   NppiPoint oAnchor = {1, 1};
 
   // Test erosion on 1x1 image
-  NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(1);
@@ -3040,7 +3053,7 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height);
@@ -3075,7 +3088,7 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_8u) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiDilate_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiDilateBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp8u> result(width * height);
@@ -3116,7 +3129,7 @@ TEST_F(MorphologyEdgeCaseTest, ExtremeValues_32f) {
     NppiSize oMaskSize = {3, 3};
     NppiPoint oAnchor = {1, 1};
 
-    NppStatus status = nppiErode_32f_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+    NppStatus status = nppiErodeBorder_32f_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS);
 
     std::vector<Npp32f> result(width * height);
@@ -3161,7 +3174,7 @@ TEST_F(MorphologyEdgeCaseTest, SingleElementKernel) {
   NppiPoint oAnchor = {0, 0};
 
   // Test erosion with 1x1 kernel (should be identity)
-  NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(width * height);
@@ -3210,7 +3223,7 @@ TEST_F(MorphologyEdgeCaseTest, ExtemeAnchorPositions) {
   std::vector<NppiPoint> anchors = {{0, 0}, {4, 4}, {0, 4}, {4, 0}};
 
   for (auto anchor : anchors) {
-    NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, anchor);
+    NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, anchor, NPP_BORDER_REPLICATE);
     EXPECT_EQ(status, NPP_SUCCESS) << "Failed with anchor (" << anchor.x << "," << anchor.y << ")";
 
     std::vector<Npp8u> result(width * height);
@@ -3251,7 +3264,7 @@ TEST_F(MorphologyEdgeCaseTest, VeryLargeKernel) {
   NppiSize oMaskSize = {kernelSize, kernelSize};
   NppiPoint oAnchor = {kernelSize / 2, kernelSize / 2};
 
-  NppStatus status = nppiErode_8u_C1R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_8u_C1R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(width * height);
@@ -3303,7 +3316,7 @@ TEST_F(MorphologyEdgeCaseTest, ChannelIndependence_C4R) {
   NppiSize oMaskSize = {3, 3};
   NppiPoint oAnchor = {1, 1};
 
-  NppStatus status = nppiErode_8u_C4R(d_src, srcStep, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor);
+  NppStatus status = nppiErodeBorder_8u_C4R(d_src, srcStep, oSizeROI, {0, 0}, d_dst, dstStep, oSizeROI, d_mask, oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
   std::vector<Npp8u> result(width * height * 4);
@@ -3334,3 +3347,211 @@ INSTANTIATE_TEST_SUITE_P(MorphologyComprehensive, MorphologyComprehensiveTest,
                          [](const testing::TestParamInfo<MorphologyTestConfig> &info) {
                            return info.param.description;
                          });
+// =====================================================================================
+// Exact-value tests for the vectorized 8u C4 / 32f C1 morphology paths
+// (nppiMorphWordPix_kernel): one word per pixel, arbitrary structuring
+// elements with holes, odd anchors, clamped (replicate) borders.  Buffers
+// come from nppiMalloc (pitch is 16-byte aligned), so these configurations
+// run the vectorized kernel; the CPU reference below is the per-pixel
+// definition of erode / dilate with mask gating.
+// =====================================================================================
+
+namespace {
+
+int morphVecClampRef(int v, int hi) { return v < 0 ? 0 : (v > hi ? hi : v); }
+
+Npp8u morphVecCpuC4(const std::vector<Npp8u> &src, int width, int height, int x, int y,
+                    const std::vector<Npp8u> &mask, int maskW, int maskH, int ax, int ay, int channel, bool dilate) {
+  Npp8u val = dilate ? 0 : 255;
+  for (int my = 0; my < maskH; ++my) {
+    for (int mx = 0; mx < maskW; ++mx) {
+      if (!mask[(size_t)my * maskW + mx])
+        continue;
+      const int sx = morphVecClampRef(x + mx - ax, width - 1);
+      const int sy = morphVecClampRef(y + my - ay, height - 1);
+      const Npp8u v = src[((size_t)sy * width + sx) * 4 + channel];
+      if (dilate ? (v > val) : (v < val))
+        val = v;
+    }
+  }
+  return val;
+}
+
+Npp32f morphVecCpu32f(const std::vector<Npp32f> &src, int width, int height, int x, int y,
+                      const std::vector<Npp8u> &mask, int maskW, int maskH, int ax, int ay, bool dilate) {
+  Npp32f val = dilate ? -1e10f : 1e10f;
+  for (int my = 0; my < maskH; ++my) {
+    for (int mx = 0; mx < maskW; ++mx) {
+      if (!mask[(size_t)my * maskW + mx])
+        continue;
+      const int sx = morphVecClampRef(x + mx - ax, width - 1);
+      const int sy = morphVecClampRef(y + my - ay, height - 1);
+      const Npp32f v = src[(size_t)sy * width + sx];
+      if (dilate ? (v > val) : (v < val))
+        val = v;
+    }
+  }
+  return val;
+}
+
+struct MorphVecMaskCase {
+  std::vector<Npp8u> mask;
+  int maskW, maskH, ax, ay;
+  const char *name;
+};
+
+const std::vector<MorphVecMaskCase> &morphVecMaskCases() {
+  static const std::vector<MorphVecMaskCase> cases = {
+      // fully populated 5x5 (separable reduction path)
+      MorphVecMaskCase{std::vector<Npp8u>(25, 1), 5, 5, 2, 2, "5x5_all_ones"},
+      // holed 5x5 (per-tap reduction path)
+      MorphVecMaskCase{{1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1}, 5, 5, 2, 2,
+                       "5x5_holed"},
+      // fully populated 7x7
+      MorphVecMaskCase{std::vector<Npp8u>(49, 1), 7, 7, 3, 3, "7x7_all_ones"},
+      // 3x9 with off-centre anchor
+      MorphVecMaskCase{{1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1}, 3, 9, 1, 4,
+                       "3x9_anchor_1_4"},
+  };
+  return cases;
+}
+
+} // namespace
+
+class MorphologyVecExactTest : public NppTestBase {};
+
+TEST_F(MorphologyVecExactTest, ErodeDilate_8u_C4R_Exact_VectorizedPaths) {
+  for (auto dims : {std::pair<int, int>{37, 23}, {6, 5}}) {
+    const int width = dims.first, height = dims.second;
+    std::vector<Npp8u> src((size_t)width * height * 4);
+    std::mt19937 rng(0xC0FFEEu);
+    std::uniform_int_distribution<int> dist(0, 255);
+    for (auto &v : src)
+      v = (Npp8u)dist(rng);
+
+    for (const auto &tc : morphVecMaskCases()) {
+      for (int dilate = 0; dilate < 2; ++dilate) {
+        int srcStep = 0, dstStep = 0;
+        Npp8u *d_src = nppiMalloc_8u_C4(width, height, &srcStep);
+        Npp8u *d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
+        ASSERT_NE(d_src, nullptr);
+        ASSERT_NE(d_dst, nullptr);
+        Npp8u *d_mask = nullptr;
+        ASSERT_EQ(cudaMalloc(&d_mask, tc.mask.size()), cudaSuccess);
+        cudaMemcpy(d_mask, tc.mask.data(), tc.mask.size(), cudaMemcpyHostToDevice);
+        cudaMemcpy2D(d_src, srcStep, src.data(), width * 4, width * 4, height, cudaMemcpyHostToDevice);
+
+        NppiSize roi = {width, height};
+        NppiSize msz = {tc.maskW, tc.maskH};
+        NppiPoint anc = {tc.ax, tc.ay};
+        NppStatus st = dilate ? nppiDilateBorder_8u_C4R(d_src, srcStep, roi, {0, 0}, d_dst, dstStep, roi, d_mask, msz, anc, NPP_BORDER_REPLICATE)
+                              : nppiErodeBorder_8u_C4R(d_src, srcStep, roi, {0, 0}, d_dst, dstStep, roi, d_mask, msz, anc, NPP_BORDER_REPLICATE);
+        ASSERT_EQ(st, NPP_SUCCESS) << tc.name << " dilate=" << dilate;
+
+        std::vector<Npp8u> dst((size_t)width * height * 4);
+        cudaMemcpy2D(dst.data(), width * 4, d_dst, dstStep, width * 4, height, cudaMemcpyDeviceToHost);
+        for (int y = 0; y < height; ++y)
+          for (int x = 0; x < width; ++x)
+            for (int c = 0; c < 4; ++c)
+              EXPECT_EQ(dst[((size_t)y * width + x) * 4 + c],
+                        morphVecCpuC4(src, width, height, x, y, tc.mask, tc.maskW, tc.maskH, tc.ax, tc.ay, c,
+                                      dilate != 0))
+                  << "mask=" << tc.name << " dilate=" << dilate << " x=" << x << " y=" << y << " c=" << c;
+
+        nppiFree(d_src);
+        nppiFree(d_dst);
+        cudaFree(d_mask);
+      }
+    }
+  }
+}
+
+TEST_F(MorphologyVecExactTest, ErodeDilate_32f_C1R_Exact_VectorizedPaths) {
+  for (auto dims : {std::pair<int, int>{37, 23}, {6, 5}}) {
+    const int width = dims.first, height = dims.second;
+    std::vector<Npp32f> src((size_t)width * height);
+    std::mt19937 rng(0x5EEDu);
+    std::uniform_real_distribution<float> dist(-100.0f, 100.0f);
+    for (auto &v : src)
+      v = dist(rng);
+
+    for (const auto &tc : morphVecMaskCases()) {
+      for (int dilate = 0; dilate < 2; ++dilate) {
+        int srcStep = 0, dstStep = 0;
+        Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+        Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+        ASSERT_NE(d_src, nullptr);
+        ASSERT_NE(d_dst, nullptr);
+        Npp8u *d_mask = nullptr;
+        ASSERT_EQ(cudaMalloc(&d_mask, tc.mask.size()), cudaSuccess);
+        cudaMemcpy(d_mask, tc.mask.data(), tc.mask.size(), cudaMemcpyHostToDevice);
+        cudaMemcpy2D(d_src, srcStep, src.data(), width * (int)sizeof(Npp32f), width * (int)sizeof(Npp32f), height,
+                     cudaMemcpyHostToDevice);
+
+        NppiSize roi = {width, height};
+        NppiSize msz = {tc.maskW, tc.maskH};
+        NppiPoint anc = {tc.ax, tc.ay};
+        NppStatus st = dilate ? nppiDilateBorder_32f_C1R(d_src, srcStep, roi, {0, 0}, d_dst, dstStep, roi, d_mask, msz, anc, NPP_BORDER_REPLICATE)
+                              : nppiErodeBorder_32f_C1R(d_src, srcStep, roi, {0, 0}, d_dst, dstStep, roi, d_mask, msz, anc, NPP_BORDER_REPLICATE);
+        ASSERT_EQ(st, NPP_SUCCESS) << tc.name << " dilate=" << dilate;
+
+        std::vector<Npp32f> dst((size_t)width * height);
+        cudaMemcpy2D(dst.data(), width * (int)sizeof(Npp32f), d_dst, dstStep, width * (int)sizeof(Npp32f), height,
+                     cudaMemcpyDeviceToHost);
+        for (int y = 0; y < height; ++y)
+          for (int x = 0; x < width; ++x)
+            EXPECT_FLOAT_EQ(dst[(size_t)y * width + x],
+                            morphVecCpu32f(src, width, height, x, y, tc.mask, tc.maskW, tc.maskH, tc.ax, tc.ay,
+                                           dilate != 0))
+                << "mask=" << tc.name << " dilate=" << dilate << " x=" << x << " y=" << y;
+
+        nppiFree(d_src);
+        nppiFree(d_dst);
+        cudaFree(d_mask);
+      }
+    }
+  }
+}
+
+// The dedicated 3x3 float APIs now route through the same vectorized kernel
+// (mask == nullptr, all nine taps active).
+TEST_F(MorphologyVecExactTest, ErodeDilate3x3_32f_C1R_Exact_VectorizedPaths) {
+  const int width = 45, height = 19;
+  std::vector<Npp32f> src((size_t)width * height);
+  std::mt19937 rng(0x33333u);
+  std::uniform_real_distribution<float> dist(-50.0f, 50.0f);
+  for (auto &v : src)
+    v = dist(rng);
+
+  int srcStep = 0, dstStep = 0;
+  Npp32f *d_src = nppiMalloc_32f_C1(width, height, &srcStep);
+  Npp32f *d_dst = nppiMalloc_32f_C1(width, height, &dstStep);
+  ASSERT_NE(d_src, nullptr);
+  ASSERT_NE(d_dst, nullptr);
+  cudaMemcpy2D(d_src, srcStep, src.data(), width * (int)sizeof(Npp32f), width * (int)sizeof(Npp32f), height,
+               cudaMemcpyHostToDevice);
+
+  NppiSize roi = {width, height};
+  ASSERT_EQ(nppiErode3x3Border_32f_C1R(d_src, srcStep, roi, {0, 0}, d_dst, dstStep, roi, NPP_BORDER_REPLICATE), NPP_SUCCESS);
+  std::vector<Npp32f> dst((size_t)width * height);
+  cudaMemcpy2D(dst.data(), width * (int)sizeof(Npp32f), d_dst, dstStep, width * (int)sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+  const std::vector<Npp8u> allOnes9(9, 1);
+  for (int y = 0; y < height; ++y)
+    for (int x = 0; x < width; ++x)
+      EXPECT_FLOAT_EQ(dst[(size_t)y * width + x],
+                      morphVecCpu32f(src, width, height, x, y, allOnes9, 3, 3, 1, 1, false))
+          << "erode3x3 x=" << x << " y=" << y;
+
+  ASSERT_EQ(nppiDilate3x3Border_32f_C1R(d_src, srcStep, roi, {0, 0}, d_dst, dstStep, roi, NPP_BORDER_REPLICATE), NPP_SUCCESS);
+  cudaMemcpy2D(dst.data(), width * (int)sizeof(Npp32f), d_dst, dstStep, width * (int)sizeof(Npp32f), height,
+               cudaMemcpyDeviceToHost);
+  for (int y = 0; y < height; ++y)
+    for (int x = 0; x < width; ++x)
+      EXPECT_FLOAT_EQ(dst[(size_t)y * width + x],
+                      morphVecCpu32f(src, width, height, x, y, allOnes9, 3, 3, 1, 1, true))
+          << "dilate3x3 x=" << x << " y=" << y;
+
+  nppiFree(d_src);
+  nppiFree(d_dst);
+}

@@ -1,0 +1,7 @@
+{
+  "family": "nppiFilterRowBorder32f",
+  "module": "nppi_filtering_functions.h",
+  "source": "src/nppi/nppi_filtering_functions/nppi_filter_row_border32f_generated.cpp",
+  "includes": ["nppi_filter_executor.h"],
+  "call": "nppi::filter::filterRowBorder32f<{dtype}, {dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, oSrcSize, oSrcOffset, pDst, nDstStep, oSizeROI, pKernel, nMaskSize, nAnchor, eBorderType, nppStreamCtx.hStream)"
+}

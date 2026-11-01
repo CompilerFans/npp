@@ -1,0 +1,12 @@
+{
+  "family": "nppiCircularRadialProfile",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_circular_radial_profile_generated.cpp",
+  "includes": [
+    "nppi_radial_profile_executor.h"
+  ],
+  "functions": [
+    "nppiCircularRadialProfile_32f_C1R_Ctx"
+  ],
+  "call": "nppi::statistics::runCircularRadialProfile(pSrc, nSrcStep, oSizeROI, oCenter, pProfileData, nProfileSamples, nppStreamCtx.hStream)"
+}

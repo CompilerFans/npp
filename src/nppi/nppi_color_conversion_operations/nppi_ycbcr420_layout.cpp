@@ -46,7 +46,7 @@ namespace {
 
 NppStatus validate420Roi(NppiSize oSizeROI) {
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
   }
   if ((oSizeROI.width % 2) != 0 || (oSizeROI.height % 2) != 0) {
     return NPP_WRONG_INTERSECTION_ROI_ERROR;
@@ -71,8 +71,12 @@ NppStatus validatePlanar420ToSemiPlanarInputs(const Npp8u *const pSrc[3], const 
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDstY || !pDstCbCr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (!rSrcStep || rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstYStep <= 0 ||
-      nDstCbCrStep <= 0) {
+  if (!rSrcStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
+      rSrcStep[2] < oSizeROI.width / 2 || nDstYStep < oSizeROI.width ||
+      nDstCbCrStep < oSizeROI.width) {
     return NPP_STEP_ERROR;
   }
   return validate420Roi(oSizeROI);
@@ -83,8 +87,12 @@ NppStatus validateSemiPlanar420ToPlanarInputs(const Npp8u *pSrcY, int nSrcYStep,
   if (!pSrcY || !pSrcCbCr || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcYStep <= 0 || nSrcCbCrStep <= 0 || !rDstStep || rDstStep[0] <= 0 || rDstStep[1] <= 0 ||
-      rDstStep[2] <= 0) {
+  if (!rDstStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nSrcYStep < oSizeROI.width || nSrcCbCrStep < oSizeROI.width ||
+      rDstStep[0] < oSizeROI.width || rDstStep[1] < oSizeROI.width / 2 ||
+      rDstStep[2] < oSizeROI.width / 2) {
     return NPP_STEP_ERROR;
   }
   return validate420Roi(oSizeROI);
@@ -95,8 +103,12 @@ NppStatus validatePlanar420ToPlanar422Inputs(const Npp8u *const pSrc[3], const i
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (!rSrcStep || !nDstStep || rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstStep[0] <= 0 ||
-      nDstStep[1] <= 0 || nDstStep[2] <= 0) {
+  if (!rSrcStep || !nDstStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
+      rSrcStep[2] < oSizeROI.width / 2 || nDstStep[0] < oSizeROI.width ||
+      nDstStep[1] < oSizeROI.width / 2 || nDstStep[2] < oSizeROI.width / 2) {
     return NPP_STEP_ERROR;
   }
   return validate420Roi(oSizeROI);
@@ -108,8 +120,12 @@ NppStatus validateSemiPlanar420ToPlanar422Inputs(const Npp8u *pSrcY, int nSrcYSt
   if (!pSrcY || !pSrcCbCr || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcYStep <= 0 || nSrcCbCrStep <= 0 || !rDstStep || rDstStep[0] <= 0 || rDstStep[1] <= 0 ||
-      rDstStep[2] <= 0) {
+  if (!rDstStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nSrcYStep < oSizeROI.width || nSrcCbCrStep < oSizeROI.width ||
+      rDstStep[0] < oSizeROI.width || rDstStep[1] < oSizeROI.width / 2 ||
+      rDstStep[2] < oSizeROI.width / 2) {
     return NPP_STEP_ERROR;
   }
   return validate420Roi(oSizeROI);
@@ -121,8 +137,12 @@ NppStatus validateSemiPlanar420ToPlanar411Inputs(const Npp8u *pSrcY, int nSrcYSt
   if (!pSrcY || !pSrcCbCr || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcYStep <= 0 || nSrcCbCrStep <= 0 || !rDstStep || rDstStep[0] <= 0 || rDstStep[1] <= 0 ||
-      rDstStep[2] <= 0) {
+  if (!rDstStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (nSrcYStep < oSizeROI.width || nSrcCbCrStep < oSizeROI.width ||
+      rDstStep[0] < oSizeROI.width || rDstStep[1] < oSizeROI.width / 4 ||
+      rDstStep[2] < oSizeROI.width / 4) {
     return NPP_STEP_ERROR;
   }
   return validate411DestinationRoi(oSizeROI);
@@ -133,7 +153,8 @@ NppStatus validateSemiPlanar420ToPacked422Inputs(const Npp8u *pSrcY, int nSrcYSt
   if (!pSrcY || !pSrcCbCr || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcYStep <= 0 || nSrcCbCrStep <= 0 || nDstStep <= 0) {
+  if (nSrcYStep < oSizeROI.width || nSrcCbCrStep < oSizeROI.width ||
+      nDstStep < oSizeROI.width * 2) {
     return NPP_STEP_ERROR;
   }
   return validate420Roi(oSizeROI);
@@ -144,7 +165,11 @@ NppStatus validatePlanarYCrCb420ToPacked422Inputs(const Npp8u *const pSrc[3], in
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDst) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (!rSrcStep || rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstStep <= 0) {
+  if (!rSrcStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
+      rSrcStep[2] < oSizeROI.width / 2 || nDstStep < oSizeROI.width * 2) {
     return NPP_STEP_ERROR;
   }
   return validate420Roi(oSizeROI);
@@ -156,8 +181,12 @@ NppStatus validatePlanarYCrCb420ToSemiPlanar411Inputs(const Npp8u *const pSrc[3]
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pSrc[2] || !pDstY || !pDstCbCr) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (!rSrcStep || rSrcStep[0] <= 0 || rSrcStep[1] <= 0 || rSrcStep[2] <= 0 || nDstYStep <= 0 ||
-      nDstCbCrStep <= 0) {
+  if (!rSrcStep) {
+    return NPP_NULL_POINTER_ERROR;
+  }
+  if (rSrcStep[0] < oSizeROI.width || rSrcStep[1] < oSizeROI.width / 2 ||
+      rSrcStep[2] < oSizeROI.width / 2 || nDstYStep < oSizeROI.width ||
+      nDstCbCrStep < oSizeROI.width / 2) {
     return NPP_STEP_ERROR;
   }
   return validate411DestinationRoi(oSizeROI);

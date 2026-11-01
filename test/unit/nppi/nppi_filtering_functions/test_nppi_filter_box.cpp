@@ -67,7 +67,7 @@ TEST_F(FilterTest, FilterBox_3x3_Uniform) {
   NppiPoint anchor = {1, 1};
 
   // 执行滤波
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, size, maskSize, anchor);
+  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, step_src, size, {0, 0}, d_dst, step_dst, size, maskSize, anchor, NPP_BORDER_REPLICATE);
   if (status != NPP_SUCCESS) {
     // 获取更多错误信息
     cudaError_t lastError = cudaGetLastError();
@@ -99,7 +99,7 @@ TEST_F(FilterTest, FilterBox_5x5_EdgeHandling) {
   NppiPoint anchor = {2, 2};
 
   // 执行滤波
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, size, maskSize, anchor);
+  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, step_src, size, {0, 0}, d_dst, step_dst, size, maskSize, anchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // 下载结果
@@ -145,7 +145,7 @@ TEST_F(FilterTest, FilterBox_TruncationBehavior) {
   NppiPoint anchor = {1, 1};
 
   // Execute filter
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, step_src, d_dst, step_dst, size, maskSize, anchor);
+  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, step_src, size, {0, 0}, d_dst, step_dst, size, maskSize, anchor, NPP_BORDER_REPLICATE);
   ASSERT_EQ(status, NPP_SUCCESS);
 
   // Download result
@@ -835,7 +835,11 @@ public:
 // Helper function to run NPP FilterBox 8u_C1R and get result
 std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int width, int height, int maskW, int maskH,
                                        int anchorX, int anchorY) {
-  Npp8u *d_src = (Npp8u *)nppsMalloc_8u(width * height);
+  // Plain FilterBox reads around the ROI; the algorithm tests compare against
+  // a zero-padding model, so give the source a zero-filled halo.
+  const int ml = anchorX, mr = maskW - 1 - anchorX, mt = anchorY, mb = maskH - 1 - anchorY;
+  const int bw = width + ml + mr, bh = height + mt + mb;
+  Npp8u *d_src = (Npp8u *)nppsMalloc_8u(bw * bh);
   Npp8u *d_dst = (Npp8u *)nppsMalloc_8u(width * height);
 
   if (!d_src || !d_dst) {
@@ -846,10 +850,13 @@ std::vector<uint8_t> runNPPFilterBox8u(const std::vector<uint8_t> &input, int wi
     throw std::runtime_error("Failed to allocate GPU memory");
   }
 
-  cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp8u), cudaMemcpyHostToDevice);
+  cudaMemset(d_src, 0, (size_t)bw * bh);
+  cudaMemcpy2D(d_src + mt * bw + ml, bw * sizeof(Npp8u), input.data(), width * sizeof(Npp8u),
+               width * sizeof(Npp8u), height, cudaMemcpyHostToDevice);
 
-  NppStatus status = nppiFilterBox_8u_C1R(d_src, width * sizeof(Npp8u), d_dst, width * sizeof(Npp8u), {width, height},
-                                          {maskW, maskH}, {anchorX, anchorY});
+  NppStatus status = nppiFilterBox_8u_C1R(d_src + mt * bw + ml, bw * sizeof(Npp8u), d_dst,
+                                          width * sizeof(Npp8u), {width, height}, {maskW, maskH},
+                                          {anchorX, anchorY});
 
   std::vector<uint8_t> output(width * height);
   if (status == NPP_SUCCESS) {
@@ -882,8 +889,9 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
 
   cudaMemcpy(d_src, input.data(), input.size() * sizeof(Npp32f), cudaMemcpyHostToDevice);
 
-  NppStatus status = nppiFilterBox_32f_C1R(d_src, width * sizeof(Npp32f), d_dst, width * sizeof(Npp32f),
-                                           {width, height}, {maskW, maskH}, {anchorX, anchorY});
+  NppStatus status = nppiFilterBoxBorder_32f_C1R(d_src, width * sizeof(Npp32f), {width, height}, {0, 0}, d_dst,
+                                            width * sizeof(Npp32f), {width, height}, {maskW, maskH},
+                                            {anchorX, anchorY}, NPP_BORDER_REPLICATE);
 
   std::vector<Npp32f> output(width * height);
   if (status == NPP_SUCCESS) {
@@ -904,9 +912,13 @@ std::vector<Npp32f> runNPPFilterBox32f(const std::vector<Npp32f> &input, int wid
 std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int width, int height, int maskW, int maskH,
                                         int anchorX, int anchorY) {
   const int channels = 4;
+  // Plain FilterBox reads around the ROI; the tests compare against a
+  // zero-padding reference, so give the source a zero-filled halo.
+  const int ml = anchorX, mr = maskW - 1 - anchorX, mt = anchorY, mb = maskH - 1 - anchorY;
+  const int bw = width + ml + mr, bh = height + mt + mb;
   Npp8u *d_src, *d_dst;
   int srcStep, dstStep;
-  d_src = nppiMalloc_8u_C4(width, height, &srcStep);
+  d_src = nppiMalloc_8u_C4(bw, bh, &srcStep);
   d_dst = nppiMalloc_8u_C4(width, height, &dstStep);
 
   if (!d_src || !d_dst) {
@@ -917,10 +929,12 @@ std::vector<Npp8u> runNPPFilterBox8uC4R(const std::vector<Npp8u> &input, int wid
     throw std::runtime_error("Failed to allocate GPU memory for C4R");
   }
 
-  cudaMemcpy2D(d_src, srcStep, input.data(), width * channels, width * channels, height, cudaMemcpyHostToDevice);
+  cudaMemset(d_src, 0, (size_t)srcStep * bh);
+  cudaMemcpy2D(d_src + (size_t)mt * srcStep + ml * channels, srcStep, input.data(), width * channels,
+               width * channels, height, cudaMemcpyHostToDevice);
 
-  NppStatus status =
-      nppiFilterBox_8u_C4R(d_src, srcStep, d_dst, dstStep, {width, height}, {maskW, maskH}, {anchorX, anchorY});
+  NppStatus status = nppiFilterBox_8u_C4R(d_src + (size_t)mt * srcStep + ml * channels, srcStep, d_dst,
+                                          dstStep, {width, height}, {maskW, maskH}, {anchorX, anchorY});
 
   std::vector<Npp8u> output(width * height * channels);
   if (status == NPP_SUCCESS) {

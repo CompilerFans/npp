@@ -1,0 +1,13 @@
+{
+  "family": "nppiMirror",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_mirror_generated.cpp",
+  "includes": ["nppi_mirror_executor.h"],
+  "call": "nppi::mirror::mirror<{dtype}, {chan}, {is_ac4}>(pSrc, nSrcStep, pDst, nDstStep, oROI, flip, nppStreamCtx.hStream)",
+  "call_variants": [
+    {
+      "contains": "pSrcDst",
+      "call": "nppi::mirror::mirrorInPlace<{dtype}, {chan}, {is_ac4}>(pSrcDst, nSrcDstStep, oROI, flip, nppStreamCtx.hStream)"
+    }
+  ]
+}

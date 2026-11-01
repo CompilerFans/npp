@@ -12,17 +12,23 @@ static NppStatus validateNV12ToYUV420Inputs(const Npp8u *const pSrc[2], int nSrc
   if (!pSrc || !pSrc[0] || !pSrc[1] || !pDst || !pDst[0] || !pDst[1] || !pDst[2]) {
     return NPP_NULL_POINTER_ERROR;
   }
-  if (nSrcStep <= 0) {
-    return NPP_STEP_ERROR;
+  if (!aDstStep) {
+    return NPP_NULL_POINTER_ERROR;
   }
-  if (!aDstStep || aDstStep[0] <= 0 || aDstStep[1] <= 0 || aDstStep[2] <= 0) {
-    return NPP_STEP_ERROR;
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
   }
-  if ((oSizeROI.width % 2) != 0 || (oSizeROI.height % 2) != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nSrcStep <= 0 || aDstStep[0] <= 0 || aDstStep[1] <= 0 || aDstStep[2] <= 0) {
+    return NPP_STEP_ERROR;
+  }
+  const int chromaStep = (oSizeROI.width + 1) / 2;
+  if (aDstStep[0] < oSizeROI.width || aDstStep[1] < chromaStep ||
+      aDstStep[2] < chromaStep) {
+    return NPP_STEP_ERROR;
   }
   return NPP_NO_ERROR;
 }
@@ -32,6 +38,10 @@ NppStatus nppiNV12ToYUV420_8u_P2P3R_Ctx(const Npp8u *const pSrc[2], int nSrcStep
   NppStatus status = validateNV12ToYUV420Inputs(pSrc, nSrcStep, pDst, aDstStep, oSizeROI);
   if (status != NPP_NO_ERROR) {
     return status;
+  }
+  // An empty ROI is a no-op.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
   }
 
   cudaError_t cudaStatus = nppiNV12ToYUV420_8u_P2P3R_kernel(pSrc[0], nSrcStep, pSrc[1], nSrcStep, pDst[0], aDstStep[0],
