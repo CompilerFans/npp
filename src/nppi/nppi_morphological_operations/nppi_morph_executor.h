@@ -10,15 +10,18 @@
 //
 //  * masked plain variants (nppiDilate/nppiErode + 3x3 forms): a mask tap at
 //    (mx,my) reads src(x + mx - ax, y + my - ay).  Reads are not clipped to
-//    the ROI; the caller owns the margins.  Measured quirks reproduced here:
-//      - the column index is clamped to [-1, roi.width - 1 + anchor.x]
-//      - the row index is clamped to [-1, hitRowMax], where hitRowMax is
-//        roi.height - maskH + anchor.y for masks up to 3 rows and
-//        roi.height - 1 + anchor.y otherwise
-//      - for 8u data, square odd masks of 5 rows or more whose anchor is the
-//        exact centre read at an effective anchor of (-1, -1) (measured for
-//        5x5/7x7; 16u/32f do not show the shift)
-//    an all-zero structuring element zero-fills the ROI.
+//    the ROI; the caller owns the margins.  A 2,220-case sweep (every mask
+//    shape/anchor/tap on an 11x9 ROI) fitted the residual clamping:
+//      rx = clamp(x + mx - ax, ax - maskW, roiW - 1 + ax)
+//      ry = clamp(y + my - ay, ax - maskW, roiH - maskW + maskH - 1 + ax)
+//    i.e. both axes use anchor.x in the bounds (measured cross-axis coupling).
+//    The one exception is the 8u C1 square-odd >= 5 mask with the exact centre
+//    anchor, which reads with an effective anchor of (-1,-1) and does not
+//    clamp (C3/C4/16u/32f use the caller's anchor).  Plain anchor validation
+//    checks only anchor.x, accepting
+//      max(maskW - maskH - roiH + 1, -(roiW - 1)) <= anchor.x <= maskW;
+//    anchor.y is never validated.  An all-zero structuring element zero-fills
+//    the ROI.
 //  * border variants: replicate border only.  Reads are clamped in image
 //    coordinates (origin = pSrc - oSrcOffset) and the clamp result is applied
 //    relative to pSrc, exactly like the measured NPP behaviour.

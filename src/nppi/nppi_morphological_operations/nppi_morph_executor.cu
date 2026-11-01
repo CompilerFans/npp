@@ -29,25 +29,17 @@ __host__ inline bool effectiveAnchor(int elemBytes, int mw, int mh, int *ax, int
   return false;
 }
 
-// Row clamp bound of the plain (non-border) read path.  The implicit 3x3 and
-// 1x1 windows are read raw (measured: no clamping at all); only the wider
-// masks show the clamped reads of NPP's general path:
-//   maskH <= 3: roiH - maskH + anchor.x     (5x3 probes with every anchor)
-//   maskH >= 4: roiH - 1 + anchor.y         (5x5 probes with every anchor)
-__host__ inline int plainRowMax(int roiH, int mh, int ay, int ax) {
-  if (mh <= 3) return roiH - mh + ax;
-  return roiH - 1 + ay;
-}
-
-// Column clamp bound of the plain read path: one past the last ROI column plus
-// the anchor (measured for every wide-mask probe).
-__host__ inline int plainColMax(int roiW, int ax, int mw) {
-  if (mw <= 3) return roiW + 1;
-  return roiW - 1 + ax;
-}
-
-// The implicit 3x3 and 1x1 windows never clamp in either axis.
-__host__ inline bool plainWindowClamped(int mw, int mh) { return mw > 3 || mh > 3; }
+// Plain (non-border) read clamping, fitted against a 2,220-case NPP 13.4 sweep
+// (single-tap masks over every mask shape/anchor/tap position on an 11x9 ROI):
+//   lo    = anchor.x - maskW                     (both axes)
+//   colHi = roiW - 1 + anchor.x
+//   rowHi = roiH - maskW + maskH - 1 + anchor.x
+//   rx = clamp(x + mx - anchor.x, lo, colHi)
+//   ry = clamp(y + my - anchor.y, lo, rowHi)
+// Both axes use anchor.x in the bounds (measured cross-axis coupling); the
+// mask height moves rowHi by maskH-1 and the mask width by -maskW.  The sole
+// exception is the 8u square-odd >= 5 centred-anchor path (effectiveAnchor
+// below), which uses an effective anchor of (-1,-1) and clamps nothing.
 
 // ---------------------------------------------------------------------------
 // Masked min/max kernel (plain and border paths).
@@ -55,7 +47,8 @@ __host__ inline bool plainWindowClamped(int mw, int mh) { return mw > 3 || mh > 
 template <typename T, int C, bool AC4, bool BORDER>
 __global__ void morphMaskKernel(const T *__restrict__ pSrc, int nSrcStep, T *__restrict__ pDst, int nDstStep,
                                 int W, int H, const Npp8u *__restrict__ pMask, int mw, int mh, int ax, int ay,
-                                int srcW, int srcH, int offX, int offY, int rowMax, int colMax, int op) {
+                                int srcW, int srcH, int offX, int offY, int rowLo, int rowHi, int colLo,
+                                int colHi, int op) {
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= W || y >= H) return;
@@ -70,9 +63,7 @@ __global__ void morphMaskKernel(const T *__restrict__ pSrc, int nSrcStep, T *__r
     if (BORDER) {
       cy = clampImage(y + offY + my - ay, 0, srcH - 1) - offY;
     } else {
-      cy = y + my - ay;
-      cy = cy > rowMax ? rowMax : cy;
-      cy = cy < -1 ? -1 : cy;
+      cy = clampImage(y + my - ay, rowLo, rowHi);
     }
     const char *row = (const char *)pSrc + (ptrdiff_t)cy * nSrcStep;
     for (int mx = 0; mx < mw; ++mx) {
@@ -81,9 +72,7 @@ __global__ void morphMaskKernel(const T *__restrict__ pSrc, int nSrcStep, T *__r
       if (BORDER) {
         cx = clampImage(x + offX + mx - ax, 0, srcW - 1) - offX;
       } else {
-        cx = x + mx - ax;
-        cx = cx > colMax ? colMax : cx;
-        cx = cx < -1 ? -1 : cx;
+        cx = clampImage(x + mx - ax, colLo, colHi);
       }
       const T *p = (const T *)row + (ptrdiff_t)cx * C;
 #pragma unroll
@@ -221,9 +210,17 @@ inline bool dstStepBad(int nDstStep, int rowBytes) { return nDstStep < rowBytes;
 inline bool stepNotEven(int nStep, int alignBytes) { return alignBytes > 1 && (nStep % alignBytes) != 0; }
 
 inline bool anchorOutOfRange(NppiPoint a, NppiSize m) {
-  // Measured acceptance window of the masked plain variants: one past the mask
-  // box on the high side is accepted, five is rejected.
+  // Measured acceptance window of the composite variants.
   return a.x < -(m.width + 1) || a.x > m.width + 1 || a.y < -(m.height + 1) || a.y > m.height + 1;
+}
+
+// Masked plain variants validate only the X anchor (anchor.y is never checked,
+// negative anchors pass) against a window that depends on the mask and ROI
+// height:  max(maskW - maskH - roiH + 1, -(roiW - 1)) <= anchor.x <= maskW.
+inline bool plainAnchorBad(NppiPoint a, NppiSize m, NppiSize roi) {
+  const int lo = m.width - m.height - roi.height + 1;
+  const int loClamped = lo > -(roi.width - 1) ? lo : -(roi.width - 1);
+  return a.x > m.width || a.x < loClamped;
 }
 
 inline bool borderUnsupported(int elemBytes, NppiBorderType t) {
@@ -244,7 +241,7 @@ inline NppStatus validateMasked(const void *pSrc, const void *pDst, NppiSize roi
   if (isBadRoi(roi)) return NPP_SIZE_ERROR;
   if (!pMask) return NPP_NULL_POINTER_ERROR;
   if (ms.width < 0 || ms.height < 0) return NPP_OUT_OFF_RANGE_ERROR;
-  if (anchorOutOfRange(a, ms)) return NPP_OUT_OFF_RANGE_ERROR;
+  if (plainAnchorBad(a, ms, roi)) return NPP_OUT_OFF_RANGE_ERROR;
   const int rowBytes = roi.width * C * (int)sizeof(T);
   if (dstStepBad(nDstStep, rowBytes)) return NPP_STEP_ERROR;
   if (stepNotEven(nDstStep, AC4 ? C * (int)sizeof(T) : (int)sizeof(T))) return NPP_NOT_EVEN_STEP_ERROR;
@@ -269,17 +266,19 @@ inline NppStatus fillIdentity(T *pDst, int nDstStep, int W, int H, int op, cudaS
 
 template <typename T, int C, bool AC4>
 inline NppStatus launchMasked(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, int W, int H, const Npp8u *pMask,
-                              int mw, int mh, int ax, int ay, int srcW, int srcH, int offX, int offY, int rowMax,
-                              int colMax, int op, bool border, cudaStream_t stream) {
+                              int mw, int mh, int ax, int ay, int srcW, int srcH, int offX, int offY, int rowLo,
+                              int rowHi, int colLo, int colHi, int op, bool border, cudaStream_t stream) {
   dim3 block(16, 8);
   dim3 grid(divUp(W, block.x), divUp(H, block.y));
   (void)cudaGetLastError();  // drop any stale error before the launch
   if (border) {
     morphMaskKernel<T, C, AC4, true><<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, W, H, pMask, mw, mh,
-                                                                ax, ay, srcW, srcH, offX, offY, rowMax, colMax, op);
+                                                                ax, ay, srcW, srcH, offX, offY, rowLo, rowHi, colLo,
+                                                                colHi, op);
   } else {
     morphMaskKernel<T, C, AC4, false><<<grid, block, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, W, H, pMask, mw, mh,
-                                                                 ax, ay, srcW, srcH, offX, offY, rowMax, colMax, op);
+                                                                 ax, ay, srcW, srcH, offX, offY, rowLo, rowHi, colLo,
+                                                                 colHi, op);
   }
   const cudaError_t err = cudaGetLastError();
   return err == cudaSuccess ? NPP_SUCCESS : NPP_CUDA_KERNEL_EXECUTION_ERROR;
@@ -322,17 +321,28 @@ NppStatus runPlain(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSize 
   NppStatus st = validateMasked<T, C, AC4>(pSrc, pDst, oSizeROI, pMask, oMaskSize, oAnchor, nDstStep);
   if (st != NPP_NO_ERROR) return st;
   int ax = oAnchor.x, ay = oAnchor.y;
-  const bool shifted = effectiveAnchor((int)sizeof(T), oMaskSize.width, oMaskSize.height, &ax, &ay);
+  // The effective-anchor quirk is specific to the 8u C1 kernel path (C3/C4
+  // read with the caller's anchor, probe-verified).
+  const bool shifted = C == 1 && effectiveAnchor((int)sizeof(T), oMaskSize.width, oMaskSize.height, &ax, &ay);
   // An empty mask (zero area or all-zero taps) zero-fills the ROI; the kernel
   // handles both uniformly.
   const int mw = oMaskSize.width > 0 ? oMaskSize.width : 0;
   const int mh = oMaskSize.height > 0 ? oMaskSize.height : 0;
   if (mw == 0 || mh == 0) return fillIdentity<T, C, AC4>(pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, stream);
-  const bool clamped = !shifted && plainWindowClamped(mw, mh);
-  const int rowMax = clamped ? plainRowMax(oSizeROI.height, mh, ay, ax) : oSizeROI.height + 1;
-  const int colMax = clamped ? plainColMax(oSizeROI.width, ax, mw) : oSizeROI.width + 1;
+  int rowLo, rowHi, colLo, colHi;
+  if (shifted) {
+    // The 8u centred square-odd path reads with an effective anchor of (-1,-1)
+    // and does not clamp at all.
+    rowLo = colLo = -(1 << 29);
+    rowHi = colHi = (1 << 29);
+  } else {
+    rowLo = colLo = ax - mw;
+    colHi = oSizeROI.width - 1 + ax;
+    rowHi = oSizeROI.height - mw + mh - 1 + ax;
+  }
   return launchMasked<T, C, AC4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, mw, mh, ax,
-                                 ay, oSizeROI.width, oSizeROI.height, 0, 0, rowMax, colMax, op, false, stream);
+                                 ay, oSizeROI.width, oSizeROI.height, 0, 0, rowLo, rowHi, colLo, colHi, op, false,
+                                 stream);
 }
 
 template <typename T, int C, bool AC4>
@@ -355,7 +365,7 @@ NppStatus runBorder(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oS
   if (mw == 0 || mh == 0) return fillIdentity<T, C, AC4>(pDst, nDstStep, oSizeROI.width, oSizeROI.height, op, stream);
   return launchMasked<T, C, AC4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, pMask, mw, mh,
                                  oAnchor.x, oAnchor.y, oSrcSize.width, oSrcSize.height, oSrcOffset.x,
-                                 oSrcOffset.y, 0, 0, op, true, stream);
+                                 oSrcOffset.y, 0, 0, 0, 0, op, true, stream);
 }
 
 template <typename T, int C, bool AC4>
@@ -367,8 +377,8 @@ NppStatus run3x3Plain(const T *pSrc, int nSrcStep, T *pDst, int nDstStep, NppiSi
   if (dstStepBad(nDstStep, rowBytes)) return NPP_STEP_ERROR;
   if (stepNotEven(nDstStep, AC4 ? C * (int)sizeof(T) : (int)sizeof(T))) return NPP_NOT_EVEN_STEP_ERROR;
   return launchMasked<T, C, AC4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nullptr, 3, 3, 1, 1,
-                                 oSizeROI.width, oSizeROI.height, 0, 0, oSizeROI.height + 1, oSizeROI.width + 1, op,
-                                 false, stream);
+                                 oSizeROI.width, oSizeROI.height, 0, 0, -1, oSizeROI.height + 1, -1,
+                                 oSizeROI.width + 1, op, false, stream);
 }
 
 template <typename T, int C, bool AC4>
@@ -382,7 +392,8 @@ NppStatus run3x3Border(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint
   if (dstStepBad(nDstStep, rowBytes)) return NPP_STEP_ERROR;
   if (stepNotEven(nDstStep, AC4 ? C * (int)sizeof(T) : (int)sizeof(T))) return NPP_NOT_EVEN_STEP_ERROR;
   return launchMasked<T, C, AC4>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width, oSizeROI.height, nullptr, 3, 3, 1, 1,
-                                 oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, 0, 0, op, true, stream);
+                                 oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, 0, 0, 0, 0, op, true,
+                                 stream);
 }
 
 template <typename T, int C, bool AC4>
@@ -412,14 +423,14 @@ NppStatus runComposite(const T *pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint
   const int tmpStep = (int)(bufferPitch(oSizeROI, C * (int)sizeof(T)));
   const int firstOp = (kind == 0 || kind == 3) ? kErode : kDilate;  // Open/TopHat erode first
   NppStatus st = launchMasked<T, C, AC4>(pSrc, nSrcStep, tmp, tmpStep, W, H, pMask, mw, mh, oAnchor.x, oAnchor.y,
-                                         oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, 0, 0, firstOp,
-                                         true, stream);
+                                         oSrcSize.width, oSrcSize.height, oSrcOffset.x, oSrcOffset.y, 0, 0, 0, 0,
+                                         firstOp, true, stream);
   if (st != NPP_NO_ERROR) return st;
   // The second pass always writes the destination: the residual kernels then
   // read it back in place, so the scratch buffer is only the first-stage image.
   const int secondOp = 1 - firstOp;
-  st = launchMasked<T, C, AC4>(tmp, tmpStep, pDst, nDstStep, W, H, pMask, mw, mh, oAnchor.x, oAnchor.y, W, H, 0, 0, 0,
-                               0, secondOp, true, stream);
+  st = launchMasked<T, C, AC4>(tmp, tmpStep, pDst, nDstStep, W, H, pMask, mw, mh, oAnchor.x, oAnchor.y, W, H, 0, 0,
+                               0, 0, 0, 0, secondOp, true, stream);
   if (st != NPP_NO_ERROR) return st;
   if (kind == 0 || kind == 1) return NPP_SUCCESS;  // Open / Close already in pDst
 
