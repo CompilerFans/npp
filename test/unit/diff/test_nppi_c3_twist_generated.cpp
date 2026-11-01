@@ -443,9 +443,9 @@ const Npp16u **sbuf16(const Planes16 &p) { return const_cast<const Npp16u **>(p.
 void f16_420(const char *fname, const std::string &key,
              NppStatus (*f)(const Npp16u *, int, Npp16u **, int *, NppiSize, const Npp32f[3][4], NppStreamContext),
              int w, int h, uint64_t seed) {
-  const int sStep = 3 * w + 6;
-  const int yStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int sStep = 2 * (3 * w) + 8;
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
   DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
   src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
   Planes16 dst = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
@@ -467,8 +467,8 @@ void f16_420P3(const char *fname, const std::string &key,
                NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
                               NppStreamContext),
                int w, int h, uint64_t seed) {
-  const int sStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
   Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)sStep * h / 2, (size_t)sStep * h / 2}, seed + 11);
   Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
                                seed + 29);
@@ -489,8 +489,8 @@ void f16_420P3(const char *fname, const std::string &key,
 void f16_422C2(const char *fname, const std::string &key,
                NppStatus (*f)(const Npp16u *, int, Npp16u *, int, NppiSize, const Npp32f[3][4], NppStreamContext),
                int w, int h, uint64_t seed) {
-  const int sStep = 3 * w + 6;
-  const int dStep = 2 * w + 8;
+  const int sStep = 2 * (3 * w) + 8;
+  const int dStep = 2 * (2 * w) + 8;
   DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
   src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
   DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
@@ -509,8 +509,8 @@ void f16_422C3P3(const char *fname, const std::string &key,
                  NppStatus (*f)(const Npp16u *, int, Npp16u **, int *, NppiSize, const Npp32f[3][4],
                                 NppStreamContext),
                  int w, int h, uint64_t seed) {
-  const int sStep = 3 * w + 6;
-  const int cStep = w / 2 + 6;
+  const int sStep = 2 * (3 * w) + 8;
+  const int cStep = w + 8;
   DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
   src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
   Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 29);
@@ -531,8 +531,8 @@ void f16_422P3(const char *fname, const std::string &key,
                NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
                               NppStreamContext),
                int w, int h, uint64_t seed) {
-  const int sStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
   Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
   Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)sStep * h / 2, (size_t)sStep * h / 2}, seed + 29);
   Npp32f m[3][4];
@@ -552,11 +552,11 @@ void f16_422P3(const char *fname, const std::string &key,
 // P3C3R / P3C4R 4:2:0 destination (no alpha argument).
 template <class FN>
 void f16_inv420P3C(const char *fname, const std::string &key, int w, int h, int dstPp, FN f, uint64_t seed) {
-  const int yStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
   Planes16 src = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
                                seed + 11);
-  const int dStep = dstPp * w + 8;
+  const int dStep = 2 * dstPp * w + 8;
   DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
   dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
   Npp32f m[3][4];
@@ -573,11 +573,11 @@ void f16_inv420P3C(const char *fname, const std::string &key, int w, int h, int 
 // P3AC4R 4:2:0 destination (alpha argument).
 template <class FN>
 void f16_inv420P3AC4(const char *fname, const std::string &key, int w, int h, Npp16u alpha, FN f, uint64_t seed) {
-  const int yStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
   Planes16 src = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
                                seed + 11);
-  const int dStep = 4 * w + 8;
+  const int dStep = 2 * 4 * w + 8;
   DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
   dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
   Npp32f m[3][4];
@@ -595,8 +595,8 @@ void f16_inv420P3(const char *fname, const std::string &key,
                   NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
                                  NppStreamContext),
                   int w, int h, uint64_t seed) {
-  const int yStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
   Planes16 src = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
                                seed + 11);
   Planes16 dst = make_planes16({(size_t)yStep * h / 2, (size_t)yStep * h / 2, (size_t)yStep * h / 2}, seed + 29);
@@ -618,8 +618,8 @@ void f16_inv422P3(const char *fname, const std::string &key,
                   NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
                                  NppStreamContext),
                   int w, int h, uint64_t seed) {
-  const int sStep = w + 4;
-  const int cStep = w / 2 + 6;
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
   Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
   Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)sStep * h / 2, (size_t)sStep * h / 2}, seed + 29);
   Npp32f m[3][4];
@@ -639,9 +639,9 @@ void f16_inv422P3(const char *fname, const std::string &key,
 // P3C3R 4:2:2 destination.
 template <class FN>
 void f16_inv422P3C(const char *fname, const std::string &key, FN f, int w, int h, uint64_t seed) {
-  const int sStep = w + 4;
-  const int cStep = w / 2 + 6;
-  const int dStep = 3 * w + 8;
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  const int dStep = 2 * (3 * w) + 8;
   Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
   DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
   dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
@@ -659,9 +659,9 @@ void f16_inv422P3C(const char *fname, const std::string &key, FN f, int w, int h
 // P3AC4R 4:2:2 destination (alpha argument).
 template <class FN>
 void f16_inv422P3AC4(const char *fname, const std::string &key, int w, int h, Npp16u alpha, FN f, uint64_t seed) {
-  const int sStep = w + 4;
-  const int cStep = w / 2 + 6;
-  const int dStep = 4 * w + 8;
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  const int dStep = 2 * 4 * w + 8;
   Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
   DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
   dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
@@ -680,8 +680,8 @@ void f16_inv422C2(const char *fname, const std::string &key,
                   NppStatus (*f)(const Npp16u *, int, Npp16u *, int, NppiSize, const Npp32f[3][4],
                                  NppStreamContext),
                   int w, int h, uint64_t seed) {
-  const int sStep = 2 * w + 8;
-  const int dStep = 3 * w + 8;
+  const int sStep = 2 * (2 * w) + 8;
+  const int dStep = 2 * (3 * w) + 8;
   DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
   src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
   DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
