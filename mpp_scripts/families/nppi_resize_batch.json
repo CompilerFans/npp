@@ -1,0 +1,13 @@
+{
+  "family": "nppiResizeBatch",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_resize_batch_generated.cpp",
+  "includes": ["nppi_resize_executor.h"],
+  "call": "nppi::resize::resizeBatch<{dtype}, {chan}, {is_ac4}>(oSmallestSrcSize, oSrcRectROI, oSmallestDstSize, oDstRectROI, eInterpolation, pBatchList, nBatchSize, nppStreamCtx.hStream)",
+  "call_variants": [
+    {
+      "contains": "pBatchSrc",
+      "call": "nppi::resize::resizeBatchAdvanced<{dtype}, {chan}, {is_ac4}>(nMaxWidth, nMaxHeight, pBatchSrc, pBatchDst, pBatchROI, nBatchSize, eInterpolation, nppStreamCtx.hStream)"
+    }
+  ]
+}

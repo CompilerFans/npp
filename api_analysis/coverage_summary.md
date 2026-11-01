@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 11423 (91.1%)
+- Real implementations: 11550 (92.1%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 84
-- Missing: 1030
-- Tested: 8267 (65.9%)
-- Real and tested: 7692
+- Missing: 903
+- Tested: 8276 (66.0%)
+- Real and tested: 7763
 
 ## By module
 
@@ -15,7 +15,7 @@
 | nppi_color_conversion.h | 1074 | 395 | 0 | 679 | 704 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
 | nppi_filtering_functions.h | 1896 | 1747 | 0 | 149 | 1002 |
-| nppi_geometry_transforms.h | 705 | 422 | 84 | 199 | 447 |
+| nppi_geometry_transforms.h | 705 | 549 | 84 | 72 | 456 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
 | nppi_statistics_functions.h | 3246 | 3243 | 0 | 3 | 1730 |
@@ -36,11 +36,8 @@
 | nppi_geometry_transforms.h | nppiWarpAffine | 60 | 30 |
 | nppi_color_conversion.h | nppiLUT_Linear | 58 | 29 |
 | nppi_color_conversion.h | nppiLUT | 56 | 28 |
-| nppi_geometry_transforms.h | nppiResizeSqrPixel | 56 | 28 |
 | nppi_geometry_transforms.h | nppiWarpAffineQuad | 48 | 24 |
 | nppi_color_conversion.h | nppiColorTwist32f | 40 | 20 |
-| nppi_geometry_transforms.h | nppiResizeBatch | 38 | 19 |
-| nppi_geometry_transforms.h | nppiResize | 30 | 15 |
 | nppi_color_conversion.h | nppiColorTwistBatch32f | 28 | 14 |
 | nppi_color_conversion.h | nppiLUTPalette | 26 | 13 |
 | nppi_color_conversion.h | nppiColorTwist | 24 | 12 |
@@ -72,3 +69,6 @@
 | nppi_color_conversion.h | nppiLUT_Trilinear | 6 | 3 |
 | nppi_color_conversion.h | nppiRGBToYUV422 | 6 | 6 |
 | nppi_color_conversion.h | nppiYCbCr411ToYCbCr420 | 6 | 3 |
+| nppi_color_conversion.h | nppiCFAToRGBA | 5 | 3 |
+| nppi_color_conversion.h | nppiBGRToCbYCr422_709HDTV | 4 | 2 |
+| nppi_color_conversion.h | nppiBGRToYCbCr420_709CSC | 4 | 2 |
