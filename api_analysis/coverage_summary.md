@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 10481 (83.6%)
+- Real implementations: 10482 (83.6%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 90
-- Missing: 1966
+- Missing: 1965
 - Tested: 8248 (65.8%)
-- Real and tested: 7187
+- Real and tested: 7188
 
 ## By module
 
@@ -18,7 +18,7 @@
 | nppi_geometry_transforms.h | 705 | 314 | 90 | 301 | 442 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 24 | 0 | 268 | 154 |
-| nppi_statistics_functions.h | 3246 | 3242 | 0 | 4 | 1730 |
+| nppi_statistics_functions.h | 3246 | 3243 | 0 | 3 | 1730 |
 | nppi_support_functions.h | 31 | 31 | 0 | 0 | 16 |
 | nppi_threshold_and_compare_operations.h | 418 | 418 | 0 | 0 | 226 |
 | npps_arithmetic_and_logical_operations.h | 740 | 740 | 0 | 0 | 632 |
