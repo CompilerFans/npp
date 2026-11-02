@@ -1,0 +1,18 @@
+{
+  "family": "nppiWarpAffine",
+  "module": "nppi_geometry_transforms.h",
+  "source": "src/nppi/nppi_geometry_transforms/nppi_warp_affine_generated.cpp",
+  "includes": ["nppi_warp_affine_executor.h"],
+  "families": ["nppiWarpAffine"],
+  "call_variants": [
+    {
+      "contains": "aSrc[",
+      "call": "nppi::geometry::warpAffinePlanar<{dtype}, {chan}>(aSrc, oSrcSize, nSrcStep, oSrcROI, aDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "pSrc[",
+      "call": "nppi::geometry::warpAffinePlanar<{dtype}, {chan}>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::geometry::warpAffine<{dtype}, {chan}, {is_ac4}>(pSrc, oSrcSize, nSrcStep, oSrcROI, pDst, nDstStep, oDstROI, aCoeffs, eInterpolation, nppStreamCtx.hStream)"
+}

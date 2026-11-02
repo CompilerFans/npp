@@ -30,6 +30,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -479,6 +480,112 @@ inline bool compare_values(ValueKind kind, const uint8_t *a, const uint8_t *b, s
   return true;
 }
 
+inline void dump_if_requested(const std::string &id, size_t output, ValueKind kind, const uint8_t *actual,
+                              const uint8_t *golden, size_t count) {
+  const char *want = std::getenv("NPP_DIFF_DUMP");
+  if (want == nullptr || (std::strcmp(want, "1") != 0 && id != want)) {
+    return;
+  }
+  const size_t esize = element_size(kind);
+  for (size_t i = 0; i < count; ++i) {
+    std::printf("DUMP %s out%zu element %zu:", id.c_str(), output, i);
+    for (size_t b = 0; b < esize; ++b) {
+      std::printf(" %02x", actual[i * esize + b]);
+    }
+    std::printf(" |");
+    for (size_t b = 0; b < esize; ++b) {
+      std::printf(" %02x", golden[i * esize + b]);
+    }
+    std::printf("\n");
+  }
+}
+
+// Optional debugging aid for verification runs: NPP_DIFF_TRACE=<case id> (or
+// "1" for every case) prints the first mismatching elements with decoded
+// values.  Never active unless the environment variable is set.
+inline void trace_mismatch(const std::string &id, size_t output, ValueKind kind, const uint8_t *actual,
+                           const uint8_t *golden, size_t count, double rtol, double atol) {
+  const char *want = std::getenv("NPP_DIFF_TRACE");
+  if (want == nullptr || (std::strcmp(want, "1") != 0 && id != want)) {
+    return;
+  }
+  const size_t esize = element_size(kind);
+  size_t printed = 0;
+  for (size_t i = 0; i < count && printed < 32; ++i) {
+    const uint8_t *pa = actual + i * esize;
+    const uint8_t *pb = golden + i * esize;
+    size_t dummy = 0;
+    if (compare_values(kind, pa, pb, 1, rtol, atol, &dummy)) {
+      continue;
+    }
+    double va = 0, vb = 0;
+    switch (kind) {
+    case ValueKind::Bytes:
+    case ValueKind::U8: va = *pa; vb = *pb; break;
+    case ValueKind::I8: va = *reinterpret_cast<const int8_t *>(pa); vb = *reinterpret_cast<const int8_t *>(pb); break;
+    case ValueKind::U16: std::memcpy(&va, pa, 2); std::memcpy(&vb, pb, 2); break;
+    case ValueKind::I16:
+    case ValueKind::I16Tol: {
+      int16_t a16, b16;
+      std::memcpy(&a16, pa, 2);
+      std::memcpy(&b16, pb, 2);
+      va = a16;
+      vb = b16;
+      break;
+    }
+    case ValueKind::U32: std::memcpy(&va, pa, 4); std::memcpy(&vb, pb, 4); break;
+    case ValueKind::I32:
+    case ValueKind::I32Tol: {
+      int32_t a32, b32;
+      std::memcpy(&a32, pa, 4);
+      std::memcpy(&b32, pb, 4);
+      va = a32;
+      vb = b32;
+      break;
+    }
+    case ValueKind::F16: {
+      __half ha, hb;
+      std::memcpy(&ha, pa, 2);
+      std::memcpy(&hb, pb, 2);
+      va = __half2float(ha);
+      vb = __half2float(hb);
+      break;
+    }
+    case ValueKind::F32:
+    case ValueKind::CF32: {
+      float fa, fb;
+      std::memcpy(&fa, pa, 4);
+      std::memcpy(&fb, pb, 4);
+      va = fa;
+      vb = fb;
+      break;
+    }
+    case ValueKind::F64:
+    case ValueKind::CF64: {
+      double da, db;
+      std::memcpy(&da, pa, 8);
+      std::memcpy(&db, pb, 8);
+      va = da;
+      vb = db;
+      break;
+    }
+    case ValueKind::U64:
+    case ValueKind::I64:
+    case ValueKind::I64Tol: {
+      double da, db;
+      std::memcpy(&da, pa, 8);
+      std::memcpy(&db, pb, 8);
+      va = da;
+      vb = db;
+      break;
+    }
+    }
+    std::printf("TRACE %s out%zu element %zu: actual %.9g golden %.9g (rtol %g atol %g)\n", id.c_str(), output, i,
+                va, vb, rtol, atol);
+    ++printed;
+  }
+}
+
 class Case {
 public:
   Case(std::string id, std::string function) : id_(std::move(id)), function_(std::move(function)) {}
@@ -648,9 +755,13 @@ private:
       size_t mismatch = 0;
       const bool ok = compare_values(outputs_[i].kind, outputs_[i].bytes.data(), golden.data() + offset,
                                      outputs_[i].count, outputs_[i].rtol, outputs_[i].atol, &mismatch);
+      dump_if_requested(id_, i, outputs_[i].kind, outputs_[i].bytes.data(), golden.data() + offset,
+                        outputs_[i].count);
       if (!ok) {
         std::ostringstream msg;
         msg << "value mismatch for case " << id_ << " output " << i << " at element " << mismatch;
+        trace_mismatch(id_, i, outputs_[i].kind, outputs_[i].bytes.data(), golden.data() + offset,
+                       outputs_[i].count, outputs_[i].rtol, outputs_[i].atol);
         EXPECT_TRUE(ok) << msg.str();
         if (std::getenv("NPP_DIFF_DEBUG") != nullptr) {
           const size_t es = element_size(outputs_[i].kind);

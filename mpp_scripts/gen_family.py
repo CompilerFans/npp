@@ -171,13 +171,13 @@ NPPI_CHANNEL_RE = re.compile(r"_C([1234])(?:R|IR)(?=_|$)")
 
 
 def nppi_channel_count(name: str) -> int:
-    """NPPI channel count from the layout suffix (C1/C2/C3/C4/AC4, R or IR)."""
+    """NPPI channel count from the layout suffix (C1..C4 / AC4 / P3 / P4)."""
     if NPPI_LAYOUT_RE.search(name):
         return 4
     # GradientVector C3C1R: 3 source channels, 1-channel outputs.
     if "_C3C1R" in name:
         return 3
-    m = NPPI_CHANNEL_RE.search(name)
+    m = re.search(r"_[PC]([1234])R", name)
     return int(m.group(1)) if m else 1
 
 
