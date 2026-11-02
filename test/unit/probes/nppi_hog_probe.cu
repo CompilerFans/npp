@@ -38,6 +38,7 @@ void run(const char *name, const std::vector<Npp8u> &img) {
          block, bins, winW, winH, W, H, descBytes, (int)sb, bufSize);
   if (sb != NPP_NO_ERROR) return;
   CK(cudaMalloc(&dSrc, (size_t)step * H));
+  CK(cudaMemset(dSrc, 0, (size_t)step * H));
   CK(cudaMalloc(&dOut, descBytes));
   CK(cudaMalloc(&dScratch, bufSize > 0 ? bufSize : 1));
   CK(cudaMemcpy2D(dSrc, step, img.data(), W, W, H, cudaMemcpyHostToDevice));
