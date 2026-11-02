@@ -2,7 +2,6 @@ module,group,total,real,stub,missing,missing_ctx,missing_nonctx,tested,remaining
 nppi_filtering_functions.h,nppiFilterGaussPyramidLayerUpBorder,12,0,0,12,6,6,6,12
 nppi_filtering_functions.h,nppiContoursImageMarchingSquaresInterpolation,2,0,0,2,2,0,0,2
 nppi_filtering_functions.h,nppiSegmentWatershed,6,4,0,2,1,1,5,2
-nppi_statistics_functions.h,nppiMSSSIM,4,2,0,2,1,1,2,2
 nppi_filtering_functions.h,nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R,1,0,0,1,0,1,0,1
 nppi_arithmetic_and_logical_operations.h,nppiAbs,44,44,0,0,0,0,44,0
 nppi_arithmetic_and_logical_operations.h,nppiAbsDiff,12,12,0,0,0,0,12,0
@@ -383,6 +382,7 @@ nppi_statistics_functions.h,nppiHistogramRange,64,64,0,0,0,0,48,0
 nppi_statistics_functions.h,nppiIntegral,4,4,0,0,0,0,2,0
 nppi_statistics_functions.h,nppiMSE,8,8,0,0,0,0,4,0
 nppi_statistics_functions.h,nppiMSEBatch,12,12,0,0,0,0,6,0
+nppi_statistics_functions.h,nppiMSSSIM,4,4,0,0,0,0,2,0
 nppi_statistics_functions.h,nppiMax,64,64,0,0,0,0,33,0
 nppi_statistics_functions.h,nppiMaxEvery,32,32,0,0,0,0,28,0
 nppi_statistics_functions.h,nppiMaxIndx,64,64,0,0,0,0,32,0
