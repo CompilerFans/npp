@@ -379,11 +379,24 @@ __device__ __forceinline__ bool inSourceRoi(float fx, float fy, NppiRect roi) {
          fy >= static_cast<float>(roi.y) && fy <= static_cast<float>(roi.y + roi.height - 1);
 }
 
+// nppiWarpAffineQuad gates on the double map with a measured asymmetric rule:
+// the x bounds and the y lower bound are exact, while the y upper bound
+// accepts an overshoot of up to ~4.4e-7 (5090 probe window: 4.023e-7 accepted,
+// 4.768e-7 rejected).  This rejects the roi_offset first row (2.99999994) and
+// the rect/inner right/bottom edges (14.00000036, 16.00000072), but keeps the
+// para quad's bottom edge (12.0000004).
+__device__ __forceinline__ bool inSourceRoiQuad(double fxd, double fyd, NppiRect roi) {
+  constexpr double kYUpperTolerance = 4.4e-7;
+  return fxd >= static_cast<double>(roi.x) && fxd <= static_cast<double>(roi.x + roi.width - 1) &&
+         fyd >= static_cast<double>(roi.y) &&
+         fyd <= static_cast<double>(roi.y + roi.height - 1) + kYUpperTolerance;
+}
+
 // ============================================================================
 // Resampling kernel
 // ============================================================================
 
-template <typename T, int Channels, bool AlphaPreserve, bool Planar>
+template <typename T, int Channels, bool AlphaPreserve, bool Planar, bool QuadGate>
 __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRect oSrcROI, int nSrcStep,
                                  int nDstStep, NppiRect oDstROI, double c00, double c01, double c02, double c10,
                                  double c11, double c12, int eInterpolation) {
@@ -408,10 +421,16 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
   // previous value for those pixels, it is not zero-filled).  Samples inside
   // the ROI whose bilinear/cubic neighbourhood crosses the image edge
   // edge-replicate the missing neighbours (see SrcAccessor).
-  // The gate compares the double-precision map: a quad coordinate of
-  // 2.99999994 is rejected while the same pixel reached through an exactly
-  // representable map (3.0) is written.
-  if (!inSourceRoi(fx, fy, oSrcROI)) {
+  if (QuadGate) {
+    // nppiWarpAffineQuad gates on the double evaluation of the float map.
+    const double fxd = __dadd_rn(__fma_rn(dx, static_cast<float>(c00), __dmul_rn(static_cast<float>(c01), dy)),
+                                 static_cast<float>(c02));
+    const double fyd = __dadd_rn(__fma_rn(dx, static_cast<float>(c10), __dmul_rn(static_cast<float>(c11), dy)),
+                                 static_cast<float>(c12));
+    if (!inSourceRoiQuad(fxd, fyd, oSrcROI)) {
+      return;
+    }
+  } else if (!inSourceRoi(fx, fy, oSrcROI)) {
     return;
   }
 
@@ -442,7 +461,7 @@ __global__ void warpAffineKernel(WarpPlanes<T> planes, NppiSize oSrcSize, NppiRe
   }
 }
 
-template <typename T, int Channels, bool AlphaPreserve, bool Planar>
+template <typename T, int Channels, bool AlphaPreserve, bool Planar, bool QuadGate = false>
 NppStatus launchWarp(const WarpPlanes<T> &planes, NppiSize oSrcSize, NppiRect oSrcROI, int nSrcStep, int nDstStep,
                      NppiRect oDstROI, const double aMap[2][3], int eInterpolation, cudaStream_t stream) {
   if (oDstROI.width <= 0 || oDstROI.height <= 0) {
@@ -456,7 +475,7 @@ NppStatus launchWarp(const WarpPlanes<T> &planes, NppiSize oSrcSize, NppiRect oS
   dim3 blockSize(16, 16);
   dim3 gridSize((oDstROI.width + blockSize.x - 1) / blockSize.x,
                 (oDstROI.height + blockSize.y - 1) / blockSize.y);
-  warpAffineKernel<T, Channels, AlphaPreserve, Planar>
+  warpAffineKernel<T, Channels, AlphaPreserve, Planar, QuadGate>
       <<<gridSize, blockSize, 0, stream>>>(planes, oSrcSize, roi, nSrcStep, nDstStep, oDstROI, aMap[0][0],
                                            aMap[0][1], aMap[0][2], aMap[1][0], aMap[1][1], aMap[1][2],
                                            eInterpolation);
@@ -628,8 +647,8 @@ NppStatus warpAffineQuad(const T *pSrc, NppiSize oSrcSize, int nSrcStep, NppiRec
   planes.src[0] = pSrc;
   planes.dst[0] = pDst;
   const NppStatus warpStatus =
-      launchWarp<T, Channels, AlphaPreserve, false>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI, map,
-                                                    eInterpolation, stream);
+      launchWarp<T, Channels, AlphaPreserve, false, true>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI, map,
+                                                          eInterpolation, stream);
   if (warpStatus != NPP_NO_ERROR) {
     return warpStatus;
   }
@@ -661,8 +680,9 @@ NppStatus warpAffineQuadPlanar(const T *const *pSrc, NppiSize oSrcSize, int nSrc
     planes.src[c] = pSrc[c];
     planes.dst[c] = pDst[c];
   }
-  const NppStatus warpStatus = launchWarp<T, Channels, false, true>(planes, oSrcSize, oSrcROI, nSrcStep, nDstStep, oDstROI,
-                                                                    map, eInterpolation, stream);
+  const NppStatus warpStatus = launchWarp<T, Channels, false, true, true>(planes, oSrcSize, oSrcROI, nSrcStep,
+                                                                          nDstStep, oDstROI, map, eInterpolation,
+                                                                          stream);
   if (warpStatus != NPP_NO_ERROR) {
     return warpStatus;
   }

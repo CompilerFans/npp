@@ -132,6 +132,9 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C1R_ForwardMatrixTranslation) {
   Npp8u *d_dst = nppiMalloc_8u_C1(dstWidth, dstHeight, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
+  // NPP leaves pixels outside the mapped source ROI untouched, so the
+  // "source position is not written" check below needs a zeroed destination.
+  ASSERT_EQ(cudaMemset(d_dst, 0, (size_t)dstStep * dstHeight), cudaSuccess);
 
   for (int y = 0; y < srcHeight; y++) {
     cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth, srcWidth * sizeof(Npp8u),
@@ -180,6 +183,9 @@ TEST_F(WarpAffineFunctionalTest, WarpAffine_8u_C3R_ForwardMatrixTranslation) {
   Npp8u *d_dst = nppiMalloc_8u_C3(dstWidth, dstHeight, &dstStep);
   ASSERT_NE(d_src, nullptr);
   ASSERT_NE(d_dst, nullptr);
+  // NPP leaves pixels outside the mapped source ROI untouched, so the
+  // "source position is not written" check below needs a zeroed destination.
+  ASSERT_EQ(cudaMemset(d_dst, 0, (size_t)dstStep * dstHeight), cudaSuccess);
 
   for (int y = 0; y < srcHeight; y++) {
     cudaMemcpy((char *)d_src + y * srcStep, srcData.data() + y * srcWidth * 3, srcWidth * 3 * sizeof(Npp8u),
