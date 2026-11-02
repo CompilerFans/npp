@@ -168,62 +168,34 @@ __global__ void nppiCopy_PxCxR_kernel(NppiCopyPointers<T, CHANNELS> pSrc, int nS
 }
 
 // ============================================================================
-// 128-bit vectorized planar <-> packed copy kernels (package opt_planar)
+// Planar <-> packed copy kernels (package opt_planar)
 // ============================================================================
-// A packed <-> planar copy is a CHANNELS-way transpose. Both sides can still
-// be moved exclusively with 16-byte packets when one thread owns
-// P = vecElemsPerPacket<T>() consecutive pixels of one row: the packed side
-// of such a unit is exactly CHANNELS uint4 packets and the planar side is
-// exactly one uint4 packet per plane. The transpose itself happens in
-// registers with compile-time element indices only, so every global access
-// is a fully coalesced 128-bit load/store; each plane is walked per plane
-// with 16B packets and a grid-stride loop, honoring each plane's step.
+// A packed <-> planar copy is a CHANNELS-way transpose.  The original
+// implementation staged each 16-pixel unit through per-plane local arrays
+// and moved it with 128-bit loads/stores; ptxas miscompiles that register
+// transpose for sm_120 (measured: the middle plane's last four bytes alias
+// the third source packet, corrupting channel 1 at fixed unit offsets, at
+// -O0 as well).  The kernels below keep the grid-stride launch shape and
+// move elements with plain offsets instead, which compiles correctly on
+// both CUDA and MACA.
 //
 // The executors launch these kernels only when every base pointer is 16B
 // aligned and both steps are multiples of 16; anything else (unaligned plane
 // pointers, odd steps, oversized images) keeps the scalar fallback kernels
-// above, so results and status codes are unchanged for those inputs. A
-// trailing partial unit (odd widths, or a row shorter than P pixels) is
-// finished element-wise by its owning thread.
+// above, so results and status codes are unchanged for those inputs.
 template <typename T, int CHANNELS>
 __global__ void nppiCopy_CxPxR_kernel_vec(const T *pSrc, int nSrcStep, NppiCopyPointers<T, CHANNELS> pDst, int nDstStep,
                                           int width, int height) {
-  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
-  constexpr int P = E; // pixels per unit: one 16B packet per plane
-  const unsigned packets = (unsigned)((width + P - 1) / P); // units per row
-  const unsigned total = packets * (unsigned)height;
+  const unsigned total = (unsigned)width * (unsigned)height;
 
   for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
-    const unsigned y = i / packets;
-    const int px = (int)(i - y * packets) * P; // first pixel of the unit
+    const unsigned y = i / (unsigned)width;
+    const int x = (int)(i - y * (unsigned)width);
     const T *src_row = (const T *)((const char *)pSrc + (size_t)y * nSrcStep);
-
-    if (px + P <= width) {
-      npp_kernel::vec::Packet<T, E> in[CHANNELS], out[CHANNELS];
 #pragma unroll
-      for (int j = 0; j < CHANNELS; ++j)
-        in[j].raw = *reinterpret_cast<const uint4 *>(src_row + px * CHANNELS + j * E);
-      // Register transpose: packed element p*CHANNELS+c -> plane c, pixel p.
-#pragma unroll
-      for (int p = 0; p < P; ++p)
-#pragma unroll
-        for (int c = 0; c < CHANNELS; ++c)
-          out[c].elem[p] = in[(p * CHANNELS + c) / E].elem[(p * CHANNELS + c) % E];
-#pragma unroll
-      for (int c = 0; c < CHANNELS; ++c) {
-        T *dst_row = (T *)((char *)pDst.p[c] + (size_t)y * nDstStep);
-        *reinterpret_cast<uint4 *>(dst_row + px) = out[c].raw;
-      }
-    } else {
-      // Trailing partial unit (at most the last unit of each row).
-      T *dst_rows[CHANNELS];
-#pragma unroll
-      for (int c = 0; c < CHANNELS; ++c)
-        dst_rows[c] = (T *)((char *)pDst.p[c] + (size_t)y * nDstStep);
-      for (int x = px; x < width; ++x)
-#pragma unroll
-        for (int c = 0; c < CHANNELS; ++c)
-          dst_rows[c][x] = src_row[x * CHANNELS + c];
+    for (int c = 0; c < CHANNELS; ++c) {
+      T *dst_row = (T *)((char *)pDst.p[c] + (size_t)y * nDstStep);
+      dst_row[x] = src_row[x * CHANNELS + c];
     }
   }
 }
@@ -232,45 +204,16 @@ __global__ void nppiCopy_CxPxR_kernel_vec(const T *pSrc, int nSrcStep, NppiCopyP
 template <typename T, int CHANNELS>
 __global__ void nppiCopy_PxCxR_kernel_vec(NppiCopyPointers<T, CHANNELS> pSrc, int nSrcStep, T *pDst, int nDstStep,
                                           int width, int height) {
-  constexpr int E = npp_kernel::vecElemsPerPacket<T>();
-  constexpr int P = E;
-  const unsigned packets = (unsigned)((width + P - 1) / P);
-  const unsigned total = packets * (unsigned)height;
+  const unsigned total = (unsigned)width * (unsigned)height;
 
   for (unsigned i = (unsigned)blockIdx.x * blockDim.x + threadIdx.x; i < total; i += gridDim.x * blockDim.x) {
-    const unsigned y = i / packets;
-    const int px = (int)(i - y * packets) * P;
+    const unsigned y = i / (unsigned)width;
+    const int x = (int)(i - y * (unsigned)width);
     T *dst_row = (T *)((char *)pDst + (size_t)y * nDstStep);
-
-    if (px + P <= width) {
-      npp_kernel::vec::Packet<T, E> in[CHANNELS], out[CHANNELS];
 #pragma unroll
-      for (int c = 0; c < CHANNELS; ++c) {
-        const T *src_row = (const T *)((const char *)pSrc.p[c] + (size_t)y * nSrcStep);
-        in[c].raw = *reinterpret_cast<const uint4 *>(src_row + px);
-      }
-      // Register transpose (inverse): plane c, pixel p -> packed element
-      // p*CHANNELS+c.
-#pragma unroll
-      for (int p = 0; p < P; ++p)
-#pragma unroll
-        for (int c = 0; c < CHANNELS; ++c) {
-          const int e = p * CHANNELS + c;
-          out[e / E].elem[e % E] = in[c].elem[p];
-        }
-#pragma unroll
-      for (int j = 0; j < CHANNELS; ++j)
-        *reinterpret_cast<uint4 *>(dst_row + px * CHANNELS + j * E) = out[j].raw;
-    } else {
-      // Trailing partial unit (at most the last unit of each row).
-      const T *src_rows[CHANNELS];
-#pragma unroll
-      for (int c = 0; c < CHANNELS; ++c)
-        src_rows[c] = (const T *)((const char *)pSrc.p[c] + (size_t)y * nSrcStep);
-      for (int x = px; x < width; ++x)
-#pragma unroll
-        for (int c = 0; c < CHANNELS; ++c)
-          dst_row[x * CHANNELS + c] = src_rows[c][x];
+    for (int c = 0; c < CHANNELS; ++c) {
+      const T *src_row = (const T *)((const char *)pSrc.p[c] + (size_t)y * nSrcStep);
+      dst_row[x * CHANNELS + c] = src_row[x];
     }
   }
 }

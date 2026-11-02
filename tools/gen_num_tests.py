@@ -43,6 +43,10 @@ DTYPE_CTYPE = {
 NPP_MISSING = {
     "nppiSub_32s_C4RSfs_Ctx",
     "nppiSub_32s_C4IRSfs_Ctx",
+    # NPP 13.4's 8u C4-in-place MulDeviceCScale entry point segfaults inside
+    # libnppial itself (reproduced with a standalone probe), so only the
+    # in-tree build exercises it.
+    "nppiMulDeviceCScale_8u_C4IR_Ctx",
 }
 
 SPECS: Dict[str, dict] = {
@@ -89,11 +93,31 @@ SPECS: Dict[str, dict] = {
     "nppiCopyWrapBorder": dict(kind="border", border="Wrap"),
     "nppiCopySubpix": dict(kind="subpix"),
     "nppiConvert": dict(kind="convert"),
+    "nppiScale": dict(kind="scale"),
     "nppiCompareEqualEps": dict(kind="compare_eps"),
     "nppiCompareEqualEpsC": dict(kind="compare_eps_const"),
+    "nppiAddDeviceC": dict(kind="devicec", op="AddC", sfs=True),
+    "nppiSubDeviceC": dict(kind="devicec", op="SubC", sfs=True),
+    "nppiMulDeviceC": dict(kind="devicec", op="MulC", sfs=True),
+    "nppiDivDeviceC": dict(kind="devicec", op="DivC", sfs=True),
+    "nppiAbsDiffDeviceC": dict(kind="devicec", op="AbsDiffC", sfs=False),
+    "nppiAddProduct": dict(kind="addproduct"),
+    "nppiAddSquare": dict(kind="addsquare"),
+    "nppiAddWeighted": dict(kind="addweighted"),
+    "nppiDiv_Round": dict(kind="divround"),
+    "nppiMulScale": dict(kind="mulscale"),
+    "nppiMulCScale": dict(kind="mulcscale"),
+    "nppiMulDeviceCScale": dict(kind="mulcscale"),
 }
 
 THR_TWO_INTERVALS = {"nppiThreshold_LTValGTVal"}
+
+
+def ctype_of(params, name):
+    for p in params:
+        if p.name == name:
+            return p.ctype
+    return None
 
 
 def thr_arg(p: G.Param, fn: str, two: bool) -> str:
@@ -271,10 +295,6 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
     ctype = DTYPE_CTYPE.get(dtype)
     if ctype is None:
         return None
-    # Complex-short types need a comparator that does not exist in the
-    # harness ValueKind set; they are added separately later.
-    if dtype in ("16sc", "32sc"):
-        return None
     params = G.parse_params(row["params"])
     if params is None:
         return None
@@ -297,6 +317,37 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
     # Threshold and compare families use dedicated drivers and a normalized
     # call shape rather than the elementwise generic path.
     if spec["kind"] == "copy":
+        mp = re.search(r"_(AC|C|P)(\d)(AC|C|P)(\d)I?R$", re.sub(r"_Ctx$", "", fn))
+        if mp is not None and ("P" in (mp.group(1), mp.group(3))):
+            src_tok, dst_tok = mp.group(1), mp.group(3)
+            ch = int(mp.group(2))
+            if ch != int(mp.group(4)):
+                return None
+            S = ctype_of(params, "pSrc") or ctype_of(params, "aSrc")
+            if S is None:
+                return None
+            to_planar = src_tok != "P"
+            # The lambda always takes (pack, packedStep, planes, planeStep),
+            # matching run_copy_planar's call.  The NPP signature orders the
+            # source pair before the destination pair, so the step names swap
+            # for packed->planar vs planar->packed.
+            amap = {"pSrc": "pack", "nSrcStep": "ps" if to_planar else "plstep",
+                    "aDst": "planes", "aSrc": "planes", "pDst": "pack",
+                    "nDstStep": "plstep" if to_planar else "ps",
+                    "oSizeROI": "r", "nppStreamCtx": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            if to_planar:
+                lam = (f"[](const {S} *pack, int ps, {S} *const *planes, int plstep, "
+                       f"NppiSize r, NppStreamContext c) "
+                       f"{{ (void)ps; (void)plstep; (void)r; (void)c; return {call}; }}")
+            else:
+                lam = (f"[]({S} *pack, int ps, const {S} *const *planes, int plstep, "
+                       f"NppiSize r, NppStreamContext c) "
+                       f"{{ (void)ps; (void)plstep; (void)r; (void)c; return {call}; }}")
+            prefix = f"num::run_copy_planar<{S}, {ch}, {str(to_planar).lower()}>"
+            test_name = re.sub(r"\W", "_", fn)
+            return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                    f"      {lam});\n}}\n")
         lay = copy_layout(fn)
         if lay is None:
             return None
@@ -332,7 +383,7 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
         masked = "MR" in fn
         vparam = None
         for p in params:
-            if p.name in ("nValue", "aValue", "aValues"):
+            if p.name in ("nValue", "aValue", "aValues", "oValue"):
                 vparam = p
         if vparam is None:
             return None
@@ -345,7 +396,7 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
             if n == "oSizeROI": return "r"
             if n == "nppStreamCtx": return "c"
             if n in ("aValue", "aValues"): return "vals"
-            if n == "nValue": return "scalar"
+            if n in ("nValue", "oValue"): return "scalar"
             if n == "pMask": return "mask"
             if n == "nMaskStep": return "ms"
             raise KeyError(n)
@@ -486,6 +537,29 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
         return (f"{guard}TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
                 f"      {lam},\n      {str(sfs).lower()}, {str(round_mode).lower()}, "
                 f"{str(fin_away).lower()});\n}}\n{unguard}")
+
+    if spec["kind"] == "scale":
+        sct = ctype_of(params, "pSrc")
+        dct = ctype_of(params, "pDst")
+        if sct is None or dct is None:
+            return None
+        A = 3 if "_AC4" in fn else C
+        has_hint = any(p.name == "nHint" for p in params)
+        minmax = any(p.name == "nMin" for p in params)
+        amap = {"pSrc": "a", "nSrcStep": "sa", "pDst": "d", "nDstStep": "ds",
+                "oSizeROI": "r", "nHint": "static_cast<NppHintAlgorithm>(hint)",
+                "hint": "static_cast<NppHintAlgorithm>(hint)", "nMin": "mn",
+                "nMax": "mx", "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {sct} *a, int sa, {dct} *d, int ds, NppiSize r, "
+               f"float mn, float mx, int hint, NppStreamContext c) "
+               f"{{ (void)sa; (void)ds; (void)r; (void)mn; (void)mx; (void)hint; (void)c; "
+               f"return {call}; }}")
+        prefix = (f"num::run_scale<{sct}, {dct}, {C}, {A}, {str(minmax).lower()}, "
+                  f"{str(has_hint).lower()}>")
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
 
     if spec["kind"] == "border":
         lay = layout(fn)
@@ -632,6 +706,168 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
                 f"NPP_CMP_GREATER}}{extra});\n"
                 f"}}\n")
 
+    if spec["kind"] == "devicec":
+        sct = (ctype_of(params, "pSrc1") or ctype_of(params, "pSrc")
+               or ctype_of(params, "pSrcDst"))
+        dct = ctype_of(params, "pDst") or ctype_of(params, "pSrcDst")
+        cct = ctype_of(params, "pConstant") or ctype_of(params, "pConstants")
+        if sct is None or dct is None or cct is None:
+            return None
+        amap = {"pSrc1": "a", "pSrc": "a", "nSrc1Step": "sa", "nSrcStep": "sa",
+                "pConstant": "cv", "pConstants": "cv", "pDst": "d", "pSrcDst": "d",
+                "nDstStep": "sd", "nSrcDstStep": "sd", "oSizeROI": "r",
+                "nScaleFactor": "p", "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        rtol, atol = tol_for(dtype)
+        # 32s Sfs division rounding is not reproducible across NPP runs; keep
+        # the 32s division variants at sf == 0 like the other Div families.
+        is_div32s = spec.get("op") == "DivC" and sct == "Npp32s"
+        run_params = ("{0, 1, 2}" if spec.get("sfs") and sfs and not is_div32s
+                      else "{0}")
+        if inplace:
+            lam = (f"[]({cct} *cv, {sct} *d, int sd, NppiSize r, int p, NppStreamContext c) "
+                   f"{{ (void)sd; (void)r; (void)p; (void)c; return {call}; }}")
+            prefix = f"num::run_devicec_inplace<{sct}, {cct}, {C}, {A}, num::Op::{spec['op']}>"
+        else:
+            lam = (f"[](const {sct} *a, int sa, {cct} *cv, {sct} *d, int sd, NppiSize r, "
+                   f"int p, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sd; (void)r; (void)p; (void)c; return {call}; }}")
+            prefix = f"num::run_devicec<{sct}, {cct}, {C}, {A}, num::Op::{spec['op']}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam},\n      {run_params}, {rtol!r}, {atol!r});\n}}\n")
+
+    if spec["kind"] in ("addproduct", "addsquare", "addweighted"):
+        masked = "M" in fn.split("_C1")[-1][:4] or any(p.name == "pMask" for p in params)
+        s1 = ctype_of(params, "pSrc1") or ctype_of(params, "pSrc")
+        s2 = ctype_of(params, "pSrc2")
+        dct = ctype_of(params, "pSrcDst")
+        if s1 is None or dct is None or (spec["kind"] == "addproduct" and s2 is None):
+            return None
+        amap = {"pSrc1": "a", "pSrc": "a", "nSrc1Step": "sa", "nSrcStep": "sa",
+                "pSrc2": "b", "nSrc2Step": "sb", "pMask": "m", "nMaskStep": "ms",
+                "pSrcDst": "d", "nSrcDstStep": "sd", "oSizeROI": "r",
+                "nAlpha": "alpha", "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        rtol, atol = (2e-3, 2e-3) if dct == "Npp16f" else (1e-5, 1e-4)
+        if spec["kind"] == "addproduct":
+            if masked:
+                lam = (f"[](const {s1} *a, int sa, const {s2} *b, int sb, const Npp8u *m, int ms, "
+                       f"{dct} *d, int sd, NppiSize r, NppStreamContext c) "
+                       f"{{ (void)sa; (void)sb; (void)ms; (void)sd; (void)r; (void)c; "
+                       f"return {call}; }}")
+            else:
+                lam = (f"[](const {s1} *a, int sa, const {s2} *b, int sb, {dct} *d, int sd, "
+                       f"NppiSize r, NppStreamContext c) "
+                       f"{{ (void)sa; (void)sb; (void)sd; (void)r; (void)c; return {call}; }}")
+            prefix = (f"num::run_add_product<{s1}, {s2}, {dct}, {C}, {A}, "
+                      f"{str(masked).lower()}>")
+        elif spec["kind"] == "addsquare":
+            if masked:
+                lam = (f"[](const {s1} *a, int sa, const Npp8u *m, int ms, {dct} *d, int sd, "
+                       f"NppiSize r, NppStreamContext c) "
+                       f"{{ (void)sa; (void)ms; (void)sd; (void)r; (void)c; return {call}; }}")
+            else:
+                lam = (f"[](const {s1} *a, int sa, {dct} *d, int sd, NppiSize r, "
+                       f"NppStreamContext c) {{ (void)sa; (void)sd; (void)r; (void)c; "
+                       f"return {call}; }}")
+            prefix = f"num::run_add_square<{s1}, {dct}, {C}, {A}, {str(masked).lower()}>"
+        else:
+            if masked:
+                lam = (f"[](const {s1} *a, int sa, const Npp8u *m, int ms, {dct} *d, int sd, "
+                       f"NppiSize r, float alpha, NppStreamContext c) "
+                       f"{{ (void)sa; (void)ms; (void)sd; (void)r; (void)alpha; (void)c; "
+                       f"return {call}; }}")
+            else:
+                lam = (f"[](const {s1} *a, int sa, {dct} *d, int sd, NppiSize r, "
+                       f"float alpha, NppStreamContext c) "
+                       f"{{ (void)sa; (void)sd; (void)r; (void)alpha; (void)c; return {call}; }}")
+            prefix = f"num::run_add_weighted<{s1}, {dct}, {C}, {A}, {str(masked).lower()}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam},\n      {{0}}, {rtol!r}, {atol!r});\n}}\n")
+
+    if spec["kind"] == "divround":
+        sct = ctype_of(params, "pSrc1") or ctype_of(params, "pSrc")
+        dct = ctype_of(params, "pDst") or ctype_of(params, "pSrcDst")
+        if sct is None or dct is None:
+            return None
+        amap = {"pSrc1": "a", "pSrc": "a", "nSrc1Step": "sa", "nSrcStep": "sa",
+                "pSrc2": "b", "nSrc2Step": "sb", "pDst": "d", "pSrcDst": "d",
+                "nDstStep": "sd", "nSrcDstStep": "sd", "oSizeROI": "r",
+                "rndMode": "static_cast<NppRoundMode>(mode)",
+                "nRndMode": "static_cast<NppRoundMode>(mode)",
+                "eRoundMode": "static_cast<NppRoundMode>(mode)",
+                "nScaleFactor": "param", "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        if inplace:
+            lam = (f"[](const {sct} *a, int sa, {sct} *d, int sd, NppiSize r, int mode, "
+                   f"int param, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sd; (void)r; (void)mode; (void)param; (void)c; "
+                   f"return {call}; }}")
+            prefix = f"num::run_div_round2d<{sct}, {C}, {A}, true>"
+        else:
+            lam = (f"[](const {sct} *a, int sa, const {sct} *b, int sb, {sct} *d, int sd, "
+                   f"NppiSize r, int mode, int param, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sb; (void)sd; (void)r; (void)mode; (void)param; "
+                   f"(void)c; return {call}; }}")
+            prefix = f"num::run_div_round2d<{sct}, {C}, {A}, false>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if spec["kind"] == "mulscale":
+        sct = ctype_of(params, "pSrc1") or ctype_of(params, "pSrc")
+        dct = ctype_of(params, "pDst") or ctype_of(params, "pSrcDst")
+        if sct is None or dct is None:
+            return None
+        amap = {"pSrc1": "a", "pSrc": "a", "nSrc1Step": "sa", "nSrcStep": "sa",
+                "pSrc2": "b", "nSrc2Step": "sb", "pDst": "d", "pSrcDst": "d",
+                "nDstStep": "sd", "nSrcDstStep": "sd", "oSizeROI": "r",
+                "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        if inplace:
+            lam = (f"[](const {sct} *a, int sa, {sct} *d, int sd, NppiSize r, "
+                   f"NppStreamContext c) {{ (void)sa; (void)sd; (void)r; (void)c; "
+                   f"return {call}; }}")
+            prefix = f"num::run_mul_scale<{sct}, {C}, {A}, true>"
+        else:
+            lam = (f"[](const {sct} *a, int sa, const {sct} *b, int sb, {sct} *d, int sd, "
+                   f"NppiSize r, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sb; (void)sd; (void)r; (void)c; return {call}; }}")
+            prefix = f"num::run_mul_scale<{sct}, {C}, {A}, false>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if spec["kind"] == "mulcscale":
+        sct = (ctype_of(params, "pSrc1") or ctype_of(params, "pSrc")
+               or ctype_of(params, "pSrcDst"))
+        dct = ctype_of(params, "pDst") or ctype_of(params, "pSrcDst")
+        if sct is None or dct is None:
+            return None
+        devicec = "DeviceC" in fn
+        amap = {"pSrc1": "a", "pSrc": "a", "nSrc1Step": "sa", "nSrcStep": "sa",
+                "nConstant": "cv[0]", "aConstants": "cv", "pConstant": "cv",
+                "pConstants": "cv",
+                "pDst": "d", "pSrcDst": "d", "nDstStep": "sd", "nSrcDstStep": "sd",
+                "oSizeROI": "r", "nppStreamCtx": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        if inplace:
+            lam = (f"[](const {sct} *cv, {sct} *d, int sd, NppiSize r, NppStreamContext c) "
+                   f"{{ (void)sd; (void)r; (void)c; return {call}; }}")
+            prefix = (f"num::run_mul_cscale<{sct}, {C}, {A}, true, "
+                      f"{str(devicec).lower()}>")
+        else:
+            lam = (f"[](const {sct} *a, int sa, const {sct} *cv, {sct} *d, int sd, "
+                   f"NppiSize r, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sd; (void)r; (void)c; return {call}; }}")
+            prefix = (f"num::run_mul_cscale<{sct}, {C}, {A}, false, "
+                      f"{str(devicec).lower()}>")
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
     args: List[str] = []
     for p in params:
         e = arg_expr(p, {})
@@ -727,6 +963,8 @@ def main() -> int:
         if text is None:
             skipped.append(dict(function=row["function_name"], family=fam, reason="unsupported signature/type"))
             continue
+        if row["function_name"] in NPP_MISSING and "#ifndef USE_NVIDIA_NPP_TESTS" not in text:
+            text = "#ifndef USE_NVIDIA_NPP_TESTS\n" + text + "#endif\n"
         out.append(text)
 
     header = (

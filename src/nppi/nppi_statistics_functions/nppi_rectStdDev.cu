@@ -15,42 +15,21 @@ __global__ void rectStdDevKernel_32s32f_C1R(const Npp32s *pSrc, int srcStep, con
     return;
   }
 
-  // Calculate the window boundaries for this pixel in the source image
-  // The window starts at (x + rect.x, y + rect.y) and spans rect.width × rect.height
-  int x1 = x + rect.x;
-  int y1 = y + rect.y;
-  int x2 = x1 + rect.width - 1;
-  int y2 = y1 + rect.height - 1;
-
-  // Compute sum and sum of squares within the window
-  double sum = 0.0;
-  double sumSq = 0.0;
-  int count = 0;
-
-  for (int wy = y1; wy <= y2; wy++) {
-    const Npp32s *srcRow = (const Npp32s *)((const Npp8u *)pSrc + wy * srcStep);
-    const Npp64f *sqrRow = (const Npp64f *)((const Npp8u *)pSqr + wy * sqrStep);
-
-    for (int wx = x1; wx <= x2; wx++) {
-      double val = static_cast<double>(srcRow[wx]);
-      sum += val;
-      sumSq += sqrRow[wx];
-      count++;
-    }
-  }
-
-  // Compute standard deviation: sqrt(E[X^2] - E[X]^2)
-  if (count > 0) {
-    double mean = sum / count;
-    double meanSq = sumSq / count;
-    double variance = meanSq - mean * mean;
-
-    // Ensure variance is non-negative (handle numerical errors)
-    variance = max(0.0, variance);
-
-    Npp32f *dstRow = (Npp32f *)((Npp8u *)pDst + y * dstStep);
-    dstRow[x] = static_cast<Npp32f>(sqrt(variance));
-  }
+  // The inputs are integral images: the window sum is the usual integral
+  // difference, exactly as in nppiRectStdDev_32f_C1R.
+  const int x1 = x + rect.x, y1 = y + rect.y;
+  const int x2 = x1 + rect.width, y2 = y1 + rect.height;
+  const Npp32s *srcRow0 = (const Npp32s *)((const Npp8u *)pSrc + (size_t)y1 * srcStep);
+  const Npp32s *srcRow1 = (const Npp32s *)((const Npp8u *)pSrc + (size_t)y2 * srcStep);
+  const Npp64f *sqrRow0 = (const Npp64f *)((const Npp8u *)pSqr + (size_t)y1 * sqrStep);
+  const Npp64f *sqrRow1 = (const Npp64f *)((const Npp8u *)pSqr + (size_t)y2 * sqrStep);
+  const double sum = (double)srcRow1[x2] - (double)srcRow0[x2] - (double)srcRow1[x1] + (double)srcRow0[x1];
+  const double sumSq = sqrRow1[x2] - sqrRow0[x2] - sqrRow1[x1] + sqrRow0[x1];
+  const double count = (double)rect.width * rect.height;
+  double variance = (count * sumSq - sum * sum) / (count * count);
+  variance = variance > 0.0 ? variance : 0.0;
+  Npp32f *dstRow = (Npp32f *)((Npp8u *)pDst + y * dstStep);
+  dstRow[x] = static_cast<Npp32f>(sqrt(variance));
 }
 
 extern "C" NppStatus nppiRectStdDev_32s32f_C1R_Ctx_impl(const Npp32s *pSrc, int nSrcStep, const Npp64f *pSqr,

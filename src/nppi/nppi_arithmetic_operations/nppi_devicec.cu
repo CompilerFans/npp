@@ -44,8 +44,7 @@ __global__ void deviceConstKernelAC4(const T *pSrc, int nSrcStep, T *pDst, int n
       OpType op(pConstants[c]);
       dstRow[idx + c] = op(srcRow[idx + c], T(0), scaleFactor);
     }
-    // Preserve alpha channel (copy from source)
-    dstRow[idx + 3] = srcRow[idx + 3];
+    // NPP leaves the destination alpha channel untouched.
   }
 }
 

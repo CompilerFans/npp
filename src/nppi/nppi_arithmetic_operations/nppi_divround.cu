@@ -12,6 +12,7 @@ using namespace nppi::arithmetic;
 // Type aliases for cleaner code
 // ============================================================================
 template <typename T, int C> using DivRound = DivRoundOpAPI<T, C>;
+template <typename T> using DivRoundAC4 = DivRoundOpAC4API<T>;
 
 // ============================================================================
 // 8-bit unsigned (8u) - with scale factor and rounding mode
@@ -77,7 +78,7 @@ NppStatus nppiDiv_Round_8u_C3IRSfs(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcD
 NppStatus nppiDiv_Round_8u_AC4RSfs_Ctx(const Npp8u *pSrc1, int nSrc1Step, const Npp8u *pSrc2, int nSrc2Step,
                                        Npp8u *pDst, int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode,
                                        int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivRound<Npp8u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+  return DivRoundAC4<Npp8u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
                                      nScaleFactor, nppStreamCtx);
 }
 
@@ -91,7 +92,7 @@ NppStatus nppiDiv_Round_8u_AC4RSfs(const Npp8u *pSrc1, int nSrc1Step, const Npp8
 NppStatus nppiDiv_Round_8u_AC4IRSfs_Ctx(const Npp8u *pSrc, int nSrcStep, Npp8u *pSrcDst, int nSrcDstStep,
                                         NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
                                         NppStreamContext nppStreamCtx) {
-  return DivRound<Npp8u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
+  return DivRoundAC4<Npp8u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
                                             nppStreamCtx);
 }
 
@@ -193,7 +194,7 @@ NppStatus nppiDiv_Round_16u_C3IRSfs(const Npp16u *pSrc, int nSrcStep, Npp16u *pS
 NppStatus nppiDiv_Round_16u_AC4RSfs_Ctx(const Npp16u *pSrc1, int nSrc1Step, const Npp16u *pSrc2, int nSrc2Step,
                                         Npp16u *pDst, int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode,
                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivRound<Npp16u, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+  return DivRoundAC4<Npp16u>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
                                       nScaleFactor, nppStreamCtx);
 }
 
@@ -208,7 +209,7 @@ NppStatus nppiDiv_Round_16u_AC4RSfs(const Npp16u *pSrc1, int nSrc1Step, const Np
 NppStatus nppiDiv_Round_16u_AC4IRSfs_Ctx(const Npp16u *pSrc, int nSrcStep, Npp16u *pSrcDst, int nSrcDstStep,
                                          NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
                                          NppStreamContext nppStreamCtx) {
-  return DivRound<Npp16u, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
+  return DivRoundAC4<Npp16u>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
                                              nppStreamCtx);
 }
 
@@ -310,7 +311,7 @@ NppStatus nppiDiv_Round_16s_C3IRSfs(const Npp16s *pSrc, int nSrcStep, Npp16s *pS
 NppStatus nppiDiv_Round_16s_AC4RSfs_Ctx(const Npp16s *pSrc1, int nSrc1Step, const Npp16s *pSrc2, int nSrc2Step,
                                         Npp16s *pDst, int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode,
                                         int nScaleFactor, NppStreamContext nppStreamCtx) {
-  return DivRound<Npp16s, 4>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
+  return DivRoundAC4<Npp16s>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, rndMode,
                                       nScaleFactor, nppStreamCtx);
 }
 
@@ -325,7 +326,7 @@ NppStatus nppiDiv_Round_16s_AC4RSfs(const Npp16s *pSrc1, int nSrc1Step, const Np
 NppStatus nppiDiv_Round_16s_AC4IRSfs_Ctx(const Npp16s *pSrc, int nSrcStep, Npp16s *pSrcDst, int nSrcDstStep,
                                          NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
                                          NppStreamContext nppStreamCtx) {
-  return DivRound<Npp16s, 4>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
+  return DivRoundAC4<Npp16s>::executeInplace(pSrc, nSrcStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode, nScaleFactor,
                                              nppStreamCtx);
 }
 

@@ -64,14 +64,14 @@ def out_ctype(params):
 
 
 def suffix(fn: str):
-    m = re.search(r"_(AC4|C1|C3|C4)([A-Z]*)_Ctx$", fn)
+    m = re.search(r"_(AC4|C1|C2|C3|C4)([A-Za-z]*)_Ctx$", fn)
     if not m:
         return None
     return m.group(1), m.group(2)
 
 
 def chan_count(tok: str) -> int:
-    return {"C1": 1, "C3": 3, "C4": 4, "AC4": 4}[tok]
+    return {"C1": 1, "C2": 2, "C3": 3, "C4": 4, "AC4": 4}[tok]
 
 
 def skip_reason(params, suf, family: str) -> Optional[str]:
@@ -100,17 +100,6 @@ def emit(row: dict) -> Optional[str]:
     if params is None:
         return None
     name = re.sub(r"\W", "_", fn)
-    suf = suffix(fn)
-    reason = skip_reason(params, suf, row["family"])
-    if reason:
-        return None
-    tok, rest = suf
-    C = chan_count(tok)
-    A = C - 1 if tok == "AC4" else C
-    S = ctype(params, "pSrc") or ctype(params, "pSrc1")
-    if S is None:
-        return None
-
     # --- GetBufferHostSize smoke test ------------------------------------
     if "GetBufferHostSize" in fn:
         lam = (
@@ -126,6 +115,361 @@ def emit(row: dict) -> Optional[str]:
             "      }")
         return (f"TEST(NumGenNppiStats, {name}) {{\n"
                 f"  num::run_nppi_buffer_size(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+    # --- Histogram GetBufferSize smoke test -----------------------------
+    if "Histogram" in fn and "GetBufferSize" in fn:
+        m = re.search(r"_(AC4|C1|C2|C3|C4)M?([A-Za-z]*)_Ctx$", fn)
+        per_ch = bool(m and m.group(1) in ("AC4", "C3", "C4"))
+        nl_arg = "nl" if per_ch else "nl[0]"
+        lam = (
+            "[](NppiSize roi, int *nl, int *sz, NppStreamContext c) {\n"
+            "#ifdef USE_NVIDIA_NPP_TESTS\n"
+            "        size_t s = 0;\n"
+            f"        NppStatus st = {fn}(roi, {nl_arg}, &s, c);\n"
+            "        if (st == NPP_NO_ERROR) *sz = (int)(s > 2147483647u ? 2147483647u : s);\n"
+            "        return st;\n"
+            "#else\n"
+            f"        return {fn}(roi, {nl_arg}, sz, c);\n"
+            "#endif\n"
+            "      }")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_histogram_buffer_size(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+    suf = suffix(fn)
+    if suf is not None:
+        tok, rest = suf
+        C = chan_count(tok)
+        A = C - 1 if tok == "AC4" else C
+    else:
+        tok = rest = None
+    # --- complex error metrics -------------------------------------------
+    if any(p.ctype in COMPLEX for p in params):
+        kinds = {"nppiMaximumError": "MaxAbsErr", "nppiAverageError": "AvgAbsErr",
+                 "nppiMaximumRelativeError": "MaxRelErr",
+                 "nppiAverageRelativeError": "AvgRelErr"}
+        kind = None
+        for k, v in kinds.items():
+            if row["family"] == k:
+                kind = v
+        if kind is not None:
+            S = ctype(params, "pSrc1")
+            if S is None or suf is None:
+                return None
+            A = C - 1 if tok == "AC4" else C
+            amap = {"pSrc1": "a", "nSrc1Step": "sa", "pSrc2": "b", "nSrc2Step": "sb",
+                    "oSizeROI": "r", "pError": "o", "pDeviceBuffer": "buf",
+                    "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            lam = (f"[](const {S} *a, int sa, const {S} *b, int sb, NppiSize r, Npp64f *o, "
+                   f"Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sb; (void)r; (void)buf; (void)c; return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_error_complex<{S}, {C}, {A}, "
+                    f"num::NppiStatKind::{kind}>(\n      \"{fn}\",\n      {lam});\n}}\n")
+
+    # --- CrossCorr / SqrDistance -----------------------------------------
+    if "CrossCorr" in fn or "SqrDistance" in fn:
+        if fn.startswith("nppiCrossCorrFull") or fn.startswith("nppiSqrDistanceFull"):
+            mode = "Full"
+        elif fn.startswith("nppiCrossCorrValid") or fn.startswith("nppiSqrDistanceValid"):
+            mode = "Valid"
+        elif fn.startswith("nppiCrossCorrSame") or fn.startswith("nppiSqrDistanceSame"):
+            mode = "Same"
+        else:
+            return None
+        if "NormLevelAdvanced" in fn:
+            op = "NormLevelAdvanced"
+        elif "NormLevel" in fn:
+            op = "NormLevel"
+        elif "SqrDistance" in fn:
+            op = "SqrDistance"
+        elif "Norm" in fn:
+            op = "Norm"
+        else:
+            op = "Plain"
+        S = ctype(params, "pSrc")
+        D = ctype(params, "pDst")
+        if S is None or D is None or suf is None:
+            return None
+        A = C - 1 if tok == "AC4" else C
+        has_sf = any(p.name == "nScaleFactor" for p in params)
+        has_buf = any(p.name == "pDeviceBuffer" for p in params)
+        advanced = any(p.name == "pAdvancedScratchBuffer" for p in params)
+        amap = {"pSrc": "a", "nSrcStep": "sa", "oSrcRoiSize": "sr", "pTpl": "t",
+                "nTplStep": "ts", "oTplRoiSize": "tr", "pDst": "d", "nDstStep": "ds",
+                "nScaleFactor": "sf", "pDeviceBuffer": "buf",
+                "pAdvancedScratchBuffer": "abuf", "nppStreamContext": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {S} *a, int sa, NppiSize sr, const {S} *t, int ts, NppiSize tr, "
+               f"{D} *d, int ds, int sf, Npp8u *buf, Npp8u *abuf, NppStreamContext c) "
+               f"{{ (void)sa; (void)sr; (void)ts; (void)tr; (void)ds; (void)sf; "
+               f"(void)buf; (void)abuf; (void)c; return {call}; }}")
+        prefix = (f"num::run_nppi_crosscorr<{S}, {D}, {C}, {A}, num::XCorrMode::{mode}, "
+                  f"num::XCorrOp::{op}, {str(has_sf).lower()}, {str(has_buf).lower()}, "
+                  f"{str(advanced).lower()}>")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if rest is not None and "M" in rest:
+        fam = row["family"]
+        use_coi = rest.startswith("C")
+        if fam == "nppiMean_StdDev":
+            S = ctype(params, "pSrc")
+            if S is None:
+                return None
+            amap = {"pSrc": "a", "nSrcStep": "sa", "pMask": "mk", "nMaskStep": "ms",
+                    "oSizeROI": "r", "nCOI": "coi", "pDeviceBuffer": "buf",
+                    "pMean": "mo", "pStdDev": "so", "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            coi_p = ", int coi" if use_coi else ""
+            coi_v = "(void)coi; " if use_coi else ""
+            lam = (f"[](const {S} *a, int sa, const Npp8u *mk, int ms, NppiSize r{coi_p}, "
+                   f"Npp64f *mo, Npp64f *so, Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)ms; (void)r; {coi_v}(void)buf; (void)c; "
+                   f"return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_meanstd_masked<{S}, {C}, {str(use_coi).lower()}>(\n"
+                    f"      \"{fn}\",\n      {lam});\n}}\n")
+        if fam == "nppiMinMaxIndx":
+            S = ctype(params, "pSrc")
+            if S is None:
+                return None
+            amap = {"pSrc": "a", "nSrcStep": "sa", "pMask": "mk", "nMaskStep": "ms",
+                    "oSizeROI": "r", "nCOI": "coi", "pMinValue": "mn", "pMaxValue": "mx",
+                    "pMinIndex": "pi", "pMaxIndex": "qi", "pDeviceBuffer": "buf",
+                    "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            coi_p = ", int coi" if use_coi else ""
+            coi_v = "(void)coi; " if use_coi else ""
+            lam = (f"[](const {S} *a, int sa, const Npp8u *mk, int ms, NppiSize r{coi_p}, "
+                   f"{S} *mn, {S} *mx, NppiPoint *pi, NppiPoint *qi, Npp8u *buf, "
+                   f"NppStreamContext c) {{ (void)sa; (void)ms; (void)r; {coi_v}"
+                   f"(void)buf; (void)c; return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_minmaxindx_masked<{S}, {C}, {str(use_coi).lower()}>(\n"
+                    f"      \"{fn}\",\n      {lam});\n}}\n")
+        kinds1 = {"nppiMean": "Mean", "nppiNorm_L1": "NormL1",
+                  "nppiNorm_L2": "NormL2", "nppiNorm_Inf": "NormInf"}
+        kinds2 = {"nppiNormDiff_L1": "NormDiffL1", "nppiNormDiff_L2": "NormDiffL2",
+                  "nppiNormDiff_Inf": "NormDiffInf", "nppiNormRel_L1": "NormRelL1",
+                  "nppiNormRel_L2": "NormRelL2", "nppiNormRel_Inf": "NormRelInf"}
+        if fam in kinds1:
+            kind = kinds1[fam]
+            S = ctype(params, "pSrc")
+            out = out_ctype(params)
+            if S is None or out is None:
+                return None
+            amap = {"pSrc": "a", "nSrcStep": "sa", "pMask": "mk", "nMaskStep": "ms",
+                    "oSizeROI": "r", "nCOI": "coi", "pDeviceBuffer": "buf",
+                    "pMean": "o", "aMean": "o", "pNorm": "o", "aNorm": "o",
+                    "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            coi_p = ", int coi" if use_coi else ""
+            coi_v = "(void)coi; " if use_coi else ""
+            lam = (f"[](const {S} *a, int sa, const Npp8u *mk, int ms, NppiSize r{coi_p}, "
+                   f"{out} *o, Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)ms; (void)r; {coi_v}(void)buf; (void)c; "
+                   f"return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_reduce1_masked<{S}, {C}, {A}, "
+                    f"num::NppiStatKind::{kind}, {out}, {str(use_coi).lower()}>(\n"
+                    f"      \"{fn}\",\n      {lam});\n}}\n")
+        if fam in kinds2:
+            S = ctype(params, "pSrc1")
+            if S is None:
+                return None
+            kind = kinds2[fam]
+            amap = {"pSrc1": "a", "nSrc1Step": "sa", "pSrc2": "b", "nSrc2Step": "sb",
+                    "pMask": "mk", "nMaskStep": "ms", "oSizeROI": "r", "nCOI": "coi",
+                    "pDeviceBuffer": "buf", "pNormDiff": "o", "aNormDiff": "o",
+                    "pNormRel": "o", "aNormRel": "o", "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            coi_p = ", int coi" if use_coi else ""
+            coi_v = "(void)coi; " if use_coi else ""
+            lam = (f"[](const {S} *a, int sa, const {S} *b, int sb, const Npp8u *mk, "
+                   f"int ms, NppiSize r{coi_p}, Npp64f *o, Npp8u *buf, "
+                   f"NppStreamContext c) {{ (void)sa; (void)sb; (void)ms; (void)r; "
+                   f"{coi_v}(void)buf; (void)c; return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_reduce2_masked<{S}, {C}, {A}, "
+                    f"num::NppiStatKind::{kind}, {str(use_coi).lower()}>(\n"
+                    f"      \"{fn}\",\n      {lam});\n}}\n")
+        return None
+
+    reason = skip_reason(params, suf, row["family"])
+    if reason:
+        return None
+    tok, rest = suf
+    C = chan_count(tok)
+    A = C - 1 if tok == "AC4" else C
+    S = ctype(params, "pSrc") or ctype(params, "pSrc1")
+    if S is None:
+        return None
+
+    # --- Histograms -------------------------------------------------------
+    fam = row["family"]
+    if fam in ("nppiHistogramEven", "nppiHistogramRange"):
+        S = ctype(params, "pSrc")
+        if S is None:
+            return None
+        A = C - 1 if tok == "AC4" else C
+        lv = "Npp32f" if row["dtype"] == "32f" else "Npp32s"
+        per_ch = A > 1
+        hs = "hist[0]" if not per_ch else "hist"
+        if fam == "nppiHistogramEven":
+            amap = {"pSrc": "a", "nSrcStep": "sa", "oSizeROI": "r",
+                    "pHist": hs, "nLevels": ("nl" if per_ch else "nl[0]"),
+                    "nLowerLevel": ("lo" if per_ch else "lo[0]"),
+                    "nUpperLevel": ("hi" if per_ch else "hi[0]"),
+                    "pBuffer": "buf", "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            lam = (f"[](const {S} *a, int sa, NppiSize r, Npp32s **hist, int *nl, "
+                   f"{lv} *lo, {lv} *hi, Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)r; (void)nl; (void)lo; (void)hi; (void)buf; (void)c; "
+                   f"return {call}; }}")
+            prefix = (f"num::run_nppi_histogram<{S}, {lv}, {C}, {A}, "
+                      f"num::NppiHistKind::Even>")
+        else:
+            amap = {"pSrc": "a", "nSrcStep": "sa", "oSizeROI": "r",
+                    "pHist": hs, "pLevels": ("lv" if per_ch else "lv[0]"),
+                    "nLevels": ("nl" if per_ch else "nl[0]"),
+                    "pBuffer": "buf", "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            lam = (f"[](const {S} *a, int sa, NppiSize r, Npp32s **hist, const {lv} **lv, "
+                   f"int *nl, Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)r; (void)nl; (void)buf; (void)c; return {call}; }}")
+            prefix = (f"num::run_nppi_histogram<{S}, {lv}, {C}, {A}, "
+                      f"num::NppiHistKind::Range>")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    # --- Integral images --------------------------------------------------
+    if fam == "nppiIntegral":
+        S = ctype(params, "pSrc")
+        D = ctype(params, "pDst")
+        if S is None or D is None:
+            return None
+        amap = {"pSrc": "a", "nSrcStep": "sa", "pDst": "d", "nDstStep": "sd",
+                "oROI": "r", "nVal": "nval", "nppStreamContext": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {S} *a, int sa, {D} *d, int sd, NppiSize r, {D} nval, "
+               f"NppStreamContext c) {{ (void)sa; (void)sd; (void)r; (void)nval; (void)c; "
+               f"return {call}; }}")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_integral<{S}, {D}>(\n      \"{fn}\",\n      {lam});\n}}\n")
+    if fam == "nppiSqrIntegral":
+        S = ctype(params, "pSrc")
+        DS = ctype(params, "pDst")
+        DQ = ctype(params, "pSqr")
+        if S is None or DS is None or DQ is None:
+            return None
+        amap = {"pSrc": "a", "nSrcStep": "sa", "pDst": "d", "nDstStep": "sd",
+                "pSqr": "q", "nSqrStep": "sq", "oSrcROI": "r", "nVal": "nval",
+                "nValSqr": "nvalsqr", "nppStreamContext": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {S} *a, int sa, {DS} *d, int sd, {DQ} *q, int sq, NppiSize r, "
+               f"{DS} nval, {DQ} nvalsqr, NppStreamContext c) "
+               f"{{ (void)sa; (void)sd; (void)sq; (void)r; (void)nval; (void)nvalsqr; "
+               f"(void)c; return {call}; }}")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_sqr_integral<{S}, {DS}, {DQ}>(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    # --- CountInRange (all variants; per-channel bounds for C3/AC4) -------
+    if fam == "nppiCountInRange":
+        S = ctype(params, "pSrc")
+        if S is None:
+            return None
+        A = C - 1 if tok == "AC4" else C
+        per_ch = ctype(params, "aCounts") is not None
+        if per_ch:
+            amap = {"pSrc": "a", "nSrcStep": "sa", "oSizeROI": "r",
+                    "aCounts": "o", "aLowerBound": "lo", "aUpperBound": "hi",
+                    "pDeviceBuffer": "buf", "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            lam = (f"[](const {S} *a, int sa, NppiSize r, int *o, {S} *lo, {S} *hi, "
+                   f"Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)r; (void)buf; (void)c; return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_count_range_multi<{S}, {C}, {A}>(\n      \"{fn}\",\n"
+                    f"      {lam});\n}}\n")
+        else:
+            amap = {"pSrc": "a", "nSrcStep": "sa", "oSizeROI": "r",
+                    "pCounts": "o", "nLowerBound": "lo[0]", "nUpperBound": "hi[0]",
+                    "pDeviceBuffer": "buf", "nppStreamContext": "c"}
+            call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+            lam = (f"[](const {S} *a, int sa, NppiSize r, int *o, {S} *lo, {S} *hi, "
+                   f"Npp8u *buf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)r; (void)buf; (void)c; return {call}; }}")
+            return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                    f"  num::run_nppi_count_range_multi<{S}, {C}, {A}>(\n      \"{fn}\",\n"
+                    f"      {lam});\n}}\n")
+
+    # --- Quality metrics (QualityIndex / MSE / PSNR / RectStdDev) --------
+    if fam == "nppiQualityIndex":
+        S = ctype(params, "pSrc1")
+        if S is None:
+            return None
+        A = C - 1 if tok == "AC4" else C
+        amap = {"pSrc1": "a", "nSrc1Step": "sa", "pSrc2": "b", "nSrc2Step": "sb",
+                "oRoiSize": "r", "pDst": "o", "pDeviceBuffer": "buf",
+                "nppStreamContext": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {S} *a, int sa, const {S} *b, int sb, NppiSize r, Npp32f *o, "
+               f"Npp8u *buf, NppStreamContext c) "
+               f"{{ (void)sa; (void)sb; (void)r; (void)buf; (void)c; return {call}; }}")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_quality_index<{S}, {C}, {A}>(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if fam in ("nppiMSE", "nppiPSNR"):
+        S = ctype(params, "pSrc1")
+        if S is None:
+            return None
+        A = C - 1 if tok == "AC4" else C
+        psnr = fam == "nppiPSNR"
+        amap = {"pSrc1": "a", "nSrc1Step": "sa", "pSrc2": "b", "nSrc2Step": "sb",
+                "oSizeROI": "r", "pMSE": "o", "pPSNR": "o", "pDeviceBuffer": "buf",
+                "nppStreamContext": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        lam = (f"[](const {S} *a, int sa, const {S} *b, int sb, NppiSize r, Npp32f *o, "
+               f"Npp8u *buf, NppStreamContext c) "
+               f"{{ (void)sa; (void)sb; (void)r; (void)buf; (void)c; return {call}; }}")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_mse<{S}, {C}, {A}, {str(psnr).lower()}>(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if fam == "nppiRectStdDev":
+        S = ctype(params, "pSrc")
+        DS = ctype(params, "pDst")
+        DQ = ctype(params, "pSqr")
+        if S is None or DS is None or DQ is None:
+            return None
+        has_sf = any(p.name == "nScaleFactor" for p in params)
+        amap = {"pSrc": "a", "nSrcStep": "sa", "pSqr": "b", "nSqrStep": "sb",
+                "pDst": "d", "nDstStep": "sd", "oSizeROI": "r", "oRect": "rect",
+                "nScaleFactor": "sf", "nppStreamContext": "c"}
+        call = f"{fn}({', '.join([amap[p.name] for p in params] + ['c'])})"
+        if has_sf:
+            lam = (f"[](const {S} *a, int sa, const {DQ} *b, int sb, {DS} *d, int sd, "
+                   f"NppiSize r, NppiRect rect, int sf, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sb; (void)sd; (void)r; (void)rect; (void)sf; (void)c; "
+                   f"return {call}; }}")
+        else:
+            lam = (f"[](const {S} *a, int sa, const {DQ} *b, int sb, {DS} *d, int sd, "
+                   f"NppiSize r, NppiRect rect, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sb; (void)sd; (void)r; (void)rect; (void)c; "
+                   f"return {call}; }}")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_rect_stddev<{S}, {DS}, {DQ}, {str(has_sf).lower()}>(\n"
+                f"      \"{fn}\",\n      {lam});\n}}\n")
+
+    if fam == "nppiEvenLevelsHost":
+        lam = (f"[](Npp32s *lv, int nl, Npp32s lo, Npp32s hi, NppStreamContext c) "
+               f"{{ (void)lv; (void)nl; (void)lo; (void)hi; (void)c; "
+               f"return {fn}(lv, nl, lo, hi, c); }}")
+        return (f"TEST(NumGenNppiStats, {name}) {{\n"
+                f"  num::run_nppi_even_levels(\n      \"{fn}\",\n      {lam});\n}}\n")
 
     # --- Mean_StdDev ------------------------------------------------------
     if fn.startswith("nppiMean_StdDev_"):

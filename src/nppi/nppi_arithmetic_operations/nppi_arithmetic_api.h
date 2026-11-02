@@ -469,6 +469,24 @@ public:
   }
 };
 
+// AC4 DivRound API (three channels, alpha preserved)
+template <typename T> class DivRoundOpAC4API {
+public:
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                           T *pDst, int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode,
+                           int nScaleFactor, NppStreamContext nppStreamCtx) {
+    return DivRoundAC4OperationExecutor<T>::execute(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst,
+                                                    nDstStep, oSizeROI, rndMode, nScaleFactor,
+                                                    nppStreamCtx.hStream);
+  }
+  static NppStatus executeInplace(const T *pSrc, int nSrcStep, T *pSrcDst, int nSrcDstStep,
+                                  NppiSize oSizeROI, NppRoundMode rndMode, int nScaleFactor,
+                                  NppStreamContext nppStreamCtx) {
+    return execute(pSrc, nSrcStep, pSrcDst, nSrcDstStep, pSrcDst, nSrcDstStep, oSizeROI, rndMode,
+                   nScaleFactor, nppStreamCtx);
+  }
+};
+
 // ============================================================================
 // Helper: Get default stream context
 // ============================================================================

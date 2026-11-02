@@ -218,7 +218,13 @@ __global__ void rectStdDevS32Kernel(const Npp32s *pSrc, int nSrcStep, const Npp3
   if (var < 0.0) var = 0.0;
   Npp32s v = (Npp32s)sqrt(var);
   if (scale > 0) {
-    v = (Npp32s)((unsigned)v >> (unsigned)scale);
+    // NPP truncates the square root first, then divides by 2^sf with
+    // round-half-to-even.
+    const unsigned d = 1u << (unsigned)scale;
+    const unsigned r = (unsigned)v & (d - 1u);
+    unsigned q = (unsigned)v / d;
+    if (r > d / 2u || (r == d / 2u && (q & 1u))) ++q;
+    v = (Npp32s)q;
   } else if (scale < 0) {
     v = (Npp32s)((unsigned)v << (unsigned)(-scale));
   }

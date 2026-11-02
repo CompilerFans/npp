@@ -998,6 +998,43 @@ __global__ void divRoundKernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, in
   }
 }
 
+// AC4 variant: processes the first three channels and leaves alpha untouched.
+template <typename T>
+__global__ void divRoundAC4Kernel(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                                  T *pDst, int nDstStep, int width, int height,
+                                  NppRoundMode rndMode, int scaleFactor) {
+  int x, y;
+  if (!getThreadCoords(x, y, width, height))
+    return;
+  const T *src1Row = getSrcRow(pSrc1, y, nSrc1Step);
+  const T *src2Row = getSrcRow(pSrc2, y, nSrc2Step);
+  T *dstRow = getDstRow(pDst, y, nDstStep);
+  DivRoundOp<T> op;
+  const int idx = x * 4;
+  for (int c = 0; c < 3; ++c)
+    dstRow[idx + c] = op(src1Row[idx + c], src2Row[idx + c], scaleFactor, rndMode);
+}
+
+template <typename T> class DivRoundAC4OperationExecutor {
+public:
+  static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step,
+                           T *pDst, int nDstStep, NppiSize oSizeROI, NppRoundMode rndMode,
+                           int scaleFactor, cudaStream_t stream) {
+    NppStatus status =
+        validateBinaryParameters(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst, nDstStep, oSizeROI, 4);
+    if (status != NPP_NO_ERROR)
+      return status;
+    if (oSizeROI.width == 0 || oSizeROI.height == 0)
+      return NPP_NO_ERROR;
+    dim3 block = BlockConfig::blockSize();
+    dim3 grid = BlockConfig::gridSize(oSizeROI.width, oSizeROI.height);
+    divRoundAC4Kernel<T><<<grid, block, 0, stream>>>(pSrc1, nSrc1Step, pSrc2, nSrc2Step, pDst,
+                                                     nDstStep, oSizeROI.width, oSizeROI.height,
+                                                     rndMode, scaleFactor);
+    return checkCudaKernelError();
+  }
+};
+
 template <typename T, int Channels> class DivRoundOperationExecutor {
 public:
   static NppStatus execute(const T *pSrc1, int nSrc1Step, const T *pSrc2, int nSrc2Step, T *pDst, int nDstStep,

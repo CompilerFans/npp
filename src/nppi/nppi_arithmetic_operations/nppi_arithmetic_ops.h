@@ -104,8 +104,57 @@ __device__ __host__ inline T scale_sfs_complex(double re, double im, int scaleFa
     re /= divisor;
     im /= divisor;
   }
-  return saturate_cast_complex<T>(re, im);
+  using C = complex_component_t<T>;
+  if constexpr (std::is_integral_v<C>) {
+    // Round half-to-even before the saturating cast.  Npp32s' saturating cast
+    // truncates, so make the rounding explicit (NPP's 32sc kernels round for
+    // add/sub/mul but truncate for division, see the *_trunc variant).
+    return saturate_cast_complex<T>(std::rint(re), std::rint(im));
+  } else {
+    return saturate_cast_complex<T>(re, im);
+  }
 }
+
+// Truncating variant for NPP's complex division kernels.
+template <typename T>
+__device__ __host__ inline T scale_sfs_complex_trunc(double re, double im, int scaleFactor) {
+  if (scaleFactor > 0) {
+    const double divisor = static_cast<double>(1ll << scaleFactor);
+    re /= divisor;
+    im /= divisor;
+  }
+  using C = complex_component_t<T>;
+  if constexpr (std::is_integral_v<C>) {
+    auto trunc_ll = [](double v) -> long long {
+      if (v != v) return 0;
+      if (v > 9.0e18) return (long long)9.0e18;
+      if (v < -9.0e18) return -(long long)9.0e18;
+      return (long long)std::trunc(v);
+    };
+    T r;
+    r.re = saturate_cast<C>((double)trunc_ll(re));
+    r.im = saturate_cast<C>((double)trunc_ll(im));
+    return r;
+  } else {
+    return saturate_cast_complex<T>(re, im);
+  }
+}
+
+// NPP complex division conversion: 32sc truncates at every scale factor;
+// 16sc truncates at sf == 0 and rounds half-to-even above.
+template <typename T>
+__device__ __host__ inline T div_scale_complex(double re, double im, int scaleFactor) {
+  using C = complex_component_t<T>;
+  if constexpr (std::is_same_v<C, Npp32s>) {
+    return scale_sfs_complex_trunc<T>(re, im, scaleFactor);
+  } else if constexpr (std::is_integral_v<C>) {
+    return scaleFactor == 0 ? scale_sfs_complex_trunc<T>(re, im, scaleFactor)
+                            : scale_sfs_complex<T>(re, im, scaleFactor);
+  } else {
+    return scale_sfs_complex<T>(re, im, scaleFactor);
+  }
+}
+
 
 template <typename T> __device__ __host__ inline T int_min_value() {
   if constexpr (std::is_same_v<T, Npp8u>) return T(0);
@@ -222,7 +271,7 @@ template <typename T> struct DivOp {
       double im = (static_cast<double>(b.im) * static_cast<double>(a.re) -
                    static_cast<double>(b.re) * static_cast<double>(a.im)) /
                   denom;
-      return scale_sfs_complex<T>(re, im, scaleFactor);
+      return div_scale_complex<T>(re, im, scaleFactor);
     } else if constexpr (std::is_integral_v<T>) {
       if (a == T(0)) {
         // 0/0 is 0; a non-zero numerator saturates with its sign (for signed
@@ -858,13 +907,14 @@ public:
 
   __device__ __host__ T operator()(T a, T = T(0), int = 0) const {
     if constexpr (std::is_same_v<T, Npp8u>) {
-      // For 8-bit: result = (a * constant) / 255
-      double result = (static_cast<double>(a) * static_cast<double>(constant)) / 255.0;
-      return saturate_cast<T>(result);
+      // For 8-bit: result = (a * constant) / 255, truncated (NPP 13.4).
+      unsigned int product = static_cast<unsigned int>(a) * static_cast<unsigned int>(constant);
+      return static_cast<T>(product / 255u);
     } else if constexpr (std::is_same_v<T, Npp16u>) {
-      // For 16-bit: result = (a * constant) / 65535
-      double result = (static_cast<double>(a) * static_cast<double>(constant)) / 65535.0;
-      return saturate_cast<T>(result);
+      // For 16-bit: result = (a * constant) / 65535, truncated.
+      unsigned long long product =
+          static_cast<unsigned long long>(a) * static_cast<unsigned long long>(constant);
+      return static_cast<T>(product / 65535ull);
     } else {
       // For other types, fallback to regular multiplication
       return saturate_cast<T>(static_cast<double>(a) * static_cast<double>(constant));
@@ -877,9 +927,12 @@ template <typename T> struct DivRoundOp {
   __device__ __host__ T operator()(T a, T b, int scaleFactor = 0, NppRoundMode rndMode = NPP_RND_NEAR) const {
     // NPP Div convention: pSrc2 / pSrc1, so b / a
     if (a == T(0)) {
-      // Division by zero - saturate to maximum value for integers
+      // NPP 13.4 zero-divisor conventions: 8u uses 254 for 0/0 under
+      // nearest rounding and 255 otherwise; the wider types return 0 for 0/0
+      // and saturate for non-zero numerators.
       if constexpr (std::is_same_v<T, Npp8u>)
-        return T(255);
+        return (b == T(0) && rndMode == NPP_RND_NEAR) ? T(254) : T(255);
+      if (b == T(0)) return T(0);
       else if constexpr (std::is_same_v<T, Npp16u>)
         return T(65535);
       else if constexpr (std::is_same_v<T, Npp16s>)
@@ -974,7 +1027,7 @@ public:
       double aim = static_cast<double>(a.im);
       double re = (are * cre + aim * cim) / denom;
       double im = (aim * cre - are * cim) / denom;
-      return scale_sfs_complex<T>(re, im, scaleFactor);
+      return div_scale_complex<T>(re, im, scaleFactor);
     } else {
       if (constant == T(0)) {
         // 0/0 -> 0; non-zero numerators saturate by sign (signed) or to max.
