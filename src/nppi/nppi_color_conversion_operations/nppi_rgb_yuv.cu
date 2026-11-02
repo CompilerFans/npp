@@ -336,17 +336,16 @@ __device__ inline void yuv_to_rgb_pixel(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp
 }
 
 __device__ inline void ycbcr_to_rgb_pixel(Npp8u y, Npp8u cb, Npp8u cr, Npp8u &r, Npp8u &g, Npp8u &b) {
-  double Y = 1.164 * (static_cast<double>(y) - 16.0);
-  double Cr = static_cast<double>(cr) - 128.0;
-  double Cb = static_cast<double>(cb) - 128.0;
+  // Match NVIDIA NPP 13.4: single-precision evaluation with FMA and C-style
+  // truncation after saturation. The evaluation order matters at rounding
+  // boundaries (e.g. an exact 48.0 that double math yields as 47.999...).
+  const float Y = 1.164f * (static_cast<float>(y) - 16.0f);
+  const float Cr = static_cast<float>(cr) - 128.0f;
+  const float Cb = static_cast<float>(cb) - 128.0f;
 
-  double R = Y + 1.596 * Cr;
-  double G = Y - 0.813 * Cr - 0.392 * Cb;
-  double B = Y + 2.017 * Cb;
-
-  r = clamp_u8_double(R);
-  g = clamp_u8_double(G);
-  b = clamp_u8_double(B);
+  r = clamp_u8(fmaf(1.596f, Cr, Y));
+  g = clamp_u8(fmaf(-0.813f, Cr, fmaf(-0.392f, Cb, Y)));
+  b = clamp_u8(fmaf(2.017f, Cb, Y));
 }
 
 template <bool kBgr>
