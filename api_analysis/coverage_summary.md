@@ -1,11 +1,11 @@
 # NPP API Catalog Summary
 
 - Public functions (API/): 12537
-- Real implementations: 12532 (100.0%)
+- Real implementations: 12534 (100.0%)
 - Stubs (NPP_NOT_IMPLEMENTED_ERROR): 0
-- Missing: 5
+- Missing: 3
 - Tested: 8303 (66.2%)
-- Real and tested: 8302
+- Real and tested: 8303
 
 ## By module
 
@@ -14,7 +14,7 @@
 | nppi_arithmetic_and_logical_operations.h | 2137 | 2137 | 0 | 0 | 2133 |
 | nppi_color_conversion.h | 1074 | 1074 | 0 | 0 | 717 |
 | nppi_data_exchange_and_initialization.h | 966 | 966 | 0 | 0 | 638 |
-| nppi_filtering_functions.h | 1896 | 1891 | 0 | 5 | 1014 |
+| nppi_filtering_functions.h | 1896 | 1893 | 0 | 3 | 1014 |
 | nppi_geometry_transforms.h | 705 | 705 | 0 | 0 | 458 |
 | nppi_linear_transforms.h | 4 | 4 | 0 | 0 | 4 |
 | nppi_morphological_operations.h | 292 | 292 | 0 | 0 | 163 |
@@ -33,5 +33,4 @@
 | module | group | remaining | ctx |
 |---|---|---:|---:|
 | nppi_filtering_functions.h | nppiContoursImageMarchingSquaresInterpolation | 2 | 2 |
-| nppi_filtering_functions.h | nppiSegmentWatershed | 2 | 1 |
 | nppi_filtering_functions.h | nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R | 1 | 0 |
