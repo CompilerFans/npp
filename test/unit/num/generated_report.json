@@ -3050,5 +3050,230 @@
     "reason": "unsupported"
    }
   ]
+ },
+ "npps_statistics_functions.h": {
+  "emitted": 328,
+  "skipped": [
+   {
+    "function": "nppsAverageError_16sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageError_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageError_32sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageError_64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageError_64sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageRelativeError_16sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageRelativeError_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageRelativeError_32sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageRelativeError_64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsAverageRelativeError_64sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16s16sc32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16s16sc32sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16s16sc64sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16s16sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16sc32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16sc32sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16sc64sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_16sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_32f32fc64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_32f32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_32fc64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_32s32sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_32sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_64f64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsDotProd_64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumError_16sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumError_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumError_32sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumError_64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumError_64sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumRelativeError_16sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumRelativeError_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumRelativeError_32sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumRelativeError_64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMaximumRelativeError_64sc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMean_16sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMean_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsMean_64fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNormDiff_Inf_32fc32f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNormDiff_Inf_64fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNormDiff_L1_32fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNormDiff_L1_64fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNormDiff_L2_32fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNormDiff_L2_64fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNorm_Inf_32fc32f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNorm_Inf_64fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNorm_L1_32fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNorm_L1_64fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNorm_L2_32fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsNorm_L2_64fc64f_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsSum_16sc32sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsSum_16sc_Sfs_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsSum_32fc_Ctx",
+    "reason": "complex or unsupported"
+   },
+   {
+    "function": "nppsSum_64fc_Ctx",
+    "reason": "complex or unsupported"
+   }
+  ]
  }
 }

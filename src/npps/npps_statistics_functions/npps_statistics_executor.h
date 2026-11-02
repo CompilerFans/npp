@@ -138,6 +138,12 @@ __device__ __host__ __forceinline__ D fin_round(double x, int sf) {
   if constexpr (std::is_floating_point_v<D>) {
     return static_cast<D>(x);
   } else {
+    // Clamp on the double side: out-of-range double -> int64 conversion is
+    // undefined and can wrap to INT64_MIN (e.g. overflowing 32s dot products).
+    const double lo = static_cast<double>(std::numeric_limits<D>::lowest());
+    const double hi = static_cast<double>(std::numeric_limits<D>::max());
+    if (x >= hi) return static_cast<D>(std::numeric_limits<D>::max());
+    if (x <= lo) return static_cast<D>(std::numeric_limits<D>::lowest());
     return sat_ll<D>(static_cast<long long>(rint(x)));
   }
 }
@@ -344,8 +350,13 @@ struct FinMean {
       using C = component_t_ty<O>;
       out->re = fin_round<C>(static_cast<double>(v.re) / dn, sf);
       out->im = fin_round<C>(static_cast<double>(v.im) / dn, sf);
-    } else {
+    } else if constexpr (std::is_floating_point_v<O>) {
       *out = fin_round<O>(static_cast<double>(v) / dn, sf);
+    } else {
+      // NPP rounds the real mean to an integer first (half-to-even), then
+      // applies the Sfs half-to-even rounding as a second step.
+      const long long m = static_cast<long long>(rint(static_cast<double>(v) / dn));
+      *out = scale_sat<O>(m, sf);
     }
   }
 };
@@ -357,12 +368,18 @@ struct FinStd {
   __device__ void operator()(const MSD& v, size_t n) const {
     double var = (v.sumsq - v.sum * v.sum / static_cast<double>(n)) / static_cast<double>(n - 1);
     if (!(var > 0.0)) var = 0.0;  // clamp cancellation noise (and NaN)
-    double sd = sqrt(var);
-    // NPP 13.4 truncates the sqrt to an integer before applying the scale
-    // factor, then rounds half-to-even (measured: sqrt 9.899 -> 9 at sf=0;
-    // 574/4 = 143.5 -> 144 at sf=2).  Float outputs keep the exact sqrt.
-    if constexpr (!std::is_floating_point_v<O>) sd = trunc(sd);
-    *out = fin_round<O>(sd, sf);
+    if constexpr (std::is_floating_point_v<O>) {
+      *out = fin_round<O>(sqrt(var), sf);
+    } else {
+      // NPP's integer path uses integer variance arithmetic:
+      //   num = sumsq - (sum*sum)/n; var = num/(n-1), then trunc(sqrt(var)).
+      const long long S = static_cast<long long>(v.sum);
+      const long long Q = static_cast<long long>(v.sumsq);
+      long long num = Q - (S * S) / static_cast<long long>(n);
+      long long ivar = num / static_cast<long long>(n - 1);
+      if (ivar < 0) ivar = 0;
+      *out = scale_sat<O>(static_cast<long long>(sqrt(static_cast<double>(ivar))), sf);
+    }
   }
 };
 
@@ -373,14 +390,25 @@ struct FinMeanStd {
   int sf;
   __device__ void operator()(const MSD& v, size_t n) const {
     const double dn = static_cast<double>(n);
-    *pMean = fin_round<OM>(v.sum / dn, sf);
+    if constexpr (std::is_floating_point_v<OM>) {
+      *pMean = fin_round<OM>(v.sum / dn, sf);
+    } else {
+      // Integer means round the real mean first, then apply Sfs scaling.
+      const long long m = static_cast<long long>(rint(v.sum / dn));
+      *pMean = scale_sat<OM>(m, sf);
+    }
     double var = (v.sumsq - v.sum * v.sum / dn) / static_cast<double>(n - 1);
     if (!(var > 0.0)) var = 0.0;
-    double sd = sqrt(var);
-    // Same integer-sqrt truncation + half-to-even scaling as FinStd (the
-    // recorded MeanStdDev_16s32s_Sfs golden pins 574/4 = 143.5 -> 144).
-    if constexpr (!std::is_floating_point_v<OS>) sd = trunc(sd);
-    *pStd = fin_round<OS>(sd, sf);
+    if constexpr (std::is_floating_point_v<OS>) {
+      *pStd = fin_round<OS>(sqrt(var), sf);
+    } else {
+      const long long S = static_cast<long long>(v.sum);
+      const long long Q = static_cast<long long>(v.sumsq);
+      long long num = Q - (S * S) / static_cast<long long>(n);
+      long long ivar = num / static_cast<long long>(n - 1);
+      if (ivar < 0) ivar = 0;
+      *pStd = scale_sat<OS>(static_cast<long long>(sqrt(static_cast<double>(ivar))), sf);
+    }
   }
 };
 
@@ -391,7 +419,14 @@ struct FinNorm {
   template <typename Acc>
   __device__ void operator()(const Acc& v, size_t) const {
     if constexpr (K == NormKind::L2) {
-      *out = fin_round<O>(sqrt(static_cast<double>(v)), sf);
+      if constexpr (std::is_integral_v<O>) {
+        // NPP rounds the integer square root to the nearest even integer
+        // first, then applies the Sfs half-even scale.
+        const long long q = static_cast<long long>(rint(sqrt(static_cast<double>(v))));
+        *out = scale_sat<O>(q, sf);
+      } else {
+        *out = fin_round<O>(sqrt(static_cast<double>(v)), sf);
+      }
     } else {
       if constexpr (std::is_same_v<Acc, long long>) {
         *out = scale_sat<O>(v, sf);
@@ -764,7 +799,13 @@ static __global__ void partial_ext_kernel(const T* src, size_t n, ExtSlot<T>* pa
   ExtSlot<T> v{};
   if (i < n) {
     T x = src[i];
-    if constexpr (AbsOnly && std::is_integral_v<T>) x = x < 0 ? -x : x;
+    if constexpr (AbsOnly && std::is_integral_v<T>) {
+      if constexpr (std::is_signed_v<T>) {
+        using L = std::numeric_limits<T>;
+        if (x == L::lowest()) x = L::max();       // NPP saturates |min|
+        else if (x < 0) x = static_cast<T>(-x);
+      }
+    }
     if constexpr (AbsOnly && !std::is_integral_v<T>) x = fabs(x);
     v.vmin = ExtV<T>{x, static_cast<int>(i), true};
     v.vmax = ExtV<T>{x, static_cast<int>(i), true};
@@ -790,11 +831,9 @@ __device__ __forceinline__ double zc_pair(const T& prev, const T& cur, NppsZCTyp
       return (up || dn) ? 1.0 : 0.0;
     }
     case nppZCXor: {
-      if constexpr (std::is_integral_v<T>) {
-        return ((prev < 0) != (cur < 0)) ? 1.0 : 0.0;
-      } else {
-        return (signbit(prev) != signbit(cur)) ? 1.0 : 0.0;
-      }
+      // NPP compares against zero (it does not use signbit), so -0.0 and
+      // +0.0 are treated identically.
+      return ((prev < T(0)) != (cur < T(0))) ? 1.0 : 0.0;
     }
     default: {  // nppZCC : 0.5 * |sgn3(prev) - sgn3(cur)|
       const int sp = (prev > 0 ? 1 : 0) - (prev < 0 ? 1 : 0);

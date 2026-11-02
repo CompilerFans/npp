@@ -668,6 +668,384 @@ inline D npps_const_ref(Op op, S a, CT c, int sf) {
   return eval_const_d<D>(op, as_double(a), as_double(c), sf);
 }
 
+// ---------------------------------------------------------------------------
+// npps statistics reductions.  The references below reproduce NPP 13.4's
+// accumulation and finalization rules (validated on the 5090):
+//   * Sum / Norm L1 / L2Sqr accumulate integers exactly in 64 bits and
+//     floats in double; the final Sfs step rounds half to even.
+//   * Mean rounds the real mean half to even to an integer first, then
+//     applies Sfs rounding (two-step, unlike Sum).
+//   * StdDev / MeanStdDev use the sample divisor (n-1); an integral output
+//     truncates sqrt(var) before the Sfs half-even step.
+//   * Norm L2 takes the square root before the final half-even rounding.
+//   * DotProd accumulates in double; Error metrics reduce the maximum
+//     |a-b| (relative denominator: signed max(a,b)) and the "Average"
+//     variants divide that maximum by n.
+// ---------------------------------------------------------------------------
+enum class StatKind {
+  Sum, Mean, StdDev, NormL1, NormL2, NormL2Sqr, NormInf,
+  DotProd, MaxAbsErr, AvgAbsErr, MaxRelErr, AvgRelErr
+};
+
+inline constexpr int kNppsStatScratch = 1 << 20;
+
+template <typename D> inline D npps_fin_round(double x, int sf) {
+  if (sf > 0) x = std::ldexp(x, -sf);
+  if constexpr (std::is_floating_point_v<D>) return (D)x;
+  else {
+    // Clamp on the double side first: converting an out-of-range double to
+    // int64 is undefined and would otherwise wrap to INT64_MIN.
+    const double lo = (double)type_min<D>();
+    const double hi = (double)type_max<D>();
+    if (x >= hi) return type_max<D>();
+    if (x <= lo) return type_min<D>();
+    return sat_rint<D>(x);
+  }
+}
+
+template <typename D> inline D npps_scale_from_double(double x, int sf) {
+  if (sf > 0) x = std::ldexp(x, -sf);
+  if constexpr (std::is_floating_point_v<D>) return (D)x;
+  else return sat_rint<D>(x);
+}
+
+template <typename S, typename D, StatKind K>
+inline D npps_stat1_ref(const S *p, int n, int sf) {
+  if constexpr (std::is_integral_v<S>) {
+    if constexpr (K == StatKind::Sum) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) s += (long long)p[i];
+      return npps_scale_ll<D>(s, sf);
+    } else if constexpr (K == StatKind::Mean) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) s += (long long)p[i];
+      const double mean = (double)s / (double)n;
+      if constexpr (std::is_integral_v<D>) {
+        return npps_scale_ll<D>((long long)std::rint(mean), sf);
+      } else {
+        return (D)std::ldexp(mean, -sf);
+      }
+    } else if constexpr (K == StatKind::StdDev) {
+      double sum = 0.0, sq = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double d = (double)p[i];
+        sum += d;
+        sq += d * d;
+      }
+      if constexpr (std::is_integral_v<D>) {
+        // NPP's integer StdDev uses integer arithmetic for the variance:
+        //   num = sumsq - (sum*sum)/n;  var = num/(n-1)  [both truncate]
+        // then truncates sqrt(var) and applies Sfs half-even scaling.
+        const long long sum_ll = (long long)sum;
+        const long long sumsq_ll = (long long)sq;
+        long long num = sumsq_ll - (sum_ll * sum_ll) / (long long)n;
+        long long var = num / (long long)(n - 1);
+        if (var < 0) var = 0;
+        return npps_scale_ll<D>((long long)std::sqrt((double)var), sf);
+      } else {
+        double var = (sq - sum * sum / (double)n) / (double)(n - 1);
+        if (!(var > 0.0)) var = 0.0;
+        return (D)std::ldexp(std::sqrt(var), -sf);
+      }
+    } else if constexpr (K == StatKind::NormL1) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) {
+        const long long v = (long long)p[i];
+        s += v < 0 ? -v : v;
+      }
+      return npps_scale_ll<D>(s, sf);
+    } else if constexpr (K == StatKind::NormL2) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) {
+        const long long v = (long long)p[i];
+        s += v * v;
+      }
+      if constexpr (std::is_integral_v<D>) {
+        // NPP rounds the integer square root first, then applies Sfs.
+        const long long q = (long long)std::llrint(std::sqrt((double)s));
+        return npps_scale_ll<D>(q, sf);
+      } else {
+        return npps_scale_from_double<D>(std::sqrt((double)s), sf);
+      }
+    } else if constexpr (K == StatKind::NormL2Sqr) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) {
+        const long long v = (long long)p[i];
+        s += v * v;
+      }
+      return npps_scale_ll<D>(s, sf);
+    } else {  // NormInf
+      double mx = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double v = std::fabs((double)p[i]);
+        if (v > mx) mx = v;
+      }
+      if constexpr (std::is_integral_v<D>) return npps_fin_round<D>(mx, sf);
+      else return npps_scale_from_double<D>(mx, sf);
+    }
+  } else {
+    double sum = 0.0;
+    if constexpr (K == StatKind::Sum || K == StatKind::Mean || K == StatKind::NormL1) {
+      for (int i = 0; i < n; ++i) {
+        const double v = (double)p[i];
+        sum += (K == StatKind::NormL1) ? std::fabs(v) : v;
+      }
+      if constexpr (K == StatKind::Sum || K == StatKind::NormL1) {
+        return npps_scale_from_double<D>(sum, sf);
+      } else {
+        const double mean = sum / (double)n;
+        return (D)std::ldexp(mean, -sf);
+      }
+    } else if constexpr (K == StatKind::StdDev) {
+      double sq = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double d = (double)p[i];
+        sum += d;
+        sq += d * d;
+      }
+      if constexpr (std::is_integral_v<D>) {
+        const long long sum_ll = (long long)sum;
+        const long long sumsq_ll = (long long)sq;
+        long long num = sumsq_ll - (sum_ll * sum_ll) / (long long)n;
+        long long var = num / (long long)(n - 1);
+        if (var < 0) var = 0;
+        return npps_scale_ll<D>((long long)std::sqrt((double)var), sf);
+      } else {
+        double var = (sq - sum * sum / (double)n) / (double)(n - 1);
+        if (!(var > 0.0)) var = 0.0;
+        return (D)std::ldexp(std::sqrt(var), -sf);
+      }
+    } else if constexpr (K == StatKind::NormL2 || K == StatKind::NormL2Sqr) {
+      for (int i = 0; i < n; ++i) {
+        const double v = (double)p[i];
+        sum += v * v;
+      }
+      if constexpr (K == StatKind::NormL2) {
+        if constexpr (std::is_integral_v<D>) return npps_fin_round<D>(std::sqrt(sum), sf);
+        else return npps_scale_from_double<D>(std::sqrt(sum), sf);
+      } else {
+        return npps_scale_from_double<D>(sum, sf);
+      }
+    } else {  // NormInf
+      double mx = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double v = std::fabs((double)p[i]);
+        if (v > mx) mx = v;
+      }
+      if constexpr (std::is_integral_v<D>) return npps_fin_round<D>(mx, sf);
+      else return npps_scale_from_double<D>(mx, sf);
+    }
+  }
+}
+
+template <typename S1, typename S2, typename D, StatKind K>
+inline D npps_stat2_ref(const S1 *a, const S2 *b, int n, int sf) {
+  if constexpr (K == StatKind::MaxAbsErr || K == StatKind::AvgAbsErr ||
+                K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
+    double mx = -std::numeric_limits<double>::infinity();
+    for (int i = 0; i < n; ++i) {
+      const double da = (double)a[i], db = (double)b[i];
+      const double d = std::fabs(da - db);
+      double e;
+      if constexpr (K == StatKind::MaxRelErr || K == StatKind::AvgRelErr) {
+        const double den = da > db ? da : db;  // signed max, per NPP 13.4
+        e = den > 0.0 ? d / den : 0.0;
+      } else {
+        e = d;
+      }
+      if (e > mx) mx = e;
+    }
+    if constexpr (K == StatKind::AvgAbsErr || K == StatKind::AvgRelErr) {
+      return (D)(mx / (double)n);
+    } else {
+      return (D)mx;
+    }
+  } else if constexpr (K == StatKind::DotProd) {
+    double s = 0.0;
+    for (int i = 0; i < n; ++i) s += (double)a[i] * (double)b[i];
+    return npps_fin_round<D>(s, sf);
+  } else if constexpr (std::is_integral_v<S1> && std::is_integral_v<S2>) {
+    if constexpr (K == StatKind::NormL1) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) {
+        const long long d = (long long)a[i] - (long long)b[i];
+        s += d < 0 ? -d : d;
+      }
+      return npps_scale_ll<D>(s, sf);
+    } else if constexpr (K == StatKind::NormL2 || K == StatKind::NormL2Sqr) {
+      long long s = 0;
+      for (int i = 0; i < n; ++i) {
+        const long long d = (long long)a[i] - (long long)b[i];
+        s += d * d;
+      }
+      if constexpr (K == StatKind::NormL2) {
+        if constexpr (std::is_integral_v<D>) {
+          const long long q = (long long)std::llrint(std::sqrt((double)s));
+          return npps_scale_ll<D>(q, sf);
+        } else {
+          return npps_scale_from_double<D>(std::sqrt((double)s), sf);
+        }
+      } else {
+        return npps_scale_ll<D>(s, sf);
+      }
+    } else {  // NormInf
+      double mx = 0.0;
+      for (int i = 0; i < n; ++i) {
+        const double d = std::fabs((double)a[i] - (double)b[i]);
+        if (d > mx) mx = d;
+      }
+      if constexpr (std::is_integral_v<D>) return npps_fin_round<D>(mx, sf);
+      else return npps_scale_from_double<D>(mx, sf);
+    }
+  } else {
+    double s = 0.0, mx = 0.0;
+    for (int i = 0; i < n; ++i) {
+      const double d = (double)a[i] - (double)b[i];
+      if constexpr (K == StatKind::NormL1) s += std::fabs(d);
+      else if constexpr (K == StatKind::NormL2 || K == StatKind::NormL2Sqr) s += d * d;
+      else {
+        const double ad = std::fabs(d);
+        if (ad > mx) mx = ad;
+      }
+    }
+    if constexpr (K == StatKind::NormL1 || K == StatKind::NormL2Sqr) {
+      return npps_scale_from_double<D>(s, sf);
+    } else if constexpr (K == StatKind::NormL2) {
+      if constexpr (std::is_integral_v<D>) {
+        const long long q = (long long)std::llrint(std::sqrt(s));
+        return npps_scale_ll<D>(q, sf);
+      } else {
+        return npps_scale_from_double<D>(std::sqrt(s), sf);
+      }
+    } else {
+      if constexpr (std::is_integral_v<D>) return npps_fin_round<D>(mx, sf);
+      else return npps_scale_from_double<D>(mx, sf);
+    }
+  }
+}
+
+template <typename S, typename OM, typename OS>
+inline void npps_meanstd_ref(const S *p, int n, int sf, OM &mean_out, OS &sd_out) {
+  double sum = 0.0, sq = 0.0;
+  for (int i = 0; i < n; ++i) {
+    const double d = (double)p[i];
+    sum += d;
+    sq += d * d;
+  }
+  const double mean = sum / (double)n;
+  if constexpr (std::is_integral_v<OM>) {
+    mean_out = npps_scale_ll<OM>((long long)std::rint(mean), sf);
+  } else {
+    mean_out = (OM)std::ldexp(mean, -sf);
+  }
+  if constexpr (std::is_integral_v<OS>) {
+    const long long sum_ll = (long long)sum;
+    const long long sumsq_ll = (long long)sq;
+    long long num = sumsq_ll - (sum_ll * sum_ll) / (long long)n;
+    long long var = num / (long long)(n - 1);
+    if (var < 0) var = 0;
+    sd_out = npps_scale_ll<OS>((long long)std::sqrt((double)var), sf);
+  } else {
+    double var = (sq - sum * sum / (double)n) / (double)(n - 1);
+    if (!(var > 0.0)) var = 0.0;
+    sd_out = (OS)std::ldexp(std::sqrt(var), -sf);
+  }
+}
+
+template <typename S> struct NppsExtResult {
+  S minv{}, maxv{};
+  int mini = -1, maxi = -1;
+};
+
+template <typename S, bool Abs>
+inline NppsExtResult<S> npps_ext_ref(const S *p, int n) {
+  NppsExtResult<S> r;
+  for (int i = 0; i < n; ++i) {
+    S v = p[i];
+    if constexpr (Abs && std::is_signed_v<S>) {
+      if (v == type_min<S>()) {
+        v = type_max<S>();  // NPP saturates |minimum| to the maximum
+      } else if (v < 0) {
+        v = (S)(-v);
+      }
+    }
+    if (i == 0) {
+      r.minv = r.maxv = v;
+      r.mini = r.maxi = 0;
+    } else {
+      if (v < r.minv) { r.minv = v; r.mini = i; }
+      if (v > r.maxv) { r.maxv = v; r.maxi = i; }
+    }
+  }
+  return r;
+}
+
+template <typename S>
+inline double npps_zc_ref(const S *p, int n, int mode) {
+  double total = 0.0;
+  for (int i = 1; i < n; ++i) {
+    const S prev = p[i - 1], cur = p[i];
+    if (mode == 0) {  // nppZCR
+      if ((prev > S(0) && cur < S(0)) || (prev < S(0) && cur > S(0))) total += 1.0;
+    } else if (mode == 1) {  // nppZCXor
+      if ((prev < S(0)) != (cur < S(0))) total += 1.0;
+    } else {  // nppZCC
+      const int sp = (prev > S(0) ? 1 : 0) - (prev < S(0) ? 1 : 0);
+      const int sc = (cur > S(0) ? 1 : 0) - (cur < S(0) ? 1 : 0);
+      total += 0.5 * (double)(sp > sc ? sp - sc : sc - sp);
+    }
+  }
+  return total;
+}
+
+// Floating-point reductions are order-dependent: NPP reduces in a block tree
+// while the CPU reference sums sequentially.  Keep the input dynamic range
+// bounded and use reduction-appropriate tolerances so the golden comparison
+// still validates the formula without demanding bit-identical summation.
+template <typename S> inline void npps_stat_clamp_inputs(Buf<S> &b) {
+  if constexpr (std::is_floating_point_v<S>) {
+    for (int i = 0; i < b.bw; ++i) {
+      if (b.hptr()[i] > S(1)) b.hptr()[i] = S(1);
+      if (b.hptr()[i] < S(-1)) b.hptr()[i] = S(-1);
+    }
+  } else {
+    (void)b;
+  }
+}
+
+// 32-bit integer dot products can overflow NPP's internal accumulator for
+// full-range inputs; NPP's overflow behaviour is accumulator-order dependent.
+// Keep the operands in a range where the exact sum is representable (and
+// exactly representable in double) so the formula is well-defined while the
+// API, mode and shape coverage is unchanged.
+template <typename A, typename B>
+inline void npps_dotprod_clamp_inputs(Buf<A> &a, Buf<B> &b) {
+  if constexpr ((std::is_integral_v<A> && sizeof(A) >= 4) ||
+                (std::is_integral_v<B> && sizeof(B) >= 4)) {
+    for (int i = 0; i < a.bw; ++i) {
+      if (a.hptr()[i] > A(10000)) a.hptr()[i] = A(10000);
+      if constexpr (std::is_signed_v<A>) {
+        if (a.hptr()[i] < A(-10000)) a.hptr()[i] = A(-10000);
+      }
+    }
+    for (int i = 0; i < b.bw; ++i) {
+      if (b.hptr()[i] > B(10000)) b.hptr()[i] = B(10000);
+      if constexpr (std::is_signed_v<B>) {
+        if (b.hptr()[i] < B(-10000)) b.hptr()[i] = B(-10000);
+      }
+    }
+  } else {
+    (void)a;
+    (void)b;
+  }
+}
+
+template <typename D> inline void npps_stat_tol(double &rtol, double &atol) {
+  if constexpr (std::is_same_v<D, Npp32f>) { rtol = 1e-5; atol = 1e-4; }
+  else if constexpr (std::is_same_v<D, Npp64f>) { rtol = 1e-10; atol = 1e-5; }
+  else { rtol = 0; atol = 0; }
+}
+
 template <typename D> inline void npps_tol(double &rtol, double &atol) {
   if constexpr (std::is_same_v<D, Npp16f>) { rtol = 2e-3; atol = 2e-3; }
   else if constexpr (std::is_same_v<D, Npp32f>) { rtol = 1e-5; atol = 1e-6; }
@@ -919,6 +1297,498 @@ void run_npps_const(const char *id, Call call, const std::vector<int> &sfs, bool
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// Statistics drivers.
+// ---------------------------------------------------------------------------
+template <typename S, typename D, StatKind K, class Call>
+void run_npps_stat1(const char *id, Call call, const std::vector<int> &sfs) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  double rtol, atol;
+  npps_stat_tol<D>(rtol, atol);
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  const bool finite = std::is_floating_point_v<S>;
+  for (int sf : sfs) {
+    for (const NppsCase &c : make_npps_cases(sf)) {
+      Buf<S> a(c.n, 1, 1, 0, 0);
+      Buf<D> out(1, 1, 1, 0, 0x5A);
+      const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
+      fill_npps(a, seed, c.regime, 0, finite);
+      npps_stat_clamp_inputs(a);
+      a.dev.copyFromHost(a.host);
+      out.dev.copyFromHost(out.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(reinterpret_cast<const S *>(a.dptr()),
+                          reinterpret_cast<D *>(out.dptr()), c.n, sf,
+                          reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      out.dev.copyToHost(out.host);
+      const D want = npps_stat1_ref<S, D, K>(a.hptr(), c.n, sf);
+      ++cnt.executed;
+      ++cnt.compared;
+      const uint8_t *wp = reinterpret_cast<const uint8_t *>(&want);
+      if (!equal_elem<D>(out.host.data(), wp, rtol, atol)) {
+        char buf[420];
+        std::snprintf(buf, sizeof(buf), "[%s] %s sf=%d mismatch: got=%s want=%s", id,
+                      c.id().c_str(), sf, dbg_elem<D>(out.host.data()).c_str(),
+                      dbg_elem<D>(wp).c_str());
+        if (first.empty()) first = buf;
+        EXPECT_TRUE(false) << buf;
+        ++cnt.mismatched;
+      }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S1, typename S2, typename D, StatKind K, class Call>
+void run_npps_stat2(const char *id, Call call, const std::vector<int> &sfs) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  double rtol, atol;
+  npps_stat_tol<D>(rtol, atol);
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  const bool finite = std::is_floating_point_v<S1> || std::is_floating_point_v<S2>;
+  for (int sf : sfs) {
+    for (const NppsCase &c : make_npps_cases(sf)) {
+      Buf<S1> a(c.n, 1, 1, 0, 0);
+      Buf<S2> b(c.n, 1, 1, 0, 0);
+      Buf<D> out(1, 1, 1, 0, 0x5A);
+      const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
+      fill_npps(a, seed, c.regime, 0, finite);
+      fill_npps(b, seed ^ 0x51633e2dull, c.regime, 1, finite);
+      npps_stat_clamp_inputs(a);
+      npps_stat_clamp_inputs(b);
+      if constexpr (K == StatKind::DotProd) npps_dotprod_clamp_inputs(a, b);
+      a.dev.copyFromHost(a.host);
+      b.dev.copyFromHost(b.host);
+      out.dev.copyFromHost(out.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(reinterpret_cast<const S1 *>(a.dptr()),
+                          reinterpret_cast<const S2 *>(b.dptr()),
+                          reinterpret_cast<D *>(out.dptr()), c.n, sf,
+                          reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      out.dev.copyToHost(out.host);
+      const D want = npps_stat2_ref<S1, S2, D, K>(a.hptr(), b.hptr(), c.n, sf);
+      ++cnt.executed;
+      ++cnt.compared;
+      const uint8_t *wp = reinterpret_cast<const uint8_t *>(&want);
+      if (!equal_elem<D>(out.host.data(), wp, rtol, atol)) {
+        char buf[420];
+        std::snprintf(buf, sizeof(buf), "[%s] %s sf=%d mismatch: got=%s want=%s", id,
+                      c.id().c_str(), sf, dbg_elem<D>(out.host.data()).c_str(),
+                      dbg_elem<D>(wp).c_str());
+        if (first.empty()) first = buf;
+        EXPECT_TRUE(false) << buf;
+        ++cnt.mismatched;
+      }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, typename OM, typename OS, class Call>
+void run_npps_meanstd(const char *id, Call call, const std::vector<int> &sfs) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  const bool finite = std::is_floating_point_v<S>;
+  for (int sf : sfs) {
+    for (const NppsCase &c : make_npps_cases(sf)) {
+      Buf<S> a(c.n, 1, 1, 0, 0);
+      Buf<OM> mo(1, 1, 1, 0, 0x5A);
+      Buf<OS> so(1, 1, 1, 0, 0x5A);
+      const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, sf);
+      fill_npps(a, seed, c.regime, 0, finite);
+      npps_stat_clamp_inputs(a);
+      a.dev.copyFromHost(a.host);
+      mo.dev.copyFromHost(mo.host);
+      so.dev.copyFromHost(so.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(reinterpret_cast<const S *>(a.dptr()),
+                          reinterpret_cast<OM *>(mo.dptr()),
+                          reinterpret_cast<OS *>(so.dptr()), c.n, sf,
+                          reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      mo.dev.copyToHost(mo.host);
+      so.dev.copyToHost(so.host);
+      OM wm{};
+      OS ws{};
+      npps_meanstd_ref<S, OM, OS>(a.hptr(), c.n, sf, wm, ws);
+      ++cnt.executed;
+      bool failed = false;
+      double mrt, mat, srt, sat;
+      npps_stat_tol<OM>(mrt, mat);
+      npps_stat_tol<OS>(srt, sat);
+      const uint8_t *mp = reinterpret_cast<const uint8_t *>(&wm);
+      const uint8_t *sp = reinterpret_cast<const uint8_t *>(&ws);
+      ++cnt.compared;
+      if (!equal_elem<OM>(mo.host.data(), mp, mrt, mat)) {
+        char b1[300];
+        std::snprintf(b1, sizeof(b1), "[%s] %s sf=%d mean got=%s want=%s", id, c.id().c_str(), sf,
+                      dbg_elem<OM>(mo.host.data()).c_str(), dbg_elem<OM>(mp).c_str());
+        if (first.empty()) first = b1;
+        EXPECT_TRUE(false) << b1;
+        ++cnt.mismatched;
+        failed = true;
+      }
+      ++cnt.compared;
+      if (!equal_elem<OS>(so.host.data(), sp, srt, sat)) {
+        char b2[300];
+        std::snprintf(b2, sizeof(b2), "[%s] %s sf=%d stddev got=%s want=%s", id, c.id().c_str(), sf,
+                      dbg_elem<OS>(so.host.data()).c_str(), dbg_elem<OS>(sp).c_str());
+        if (first.empty()) first = b2;
+        EXPECT_TRUE(false) << b2;
+        ++cnt.mismatched;
+        failed = true;
+      }
+      (void)failed;
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, bool Abs, bool WantMin, bool WantMax, bool WantMinIndx,
+          bool WantMaxIndx, class Call>
+void run_npps_extrema(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  const bool finite = std::is_floating_point_v<S>;
+  for (const NppsCase &c : make_npps_cases(0)) {
+    Buf<S> a(c.n, 1, 1, 0, 0);
+    Buf<S> mn(1, 1, 1, 0, 0x5A), mx(1, 1, 1, 0, 0x5A);
+    Buf<Npp32s> mi(1, 1, 1, 0, 0x5A), xi(1, 1, 1, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
+    fill_npps(a, seed, c.regime, 0, finite);
+    a.dev.copyFromHost(a.host);
+    mn.dev.copyFromHost(mn.host);
+    mx.dev.copyFromHost(mx.host);
+    mi.dev.copyFromHost(mi.host);
+    xi.dev.copyFromHost(xi.host);
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(
+        reinterpret_cast<const S *>(a.dptr()),
+        WantMin ? reinterpret_cast<S *>(mn.dptr()) : nullptr,
+        WantMinIndx ? reinterpret_cast<int *>(mi.dptr()) : nullptr,
+        WantMax ? reinterpret_cast<S *>(mx.dptr()) : nullptr,
+        WantMaxIndx ? reinterpret_cast<int *>(xi.dptr()) : nullptr,
+        c.n, reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+    mn.dev.copyToHost(mn.host);
+    mx.dev.copyToHost(mx.host);
+    mi.dev.copyToHost(mi.host);
+    xi.dev.copyToHost(xi.host);
+    const NppsExtResult<S> want = npps_ext_ref<S, Abs>(a.hptr(), c.n);
+    ++cnt.executed;
+    bool bad = false;
+    if constexpr (WantMin) {
+      ++cnt.compared;
+      if (!equal_elem<S>(mn.host.data(), reinterpret_cast<const uint8_t *>(&want.minv), 0, 0)) {
+        char b[300];
+        std::snprintf(b, sizeof(b), "[%s] %s min got=%s want=%s", id, c.id().c_str(),
+                      dbg_elem<S>(mn.host.data()).c_str(),
+                      dbg_elem<S>(reinterpret_cast<const uint8_t *>(&want.minv)).c_str());
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        bad = true;
+      }
+    }
+    if constexpr (WantMax) {
+      ++cnt.compared;
+      if (!equal_elem<S>(mx.host.data(), reinterpret_cast<const uint8_t *>(&want.maxv), 0, 0)) {
+        char b[300];
+        std::snprintf(b, sizeof(b), "[%s] %s max got=%s want=%s", id, c.id().c_str(),
+                      dbg_elem<S>(mx.host.data()).c_str(),
+                      dbg_elem<S>(reinterpret_cast<const uint8_t *>(&want.maxv)).c_str());
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        bad = true;
+      }
+    }
+    if constexpr (WantMinIndx) {
+      ++cnt.compared;
+      const int got = reinterpret_cast<const int *>(mi.host.data())[0];
+      if (got != want.mini) {
+        char b[260];
+        std::snprintf(b, sizeof(b), "[%s] %s minidx got=%d want=%d", id, c.id().c_str(), got,
+                      want.mini);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        bad = true;
+      }
+    }
+    if constexpr (WantMaxIndx) {
+      ++cnt.compared;
+      const int got = reinterpret_cast<const int *>(xi.host.data())[0];
+      if (got != want.maxi) {
+        char b[260];
+        std::snprintf(b, sizeof(b), "[%s] %s maxidx got=%d want=%d", id, c.id().c_str(), got,
+                      want.maxi);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        bad = true;
+      }
+    }
+    (void)bad;
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, bool IsMax, class Call>
+void run_npps_every(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const NppsCase &c : make_npps_cases(0)) {
+    Buf<S> a(c.n, 1, 1, 0, 0);
+    Buf<S> d(c.n, 1, 1, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
+    fill_npps(a, seed, c.regime, 0, std::is_floating_point_v<S>);
+    fill_npps(d, seed ^ 0x2545f491ull, c.regime, 2, std::is_floating_point_v<S>);
+    const std::vector<uint8_t> old_dst = d.host;
+    a.dev.copyFromHost(a.host);
+    d.dev.copyFromHost(d.host);
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(reinterpret_cast<const S *>(a.dptr()),
+                        reinterpret_cast<S *>(d.dptr()), c.n, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    ++cnt.executed;
+    for (int i = 0; i < c.n; ++i) {
+      ++cnt.compared;
+      const S av = a.hptr()[i];
+      const S dv = reinterpret_cast<const S *>(old_dst.data())[i];
+      // Match the kernel's operand order (dst is the left operand) so that
+      // NaN/Inf behaviour agrees as well.
+      const S want = IsMax ? (dv > av ? dv : av) : (dv < av ? dv : av);
+      const size_t off = (size_t)i * sizeof(S);
+      if (!equal_elem<S>(d.host.data() + off, reinterpret_cast<const uint8_t *>(&want), 0, 0)) {
+        char b[300];
+        std::snprintf(b, sizeof(b), "[%s] %s i=%d got=%s want=%s", id, c.id().c_str(), i,
+                      dbg_elem<S>(d.host.data() + off).c_str(),
+                      dbg_elem<S>(reinterpret_cast<const uint8_t *>(&want)).c_str());
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+        break;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <class Call>
+void run_npps_count_range(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  for (const NppsCase &c : make_npps_cases(0)) {
+    Buf<Npp32s> a(c.n, 1, 1, 0, 0);
+    Buf<Npp32s> out(1, 1, 1, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
+    fill_npps(a, seed, c.regime, 0);
+    Npp32s lo = a.hptr()[0];
+    Npp32s hi = a.hptr()[c.n - 1];
+    if (lo > hi) std::swap(lo, hi);
+    for (int variant = 0; variant < 2; ++variant) {
+      const Npp32s l = variant == 0 ? lo : hi;
+      const Npp32s h = variant == 0 ? hi : lo;
+      a.dev.copyFromHost(a.host);
+      out.dev.copyFromHost(out.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(reinterpret_cast<const Npp32s *>(a.dptr()),
+                          reinterpret_cast<int *>(out.dptr()), c.n, l, h,
+                          reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      out.dev.copyToHost(out.host);
+      int want = 0;
+      for (int i = 0; i < c.n; ++i) {
+        const Npp32s v = a.hptr()[i];
+        if (v > l && v < h) ++want;
+      }
+      ++cnt.executed;
+      ++cnt.compared;
+      const int got = reinterpret_cast<const int *>(out.host.data())[0];
+      if (got != want) {
+        char b[300];
+        std::snprintf(b, sizeof(b), "[%s] %s [%d,%d) got=%d want=%d", id, c.id().c_str(),
+                      (int)l, (int)h, got, want);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename S, class Call>
+void run_npps_zero_crossing(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  Buf<uint8_t> scratch(kNppsStatScratch, 1, 1, 0, 0);
+  scratch.dev.copyFromHost(scratch.host);
+  const bool finite = std::is_floating_point_v<S>;
+  for (const NppsCase &c : make_npps_cases(0)) {
+    Buf<S> a(c.n, 1, 1, 0, 0);
+    Buf<Npp32f> out(1, 1, 1, 0, 0x5A);
+    const uint64_t seed = case_seed(id, c.n, 1, 0, 0, (int)c.regime, 0);
+    fill_npps(a, seed, c.regime, 0, finite);
+    for (int mode = 0; mode < 3; ++mode) {
+      a.dev.copyFromHost(a.host);
+      out.dev.copyFromHost(out.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(reinterpret_cast<const S *>(a.dptr()),
+                          reinterpret_cast<Npp32f *>(out.dptr()), c.n,
+                          static_cast<NppsZCType>(mode),
+                          reinterpret_cast<Npp8u *>(scratch.dptr()), ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id() << " sync: " << cudaGetErrorString(se);
+      out.dev.copyToHost(out.host);
+      const double want = npps_zc_ref<S>(a.hptr(), c.n, mode);
+      ++cnt.executed;
+      ++cnt.compared;
+      const float got = reinterpret_cast<const float *>(out.host.data())[0];
+      if (std::fabs((double)got - want) > 1e-5 * std::max(1.0, std::fabs(want))) {
+        char b[300];
+        std::snprintf(b, sizeof(b), "[%s] %s mode=%d got=%.9g want=%.9g", id, c.id().c_str(),
+                      mode, (double)got, want);
+        if (first.empty()) first = b;
+        EXPECT_TRUE(false) << b;
+        ++cnt.mismatched;
+      }
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <class Call>
+void run_npps_buffer_size(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  const int lens[] = {0, 1, 2, 3, 255, 256, 257, 1024, 65537};
+  for (int n : lens) {
+    int size = -1;
+    NppStatus st = call(n, &size, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    ++cnt.executed;
+    ++cnt.compared;
+    if (size < 0) {
+      char b[240];
+      std::snprintf(b, sizeof(b), "[%s] n=%d negative buffer size %d", id, n, size);
+      if (first.empty()) first = b;
+      EXPECT_TRUE(false) << b;
+      ++cnt.mismatched;
+    }
   }
   finish(id, cnt, first);
 }
