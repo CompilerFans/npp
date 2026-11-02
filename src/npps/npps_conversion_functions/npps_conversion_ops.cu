@@ -45,11 +45,16 @@ __device__ __host__ __forceinline__ D sat(double v) {
   else { return (D)v; }
 }
 
-template <typename D>
+template <typename A, typename D>
 __device__ __host__ __forceinline__ D rnd_sat(double v, NppRoundMode mode) {
   long long r;
   if (mode == NPP_RND_FINANCIAL) {
-    r = (long long)(v >= 0.0 ? v + 0.5 : v - 0.5);
+    // NPP's 64s->32s kernel implements FINANCIAL as (v+0.5) floor, unlike the
+    // other npps conversions which round ties away from zero.
+    if constexpr (std::is_same_v<A, Npp64s> && std::is_same_v<D, Npp32s>)
+      r = (long long)std::floor(v + 0.5);
+    else
+      r = (long long)(v >= 0.0 ? v + 0.5 : v - 0.5);
   } else if (mode == NPP_RND_ZERO) {
     r = (long long)v;
   } else {  // NPP_RND_NEAR : nearest, ties to even
@@ -84,7 +89,7 @@ __global__ void convert_scale_kernel(const A* src, D* dst, NppSignalLength n, in
       dst[i] = (D)val;
     } else {
       // Integer-destination Sfs (no explicit round mode) uses round-half-away-from-zero.
-      dst[i] = rnd_sat<D>(val, NPP_RND_FINANCIAL);
+      dst[i] = rnd_sat<A, D>(val, NPP_RND_FINANCIAL);
     }
   }
 }
@@ -95,7 +100,7 @@ __global__ void convert_round_kernel(const A* src, D* dst, NppSignalLength n, Np
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < (size_t)n) {
     const double val = (double)ek::re_l(src[i]) / pow2d(sf);
-    dst[i] = rnd_sat<D>(val, mode);
+    dst[i] = rnd_sat<A, D>(val, mode);
   }
 }
 

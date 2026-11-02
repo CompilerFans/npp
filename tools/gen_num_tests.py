@@ -70,13 +70,93 @@ SPECS: Dict[str, dict] = {
     "nppiLShiftC": dict(kind="const", op="LShiftC", sfs=False),
     "nppiRShiftC": dict(kind="const", op="RShiftC", sfs=False),
     "nppiAbsDiffC": dict(kind="const", op="AbsDiffC", sfs=False),
+    "nppiThreshold": dict(kind="threshold", thr="Threshold", op_params=True),
+    "nppiThreshold_Val": dict(kind="threshold", thr="ThresholdVal", op_params=True),
+    "nppiThreshold_GT": dict(kind="threshold", thr="GT", op_params=False),
+    "nppiThreshold_LT": dict(kind="threshold", thr="LT", op_params=False),
+    "nppiThreshold_GTVal": dict(kind="threshold", thr="GTVal", op_params=False),
+    "nppiThreshold_LTVal": dict(kind="threshold", thr="LTVal", op_params=False),
+    "nppiThreshold_LTValGTVal": dict(kind="threshold", thr="LTValGTVal", op_params=False),
+    "nppiCompare": dict(kind="compare"),
+    "nppiCompareC": dict(kind="compare_const"),
+    "nppiSet": dict(kind="set"),
+    "nppiCopy": dict(kind="copy"),
+    "nppiTranspose": dict(kind="transpose"),
+    "nppiDup": dict(kind="dup"),
+    "nppiSwapChannels": dict(kind="swap"),
+    "nppiCopyConstBorder": dict(kind="border", border="Const"),
+    "nppiCopyReplicateBorder": dict(kind="border", border="Replicate"),
+    "nppiCopyWrapBorder": dict(kind="border", border="Wrap"),
+    "nppiCopySubpix": dict(kind="subpix"),
+    "nppiConvert": dict(kind="convert"),
+    "nppiCompareEqualEps": dict(kind="compare_eps"),
+    "nppiCompareEqualEpsC": dict(kind="compare_eps_const"),
 }
+
+THR_TWO_INTERVALS = {"nppiThreshold_LTValGTVal"}
+
+
+def thr_arg(p: G.Param, fn: str, two: bool) -> str:
+    """Normalized threshold-call argument for one declared parameter."""
+    n = p.name
+    if n == "pSrc":
+        return "s"
+    if n in ("pDst", "pSrcDst"):
+        return "d"
+    if n == "nSrcStep":
+        return "ss"
+    if n in ("nDstStep", "nSrcDstStep"):
+        return "ds"
+    if n == "oSizeROI":
+        return "r"
+    if n == "eComparisonOperation":
+        return "static_cast<NppCmpOp>(op)"
+    if n == "nEpsilon":
+        return "epsf"
+    if n == "nppStreamCtx":
+        return "c"
+    if "hreshold" in n:
+        second = two and n.endswith("GT")
+        base = "thr2" if second else "thr"
+        return base if p.is_array else f"{base}[0]"
+    if "alue" in n:
+        second = two and n.endswith("GT")
+        base = "val2" if second else "val"
+        return base if p.is_array else f"{base}[0]"
+    raise KeyError(n)
+
+
+def cmp_arg(p: G.Param, fn: str, is_const: bool) -> str:
+    n = p.name
+    if n in ("pSrc1", "pSrc"):
+        return "a"
+    if n == "pSrc2":
+        return "b"
+    if n in ("pDst", "pSrcDst"):
+        return "d"
+    if n in ("nSrc1Step", "nSrcStep"):
+        return "sa"
+    if n == "nSrc2Step":
+        return "sb"
+    if n == "nDstStep":
+        return "ds"
+    if n == "oSizeROI":
+        return "r"
+    if n == "eComparisonOperation":
+        return "static_cast<NppCmpOp>(op)"
+    if n == "nEpsilon":
+        return "epsf"
+    if n == "nppStreamCtx":
+        return "c"
+    if is_const and n in ("pConstants", "nConstant"):
+        return "cv" if n == "pConstants" else "cv[0]"
+    raise KeyError(n)
 
 
 def layout(fn: str):
     """Return (channels, inplace) from an nppi layout suffix, or None."""
     base = re.sub(r"_Ctx$", "", fn)
-    m = re.search(r"_(AC|C)(\d)(I?)[RP]", base)
+    m = re.search(r"_(AC|C)(\d)(I?)(M?)(?:R|CR)", base)
     if not m:
         return None
     ch = int(m.group(2))
@@ -122,12 +202,71 @@ def arg_expr(p: G.Param, ctx: dict) -> Optional[str]:
     return None
 
 
+def copy_layout(fn: str):
+    """Return (SCH, DCH, NCOPY, masked) for a packed nppiCopy variant."""
+    base = re.sub(r"_Ctx$", "", fn)
+    tok = None
+    for t in base.split("_"):
+        if re.match(r"^(AC|C|P)\d", t):
+            tok = t
+            break
+    if tok is None or "P" in tok:
+        return None
+    ms = list(re.finditer(r"(AC|C)(\d)", tok))
+    if not ms:
+        return None
+    pairs = [(m.group(1), int(m.group(2))) for m in ms]
+    tail = tok[ms[-1].end():]
+    masked = "M" in tail
+    selected = tail.startswith("CR") or tail.startswith("CR")
+    if len(pairs) == 1:
+        sch = dch = pairs[0][1]
+        ncopy = 1 if selected else (3 if pairs[0][0] == "AC" else sch)
+    else:
+        sch, dch = pairs[0][1], pairs[1][1]
+        ncopy = 1 if selected else min(sch, dch)
+    return sch, dch, ncopy, masked
+
+
+def dup_layout(fn: str):
+    base = re.sub(r"_Ctx$", "", fn)
+    m = re.search(r"_C1(C3|C4|AC4)R$", base)
+    if not m:
+        return None
+    kind = m.group(1)
+    stride = 3 if kind == "C3" else 4
+    fill = 3 if kind == "AC4" else stride
+    return stride, fill
+
+
+def swap_layout(fn: str):
+    base = re.sub(r"_Ctx$", "", fn)
+    m = re.search(r"_((?:AC|C)\d(?:C\d)?)(I?)R$", base)
+    if not m:
+        return None
+    tok, inplace = m.group(1), bool(m.group(2))
+    pairs = [(a, int(b)) for a, b in re.findall(r"(AC|C)(\d)", tok)]
+    c3c4 = tok.startswith("C3C4")
+    if len(pairs) == 1:
+        sc = dc = pairs[0][1]
+        ncopy = 3 if pairs[0][0] == "AC" else dc
+    else:
+        sc, dc = pairs[0][1], pairs[1][1]
+        ncopy = min(sc, dc)
+    return sc, dc, ncopy, c3c4, inplace
+
+
 def emit_test(row: dict, spec: dict) -> Optional[str]:
     fn = row["function_name"]
+    fam = row["family"]
     par = layout(fn)
     if par is None:
-        return None
-    C, inplace = par
+        if spec["kind"] in ("copy", "set", "transpose", "dup", "swap"):
+            C, inplace = 1, False
+        else:
+            return None
+    else:
+        C, inplace = par
     dtype = row["dtype"]
     ctype = DTYPE_CTYPE.get(dtype)
     if ctype is None:
@@ -154,6 +293,344 @@ def emit_test(row: dict, spec: dict) -> Optional[str]:
                 per_channel = p.name == "aConstants"
         if cst is None:
             return None
+
+    # Threshold and compare families use dedicated drivers and a normalized
+    # call shape rather than the elementwise generic path.
+    if spec["kind"] == "copy":
+        lay = copy_layout(fn)
+        if lay is None:
+            return None
+        sch, dch, ncopy, masked = lay
+        def copy_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n == "pDst": return "d"
+            if n == "nSrcStep": return "ss"
+            if n == "nDstStep": return "ds"
+            if n == "oSizeROI": return "r"
+            if n == "pMask": return "mask"
+            if n == "nMaskStep": return "ms"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [copy_arg(p) for p in params]
+        args.append("c")
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {ctype} *s, int ss, {ctype} *d, int ds, NppiSize r, "
+               f"const Npp8u *mask, int ms, NppStreamContext c) "
+               f"{{ (void)ss; (void)ds; (void)r; (void)mask; (void)ms; (void)c; return {call}; }}")
+        prefix = f"num::run_copy<{ctype}, {sch}, {dch}, {ncopy}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n"
+                f"  {prefix}(\n"
+                f"      \"{fn}\",\n"
+                f"      {lam},\n"
+                f"      {str(masked).lower()});\n"
+                f"}}\n")
+
+    if spec["kind"] == "set":
+        fill_all = "C3CR" in fn or "C4CR" in fn
+        masked = "MR" in fn
+        vparam = None
+        for p in params:
+            if p.name in ("nValue", "aValue", "aValues"):
+                vparam = p
+        if vparam is None:
+            return None
+        vt = vparam.ctype
+        per_channel = vparam.name in ("aValue", "aValues")
+        def set_arg(p):
+            n = p.name
+            if n == "pDst": return "d"
+            if n == "nDstStep": return "ds"
+            if n == "oSizeROI": return "r"
+            if n == "nppStreamCtx": return "c"
+            if n in ("aValue", "aValues"): return "vals"
+            if n == "nValue": return "scalar"
+            if n == "pMask": return "mask"
+            if n == "nMaskStep": return "ms"
+            raise KeyError(n)
+        args = [set_arg(p) for p in params]
+        args.append("c")
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {vt} *vals, {vt} scalar, {ctype} *d, int ds, NppiSize r, "
+               f"const Npp8u *mask, int ms, NppStreamContext c) "
+               f"{{ (void)vals; (void)scalar; (void)ds; (void)r; (void)mask; (void)ms; (void)c; "
+               f"return {call}; }}")
+        prefix = f"num::run_set<{ctype}, {vt}, {C}, {A}>"
+        test_name = re.sub(r"\W", "_", fn)
+        # NPP 13.4's 16f Set returns an error and writes nothing; keep those
+        # variants for the in-tree CUDA/MACA builds only.
+        guard = "#ifndef USE_NVIDIA_NPP_TESTS\n" if dtype == "16f" else ""
+        unguard = "#endif\n" if dtype == "16f" else ""
+        return (f"{guard}TEST(NumGen, {test_name}) {{\n"
+                f"  {prefix}(\n"
+                f"      \"{fn}\",\n"
+                f"      {lam},\n"
+                f"      {str(per_channel).lower()}, {str(fill_all).lower()}, "
+                f"{str(masked).lower()});\n"
+                f"}}\n{unguard}")
+
+    if spec["kind"] == "transpose":
+        lay = layout(fn)
+        if lay is None:
+            return None
+        C, inplace = lay
+        if inplace:
+            return None
+        def tr_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n == "pDst": return "d"
+            if n == "nSrcStep": return "ss"
+            if n == "nDstStep": return "ds"
+            if n == "oSrcROI": return "r"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [tr_arg(p) for p in params] + ["c"]
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {ctype} *s, int ss, {ctype} *d, int ds, NppiSize r, "
+               f"NppStreamContext c) {{ (void)ss; (void)ds; (void)r; (void)c; return {call}; }}")
+        prefix = f"num::run_transpose<{ctype}, {C}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if spec["kind"] == "dup":
+        lay = dup_layout(fn)
+        if lay is None:
+            return None
+        stride, fill = lay
+        def dup_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n == "pDst": return "d"
+            if n == "nSrcStep": return "ss"
+            if n == "nDstStep": return "ds"
+            if n == "oDstSizeROI": return "r"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [dup_arg(p) for p in params] + ["c"]
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {ctype} *s, int ss, {ctype} *d, int ds, NppiSize r, "
+               f"NppStreamContext c) {{ (void)ss; (void)ds; (void)r; (void)c; return {call}; }}")
+        prefix = f"num::run_dup<{ctype}, {stride}, {fill}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if spec["kind"] == "swap":
+        lay = swap_layout(fn)
+        if lay is None:
+            return None
+        sc, dc, ncopy, c3c4, inplace = lay
+        def sw_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n in ("pDst", "pSrcDst"): return "d"
+            if n == "nSrcStep": return "ss"
+            if n in ("nDstStep", "nSrcDstStep"): return "ds"
+            if n == "oSizeROI": return "r"
+            if n == "aDstOrder": return "ord"
+            if n == "nValue": return "value"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [sw_arg(p) for p in params] + ["c"]
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {ctype} *s, int ss, {ctype} *d, int ds, NppiSize r, const int *ord, "
+               f"{ctype} value, NppStreamContext c) "
+               f"{{ (void)ss; (void)ds; (void)r; (void)ord; (void)value; (void)c; return {call}; }}")
+        prefix = f"num::run_swap<{ctype}, {sc}, {dc}, {ncopy}, {str(c3c4).lower()}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam},\n      {str(inplace).lower()});\n}}\n")
+
+    if spec["kind"] == "convert":
+        base = re.sub(r"_Ctx$", "", fn)
+        m = re.search(r"_(AC|C)(\d)", base)
+        if m is None:
+            return None
+        C = int(m.group(2))
+        A = 3 if m.group(1) == "AC" else C
+        sfs = "Sfs" in fn or any(p.name == "nScaleFactor" for p in params)
+        round_mode = any(p.name == "eRoundMode" for p in params)
+        sct = dct = None
+        for p in params:
+            if p.name == "pSrc": sct = p.ctype
+            if p.name == "pDst": dct = p.ctype
+        if sct is None or dct is None:
+            return None
+        def cv_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n == "nSrcStep": return "ss"
+            if n == "pDst": return "d"
+            if n == "nDstStep": return "ds"
+            if n == "oSizeROI": return "r"
+            if n == "eRoundMode": return "static_cast<NppRoundMode>(mode)"
+            if n == "nScaleFactor": return "sf"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [cv_arg(p) for p in params] + ["c"]
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {sct} *s, int ss, {dct} *d, int ds, NppiSize r, int mode, int sf, "
+               f"NppStreamContext c) "
+               f"{{ (void)ss; (void)ds; (void)r; (void)mode; (void)sf; (void)c; return {call}; }}")
+        prefix = f"num::run_convert<{sct}, {dct}, {C}, {A}>"
+        test_name = re.sub(r"\W", "_", fn)
+        # NPP 13.4 does not implement 32f->16f Convert (error -1027 with a raw
+        # context, unstable values otherwise); exercise it on MPP only.
+        broken = "Convert_32f16f" in fn
+        guard = "#ifndef USE_NVIDIA_NPP_TESTS\n" if broken else ""
+        unguard = "#endif\n" if broken else ""
+        fin_away = "Convert_16s8s" in fn
+        return (f"{guard}TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam},\n      {str(sfs).lower()}, {str(round_mode).lower()}, "
+                f"{str(fin_away).lower()});\n}}\n{unguard}")
+
+    if spec["kind"] == "border":
+        lay = layout(fn)
+        if lay is None:
+            return None
+        C, inplace = lay
+        if inplace:
+            return None
+        A = 3 if "_AC4" in fn else C
+        vparam = None
+        for p in params:
+            if p.name in ("nValue", "aValue"):
+                vparam = p
+        vt = vparam.ctype if vparam else ctype
+        per_channel = bool(vparam and vparam.name == "aValue")
+        def bd_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n == "nSrcStep": return "ss"
+            if n == "oSrcSizeROI": return "ssize"
+            if n == "pDst": return "d"
+            if n == "nDstStep": return "ds"
+            if n == "oDstSizeROI": return "dsize"
+            if n == "nTopBorderHeight": return "top"
+            if n == "nLeftBorderWidth": return "left"
+            if n == "aValue": return "vals"
+            if n == "nValue": return "scalar"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [bd_arg(p) for p in params] + ["c"]
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {ctype} *s, int ss, NppiSize ssize, {ctype} *d, int ds, NppiSize dsize, "
+               f"int top, int left, const {vt} *vals, {vt} scalar, NppStreamContext c) "
+               f"{{ (void)ss; (void)ssize; (void)ds; (void)dsize; (void)top; (void)left; "
+               f"(void)vals; (void)scalar; (void)c; return {call}; }}")
+        prefix = (f"num::run_border<{ctype}, {vt}, {C}, {A}, "
+                  f"num::BorderKind::{spec['border']}>")
+        test_name = re.sub(r"\W", "_", fn)
+        guard = "#ifndef USE_NVIDIA_NPP_TESTS\n" if False else ""
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam},\n      {str(per_channel).lower()});\n}}\n")
+
+    if spec["kind"] == "subpix":
+        lay = layout(fn)
+        if lay is None:
+            return None
+        C, inplace = lay
+        if inplace:
+            return None
+        A = 3 if "_AC4" in fn else C
+        def sp_arg(p):
+            n = p.name
+            if n == "pSrc": return "s"
+            if n == "nSrcStep": return "ss"
+            if n == "pDst": return "d"
+            if n == "nDstStep": return "ds"
+            if n == "oDstSizeROI": return "r"
+            if n == "nDx": return "dx"
+            if n == "nDy": return "dy"
+            if n == "nppStreamCtx": return "c"
+            raise KeyError(n)
+        args = [sp_arg(p) for p in params] + ["c"]
+        call = f"{fn}({', '.join(args)})"
+        lam = (f"[](const {ctype} *s, int ss, {ctype} *d, int ds, NppiSize r, float dx, float dy, "
+               f"NppStreamContext c) "
+               f"{{ (void)ss; (void)ds; (void)r; (void)dx; (void)dy; (void)c; return {call}; }}")
+        prefix = f"num::run_subpix<{ctype}, {C}, {A}>"
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n  {prefix}(\n      \"{fn}\",\n"
+                f"      {lam});\n}}\n")
+
+    if spec["kind"] in ("threshold", "compare", "compare_const", "compare_eps", "compare_eps_const"):
+        if spec["kind"] == "threshold":
+            two = fam in THR_TWO_INTERVALS
+            args = [thr_arg(p, fn, two) for p in params]
+            args.append("c")
+            call = f"{fn}({', '.join(args)})"
+            per_channel = any(p.is_array for p in params if "hreshold" in p.name)
+            if inplace:
+                lam = (f"[](const {ctype} *, int, {ctype} *d, int ds, NppiSize r, "
+                       f"const {ctype} *thr, const {ctype} *val, const {ctype} *thr2, "
+                       f"const {ctype} *val2, int op, NppStreamContext c) "
+                       f"{{ (void)val; (void)val2; (void)thr2; (void)op; return {call}; }}")
+            else:
+                lam = (f"[](const {ctype} *s, int ss, {ctype} *d, int ds, NppiSize r, "
+                       f"const {ctype} *thr, const {ctype} *val, const {ctype} *thr2, "
+                       f"const {ctype} *val2, int op, NppStreamContext c) "
+                       f"{{ (void)val; (void)val2; (void)thr2; (void)op; return {call}; }}")
+            prefix = f"num::run_threshold<{ctype}, {C}, {A}, num::ThrKind::{spec['thr']}>"
+            run_params = ("{NPP_CMP_LESS, NPP_CMP_GREATER}" if spec["op_params"] else "{0}")
+            test_name = re.sub(r"\W", "_", fn)
+            return (f"TEST(NumGen, {test_name}) {{\n"
+                    f"  {prefix}(\n"
+                    f"      \"{fn}\",\n"
+                    f"      {lam},\n"
+                    f"      {run_params}, {str(per_channel).lower()}, {str(inplace).lower()});\n"
+                    f"}}\n")
+        eps_kind = spec["kind"] in ("compare_eps", "compare_eps_const")
+        is_const = spec["kind"] in ("compare_const", "compare_eps_const")
+        args = [cmp_arg(p, fn, is_const) for p in params]
+        args.append("c")
+        call = f"{fn}({', '.join(args)})"
+        if eps_kind:
+            if is_const:
+                per_channel = any(p.name == "pConstants" for p in params)
+                lam = (f"[](const {ctype} *a, int sa, const {ctype} *cv, Npp8u *d, int ds, "
+                       f"NppiSize r, float epsf, NppStreamContext c) "
+                       f"{{ (void)sa; (void)ds; (void)r; (void)c; return {call}; }}")
+                prefix = f"num::run_compare_eps_const<{ctype}, {C}, {A}>"
+                suffix = f", {str(per_channel).lower()}"
+            else:
+                lam = (f"[](const {ctype} *a, int sa, const {ctype} *b, int sb, Npp8u *d, int ds, "
+                       f"NppiSize r, float epsf, NppStreamContext c) "
+                       f"{{ (void)sa; (void)sb; (void)ds; (void)r; (void)c; return {call}; }}")
+                prefix = f"num::run_compare_eps<{ctype}, {C}, {A}>"
+                suffix = ""
+            test_name = re.sub(r"\W", "_", fn)
+            return (f"TEST(NumGen, {test_name}) {{\n"
+                    f"  {prefix}(\n"
+                    f"      \"{fn}\",\n"
+                    f"      {lam},\n"
+                    f"      {{0.0, 0.001, 0.25, 1.0}}{suffix});\n"
+                    f"}}\n")
+        if is_const:
+            per_channel = any(p.name == "pConstants" for p in params)
+            lam = (f"[](const {ctype} *a, int sa, const {ctype} *cv, Npp8u *d, int ds, "
+                   f"NppiSize r, int op, NppStreamContext c) "
+                   f"{{ (void)sa; (void)ds; (void)r; (void)op; (void)c; return {call}; }}")
+            prefix = f"num::run_compare_const<{ctype}, {C}, {A}>"
+            extra = f", {str(per_channel).lower()}"
+        else:
+            per_channel = False
+            lam = (f"[](const {ctype} *a, int sa, const {ctype} *b, int sb, Npp8u *d, int ds, "
+                   f"NppiSize r, int op, NppStreamContext c) "
+                   f"{{ (void)sa; (void)sb; (void)ds; (void)r; (void)op; (void)c; return {call}; }}")
+            prefix = f"num::run_compare<{ctype}, {C}, {A}>"
+            extra = ""
+        test_name = re.sub(r"\W", "_", fn)
+        return (f"TEST(NumGen, {test_name}) {{\n"
+                f"  {prefix}(\n"
+                f"      \"{fn}\",\n"
+                f"      {lam},\n"
+                f"      {{NPP_CMP_LESS, NPP_CMP_LESS_EQ, NPP_CMP_EQ, NPP_CMP_GREATER_EQ, "
+                f"NPP_CMP_GREATER}}{extra});\n"
+                f"}}\n")
 
     args: List[str] = []
     for p in params:

@@ -707,6 +707,7 @@ public:
       result = src_val < const_val;
       break;
     case NPP_CMP_LESS_EQ:
+      // Constant comparison uses the direct form: NaN is false.
       result = src_val <= const_val;
       break;
     case NPP_CMP_EQ:

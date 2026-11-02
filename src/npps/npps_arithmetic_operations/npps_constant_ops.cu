@@ -23,18 +23,26 @@ namespace {
 // unqualified name.
 using npp_kernel::checkCudaKernelError;
 
-// integer division with round-half-to-even, matching the element-wise DivOp.
+// Integer division with NPP's npps round-half-away-from-zero.  A zero
+// denominator saturates by the numerator sign (0/0 -> 0).
 template <typename D>
 __device__ __host__ D div_round_even(long long num, long long den) {
-  if (den == 0) return ek::sat_ll<D>(std::numeric_limits<long long>::max());
+  if (den == 0) {
+    if (num == 0) return (D)0;
+    if constexpr (std::is_signed_v<D>) {
+      using L = std::numeric_limits<D>;
+      return num < 0 ? (D)L::lowest() : (D)L::max();
+    } else {
+      return (D)std::numeric_limits<D>::max();
+    }
+  }
   long long q = num / den;
   long long r = num % den;
   if (r != 0) {
     long long ar = r < 0 ? -r : r;
     long long ad = den < 0 ? -den : den;
     int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
-    if ((ar << 1) > ad) q += sign;
-    else if ((ar << 1) == ad && (q & 1LL)) q += sign;
+    if ((ar << 1) >= ad) q += sign;
   }
   return ek::sat_ll<D>(q);
 }
@@ -151,7 +159,14 @@ struct MulCOp {
       }
     } else {
       if constexpr (std::is_floating_point_v<D>) return (A)(ek::re_l(a) * ek::re_l(b));
-      else return ek::scale_sat<D>(ek::re_ll(a) * ek::re_ll(b), sf);
+      else {
+        long long p = ek::re_ll(a) * ek::re_ll(b);
+        // 8u at sf == 0 uses the narrow signed 16-bit multiply path.
+        if constexpr (std::is_same_v<D, Npp8u>) {
+          if (sf == 0) p = (long long)(int16_t)(uint16_t)p;
+        }
+        return ek::scale_sat<D>(p, sf);
+      }
     }
   }
 };
@@ -177,7 +192,7 @@ struct DivCOp {
       }
     } else {
       if constexpr (std::is_floating_point_v<D>) return (A)(ek::re_l(a) / ek::re_l(b));
-      else return div_round_even<D>(ek::re_ll(a), ek::re_ll(b) << sf);
+      else return ek::div_sfs<D>(ek::re_ll(a), ek::re_ll(b), sf);
     }
   }
 };
@@ -187,7 +202,7 @@ struct DivCRevOp {
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
     if constexpr (std::is_floating_point_v<D>) return (A)(ek::re_l(b) / ek::re_l(a));
-    else return div_round_even<D>(ek::re_ll(b), ek::re_ll(a) << sf);
+    else return ek::div_sfs<D>(ek::re_ll(b), ek::re_ll(a), sf);
   }
 };
 
@@ -213,9 +228,19 @@ struct XorCOp {
 struct MulCF2I16Op {
   template <typename A, typename V, typename D>
   __device__ __host__ D apply(const A& a, const V& b, int sf) const {
-    double v = (double)ek::re_l(a) * (double)ek::re_l(b);
-    v = ldexp(v, -sf);
-    return ek::sat_ll<D>(static_cast<long long>(llrint(v)));
+    // NPP 13.4 (5090) computes the product in float32, rounds it half away
+    // from zero to an integer, then scales half-to-even and saturates to
+    // int16.  NaN maps to 0; infinities saturate by sign.
+    const float v = (float)ek::re_l(a) * (float)ek::re_l(b);
+    if (std::isnan(v)) return (D)0;
+    if (std::isinf(v)) {
+      using L = std::numeric_limits<D>;
+      return v > 0 ? (D)L::max() : (D)L::lowest();
+    }
+    if (v > 1.0e18f) return (D)std::numeric_limits<D>::max();
+    if (v < -1.0e18f) return (D)std::numeric_limits<D>::lowest();
+    const long long i = (long long)(v >= 0.0f ? v + 0.5f : v - 0.5f);
+    return ek::scale_sat<D>(i, sf);
   }
 };
 

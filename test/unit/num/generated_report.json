@@ -2018,5 +2018,1037 @@
     "reason": "unsupported signature/type"
    }
   ]
+ },
+ "nppi_threshold_and_compare_operations.h": {
+  "emitted": 208,
+  "skipped": [
+   {
+    "function": "nppiFusedAbsDiff_Threshold_GTVal_Ctx",
+    "family": "nppiFusedAbsDiff_Threshold_GTVal",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx",
+    "family": "nppiFusedAbsDiff_Threshold_GTVal_I",
+    "reason": "no family spec"
+   }
+  ]
+ },
+ "nppi_data_exchange_and_initialization.h": {
+  "emitted": 410,
+  "skipped": [
+   {
+    "function": "nppiCopy_16s_C3P3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16s_C4P4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16s_P3C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16s_P4C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16sc_AC4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16sc_C1R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16sc_C2R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16sc_C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16sc_C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16u_C3P3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16u_C4P4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16u_P3C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_16u_P4C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32f_C3P3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32f_C4P4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32f_P3C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32f_P4C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32s_C3P3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32s_C4P4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32s_P3C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32s_P4C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32sc_AC4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32sc_C1R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32sc_C2R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32sc_C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_32sc_C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_8u_C3P3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_8u_C4P4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_8u_P3C3R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiCopy_8u_P4C4R_Ctx",
+    "family": "nppiCopy",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiScale_16s8u_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16s8u_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16s8u_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16s8u_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16u8u_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16u8u_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16u8u_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_16u8u_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32f8u_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32f8u_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32f8u_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32f8u_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32s8u_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32s8u_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32s8u_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_32s8u_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16s_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16s_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16s_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16s_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16u_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16u_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16u_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u16u_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32f_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32f_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32f_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32f_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32s_AC4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32s_C1R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32s_C3R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiScale_8u32s_C4R_Ctx",
+    "family": "nppiScale",
+    "reason": "no family spec"
+   },
+   {
+    "function": "nppiSet_16sc_AC4R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_16sc_C1R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_16sc_C2R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_16sc_C3R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_16sc_C4R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_32fc_C1R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_32sc_AC4R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_32sc_C1R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_32sc_C2R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_32sc_C3R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   },
+   {
+    "function": "nppiSet_32sc_C4R_Ctx",
+    "family": "nppiSet",
+    "reason": "unsupported signature/type"
+   }
+  ]
+ },
+ "npps_initialization.h": {
+  "emitted": 26,
+  "skipped": [
+   {
+    "function": "nppsCopy_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsCopy_32sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsCopy_64sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSet_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSet_32sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSet_64sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsZero_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsZero_32sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsZero_64sc_Ctx",
+    "reason": "unsupported"
+   }
+  ]
+ },
+ "npps_conversion_functions.h": {
+  "emitted": 57,
+  "skipped": [
+   {
+    "function": "nppsThreshold_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_16sc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GTVal_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GTVal_16sc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GTVal_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GTVal_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GTVal_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GTVal_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GT_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GT_16sc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GT_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GT_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GT_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_GT_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LTVal_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LTVal_16sc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LTVal_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LTVal_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LTVal_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LTVal_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LT_16sc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LT_16sc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LT_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LT_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LT_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsThreshold_LT_64fc_I_Ctx",
+    "reason": "unsupported"
+   }
+  ]
+ },
+ "npps_arithmetic_and_logical_operations.h": {
+  "emitted": 251,
+  "skipped": [
+   {
+    "function": "nppsAddC_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddC_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProductC_32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_16s32s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_16s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_32s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_64f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAddProduct_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsAdd_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsCauchyDD2_32f_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsCauchyD_32f_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsCauchy_32f_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDivC_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDivC_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDivC_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDivC_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDivC_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDivC_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_32s16s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_Round_16s_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_Round_16s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_Round_16u_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_Round_16u_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_Round_8u_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsDiv_Round_8u_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_64f64s_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMulC_Low_32f16s_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32f32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32f32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32s32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32s32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsMul_Low_32s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsNormalize_16s_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsNormalize_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsNormalize_32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsNormalize_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsNormalize_64f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsNormalize_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqr_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqr_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqr_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqr_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqr_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqr_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqrt_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqrt_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqrt_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqrt_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqrt_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSqrt_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubCRev_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSubC_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_16sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_16sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_32fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_32fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_32sc_ISfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_32sc_Sfs_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_64fc_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSub_64fc_I_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLnGetBufferSize_16s32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLnGetBufferSize_32f64f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLnGetBufferSize_32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLnGetBufferSize_64f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLn_16s32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLn_32f64f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLn_32f_Ctx",
+    "reason": "unsupported"
+   },
+   {
+    "function": "nppsSumLn_64f_Ctx",
+    "reason": "unsupported"
+   }
+  ]
  }
 }

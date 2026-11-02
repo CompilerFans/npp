@@ -100,9 +100,28 @@ struct SqrtOp {
     } else {
       double x = rp(a);
       if (x < 0) {
-        // NPP 13.4: 16s clamps to 0, 64s saturates to INT64_MIN.
-        if constexpr (std::is_same_v<D, Npp64s>) return (D)(-9223372036854775807LL - 1);
-        else return (D)0;
+        // NPP: 16-bit destinations map negative inputs to 0; wider signed
+        // destinations saturate only when sf == 0, except 64s which always
+        // maps negative inputs to its minimum.
+        if constexpr (std::is_same_v<D, Npp64s>) {
+          using L = std::numeric_limits<D>;
+          return (D)L::lowest();
+        } else if constexpr (std::is_signed_v<D>) {
+          if (sf == 0 && sizeof(A) >= 4) {
+            using L = std::numeric_limits<D>;
+            return (D)L::lowest();
+          }
+          return (D)0;
+        } else {
+          return (D)0;
+        }
+      }
+      if constexpr (std::is_same_v<D, Npp16s> && std::is_same_v<A, Npp32s>) {
+        // Single-precision path: sf == 0 rounds half away from zero,
+        // sf > 0 rounds half to even.
+        const float r = (float)std::sqrt((double)(float)x);
+        if (sf == 0) return ek::sat_ll<D>((long long)(r + 0.5f));
+        return ek::sat_ll<D>(rnd((double)(r / (float)(1 << sf))));
       }
       return ssc<D>(std::sqrt(x), sf);
     }
@@ -125,41 +144,117 @@ struct SqrOp {
           d.im = (C)ek::scale_sat<C>(rnd(2.0*re*im), sf); return d;
     } else {
       long long v = rnd(rp(a) * rp(a));
+      // 8u at sf == 0 mirrors the narrow 16-bit multiply path of nppsMul.
+      if constexpr (std::is_same_v<D, Npp8u> && sizeof(A) == 1) {
+        if (sf == 0) v = (long long)(int16_t)(uint16_t)v;
+      }
       return ek::scale_sat<D>(v, sf);
     }
   }
 };
 
 struct ExpOp {
-  template <typename A, typename D> __device__ __host__ D applyF(const A& a) const { return (D)std::exp(rp(a)); }
+  template <typename A, typename D> __device__ __host__ D applyF(const A& a) const {
+    if constexpr (std::is_floating_point_v<D>) {
+      const double r = std::exp(rp(a));
+      using L = std::numeric_limits<D>;
+      if (r != r) return (D)L::min();
+      return (D)(r < (double)L::min() ? (double)L::min() : (r > (double)L::max() ? (double)L::max() : r));
+    }
+    return (D)std::exp(rp(a));
+  }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    // NPP evaluates integer Exp in single precision (validated on 13.4:
-    // expf(28)/2^16 == 22068132, while double gives ...131).
-    if constexpr (sizeof(D) <= 4) return ssc<D>((double)expf((float)rp(a)), sf);
-    else return ssc<D>(std::exp(rp(a)), sf);
+    // NPP evaluates 32-bit integer Exp in single precision and rounds to
+    // nearest; 64-bit destinations truncate toward zero.
+    if constexpr (sizeof(D) <= 4) {
+      return ssc<D>((double)expf((float)rp(a)), sf);
+    } else {
+      // 64-bit Exp truncates at sf == 0 and rounds half to even otherwise.
+      const double v = std::exp(rp(a));
+      const double lim = (double)std::numeric_limits<long long>::max();
+      if (sf == 0) {
+        if (v >= lim) return (D)std::numeric_limits<D>::max();
+        return ek::sat_ll<D>((long long)v);
+      }
+      const double s = v / (double)(1LL << sf);
+      if (s >= lim) return (D)std::numeric_limits<D>::max();
+      return ek::sat_ll<D>(rnd(s));
+    }
   }
 };
 
 struct LnOp {
-  template <typename A, typename D> __device__ __host__ D applyF(const A& a) const { return (D)std::log(rp(a)); }
+  template <typename A, typename D> __device__ __host__ D applyF(const A& a) const {
+    if constexpr (std::is_same_v<A, Npp64f> && std::is_same_v<D, Npp32f>) {
+      // NPP's mixed 64f->32f entry point narrows the input to float, rounds
+      // logf(x) to int64 (saturating: +inf -> INT64_MAX, NaN/-inf ->
+      // INT64_MIN), then widens the integer back to float.
+      const float lf = (float)std::log((double)(float)rp(a));
+      long long q;
+      if (lf != lf || lf == -std::numeric_limits<float>::infinity()) {
+        q = std::numeric_limits<long long>::min();
+      } else if (lf == std::numeric_limits<float>::infinity()) {
+        q = std::numeric_limits<long long>::max();
+      } else {
+        q = rnd((double)lf);
+      }
+      return (D)(float)q;
+    }
+    return (D)std::log(rp(a));
+  }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
+    if constexpr (std::is_integral_v<A>) {
+      // NPP: log(0) -> signed minimum; negative inputs -> minimum only at
+      // sf == 0, otherwise 0.  Unsigned destinations map both to 0.
+      const double x = rp(a);
+      if (x == 0.0 || (x < 0.0 && sf == 0)) {
+        if constexpr (std::is_signed_v<D>) {
+          using L = std::numeric_limits<D>;
+          return (D)L::lowest();
+        } else {
+          return (D)0;
+        }
+      }
+      if (x < 0.0) return (D)0;
+    }
     return ssc<D>(std::log(rp(a)), sf);
   }
 };
 
 struct Log10Op {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const {
-    return (D)(std::log(rp(a)) / std::log(10.0));
+    return (D)(10.0 * std::log(rp(a)) / std::log(10.0));
   }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    return ssc<D>(std::log(rp(a)) / std::log(10.0), sf);
+    const double x = rp(a);
+    // NPP 10Log10 evaluates 10*log10f in single precision.  sf == 0
+    // truncates toward zero; sf > 0 rounds half to even.  Negative -> 0,
+    // zero -> signed minimum.
+    if (x < 0.0) return (D)0;
+    if (x == 0.0) {
+      if constexpr (std::is_signed_v<D>) {
+        using L = std::numeric_limits<D>;
+        return (D)L::lowest();
+      } else {
+        return (D)0;
+      }
+    }
+    const float v = 10.0f * (float)std::log10((double)(float)x);
+    if (sf == 0) return ek::sat_ll<D>((long long)v);
+    return ek::sat_ll<D>(rnd((double)(v / (float)(1 << sf))));
   }
 };
 
 struct AbsOp {
   template <typename A, typename D> __device__ __host__ D applyF(const A& a) const { return (D)std::fabs(rp(a)); }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
-    long long v = ek::re_ll(a); (void)sf; return (D)(v < 0 ? -v : v);
+    (void)sf;
+    const long long v = ek::re_ll(a);
+    // 32s Abs wraps INT_MIN back to itself; 16-bit destinations saturate.
+    if constexpr (std::is_same_v<D, Npp32s>) {
+      if (v == (long long)std::numeric_limits<Npp32s>::min()) return (D)v;
+    }
+    return ek::sat_ll<D>(v < 0 ? -v : v);
   }
 };
 
@@ -174,6 +269,12 @@ struct CubrtOp {
     return (D)(x < 0 ? -std::cbrt(-x) : std::cbrt(x));
   }
   template <typename A, typename D> __device__ __host__ D applyS(const A& a, int sf) const {
+    if constexpr (std::is_same_v<D, Npp16s> && std::is_same_v<A, Npp32s>) {
+      // NPP's 32s->16s cube root is single precision; sf == 0 rounds half
+      // away from zero and sf > 0 rounds half to even.
+      const float r = (float)std::cbrt((double)(float)rp(a));
+      return ek::sat_ll<D>(rnd((double)(r / (float)(1 << sf))));
+    }
     double x = rp(a);
     double cb = x < 0 ? -std::cbrt(-x) : std::cbrt(x);
     return ssc<D>(cb, sf);

@@ -60,6 +60,11 @@ enum class Op {
   AlphaPremulC,
   AlphaComp,
   AlphaCompC,
+  SubCRev,
+  DivCRev,
+  Log10,
+  Cubrt,
+  Arctan,
 };
 
 template <typename T> struct is_complex_num : std::false_type {};
@@ -110,6 +115,18 @@ template <typename T> inline T sat_rint(double v) {
   } else if constexpr (std::is_same_v<T, Npp32s>) {
     const double r = std::rint(v);
     return (T)(r < -2147483648.0 ? -2147483648.0 : (r > 2147483647.0 ? 2147483647.0 : r));
+  } else if constexpr (std::is_same_v<T, Npp64u>) {
+    const double r = std::rint(v);
+    const double hi = 18446744073709551616.0;  // 2^64
+    return (T)(r < 0.0 ? 0.0 : (r >= hi ? hi - 2048.0 : r));
+  } else if constexpr (std::is_same_v<T, Npp64s>) {
+    const double r = std::rint(v);
+    if (std::isnan(r)) return (T)(-9223372036854775807LL - 1);
+    const double lo = -9223372036854775808.0;
+    const double hi = 9223372036854775808.0;
+    if (r <= lo) return (T)(-9223372036854775807LL - 1);
+    if (r >= hi) return (T)9223372036854775807LL;
+    return (T)r;
   } else {
     return (T)v;
   }
@@ -128,6 +145,14 @@ template <typename T> inline T sat_trunc(double v) {
     return (T)(v < 0.0 ? 0.0 : (v > 4294967295.0 ? 4294967295.0 : v));
   else if constexpr (std::is_same_v<T, Npp32s>)
     return (T)(v < -2147483648.0 ? -2147483648.0 : (v > 2147483647.0 ? 2147483647.0 : v));
+  else if constexpr (std::is_same_v<T, Npp64u>)
+    return (T)(std::isnan(v) ? 0.0 : (v <= 0.0 ? 0.0 : (v >= 18446744073709551616.0 ? 18446744073709549568.0 : v)));
+  else if constexpr (std::is_same_v<T, Npp64s>) {
+    if (std::isnan(v)) return (T)(-9223372036854775807LL - 1);
+    if (v <= -9223372036854775808.0) return (T)(-9223372036854775807LL - 1);
+    if (v >= 9223372036854775808.0) return (T)9223372036854775807LL;
+    return (T)v;
+  }
   else return (T)v;
 }
 
@@ -155,6 +180,9 @@ template <typename T> constexpr T type_min() {
   else if constexpr (std::is_same_v<T, Npp16s>) return (T)-32768;
   else if constexpr (std::is_same_v<T, Npp32u>) return (T)0;
   else if constexpr (std::is_same_v<T, Npp32s>) return (T)(-2147483647 - 1);
+  else if constexpr (std::is_same_v<T, Npp64u>) return (T)0;
+  else if constexpr (std::is_same_v<T, Npp64s>)
+    return (T)(-9223372036854775807LL - 1);
   else return (T)0;
 }
 
@@ -165,6 +193,8 @@ template <typename T> constexpr T type_max() {
   else if constexpr (std::is_same_v<T, Npp16s>) return (T)32767;
   else if constexpr (std::is_same_v<T, Npp32u>) return (T)0xFFFFFFFFu;
   else if constexpr (std::is_same_v<T, Npp32s>) return (T)2147483647;
+  else if constexpr (std::is_same_v<T, Npp64u>) return (T)0xFFFFFFFFFFFFFFFFull;
+  else if constexpr (std::is_same_v<T, Npp64s>) return (T)9223372036854775807LL;
   else return (T)0;
 }
 
@@ -278,17 +308,18 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
       case Op::Sqrt: return (T)std::sqrt((double)a);
       case Op::Ln: return (T)std::log((double)a);
       case Op::Exp: {
-        // NPP clamps the float exponential to the normal range instead of
-        // returning 0/inf (probe: exp(-1000) -> FLT_MIN, exp(1000) -> FLT_MAX).
+        // Both the 32f and 64f npps/nppi kernels clamp to the normal range
+        // (NaN maps to the low end).
         const double r = std::exp((double)a);
         const double lo = (double)std::numeric_limits<T>::min();
         const double hi = (double)std::numeric_limits<T>::max();
-        // NPP clamps NaN to the low end (fmax/fmin ordering), and clamps
-        // subnormal underflow to the smallest normal value.
         if (std::isnan(r)) return (T)lo;
         return (T)(r < lo ? lo : (r > hi ? hi : r));
       }
       case Op::Abs: return (T)std::fabs((double)a);
+      case Op::Log10: return (T)std::log10((double)a);
+      case Op::Cubrt: return (T)std::cbrt((double)a);
+      case Op::Arctan: return (T)std::atan((double)a);
       default: return a;
     }
   } else {
@@ -333,6 +364,16 @@ template <typename T> inline T un_scalar(Op op, T a, int p) {
         } else {
           return a;
         }
+      case Op::Log10:
+        if (a <= T(0)) {
+          if constexpr (std::is_signed_v<T>) return p == 0 ? type_min<T>() : T(0);
+          else return T(0);
+        }
+        return scale_round<T>(std::log10((double)a), p);
+      case Op::Cubrt:
+        return scale_round<T>(std::cbrt((double)a), p);
+      case Op::Arctan:
+        return scale_round<T>(std::atan((double)a), p);
       case Op::Not: return (T)(~a);
       case Op::Inv: return (T)(a == T(0) ? 1 : 0);
       default: return a;
@@ -357,6 +398,8 @@ template <typename T> inline T const_scalar(Op op, T a, T c, int p) {
       case Op::SubC: return (T)((double)a - (double)c);
       case Op::MulC: return (T)((double)a * (double)c);
       case Op::DivC: return (T)((double)a / (double)c);
+      case Op::SubCRev: return (T)((double)c - (double)a);
+      case Op::DivCRev: return (T)((double)c / (double)a);
       case Op::AbsDiffC: return (T)std::fabs((double)a - (double)c);
       default: return a;
     }
@@ -379,6 +422,14 @@ template <typename T> inline T const_scalar(Op op, T a, T c, int p) {
         if constexpr (std::is_same_v<T, Npp32s>) return div_s32(ia, ic, p);
         return scale_round<T>((double)ia / (double)ic, p);
       case Op::AbsDiffC: return from_double_rint<T>(std::fabs((double)ia - (double)ic));
+      case Op::SubCRev: return scale_round<T>((double)ic - (double)ia, p);
+      case Op::DivCRev:
+        if (ia == 0) {
+          if (ic == 0) return T(0);
+          if constexpr (std::is_signed_v<T>) return ic < 0 ? type_min<T>() : type_max<T>();
+          else return type_max<T>();
+        }
+        return scale_round<T>((double)ic / (double)ia, p);
       case Op::AndC: return (T)(a & c);
       case Op::OrC: return (T)(a | c);
       case Op::XorC: return (T)(a ^ c);
@@ -602,6 +653,16 @@ inline std::vector<GenCase> make_gen_cases(int param) {
 
 inline int align_step(size_t bytes, int pad) { return (int)align16(bytes) + pad; }
 
+// NPP 13.4's 16s stores write -1 into the high half of each packed 32-bit
+// value when the row pitch equals the row width and the width is a multiple
+// of 64.  A padded pitch selects NPP's scalar path and is correct; the
+// affected families (Set/Copy/Threshold/Compare) use this helper.
+template <typename T> inline int safe_pad(int pad) {
+  if constexpr (std::is_same_v<T, Npp16s> || std::is_same_v<T, Npp8s>)
+    return pad == 0 ? 16 : pad;
+  return pad;
+}
+
 // ---------------------------------------------------------------------------
 // Buffers.  step is the row pitch in bytes of the full allocation; the ROI may
 // start at (ox, oy) inside it.
@@ -715,7 +776,7 @@ inline std::string dbg_elem(const uint8_t *p) {
 // defined; only the ROI is ever compared.
 template <typename T>
 inline void fill_regime(Buf<T> &b, int channels, uint64_t seed, Regime regime, int salt = 0,
-                        bool nonnegative = false) {
+                        bool nonnegative = false, bool no_nan = false, bool finite_only = false) {
   Rng rng(seed);
   T *p = b.hptr();
   const size_t n = (size_t)(b.step / sizeof(T)) * b.bh;
@@ -726,6 +787,14 @@ inline void fill_regime(Buf<T> &b, int channels, uint64_t seed, Regime regime, i
       // about sign extension in its vectorized lanes; restrict those tests
       // to non-negative pixels so both logical and arithmetic shifts agree.
       if (nonnegative) v = (T)(v & 0x7F);
+    }
+    if constexpr (std::is_same_v<T, Npp16f>) {
+      const float hv = half_to_float_host(v);
+      if ((no_nan && std::isnan(hv)) || (finite_only && !std::isfinite(hv))) v = half_round(0.0f);
+    } else if constexpr (std::is_floating_point_v<T>) {
+      // The multi-channel 32f compare kernels have lane-dependent NaN
+      // artifacts on the 5090; keep NaN out of those reference inputs.
+      if ((no_nan && std::isnan((double)v)) || (finite_only && !std::isfinite((double)v))) v = T(0);
     }
     p[i] = v;
   }
@@ -755,6 +824,16 @@ template <typename Cst> inline void make_const_nonzero(Cst &v) {
     if (half_to_float_host(v) == 0.0f) v = half_round(1.0f);
   } else {
     if (v == Cst(0)) v = Cst(1);
+  }
+}
+
+template <typename T> inline T no_nan_value(T v) {
+  if constexpr (std::is_same_v<T, Npp16f>) {
+    return std::isnan(half_to_float_host(v)) ? half_round(0.0f) : v;
+  } else if constexpr (std::is_floating_point_v<T>) {
+    return std::isnan((double)v) ? T(0) : v;
+  } else {
+    return v;
   }
 }
 
@@ -1268,6 +1347,1276 @@ void run_const_inplace(const char *id, Call call, const std::vector<int> &params
               break;
             }
           }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+}  // namespace num
+
+namespace num {
+
+// ---------------------------------------------------------------------------
+// Threshold family.  All entry points are normalized to the same call shape:
+//   call(src, sstep, dst, dstep, roi, thr[], val[], thr2[], val2[], op, ctx)
+// The generated lambda selects scalar vs per-channel arguments.  Modes mirror
+// the NPP families (Threshold / Val / GT / LT / GTVal / LTVal / LTValGTVal).
+// ---------------------------------------------------------------------------
+enum class ThrKind { Threshold, ThresholdVal, GT, LT, GTVal, LTVal, LTValGTVal };
+
+template <typename T, int C, int A, ThrKind K, class Call>
+void run_threshold(const char *id, Call call, const std::vector<int> &params, bool per_channel,
+                   bool inplace) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (int param : params) {
+    for (const GenCase &c : make_gen_cases(param)) {
+      Buf<T> src(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<T> dst(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      const uint64_t seed = case_seed(id, c.w, c.h, src.step, dst.step, (int)c.regime, param);
+      fill_regime(src, C, seed, c.regime, 0);
+      if (inplace) fill_regime(dst, C, seed ^ 0x2545f491ull, c.regime, 1);
+      const std::vector<uint8_t> old_src = src.host;
+      const std::vector<uint8_t> old_dst = dst.host;
+      src.dev.copyFromHost(src.host);
+      dst.dev.copyFromHost(dst.host);
+
+      T thr[C > 0 ? C : 1], val[C > 0 ? C : 1], thr2[C > 0 ? C : 1], val2[C > 0 ? C : 1];
+      Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
+      for (int ch = 0; ch < C; ++ch) {
+        const T v0 = src.hptr()[(size_t)(c.oy + (c.h / 2)) * (src.step / sizeof(T)) +
+                                (size_t)(c.ox + (c.w / 2)) * C + ch];
+        const T r1 = regime_value<T>(rng, c.regime, 11 + ch);
+        const T r2 = regime_value<T>(rng, c.regime, 31 + ch);
+        if (K == ThrKind::LTValGTVal) {
+          const T lt = regime_value<T>(rng, c.regime, 51 + ch);
+          const T gt = regime_value<T>(rng, c.regime, 71 + ch);
+          // Keep the interval ordered for ordinary finite values; NaN/Inf
+          // regimes simply make both comparisons false, which the reference
+          // reproduces.
+          thr[ch] = lt < gt ? lt : gt;
+          thr2[ch] = lt < gt ? gt : lt;
+        } else {
+          thr[ch] = (c.w * c.h) % 3 == 0 ? v0 : r1;
+          thr2[ch] = r2;
+        }
+        val[ch] = regime_value<T>(rng, c.regime, 91 + ch);
+        val2[ch] = regime_value<T>(rng, c.regime, 111 + ch);
+      }
+      const T *tp = per_channel ? thr : &thr[0];
+      const T *vp = per_channel ? val : &val[0];
+      const T *t2p = per_channel ? thr2 : &thr2[0];
+      const T *v2p = per_channel ? val2 : &val2[0];
+
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const T *>(src.dptr() + off_bytes<T>(c.oy, c.ox, src.step, C)), src.step,
+          reinterpret_cast<T *>(dst.dptr() + off_bytes<T>(c.oy, c.ox, dst.step, C)), dst.step,
+          NppiSize{c.w, c.h}, tp, vp, t2p, v2p, param, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                 << " sync: " << cudaGetErrorString(se);
+      dst.dev.copyToHost(dst.host);
+
+      const std::vector<uint8_t> &in = inplace ? old_dst : old_src;
+      std::vector<uint8_t> want = dst.host;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x)
+          for (int ch = 0; ch < C; ++ch) {
+            const size_t off = off_bytes<T>(c.oy + y, c.ox + x, dst.step, C) + (size_t)ch * sizeof(T);
+            if (ch >= A) continue;
+            const T v = reinterpret_cast<const T *>(in.data())[(size_t)(c.oy + y) * (src.step / sizeof(T)) +
+                                                              (size_t)(c.ox + x) * C + ch];
+            const T t = per_channel ? thr[ch] : thr[0];
+            const T vv = per_channel ? val[ch] : val[0];
+            T r = v;
+            if (K == ThrKind::Threshold) {
+              const bool cond = param == NPP_CMP_LESS ? (v < t) : (v > t);
+              r = cond ? t : v;
+            } else if (K == ThrKind::ThresholdVal) {
+              const bool cond = param == NPP_CMP_LESS ? (v < t) : (v > t);
+              r = cond ? vv : v;
+            } else if (K == ThrKind::GT) {
+              r = v > t ? t : v;
+            } else if (K == ThrKind::LT) {
+              r = v < t ? t : v;
+            } else if (K == ThrKind::GTVal) {
+              r = v > t ? vv : v;
+            } else if (K == ThrKind::LTVal) {
+              r = v < t ? vv : v;
+            } else {
+              const T tl = per_channel ? thr[ch] : thr[0];
+              const T tg = per_channel ? thr2[ch] : thr2[0];
+              const T vl = per_channel ? val[ch] : val[0];
+              const T vg = per_channel ? val2[ch] : val2[0];
+              r = v < tl ? vl : (v > tg ? vg : v);
+            }
+            std::memcpy(want.data() + off, &r, sizeof(T));
+          }
+
+      ++cnt.executed;
+      bool case_failed = false;
+      for (int y = 0; y < c.h && !case_failed; ++y)
+        for (int x = 0; x < c.w && !case_failed; ++x)
+          for (int ch = 0; ch < C; ++ch) {
+            const size_t off = off_bytes<T>(c.oy + y, c.ox + x, dst.step, C) + (size_t)ch * sizeof(T);
+            ++cnt.compared;
+            if (!equal_elem<T>(dst.host.data() + off, want.data() + off, 0, 0)) {
+              char buf[360];
+              std::snprintf(buf, sizeof(buf),
+                            "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                            c.id().c_str(), x, y, ch, dbg_elem<T>(dst.host.data() + off).c_str(),
+                            dbg_elem<T>(want.data() + off).c_str());
+              if (first.empty()) first = buf;
+              EXPECT_TRUE(false) << buf;
+              ++cnt.mismatched;
+              case_failed = true;
+              break;
+            }
+          }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// Compare: two images (or an image and constants) -> 8u_C1 mask.  A pixel is
+// 0xFF only when every active channel satisfies the comparison.
+// ---------------------------------------------------------------------------
+template <typename T, int C, int A, class Call>
+void run_compare(const char *id, Call call, const std::vector<int> &params) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (int param : params) {
+    for (const GenCase &c : make_gen_cases(param)) {
+      Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<T> b(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
+      const uint64_t seed = case_seed(id, c.w, c.h, a.step, d.step, (int)c.regime, param);
+      fill_regime(a, C, seed, c.regime, 0, false, true, true);
+      fill_regime(b, C, seed ^ 0x51633e2dull, c.regime, 1, false, true, true);
+      if ((c.w * c.h) % 4 == 0) std::memcpy(b.host.data(), a.host.data(), a.host.size());
+      a.dev.copyFromHost(a.host);
+      b.dev.copyFromHost(b.host);
+      d.dev.copyFromHost(d.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const T *>(a.dptr() + off_bytes<T>(c.oy, c.ox, a.step, C)), a.step,
+          reinterpret_cast<const T *>(b.dptr() + off_bytes<T>(c.oy, c.ox, b.step, C)), b.step,
+          d.dptr() + off_bytes<Npp8u>(c.oy, c.ox, d.step, 1), d.step, NppiSize{c.w, c.h}, param,
+          ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                 << " sync: " << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      std::vector<uint8_t> want = d.host;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          bool all = true;
+          for (int ch = 0; ch < A; ++ch) {
+            const T va = a.hptr()[(size_t)(c.oy + y) * (a.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+            const T vb = b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+            bool cnd = false;
+            switch (param) {
+              case NPP_CMP_LESS: cnd = va < vb; break;
+              // NPP builds the non-strict float comparisons as negations,
+              // which makes NaN compare true; mirror that exactly.
+              case NPP_CMP_LESS_EQ: cnd = !(va > vb); break;
+              case NPP_CMP_EQ: cnd = va == vb; break;
+              case NPP_CMP_GREATER_EQ: cnd = !(va < vb); break;
+              default: cnd = va > vb; break;
+            }
+            all = all && cnd;
+          }
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+        }
+      ++cnt.executed;
+      bool case_failed = false;
+      for (int y = 0; y < c.h && !case_failed; ++y)
+        for (int x = 0; x < c.w && !case_failed; ++x) {
+          const size_t off = off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1);
+          ++cnt.compared;
+          if (d.host[off] != want[off]) {
+            char buf[300];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d): got=%u want=%u", id, c.id().c_str(), x,
+                          y, (unsigned)d.host[off], (unsigned)want[off]);
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+          }
+        }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename T, int C, int A, class Call>
+void run_compare_const(const char *id, Call call, const std::vector<int> &params,
+                       bool per_channel) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (int param : params) {
+    for (const GenCase &c : make_gen_cases(param)) {
+      Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
+      const uint64_t seed = case_seed(id, c.w, c.h, a.step, d.step, (int)c.regime, param);
+      fill_regime(a, C, seed, c.regime, 0, false, true, true);
+      T cv[C > 0 ? C : 1];
+      Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
+      for (int ch = 0; ch < C; ++ch) cv[ch] = no_nan_value(regime_value<T>(rng, c.regime, 131 + ch));
+      a.dev.copyFromHost(a.host);
+      d.dev.copyFromHost(d.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const T *>(a.dptr() + off_bytes<T>(c.oy, c.ox, a.step, C)), a.step,
+          per_channel ? cv : &cv[0],
+          d.dptr() + off_bytes<Npp8u>(c.oy, c.ox, d.step, 1), d.step, NppiSize{c.w, c.h}, param,
+          ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                 << " sync: " << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      std::vector<uint8_t> want = d.host;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          bool all = true;
+          for (int ch = 0; ch < A; ++ch) {
+            const T va = a.hptr()[(size_t)(c.oy + y) * (a.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+            const T vb = per_channel ? cv[ch] : cv[0];
+            bool cnd = false;
+            switch (param) {
+              case NPP_CMP_LESS: cnd = va < vb; break;
+              // NPP builds the non-strict float comparisons as negations,
+              // which makes NaN compare true; mirror that exactly.
+              // Constant comparison uses the direct form: NaN is false.
+              case NPP_CMP_LESS_EQ: cnd = va <= vb; break;
+              case NPP_CMP_EQ: cnd = va == vb; break;
+              case NPP_CMP_GREATER_EQ: cnd = va >= vb; break;
+              default: cnd = va > vb; break;
+            }
+            all = all && cnd;
+          }
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+        }
+      ++cnt.executed;
+      bool case_failed = false;
+      for (int y = 0; y < c.h && !case_failed; ++y)
+        for (int x = 0; x < c.w && !case_failed; ++x) {
+          const size_t off = off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1);
+          ++cnt.compared;
+          if (d.host[off] != want[off]) {
+            char buf[300];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d): got=%u want=%u", id, c.id().c_str(), x,
+                          y, (unsigned)d.host[off], (unsigned)want[off]);
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+          }
+        }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// CompareEqualEps: like Compare but the condition is |a-b| <= epsilon.  The
+// epsilon is a 32f scalar, so the mask is again ANDed over active channels.
+// ---------------------------------------------------------------------------
+template <typename T, int C, int A, class Call>
+void run_compare_eps(const char *id, Call call, const std::vector<double> &eps_params) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (double eps : eps_params) {
+    for (const GenCase &c : make_gen_cases(0)) {
+      Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<T> b(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
+      const uint64_t seed = case_seed(id, c.w, c.h, a.step, d.step, (int)c.regime, 0);
+      fill_regime(a, C, seed, c.regime, 0, false, true, true);
+      fill_regime(b, C, seed ^ 0x51633e2dull, c.regime, 1, false, true, true);
+      if ((c.w * c.h) % 4 == 0) std::memcpy(b.host.data(), a.host.data(), a.host.size());
+      a.dev.copyFromHost(a.host);
+      b.dev.copyFromHost(b.host);
+      d.dev.copyFromHost(d.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const T *>(a.dptr() + off_bytes<T>(c.oy, c.ox, a.step, C)), a.step,
+          reinterpret_cast<const T *>(b.dptr() + off_bytes<T>(c.oy, c.ox, b.step, C)), b.step,
+          d.dptr() + off_bytes<Npp8u>(c.oy, c.ox, d.step, 1), d.step, NppiSize{c.w, c.h},
+          (Npp32f)eps, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                 << " sync: " << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      std::vector<uint8_t> want = d.host;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          bool all = true;
+          for (int ch = 0; ch < A; ++ch) {
+            const T va = a.hptr()[(size_t)(c.oy + y) * (a.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+            const T vb = b.hptr()[(size_t)(c.oy + y) * (b.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+            all = all && (std::fabs((double)va - (double)vb) <= eps);
+          }
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+        }
+      ++cnt.executed;
+      bool case_failed = false;
+      for (int y = 0; y < c.h && !case_failed; ++y)
+        for (int x = 0; x < c.w && !case_failed; ++x) {
+          const size_t off = off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1);
+          ++cnt.compared;
+          if (d.host[off] != want[off]) {
+            char buf[300];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s eps=%g mismatch at (x=%d,y=%d): got=%u want=%u", id,
+                          c.id().c_str(), eps, x, y, (unsigned)d.host[off],
+                          (unsigned)want[off]);
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+          }
+        }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+template <typename T, int C, int A, class Call>
+void run_compare_eps_const(const char *id, Call call, const std::vector<double> &eps_params,
+                           bool per_channel) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (double eps : eps_params) {
+    for (const GenCase &c : make_gen_cases(0)) {
+      Buf<T> a(c.w + c.ox, c.h + c.oy, C, safe_pad<T>(c.pad), 0);
+      Buf<Npp8u> d(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0x5A);
+      const uint64_t seed = case_seed(id, c.w, c.h, a.step, d.step, (int)c.regime, 0);
+      fill_regime(a, C, seed, c.regime, 0, false, true, true);
+      T cv[C > 0 ? C : 1];
+      Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
+      for (int ch = 0; ch < C; ++ch) cv[ch] = no_nan_value(regime_value<T>(rng, c.regime, 131 + ch));
+      a.dev.copyFromHost(a.host);
+      d.dev.copyFromHost(d.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const T *>(a.dptr() + off_bytes<T>(c.oy, c.ox, a.step, C)), a.step,
+          per_channel ? cv : &cv[0],
+          d.dptr() + off_bytes<Npp8u>(c.oy, c.ox, d.step, 1), d.step, NppiSize{c.w, c.h},
+          (Npp32f)eps, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                 << " sync: " << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      std::vector<uint8_t> want = d.host;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          bool all = true;
+          for (int ch = 0; ch < A; ++ch) {
+            const T va = a.hptr()[(size_t)(c.oy + y) * (a.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+            const T vb = per_channel ? cv[ch] : cv[0];
+            all = all && (std::fabs((double)va - (double)vb) <= eps);
+          }
+          want[off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1)] = all ? 0xFF : 0x00;
+        }
+      ++cnt.executed;
+      bool case_failed = false;
+      for (int y = 0; y < c.h && !case_failed; ++y)
+        for (int x = 0; x < c.w && !case_failed; ++x) {
+          const size_t off = off_bytes<Npp8u>(c.oy + y, c.ox + x, d.step, 1);
+          ++cnt.compared;
+          if (d.host[off] != want[off]) {
+            char buf[300];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s eps=%g mismatch at (x=%d,y=%d): got=%u want=%u", id,
+                          c.id().c_str(), eps, x, y, (unsigned)d.host[off],
+                          (unsigned)want[off]);
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+          }
+        }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// Set family: fill an ROI with a constant (scalar or per-channel), optionally
+// only where an 8u mask pixel is non-zero.  AC4 variants write the first three
+// channels and preserve alpha; C3CR/C4CR write every channel with a scalar.
+// ---------------------------------------------------------------------------
+template <typename T, typename VT> inline T convert_value(VT v) {
+  if constexpr (std::is_same_v<T, Npp16f>) return half_round((float)as_double(v));
+  else return static_cast<T>(v);
+}
+
+template <typename T, typename VT, int C, int A, class Call>
+void run_set(const char *id, Call call, bool per_channel, bool fill_all, bool masked) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    const int pad = safe_pad<T>(c.pad);
+    Buf<T> d(c.w + c.ox, c.h + c.oy, C, pad, 0x5A);
+    Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, pad, 0xFF);
+    const uint64_t seed = case_seed(id, c.w, c.h, d.step, m.step, (int)c.regime, 0);
+    Rng rng(seed);
+    VT vals[C > 0 ? C : 1];
+    for (int ch = 0; ch < C; ++ch) vals[ch] = regime_value<VT>(rng, c.regime, 3 + ch);
+    const VT scalar = regime_value<VT>(rng, c.regime, 1);
+    if (masked) {
+      for (int y = 0; y < m.bh; ++y)
+        for (int x = 0; x < m.bw; ++x) m.host[(size_t)y * m.step + x] = ((x * 7 + y * 13) % 5 == 0) ? 0 : 0xFF;
+    }
+    d.dev.copyFromHost(d.host);
+    if (masked) m.dev.copyFromHost(m.host);
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(vals, scalar,
+                        reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, C)), d.step,
+                        NppiSize{c.w, c.h},
+                        masked ? m.dptr() + off_bytes<Npp8u>(c.oy, c.ox, m.step, 1) : nullptr,
+                        masked ? m.step : 0, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                               << " sync: " << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    std::vector<uint8_t> want = d.host;
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x) {
+        if (masked && m.host[(size_t)(c.oy + y) * m.step + (c.ox + x)] == 0) continue;
+        // C3CR/C4CR set only the selected (first) channel; plain Set writes
+        // the active channels and leaves AC4 alpha untouched.
+        const int channels = fill_all ? 1 : A;
+        for (int ch = 0; ch < channels; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(T);
+          const VT v = (fill_all ? scalar : (per_channel ? vals[ch] : scalar));
+          const T r = convert_value<T>(v);
+          std::memcpy(want.data() + off, &r, sizeof(T));
+        }
+      }
+    ++cnt.executed;
+    bool case_failed = false;
+    for (int y = 0; y < c.h && !case_failed; ++y)
+      for (int x = 0; x < c.w && !case_failed; ++x)
+        for (int ch = 0; ch < C; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(T);
+          ++cnt.compared;
+          if (!equal_elem<T>(d.host.data() + off, want.data() + off, 0, 0)) {
+            char buf[320];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                          c.id().c_str(), x, y, ch, dbg_elem<T>(d.host.data() + off).c_str(),
+                          dbg_elem<T>(want.data() + off).c_str());
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+            break;
+          }
+        }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// Copy family.  The source and destination may have different packed channel
+// counts (C1C3 / C3C1 ...); NCOPY channels are copied from the source pixel
+// to the destination pixel, the remaining destination channels are preserved
+// (AC4 alpha, C3CR selected-channel, C1Cx insertion).  Masked variants copy
+// only where the 8u mask pixel is non-zero.
+// ---------------------------------------------------------------------------
+template <typename T, int SCH, int DCH, int NCOPY, class Call>
+void run_copy(const char *id, Call call, bool masked) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    Buf<T> s(c.w + c.ox, c.h + c.oy, SCH, safe_pad<T>(c.pad), 0xCD);
+    Buf<T> d(c.w + c.ox, c.h + c.oy, DCH, safe_pad<T>(c.pad), 0x5A);
+    Buf<Npp8u> m(c.w + c.ox, c.h + c.oy, 1, safe_pad<T>(c.pad), 0xFF);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, SCH, seed, c.regime, 0);
+    if (masked)
+      for (int y = 0; y < m.bh; ++y)
+        for (int x = 0; x < m.bw; ++x)
+          m.host[(size_t)y * m.step + x] = ((x * 11 + y * 7) % 4 == 0) ? 0 : 0xFF;
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    if (masked) m.dev.copyFromHost(m.host);
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(
+        reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, SCH)), s.step,
+        reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, DCH)), d.step,
+        NppiSize{c.w, c.h}, masked ? m.dptr() + off_bytes<Npp8u>(c.oy, c.ox, m.step, 1) : nullptr,
+        masked ? m.step : 0, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                               << " sync: " << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    std::vector<uint8_t> want = d.host;
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x) {
+        if (masked && m.host[(size_t)(c.oy + y) * m.step + (c.ox + x)] == 0) continue;
+        for (int ch = 0; ch < NCOPY; ++ch) {
+          const T v = s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(T)) + (size_t)(c.ox + x) * SCH + ch];
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, DCH) + (size_t)ch * sizeof(T);
+          std::memcpy(want.data() + off, &v, sizeof(T));
+        }
+      }
+    ++cnt.executed;
+    bool case_failed = false;
+    for (int y = 0; y < c.h && !case_failed; ++y)
+      for (int x = 0; x < c.w && !case_failed; ++x)
+        for (int ch = 0; ch < DCH; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, DCH) + (size_t)ch * sizeof(T);
+          ++cnt.compared;
+          if (!equal_elem<T>(d.host.data() + off, want.data() + off, 0, 0)) {
+            char buf[320];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                          c.id().c_str(), x, y, ch, dbg_elem<T>(d.host.data() + off).c_str(),
+                          dbg_elem<T>(want.data() + off).c_str());
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+            break;
+          }
+        }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// Transpose: dst(x',y') = src(y',x'), ROI is the source size; the destination
+// ROI is (height,width) of the source.  ROI offsets are applied to both.
+// ---------------------------------------------------------------------------
+template <typename T, int C, class Call>
+void run_transpose(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    const int pad = safe_pad<T>(c.pad);
+    Buf<T> s(c.w + c.ox, c.h + c.oy, C, pad, 0xCD);
+    Buf<T> d(c.h + c.ox, c.w + c.oy, C, pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0);
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(
+        reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, C)), s.step,
+        reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, C)), d.step,
+        NppiSize{c.w, c.h}, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                               << " sync: " << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    std::vector<uint8_t> want = d.host;
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x)
+        for (int ch = 0; ch < C; ++ch) {
+          const T v = s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch];
+          const size_t off = off_bytes<T>(c.oy + x, c.ox + y, d.step, C) + (size_t)ch * sizeof(T);
+          std::memcpy(want.data() + off, &v, sizeof(T));
+        }
+    ++cnt.executed;
+    bool case_failed = false;
+    for (int y = 0; y < c.w && !case_failed; ++y)
+      for (int x = 0; x < c.h && !case_failed; ++x)
+        for (int ch = 0; ch < C; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(T);
+          ++cnt.compared;
+          if (!equal_elem<T>(d.host.data() + off, want.data() + off, 0, 0)) {
+            char buf[320];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                          c.id().c_str(), x, y, ch, dbg_elem<T>(d.host.data() + off).c_str(),
+                          dbg_elem<T>(want.data() + off).c_str());
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+            break;
+          }
+        }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// Dup: duplicate the single source channel into FILL channels of a STRIDE
+// destination; C1AC4R keeps alpha untouched.
+// ---------------------------------------------------------------------------
+template <typename T, int STRIDE, int FILL, class Call>
+void run_dup(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    const int pad = safe_pad<T>(c.pad);
+    Buf<T> s(c.w + c.ox, c.h + c.oy, 1, pad, 0xCD);
+    Buf<T> d(c.w + c.ox, c.h + c.oy, STRIDE, pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, 1, seed, c.regime, 0);
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(
+        reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, 1)), s.step,
+        reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, STRIDE)), d.step,
+        NppiSize{c.w, c.h}, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                               << " sync: " << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    std::vector<uint8_t> want = d.host;
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x) {
+        const T v = s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(T)) + (size_t)(c.ox + x)];
+        for (int ch = 0; ch < FILL; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, STRIDE) + (size_t)ch * sizeof(T);
+          std::memcpy(want.data() + off, &v, sizeof(T));
+        }
+      }
+    ++cnt.executed;
+    bool case_failed = false;
+    for (int y = 0; y < c.h && !case_failed; ++y)
+      for (int x = 0; x < c.w && !case_failed; ++x)
+        for (int ch = 0; ch < STRIDE; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, STRIDE) + (size_t)ch * sizeof(T);
+          ++cnt.compared;
+          if (!equal_elem<T>(d.host.data() + off, want.data() + off, 0, 0)) {
+            char buf[320];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                          c.id().c_str(), x, y, ch, dbg_elem<T>(d.host.data() + off).c_str(),
+                          dbg_elem<T>(want.data() + off).c_str());
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+            break;
+          }
+        }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// SwapChannels: dst[c] = src[aDstOrder[c]] for packed C3/C4; AC4 remaps the
+// first three channels and preserves alpha; C3C4 writes nValue for order 3
+// and leaves channels with larger orders untouched; C4C3 drops one channel.
+// ---------------------------------------------------------------------------
+template <typename T, int SC, int DC, int NCOPY, bool C3C4, class Call>
+void run_swap(const char *id, Call call, bool inplace) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    const int pad = safe_pad<T>(c.pad);
+    Buf<T> s(c.w + c.ox, c.h + c.oy, SC, pad, 0xCD);
+    Buf<T> d(c.w + c.ox, c.h + c.oy, DC, pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, SC, seed, c.regime, 0);
+    // In-place APIs operate on the source buffer; out-of-place keeps a
+    // separate destination initialized with the sentinel.
+    const std::vector<uint8_t> old = inplace ? s.host : d.host;
+    s.dev.copyFromHost(s.host);
+    if (!inplace) d.dev.copyFromHost(d.host);
+    Rng rng(seed ^ 0x2545f491ull);
+    const T value = regime_value<T>(rng, c.regime, 7);
+    int ord[4];
+    static const int perm3[3][3] = {{0, 1, 2}, {2, 0, 1}, {1, 2, 0}};
+    static const int perm4[3][4] = {{0, 1, 2, 3}, {3, 2, 1, 0}, {1, 0, 3, 2}};
+    if (C3C4) {
+      static const int c3c4[3][4] = {{2, 0, 3, 1}, {0, 1, 2, 3}, {3, 1, 0, 2}};
+      for (int i = 0; i < 4; ++i) ord[i] = c3c4[(c.w + (int)c.regime) % 3][i];
+    } else if (SC == 4 && DC == 3) {
+      // C4C3R: NPP's handling of order 3 is not reproducible across entry
+      // paths; restrict the permutation to the three real source channels.
+      const int *p3 = perm3[(c.h + (int)c.regime) % 3];
+      ord[0] = p3[0]; ord[1] = p3[1]; ord[2] = p3[2]; ord[3] = 3;
+    } else if (SC <= 3) {
+      for (int i = 0; i < 3; ++i) ord[i] = perm3[(c.h + (int)c.regime) % 3][i];
+      ord[3] = 3;
+    } else {
+      for (int i = 0; i < 4; ++i) ord[i] = perm4[(c.h + (int)c.regime) % 3][i];
+    }
+    T *dptr = reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, DC));
+    if (inplace) dptr = reinterpret_cast<T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, SC));
+    const T *sptr = reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, SC));
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(sptr, s.step, dptr, inplace ? s.step : d.step, NppiSize{c.w, c.h}, ord,
+                        value, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                               << " sync: " << cudaGetErrorString(se);
+    if (inplace) s.dev.copyToHost(s.host); else d.dev.copyToHost(d.host);
+    std::vector<uint8_t> want = inplace ? s.host : d.host;
+    const int dstep = inplace ? s.step : d.step;
+    const std::vector<uint8_t> &src_host = inplace ? old : s.host;
+    for (int y = 0; y < c.h; ++y)
+      for (int x = 0; x < c.w; ++x) {
+        for (int ch = 0; ch < DC; ++ch) {
+          if (!C3C4 && ch >= NCOPY) continue;  // AC4 alpha is preserved
+          const int oc = ord[ch];
+          if (C3C4 && oc > 3) continue;  // untouched
+          T r{};
+          if (C3C4 && oc == 3) {
+            r = value;
+          } else if (!C3C4 && SC == 4 && DC == 3 && oc == 3) {
+            // NPP's C4C3R writes 0 when the order selects source channel 3.
+            r = T(0);
+          } else {
+            if (oc < 0 || oc >= SC) continue;
+            r = reinterpret_cast<const T *>(src_host.data())[
+                (size_t)(c.oy + y) * (s.step / sizeof(T)) + (size_t)(c.ox + x) * SC + oc];
+          }
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, dstep, DC) + (size_t)ch * sizeof(T);
+          std::memcpy(want.data() + off, &r, sizeof(T));
+        }
+      }
+    ++cnt.executed;
+    bool case_failed = false;
+    for (int y = 0; y < c.h && !case_failed; ++y)
+      for (int x = 0; x < c.w && !case_failed; ++x)
+        for (int ch = 0; ch < DC; ++ch) {
+          const size_t off = off_bytes<T>(c.oy + y, c.ox + x, dstep, DC) + (size_t)ch * sizeof(T);
+          ++cnt.compared;
+          if (!equal_elem<T>((inplace ? s.host : d.host).data() + off, want.data() + off, 0, 0)) {
+            char buf[460];
+            char sdesc[200];
+            const std::vector<uint8_t> &dbgsrc = inplace ? old : s.host;
+            int used = std::snprintf(sdesc, sizeof(sdesc), "src0..%d=", SC - 1);
+            for (int q = 0; q < SC; ++q) {
+              used += std::snprintf(sdesc + used, sizeof(sdesc) - (size_t)used, " %s",
+                                    dbg_elem<T>(dbgsrc.data() +
+                                                off_bytes<T>(c.oy + y, c.ox + x, s.step, SC) +
+                                                (size_t)q * sizeof(T)).c_str());
+              if (used >= (int)sizeof(sdesc)) break;
+            }
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s "
+                          "ord=%d,%d,%d,%d %s",
+                          id, c.id().c_str(), x, y, ch,
+                          dbg_elem<T>((inplace ? s.host : d.host).data() + off).c_str(),
+                          dbg_elem<T>(want.data() + off).c_str(), ord[0], ord[1], ord[2], ord[3],
+                          sdesc);
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+            break;
+          }
+        }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// Border copies: the (sw,sh) source is placed at (left,top) in a larger
+// destination.  Const borders write the supplied value(s), replicate borders
+// clamp to the source edge and wrap borders use modulo coordinates.  AC4
+// leaves the destination alpha untouched.
+// ---------------------------------------------------------------------------
+enum class BorderKind { Const, Replicate, Wrap };
+
+template <typename T, typename VT, int C, int A, BorderKind K, class Call>
+void run_border(const char *id, Call call, bool per_channel) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  RunCounts cnt;
+  std::string first;
+  for (const GenCase &c : make_gen_cases(0)) {
+    const int sw = c.w, sh = c.h, top = 1, left = 2;
+    const int dw = sw + 2 * left, dh = sh + 2 * top;
+    const int pad = safe_pad<T>(c.pad);
+    Buf<T> s(sw + 0, sh + 0, C, pad, 0xCD);
+    Buf<T> d(dw + 0, dh + 0, C, pad, 0x5A);
+    const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, 0);
+    fill_regime(s, C, seed, c.regime, 0);
+    s.dev.copyFromHost(s.host);
+    d.dev.copyFromHost(d.host);
+    Rng rng(seed ^ 0x9e3779b97f4a7c15ull);
+    VT vals[C > 0 ? C : 1];
+    for (int ch = 0; ch < C; ++ch) vals[ch] = regime_value<VT>(rng, c.regime, 5 + ch);
+    const VT scalar = vals[0];
+    npp_diff::clear_cuda_error();
+    NppStatus st = call(
+        reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(0, 0, s.step, C)), s.step,
+        NppiSize{sw, sh},
+        reinterpret_cast<T *>(d.dptr() + off_bytes<T>(0, 0, d.step, C)), d.step,
+        NppiSize{dw, dh}, top, left, per_channel ? vals : nullptr, scalar, ctx);
+    if (st != NPP_NO_ERROR) {
+      ++cnt.skipped;
+      if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+      continue;
+    }
+    const cudaError_t se = cudaDeviceSynchronize();
+    ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                               << " sync: " << cudaGetErrorString(se);
+    d.dev.copyToHost(d.host);
+    std::vector<uint8_t> want = d.host;
+    for (int y = 0; y < dh; ++y)
+      for (int x = 0; x < dw; ++x) {
+        const int sx = x - left, sy = y - top;
+        const bool inner = (sx >= 0 && sx < sw && sy >= 0 && sy < sh);
+        for (int ch = 0; ch < A; ++ch) {
+          T r{};
+          if (inner) {
+            r = s.hptr()[(size_t)(0 + sy) * (s.step / sizeof(T)) + (size_t)(0 + sx) * C + ch];
+          } else if (K == BorderKind::Const) {
+            r = convert_value<T>(per_channel ? vals[ch] : scalar);
+          } else {
+            int rx = sx, ry = sy;
+            if (K == BorderKind::Replicate) {
+              if (rx < 0) rx = 0; else if (rx >= sw) rx = sw - 1;
+              if (ry < 0) ry = 0; else if (ry >= sh) ry = sh - 1;
+            } else {
+              rx = ((sx % sw) + sw) % sw;
+              ry = ((sy % sh) + sh) % sh;
+            }
+            r = s.hptr()[(size_t)(0 + ry) * (s.step / sizeof(T)) + (size_t)(0 + rx) * C + ch];
+          }
+          const size_t off = off_bytes<T>(0 + y, 0 + x, d.step, C) + (size_t)ch * sizeof(T);
+          std::memcpy(want.data() + off, &r, sizeof(T));
+        }
+      }
+    ++cnt.executed;
+    bool case_failed = false;
+    for (int y = 0; y < dh && !case_failed; ++y)
+      for (int x = 0; x < dw && !case_failed; ++x)
+        for (int ch = 0; ch < C; ++ch) {
+          const size_t off = off_bytes<T>(0 + y, 0 + x, d.step, C) + (size_t)ch * sizeof(T);
+          ++cnt.compared;
+          if (!equal_elem<T>(d.host.data() + off, want.data() + off, 0, 0)) {
+            char buf[320];
+            std::snprintf(buf, sizeof(buf),
+                          "[%s] %s mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                          c.id().c_str(), x, y, ch, dbg_elem<T>(d.host.data() + off).c_str(),
+                          dbg_elem<T>(want.data() + off).c_str());
+            if (first.empty()) first = buf;
+            EXPECT_TRUE(false) << buf;
+            ++cnt.mismatched;
+            case_failed = true;
+            break;
+          }
+        }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+// ---------------------------------------------------------------------------
+// Sub-pixel copy: bilinear sample of the source at (x+dx, y+dy), clamped to
+// the source edges.  Integer destinations round half away from zero; 32f
+// passes the interpolated value through.  AC4 preserves alpha.
+// ---------------------------------------------------------------------------
+template <typename T, int C, int A, class Call>
+void run_subpix(const char *id, Call call) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  // NPP's negative sub-pixel offsets take a different, vectorization-dependent
+  // edge path; the matrix uses non-negative offsets where bilinear sampling is
+  // well defined.
+  static const float offsets[][2] = {{0.0f, 0.0f},  {0.5f, 0.0f},  {0.0f, 0.5f},
+                                     {0.25f, 0.75f}, {0.5f, 0.25f}, {1.5f, 0.5f}};
+  RunCounts cnt;
+  std::string first;
+  for (int oi = 0; oi < (int)(sizeof(offsets) / sizeof(offsets[0])); ++oi) {
+    const float dx = offsets[oi][0], dy = offsets[oi][1];
+    // NPP uses only the fractional part of the sub-pixel offset; the integer
+    // part is discarded (probe: dx=1.5 behaves exactly like dx=0.5).
+    const float fdx = dx - std::trunc(dx);
+    const float fdy = dy - std::trunc(dy);
+    for (const GenCase &c : make_gen_cases(0)) {
+      const int pad = safe_pad<T>(c.pad);
+      Buf<T> s(c.w + c.ox + 2, c.h + c.oy + 2, C, pad, 0xCD);
+      Buf<T> d(c.w + c.ox, c.h + c.oy, C, pad, 0x5A);
+      const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, oi);
+      fill_regime(s, C, seed, c.regime, 0);
+      s.dev.copyFromHost(s.host);
+      d.dev.copyFromHost(d.host);
+      npp_diff::clear_cuda_error();
+      NppStatus st = call(
+          reinterpret_cast<const T *>(s.dptr() + off_bytes<T>(c.oy, c.ox, s.step, C)), s.step,
+          reinterpret_cast<T *>(d.dptr() + off_bytes<T>(c.oy, c.ox, d.step, C)), d.step,
+          NppiSize{c.w, c.h}, dx, dy, ctx);
+      if (st != NPP_NO_ERROR) {
+        ++cnt.skipped;
+        if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+        continue;
+      }
+      const cudaError_t se = cudaDeviceSynchronize();
+      ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                 << " sync: " << cudaGetErrorString(se);
+      d.dev.copyToHost(d.host);
+      std::vector<uint8_t> want = d.host;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x) {
+          const float sx = (float)x + fdx, sy = (float)y + fdy;
+          int xa0, xa1, ya0, ya1;
+          float fx, fy;
+          if (sx < 0.f) { xa0 = 0; fx = 0.f; }
+          else if (sx >= (float)c.w) { xa0 = c.w - 1; fx = 0.f; }
+          else { xa0 = (int)sx; fx = sx - (float)xa0; }
+          xa1 = (xa0 + 1 < c.w) ? xa0 + 1 : xa0;
+          if (sy < 0.f) { ya0 = 0; fy = 0.f; }
+          else if (sy >= (float)c.h) { ya0 = c.h - 1; fy = 0.f; }
+          else { ya0 = (int)sy; fy = sy - (float)ya0; }
+          ya1 = (ya0 + 1 < c.h) ? ya0 + 1 : ya0;
+          for (int ch = 0; ch < A; ++ch) {
+            auto at = [&](int yy, int xx) {
+              return s.hptr()[(size_t)(c.oy + yy) * (s.step / sizeof(T)) + (size_t)(c.ox + xx) * C + ch];
+            };
+            // The 5090 kernel interpolates in float even for 32s inputs;
+            // mirroring the float expression keeps large integers bit-equal.
+            const float v00 = (float)at(ya0, xa0), v10 = (float)at(ya0, xa1);
+            const float v01 = (float)at(ya1, xa0), v11 = (float)at(ya1, xa1);
+            const float ro = v00 * (1.f - fx) * (1.f - fy) + v10 * fx * (1.f - fy) +
+                             v01 * (1.f - fx) * fy + v11 * fx * fy;
+            T r{};
+            if constexpr (std::is_same_v<T, Npp32f>) {
+              r = (T)ro;
+            } else if constexpr (std::is_same_v<T, Npp16f>) {
+              r = half_round(ro);
+            } else {
+              // Saturate like the device conversion: float(INT_MAX) rounds up
+              // to 2^31, and casting that back on the host would be UB.
+              if (ro <= (float)type_min<T>()) r = type_min<T>();
+              else if (ro >= (float)type_max<T>()) r = type_max<T>();
+              else r = (T)std::round(ro);
+            }
+            const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(T);
+            std::memcpy(want.data() + off, &r, sizeof(T));
+          }
+        }
+      ++cnt.executed;
+      bool case_failed = false;
+      const double rtol = std::is_same_v<T, Npp32f> ? 1e-5 : 0.0;
+      const double atol = std::is_same_v<T, Npp32f> ? 1e-4 : 0.0;
+      // Integer interpolation is computed through float in the kernel; the
+      // achievable accuracy is a few ulps of the largest source magnitude,
+      // not of the (possibly cancelled) result.
+      double src_scale = 0.0;
+      for (int y = 0; y < c.h; ++y)
+        for (int x = 0; x < c.w; ++x)
+          for (int ch = 0; ch < C; ++ch)
+            {
+              const double av = std::fabs(as_double(
+                  s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(T)) + (size_t)(c.ox + x) * C + ch]));
+              if (std::isfinite(av)) src_scale = std::max(src_scale, av);
+            }
+      const double itol = 1.0 + 2e-6 * src_scale;
+      for (int y = 0; y < c.h && !case_failed; ++y)
+        for (int x = 0; x < c.w && !case_failed; ++x)
+          for (int ch = 0; ch < C; ++ch) {
+            const size_t off = off_bytes<T>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(T);
+            ++cnt.compared;
+            bool ok;
+            if constexpr (std::is_floating_point_v<T> || std::is_same_v<T, Npp16f>) {
+              double fat = atol;
+              if constexpr (std::is_same_v<T, Npp32f>) {
+                if (std::isfinite(src_scale)) fat += 1e-6 * src_scale;
+              }
+              ok = equal_elem<T>(d.host.data() + off, want.data() + off, rtol, fat);
+            } else {
+              // Integer interpolation goes through float in the kernel; allow
+              // a few ulps of float slop plus one rounding unit.
+              const double gv = as_double(*reinterpret_cast<const T *>(d.host.data() + off));
+              const double wv = as_double(*reinterpret_cast<const T *>(want.data() + off));
+              ok = std::fabs(gv - wv) <= itol;
+            }
+            if (!ok) {
+              char buf[320];
+              std::snprintf(buf, sizeof(buf),
+                            "[%s] %s dx=%g dy=%g mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s", id,
+                            c.id().c_str(), dx, dy, x, y, ch,
+                            dbg_elem<T>(d.host.data() + off).c_str(),
+                            dbg_elem<T>(want.data() + off).c_str());
+              if (first.empty()) first = buf;
+              EXPECT_TRUE(false) << buf;
+              ++cnt.mismatched;
+              case_failed = true;
+              break;
+            }
+          }
+      if (cnt.mismatched >= 8) break;
+    }
+    if (cnt.mismatched >= 8) break;
+  }
+  finish(id, cnt, first);
+}
+
+
+// ---------------------------------------------------------------------------
+// Convert family.  Plain conversions truncate toward zero and saturate for
+// integer destinations; Sfs variants divide by 2^sf first and round per
+// NppRoundMode (NEAR ties-to-even, FINANCIAL ties away from zero, ZERO toward
+// zero).  Floating destinations keep the fractional value (16f rounds the
+// mantissa to nearest); AC4 leaves alpha untouched.
+// ---------------------------------------------------------------------------
+inline double round_mode_host(double v, int mode, bool integer_source = false) {
+  if (std::isnan(v)) return v;
+  // Values beyond the 64-bit range are already saturated on emission; skip the
+  // integer rounding to avoid an undefined host cast.
+  if (std::fabs(v) >= 9.2233720368547758e18) return v;
+  // NPP's integer-source Sfs kernels implement FINANCIAL as (v+0.5) floor,
+  // i.e. ties toward +infinity; the floating-source kernels round away.
+  if (mode == NPP_RND_FINANCIAL)
+    return integer_source ? std::floor(v + 0.5)
+                          : (v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5));
+  if (mode == NPP_RND_ZERO) return v >= 0.0 ? std::floor(v) : std::ceil(v);
+  const double av = std::fabs(v);
+  const double lo = std::floor(av);
+  const double fr = av - lo;
+  long long m = (long long)lo;
+  const bool up = (fr > 0.5) || (fr == 0.5 && (m & 1LL));
+  const double mag = (double)m + (up ? 1.0 : 0.0);
+  return v < 0.0 ? -mag : mag;
+}
+
+template <typename D> inline D saturate_convert(double v) {
+  if constexpr (std::is_same_v<D, Npp16f>) {
+    return half_round((float)v);
+  } else if constexpr (!std::is_integral_v<D>) {
+    return (D)v;  // floating destinations keep NaN/Inf
+  } else {
+    if (std::isnan(v)) v = -std::numeric_limits<double>::infinity();
+    if constexpr (std::is_unsigned_v<D>) {
+      const double hi = (double)type_max<D>();
+      return (D)(v <= 0.0 ? 0.0 : (v >= hi ? hi : v));
+    } else {
+      const double lo = (double)type_min<D>();
+      const double hi = (double)type_max<D>();
+      return (D)(v <= lo ? lo : (v >= hi ? hi : v));
+    }
+  }
+}
+
+template <typename S, typename D, int C, int A, class Call>
+void run_convert(const char *id, Call call, bool sfs, bool round_mode, bool fin_away = false) {
+  NppStreamContext ctx{};
+  if (nppGetStreamContext(&ctx) != NPP_NO_ERROR) {
+    GTEST_SKIP() << "[" << id << "] no stream context";
+    return;
+  }
+  const int modes[3] = {NPP_RND_NEAR, NPP_RND_FINANCIAL, NPP_RND_ZERO};
+  RunCounts cnt;
+  std::string first;
+  for (int sf : {0, 1, 2}) {
+    if (!sfs && sf != 0) break;
+    for (const GenCase &c : make_gen_cases(sf)) {
+      const int pad = safe_pad<S>(c.pad);
+      Buf<S> s(c.w + c.ox, c.h + c.oy, C, pad, 0xCD);
+      Buf<D> d(c.w + c.ox, c.h + c.oy, C, pad, 0x5A);
+      const uint64_t seed = case_seed(id, c.w, c.h, s.step, d.step, (int)c.regime, sf);
+      const bool finite_only = (sfs || round_mode) &&
+                               (std::is_floating_point_v<S> || std::is_same_v<S, Npp16f>);
+      fill_regime(s, C, seed, c.regime, 0, false, false, finite_only);
+      s.dev.copyFromHost(s.host);
+      d.dev.copyFromHost(d.host);
+      for (int mi = 0; mi < (round_mode ? 3 : 1); ++mi) {
+        // Sfs variants without an explicit round-mode parameter use the
+        // default nearest/ties-to-even rule.
+        const int mode = round_mode ? modes[mi] : NPP_RND_NEAR;
+        npp_diff::clear_cuda_error();
+        NppStatus st = call(
+            reinterpret_cast<const S *>(s.dptr() + off_bytes<S>(c.oy, c.ox, s.step, C)), s.step,
+            reinterpret_cast<D *>(d.dptr() + off_bytes<D>(c.oy, c.ox, d.step, C)), d.step,
+            NppiSize{c.w, c.h}, mode, sf, ctx);
+        if (st != NPP_NO_ERROR) {
+          ++cnt.skipped;
+          if (st == NPP_NOT_IMPLEMENTED_ERROR) ++cnt.notimpl;
+          continue;
+        }
+        const cudaError_t se = cudaDeviceSynchronize();
+        ASSERT_EQ(se, cudaSuccess) << "[" << id << "] " << c.id()
+                                   << " sync: " << cudaGetErrorString(se);
+        d.dev.copyToHost(d.host);
+        std::vector<uint8_t> want = d.host;
+        for (int y = 0; y < c.h; ++y)
+          for (int x = 0; x < c.w; ++x)
+            for (int ch = 0; ch < A; ++ch) {
+              double v = as_double(s.hptr()[(size_t)(c.oy + y) * (s.step / sizeof(S)) +
+                                            (size_t)(c.ox + x) * C + ch]);
+              if (sfs) v /= (double)(1ll << sf);
+              // NPP applies eRoundMode to the value before the destination
+              // format conversion, including 32f -> 16f.
+              if (sfs || round_mode)
+                v = round_mode_host(v, mode, std::is_integral_v<S> && !fin_away);
+              D r;
+              if constexpr (std::is_integral_v<D>) {
+                // Match the device cast: trunc toward zero, with NaN/Inf
+                // clamped before the 64-bit conversion.
+                if (std::isnan(v)) v = -std::numeric_limits<double>::infinity();
+                double t = v <= (double)std::numeric_limits<long long>::min()
+                               ? (double)std::numeric_limits<long long>::min()
+                               : (v >= (double)std::numeric_limits<long long>::max()
+                                      ? (double)std::numeric_limits<long long>::max()
+                                      : v);
+                r = saturate_convert<D>((double)(long long)t);
+              } else {
+                r = saturate_convert<D>(v);
+              }
+              const size_t off = off_bytes<D>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(D);
+              std::memcpy(want.data() + off, &r, sizeof(D));
+            }
+        ++cnt.executed;
+        bool case_failed = false;
+        for (int y = 0; y < c.h && !case_failed; ++y)
+          for (int x = 0; x < c.w && !case_failed; ++x)
+            for (int ch = 0; ch < C; ++ch) {
+              const size_t off = off_bytes<D>(c.oy + y, c.ox + x, d.step, C) + (size_t)ch * sizeof(D);
+              ++cnt.compared;
+              const double rt = std::is_same_v<D, Npp32f> ? 1e-6 : 0.0;
+              if (!equal_elem<D>(d.host.data() + off, want.data() + off, rt, rt)) {
+                char buf[360];
+                std::snprintf(buf, sizeof(buf),
+                              "[%s] %s sf=%d mode=%d mismatch at (x=%d,y=%d,ch=%d): got=%s want=%s",
+                              id, c.id().c_str(), sf, mode, x, y, ch,
+                              dbg_elem<D>(d.host.data() + off).c_str(),
+                              dbg_elem<D>(want.data() + off).c_str());
+                if (first.empty()) first = buf;
+                EXPECT_TRUE(false) << buf;
+                ++cnt.mismatched;
+                case_failed = true;
+                break;
+              }
+            }
+        if (cnt.mismatched >= 8) break;
+      }
       if (cnt.mismatched >= 8) break;
     }
     if (cnt.mismatched >= 8) break;

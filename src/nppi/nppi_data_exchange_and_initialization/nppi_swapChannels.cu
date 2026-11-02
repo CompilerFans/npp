@@ -21,7 +21,13 @@ __global__ void kSwapPerm(const T* pSrc, int nSrcStep, T* pDst, int nDstStep, in
   if (x >= w || y >= h) return;
   const T* sr = (const T*)((const char*)pSrc + y * (size_t)nSrcStep);
   T* dr = (T*)((char*)pDst + y * (size_t)nDstStep);
-  for (int c = 0; c < DST; ++c) dr[x * DST + c] = sr[x * SRC + od.o[c]];
+  for (int c = 0; c < DST; ++c) {
+    // NPP's C4C3R writes 0 when the order selects source channel 3.
+    if constexpr (SRC == 4 && DST == 3)
+      dr[x * DST + c] = (od.o[c] == 3) ? T(0) : sr[x * SRC + od.o[c]];
+    else
+      dr[x * DST + c] = sr[x * SRC + od.o[c]];
+  }
 }
 
 // In-place permutation (whole pixel staged so a non-identity order is safe).

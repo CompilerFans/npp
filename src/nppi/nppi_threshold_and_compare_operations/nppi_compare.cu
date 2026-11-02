@@ -9,13 +9,14 @@ template <typename T> __device__ inline Npp8u performCompare(T src1, T src2, Npp
     result = (src1 < src2);
     break;
   case NPP_CMP_LESS_EQ:
-    result = (src1 <= src2);
+    // Negated strict comparison: NaN compares true, like the NPP kernels.
+    result = !(src1 > src2);
     break;
   case NPP_CMP_EQ:
     result = (src1 == src2);
     break;
   case NPP_CMP_GREATER_EQ:
-    result = (src1 >= src2);
+    result = !(src1 < src2);
     break;
   case NPP_CMP_GREATER:
     result = (src1 > src2);

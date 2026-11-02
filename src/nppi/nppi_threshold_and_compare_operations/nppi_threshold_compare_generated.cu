@@ -38,6 +38,19 @@ template <typename T> __device__ inline bool tcComp(T a, T b, int op) {
   }
 }
 
+// Binary-image comparison: NPP's two-image kernels build the non-strict
+// comparisons as negations, so NaN compares true there (unlike CompareC).
+template <typename T> __device__ inline bool tcCompBinary(T a, T b, int op) {
+  switch (op) {
+    case NPP_CMP_LESS:       return a < b;
+    case NPP_CMP_LESS_EQ:    return !(a > b);
+    case NPP_CMP_EQ:         return a == b;
+    case NPP_CMP_GREATER_EQ: return !(a < b);
+    case NPP_CMP_GREATER:    return a > b;
+    default: return false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Threshold kernel
 // ---------------------------------------------------------------------------
@@ -99,7 +112,7 @@ __global__ void kCompare(const T* p1, int s1, const T* p2, int s2, Npp8u* pDst, 
     const T bv = (MODE == 0 || MODE == 2) ? b[x * CH + c] : p.cst[c];
     const bool hit = (MODE == 2 || MODE == 3)
                          ? (fabsf((float)av - (float)bv) <= p.eps)
-                         : tcComp(av, bv, p.op);
+                         : (MODE == 0 ? tcCompBinary(av, bv, p.op) : tcComp(av, bv, p.op));
     if (!hit) { all = false; break; }
   }
   dr[x] = all ? (Npp8u)0xFF : (Npp8u)0;

@@ -8,6 +8,7 @@
 #include "npp.h"
 #include <cuda_runtime.h>
 #include <cstdint>
+#include <type_traits>
 
 namespace {
 
@@ -28,6 +29,12 @@ template <> struct SubPixConv<float> {
   __host__ __device__ __forceinline__ static float to(float v) { return v; }
 };
 template <typename T> __host__ __device__ __forceinline__ T subRound(float v) {
+  // The MACA back-end saturates roundf()->int incorrectly at the INT_MIN
+  // boundary; clamp explicitly to the NPP result (source value preserved).
+  if constexpr (std::is_same_v<T, Npp32s>) {
+    if (v <= -2147483648.0f) return T(-2147483647 - 1);
+    if (v >= 2147483648.0f) return T(2147483647);
+  }
   return SubPixConv<T>::to(v);
 }
 
@@ -37,8 +44,11 @@ __global__ void kCopySubpix(const T* pSrc, int nSrcStep, T* pDst, int nDstStep, 
   const int x = blockIdx.x * blockDim.x + threadIdx.x;
   const int y = blockIdx.y * blockDim.y + threadIdx.y;
   if (x >= w || y >= h) return;
-  const float sx = (float)x + dx;
-  const float sy = (float)y + dy;
+  // NPP uses only the fractional part of the offsets.
+  const float fdx = dx - truncf(dx);
+  const float fdy = dy - truncf(dy);
+  const float sx = (float)x + fdx;
+  const float sy = (float)y + fdy;
   int xa[2], ya[2];
   float fx, fy;
   if (sx < 0.f) { xa[0] = 0; fx = 0.f; }

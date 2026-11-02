@@ -75,9 +75,13 @@ __host__ __device__ __forceinline__ Dst saturate_int(double v) {
 
 // Round a real value per NppRoundMode (NEAR = ties-to-even, FINANCIAL = ties
 // away from zero, ZERO = toward zero).
-__host__ __device__ __forceinline__ double round_mode(double v, NppRoundMode mode) {
+__host__ __device__ __forceinline__ double round_mode(double v, NppRoundMode mode,
+                                                      bool integer_source = false) {
   if (std::isnan(v)) return v;
   if (mode == NPP_RND_FINANCIAL) {
+    // Integer-source Sfs kernels add half then floor (ties toward +inf);
+    // floating-source kernels round ties away from zero.
+    if (integer_source) return std::floor(v + 0.5);
     return v >= 0.0 ? std::floor(v + 0.5) : std::ceil(v - 0.5);
   }
   if (mode == NPP_RND_ZERO) {
@@ -100,15 +104,17 @@ template <typename Src, typename Dst, bool Round, bool Scale>
 __host__ __device__ __forceinline__ Dst cvt(const Src &s, NppRoundMode mode, int sf) {
   double v = to_double(s);
   if constexpr (Scale) v *= inv_pow2(sf);
+  // NPP rounds per eRoundMode before converting the destination format,
+  // including floating destinations (32f -> 16f).
+  // The 16s->8s kernel rounds FINANCIAL ties away from zero, unlike the
+  // other integer-source conversions which use the (v+0.5) floor form.
+  constexpr bool int_fin_half_up =
+      std::is_integral_v<Src> && !(std::is_same_v<Src, Npp16s> && std::is_same_v<Dst, Npp8s>);
+  if constexpr (Round || Scale) v = round_mode(v, mode, int_fin_half_up);
   if constexpr (IsFloatDst<Dst>::value) {
-    // Converting to a floating destination keeps the fractional value; the
-    // format conversion (fp32 -> fp16) applies nearest-even rounding on the
-    // mantissa, which __half reported round_mode's integer rounding would destroy.
     return to_real<Dst>(v);
   } else {
-    const long long i = (Round || Scale) ? static_cast<long long>(round_mode(v, mode))
-                                         : static_cast<long long>(v);
-    return saturate_int<Dst>(static_cast<double>(i));
+    return saturate_int<Dst>(static_cast<double>(static_cast<long long>(v)));
   }
 }
 

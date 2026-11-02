@@ -94,11 +94,14 @@ __global__ void convert_8u16u_C1R_kernel(const Npp8u *__restrict__ pSrc, int nSr
   dstRow[x] = (Npp16u)srcRow[x];
 }
 
-template <bool FinancialMode>
+// Mode: 0 = nearest/ties-to-even, 1 = financial (ties away), 2 = toward zero.
+template <int Mode>
 __device__ __forceinline__ Npp8u round_and_clamp_32f_to_u8(Npp32f value) {
   int rounded;
-  if constexpr (FinancialMode) {
+  if constexpr (Mode == 1) {
     rounded = static_cast<int>(roundf(value));
+  } else if constexpr (Mode == 2) {
+    rounded = static_cast<int>(truncf(value));
   } else {
     rounded = __float2int_rn(value);
   }
@@ -107,10 +110,9 @@ __device__ __forceinline__ Npp8u round_and_clamp_32f_to_u8(Npp32f value) {
 }
 
 __device__ __forceinline__ Npp8u round_and_clamp_32f_to_u8(Npp32f value, NppRoundMode eRoundMode) {
-  if (eRoundMode == NPP_RND_FINANCIAL) {
-    return round_and_clamp_32f_to_u8<true>(value);
-  }
-  return round_and_clamp_32f_to_u8<false>(value);
+  if (eRoundMode == NPP_RND_FINANCIAL) return round_and_clamp_32f_to_u8<1>(value);
+  if (eRoundMode == NPP_RND_ZERO) return round_and_clamp_32f_to_u8<2>(value);
+  return round_and_clamp_32f_to_u8<0>(value);
 }
 
 __global__ void convert_32f8u_C1R_kernel(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
@@ -127,13 +129,13 @@ __global__ void convert_32f8u_C1R_kernel(const Npp32f *__restrict__ pSrc, int nS
   dstRow[x] = round_and_clamp_32f_to_u8(srcRow[x], eRoundMode);
 }
 
-template <bool FinancialMode>
+template <int Mode>
 __device__ __forceinline__ uchar4 round_and_clamp_32f4_to_u8(float4 value) {
-  return make_uchar4(round_and_clamp_32f_to_u8<FinancialMode>(value.x), round_and_clamp_32f_to_u8<FinancialMode>(value.y),
-                     round_and_clamp_32f_to_u8<FinancialMode>(value.z), round_and_clamp_32f_to_u8<FinancialMode>(value.w));
+  return make_uchar4(round_and_clamp_32f_to_u8<Mode>(value.x), round_and_clamp_32f_to_u8<Mode>(value.y),
+                     round_and_clamp_32f_to_u8<Mode>(value.z), round_and_clamp_32f_to_u8<Mode>(value.w));
 }
 
-template <bool FinancialMode>
+template <int Mode>
 __global__ void convert_32f8u_C3R_kernel_opt(const Npp32f *__restrict__ pSrc, int nSrcStep, Npp8u *__restrict__ pDst,
                                              int nDstStep, int rowElems, int height) {
   int elemBase = (blockIdx.x * blockDim.x + threadIdx.x) * kConvert32f8uElemsPerThread;
@@ -152,10 +154,10 @@ __global__ void convert_32f8u_C3R_kernel_opt(const Npp32f *__restrict__ pSrc, in
   if (remain >= kConvert32f8uElemsPerThread && alignedSrc && alignedDst) {
     const float4 *src4 = reinterpret_cast<const float4 *>(srcPtr);
     uchar4 *dst4 = reinterpret_cast<uchar4 *>(dstPtr);
-    dst4[0] = round_and_clamp_32f4_to_u8<FinancialMode>(src4[0]);
-    dst4[1] = round_and_clamp_32f4_to_u8<FinancialMode>(src4[1]);
-    dst4[2] = round_and_clamp_32f4_to_u8<FinancialMode>(src4[2]);
-    dst4[3] = round_and_clamp_32f4_to_u8<FinancialMode>(src4[3]);
+    dst4[0] = round_and_clamp_32f4_to_u8<Mode>(src4[0]);
+    dst4[1] = round_and_clamp_32f4_to_u8<Mode>(src4[1]);
+    dst4[2] = round_and_clamp_32f4_to_u8<Mode>(src4[2]);
+    dst4[3] = round_and_clamp_32f4_to_u8<Mode>(src4[3]);
     return;
   }
 
@@ -165,7 +167,7 @@ __global__ void convert_32f8u_C3R_kernel_opt(const Npp32f *__restrict__ pSrc, in
     if (i >= tail) {
       break;
     }
-    dstPtr[i] = round_and_clamp_32f_to_u8<FinancialMode>(srcPtr[i]);
+    dstPtr[i] = round_and_clamp_32f_to_u8<Mode>(srcPtr[i]);
   }
 }
 
@@ -322,10 +324,13 @@ NppStatus nppiConvert_32f8u_C3R_Ctx_impl(const Npp32f *pSrc, int nSrcStep, Npp8u
                 oSizeROI.height);
 
   if (eRoundMode == NPP_RND_FINANCIAL) {
-    convert_32f8u_C3R_kernel_opt<true><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+    convert_32f8u_C3R_kernel_opt<1><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+        pSrc, nSrcStep, pDst, nDstStep, rowElems, oSizeROI.height);
+  } else if (eRoundMode == NPP_RND_ZERO) {
+    convert_32f8u_C3R_kernel_opt<2><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, rowElems, oSizeROI.height);
   } else {
-    convert_32f8u_C3R_kernel_opt<false><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
+    convert_32f8u_C3R_kernel_opt<0><<<gridSize, blockSize, 0, nppStreamCtx.hStream>>>(
         pSrc, nSrcStep, pDst, nDstStep, rowElems, oSizeROI.height);
   }
 

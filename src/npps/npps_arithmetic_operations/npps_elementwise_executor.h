@@ -186,6 +186,72 @@ template <typename D> __device__ __host__ __forceinline__ D scale_sat(long long 
   return sat_ll<D>(v);
 }
 
+// nppsDiv / nppsDivC integer semantics (validated against NPP 13.4 on the
+// 5090).  The first API operand is the divisor.  At sf == 0 the 8u and 32s
+// paths truncate toward zero while the 16-bit paths round half away from
+// zero; at sf > 0 all paths round half to even.  Zero divisors have
+// type-specific saturation quirks (notably 32s at sf == 1).
+template <typename D>
+__device__ __host__ __forceinline__ D div_sfs(long long num, long long den, int sf) {
+  using L = std::numeric_limits<D>;
+  if (den == 0) {
+    if constexpr (std::is_same_v<D, Npp32s>) {
+      if (sf == 0) {
+        if (num == 0) return (D)0;
+        return num < 0 ? (D)L::lowest() : (D)L::max();
+      }
+      if (sf == 1) return (num == 0 || num == 1) ? (D)1 : (D)0;
+      return (D)0;
+    } else {
+      if (num == 0) return (D)0;
+      if constexpr (std::is_signed_v<D>) return num < 0 ? (D)L::lowest() : (D)L::max();
+      else return (D)L::max();
+    }
+  }
+  long long q;
+  if (sf == 0) {
+    if constexpr (std::is_same_v<D, Npp8u> || std::is_same_v<D, Npp32s>) {
+      return sat_ll<D>(num / den);
+    }
+    q = num / den;
+    const long long r = num % den;
+    if (r != 0) {
+      const long long ar = r < 0 ? -r : r;
+      const long long ad = den < 0 ? -den : den;
+      const int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
+      if ((ar << 1) >= ad) q += sign;
+    }
+    return sat_ll<D>(q);
+  }
+  if constexpr (std::is_same_v<D, Npp32s>) {
+    if (sf == 2) {
+      // NPP's 32s sf=2 path biases positive quotients by 2*den, then does an
+      // exact half-to-even division by 4*den.
+      const long long adj = (num != 0 && ((num > 0) == (den > 0))) ? num - 2 * den : num;
+      const long long d2 = den * 4;
+      long long q2 = adj / d2;
+      const long long r2 = adj % d2;
+      if (r2 != 0) {
+        const long long ar = r2 < 0 ? -r2 : r2;
+        const long long ad = d2 < 0 ? -d2 : d2;
+        const int sign = ((adj < 0) ^ (d2 < 0)) ? -1 : 1;
+        if ((ar << 1) > ad || ((ar << 1) == ad && (q2 & 1LL))) q2 += sign;
+      }
+      return sat_ll<D>(q2);
+    }
+  }
+  const long long d = den * (1LL << sf);
+  q = num / d;
+  const long long r = num % d;
+  if (r != 0) {
+    const long long ar = r < 0 ? -r : r;
+    const long long ad = d < 0 ? -d : d;
+    const int sign = ((num < 0) ^ (d < 0)) ? -1 : 1;
+    if ((ar << 1) > ad || ((ar << 1) == ad && (q & 1LL))) q += sign;
+  }
+  return sat_ll<D>(q);
+}
+
 // Round-then-scale with an explicit mode (nppsDiv_Round).
 // Implemented with double floor/ceil so it also compiles as device code.
 template <typename D> __device__ __host__ __forceinline__ D scale_sat_r(long long v, int sf,
@@ -526,7 +592,13 @@ struct MulOp {
           av = static_cast<long long>(static_cast<C>(a));
           bv = static_cast<long long>(static_cast<C>(b));
         }
-        return detail::scale_sat<D>(av * bv, sf);
+        long long p = av * bv;
+        // 8u at sf == 0 is a signed 16-bit multiply followed by unsigned
+        // 8-bit saturation: products above 32767 wrap negative and clamp to 0.
+        if constexpr (std::is_same_v<D, Npp8u> && sizeof(A) == 1 && sizeof(B) == 1) {
+          if (sf == 0) p = (long long)(int16_t)(uint16_t)p;
+        }
+        return detail::scale_sat<D>(p, sf);
       }
     }
   }
@@ -554,28 +626,9 @@ struct DivOp {
     } else {
       if constexpr (std::is_floating_point_v<D>) return (D)(detail::re_l(a)/detail::re_l(b));
       else {
-        // Integer division with fixed-point scaling: pDst = round_even( a / (b << sf) ).
-        // NPP keeps the division precision while scaling (validated on 13.4).
-        long long bv = detail::re_ll(b);
-        if (bv == 0) return detail::sat_ll<D>(std::numeric_limits<long long>::max());
-        long long num = detail::re_ll(a);
-        long long den = bv << sf;
-        if (den == 0) return detail::sat_ll<D>(std::numeric_limits<long long>::max());
-        if constexpr (!std::is_same_v<A, C> || !std::is_same_v<B, C>) {
-          // Mixed-type integer divide: NPP truncates the quotient and the
-          // scale shift (validated with nppsDiv_32s16s_Sfs).
-          return detail::sat_ll<D>(num / den);
-        }
-        long long q = num / den;
-        long long r = num % den;
-        if (r != 0) {
-          long long ar = r < 0 ? -r : r;
-          long long ad = den < 0 ? -den : den;
-          int sign = ((num < 0) ^ (den < 0)) ? -1 : 1;
-          if ((ar << 1) > ad) q += sign;
-          else if ((ar << 1) == ad && (q & 1LL)) q += sign;
-        }
-        return detail::sat_ll<D>(q);
+        // pSrc1 is the divisor for nppsDiv; rounding rules are calibrated per
+        // destination width in detail::div_sfs.
+        return detail::div_sfs<D>(detail::re_ll(a), detail::re_ll(b), sf);
       }
     }
   }

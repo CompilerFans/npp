@@ -252,6 +252,18 @@ inline std::string debug_value(npp_diff::ValueKind kind, const uint8_t *p) {
       std::snprintf(buf, sizeof(buf), "%u", v);
       return buf;
     }
+    case npp_diff::ValueKind::U64: {
+      uint64_t v;
+      std::memcpy(&v, p, 8);
+      std::snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v);
+      return buf;
+    }
+    case npp_diff::ValueKind::I64: {
+      int64_t v;
+      std::memcpy(&v, p, 8);
+      std::snprintf(buf, sizeof(buf), "%lld", (long long)v);
+      return buf;
+    }
     case npp_diff::ValueKind::I16:
     case npp_diff::ValueKind::I16Tol: {
       int16_t v;
