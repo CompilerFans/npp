@@ -1,0 +1,26 @@
+{
+  "family": "nppiLUT_Cubic",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_lut_cubic_generated.cpp",
+  "includes": [
+    "nppi_lut_executor.h"
+  ],
+  "call_variants": [
+    {
+      "contains_all": [
+        "pSrcDst",
+        "pValues["
+      ],
+      "call": "nppi::lut::runInPlace<{dtype}, {chan}, {is_ac4}, nppi::lut::LutMode::Cubic>(pSrcDst, nSrcDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "pSrcDst",
+      "call": "nppi::lut::runInPlace<{dtype}, 1, false, nppi::lut::LutMode::Cubic>(pSrcDst, nSrcDstStep, oSizeROI, &pValues, &pLevels, &nLevels, nppStreamCtx.hStream)"
+    },
+    {
+      "contains": "pValues[",
+      "call": "nppi::lut::run<{dtype}, {chan}, {is_ac4}, nppi::lut::LutMode::Cubic>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx.hStream)"
+    }
+  ],
+  "call": "nppi::lut::runC1<{dtype}, nppi::lut::LutMode::Cubic>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, pValues, pLevels, nLevels, nppStreamCtx.hStream)"
+}

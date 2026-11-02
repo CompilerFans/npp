@@ -143,7 +143,7 @@ protected:
     }
 
     // 测试边界模式
-    NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep,
+    NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep,
                                                   oDstSizeROI, oMaskSize, oAnchor, borderType);
 
     if (expectSupported) {
@@ -214,7 +214,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R) {
   }
 
   // CallNPP函数
-  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
+  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                 oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -265,7 +265,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C3R) {
   }
 
   // CallNPP函数
-  NppStatus status = nppiFilterBoxBorder_8u_C3R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
+  NppStatus status = nppiFilterBoxBorder_8u_C3R(d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x * 3, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                 oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -326,7 +326,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_16s_C1R) {
   }
 
   // CallNPP函数
-  NppStatus status = nppiFilterBoxBorder_16s_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
+  NppStatus status = nppiFilterBoxBorder_16s_C1R((Npp16s *)((char *)d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x * 2), nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                  oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -379,7 +379,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_32f_C1R) {
   }
 
   // CallNPP函数
-  NppStatus status = nppiFilterBoxBorder_32f_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
+  NppStatus status = nppiFilterBoxBorder_32f_C1R((Npp32f *)((char *)d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x * 4), nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                  oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -448,7 +448,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_DifferentKernelSizes) {
   oAnchor.x = 2;
   oAnchor.y = 2;
 
-  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
+  NppStatus status = nppiFilterBoxBorder_8u_C1R(d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI,
                                                 oMaskSize, oAnchor, NPP_BORDER_REPLICATE);
   EXPECT_EQ(status, NPP_SUCCESS);
 
@@ -517,7 +517,7 @@ TEST_F(NPPIFilterBoxBorderTest, FilterBoxBorder_8u_C1R_Ctx) {
 
   // CallNPP函数
   NppStatus status =
-      nppiFilterBoxBorder_8u_C1R_Ctx(d_src, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI, oMaskSize,
+      nppiFilterBoxBorder_8u_C1R_Ctx(d_src + oSrcOffset.y * nSrcStep + oSrcOffset.x, nSrcStep, oSrcSizeROI, oSrcOffset, d_dst, nDstStep, oDstSizeROI, oMaskSize,
                                      oAnchor, NPP_BORDER_REPLICATE, nppStreamCtx);
   EXPECT_EQ(status, NPP_SUCCESS);
 

@@ -1,0 +1,12 @@
+{
+  "family": "nppiEvenLevelsHost",
+  "module": "nppi_statistics_functions.h",
+  "source": "src/nppi/nppi_statistics_functions/nppi_even_levels_host_generated.cpp",
+  "includes": [
+    "nppi_quality_metrics_executor.h"
+  ],
+  "functions": [
+    "nppiEvenLevelsHost_32s_Ctx"
+  ],
+  "call": "nppi::statistics::evenLevelsHost(hpLevels, nLevels, nLowerLevel, nUpperLevel)"
+}

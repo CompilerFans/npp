@@ -336,17 +336,16 @@ __device__ inline void yuv_to_rgb_pixel(Npp8u y, Npp8u u, Npp8u v, Npp8u &r, Npp
 }
 
 __device__ inline void ycbcr_to_rgb_pixel(Npp8u y, Npp8u cb, Npp8u cr, Npp8u &r, Npp8u &g, Npp8u &b) {
-  double Y = 1.164 * (static_cast<double>(y) - 16.0);
-  double Cr = static_cast<double>(cr) - 128.0;
-  double Cb = static_cast<double>(cb) - 128.0;
+  // Match NVIDIA NPP 13.4: single-precision evaluation with FMA and C-style
+  // truncation after saturation. The evaluation order matters at rounding
+  // boundaries (e.g. an exact 48.0 that double math yields as 47.999...).
+  const float Y = 1.164f * (static_cast<float>(y) - 16.0f);
+  const float Cr = static_cast<float>(cr) - 128.0f;
+  const float Cb = static_cast<float>(cb) - 128.0f;
 
-  double R = Y + 1.596 * Cr;
-  double G = Y - 0.813 * Cr - 0.392 * Cb;
-  double B = Y + 2.017 * Cb;
-
-  r = clamp_u8_double(R);
-  g = clamp_u8_double(G);
-  b = clamp_u8_double(B);
+  r = clamp_u8(fmaf(1.596f, Cr, Y));
+  g = clamp_u8(fmaf(-0.813f, Cr, fmaf(-0.392f, Cb, Y)));
+  b = clamp_u8(fmaf(2.017f, Cb, Y));
 }
 
 template <bool kBgr>
@@ -562,6 +561,56 @@ __global__ void ycbcr_to_rgb_p3c4_kernel(const Npp8u *pSrcY, int nSrcStep, const
   }
 }
 
+
+// Batch variants: the NPP batch descriptors carry one step per plane, while
+// the single-image P3C3R entry points take a single step.  These kernels keep
+// the same pixel math but read each source plane with its own step.
+template <bool kBgr>
+__global__ void yuv_to_rgb_p3c3_step3_kernel(const Npp8u *pSrcY, int nStepY, const Npp8u *pSrcU, int nStepU,
+                                             const Npp8u *pSrcV, int nStepV, Npp8u *pDst, int nDstStep, int width,
+                                             int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
+    return;
+  }
+  const Npp8u *pSrcRowY = (const Npp8u *)((const char *)pSrcY + y * nStepY);
+  const Npp8u *pSrcRowU = (const Npp8u *)((const char *)pSrcU + y * nStepU);
+  const Npp8u *pSrcRowV = (const Npp8u *)((const char *)pSrcV + y * nStepV);
+  Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
+
+  Npp8u r, g, b;
+  yuv_to_rgb_pixel(pSrcRowY[x], pSrcRowU[x], pSrcRowV[x], r, g, b);
+
+  int idx = x * 3;
+  pDstRow[idx + 0] = kBgr ? b : r;
+  pDstRow[idx + 1] = g;
+  pDstRow[idx + 2] = kBgr ? r : b;
+}
+
+template <bool kBgr>
+__global__ void ycbcr_to_rgb_p3c3_step3_kernel(const Npp8u *pSrcY, int nStepY, const Npp8u *pSrcCb, int nStepCb,
+                                               const Npp8u *pSrcCr, int nStepCr, Npp8u *pDst, int nDstStep, int width,
+                                               int height) {
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x >= width || y >= height) {
+    return;
+  }
+  const Npp8u *pSrcRowY = (const Npp8u *)((const char *)pSrcY + y * nStepY);
+  const Npp8u *pSrcRowCb = (const Npp8u *)((const char *)pSrcCb + y * nStepCb);
+  const Npp8u *pSrcRowCr = (const Npp8u *)((const char *)pSrcCr + y * nStepCr);
+  Npp8u *pDstRow = (Npp8u *)((char *)pDst + y * nDstStep);
+
+  Npp8u r, g, b;
+  ycbcr_to_rgb_pixel(pSrcRowY[x], pSrcRowCb[x], pSrcRowCr[x], r, g, b);
+
+  int idx = x * 3;
+  pDstRow[idx + 0] = kBgr ? b : r;
+  pDstRow[idx + 1] = g;
+  pDstRow[idx + 2] = kBgr ? r : b;
+}
+
 extern "C" {
 // RGB到YUV转换
 cudaError_t nppiRGBToYUV_8u_C3R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *pDst, int nDstStep, NppiSize oSizeROI,
@@ -770,6 +819,36 @@ cudaError_t nppiYUVToRGB_8u_AC4R_kernel(const Npp8u *pSrc, int nSrcStep, Npp8u *
 
   yuv_to_rgb_ac4_kernel<false><<<gridSize, blockSize, 0, stream>>>(pSrc, nSrcStep, pDst, nDstStep, oSizeROI.width,
                                                                    oSizeROI.height);
+  return cudaGetLastError();
+}
+
+cudaError_t nppiYUVToRGB_8u_P3C3R_Step3_kernel(const Npp8u *pSrcY, int nStepY, const Npp8u *pSrcU, int nStepU,
+                                                    const Npp8u *pSrcV, int nStepV, Npp8u *pDst, int nDstStep,
+                                                    NppiSize oSizeROI, int bgr, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  if (bgr) {
+    yuv_to_rgb_p3c3_step3_kernel<true><<<gridSize, blockSize, 0, stream>>>(
+        pSrcY, nStepY, pSrcU, nStepU, pSrcV, nStepV, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  } else {
+    yuv_to_rgb_p3c3_step3_kernel<false><<<gridSize, blockSize, 0, stream>>>(
+        pSrcY, nStepY, pSrcU, nStepU, pSrcV, nStepV, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  }
+  return cudaGetLastError();
+}
+
+cudaError_t nppiYCbCrToRGB_8u_P3C3R_Step3_kernel(const Npp8u *pSrcY, int nStepY, const Npp8u *pSrcCb, int nStepCb,
+                                                 const Npp8u *pSrcCr, int nStepCr, Npp8u *pDst, int nDstStep,
+                                                 NppiSize oSizeROI, int bgr, cudaStream_t stream) {
+  dim3 blockSize(16, 16);
+  dim3 gridSize((oSizeROI.width + blockSize.x - 1) / blockSize.x, (oSizeROI.height + blockSize.y - 1) / blockSize.y);
+  if (bgr) {
+    ycbcr_to_rgb_p3c3_step3_kernel<true><<<gridSize, blockSize, 0, stream>>>(
+        pSrcY, nStepY, pSrcCb, nStepCb, pSrcCr, nStepCr, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  } else {
+    ycbcr_to_rgb_p3c3_step3_kernel<false><<<gridSize, blockSize, 0, stream>>>(
+        pSrcY, nStepY, pSrcCb, nStepCb, pSrcCr, nStepCr, pDst, nDstStep, oSizeROI.width, oSizeROI.height);
+  }
   return cudaGetLastError();
 }
 

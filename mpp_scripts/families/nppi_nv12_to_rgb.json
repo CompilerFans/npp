@@ -1,0 +1,9 @@
+{
+  "family": "nppiNV12ToRGB",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_nv12_to_rgb_generated.cpp",
+  "includes": ["nppi_nv12_color_twist_executor.h"],
+  "families": ["nppiNV12ToRGB"],
+  "functions": ["nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx"],
+  "call": "nppi::nv12::nv12ToRgbColorTwist<{dtype}>(pSrc, aSrcStep, pDst, nDstStep, oSizeROI, aTwist, nppStreamCtx.hStream)"
+}

@@ -1,0 +1,18 @@
+{
+  "call": "nppi::c3color::fwd420(pSrc, nSrcStep, 3, 1, pDst, rDstStep, oSizeROI, nppStreamCtx.hStream, 1, 0)",
+  "family": "nppiBGRToYCbCr420_709CSC",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiBGRToYCbCr420_709CSC_generated.cpp",
+  "includes": [
+    "nppi_c3_color_executor.h"
+  ],
+  "families": [
+    "nppiBGRToYCbCr420_709CSC"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_AC4P3R",
+      "call": "nppi::c3color::fwd420(pSrc, nSrcStep, 4, 1, pDst, rDstStep, oSizeROI, nppStreamCtx.hStream, 1, 0)"
+    }
+  ]
+}

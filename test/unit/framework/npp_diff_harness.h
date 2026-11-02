@@ -58,6 +58,9 @@ enum class ValueKind {
   U64,
   I64,
   I16Tol,
+  U8Tol,
+  I8Tol,
+  U16Tol,
   I32Tol,
   I64Tol,
   F16,
@@ -72,10 +75,13 @@ inline size_t element_size(ValueKind kind) {
   case ValueKind::Bytes:
   case ValueKind::U8:
   case ValueKind::I8:
+  case ValueKind::U8Tol:
+  case ValueKind::I8Tol:
     return 1;
   case ValueKind::U16:
   case ValueKind::I16:
   case ValueKind::I16Tol:
+  case ValueKind::U16Tol:
   case ValueKind::F16:
     return 2;
   case ValueKind::U32:
@@ -107,6 +113,9 @@ inline const char *kind_name(ValueKind kind) {
   case ValueKind::U64: return "u64";
   case ValueKind::I64: return "i64";
   case ValueKind::I16Tol: return "i16tol";
+  case ValueKind::U8Tol: return "u8tol";
+  case ValueKind::U16Tol: return "u16tol";
+  case ValueKind::I8Tol: return "i8tol";
   case ValueKind::I32Tol: return "i32tol";
   case ValueKind::I64Tol: return "i64tol";
   case ValueKind::F16: return "f16";
@@ -128,6 +137,9 @@ inline ValueKind kind_from_name(const std::string &name) {
   if (name == "u64") return ValueKind::U64;
   if (name == "i64") return ValueKind::I64;
   if (name == "i16tol") return ValueKind::I16Tol;
+  if (name == "u8tol") return ValueKind::U8Tol;
+  if (name == "u16tol") return ValueKind::U16Tol;
+  if (name == "i8tol") return ValueKind::I8Tol;
   if (name == "i32tol") return ValueKind::I32Tol;
   if (name == "i64tol") return ValueKind::I64Tol;
   if (name == "f16") return ValueKind::F16;
@@ -342,6 +354,21 @@ inline bool close_double(double a, double b, double rtol, double atol) {
   return std::fabs(a - b) <= atol + rtol * std::fabs(b);
 }
 
+inline std::string dbg_val(ValueKind kind, const uint8_t *p) {
+  char b[96];
+  switch (kind) {
+    case ValueKind::F32: { float v; memcpy(&v,p,4); snprintf(b,sizeof(b),"%.9g",v); return b; }
+    case ValueKind::F64: { double v; memcpy(&v,p,8); snprintf(b,sizeof(b),"%.17g",v); return b; }
+    case ValueKind::I32: case ValueKind::I32Tol: { int32_t v; memcpy(&v,p,4); snprintf(b,sizeof(b),"%d",v); return b; }
+    case ValueKind::U32: { uint32_t v; memcpy(&v,p,4); snprintf(b,sizeof(b),"%u",v); return b; }
+    case ValueKind::I16: case ValueKind::I16Tol: { int16_t v; memcpy(&v,p,2); snprintf(b,sizeof(b),"%d",(int)v); return b; }
+    case ValueKind::U16: case ValueKind::U16Tol: { uint16_t v; memcpy(&v,p,2); snprintf(b,sizeof(b),"%u",(unsigned)v); return b; }
+    case ValueKind::I8: { int8_t v; memcpy(&v,p,1); snprintf(b,sizeof(b),"%d",(int)v); return b; }
+    case ValueKind::U8: case ValueKind::U8Tol: case ValueKind::Bytes: { snprintf(b,sizeof(b),"%u",(unsigned)*p); return b; }
+    default: return "?";
+  }
+}
+
 inline bool compare_values(ValueKind kind, const uint8_t *a, const uint8_t *b, size_t count, double rtol,
                            double atol, size_t *mismatch) {
   const size_t esize = element_size(kind);
@@ -369,6 +396,27 @@ inline bool compare_values(ValueKind kind, const uint8_t *a, const uint8_t *b, s
       break;
     case ValueKind::I16Tol: {
       int16_t va, vb;
+      std::memcpy(&va, pa, 2);
+      std::memcpy(&vb, pb, 2);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::I8Tol: {
+      int8_t va, vb;
+      std::memcpy(&va, pa, 1);
+      std::memcpy(&vb, pb, 1);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::U8Tol: {
+      uint8_t va, vb;
+      std::memcpy(&va, pa, 1);
+      std::memcpy(&vb, pb, 1);
+      ok = close_double(va, vb, rtol, atol);
+      break;
+    }
+    case ValueKind::U16Tol: {
+      uint16_t va, vb;
       std::memcpy(&va, pa, 2);
       std::memcpy(&vb, pb, 2);
       ok = close_double(va, vb, rtol, atol);
@@ -715,6 +763,17 @@ private:
         trace_mismatch(id_, i, outputs_[i].kind, outputs_[i].bytes.data(), golden.data() + offset,
                        outputs_[i].count, outputs_[i].rtol, outputs_[i].atol);
         EXPECT_TRUE(ok) << msg.str();
+        if (std::getenv("NPP_DIFF_DEBUG") != nullptr) {
+          const size_t es = element_size(outputs_[i].kind);
+          const size_t lo = mismatch > 3 ? mismatch - 3 : 0;
+          const size_t hi = std::min(mismatch + 4, outputs_[i].count);
+          std::fprintf(stderr, "DBG %s out %zu:", id_.c_str(), i);
+          for (size_t k = lo; k < hi; ++k)
+            std::fprintf(stderr, " [%zu] a=%s g=%s", k,
+                         dbg_val(outputs_[i].kind, outputs_[i].bytes.data() + k * es).c_str(),
+                         dbg_val(outputs_[i].kind, golden.data() + offset + k * es).c_str());
+          std::fprintf(stderr, "\n");
+        }
       }
       offset += sizes[i];
     }

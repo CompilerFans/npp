@@ -1,0 +1,18 @@
+{
+  "call": "nppi::c3color::inv422Planar(pSrc, nSrcStep, pDst, nDstStep, 3, 0, oSizeROI, nppStreamCtx.hStream)",
+  "family": "nppiYCbCrToBGR_709CSC",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYCbCrToBGR_709CSC_generated.cpp",
+  "includes": [
+    "nppi_c3_color_executor.h"
+  ],
+  "families": [
+    "nppiYCbCrToBGR_709CSC"
+  ],
+  "call_variants": [
+    {
+      "name_contains": "_P3C4R",
+      "call": "nppi::c3color::inv422Planar(pSrc, nSrcStep, pDst, nDstStep, 4, nAval, oSizeROI, nppStreamCtx.hStream)"
+    }
+  ]
+}

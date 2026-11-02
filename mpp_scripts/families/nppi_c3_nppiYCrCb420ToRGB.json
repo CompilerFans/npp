@@ -1,0 +1,12 @@
+{
+  "call": "nppi::c3color::inv420(pSrc, rSrcStep, pDst, nDstStep, 4, 0, nAval, oSizeROI, nppStreamCtx.hStream, 0, 1)",
+  "family": "nppiYCrCb420ToRGB",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYCrCb420ToRGB_generated.cpp",
+  "includes": [
+    "nppi_c3_color_executor.h"
+  ],
+  "families": [
+    "nppiYCrCb420ToRGB"
+  ]
+}

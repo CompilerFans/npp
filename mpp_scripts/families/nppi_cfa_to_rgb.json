@@ -1,0 +1,9 @@
+{
+  "family": "nppiCFAToRGB",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_cfa_to_rgb_generated.cpp",
+  "includes": ["nppi_cfa_executor.h"],
+  "families": ["nppiCFAToRGB"],
+  "functions": ["nppiCFAToRGB_32u_C1C3R_Ctx"],
+  "call": "nppi::cfa::cfaToRgb(pSrc, nSrcStep, oSrcSize, oSrcROI, pDst, nDstStep, eGrid, eInterpolation, nppStreamCtx.hStream)"
+}

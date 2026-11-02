@@ -1,0 +1,318 @@
+nppGetStreamContext -> 0
+== S1 box 8u mask 3x3 anchor 1,1 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=73.000000 got=163.000000
+zero/area/floor                    diff@0 model=73.000000 got=163.000000
+zero/area/halfup                   diff@0 model=74.000000 got=163.000000
+zero/area/halfeven                 diff@0 model=74.000000 got=163.000000
+zero/count/trunc                   diff@0 model=166.000000 got=163.000000
+zero/count/floor                   diff@0 model=166.000000 got=163.000000
+zero/count/halfup                  diff@0 model=166.000000 got=163.000000
+zero/count/halfeven                diff@0 model=166.000000 got=163.000000
+repl/area/trunc                    diff@0 model=188.000000 got=163.000000
+repl/area/floor                    diff@0 model=188.000000 got=163.000000
+repl/area/halfup                   diff@0 model=188.000000 got=163.000000
+repl/area/halfeven                 diff@0 model=188.000000 got=163.000000
+repl/count/trunc                   diff@0 model=188.000000 got=163.000000
+repl/count/floor                   diff@0 model=188.000000 got=163.000000
+repl/count/halfup                  diff@0 model=188.000000 got=163.000000
+repl/count/halfeven                diff@0 model=188.000000 got=163.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    diff@3 model=111.000000 got=110.000000
+raw/area/halfeven                  diff@3 model=111.000000 got=110.000000
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   diff@3 model=111.000000 got=110.000000
+raw/count/halfeven                 diff@3 model=111.000000 got=110.000000
+dst:
+  163 164 137 110 83 85 
+  126 127 100 101 103 132 
+  89 90 92 121 150 151 
+  81 110 139 168 169 142 
+  128 157 158 159 132 105 
+  147 148 121 122 95 96 
+== S1 box 8u mask 2x2 anchor 1,1 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=49.000000 got=158.000000
+zero/area/floor                    diff@0 model=49.000000 got=158.000000
+zero/area/halfup                   diff@0 model=49.000000 got=158.000000
+zero/area/halfeven                 diff@0 model=49.000000 got=158.000000
+zero/count/trunc                   diff@0 model=196.000000 got=158.000000
+zero/count/floor                   diff@0 model=196.000000 got=158.000000
+zero/count/halfup                  diff@0 model=196.000000 got=158.000000
+zero/count/halfeven                diff@0 model=196.000000 got=158.000000
+repl/area/trunc                    diff@0 model=196.000000 got=158.000000
+repl/area/floor                    diff@0 model=196.000000 got=158.000000
+repl/area/halfup                   diff@0 model=196.000000 got=158.000000
+repl/area/halfeven                 diff@0 model=196.000000 got=158.000000
+repl/count/trunc                   diff@0 model=196.000000 got=158.000000
+repl/count/floor                   diff@0 model=196.000000 got=158.000000
+repl/count/halfup                  diff@0 model=196.000000 got=158.000000
+repl/count/halfeven                diff@0 model=196.000000 got=158.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    diff@3 model=120.000000 got=119.000000
+raw/area/halfeven                  diff@3 model=120.000000 got=119.000000
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   diff@3 model=120.000000 got=119.000000
+raw/count/halfeven                 diff@3 model=120.000000 got=119.000000
+dst:
+  158 187 153 119 85 52 
+  205 171 74 41 70 99 
+  126 92 59 88 117 146 
+  48 77 106 135 164 193 
+  95 124 153 182 211 177 
+  142 171 200 166 132 98 
+== S1 box 8u mask 3x1 anchor 2,0 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=67.000000 got=172.000000
+zero/area/floor                    diff@0 model=67.000000 got=172.000000
+zero/area/halfup                   diff@0 model=67.000000 got=172.000000
+zero/area/halfeven                 diff@0 model=67.000000 got=172.000000
+zero/count/trunc                   diff@0 model=201.000000 got=172.000000
+zero/count/floor                   diff@0 model=201.000000 got=172.000000
+zero/count/halfup                  diff@0 model=201.000000 got=172.000000
+zero/count/halfeven                diff@0 model=201.000000 got=172.000000
+repl/area/trunc                    diff@0 model=201.000000 got=172.000000
+repl/area/floor                    diff@0 model=201.000000 got=172.000000
+repl/area/halfup                   diff@0 model=201.000000 got=172.000000
+repl/area/halfeven                 diff@0 model=201.000000 got=172.000000
+repl/count/trunc                   diff@0 model=201.000000 got=172.000000
+repl/count/floor                   diff@0 model=201.000000 got=172.000000
+repl/count/halfup                  diff@0 model=201.000000 got=172.000000
+repl/count/halfeven                diff@0 model=201.000000 got=172.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    diff@3 model=92.000000 got=91.000000
+raw/area/halfeven                  diff@3 model=92.000000 got=91.000000
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   diff@3 model=92.000000 got=91.000000
+raw/count/halfeven                 diff@3 model=92.000000 got=91.000000
+dst:
+  172 201 146 91 37 66 
+  219 164 109 55 84 113 
+  98 44 73 102 131 160 
+  62 91 120 149 178 207 
+  109 138 167 196 141 86 
+  156 185 214 159 104 50 
+== S1 box 16u mask 3x3 anchor 1,1 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=17326.000000 got=36692.000000
+zero/area/floor                    diff@0 model=17326.000000 got=36692.000000
+zero/area/halfup                   diff@0 model=17326.000000 got=36692.000000
+zero/area/halfeven                 diff@0 model=17326.000000 got=36692.000000
+zero/count/trunc                   diff@0 model=38984.000000 got=36692.000000
+zero/count/floor                   diff@0 model=38984.000000 got=36692.000000
+zero/count/halfup                  diff@0 model=38984.000000 got=36692.000000
+zero/count/halfeven                diff@0 model=38984.000000 got=36692.000000
+repl/area/trunc                    diff@0 model=38220.000000 got=36692.000000
+repl/area/floor                    diff@0 model=38220.000000 got=36692.000000
+repl/area/halfup                   diff@0 model=38220.000000 got=36692.000000
+repl/area/halfeven                 diff@0 model=38220.000000 got=36692.000000
+repl/count/trunc                   diff@0 model=38220.000000 got=36692.000000
+repl/count/floor                   diff@0 model=38220.000000 got=36692.000000
+repl/count/halfup                  diff@0 model=38220.000000 got=36692.000000
+repl/count/halfeven                diff@0 model=38220.000000 got=36692.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    MATCH
+raw/area/halfeven                  MATCH
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   MATCH
+raw/count/halfeven                 MATCH
+dst:
+  36692 37705 38718 39731 40744 41757 
+  40263 41276 42289 43302 44315 45328 
+  43834 44847 45860 46873 47886 48899 
+  47405 48418 49431 50444 51457 52470 
+  50976 51989 53002 54015 55028 56041 
+  54547 55560 56573 57586 58599 59612 
+== S1 box 16s mask 3x3 anchor 1,1 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=2766.000000 got=3933.000000
+zero/area/floor                    diff@0 model=2766.000000 got=3933.000000
+zero/area/halfup                   diff@0 model=2767.000000 got=3933.000000
+zero/area/halfeven                 diff@0 model=2767.000000 got=3933.000000
+zero/count/trunc                   diff@0 model=6225.000000 got=3933.000000
+zero/count/floor                   diff@0 model=6225.000000 got=3933.000000
+zero/count/halfup                  diff@0 model=6225.000000 got=3933.000000
+zero/count/halfeven                diff@0 model=6225.000000 got=3933.000000
+repl/area/trunc                    diff@0 model=5461.000000 got=3933.000000
+repl/area/floor                    diff@0 model=5461.000000 got=3933.000000
+repl/area/halfup                   diff@0 model=5461.000000 got=3933.000000
+repl/area/halfeven                 diff@0 model=5461.000000 got=3933.000000
+repl/count/trunc                   diff@0 model=5461.000000 got=3933.000000
+repl/count/floor                   diff@0 model=5461.000000 got=3933.000000
+repl/count/halfup                  diff@0 model=5461.000000 got=3933.000000
+repl/count/halfeven                diff@0 model=5461.000000 got=3933.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    MATCH
+raw/area/halfeven                  MATCH
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   MATCH
+raw/count/halfeven                 MATCH
+dst:
+  3933 4946 5959 6972 7985 8998 
+  7504 8517 9530 10543 11556 12569 
+  11075 12088 13101 14114 15127 16140 
+  14646 15659 16672 17685 18698 19711 
+  18217 19230 20243 21256 22269 23282 
+  21788 22801 23814 24827 25840 26853 
+== S1 box 16s mask 2x1 anchor 1,0 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=1967.000000 got=3427.000000
+zero/area/floor                    diff@0 model=1967.000000 got=3427.000000
+zero/area/halfup                   diff@0 model=1967.000000 got=3427.000000
+zero/area/halfeven                 diff@0 model=1967.000000 got=3427.000000
+zero/count/trunc                   diff@0 model=3934.000000 got=3427.000000
+zero/count/floor                   diff@0 model=3934.000000 got=3427.000000
+zero/count/halfup                  diff@0 model=3934.000000 got=3427.000000
+zero/count/halfeven                diff@0 model=3934.000000 got=3427.000000
+repl/area/trunc                    diff@0 model=3934.000000 got=3427.000000
+repl/area/floor                    diff@0 model=3934.000000 got=3427.000000
+repl/area/halfup                   diff@0 model=3934.000000 got=3427.000000
+repl/area/halfeven                 diff@0 model=3934.000000 got=3427.000000
+repl/count/trunc                   diff@0 model=3934.000000 got=3427.000000
+repl/count/floor                   diff@0 model=3934.000000 got=3427.000000
+repl/count/halfup                  diff@0 model=3934.000000 got=3427.000000
+repl/count/halfeven                diff@0 model=3934.000000 got=3427.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    diff@0 model=3428.000000 got=3427.000000
+raw/area/halfeven                  diff@0 model=3428.000000 got=3427.000000
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   diff@0 model=3428.000000 got=3427.000000
+raw/count/halfeven                 diff@0 model=3428.000000 got=3427.000000
+dst:
+  3427 4440 5453 6466 7479 8492 
+  6998 8011 9024 10037 11050 12063 
+  10569 11582 12595 13608 14621 15634 
+  14140 15153 16166 17179 18192 19205 
+  17711 18724 19737 20750 21763 22776 
+  21282 22295 23308 24321 25334 26347 
+== S1 box 32f mask 3x3 anchor 1,1 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/f32                      diff@0 model=0.111111 got=2.194444
+zero/area/f64                      diff@0 model=0.111111 got=2.194444
+zero/count/f32                     diff@0 model=0.250000 got=2.194444
+zero/count/f64                     diff@0 model=0.250000 got=2.194444
+repl/area/f32                      diff@0 model=2.083333 got=2.194444
+repl/area/f64                      diff@0 model=2.083333 got=2.194444
+repl/count/f32                     diff@0 model=2.083333 got=2.194444
+repl/count/f64                     diff@0 model=2.083333 got=2.194444
+raw/area/f32                       MATCH
+raw/area/f64                       MATCH
+raw/count/f32                      MATCH
+raw/count/f64                      MATCH
+dst:
+  2.19444 0.388889 0.361111 -1.44444 -1.47222 -1.5 
+  0.111111 -1.69444 -1.72222 -1.75 0 1.75 
+  -1.97222 -2 -0.25 1.5 1.47222 1.44444 
+  -0.5 1.25 1.22222 1.19444 -0.611111 -0.638889 
+  2.75 2.72222 0.916667 -0.888889 -2.69444 -2.72222 
+  2.44444 0.638889 -1.16667 -2.97222 -3 -1.25 
+== S1 box 64f mask 3x3 anchor 1,1 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/f32                      diff@0 model=0.222222 got=2.444444
+zero/area/f64                      diff@0 model=0.222222 got=2.444444
+zero/count/f32                     diff@0 model=0.500000 got=2.444444
+zero/count/f64                     diff@0 model=0.500000 got=2.444444
+repl/area/f32                      diff@0 model=2.333333 got=2.444444
+repl/area/f64                      diff@0 model=2.333333 got=2.444444
+repl/count/f32                     diff@0 model=2.333333 got=2.444444
+repl/count/f64                     diff@0 model=2.333333 got=2.444444
+raw/area/f32                       diff@0 model=2.444444 got=2.444444
+raw/area/f64                       MATCH
+raw/count/f32                      diff@0 model=2.444444 got=2.444444
+raw/count/f64                      MATCH
+dst:
+  2.44444 0.638889 -1.16667 -2.97222 -3 -1.25 
+  0.361111 -1.44444 -1.47222 -1.5 0.25 2 
+  -1.72222 -1.75 0 1.75 1.72222 1.69444 
+  -0.25 1.5 1.47222 1.44444 -0.361111 -0.388889 
+  1.22222 1.19444 -0.611111 -0.638889 -2.44444 -2.47222 
+  0.916667 -0.888889 -2.69444 -2.72222 -2.75 -1 
+== S1 box 8u mask 3x3 anchor 3,3 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@0 model=0.000000 got=79.000000
+zero/area/floor                    diff@0 model=0.000000 got=79.000000
+zero/area/halfup                   diff@0 model=0.000000 got=79.000000
+zero/area/halfeven                 diff@0 model=0.000000 got=79.000000
+zero/count/trunc                   diff@0 model=0.000000 got=79.000000
+zero/count/floor                   diff@0 model=0.000000 got=79.000000
+zero/count/halfup                  diff@0 model=0.000000 got=79.000000
+zero/count/halfeven                diff@0 model=0.000000 got=79.000000
+repl/area/trunc                    diff@0 model=231.000000 got=79.000000
+repl/area/floor                    diff@0 model=231.000000 got=79.000000
+repl/area/halfup                   diff@0 model=231.000000 got=79.000000
+repl/area/halfeven                 diff@0 model=231.000000 got=79.000000
+repl/count/trunc                   diff@0 model=231.000000 got=79.000000
+repl/count/floor                   diff@0 model=231.000000 got=79.000000
+repl/count/halfup                  diff@0 model=231.000000 got=79.000000
+repl/count/halfeven                diff@0 model=231.000000 got=79.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    diff@11 model=104.000000 got=103.000000
+raw/area/halfeven                  diff@11 model=104.000000 got=103.000000
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   diff@11 model=104.000000 got=103.000000
+raw/count/halfeven                 diff@11 model=104.000000 got=103.000000
+dst:
+  79 108 137 166 167 140 
+  126 155 156 157 130 103 
+  173 174 147 120 93 94 
+  164 137 110 83 85 114 
+  127 100 101 103 132 161 
+  90 92 121 150 151 152 
+== S1 box 8u mask 3x3 anchor 0,0 ==
+  canary clobber at:
+status 0 OK canary=CLOBBERED
+zero/area/trunc                    diff@4 model=108.000000 got=149.000000
+zero/area/floor                    diff@4 model=108.000000 got=149.000000
+zero/area/halfup                   diff@0 model=89.000000 got=88.000000
+zero/area/halfeven                 diff@0 model=89.000000 got=88.000000
+zero/count/trunc                   diff@4 model=162.000000 got=149.000000
+zero/count/floor                   diff@4 model=162.000000 got=149.000000
+zero/count/halfup                  diff@0 model=89.000000 got=88.000000
+zero/count/halfeven                diff@0 model=89.000000 got=88.000000
+repl/area/trunc                    diff@4 model=167.000000 got=149.000000
+repl/area/floor                    diff@4 model=167.000000 got=149.000000
+repl/area/halfup                   diff@0 model=89.000000 got=88.000000
+repl/area/halfeven                 diff@0 model=89.000000 got=88.000000
+repl/count/trunc                   diff@4 model=167.000000 got=149.000000
+repl/count/floor                   diff@4 model=167.000000 got=149.000000
+repl/count/halfup                  diff@0 model=89.000000 got=88.000000
+repl/count/halfeven                diff@0 model=89.000000 got=88.000000
+raw/area/trunc                     MATCH
+raw/area/floor                     MATCH
+raw/area/halfup                    diff@0 model=89.000000 got=88.000000
+raw/area/halfeven                  diff@0 model=89.000000 got=88.000000
+raw/count/trunc                    MATCH
+raw/count/floor                    MATCH
+raw/count/halfup                   diff@0 model=89.000000 got=88.000000
+raw/count/halfeven                 diff@0 model=89.000000 got=88.000000
+dst:
+  88 90 119 148 149 150 
+  108 137 166 167 140 113 
+  155 156 157 130 103 76 
+  174 147 120 93 94 96 
+  137 110 83 85 114 143 
+  100 101 103 132 161 162 
+== probe done ==

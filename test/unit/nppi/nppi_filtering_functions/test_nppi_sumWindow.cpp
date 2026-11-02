@@ -55,6 +55,8 @@ static void cpuSumWindowColumn_8u32f_zero(const Npp8u *pSrc, int nSrcStep, Npp32
 
 class NppiSumWindowTest : public NppTestBase {
 protected:
+  static constexpr int kPad = 8;  // zero margin for the raw taps outside the ROI
+
   void SetUp() override { NppTestBase::SetUp(); }
 
   void TearDown() override { NppTestBase::TearDown(); }
@@ -104,6 +106,34 @@ protected:
     return image;
   }
 
+  // NPP 13.4's non-border sum-window reads taps outside the ROI (raw reads,
+  // no clipping).  Give the device source a zero margin on the filter axis so
+  // those reads stay inside the allocation (MXC faults otherwise) and agree
+  // with the zero-boundary CPU reference.  `src` must already be allocated as
+  // (width + 2*pad) x height for the row variant.
+  Npp8u *copyPaddedRow(NppImageMemory<Npp8u> &src, const std::vector<Npp8u> &img, int width, int height,
+                       int pad) {
+    std::vector<Npp8u> padded((size_t)(width + 2 * pad) * height, 0);
+    for (int y = 0; y < height; ++y) {
+      std::copy(img.begin() + (size_t)y * width, img.begin() + (size_t)(y + 1) * width,
+                padded.begin() + (size_t)y * (width + 2 * pad) + pad);
+    }
+    src.copyFromHost(padded);
+    return src.get() + pad;
+  }
+
+  // Column variant; `src` must be allocated as width x (height + 2*pad).
+  Npp8u *copyPaddedColumn(NppImageMemory<Npp8u> &src, const std::vector<Npp8u> &img, int width, int height,
+                          int pad) {
+    std::vector<Npp8u> padded((size_t)width * (height + 2 * pad), 0);
+    for (int y = 0; y < height; ++y) {
+      std::copy(img.begin() + (size_t)y * width, img.begin() + (size_t)(y + 1) * width,
+                padded.begin() + (size_t)(y + pad) * width);
+    }
+    src.copyFromHost(padded);
+    return src.get() + (size_t)pad * src.step();
+  }
+
   // 验证结果（使用相对误差）
   bool validateResults(const Npp32f *cpu, const Npp32f *gpu, int width, int height, int step, float absEpsilon = 1e-3f,
                        float relEpsilon = 1e-4f) {
@@ -145,13 +175,13 @@ TEST_F(NppiSumWindowTest, SumWindowRow_ConstantImage) {
   std::vector<Npp32f> hostDstGpu(width * height);
 
   // 分配GPU内存
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width + 2 * kPad, height);
   NppImageMemory<Npp32f> dst(width, height);
 
-  src.copyFromHost(hostSrc);
+  Npp8u *ps = copyPaddedRow(src, hostSrc, width, height, kPad);
 
   // 调用GPU函数
-  NppStatus status = nppiSumWindowRow_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
+  NppStatus status = nppiSumWindowRow_8u32f_C1R(ps, src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiSumWindowRow_8u32f_C1R failed";
 
@@ -187,13 +217,13 @@ TEST_F(NppiSumWindowTest, SumWindowColumn_ConstantImage) {
   std::vector<Npp32f> hostDstGpu(width * height);
 
   // 分配GPU内存
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width, height + 2 * kPad);
   NppImageMemory<Npp32f> dst(width, height);
 
-  src.copyFromHost(hostSrc);
+  Npp8u *ps = copyPaddedColumn(src, hostSrc, width, height, kPad);
 
   // 调用GPU函数
-  NppStatus status = nppiSumWindowColumn_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
+  NppStatus status = nppiSumWindowColumn_8u32f_C1R(ps, src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiSumWindowColumn_8u32f_C1R failed";
 
@@ -230,13 +260,13 @@ TEST_F(NppiSumWindowTest, SumWindowRow_IncrementImage) {
   std::vector<Npp32f> hostDstCpu(width * height);
   std::vector<Npp32f> hostDstGpu(width * height);
 
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width + 2 * kPad, height);
   NppImageMemory<Npp32f> dst(width, height);
 
-  src.copyFromHost(hostSrc);
+  Npp8u *ps = copyPaddedRow(src, hostSrc, width, height, kPad);
 
   // 调用GPU函数
-  NppStatus status = nppiSumWindowRow_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
+  NppStatus status = nppiSumWindowRow_8u32f_C1R(ps, src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "nppiSumWindowRow_8u32f_C1R failed for increment image";
 
@@ -264,8 +294,8 @@ TEST_F(NppiSumWindowTest, SumWindowRow_VariousMaskSizes) {
   };
 
   std::vector<Npp8u> hostSrc = createIncrementImage(width, height);
-  NppImageMemory<Npp8u> src(width, height);
-  src.copyFromHost(hostSrc);
+  NppImageMemory<Npp8u> src(width + 2 * kPad, height);
+  Npp8u *ps = copyPaddedRow(src, hostSrc, width, height, kPad);
 
   NppiSize roi = {width, height};
 
@@ -280,7 +310,7 @@ TEST_F(NppiSumWindowTest, SumWindowRow_VariousMaskSizes) {
     NppImageMemory<Npp32f> dst(width, height);
 
     // 调用GPU函数
-    NppStatus status = nppiSumWindowRow_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
+    NppStatus status = nppiSumWindowRow_8u32f_C1R(ps, src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
 
     ASSERT_EQ(status, NPP_SUCCESS) << "Failed with maskSize=" << maskSize << ", anchor=" << anchor;
 
@@ -304,8 +334,8 @@ TEST_F(NppiSumWindowTest, SumWindowColumn_VariousAnchors) {
   std::vector<int> anchors = {0, 1, 2, 3, 4}; // 所有可能的锚点
 
   std::vector<Npp8u> hostSrc = createVerticalStripes(width, height);
-  NppImageMemory<Npp8u> src(width, height);
-  src.copyFromHost(hostSrc);
+  NppImageMemory<Npp8u> src(width, height + 2 * kPad);
+  Npp8u *ps = copyPaddedColumn(src, hostSrc, width, height, kPad);
 
   NppiSize roi = {width, height};
 
@@ -318,7 +348,7 @@ TEST_F(NppiSumWindowTest, SumWindowColumn_VariousAnchors) {
 
     // 调用GPU函数
     NppStatus status =
-        nppiSumWindowColumn_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
+        nppiSumWindowColumn_8u32f_C1R(ps, src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
 
     ASSERT_EQ(status, NPP_SUCCESS) << "Failed with anchor=" << anchor;
 
@@ -366,24 +396,24 @@ TEST_F(NppiSumWindowTest, SumWindowRow_CtxVersion) {
   std::vector<Npp32f> hostDstRegular(width * height);
   std::vector<Npp32f> hostDstCtx(width * height);
 
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width + 2 * kPad, height);
   NppImageMemory<Npp32f> dst1(width, height);
   NppImageMemory<Npp32f> dst2(width, height);
 
-  src.copyFromHost(hostSrc);
+  Npp8u *ps = copyPaddedRow(src, hostSrc, width, height, kPad);
 
   // 创建流上下文（使用默认流）
   NppStreamContext ctx;
   ctx.hStream = 0;
 
   // 测试常规版本
-  NppStatus status1 = nppiSumWindowRow_8u32f_C1R(src.get(), src.step(), dst1.get(), dst1.step(), roi, maskSize, anchor);
+  NppStatus status1 = nppiSumWindowRow_8u32f_C1R(ps, src.step(), dst1.get(), dst1.step(), roi, maskSize, anchor);
 
   ASSERT_EQ(status1, NPP_SUCCESS) << "Regular version failed";
 
   // 测试_Ctx版本
   NppStatus status2 =
-      nppiSumWindowRow_8u32f_C1R_Ctx(src.get(), src.step(), dst2.get(), dst2.step(), roi, maskSize, anchor, ctx);
+      nppiSumWindowRow_8u32f_C1R_Ctx(ps, src.step(), dst2.get(), dst2.step(), roi, maskSize, anchor, ctx);
 
   ASSERT_EQ(status2, NPP_SUCCESS) << "Ctx version failed";
 
@@ -410,11 +440,11 @@ TEST_F(NppiSumWindowTest, SumWindowColumn_CtxVersion) {
   std::vector<Npp32f> hostDstRegular(width * height);
   std::vector<Npp32f> hostDstCtx(width * height);
 
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width, height + 2 * kPad);
   NppImageMemory<Npp32f> dst1(width, height);
   NppImageMemory<Npp32f> dst2(width, height);
 
-  src.copyFromHost(hostSrc);
+  Npp8u *ps = copyPaddedColumn(src, hostSrc, width, height, kPad);
 
   // 创建流上下文
   NppStreamContext ctx;
@@ -422,13 +452,13 @@ TEST_F(NppiSumWindowTest, SumWindowColumn_CtxVersion) {
 
   // 测试常规版本
   NppStatus status1 =
-      nppiSumWindowColumn_8u32f_C1R(src.get(), src.step(), dst1.get(), dst1.step(), roi, maskSize, anchor);
+      nppiSumWindowColumn_8u32f_C1R(ps, src.step(), dst1.get(), dst1.step(), roi, maskSize, anchor);
 
   ASSERT_EQ(status1, NPP_SUCCESS) << "Regular version failed";
 
   // 测试_Ctx版本
   NppStatus status2 =
-      nppiSumWindowColumn_8u32f_C1R_Ctx(src.get(), src.step(), dst2.get(), dst2.step(), roi, maskSize, anchor, ctx);
+      nppiSumWindowColumn_8u32f_C1R_Ctx(ps, src.step(), dst2.get(), dst2.step(), roi, maskSize, anchor, ctx);
 
   ASSERT_EQ(status2, NPP_SUCCESS) << "Ctx version failed";
 
@@ -456,13 +486,13 @@ TEST_F(NppiSumWindowTest, SumWindowRow_BoundaryHandling) {
   std::vector<Npp32f> hostDstCpu(width * height);
   std::vector<Npp32f> hostDstGpu(width * height);
 
-  NppImageMemory<Npp8u> src(width, height);
+  NppImageMemory<Npp8u> src(width + 2 * kPad, height);
   NppImageMemory<Npp32f> dst(width, height);
 
-  src.copyFromHost(hostSrc);
+  Npp8u *ps = copyPaddedRow(src, hostSrc, width, height, kPad);
 
   // 调用GPU函数
-  NppStatus status = nppiSumWindowRow_8u32f_C1R(src.get(), src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
+  NppStatus status = nppiSumWindowRow_8u32f_C1R(ps, src.step(), dst.get(), dst.step(), roi, maskSize, anchor);
 
   ASSERT_EQ(status, NPP_SUCCESS) << "Boundary test failed";
 

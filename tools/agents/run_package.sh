@@ -92,6 +92,16 @@ fi
 # Reference builds need googletest; worktrees start with uninitialized submodules.
 git -C "$workdir" submodule update --init --recursive >/dev/null 2>&1 || true
 
+# When launched from inside a Claude Code session, the child CLI inherits
+# CLAUDE_CODE_* / CLAUDECODE / ANTHROPIC_* variables.  Those make it attach to
+# the parent session's IPC and stall in the first model request (observed:
+# multi-MB retries, no tool activity).  Strip them before sourcing the agent
+# gateway environment.
+while IFS='=' read -r _name _; do
+  case "$_name" in
+    CLAUDE*|ANTHROPIC*) unset "$_name" ;;
+  esac
+done < <(env)
 if [[ ! -f "$AGENT_ENV" ]]; then
   echo "error: missing $AGENT_ENV (gateway credentials)" >&2
   exit 2

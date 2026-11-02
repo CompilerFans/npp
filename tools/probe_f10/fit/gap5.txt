@@ -1,0 +1,15 @@
+== gap5 ==
+gap5 gauss8uC1 dststep11 st=0
+gap5 gauss8uC1 dststep10 st=0
+gap5 gauss8uC1 dststep5 st=0
+gap5 gauss8uC3 dststep16 st=0
+gap5 gauss8uC3 dststep17 st=0
+gap5 gauss16uC1 dststep11 st=-108
+gap5 gauss16sC3 dststep31 st=-108
+gap5 gauss32fC3 dststep61 st=-108
+gap5 gauss32fC3 dststep64 st=0
+gap5 wi8uC1 dststep11 st=0
+gap5 gb32fC1 srcstep37 st=0
+gap5 gb8uC1 srcstep10 st=0
+gap5 wi32fC1 srcstep37 st=0
+done

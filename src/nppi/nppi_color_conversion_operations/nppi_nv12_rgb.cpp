@@ -34,17 +34,26 @@ NppStatus nppiNV12ToRGB_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // An empty ROI is a no-op; NVIDIA NPP returns success regardless of step.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
+  }
+
+  // NV12 chroma is subsampled horizontally, so the width must be even.
+  // An odd height is valid: the last chroma row covers the extra luma row.
+  if (oSizeROI.width % 2 != 0) {
+    return NPP_SIZE_ERROR;
   }
 
   if (rSrcStep <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-
-  // NV12 format requires even dimensions for proper chroma handling
-  if (oSizeROI.width % 2 != 0 || oSizeROI.height % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nDstStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
   }
 
   // Call GPU kernel
@@ -74,17 +83,26 @@ NppStatus nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // An empty ROI is a no-op; NVIDIA NPP returns success regardless of step.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
+  }
+
+  // NV12 chroma is subsampled horizontally, so the width must be even.
+  // An odd height is valid: the last chroma row covers the extra luma row.
+  if (oSizeROI.width % 2 != 0) {
+    return NPP_SIZE_ERROR;
   }
 
   if (rSrcStep <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-
-  // NV12 format requires even dimensions
-  if (oSizeROI.width % 2 != 0 || oSizeROI.height % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nDstStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
   }
 
   // CallBT.709 GPUkernel
@@ -180,17 +198,26 @@ NppStatus nppiNV12ToBGR_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // An empty ROI is a no-op; NVIDIA NPP returns success regardless of step.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
+  }
+
+  // NV12 chroma is subsampled horizontally, so the width must be even.
+  // An odd height is valid: the last chroma row covers the extra luma row.
+  if (oSizeROI.width % 2 != 0) {
+    return NPP_SIZE_ERROR;
   }
 
   if (rSrcStep <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-
-  // NV12 format requires even dimensions
-  if (oSizeROI.width % 2 != 0 || oSizeROI.height % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nDstStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
   }
 
   // Call BGR kernel
@@ -220,17 +247,26 @@ NppStatus nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(const Npp8u *const pSrc[2], int rSrc
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // An empty ROI is a no-op; NVIDIA NPP returns success regardless of step.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
+  }
+
+  // NV12 chroma is subsampled horizontally, so the width must be even.
+  // An odd height is valid: the last chroma row covers the extra luma row.
+  if (oSizeROI.width % 2 != 0) {
+    return NPP_SIZE_ERROR;
   }
 
   if (rSrcStep <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-
-  // NV12 format requires even dimensions
-  if (oSizeROI.width % 2 != 0 || oSizeROI.height % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nDstStep < oSizeROI.width * 3) {
+    return NPP_STEP_ERROR;
   }
 
   // Call BT.709 BGR kernel
@@ -259,16 +295,26 @@ NppStatus nppiNV21ToRGB_8u_P2C4R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // An empty ROI is a no-op; NVIDIA NPP returns success regardless of step.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
+  }
+
+  // NV12 chroma is subsampled horizontally, so the width must be even.
+  // An odd height is valid: the last chroma row covers the extra luma row.
+  if (oSizeROI.width % 2 != 0) {
+    return NPP_SIZE_ERROR;
   }
 
   if (rSrcStep <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-
-  if (oSizeROI.width % 2 != 0 || oSizeROI.height % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nDstStep < oSizeROI.width * 4) {
+    return NPP_STEP_ERROR;
   }
 
   cudaError_t cudaStatus = nppiNV21ToRGB_8u_P2C4R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
@@ -293,16 +339,26 @@ NppStatus nppiNV21ToBGR_8u_P2C4R_Ctx(const Npp8u *const pSrc[2], int rSrcStep, N
     return NPP_NULL_POINTER_ERROR;
   }
 
+  // An empty ROI is a no-op; NVIDIA NPP returns success regardless of step.
+  if (oSizeROI.width == 0 || oSizeROI.height == 0) {
+    return NPP_NO_ERROR;
+  }
+
   if (oSizeROI.width < 0 || oSizeROI.height < 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+    return NPP_SIZE_ERROR;
+  }
+
+  // NV12 chroma is subsampled horizontally, so the width must be even.
+  // An odd height is valid: the last chroma row covers the extra luma row.
+  if (oSizeROI.width % 2 != 0) {
+    return NPP_SIZE_ERROR;
   }
 
   if (rSrcStep <= 0 || nDstStep <= 0) {
     return NPP_STEP_ERROR;
   }
-
-  if (oSizeROI.width % 2 != 0 || oSizeROI.height % 2 != 0) {
-    return NPP_WRONG_INTERSECTION_ROI_ERROR;
+  if (nDstStep < oSizeROI.width * 4) {
+    return NPP_STEP_ERROR;
   }
 
   cudaError_t cudaStatus = nppiNV21ToBGR_8u_P2C4R_kernel(pSrc[0], rSrcStep, pSrc[1], rSrcStep, pDst, nDstStep,
