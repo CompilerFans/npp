@@ -1,6 +1,6 @@
 # NPP API 全量实现进度账本
 
-> 最后更新：2026-11-01
+> 最后更新：2026-11-02
 > 集成分支：`feat/npp-api-expansion`（基于 `dev` @ `3a81f00`）
 > 公共契约：`API/`（API-unified）
 > 参考实现：NVIDIA NPP 13.4 / RTX 5090 / CUDA 13.4
@@ -80,7 +80,7 @@
 | C2 | NPPI ColorTwist（nppiColorTwist/32f/32fC/Batch/Batch32f/Batch32fC 全变体） | 196 | ✅ 已合并 | `pkg/c2` + `c2-verify` → `c1091d9` |
 | C1 | NPPI LUT（LUT/Linear/Cubic/Trilinear + Palette/PaletteSwap + 24u/32u 输出） | 228 | ✅ 已合并 | `pkg/c1` + `c1-verify` → `da03c9d` |
 | C4 | NPPI 色彩空间转换（RGB↔XYZ/LUV、NV12↔RGB ColorTwist、CFA demosaic、Gamma、AlphaCompColorKey） | 66（本轮新增 43） | ✅ 已合并 | `pkg/c4` + `c4-verify` → `18759b4` |
-| C3 | NPPI YUV/YCbCr 布局与色彩空间（sampling/layout、BT.601/709、YCC、CMYK、8 位 ColorTwist） | 332（本轮 255） | ✅ 已合并 | `pkg/c3` + `c3-verify` → `71c7ad1` |
+| C3 | NPPI YUV/YCbCr 布局与色彩空间（sampling/layout、BT.601/709、YCC、CMYK、8/16 位 ColorTwist、batch） | 332 | ✅ 已合并 | `pkg/c3` + `c3-verify` → `5d07d79` |
 | G5 | NPPI 透视/旋转/几何辅助（Perspective/Back/Quad/Batch + Rotate + get*） | 116 | ✅ 已合并 | `pkg/g5` + `g5-verify` → `d6d9f79` |
 | opt_fix | 600U：形态学 word-per-pixel 向量化 + 8u C3 回退定位 | 0 | ✅ 已合并 | `pkg/opt_fix` → `409d5ef` |
 | opt_planar | 600U：平面↔打包拷贝 128-bit 逐平面向量化 | 0 | ✅ 已合并 | `pkg/opt_planar` → `409d5ef` |
@@ -95,6 +95,7 @@
 
 ## 5. 决策记录
 
+- **C3 增补完成（332/332）**：12 个 batch 家族（64 个函数）与 16 位 ColorTwist（13 个函数）共 77 个函数 real（`pkg/c3` + `c3-verify` → `02de141`/`69928f3`/`977ac74`/`5d07d79`）；catalog real 12,225→12,302、missing 228→151、remaining 312→235、tested 8,291、real-and-tested 8,124→8,169。验证：`NppiC3*` **72/72**（5090 用当前测试文件重录全部 golden：batch inverse 矩阵与 16 位 ColorTwist 取样按实测值对齐）、整树 unit 4,833/4,833、diff 2,552/2,564（12 skip）/0。lead 修复：单图 `ycbcr_to_rgb_pixel` 原用 double 计算，数学上恰为 48.0 的值被算成 47.999… 后截断成 47，而 NPP 用单精度 FMA 得 48.000…；改为与 batch 相同的单精度 FMA 求值顺序（`fmaf` 链 + 饱和后截断）后 `NppiC3BatchDiff.PerPlaneSteps` 通过，全套回归无变化。batch 语义：descriptor 的 per-plane step 各自读取（单图 P3C3R 共用一个 step），`nBatchSize < 2` → BAD_ARGUMENT，奇 ROI → DOUBLE_SIZE_WARNING 且只处理最大偶矩形。
 - **F13 增补完成（199/264）**：六个 FloodFill 家族（nppiFloodFill / Boundary / Range / RangeBoundary / Gradient / GradientBoundary）+ FloodFillGetBufferSize 共 73 个函数 real（`pkg/f13` + `f13-verify` → `557c49d`）；catalog real 12,152→12,225、missing 301→228、remaining 385→312、tested 8,291、real-and-tested 8,087→8,124。验证：`NppiFloodFillDiff.*` **8/8**（5090 record 与 MPP replay 均 8/8）、整树 unit 4,833、diff 2,539/2,551（12 skip）/0。5090 语义：区域是与种子连通的分量（等值 / `[min,max]` / `[seed-min, seed+max]`，下界夹 0；L1=4 连通、Inf=8 连通），种子始终属于区域；`*Boundary` 形式并非在边界值停止，而是区域内像素按 8 邻域外是否有区域外像素写入边界值或新值；种子读取有一个 `y*step + x*C*C*sizeof(T)` 的列缩放怪癖；`GetBufferSize = 4wh + 4w + 64`；`nSrcDstStep` 从不校验。仍未完成 65：GaussPyramidLayerUp 12、HistogramOfGradients 16、DistanceTransform PBA/Signed 28（新发现：ROI < 64×64 返回 -6、输出每像素 2 个 `Npp16s`、欧氏距离、Voronoi/索引存放最近站点 (x,y)）、Watershed 16u 2、Hough 4、Contours 4。
 - **C3 完成（255/332）**：YUV/YCbCr 采样格式与布局转换（4:1:1/4:2:0/4:2:2 互转、CbYCr/YCrCb 重排）、BT.601/709 色彩矩阵（视频/全范围、CSC/HDTV）、PhotoYCC、JPEG CMYK/YCCK、8 位 RGB↔YUV ColorTwist 共 213 个新 real（`pkg/c3` + `c3-verify` → `71c7ad1`）；catalog real 11,939→12,152、missing 514→301、remaining 598→385、tested 8,289、real-and-tested 7,974→8,087。验证：c3 十个差分 suite **59/59**（在 5090 用当前测试文件重录全部 golden）、整树 unit 4,833、diff 2,531/2,543（12 skip）/0。未完成 77：12 个 batch 家族（64，参考实现的 descriptor ROI 语义未能逐位复现）与 13 个 16 位 ColorTwist（x.5 附近的取整无法 bit-exact）。5090 语义：packed C2 布局 `[Y Cb Y Cr]`/`[Y Cr Y Cb]`/`[Cb Y Cr Y]`、4:1:1→4:2:0 的交错行映射、luma 整像素组写入、4:2:0 奇数尺寸 DOUBLE_SIZE_WARNING；色彩矩阵及 JPEG CMYK 的 `(255−C)(255−K)/255` 精确除尽 off-by-one 表。lead 修复：(1) `k_p3_to_c2` 把 host 的 `int aSrcStep[3]` 直接传进 kernel 解引用（C500 ATU fault），改为按值传 3 个 stride；(2) packed 4 通道源 step 必须是 4 字节的整数倍，否则 NPP 返回 NOT_EVEN_STEP_ERROR（fwd420/fwdC2/rgbToYcc/yccToRgb）；(3) p2c2 校验 luma 源 step（STEP_ERROR）；(4) 恢复 `API-unified/nppi_color_conversion.h` 里 NPP 12.8 补充声明的 `extern "C"`。
 - **C4 完成**：RGB↔XYZ、RGB↔LUV、NV12↔RGB ColorTwist、CFA demosaic（C3/RGBA）、Gamma 平面变体、AlphaCompColorKey 等，本轮新增 43 个 real（`pkg/c4` + `c4-verify` → `18759b4`）；catalog real 11,896→11,939、missing 557→514、remaining 641→598、tested 8,289、real-and-tested 7,939→7,974。验证：c4 六个差分 suite **38/38**、整树 unit 4,833、diff 2,472/2,484（12 skip）/0。5090 语义：XYZ/LUV 用文档公式（D65、8 位截断、AC4 保留 alpha）；NV12↔RGB ColorTwist 的 Y/RGB round-half-up 并 clamp，2×2 色度取块左上，奇数尺寸返回 DOUBLE_SIZE_WARNING 且不写；CFA 为整数双线性 + 色度相关绿（`|2c-(n1+n2)|`，并列取四基数平均），红蓝按行列奇偶配对，源边界镜像，且 `oSrcROI` 的宽/高作为排他右/下边界。lead 修复：XYZToRGB 的线性 RGB 原本只钳上界，负值 float→u8 在 MACA 上回绕（107 而非 0），已补 [0,1] 下界。

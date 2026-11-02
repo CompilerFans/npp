@@ -416,3 +416,338 @@ TEST(NppiC3TwistDiff, ErrorAndProbePaths) {
   probe("ycrcb_small_src_step", "nppiYCrCb422ToRGB_8u_C2C3R",
         [&] { return nppiYCrCb422ToRGB_8u_C2C3R_Ctx(src.get(), 2 * w - 1, packed.get(), 3 * w + 8, NppiSize{w, h}, ctx); });
 }
+
+// --- 16-bit ColorTwist sampling conversions ---------------------------------
+// The 16-bit variants accumulate in double precision and round to nearest
+// (recorded goldens); the geometry and sampling rules match the 8-bit ones.
+namespace {
+
+struct Planes16 {
+  std::vector<std::unique_ptr<DeviceMemory<Npp16u>>> dev;
+  std::vector<Npp16u *> ptrs;
+};
+
+Planes16 make_planes16(const std::vector<size_t> &elems, uint64_t seed) {
+  Planes16 p;
+  for (size_t i = 0; i < elems.size(); ++i) {
+    std::vector<Npp16u> host = make_uniform<Npp16u>(elems[i], seed + 7 * i);
+    p.dev.push_back(std::make_unique<DeviceMemory<Npp16u>>(elems[i]));
+    p.dev.back()->copyFromHost(host);
+    p.ptrs.push_back(p.dev.back()->get());
+  }
+  return p;
+}
+
+const Npp16u **sbuf16(const Planes16 &p) { return const_cast<const Npp16u **>(p.ptrs.data()); }
+
+void f16_420(const char *fname, const std::string &key,
+             NppStatus (*f)(const Npp16u *, int, Npp16u **, int *, NppiSize, const Npp32f[3][4], NppStreamContext),
+             int w, int h, uint64_t seed) {
+  const int sStep = 2 * (3 * w) + 8;
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
+  DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
+  src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
+  Planes16 dst = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
+                               seed + 29);
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int steps[3] = {yStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(src.get(), sStep, dst.ptrs.data(), steps, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.dev[0]->get(), (size_t)yStep * h / 2, ValueKind::U16);
+  c.device_output<Npp16u>(dst.dev[1]->get(), (size_t)cStep * (h / 2) / 2, ValueKind::U16);
+  c.device_output<Npp16u>(dst.dev[2]->get(), (size_t)cStep * (h / 2) / 2, ValueKind::U16);
+  c.finish();
+}
+
+void f16_420P3(const char *fname, const std::string &key,
+               NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
+                              NppStreamContext),
+               int w, int h, uint64_t seed) {
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)sStep * h / 2, (size_t)sStep * h / 2}, seed + 11);
+  Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
+                               seed + 29);
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {sStep, sStep, sStep};
+  int dsteps[3] = {sStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.ptrs.data(), dsteps, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.dev[0]->get(), (size_t)sStep * h / 2, ValueKind::U16);
+  c.device_output<Npp16u>(dst.dev[1]->get(), (size_t)cStep * (h / 2) / 2, ValueKind::U16);
+  c.device_output<Npp16u>(dst.dev[2]->get(), (size_t)cStep * (h / 2) / 2, ValueKind::U16);
+  c.finish();
+}
+
+void f16_422C2(const char *fname, const std::string &key,
+               NppStatus (*f)(const Npp16u *, int, Npp16u *, int, NppiSize, const Npp32f[3][4], NppStreamContext),
+               int w, int h, uint64_t seed) {
+  const int sStep = 2 * (3 * w) + 8;
+  const int dStep = 2 * (2 * w) + 8;
+  DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
+  src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
+  DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
+  dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  clear_cuda_error();
+  NppStatus st = f(src.get(), sStep, dst.get(), dStep, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.get(), (size_t)dStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+void f16_422C3P3(const char *fname, const std::string &key,
+                 NppStatus (*f)(const Npp16u *, int, Npp16u **, int *, NppiSize, const Npp32f[3][4],
+                                NppStreamContext),
+                 int w, int h, uint64_t seed) {
+  const int sStep = 2 * (3 * w) + 8;
+  const int cStep = w + 8;
+  DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
+  src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
+  Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 29);
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int dsteps[3] = {sStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(src.get(), sStep, dst.ptrs.data(), dsteps, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.dev[0]->get(), (size_t)sStep * h / 2, ValueKind::U16);
+  c.device_output<Npp16u>(dst.dev[1]->get(), (size_t)cStep * h / 2, ValueKind::U16);
+  c.device_output<Npp16u>(dst.dev[2]->get(), (size_t)cStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+void f16_422P3(const char *fname, const std::string &key,
+               NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
+                              NppStreamContext),
+               int w, int h, uint64_t seed) {
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
+  Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)sStep * h / 2, (size_t)sStep * h / 2}, seed + 29);
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {sStep, cStep, cStep};
+  int dsteps[3] = {sStep, sStep, sStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.ptrs.data(), dsteps, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  for (int i = 0; i < 3; ++i) {
+    c.device_output<Npp16u>(dst.dev[i]->get(), (size_t)sStep * h / 2, ValueKind::U16);
+  }
+  c.finish();
+}
+
+// P3C3R / P3C4R 4:2:0 destination (no alpha argument).
+template <class FN>
+void f16_inv420P3C(const char *fname, const std::string &key, int w, int h, int dstPp, FN f, uint64_t seed) {
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
+  Planes16 src = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
+                               seed + 11);
+  const int dStep = 2 * dstPp * w + 8;
+  DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
+  dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {yStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.get(), dStep, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.get(), (size_t)dStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+// P3AC4R 4:2:0 destination (alpha argument).
+template <class FN>
+void f16_inv420P3AC4(const char *fname, const std::string &key, int w, int h, Npp16u alpha, FN f, uint64_t seed) {
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
+  Planes16 src = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
+                               seed + 11);
+  const int dStep = 2 * 4 * w + 8;
+  DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
+  dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {yStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.get(), dStep, NppiSize{w, h}, m, alpha, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.get(), (size_t)dStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+void f16_inv420P3(const char *fname, const std::string &key,
+                  NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
+                                 NppStreamContext),
+                  int w, int h, uint64_t seed) {
+  const int yStep = 2 * w + 8;
+  const int cStep = w + 8;
+  Planes16 src = make_planes16({(size_t)yStep * h / 2, (size_t)cStep * (h / 2) / 2, (size_t)cStep * (h / 2) / 2},
+                               seed + 11);
+  Planes16 dst = make_planes16({(size_t)yStep * h / 2, (size_t)yStep * h / 2, (size_t)yStep * h / 2}, seed + 29);
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {yStep, cStep, cStep};
+  int dsteps[3] = {yStep, yStep, yStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.ptrs.data(), dsteps, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  for (int i = 0; i < 3; ++i) {
+    c.device_output<Npp16u>(dst.dev[i]->get(), (size_t)yStep * h / 2, ValueKind::U16);
+  }
+  c.finish();
+}
+
+void f16_inv422P3(const char *fname, const std::string &key,
+                  NppStatus (*f)(const Npp16u *const *, int *, Npp16u **, int *, NppiSize, const Npp32f[3][4],
+                                 NppStreamContext),
+                  int w, int h, uint64_t seed) {
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
+  Planes16 dst = make_planes16({(size_t)sStep * h / 2, (size_t)sStep * h / 2, (size_t)sStep * h / 2}, seed + 29);
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {sStep, cStep, cStep};
+  int dsteps[3] = {sStep, sStep, sStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.ptrs.data(), dsteps, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  for (int i = 0; i < 3; ++i) {
+    c.device_output<Npp16u>(dst.dev[i]->get(), (size_t)sStep * h / 2, ValueKind::U16);
+  }
+  c.finish();
+}
+
+// P3C3R 4:2:2 destination.
+template <class FN>
+void f16_inv422P3C(const char *fname, const std::string &key, FN f, int w, int h, uint64_t seed) {
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  const int dStep = 2 * (3 * w) + 8;
+  Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
+  DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
+  dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {sStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.get(), dStep, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.get(), (size_t)dStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+// P3AC4R 4:2:2 destination (alpha argument).
+template <class FN>
+void f16_inv422P3AC4(const char *fname, const std::string &key, int w, int h, Npp16u alpha, FN f, uint64_t seed) {
+  const int sStep = 2 * w + 8;
+  const int cStep = w + 8;
+  const int dStep = 2 * 4 * w + 8;
+  Planes16 src = make_planes16({(size_t)sStep * h / 2, (size_t)cStep * h / 2, (size_t)cStep * h / 2}, seed + 11);
+  DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
+  dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  int ssteps[3] = {sStep, cStep, cStep};
+  clear_cuda_error();
+  NppStatus st = f(sbuf16(src), ssteps, dst.get(), dStep, NppiSize{w, h}, m, alpha, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.get(), (size_t)dStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+void f16_inv422C2(const char *fname, const std::string &key,
+                  NppStatus (*f)(const Npp16u *, int, Npp16u *, int, NppiSize, const Npp32f[3][4],
+                                 NppStreamContext),
+                  int w, int h, uint64_t seed) {
+  const int sStep = 2 * (2 * w) + 8;
+  const int dStep = 2 * (3 * w) + 8;
+  DeviceMemory<Npp16u> src((size_t)sStep * h / 2);
+  src.copyFromHost(make_uniform<Npp16u>((size_t)sStep * h / 2, seed + 11));
+  DeviceMemory<Npp16u> dst((size_t)dStep * h / 2);
+  dst.copyFromHost(make_uniform<Npp16u>((size_t)dStep * h / 2, seed + 29));
+  Npp32f m[3][4];
+  twist_matrix(m, seed + 3);
+  clear_cuda_error();
+  NppStatus st = f(src.get(), sStep, dst.get(), dStep, NppiSize{w, h}, m, current_ctx());
+  Case c("nppiC3Twist16/" + key, fname);
+  c.status(st);
+  c.device_output<Npp16u>(dst.get(), (size_t)dStep * h / 2, ValueKind::U16);
+  c.finish();
+}
+
+} // namespace
+
+TEST(NppiC3Twist16FwdDiff, Yuv420) {
+  f16_420("nppiRGBToYUV420_16u_ColorTwist32f_C3P3R", "fwd420c3/16x12",
+          nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx, 16, 12, 0xE401);
+  f16_420("nppiRGBToYUV420_16u_ColorTwist32f_C3P3R", "fwd420c3/8x6",
+          nppiRGBToYUV420_16u_ColorTwist32f_C3P3R_Ctx, 8, 6, 0xE402);
+  f16_420P3("nppiRGBToYUV420_16u_ColorTwist32f_P3R", "fwd420p3/16x12",
+            nppiRGBToYUV420_16u_ColorTwist32f_P3R_Ctx, 16, 12, 0xE403);
+}
+
+TEST(NppiC3Twist16FwdDiff, Yuv422) {
+  f16_422C2("nppiRGBToYUV422_16u_ColorTwist32f_C3C2R", "fwd422c2/16x12",
+            nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx, 16, 12, 0xE404);
+  f16_422C3P3("nppiRGBToYUV422_16u_ColorTwist32f_C3P3R", "fwd422c3p3/16x12",
+              nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx, 16, 12, 0xE405);
+  f16_422P3("nppiRGBToYUV422_16u_ColorTwist32f_P3R", "fwd422p3/8x6",
+            nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx, 8, 6, 0xE406);
+}
+
+TEST(NppiC3Twist16InvDiff, Yuv420) {
+  f16_inv420P3C("nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R", "inv420c3/16x12", 16, 12, 3,
+                [&](const Npp16u *const *p, int *ss, Npp16u *d, int ds, NppiSize r, const Npp32f mm[3][4],
+                    NppStreamContext c) { return nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx(p, ss, d, ds, r, mm, c); },
+                0xE407);
+  f16_inv420P3C("nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R", "inv420c4/8x6", 8, 6, 4,
+                [&](const Npp16u *const *p, int *ss, Npp16u *d, int ds, NppiSize r, const Npp32f mm[3][4],
+                    NppStreamContext c) { return nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx(p, ss, d, ds, r, mm, c); },
+                0xE408);
+  f16_inv420P3AC4("nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R", "inv420ac4/16x12", 16, 12, 1234,
+                  [&](const Npp16u *const *p, int *ss, Npp16u *d, int ds, NppiSize r, const Npp32f mm[3][4],
+                      Npp16u a, NppStreamContext c) {
+                    return nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx(p, ss, d, ds, r, mm, a, c);
+                  },
+                  0xE409);
+  f16_inv420P3("nppiYUV420ToRGB_16u_ColorTwist32f_P3R", "inv420p3/16x12",
+               nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx, 16, 12, 0xE40A);
+}
+
+TEST(NppiC3Twist16InvDiff, Yuv422) {
+  f16_inv422C2("nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R", "inv422c2/16x12",
+               nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R_Ctx, 16, 12, 0xE40B);
+  f16_inv422P3C("nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R", "inv422c3/16x12",
+                [&](const Npp16u *const *p, int *ss, Npp16u *d, int ds, NppiSize r, const Npp32f mm[3][4],
+                    NppStreamContext c) { return nppiYUV422ToRGB_16u_ColorTwist32f_P3C3R_Ctx(p, ss, d, ds, r, mm, c); },
+                16, 12, 0xE40C);
+  f16_inv422P3AC4("nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R", "inv422ac4/8x6", 8, 6, 4321,
+                  [&](const Npp16u *const *p, int *ss, Npp16u *d, int ds, NppiSize r, const Npp32f mm[3][4],
+                      Npp16u a, NppStreamContext c) {
+                    return nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx(p, ss, d, ds, r, mm, a, c);
+                  },
+                  0xE40D);
+  f16_inv422P3("nppiYUV422ToRGB_16u_ColorTwist32f_P3R", "inv422p3/16x12",
+               nppiYUV422ToRGB_16u_ColorTwist32f_P3R_Ctx, 16, 12, 0xE40E);
+}

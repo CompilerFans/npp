@@ -1,0 +1,29 @@
+{
+  "family": "nppiYUV420ToRGB",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiYUV420ToRGB_twist16_generated.cpp",
+  "includes": [
+    "nppi_c3_twist_executor.h"
+  ],
+  "functions": [
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3AC4R_Ctx",
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3C3R_Ctx",
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3C4R_Ctx",
+    "nppiYUV420ToRGB_16u_ColorTwist32f_P3R_Ctx"
+  ],
+  "call": "nppi::c3twist::inv420P3_16u(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)",
+  "call_variants": [
+    {
+      "name_contains": "P3AC4R",
+      "call": "nppi::c3twist::inv420_16u(pSrc, aSrcStep, pDst, nDstStep, 4, nAlpha, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    },
+    {
+      "name_contains": "P3C3R",
+      "call": "nppi::c3twist::inv420_16u(pSrc, aSrcStep, pDst, nDstStep, 3, 0, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    },
+    {
+      "name_contains": "P3C4R",
+      "call": "nppi::c3twist::inv420_16u(pSrc, aSrcStep, pDst, nDstStep, 4, 65535, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    }
+  ]
+}

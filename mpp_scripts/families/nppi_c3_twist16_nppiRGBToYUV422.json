@@ -1,0 +1,24 @@
+{
+  "family": "nppiRGBToYUV422",
+  "module": "nppi_color_conversion.h",
+  "source": "src/nppi/nppi_color_conversion_operations/nppi_c3_nppiRGBToYUV422_twist16_generated.cpp",
+  "includes": [
+    "nppi_c3_twist_executor.h"
+  ],
+  "functions": [
+    "nppiRGBToYUV422_16u_ColorTwist32f_C3C2R_Ctx",
+    "nppiRGBToYUV422_16u_ColorTwist32f_C3P3R_Ctx",
+    "nppiRGBToYUV422_16u_ColorTwist32f_P3R_Ctx"
+  ],
+  "call": "nppi::c3twist::fwd422C2_16u(pSrc, nSrcStep, pDst, nDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)",
+  "call_variants": [
+    {
+      "name_contains": "C3P3R",
+      "call": "nppi::c3twist::fwd422C3P3_16u(pSrc, nSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    },
+    {
+      "name_contains": "_ColorTwist32f_P3R_Ctx",
+      "call": "nppi::c3twist::fwd422P3_16u(pSrc, aSrcStep, pDst, aDstStep, oSizeROI, nppStreamCtx.hStream, aTwist)"
+    }
+  ]
+}
