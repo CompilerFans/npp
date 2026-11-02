@@ -9,26 +9,6 @@ NppStatus nppiDistanceTransformPBAGetAntialiasingBufferSize_impl(NppiSize oSizeR
 NppStatus nppiSignedDistanceTransformPBAGetBufferSize_impl(NppiSize oSizeROI, size_t *hpBufferSize);
 NppStatus nppiSignedDistanceTransformPBAGet64fBufferSize_impl(NppiSize oSizeROI, size_t *hpBufferSize);
 
-NppStatus nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx_impl(
-    Npp8u *pSrc, int nSrcStep, Npp8u nMinSiteValue, Npp8u nMaxSiteValue, Npp16s *pDstVoronoi, int nDstVoronoiStep,
-    Npp16s *pDstVoronoiIndices, int nDstVoronoiIndicesStep, Npp16u *pDstVoronoiAbsoluteManhattanDistances,
-    int nDstVoronoiAbsoluteManhattanDistancesStep, Npp16u *pDstTransform, int nDstTransformStep, NppiSize oSizeROI,
-    Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx);
-
-NppStatus nppiDistanceTransformPBA_8u32f_C1R_Ctx_impl(Npp8u *pSrc, int nSrcStep, Npp8u nMinSiteValue,
-                                                      Npp8u nMaxSiteValue, Npp16s *pDstVoronoi, int nDstVoronoiStep,
-                                                      Npp16s *pDstVoronoiIndices, int nDstVoronoiIndicesStep,
-                                                      Npp16s *pDstVoronoiRelativeManhattanDistances,
-                                                      int nDstVoronoiRelativeManhattanDistancesStep,
-                                                      Npp32f *pDstTransform, int nDstTransformStep, NppiSize oSizeROI,
-                                                      Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx);
-
-NppStatus nppiDistanceTransformPBA_8u64f_C1R_Ctx_impl(
-    Npp8u *pSrc, int nSrcStep, Npp8u nMinSiteValue, Npp8u nMaxSiteValue, Npp16s *pDstVoronoi, int nDstVoronoiStep,
-    Npp16s *pDstVoronoiIndices, int nDstVoronoiIndicesStep, Npp16s *pDstVoronoiRelativeManhattanDistances,
-    int nDstVoronoiRelativeManhattanDistancesStep, Npp64f *pDstTransform, int nDstTransformStep, NppiSize oSizeROI,
-    Npp8u *pDeviceBuffer, Npp8u *pAntialiasingDeviceBuffer, NppStreamContext nppStreamCtx);
-
 NppStatus nppiSignedDistanceTransformPBA_32f64f_C1R_Ctx_impl(
     Npp32f *pSrc, int nSrcStep, Npp32f nCutoffValue, Npp64f nSubPixelXShift, Npp64f nSubPixelYShift,
     Npp16s *pDstVoronoi, int nDstVoronoiStep, Npp16s *pDstVoronoiIndices, int nDstVoronoiIndicesStep,
@@ -100,66 +80,6 @@ NppStatus nppiSignedDistanceTransformPBAGet64fBufferSize(NppiSize oSizeROI, size
     return status;
   }
   return nppiSignedDistanceTransformPBAGet64fBufferSize_impl(oSizeROI, hpBufferSize);
-}
-
-// Distance transform 8u to 16u with absolute Manhattan distances
-NppStatus nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx(Npp8u *pSrc, int nSrcStep, Npp8u nMinSiteValue, Npp8u nMaxSiteValue,
-                                                    Npp16s *pDstVoronoi, int nDstVoronoiStep,
-                                                    Npp16s *pDstVoronoiIndices, int nDstVoronoiIndicesStep,
-                                                    Npp16u *pDstVoronoiAbsoluteManhattanDistances,
-                                                    int nDstVoronoiAbsoluteManhattanDistancesStep,
-                                                    Npp16u *pDstTransform, int nDstTransformStep, NppiSize oSizeROI,
-                                                    Npp8u *pDeviceBuffer, NppStreamContext nppStreamCtx) {
-
-  NppStatus status = validateDistanceTransformImageInputs(pSrc, nSrcStep, oSizeROI, pDeviceBuffer);
-  if (status != NPP_SUCCESS) {
-    return status;
-  }
-
-  return nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx_impl(
-      pSrc, nSrcStep, nMinSiteValue, nMaxSiteValue, pDstVoronoi, nDstVoronoiStep, pDstVoronoiIndices,
-      nDstVoronoiIndicesStep, pDstVoronoiAbsoluteManhattanDistances, nDstVoronoiAbsoluteManhattanDistancesStep,
-      pDstTransform, nDstTransformStep, oSizeROI, pDeviceBuffer, nppStreamCtx);
-}
-
-// Distance transform 8u to 32f
-NppStatus nppiDistanceTransformPBA_8u32f_C1R_Ctx(Npp8u *pSrc, int nSrcStep, Npp8u nMinSiteValue, Npp8u nMaxSiteValue,
-                                                 Npp16s *pDstVoronoi, int nDstVoronoiStep, Npp16s *pDstVoronoiIndices,
-                                                 int nDstVoronoiIndicesStep,
-                                                 Npp16s *pDstVoronoiRelativeManhattanDistances,
-                                                 int nDstVoronoiRelativeManhattanDistancesStep, Npp32f *pDstTransform,
-                                                 int nDstTransformStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
-                                                 NppStreamContext nppStreamCtx) {
-
-  NppStatus status = validateDistanceTransformImageInputs(pSrc, nSrcStep, oSizeROI, pDeviceBuffer);
-  if (status != NPP_SUCCESS) {
-    return status;
-  }
-
-  return nppiDistanceTransformPBA_8u32f_C1R_Ctx_impl(
-      pSrc, nSrcStep, nMinSiteValue, nMaxSiteValue, pDstVoronoi, nDstVoronoiStep, pDstVoronoiIndices,
-      nDstVoronoiIndicesStep, pDstVoronoiRelativeManhattanDistances, nDstVoronoiRelativeManhattanDistancesStep,
-      pDstTransform, nDstTransformStep, oSizeROI, pDeviceBuffer, nppStreamCtx);
-}
-
-// Distance transform 8u to 64f
-NppStatus nppiDistanceTransformPBA_8u64f_C1R_Ctx(Npp8u *pSrc, int nSrcStep, Npp8u nMinSiteValue, Npp8u nMaxSiteValue,
-                                                 Npp16s *pDstVoronoi, int nDstVoronoiStep, Npp16s *pDstVoronoiIndices,
-                                                 int nDstVoronoiIndicesStep,
-                                                 Npp16s *pDstVoronoiRelativeManhattanDistances,
-                                                 int nDstVoronoiRelativeManhattanDistancesStep, Npp64f *pDstTransform,
-                                                 int nDstTransformStep, NppiSize oSizeROI, Npp8u *pDeviceBuffer,
-                                                 Npp8u *pAntialiasingDeviceBuffer, NppStreamContext nppStreamCtx) {
-
-  NppStatus status = validateDistanceTransformImageInputs(pSrc, nSrcStep, oSizeROI, pDeviceBuffer);
-  if (status != NPP_SUCCESS) {
-    return status;
-  }
-
-  return nppiDistanceTransformPBA_8u64f_C1R_Ctx_impl(
-      pSrc, nSrcStep, nMinSiteValue, nMaxSiteValue, pDstVoronoi, nDstVoronoiStep, pDstVoronoiIndices,
-      nDstVoronoiIndicesStep, pDstVoronoiRelativeManhattanDistances, nDstVoronoiRelativeManhattanDistancesStep,
-      pDstTransform, nDstTransformStep, oSizeROI, pDeviceBuffer, pAntialiasingDeviceBuffer, nppStreamCtx);
 }
 
 // Signed distance transform 32f to 64f
